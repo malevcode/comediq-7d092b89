@@ -1,0 +1,166 @@
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "@/hooks/use-toast";
+
+const WaitlistForm = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    instagram: "",
+    yearsInComedy: "",
+    openMicsPerMonth: "",
+    monthlySpend: ""
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Simulate form submission - replace with actual Supabase integration
+    console.log("Form submission:", formData);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    toast({
+      title: "Welcome to the Comedy Revolution! 🎤",
+      description: "You're now on the waitlist. We'll be in touch soon!",
+    });
+
+    // Reset form
+    setFormData({
+      name: "",
+      email: "",
+      instagram: "",
+      yearsInComedy: "",
+      openMicsPerMonth: "",
+      monthlySpend: ""
+    });
+    
+    setIsSubmitting(false);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  return (
+    <section id="waitlist" className="py-20 bg-gradient-to-br from-orange-50 via-white to-red-50">
+      <div className="max-w-2xl mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            Ready to Level Up Your Comedy Game?
+          </h2>
+          <p className="text-xl text-gray-600">
+            Join the waitlist to be the first to access Comediq and take your comedy career to the next level.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 shadow-xl space-y-6">
+          <div>
+            <Label htmlFor="name" className="text-gray-700 font-medium">Name</Label>
+            <Input
+              id="name"
+              type="text"
+              value={formData.name}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+              placeholder="Enter your name"
+              required
+              className="mt-2"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              placeholder="Enter your email"
+              required
+              className="mt-2"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="instagram" className="text-gray-700 font-medium">Instagram Handle</Label>
+            <Input
+              id="instagram"
+              type="text"
+              value={formData.instagram}
+              onChange={(e) => handleInputChange("instagram", e.target.value)}
+              placeholder="@yourhandle"
+              className="mt-2"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="yearsInComedy" className="text-gray-700 font-medium">
+              How many years have you been doing comedy?
+            </Label>
+            <Select onValueChange={(value) => handleInputChange("yearsInComedy", value)}>
+              <SelectTrigger className="mt-2">
+                <SelectValue placeholder="Select experience" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0-1">0-1 years</SelectItem>
+                <SelectItem value="1-3">1-3 years</SelectItem>
+                <SelectItem value="3-5">3-5 years</SelectItem>
+                <SelectItem value="5-10">5-10 years</SelectItem>
+                <SelectItem value="10+">10+ years</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="openMics" className="text-gray-700 font-medium">Open mics per month</Label>
+              <Input
+                id="openMics"
+                type="number"
+                value={formData.openMicsPerMonth}
+                onChange={(e) => handleInputChange("openMicsPerMonth", e.target.value)}
+                placeholder="0"
+                min="0"
+                className="mt-2"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="monthlySpend" className="text-gray-700 font-medium">$ spent on open mics/month</Label>
+              <Input
+                id="monthlySpend"
+                type="number"
+                value={formData.monthlySpend}
+                onChange={(e) => handleInputChange("monthlySpend", e.target.value)}
+                placeholder="0"
+                min="0"
+                className="mt-2"
+              />
+            </div>
+          </div>
+
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 text-lg rounded-full transition-all duration-300 transform hover:scale-105"
+          >
+            {isSubmitting ? "Joining..." : "Join the Comedy Revolution"}
+          </Button>
+        </form>
+      </div>
+    </section>
+  );
+};
+
+export default WaitlistForm;
