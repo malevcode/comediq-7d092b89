@@ -8,22 +8,33 @@ interface HeroProps {
 const Hero = ({ onJoinWaitlist }: HeroProps) => {
   return (
     <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4">
-      <div className="max-w-4xl mx-auto text-center">
-        <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
-          Comediq
-        </h1>
-        <p className="text-xl md:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto">
-          Ready to Level Up Your Comedy Game?
-        </p>
-        <p className="text-lg md:text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
-          Join the waitlist to be the first to access Comediq and take your comedy career to the next level.
-        </p>
-        <Button 
-          onClick={onJoinWaitlist}
-          className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg rounded-full transition-all duration-300 transform hover:scale-105"
-        >
-          Join the Waitlist
-        </Button>
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="text-center lg:text-left">
+            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
+              Comediq
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-700 mb-8">
+              Find open mics, track your sets, analyze your performance, and grow your comedy career - all in one place.
+            </p>
+            <Button 
+              onClick={onJoinWaitlist}
+              className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg rounded-full transition-all duration-300 transform hover:scale-105 mb-8"
+            >
+              Join the Waitlist
+            </Button>
+            <p className="text-lg text-gray-600 max-w-2xl">
+              ComediQ is not an AI comedy writer. Your comedy comes from your unique human experience, writing style, and performance personality. Our AI simply helps you understand and improve your impact.
+            </p>
+          </div>
+          <div className="flex justify-center">
+            <img 
+              src="/lovable-uploads/05168ab8-2327-4ef4-90ca-54c3f66da85c.png" 
+              alt="Comediq Mascot" 
+              className="w-80 h-auto max-w-full"
+            />
+          </div>
+        </div>
       </div>
     </section>
   );
