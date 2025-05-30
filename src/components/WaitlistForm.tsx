@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 
 const WaitlistForm = () => {
   const [formData, setFormData] = useState({
@@ -22,28 +23,54 @@ const WaitlistForm = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission - replace with actual Supabase integration
-    console.log("Form submission:", formData);
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Welcome to the Comedy Revolution! 🎤",
-      description: "You're now on the waitlist. We'll be in touch soon!",
-    });
+    try {
+      const { error } = await supabase
+        .from('waitlist')
+        .insert([
+          {
+            name: formData.name,
+            email: formData.email,
+            instagram_handle: formData.instagram,
+            years_in_comedy: formData.yearsInComedy,
+            open_mics_per_month: parseInt(formData.openMicsPerMonth) || 0,
+            monthly_spend: parseInt(formData.monthlySpend) || 0,
+            created_at: new Date().toISOString()
+          }
+        ]);
 
-    // Reset form
-    setFormData({
-      name: "",
-      email: "",
-      instagram: "",
-      yearsInComedy: "",
-      openMicsPerMonth: "",
-      monthlySpend: ""
-    });
-    
-    setIsSubmitting(false);
+      if (error) {
+        console.error('Supabase error:', error);
+        toast({
+          title: "Oops! Something went wrong",
+          description: "Please try again or contact support if the issue persists.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Welcome to the Comedy Revolution! 🎤",
+          description: "You're now on the waitlist. We'll be in touch soon!",
+        });
+
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          instagram: "",
+          yearsInComedy: "",
+          openMicsPerMonth: "",
+          monthlySpend: ""
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast({
+        title: "Network Error",
+        description: "Please check your connection and try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
