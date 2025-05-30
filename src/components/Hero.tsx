@@ -1,32 +1,60 @@
+
 import { Button } from "@/components/ui/button";
+
 interface HeroProps {
   onJoinWaitlist: () => void;
 }
-const Hero = ({
-  onJoinWaitlist
-}: HeroProps) => {
-  return <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="text-center lg:text-left">
-            <h1 className="text-5xl text-gray-900 mb-6 py-0 px-0 md:text-7xl font-bold text-center mx-0 my-[10px]">
+
+const Hero = ({ onJoinWaitlist }: HeroProps) => {
+  return (
+    <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4 py-8">
+      <div className="max-w-6xl mx-auto w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div className="text-center lg:text-left order-2 lg:order-1">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-4 lg:mb-6">
               Comediq
             </h1>
-            <p className="text-xl md:text-2xl text-gray-700 mb-8 mx-0 text-center px-[79px]">
+            <p className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 lg:mb-8 px-4 sm:px-8 lg:px-0 leading-relaxed">
               Find open mics, track your sets, analyze your performance, and grow your comedy career - all in one place.
             </p>
-            <Button onClick={onJoinWaitlist} className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg rounded-full transition-all duration-300 transform hover:scale-105 mb-8 text-center">
+            <Button 
+              onClick={onJoinWaitlist} 
+              className="bg-orange-500 hover:bg-orange-600 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-full transition-all duration-300 transform hover:scale-105 mb-6 lg:mb-8 w-full sm:w-auto"
+            >
               Join the Waitlist
             </Button>
-            <p className="text-gray-600 max-w-2xl my-0 py-0 px-0 text-base text-center mx-0">
+            <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto lg:mx-0 px-4 sm:px-8 lg:px-0 leading-relaxed">
               ComediQ is not an AI comedy writer. Your comedy comes from your unique human experience, writing style, and performance personality. Our AI simply helps you understand and improve your impact.
             </p>
+            
+            {/* Footer with links */}
+            <div className="mt-8 pt-8 border-t border-gray-200 text-center lg:text-left">
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 text-sm text-gray-500">
+                <a 
+                  href="https://docs.google.com/spreadsheets/d/1wROLFgLrbgP1aP_b9VIJn0QzbGzmifT9r7CV15Lw7Mw/edit?usp=drivesdk" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-orange-500 transition-colors underline"
+                >
+                  View Open Mics Data
+                </a>
+                <span className="hidden sm:inline">•</span>
+                <span>Made by @malevcomedy</span>
+              </div>
+            </div>
           </div>
-          <div className="flex justify-center">
-            <img src="/lovable-uploads/05168ab8-2327-4ef4-90ca-54c3f66da85c.png" alt="Comediq Mascot" className="w-80 h-auto max-w-full object-cover" />
+          
+          <div className="flex justify-center order-1 lg:order-2">
+            <img 
+              src="/lovable-uploads/05168ab8-2327-4ef4-90ca-54c3f66da85c.png" 
+              alt="Comediq Mascot" 
+              className="w-48 sm:w-64 lg:w-80 h-auto max-w-full object-cover" 
+            />
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default Hero;
