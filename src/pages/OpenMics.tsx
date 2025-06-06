@@ -54,6 +54,18 @@ const OpenMics = () => {
 
   const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"];
 
+  // Borough color mapping
+  const getBoroughColor = (borough: string) => {
+    const colors = {
+      Manhattan: "border-l-cyan-400 bg-cyan-50",
+      Brooklyn: "border-l-purple-400 bg-purple-50", 
+      Queens: "border-l-yellow-400 bg-yellow-50",
+      Bronx: "border-l-green-400 bg-green-50",
+      "Staten Island": "border-l-orange-400 bg-orange-50"
+    };
+    return colors[borough as keyof typeof colors] || "border-l-gray-400 bg-gray-50";
+  };
+
   const filteredMics = sampleOpenMics.filter(mic => {
     const matchesSearch = 
       mic.openMic.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -118,30 +130,33 @@ const OpenMics = () => {
           </p>
         </div>
 
-        {/* Tile Grid - 7x7 layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 max-h-[calc(100vh-300px)] overflow-y-auto">
+        {/* 7x7 Tile Grid - Optimized for mobile */}
+        <div className="grid grid-cols-7 gap-2 max-h-[calc(100vh-300px)] overflow-y-auto">
           {filteredMics.map((mic, index) => (
             <Card 
               key={index} 
-              className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 bg-white border-orange-100"
+              className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 border-l-4 ${getBoroughColor(mic.borough)} border-gray-200`}
               onClick={() => setSelectedMic(mic)}
             >
-              <CardContent className="p-4">
-                <h3 className="font-bold text-sm text-gray-900 mb-2 line-clamp-2">{mic.openMic}</h3>
-                <div className="space-y-1 text-xs">
-                  <div className="flex items-center text-gray-600">
-                    <Clock className="w-3 h-3 mr-1" />
-                    <span>{mic.day} {mic.startTime}</span>
+              <CardContent className="p-2">
+                <div className="space-y-1">
+                  {/* Open Mic Name - truncated */}
+                  <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
+                    {mic.openMic}
+                  </h3>
+                  
+                  {/* Start Time */}
+                  <div className="text-xs text-gray-700 font-medium">
+                    {mic.startTime}
                   </div>
-                  <div className="flex items-center text-gray-600">
-                    <MapPin className="w-3 h-3 mr-1" />
-                    <span className="truncate">{mic.borough}</span>
+                  
+                  {/* Cost */}
+                  <div className="text-xs text-green-600 font-medium">
+                    {mic.cost}
                   </div>
-                  <div className="flex items-center text-gray-600">
-                    <DollarSign className="w-3 h-3 mr-1" />
-                    <span>{mic.cost}</span>
-                  </div>
-                  <div className="text-orange-600 font-medium">
+                  
+                  {/* Stage Time */}
+                  <div className="text-xs text-orange-600 font-medium">
                     {mic.stageTime}
                   </div>
                 </div>
