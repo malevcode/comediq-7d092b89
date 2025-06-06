@@ -137,83 +137,86 @@ const OpenMics = () => {
       {/* Compact Header - 1/8 of page */}
       <div className="h-auto bg-white border-b border-orange-100">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          {/* Title and Character */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex-1">
+          {/* Title, Character, and Key Section - All in one row */}
+          <div className="flex items-start justify-between gap-4">
+            {/* Title Section */}
+            <div className="flex-shrink-0">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">Find Open Mics</h1>
               <p className="text-sm text-gray-600">Discover comedy open mics across NYC</p>
             </div>
-            
-            {/* Comedian character for Find Mics */}
-            <div className="flex-shrink-0 ml-4">
-              <img src="/lovable-uploads/ed025a0f-85b1-4f87-8235-673628f9ffdb.png" alt="Find Mics Comedian Character" className="w-20 h-20 object-contain" />
-            </div>
-          </div>
 
-          {/* Ultra Compact Key/Legend Section */}
-          <div className="bg-orange-50 p-2 border border-orange-200 mx-[196px] my-0 py-0 px-0 rounded-none">
-            <div className="flex items-center gap-6">
-              {/* Example Tile */}
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Example:</p>
-                <Card className="cursor-pointer border-l-4 border-l-cyan-500 bg-green-100 w-32">
-                  <CardContent className="p-1.5">
-                    <div className="space-y-0.5">
-                      <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
-                        Comedy Night
-                      </h3>
-                      <div className="text-xs flex items-center justify-between">
-                        <span className="text-gray-700 font-medium">8:00 PM</span>
-                        <span className="text-green-600 font-medium">Free</span>
-                        <span className="text-orange-600 font-medium">5</span>
+            {/* Key/Legend Section - Moved up to header */}
+            <div className="flex-1 mx-4">
+              <div className="bg-orange-50 p-2 border border-orange-200 rounded">
+                <div className="flex items-center gap-6">
+                  {/* Example Tile */}
+                  <div>
+                    <p className="text-xs text-gray-600 mb-1">Example:</p>
+                    <Card className="cursor-pointer border-l-4 border-l-cyan-500 bg-green-100 w-32">
+                      <CardContent className="p-1.5">
+                        <div className="space-y-0.5">
+                          <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
+                            Comedy Night
+                          </h3>
+                          <div className="text-xs flex items-center justify-between">
+                            <span className="text-gray-700 font-medium">8:00 PM</span>
+                            <span className="text-green-600 font-medium">Free</span>
+                            <span className="text-orange-600 font-medium">5</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Compact Info Grid */}
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
+                    {/* First Column */}
+                    <div className="space-y-1">
+                      <div><span className="font-medium">Left border:</span> Borough</div>
+                      <div><span className="text-green-600 font-medium">Green:</span> Cost | <span className="text-orange-600 font-medium">Orange:</span> Stage time</div>
+                      <div className="flex gap-2">
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-green-100 border rounded"></div>
+                          <span>Verified</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-yellow-100 border rounded"></div>
+                          <span>Needs check</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-red-100 border rounded"></div>
+                          <span>Unverified</span>
+                        </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
 
-              {/* Compact Info Grid */}
-              <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
-                {/* First Column */}
-                <div className="space-y-1">
-                  <div><span className="font-medium">Left border:</span> Borough</div>
-                  <div><span className="text-green-600 font-medium">Green:</span> Cost | <span className="text-orange-600 font-medium">Orange:</span> Stage time</div>
-                  <div className="flex gap-2">
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-green-100 border rounded"></div>
-                      <span>Verified</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-yellow-100 border rounded"></div>
-                      <span>Needs check</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-red-100 border rounded"></div>
-                      <span>Unverified</span>
+                    {/* Second Column - Borough Colors */}
+                    <div className="grid grid-cols-2 gap-1">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
+                        <span>Manhattan</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
+                        <span>Brooklyn</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
+                        <span>Queens</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
+                        <span>Bronx</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                {/* Second Column - Borough Colors */}
-                <div className="grid grid-cols-2 gap-1">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
-                    <span>Manhattan</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
-                    <span>Brooklyn</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
-                    <span>Queens</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
-                    <span>Bronx</span>
-                  </div>
-                </div>
               </div>
+            </div>
+            
+            {/* Comedian character for Find Mics */}
+            <div className="flex-shrink-0">
+              <img src="/lovable-uploads/ed025a0f-85b1-4f87-8235-673628f9ffdb.png" alt="Find Mics Comedian Character" className="w-20 h-20 object-contain" />
             </div>
           </div>
         </div>
