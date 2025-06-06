@@ -16,4 +16,5 @@ export interface OpenMic {
   changesUpdates: string;
   lastVerified: string;
   otherRules: string;
+  uniqueIdentifier: string;
 }

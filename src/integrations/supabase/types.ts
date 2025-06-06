@@ -75,6 +75,51 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      user_mic_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          mic_unique_identifier: string
+          rating: Database["public"]["Enums"]["rating_type"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mic_unique_identifier: string
+          rating: Database["public"]["Enums"]["rating_type"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mic_unique_identifier?: string
+          rating?: Database["public"]["Enums"]["rating_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       waitlist: {
         Row: {
           created_at: string | null
@@ -119,7 +164,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      rating_type: "like" | "dislike"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -234,6 +279,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      rating_type: ["like", "dislike"],
+    },
   },
 } as const
