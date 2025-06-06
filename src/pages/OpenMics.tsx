@@ -7,8 +7,47 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { OpenMic } from "@/types/openMic";
-import { useOpenMics } from "@/hooks/useOpenMics";
 
+// Sample data - you'll replace this with your actual CSV data
+const sampleOpenMics: OpenMic[] = [{
+  openMic: "Comedy Night at The Laugh Track",
+  day: "Monday",
+  startTime: "8:00 PM",
+  latestEndTime: "11:00 PM",
+  venueName: "The Laugh Track",
+  borough: "Manhattan",
+  neighborhood: "Greenwich Village",
+  location: "123 Comedy St, New York, NY",
+  venueType: "Comedy Club",
+  cost: "Free",
+  stageTime: "3-5 minutes",
+  signUpInstructions: "Sign up at 7:30 PM",
+  hosts: "Mike Johnson",
+  changesUpdates: "No changes",
+  lastVerified: "2024-01-15",
+  otherRules: "Clean sets only"
+},
+// Add more sample data to demonstrate the tile layout
+...Array.from({
+  length: 48
+}, (_, i) => ({
+  openMic: `Open Mic Night ${i + 2}`,
+  day: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][i % 7],
+  startTime: ["2:00 PM", "6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM", "10:00 PM"][i % 6],
+  latestEndTime: "10:00 PM",
+  venueName: `Venue ${i + 2}`,
+  borough: ["Manhattan", "Brooklyn", "Queens", "Bronx"][i % 4],
+  neighborhood: `Neighborhood ${i + 2}`,
+  location: `${100 + i} Street, New York, NY`,
+  venueType: ["Bar", "Comedy Club", "Restaurant", "Theater"][i % 4],
+  cost: i % 3 === 0 ? "Free" : "$5",
+  stageTime: `${3 + i % 3}`,
+  signUpInstructions: "Sign up at venue",
+  hosts: `Host ${i + 2}`,
+  changesUpdates: "None",
+  lastVerified: i % 3 === 0 ? "Verified" : i % 3 === 1 ? "Tediously Verified" : "Unverified",
+  otherRules: "Various rules"
+}))];
 const OpenMics = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBorough, setSelectedBorough] = useState("All");
@@ -16,9 +55,6 @@ const OpenMics = () => {
   const [activeTab, setActiveTab] = useState("active");
   const [showFilters, setShowFilters] = useState(false);
   const [showMobileKey, setShowMobileKey] = useState(false);
-  
-  const { data: openMics = [], isLoading, error } = useOpenMics();
-  
   const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"];
   const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -49,10 +85,10 @@ const OpenMics = () => {
 
   // Filter mics based on time and day
   const getFilteredMics = (tabType: string, dayFilter?: string) => {
-    let filtered = openMics;
+    let filtered = sampleOpenMics;
     if (tabType === "active") {
       // Show only mics that are still active today (haven't started yet) and all mics tomorrow
-      filtered = openMics.filter(mic => {
+      filtered = sampleOpenMics.filter(mic => {
         if (mic.day === currentDay) {
           return timeToMinutes(mic.startTime) > currentTimeMinutes;
         } else if (mic.day === tomorrowDay) {
@@ -62,14 +98,12 @@ const OpenMics = () => {
       });
     } else if (dayFilter) {
       // Show all mics for the selected day
-      filtered = openMics.filter(mic => mic.day === dayFilter);
+      filtered = sampleOpenMics.filter(mic => mic.day === dayFilter);
     }
 
     // Apply search and borough filters
     filtered = filtered.filter(mic => {
-      const matchesSearch = mic.openMic.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                           mic.venueName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                           mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = mic.openMic.toLowerCase().includes(searchTerm.toLowerCase()) || mic.venueName.toLowerCase().includes(searchTerm.toLowerCase()) || mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesBorough = selectedBorough === "All" || mic.borough === selectedBorough;
       return matchesSearch && matchesBorough;
     });
@@ -102,33 +136,7 @@ const OpenMics = () => {
     };
     return outlines[borough as keyof typeof outlines] || "border-l-4 border-l-gray-400";
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading open mics...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Error loading open mics</p>
-          <Button onClick={() => window.location.reload()} className="bg-orange-500 hover:bg-orange-600">
-            Try Again
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
+  return <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
       {/* Compact Header - Mobile optimized */}
       <div className="h-auto bg-white border-b border-orange-100">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -473,7 +481,6 @@ const OpenMics = () => {
             </div>
           </div>
         </div>}
-    </div>
-  );
+    </div>;
 };
 export default OpenMics;
