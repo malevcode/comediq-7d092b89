@@ -1,12 +1,11 @@
 import { useState, useMemo } from "react";
-import { Search, MapPin, Clock, DollarSign, Filter } from "lucide-react";
+import { Search, MapPin, Clock, DollarSign, Filter, HelpCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Question } from "lucide-react";
 import { OpenMic } from "@/types/openMic";
 
 // Sample data - you'll replace this with your actual CSV data
@@ -261,7 +260,7 @@ const OpenMics = () => {
             <div className="flex items-center justify-between">
               <CollapsibleTrigger asChild>
                 <Button variant="outline" size="sm" className="flex items-center gap-2">
-                  <Question className="h-4 w-4" />
+                  <HelpCircle className="h-4 w-4" />
                   Key
                 </Button>
               </CollapsibleTrigger>
