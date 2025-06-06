@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { Search, MapPin, Clock, DollarSign } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -115,27 +114,27 @@ const OpenMics = () => {
     return filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
   };
 
-  // Verification status background colors
+  // Updated verification status background colors - more aesthetic
   const getVerificationColor = (status: string) => {
     if (status.toLowerCase().includes("tediously")) {
-      return "bg-yellow-100";
+      return "bg-gradient-to-br from-amber-50 to-yellow-100 border-amber-200";
     } else if (status.toLowerCase().includes("verified")) {
-      return "bg-green-100";
+      return "bg-gradient-to-br from-emerald-50 to-green-100 border-emerald-200";
     } else {
-      return "bg-red-100";
+      return "bg-gradient-to-br from-rose-50 to-red-100 border-rose-200";
     }
   };
 
-  // Borough outline colors for left and top borders
+  // Updated borough outline colors - more aesthetic royal colors
   const getBoroughOutline = (borough: string) => {
     const outlines = {
-      Manhattan: "border-l-4 border-t-4 border-l-blue-600 border-t-blue-600",
-      Brooklyn: "border-l-4 border-t-4 border-l-pink-600 border-t-pink-600", 
-      Queens: "border-l-4 border-t-4 border-l-purple-600 border-t-purple-600",
-      Bronx: "border-l-4 border-t-4 border-l-orange-600 border-t-orange-600",
-      "Staten Island": "border-l-4 border-t-4 border-l-amber-800 border-t-amber-800"
+      Manhattan: "border-l-4 border-t-4 border-l-blue-600 border-t-blue-600 shadow-blue-100",
+      Brooklyn: "border-l-4 border-t-4 border-l-pink-600 border-t-pink-600 shadow-pink-100", 
+      Queens: "border-l-4 border-t-4 border-l-purple-600 border-t-purple-600 shadow-purple-100",
+      Bronx: "border-l-4 border-t-4 border-l-orange-600 border-t-orange-600 shadow-orange-100",
+      "Staten Island": "border-l-4 border-t-4 border-l-amber-800 border-t-amber-800 shadow-amber-100"
     };
-    return outlines[borough as keyof typeof outlines] || "border-l-4 border-t-4 border-l-gray-400 border-t-gray-400";
+    return outlines[borough as keyof typeof outlines] || "border-l-4 border-t-4 border-l-gray-400 border-t-gray-400 shadow-gray-100";
   };
 
   return (
@@ -210,7 +209,7 @@ const OpenMics = () => {
                     {filteredMics.map((mic, index) => (
                       <Card 
                         key={index} 
-                        className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`}
+                        className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} hover:shadow-lg`}
                         onClick={() => setSelectedMic(mic)}
                       >
                         <CardContent className="p-1.5">
@@ -267,7 +266,7 @@ const OpenMics = () => {
                       {filteredMics.map((mic, index) => (
                         <Card 
                           key={index} 
-                          className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`}
+                          className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} hover:shadow-lg`}
                           onClick={() => setSelectedMic(mic)}
                         >
                           <CardContent className="p-1.5">
@@ -311,7 +310,7 @@ const OpenMics = () => {
         </Tabs>
       </div>
 
-      {/* Modal for detailed view */}
+      {/* Updated Modal for detailed view with changes/updates data */}
       {selectedMic && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
