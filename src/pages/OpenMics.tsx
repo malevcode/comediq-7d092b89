@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from "react";
 import { Search, MapPin, Clock, DollarSign } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -125,16 +126,16 @@ const OpenMics = () => {
     }
   };
 
-  // Updated borough outline colors - more aesthetic royal colors
+  // Updated borough outline colors with left-side shadows only
   const getBoroughOutline = (borough: string) => {
     const outlines = {
-      Manhattan: "border-l-4 border-t-4 border-l-blue-600 border-t-blue-600 shadow-blue-100",
-      Brooklyn: "border-l-4 border-t-4 border-l-pink-600 border-t-pink-600 shadow-pink-100", 
-      Queens: "border-l-4 border-t-4 border-l-purple-600 border-t-purple-600 shadow-purple-100",
-      Bronx: "border-l-4 border-t-4 border-l-orange-600 border-t-orange-600 shadow-orange-100",
-      "Staten Island": "border-l-4 border-t-4 border-l-amber-800 border-t-amber-800 shadow-amber-100"
+      Manhattan: "border-l-4 border-t-4 border-l-blue-600 border-t-blue-600 shadow-[-4px_0_8px_rgba(37,99,235,0.3)]",
+      Brooklyn: "border-l-4 border-t-4 border-l-pink-600 border-t-pink-600 shadow-[-4px_0_8px_rgba(219,39,119,0.3)]", 
+      Queens: "border-l-4 border-t-4 border-l-purple-600 border-t-purple-600 shadow-[-4px_0_8px_rgba(147,51,234,0.3)]",
+      Bronx: "border-l-4 border-t-4 border-l-orange-600 border-t-orange-600 shadow-[-4px_0_8px_rgba(234,88,12,0.3)]",
+      "Staten Island": "border-l-4 border-t-4 border-l-amber-800 border-t-amber-800 shadow-[-4px_0_8px_rgba(146,64,14,0.3)]"
     };
-    return outlines[borough as keyof typeof outlines] || "border-l-4 border-t-4 border-l-gray-400 border-t-gray-400 shadow-gray-100";
+    return outlines[borough as keyof typeof outlines] || "border-l-4 border-t-4 border-l-gray-400 border-t-gray-400 shadow-[-4px_0_8px_rgba(156,163,175,0.3)]";
   };
 
   return (
@@ -147,11 +148,11 @@ const OpenMics = () => {
             <p className="text-sm text-gray-600">Discover comedy open mics across NYC</p>
           </div>
           
-          {/* Different character for Find Mics */}
+          {/* Comedian character for Find Mics */}
           <div className="flex-shrink-0 ml-4">
             <img 
-              src="/lovable-uploads/bca90a5b-c6c8-4db0-a8b1-bde4330757d3.png" 
-              alt="Find Mics Character" 
+              src="/lovable-uploads/d5110735-5af1-44b9-b8db-3948f428bb20.png" 
+              alt="Comedian Character" 
               className="w-20 h-20 object-contain"
             />
           </div>
@@ -209,7 +210,7 @@ const OpenMics = () => {
                     {filteredMics.map((mic, index) => (
                       <Card 
                         key={index} 
-                        className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} hover:shadow-lg`}
+                        className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`}
                         onClick={() => setSelectedMic(mic)}
                       >
                         <CardContent className="p-1.5">
@@ -266,7 +267,7 @@ const OpenMics = () => {
                       {filteredMics.map((mic, index) => (
                         <Card 
                           key={index} 
-                          className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} hover:shadow-lg`}
+                          className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`}
                           onClick={() => setSelectedMic(mic)}
                         >
                           <CardContent className="p-1.5">
