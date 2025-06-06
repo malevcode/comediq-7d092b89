@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { Search, MapPin, Clock, DollarSign } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -115,14 +114,14 @@ const OpenMics = () => {
     return filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
   };
 
-  // Verification status background colors
+  // Verification status background colors - updated to lighter shades
   const getVerificationColor = (status: string) => {
     if (status.toLowerCase().includes("tediously")) {
-      return "bg-yellow-100";
+      return "bg-yellow-50";
     } else if (status.toLowerCase().includes("verified")) {
-      return "bg-green-100";
+      return "bg-green-50";
     } else {
-      return "bg-red-100";
+      return "bg-red-50";
     }
   };
 
