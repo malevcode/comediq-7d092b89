@@ -134,7 +134,7 @@ const OpenMics = () => {
     return outlines[borough as keyof typeof outlines] || "border-l-4 border-l-gray-400";
   };
   return <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
-      {/* Compact Header - 1/8 of page */}
+      {/* Compact Header */}
       <div className="h-auto bg-white border-b border-orange-100">
         <div className="max-w-7xl mx-auto px-4 py-4">
           {/* Title, Character, and Key Section - All in one row */}
@@ -145,9 +145,9 @@ const OpenMics = () => {
               <p className="text-sm text-gray-600">Discover comedy open mics across NYC</p>
             </div>
 
-            {/* Key/Legend Section - Moved up to header */}
+            {/* Key/Legend Section - Condensed */}
             <div className="flex-1 mx-4">
-              <div className="bg-orange-50 p-2 border border-orange-200 rounded">
+              <div className="bg-orange-50 p-3 border border-orange-200 rounded">
                 <div className="flex items-center gap-6">
                   {/* Example Tile */}
                   <div>
@@ -168,30 +168,20 @@ const OpenMics = () => {
                     </Card>
                   </div>
 
-                  {/* Compact Info Grid */}
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
-                    {/* First Column */}
-                    <div className="space-y-1">
-                      <div><span className="font-medium">Left border:</span> Borough</div>
-                      <div><span className="text-green-600 font-medium">Green:</span> Cost | <span className="text-orange-600 font-medium">Orange:</span> Stage time</div>
-                      <div className="flex gap-2">
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 bg-green-100 border rounded"></div>
-                          <span>Verified</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 bg-yellow-100 border rounded"></div>
-                          <span>Needs check</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 bg-red-100 border rounded"></div>
-                          <span>Unverified</span>
-                        </div>
-                      </div>
+                  {/* Simplified Explanations */}
+                  <div className="text-xs space-y-2">
+                    <div>
+                      <span className="font-medium">Left border:</span> Borough
                     </div>
-
-                    {/* Second Column - Borough Colors */}
-                    <div className="grid grid-cols-2 gap-1">
+                    <div>
+                      <span className="font-medium">Time | </span>
+                      <span className="text-green-600 font-medium">Cost</span>
+                      <span className="font-medium"> | </span>
+                      <span className="text-orange-600 font-medium">Stage time</span>
+                    </div>
+                    
+                    {/* Borough Colors */}
+                    <div className="flex gap-3">
                       <div className="flex items-center gap-1">
                         <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
                         <span>Manhattan</span>
@@ -207,6 +197,10 @@ const OpenMics = () => {
                       <div className="flex items-center gap-1">
                         <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
                         <span>Bronx</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
+                        <span>Staten Island</span>
                       </div>
                     </div>
                   </div>
