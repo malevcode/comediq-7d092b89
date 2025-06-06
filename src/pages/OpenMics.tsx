@@ -1,11 +1,11 @@
-
 import { useState, useMemo } from "react";
-import { Search, MapPin, Clock, DollarSign, Filter } from "lucide-react";
+import { Search, MapPin, Clock, DollarSign, Filter, HelpCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { OpenMic } from "@/types/openMic";
 
 // Sample data - you'll replace this with your actual CSV data
@@ -54,6 +54,7 @@ const OpenMics = () => {
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [activeTab, setActiveTab] = useState("active");
   const [showFilters, setShowFilters] = useState(false);
+  const [showMobileKey, setShowMobileKey] = useState(false);
   const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"];
   const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -253,61 +254,71 @@ const OpenMics = () => {
           </div>
         </div>
 
-        {/* Mobile Key/Legend with Filter Button */}
-        <div className="lg:hidden bg-orange-50 p-3 border border-orange-200 rounded-lg mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-xs space-y-2 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">Boroughs:</span>
-                <div className="flex gap-1">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
-                    <span>Man</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
-                    <span>Bkn</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
-                    <span>Qns</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
-                    <span>Brx</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
-                    <span>SI</span>
+        {/* Mobile Key/Legend with collapsible help button */}
+        <div className="lg:hidden mb-4">
+          <div className="flex items-center gap-2">
+            <Collapsible open={showMobileKey} onOpenChange={setShowMobileKey}>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" size="sm" className="p-2">
+                  <HelpCircle className="h-4 w-4" />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="bg-orange-50 p-3 border border-orange-200 rounded-lg">
+                  <div className="text-xs space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">Boroughs:</span>
+                      <div className="flex gap-1">
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
+                          <span>Man</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
+                          <span>Bkn</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
+                          <span>Qns</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
+                          <span>Brx</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
+                          <span>SI</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      Format: Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-medium">Active Status:</span>
+                      <div className="flex gap-2">
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-2 bg-green-100 border rounded"></div>
+                          <span>Verified</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-2 bg-yellow-100 border rounded"></div>
+                          <span>Needs check</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-2 bg-red-100 border rounded"></div>
+                          <span>Unverified</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div>
-                Format: Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="font-medium">Active Status:</span>
-                <div className="flex gap-2">
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-2 bg-green-100 border rounded"></div>
-                    <span>Verified</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-2 bg-yellow-100 border rounded"></div>
-                    <span>Needs check</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-2 bg-red-100 border rounded"></div>
-                    <span>Unverified</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+              </CollapsibleContent>
+            </Collapsible>
             <Button 
               onClick={() => setShowFilters(!showFilters)} 
               variant="outline" 
               size="sm"
-              className="ml-2"
             >
               <Filter className="h-4 w-4" />
             </Button>
