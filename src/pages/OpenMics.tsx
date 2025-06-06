@@ -301,20 +301,22 @@ const OpenMics = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-7 gap-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2 max-h-[calc(100vh-300px)] overflow-y-auto">
                     {filteredMics.map((mic, index) => <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`} onClick={() => setSelectedMic(mic)}>
-                        <CardContent className="p-1.5">
-                          <div className="space-y-0.5">
-                            <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
+                        <CardContent className="p-2">
+                          <div className="space-y-1">
+                            <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight min-h-[24px]">
                               {mic.openMic}
                             </h3>
                             
-                            <div className="text-xs flex items-center justify-between">
-                              <span className="text-gray-700 font-medium">{mic.startTime}</span>
-                              <span className="text-green-600 font-medium">{mic.cost}</span>
-                              <span className="text-orange-600 font-medium">
-                                {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
-                              </span>
+                            <div className="text-xs space-y-0.5">
+                              <div className="text-gray-700 font-medium">{mic.startTime}</div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-green-600 font-medium">{mic.cost}</span>
+                                <span className="text-orange-600 font-medium">
+                                  {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </CardContent>
@@ -344,20 +346,22 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-7 gap-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2 max-h-[calc(100vh-300px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-1.5">
-                            <div className="space-y-0.5">
-                              <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
+                          <CardContent className="p-2">
+                            <div className="space-y-1">
+                              <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight min-h-[24px]">
                                 {mic.openMic}
                               </h3>
                               
-                              <div className="text-xs flex items-center justify-between">
-                                <span className="text-gray-700 font-medium">{mic.startTime}</span>
-                                <span className="text-green-600 font-medium">{mic.cost}</span>
-                                <span className="text-orange-600 font-medium">
-                                  {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
-                                </span>
+                              <div className="text-xs space-y-0.5">
+                                <div className="text-gray-700 font-medium">{mic.startTime}</div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-green-600 font-medium">{mic.cost}</span>
+                                  <span className="text-orange-600 font-medium">
+                                    {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </CardContent>
