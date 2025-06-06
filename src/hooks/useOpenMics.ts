@@ -10,15 +10,6 @@ export const useOpenMics = () => {
       console.log("Fetching open mics from Supabase...");
       
       try {
-        // First, let's try to get the table schema to debug
-        const { data: tableData, error: tableError } = await supabase
-          .from("open_mics")
-          .select("*")
-          .limit(1);
-          
-        console.log("Table test query result:", { data: tableData, error: tableError });
-        
-        // Now get all data
         const { data, error } = await supabase
           .from("open_mics")
           .select("*");
@@ -43,8 +34,9 @@ export const useOpenMics = () => {
         }
 
         // Map the database columns to our OpenMic interface
+        // Database columns have spaces and are case-sensitive
         const mappedData = data.map((row: any) => {
-          const mapped = {
+          const mapped: OpenMic = {
             openMic: row["Open Mic"] || "",
             day: row["Day"] || "",
             startTime: row["Start Time"] || "",
@@ -63,11 +55,11 @@ export const useOpenMics = () => {
             otherRules: row["Other Rules"] || ""
           };
           
-          console.log("Mapped record:", mapped);
           return mapped;
         });
 
         console.log("Final mapped data count:", mappedData.length);
+        console.log("Sample mapped record:", mappedData[0]);
         return mappedData;
       } catch (err) {
         console.error("Network or other error:", err);
