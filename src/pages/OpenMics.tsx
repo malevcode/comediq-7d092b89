@@ -126,14 +126,14 @@ const OpenMics = () => {
     }
   };
 
-  // Borough outline colors for left border only
+  // Borough outline colors for left border only - updated colors
   const getBoroughOutline = (borough: string) => {
     const outlines = {
-      Manhattan: "border-l-4 border-l-blue-600",
-      Brooklyn: "border-l-4 border-l-pink-600", 
+      Manhattan: "border-l-4 border-l-cyan-500",  // turquoise
+      Brooklyn: "border-l-4 border-l-amber-800",   // brown bridge
       Queens: "border-l-4 border-l-purple-600",
       Bronx: "border-l-4 border-l-orange-600",
-      "Staten Island": "border-l-4 border-l-amber-800"
+      "Staten Island": "border-l-4 border-l-gray-500"
     };
     return outlines[borough as keyof typeof outlines] || "border-l-4 border-l-gray-400";
   };
@@ -160,69 +160,68 @@ const OpenMics = () => {
             </div>
           </div>
 
-          {/* Compact Key/Legend Section */}
-          <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
-            <div className="flex items-center justify-between">
+          {/* Ultra Compact Key/Legend Section */}
+          <div className="bg-orange-50 rounded-lg p-2 border border-orange-200">
+            <div className="flex items-center gap-6">
               {/* Example Tile */}
-              <div className="flex items-center gap-4">
-                <div>
-                  <p className="text-xs text-gray-600 mb-1">Example:</p>
-                  <Card className="cursor-pointer border-l-4 border-l-blue-600 bg-green-100 w-40">
-                    <CardContent className="p-1.5">
-                      <div className="space-y-0.5">
-                        <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
-                          Comedy Night
-                        </h3>
-                        <div className="text-xs flex items-center justify-between">
-                          <span className="text-gray-700 font-medium">8:00 PM</span>
-                          <span className="text-green-600 font-medium">Free</span>
-                          <span className="text-orange-600 font-medium">5</span>
-                        </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Example:</p>
+                <Card className="cursor-pointer border-l-4 border-l-cyan-500 bg-green-100 w-32">
+                  <CardContent className="p-1.5">
+                    <div className="space-y-0.5">
+                      <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
+                        Comedy Night
+                      </h3>
+                      <div className="text-xs flex items-center justify-between">
+                        <span className="text-gray-700 font-medium">8:00 PM</span>
+                        <span className="text-green-600 font-medium">Free</span>
+                        <span className="text-orange-600 font-medium">5</span>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
 
-                {/* Compact Legend */}
-                <div className="text-xs space-y-1">
+              {/* Compact Info Grid */}
+              <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
+                {/* First Column */}
+                <div className="space-y-1">
                   <div><span className="font-medium">Left border:</span> Borough</div>
-                  <div><span className="text-green-600 font-medium">Green:</span> Cost | <span className="text-orange-600 font-medium">Orange:</span> Stage time (min)</div>
+                  <div><span className="text-green-600 font-medium">Green:</span> Cost | <span className="text-orange-600 font-medium">Orange:</span> Stage time</div>
+                  <div className="flex gap-2">
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-green-100 border rounded"></div>
+                      <span>Verified</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-yellow-100 border rounded"></div>
+                      <span>Needs check</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-red-100 border rounded"></div>
+                      <span>Unverified</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              {/* Status Colors */}
-              <div className="flex gap-3 text-xs">
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 bg-green-100 border rounded"></div>
-                  <span>Verified</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 bg-yellow-100 border rounded"></div>
-                  <span>Needs check</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 bg-red-100 border rounded"></div>
-                  <span>Unverified</span>
-                </div>
-              </div>
-
-              {/* Borough Colors */}
-              <div className="grid grid-cols-2 gap-1 text-xs">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-3 bg-blue-600 rounded-sm"></div>
-                  <span>Manhattan</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-3 bg-pink-600 rounded-sm"></div>
-                  <span>Brooklyn</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
-                  <span>Queens</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
-                  <span>Bronx</span>
+                {/* Second Column - Borough Colors */}
+                <div className="grid grid-cols-2 gap-1">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
+                    <span>Manhattan</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
+                    <span>Brooklyn</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
+                    <span>Queens</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
+                    <span>Bronx</span>
+                  </div>
                 </div>
               </div>
             </div>
