@@ -160,79 +160,69 @@ const OpenMics = () => {
             </div>
           </div>
 
-          {/* Key/Legend Section */}
-          <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">How to Read the Listings</h3>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Compact Key/Legend Section */}
+          <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
+            <div className="flex items-center justify-between">
               {/* Example Tile */}
-              <div>
-                <p className="text-xs text-gray-600 mb-2">Example listing:</p>
-                <Card className="cursor-pointer border-l-4 border-l-blue-600 bg-green-100 max-w-[200px]">
-                  <CardContent className="p-1.5">
-                    <div className="space-y-0.5">
-                      <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
-                        Comedy Night at The Laugh Track
-                      </h3>
-                      <div className="text-xs flex items-center justify-between">
-                        <span className="text-gray-700 font-medium">8:00 PM</span>
-                        <span className="text-green-600 font-medium">Free</span>
-                        <span className="text-orange-600 font-medium">5</span>
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-xs text-gray-600 mb-1">Example:</p>
+                  <Card className="cursor-pointer border-l-4 border-l-blue-600 bg-green-100 w-40">
+                    <CardContent className="p-1.5">
+                      <div className="space-y-0.5">
+                        <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
+                          Comedy Night
+                        </h3>
+                        <div className="text-xs flex items-center justify-between">
+                          <span className="text-gray-700 font-medium">8:00 PM</span>
+                          <span className="text-green-600 font-medium">Free</span>
+                          <span className="text-orange-600 font-medium">5</span>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Compact Legend */}
+                <div className="text-xs space-y-1">
+                  <div><span className="font-medium">Left border:</span> Borough</div>
+                  <div><span className="text-green-600 font-medium">Green:</span> Cost | <span className="text-orange-600 font-medium">Orange:</span> Stage time (min)</div>
+                </div>
               </div>
 
-              {/* Legend */}
-              <div className="space-y-3">
-                <div>
-                  <h4 className="text-xs font-medium text-gray-900 mb-2">Tile Information:</h4>
-                  <div className="space-y-1 text-xs text-gray-700">
-                    <div><span className="font-medium">Left border:</span> Borough color</div>
-                    <div><span className="font-medium">Start time:</span> When sign-up/show begins</div>
-                    <div><span className="font-medium text-green-600">Green text:</span> Cost (Free/paid)</div>
-                    <div><span className="font-medium text-orange-600">Orange text:</span> Stage time (minutes)</div>
-                  </div>
+              {/* Status Colors */}
+              <div className="flex gap-3 text-xs">
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 bg-green-100 border rounded"></div>
+                  <span>Verified</span>
                 </div>
-
-                <div>
-                  <h4 className="text-xs font-medium text-gray-900 mb-2">Background Colors:</h4>
-                  <div className="flex gap-2 text-xs">
-                    <div className="flex items-center gap-1">
-                      <div className="w-3 h-3 bg-green-100 border rounded"></div>
-                      <span>Verified</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-3 h-3 bg-yellow-100 border rounded"></div>
-                      <span>Needs verification</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-3 h-3 bg-red-100 border rounded"></div>
-                      <span>Unverified</span>
-                    </div>
-                  </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 bg-yellow-100 border rounded"></div>
+                  <span>Needs check</span>
                 </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 bg-red-100 border rounded"></div>
+                  <span>Unverified</span>
+                </div>
+              </div>
 
-                <div>
-                  <h4 className="text-xs font-medium text-gray-900 mb-2">Borough Colors:</h4>
-                  <div className="grid grid-cols-2 gap-1 text-xs">
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-3 bg-blue-600 rounded-sm"></div>
-                      <span>Manhattan</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-3 bg-pink-600 rounded-sm"></div>
-                      <span>Brooklyn</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
-                      <span>Queens</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
-                      <span>Bronx</span>
-                    </div>
-                  </div>
+              {/* Borough Colors */}
+              <div className="grid grid-cols-2 gap-1 text-xs">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-3 bg-blue-600 rounded-sm"></div>
+                  <span>Manhattan</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-3 bg-pink-600 rounded-sm"></div>
+                  <span>Brooklyn</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
+                  <span>Queens</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
+                  <span>Bronx</span>
                 </div>
               </div>
             </div>
