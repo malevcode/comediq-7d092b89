@@ -8,7 +8,6 @@ export const useOpenMics = () => {
     queryKey: ["openMics"],
     queryFn: async (): Promise<OpenMic[]> => {
       console.log("Fetching open mics from Supabase...");
-      console.log("Supabase URL:", "https://qwzaxdytemswilmayinm.supabase.co");
       
       try {
         const { data, error } = await supabase
