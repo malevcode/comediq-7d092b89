@@ -19,27 +19,41 @@ export const useOpenMics = () => {
           throw error;
         }
 
-        console.log("Successfully fetched open mics:", data?.length || 0);
+        console.log("Raw data from Supabase:", data);
+        console.log("Number of records fetched:", data?.length || 0);
+        
+        if (data && data.length > 0) {
+          console.log("First record structure:", Object.keys(data[0]));
+          console.log("First record sample:", data[0]);
+        }
 
         // Map the database columns to our OpenMic interface
-        return data?.map((row: any) => ({
-          openMic: row["Open Mic"] || "",
-          day: row["Day"] || "",
-          startTime: row["Start Time"] || "",
-          latestEndTime: row["Latest End Time"] || "",
-          venueName: row["Venue Name"] || "",
-          borough: row["Borough"] || "",
-          neighborhood: row["Neighborhood"] || "",
-          location: row["Location"] || "",
-          venueType: row["Venue type"] || "",
-          cost: row["Cost"] || "",
-          stageTime: row["Stage time"] || "",
-          signUpInstructions: row["Sign-Up Instructions"] || "",
-          hosts: row["Host(s) / Organizer"] || "",
-          changesUpdates: row["Changes/updates"] || "",
-          lastVerified: row["Last verified"] || "",
-          otherRules: row["Other Rules"] || ""
-        })) || [];
+        const mappedData = data?.map((row: any) => {
+          const mapped = {
+            openMic: row["Open Mic"] || "",
+            day: row["Day"] || "",
+            startTime: row["Start Time"] || "",
+            latestEndTime: row["Latest End Time"] || "",
+            venueName: row["Venue Name"] || "",
+            borough: row["Borough"] || "",
+            neighborhood: row["Neighborhood"] || "",
+            location: row["Location"] || "",
+            venueType: row["Venue type"] || "",
+            cost: row["Cost"] || "",
+            stageTime: row["Stage time"] || "",
+            signUpInstructions: row["Sign-Up Instructions"] || "",
+            hosts: row["Host(s) / Organizer"] || "",
+            changesUpdates: row["Changes/updates"] || "",
+            lastVerified: row["Last verified"] || "",
+            otherRules: row["Other Rules"] || ""
+          };
+          
+          console.log("Mapped record:", mapped);
+          return mapped;
+        }) || [];
+
+        console.log("Final mapped data count:", mappedData.length);
+        return mappedData;
       } catch (err) {
         console.error("Network or other error:", err);
         throw err;
