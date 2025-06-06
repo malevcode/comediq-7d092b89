@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, MapPin, Clock, DollarSign } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -54,16 +53,27 @@ const OpenMics = () => {
 
   const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"];
 
-  // Borough color mapping
-  const getBoroughColor = (borough: string) => {
-    const colors = {
-      Manhattan: "border-l-cyan-400 bg-cyan-50",
-      Brooklyn: "border-l-purple-400 bg-purple-50", 
-      Queens: "border-l-yellow-400 bg-yellow-50",
-      Bronx: "border-l-green-400 bg-green-50",
-      "Staten Island": "border-l-orange-400 bg-orange-50"
+  // Verification status background colors
+  const getVerificationColor = (status: string) => {
+    if (status.toLowerCase().includes("verified") && status.toLowerCase().includes("tediously")) {
+      return "bg-yellow-100";
+    } else if (status.toLowerCase().includes("verified")) {
+      return "bg-green-100";
+    } else {
+      return "bg-red-100";
+    }
+  };
+
+  // Borough outline colors
+  const getBoroughOutline = (borough: string) => {
+    const outlines = {
+      Manhattan: "border-blue-600",
+      Brooklyn: "border-pink-600", 
+      Queens: "border-purple-600",
+      Bronx: "border-orange-600",
+      "Staten Island": "border-amber-800"
     };
-    return colors[borough as keyof typeof colors] || "border-l-gray-400 bg-gray-50";
+    return outlines[borough as keyof typeof outlines] || "border-gray-400";
   };
 
   const filteredMics = sampleOpenMics.filter(mic => {
@@ -135,29 +145,23 @@ const OpenMics = () => {
           {filteredMics.map((mic, index) => (
             <Card 
               key={index} 
-              className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 border-l-4 ${getBoroughColor(mic.borough)} border-gray-200`}
+              className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 border-2 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`}
               onClick={() => setSelectedMic(mic)}
             >
-              <CardContent className="p-2">
-                <div className="space-y-1">
+              <CardContent className="p-1.5">
+                <div className="space-y-0.5">
                   {/* Open Mic Name - truncated */}
                   <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
                     {mic.openMic}
                   </h3>
                   
-                  {/* Start Time */}
-                  <div className="text-xs text-gray-700 font-medium">
-                    {mic.startTime}
-                  </div>
-                  
-                  {/* Cost */}
-                  <div className="text-xs text-green-600 font-medium">
-                    {mic.cost}
-                  </div>
-                  
-                  {/* Stage Time */}
-                  <div className="text-xs text-orange-600 font-medium">
-                    {mic.stageTime}
+                  {/* Time, Cost, Stage Time all in one line */}
+                  <div className="text-xs flex items-center justify-between">
+                    <span className="text-gray-700 font-medium">{mic.startTime}</span>
+                    <span className="text-green-600 font-medium">{mic.cost}</span>
+                    <span className="text-orange-600 font-medium">
+                      {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
+                    </span>
                   </div>
                 </div>
               </CardContent>
