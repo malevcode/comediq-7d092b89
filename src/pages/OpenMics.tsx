@@ -134,19 +134,26 @@ const OpenMics = () => {
     return outlines[borough as keyof typeof outlines] || "border-l-4 border-l-gray-400";
   };
   return <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
-      {/* Compact Header - 1/8 of page */}
+      {/* Compact Header - Mobile optimized */}
       <div className="h-auto bg-white border-b border-orange-100">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          {/* Title, Character, and Key Section - All in one row */}
-          <div className="flex items-start justify-between gap-4">
+          {/* Mobile: Stack vertically, Desktop: Keep horizontal */}
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
             {/* Title Section */}
-            <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Find Open Mics</h1>
-              <p className="text-sm text-gray-600">Discover comedy open mics across NYC</p>
+            <div className="flex items-center justify-between">
+              <div className="flex-shrink-0">
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">Find Open Mics</h1>
+                <p className="text-sm text-gray-600">Discover comedy open mics across NYC</p>
+              </div>
+              
+              {/* Comedian character - visible on mobile */}
+              <div className="flex-shrink-0 lg:hidden">
+                <img src="/lovable-uploads/ed025a0f-85b1-4f87-8235-673628f9ffdb.png" alt="Find Mics Comedian Character" className="w-16 h-16 object-contain" />
+              </div>
             </div>
 
-            {/* Key/Legend Section - Moved up to header */}
-            <div className="flex-1 mx-4">
+            {/* Key/Legend Section - Hidden on mobile, shown on desktop */}
+            <div className="hidden lg:flex flex-1 mx-4">
               <div className="bg-orange-50 p-2 border border-orange-200 rounded">
                 <div className="flex items-center gap-4">
                   {/* Example Tile */}
@@ -219,8 +226,8 @@ const OpenMics = () => {
               </div>
             </div>
             
-            {/* Comedian character for Find Mics */}
-            <div className="flex-shrink-0">
+            {/* Comedian character for desktop */}
+            <div className="hidden lg:block flex-shrink-0">
               <img src="/lovable-uploads/ed025a0f-85b1-4f87-8235-673628f9ffdb.png" alt="Find Mics Comedian Character" className="w-20 h-20 object-contain" />
             </div>
           </div>
@@ -238,6 +245,40 @@ const OpenMics = () => {
             <select value={selectedBorough} onChange={e => setSelectedBorough(e.target.value)} className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
               {boroughs.map(borough => <option key={borough} value={borough}>{borough}</option>)}
             </select>
+          </div>
+        </div>
+
+        {/* Mobile Key/Legend - shown only on mobile, below filters */}
+        <div className="lg:hidden bg-orange-50 p-3 border border-orange-200 rounded-lg mb-4">
+          <div className="text-xs space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Boroughs:</span>
+              <div className="flex gap-1">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
+                  <span>Man</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
+                  <span>Bkn</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
+                  <span>Qns</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
+                  <span>Brx</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
+                  <span>SI</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              Format: Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
+            </div>
           </div>
         </div>
 
