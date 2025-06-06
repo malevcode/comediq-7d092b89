@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from "react";
 import { Search, MapPin, Clock, DollarSign, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -283,6 +284,23 @@ const OpenMics = () => {
               </div>
               <div>
                 Format: Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-medium">Active Status:</span>
+                <div className="flex gap-2">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-2 bg-green-100 border rounded"></div>
+                    <span>Verified</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-2 bg-yellow-100 border rounded"></div>
+                    <span>Needs check</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-2 bg-red-100 border rounded"></div>
+                    <span>Unverified</span>
+                  </div>
+                </div>
               </div>
             </div>
             <Button 
