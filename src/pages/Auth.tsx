@@ -43,10 +43,13 @@ const Auth = () => {
         toast({
           title: isSignUp ? "Account created!" : "Welcome back!",
           description: isSignUp 
-            ? "Please check your email to verify your account." 
+            ? "You can now start rating and saving your favorite open mics!" 
             : "You've been signed in successfully.",
         });
         if (!isSignUp) {
+          navigate('/open-mics');
+        } else {
+          // For sign up, redirect immediately since we're not requiring email confirmation
           navigate('/open-mics');
         }
       }
@@ -66,8 +69,14 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl text-center">
-            {isSignUp ? 'Create Account' : 'Welcome Back'}
+            {isSignUp ? 'Join Comediq' : 'Welcome Back'}
           </CardTitle>
+          <p className="text-center text-gray-600 text-sm">
+            {isSignUp 
+              ? 'Create your account to start tracking your favorite open mics'
+              : 'Sign in to access your saved mics and ratings'
+            }
+          </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -85,7 +94,7 @@ const Auth = () => {
               <div>
                 <Input
                   type="text"
-                  placeholder="Username"
+                  placeholder="Username (optional)"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                 />
@@ -99,6 +108,7 @@ const Auth = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={6}
               />
             </div>
             
@@ -107,7 +117,7 @@ const Auth = () => {
               className="w-full bg-orange-500 hover:bg-orange-600"
               disabled={loading}
             >
-              {loading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+              {loading ? 'Loading...' : (isSignUp ? 'Create Account' : 'Sign In')}
             </Button>
           </form>
           
@@ -123,6 +133,12 @@ const Auth = () => {
               }
             </button>
           </div>
+
+          {isSignUp && (
+            <p className="text-xs text-gray-500 mt-4 text-center">
+              By creating an account, you can save your favorite open mics and rate them to help other comedians.
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>

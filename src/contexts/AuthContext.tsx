@@ -49,13 +49,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signUp = async (email: string, password: string, username?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    // Get the current domain - works for both localhost and production
+    const currentUrl = window.location.origin;
     
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
+        // Don't require email confirmation for now - makes testing easier
+        emailRedirectTo: `${currentUrl}/open-mics`,
         data: {
           username: username || email.split('@')[0]
         }
