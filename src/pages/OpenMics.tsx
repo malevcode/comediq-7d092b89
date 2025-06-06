@@ -1,8 +1,10 @@
-import { useState } from "react";
+
+import { useState, useMemo } from "react";
 import { Search, MapPin, Clock, DollarSign } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OpenMic } from "@/types/openMic";
 
 // Sample data - you'll replace this with your actual CSV data
@@ -29,7 +31,7 @@ const sampleOpenMics: OpenMic[] = [
   ...Array.from({ length: 48 }, (_, i) => ({
     openMic: `Open Mic Night ${i + 2}`,
     day: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][i % 7],
-    startTime: "7:00 PM",
+    startTime: ["2:00 PM", "6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM", "10:00 PM"][i % 6],
     latestEndTime: "10:00 PM",
     venueName: `Venue ${i + 2}`,
     borough: ["Manhattan", "Brooklyn", "Queens", "Bronx"][i % 4],
@@ -37,11 +39,11 @@ const sampleOpenMics: OpenMic[] = [
     location: `${100 + i} Street, New York, NY`,
     venueType: ["Bar", "Comedy Club", "Restaurant", "Theater"][i % 4],
     cost: i % 3 === 0 ? "Free" : "$5",
-    stageTime: "5 minutes",
+    stageTime: `${3 + (i % 3)}`,
     signUpInstructions: "Sign up at venue",
     hosts: `Host ${i + 2}`,
     changesUpdates: "None",
-    lastVerified: "2024-01-15",
+    lastVerified: i % 3 === 0 ? "Verified" : i % 3 === 1 ? "Tediously Verified" : "Unverified",
     otherRules: "Various rules"
   }))
 ];
@@ -50,12 +52,72 @@ const OpenMics = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBorough, setSelectedBorough] = useState("All");
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
+  const [activeTab, setActiveTab] = useState("active");
 
   const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"];
+  const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+  // Helper function to convert time string to 24-hour format for comparison
+  const timeToMinutes = (timeStr: string) => {
+    const [time, period] = timeStr.split(' ');
+    const [hours, minutes] = time.split(':').map(Number);
+    let hour24 = hours;
+    
+    if (period === 'PM' && hours !== 12) {
+      hour24 += 12;
+    } else if (period === 'AM' && hours === 12) {
+      hour24 = 0;
+    }
+    
+    return hour24 * 60 + (minutes || 0);
+  };
+
+  // Get current time and day
+  const now = new Date();
+  const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
+  const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowDay = tomorrow.toLocaleDateString('en-US', { weekday: 'long' });
+
+  // Filter mics based on time and day
+  const getFilteredMics = (tabType: string, dayFilter?: string) => {
+    let filtered = sampleOpenMics;
+
+    if (tabType === "active") {
+      // Show only mics that are still active today (haven't started yet) and all mics tomorrow
+      filtered = sampleOpenMics.filter(mic => {
+        if (mic.day === currentDay) {
+          return timeToMinutes(mic.startTime) > currentTimeMinutes;
+        } else if (mic.day === tomorrowDay) {
+          return true;
+        }
+        return false;
+      });
+    } else if (dayFilter) {
+      // Show all mics for the selected day
+      filtered = sampleOpenMics.filter(mic => mic.day === dayFilter);
+    }
+
+    // Apply search and borough filters
+    filtered = filtered.filter(mic => {
+      const matchesSearch = 
+        mic.openMic.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        mic.venueName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesBorough = selectedBorough === "All" || mic.borough === selectedBorough;
+      
+      return matchesSearch && matchesBorough;
+    });
+
+    // Sort by time
+    return filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
+  };
 
   // Verification status background colors
   const getVerificationColor = (status: string) => {
-    if (status.toLowerCase().includes("verified") && status.toLowerCase().includes("tediously")) {
+    if (status.toLowerCase().includes("tediously")) {
       return "bg-yellow-100";
     } else if (status.toLowerCase().includes("verified")) {
       return "bg-green-100";
@@ -75,17 +137,6 @@ const OpenMics = () => {
     };
     return outlines[borough as keyof typeof outlines] || "border-l-4 border-t-4 border-l-gray-400 border-t-gray-400";
   };
-
-  const filteredMics = sampleOpenMics.filter(mic => {
-    const matchesSearch = 
-      mic.openMic.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      mic.venueName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesBorough = selectedBorough === "All" || mic.borough === selectedBorough;
-    
-    return matchesSearch && matchesBorough;
-  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
@@ -133,57 +184,131 @@ const OpenMics = () => {
           </div>
         </div>
 
-        {/* Results Count */}
-        <div className="mb-4">
-          <p className="text-gray-600">
-            Showing {filteredMics.length} open mic{filteredMics.length !== 1 ? 's' : ''}
-          </p>
-        </div>
+        {/* Day Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-8 mb-6">
+            <TabsTrigger value="active" className="text-xs">Active</TabsTrigger>
+            {daysOfWeek.map((day) => (
+              <TabsTrigger key={day} value={day} className="text-xs">
+                {day.slice(0, 3)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        {/* 7x7 Tile Grid - Optimized for mobile */}
-        <div className="grid grid-cols-7 gap-2 max-h-[calc(100vh-300px)] overflow-y-auto">
-          {filteredMics.map((mic, index) => (
-            <Card 
-              key={index} 
-              className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`}
-              onClick={() => setSelectedMic(mic)}
-            >
-              <CardContent className="p-1.5">
-                <div className="space-y-0.5">
-                  {/* Open Mic Name - truncated */}
-                  <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
-                    {mic.openMic}
-                  </h3>
-                  
-                  {/* Time, Cost, Stage Time all in one line */}
-                  <div className="text-xs flex items-center justify-between">
-                    <span className="text-gray-700 font-medium">{mic.startTime}</span>
-                    <span className="text-green-600 font-medium">{mic.cost}</span>
-                    <span className="text-orange-600 font-medium">
-                      {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
-                    </span>
+          <TabsContent value="active">
+            {(() => {
+              const filteredMics = getFilteredMics("active");
+              return (
+                <>
+                  <div className="mb-4">
+                    <p className="text-gray-600">
+                      Showing {filteredMics.length} active open mic{filteredMics.length !== 1 ? 's' : ''} (today & tomorrow)
+                    </p>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
 
-        {/* Empty State */}
-        {filteredMics.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No open mics found matching your criteria.</p>
-            <Button 
-              onClick={() => {
-                setSearchTerm("");
-                setSelectedBorough("All");
-              }}
-              className="mt-4 bg-orange-500 hover:bg-orange-600"
-            >
-              Clear Filters
-            </Button>
-          </div>
-        )}
+                  <div className="grid grid-cols-7 gap-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+                    {filteredMics.map((mic, index) => (
+                      <Card 
+                        key={index} 
+                        className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`}
+                        onClick={() => setSelectedMic(mic)}
+                      >
+                        <CardContent className="p-1.5">
+                          <div className="space-y-0.5">
+                            <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
+                              {mic.openMic}
+                            </h3>
+                            
+                            <div className="text-xs flex items-center justify-between">
+                              <span className="text-gray-700 font-medium">{mic.startTime}</span>
+                              <span className="text-green-600 font-medium">{mic.cost}</span>
+                              <span className="text-orange-600 font-medium">
+                                {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
+                              </span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  {filteredMics.length === 0 && (
+                    <div className="text-center py-12">
+                      <p className="text-gray-500 text-lg">No active open mics found.</p>
+                      <Button 
+                        onClick={() => {
+                          setSearchTerm("");
+                          setSelectedBorough("All");
+                        }}
+                        className="mt-4 bg-orange-500 hover:bg-orange-600"
+                      >
+                        Clear Filters
+                      </Button>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+          </TabsContent>
+
+          {daysOfWeek.map((day) => (
+            <TabsContent key={day} value={day}>
+              {(() => {
+                const filteredMics = getFilteredMics("day", day);
+                return (
+                  <>
+                    <div className="mb-4">
+                      <p className="text-gray-600">
+                        Showing {filteredMics.length} open mic{filteredMics.length !== 1 ? 's' : ''} on {day}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+                      {filteredMics.map((mic, index) => (
+                        <Card 
+                          key={index} 
+                          className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`}
+                          onClick={() => setSelectedMic(mic)}
+                        >
+                          <CardContent className="p-1.5">
+                            <div className="space-y-0.5">
+                              <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
+                                {mic.openMic}
+                              </h3>
+                              
+                              <div className="text-xs flex items-center justify-between">
+                                <span className="text-gray-700 font-medium">{mic.startTime}</span>
+                                <span className="text-green-600 font-medium">{mic.cost}</span>
+                                <span className="text-orange-600 font-medium">
+                                  {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
+                                </span>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+
+                    {filteredMics.length === 0 && (
+                      <div className="text-center py-12">
+                        <p className="text-gray-500 text-lg">No open mics found for {day}.</p>
+                        <Button 
+                          onClick={() => {
+                            setSearchTerm("");
+                            setSelectedBorough("All");
+                          }}
+                          className="mt-4 bg-orange-500 hover:bg-orange-600"
+                        >
+                          Clear Filters
+                        </Button>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </TabsContent>
+          ))}
+        </Tabs>
       </div>
 
       {/* Modal for detailed view */}
