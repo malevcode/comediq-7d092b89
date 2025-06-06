@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from "react";
 import { Search, MapPin, Clock, DollarSign } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -142,9 +143,9 @@ const OpenMics = () => {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
       {/* Compact Header - 1/8 of page */}
       <div className="h-auto bg-white border-b border-orange-100">
-        <div className="max-w-7xl mx-auto px-4 py-3">
+        <div className="max-w-7xl mx-auto px-4 py-2">
           {/* Title and Character */}
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2">
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900 mb-1">Find Open Mics</h1>
               <p className="text-sm text-gray-600">Discover comedy open mics across NYC</p>
@@ -161,19 +162,19 @@ const OpenMics = () => {
           </div>
 
           {/* Ultra Compact Key/Legend Section */}
-          <div className="bg-orange-50 rounded-lg p-2 border border-orange-200">
-            <div className="flex items-start gap-3">
+          <div className="bg-orange-50 rounded-lg p-1.5 border border-orange-200">
+            <div className="flex items-start gap-2">
               {/* Example Tile */}
               <div className="flex-shrink-0">
-                <p className="text-xs text-gray-600 mb-1">Example:</p>
-                <Card className="cursor-pointer border-l-4 border-l-cyan-500 bg-green-100 w-28">
-                  <CardContent className="p-1.5">
+                <p className="text-xs text-gray-600 mb-0.5">Example:</p>
+                <Card className="cursor-pointer border-l-4 border-l-cyan-500 bg-green-100 w-24">
+                  <CardContent className="p-1">
                     <div className="space-y-0.5">
-                      <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
+                      <h3 className="font-bold text-xs text-gray-900 line-clamp-1 leading-tight">
                         Comedy Night
                       </h3>
                       <div className="text-xs flex items-center justify-between">
-                        <span className="text-gray-700 font-medium">8:00 PM</span>
+                        <span className="text-gray-700 font-medium">8PM</span>
                         <span className="text-green-600 font-medium">Free</span>
                         <span className="text-orange-600 font-medium">5</span>
                       </div>
@@ -182,45 +183,45 @@ const OpenMics = () => {
                 </Card>
               </div>
 
-              {/* Compact Info in tight grid */}
-              <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs">
-                {/* Left Column */}
-                <div className="space-y-0.5">
-                  <div><span className="font-medium">Left border:</span> Borough</div>
-                  <div><span className="text-green-600 font-medium">Green:</span> Cost | <span className="text-orange-600 font-medium">Orange:</span> Stage time</div>
-                  <div className="flex gap-3">
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-green-100 border rounded"></div>
-                      <span>Verified</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-yellow-100 border rounded"></div>
-                      <span>Needs check</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-red-100 border rounded"></div>
-                      <span>Unverified</span>
-                    </div>
-                  </div>
+              {/* Ultra Compact Info */}
+              <div className="flex-1 text-xs space-y-0.5">
+                <div className="flex justify-between">
+                  <span><span className="font-medium">Border:</span> Borough</span>
+                  <span><span className="text-green-600 font-medium">Green:</span> Cost</span>
+                  <span><span className="text-orange-600 font-medium">Orange:</span> Time</span>
                 </div>
-
-                {/* Right Column - Borough Colors in 2x2 grid */}
-                <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-cyan-500 rounded-sm"></div>
-                    <span>Manhattan</span>
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-2">
+                    <div className="flex items-center gap-0.5">
+                      <div className="w-1.5 h-1.5 bg-green-100 border rounded-sm"></div>
+                      <span className="text-xs">Verified</span>
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      <div className="w-1.5 h-1.5 bg-yellow-100 border rounded-sm"></div>
+                      <span className="text-xs">Check</span>
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      <div className="w-1.5 h-1.5 bg-red-100 border rounded-sm"></div>
+                      <span className="text-xs">Unverified</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-amber-800 rounded-sm"></div>
-                    <span>Brooklyn</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-purple-600 rounded-sm"></div>
-                    <span>Queens</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-orange-600 rounded-sm"></div>
-                    <span>Bronx</span>
+                  <div className="flex gap-2">
+                    <div className="flex items-center gap-0.5">
+                      <div className="w-1.5 h-1.5 bg-cyan-500 rounded-sm"></div>
+                      <span className="text-xs">Man</span>
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      <div className="w-1.5 h-1.5 bg-amber-800 rounded-sm"></div>
+                      <span className="text-xs">Bkn</span>
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      <div className="w-1.5 h-1.5 bg-purple-600 rounded-sm"></div>
+                      <span className="text-xs">Qns</span>
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      <div className="w-1.5 h-1.5 bg-orange-600 rounded-sm"></div>
+                      <span className="text-xs">Bx</span>
+                    </div>
                   </div>
                 </div>
               </div>
