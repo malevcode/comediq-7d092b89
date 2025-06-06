@@ -10,6 +10,15 @@ export const useOpenMics = () => {
       console.log("Fetching open mics from Supabase...");
       
       try {
+        // First, let's try to get the table schema to debug
+        const { data: tableData, error: tableError } = await supabase
+          .from("open_mics")
+          .select("*")
+          .limit(1);
+          
+        console.log("Table test query result:", { data: tableData, error: tableError });
+        
+        // Now get all data
         const { data, error } = await supabase
           .from("open_mics")
           .select("*");
@@ -27,8 +36,14 @@ export const useOpenMics = () => {
           console.log("First record sample:", data[0]);
         }
 
+        // If no data, return empty array
+        if (!data || data.length === 0) {
+          console.warn("No data returned from open_mics table");
+          return [];
+        }
+
         // Map the database columns to our OpenMic interface
-        const mappedData = data?.map((row: any) => {
+        const mappedData = data.map((row: any) => {
           const mapped = {
             openMic: row["Open Mic"] || "",
             day: row["Day"] || "",
@@ -50,7 +65,7 @@ export const useOpenMics = () => {
           
           console.log("Mapped record:", mapped);
           return mapped;
-        }) || [];
+        });
 
         console.log("Final mapped data count:", mappedData.length);
         return mappedData;
