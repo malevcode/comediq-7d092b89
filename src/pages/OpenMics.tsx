@@ -142,11 +142,11 @@ const OpenMics = () => {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
       {/* Compact Header - 1/8 of page */}
       <div className="h-auto bg-white border-b border-orange-100">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-4 py-3">
           {/* Title and Character */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Find Open Mics</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">Find Open Mics</h1>
               <p className="text-sm text-gray-600">Discover comedy open mics across NYC</p>
             </div>
             
@@ -162,11 +162,11 @@ const OpenMics = () => {
 
           {/* Ultra Compact Key/Legend Section */}
           <div className="bg-orange-50 rounded-lg p-2 border border-orange-200">
-            <div className="flex items-center gap-6">
+            <div className="flex items-start gap-3">
               {/* Example Tile */}
-              <div>
+              <div className="flex-shrink-0">
                 <p className="text-xs text-gray-600 mb-1">Example:</p>
-                <Card className="cursor-pointer border-l-4 border-l-cyan-500 bg-green-100 w-32">
+                <Card className="cursor-pointer border-l-4 border-l-cyan-500 bg-green-100 w-28">
                   <CardContent className="p-1.5">
                     <div className="space-y-0.5">
                       <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
@@ -182,13 +182,13 @@ const OpenMics = () => {
                 </Card>
               </div>
 
-              {/* Compact Info Grid */}
-              <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
-                {/* First Column */}
-                <div className="space-y-1">
+              {/* Compact Info in tight grid */}
+              <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs">
+                {/* Left Column */}
+                <div className="space-y-0.5">
                   <div><span className="font-medium">Left border:</span> Borough</div>
                   <div><span className="text-green-600 font-medium">Green:</span> Cost | <span className="text-orange-600 font-medium">Orange:</span> Stage time</div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <div className="flex items-center gap-1">
                       <div className="w-2 h-2 bg-green-100 border rounded"></div>
                       <span>Verified</span>
@@ -204,22 +204,22 @@ const OpenMics = () => {
                   </div>
                 </div>
 
-                {/* Second Column - Borough Colors */}
-                <div className="grid grid-cols-2 gap-1">
+                {/* Right Column - Borough Colors in 2x2 grid */}
+                <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
                   <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
+                    <div className="w-2 h-2 bg-cyan-500 rounded-sm"></div>
                     <span>Manhattan</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
+                    <div className="w-2 h-2 bg-amber-800 rounded-sm"></div>
                     <span>Brooklyn</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
+                    <div className="w-2 h-2 bg-purple-600 rounded-sm"></div>
                     <span>Queens</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
+                    <div className="w-2 h-2 bg-orange-600 rounded-sm"></div>
                     <span>Bronx</span>
                   </div>
                 </div>
