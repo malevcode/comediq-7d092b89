@@ -211,7 +211,7 @@ const OpenMics = () => {
                     </div>
                     
                     <div className="flex flex-col gap-2">
-                      <span className="font-medium">Active Status:</span>
+                      <span className="font-medium">Active Status (did the host text to confirm?):</span>
                       <div className="flex flex-wrap gap-3">
                         <div className="flex items-center gap-1">
                           <div className="w-3 h-2 bg-green-100 border rounded"></div>
@@ -318,7 +318,7 @@ const OpenMics = () => {
                       </div>
                       
                       <div className="flex flex-col gap-2">
-                        <span className="font-medium">Active Status:</span>
+                        <span className="font-medium">Active Status (did the host text to confirm?):</span>
                         <div className="flex flex-wrap gap-3">
                           <div className="flex items-center gap-1">
                             <div className="w-3 h-2 bg-green-100 border rounded"></div>
