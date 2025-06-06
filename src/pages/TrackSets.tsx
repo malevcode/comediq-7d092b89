@@ -9,8 +9,8 @@ const TrackSets = () => {
           
           <div className="flex justify-center">
             <img 
-              src="/lovable-uploads/05168ab8-2327-4ef4-90ca-54c3f66da85c.png" 
-              alt="Comediq Mascot" 
+              src="/lovable-uploads/c8d06f54-cc90-4a76-b9f9-35c2804c5940.png" 
+              alt="Track Sets Character" 
               className="w-64 h-auto"
             />
           </div>
