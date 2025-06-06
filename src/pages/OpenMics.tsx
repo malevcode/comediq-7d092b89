@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { Search, MapPin, Clock, DollarSign } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -115,12 +114,12 @@ const OpenMics = () => {
     return filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
   };
 
-  // Verification status background colors
+  // Verification status background colors with updated green scheme
   const getVerificationColor = (status: string) => {
     if (status.toLowerCase().includes("tediously")) {
       return "bg-yellow-100";
     } else if (status.toLowerCase().includes("verified")) {
-      return "bg-green-100";
+      return "bg-emerald-100"; // Updated to use emerald shade matching the bioplastics green
     } else {
       return "bg-red-100";
     }
@@ -148,11 +147,11 @@ const OpenMics = () => {
             <p className="text-sm text-gray-600">Discover comedy open mics across NYC</p>
           </div>
           
-          {/* Different character for Find Mics */}
+          {/* Comedian character for Find Mics */}
           <div className="flex-shrink-0 ml-4">
             <img 
-              src="/lovable-uploads/bca90a5b-c6c8-4db0-a8b1-bde4330757d3.png" 
-              alt="Find Mics Character" 
+              src="/lovable-uploads/ed025a0f-85b1-4f87-8235-673628f9ffdb.png" 
+              alt="Find Mics Comedian Character" 
               className="w-20 h-20 object-contain"
             />
           </div>
