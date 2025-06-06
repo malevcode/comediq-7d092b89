@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Search, MapPin, Clock, DollarSign } from "lucide-react";
+import { Search, MapPin, Clock, DollarSign, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -52,6 +52,7 @@ const OpenMics = () => {
   const [selectedBorough, setSelectedBorough] = useState("All");
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [activeTab, setActiveTab] = useState("active");
+  const [showFilters, setShowFilters] = useState(false);
   const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"];
   const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -235,8 +236,8 @@ const OpenMics = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Search and Filters */}
-        <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
+        {/* Search and Filters - Hidden on mobile by default */}
+        <div className={`bg-white rounded-xl shadow-lg p-4 mb-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -248,37 +249,47 @@ const OpenMics = () => {
           </div>
         </div>
 
-        {/* Mobile Key/Legend - shown only on mobile, below filters */}
+        {/* Mobile Key/Legend with Filter Button */}
         <div className="lg:hidden bg-orange-50 p-3 border border-orange-200 rounded-lg mb-4">
-          <div className="text-xs space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="font-medium">Boroughs:</span>
-              <div className="flex gap-1">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
-                  <span>Man</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
-                  <span>Bkn</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
-                  <span>Qns</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
-                  <span>Brx</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
-                  <span>SI</span>
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs space-y-2 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">Boroughs:</span>
+                <div className="flex gap-1">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
+                    <span>Man</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
+                    <span>Bkn</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
+                    <span>Qns</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
+                    <span>Brx</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
+                    <span>SI</span>
+                  </div>
                 </div>
               </div>
+              <div>
+                Format: Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
+              </div>
             </div>
-            <div>
-              Format: Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
-            </div>
+            <Button 
+              onClick={() => setShowFilters(!showFilters)} 
+              variant="outline" 
+              size="sm"
+              className="ml-2"
+            >
+              <Filter className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
@@ -301,19 +312,19 @@ const OpenMics = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+                  <div className="grid grid-cols-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-1 max-h-[calc(100vh-300px)] overflow-y-auto">
                     {filteredMics.map((mic, index) => <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`} onClick={() => setSelectedMic(mic)}>
-                        <CardContent className="p-2">
-                          <div className="space-y-1">
-                            <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight min-h-[24px]">
+                        <CardContent className="p-1">
+                          <div className="space-y-0.5">
+                            <h3 className="font-bold text-[10px] sm:text-xs text-gray-900 line-clamp-2 leading-tight min-h-[16px] sm:min-h-[24px]">
                               {mic.openMic}
                             </h3>
                             
-                            <div className="text-xs space-y-0.5">
-                              <div className="text-gray-700 font-medium">{mic.startTime}</div>
+                            <div className="text-[9px] sm:text-xs space-y-0.5">
+                              <div className="text-gray-700 font-medium truncate">{mic.startTime}</div>
                               <div className="flex justify-between items-center">
-                                <span className="text-green-600 font-medium">{mic.cost}</span>
-                                <span className="text-orange-600 font-medium">
+                                <span className="text-green-600 font-medium truncate text-[8px] sm:text-xs">{mic.cost}</span>
+                                <span className="text-orange-600 font-medium text-[8px] sm:text-xs">
                                   {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
                                 </span>
                               </div>
@@ -346,19 +357,19 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+                    <div className="grid grid-cols-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-1 max-h-[calc(100vh-300px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-2">
-                            <div className="space-y-1">
-                              <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight min-h-[24px]">
+                          <CardContent className="p-1">
+                            <div className="space-y-0.5">
+                              <h3 className="font-bold text-[10px] sm:text-xs text-gray-900 line-clamp-2 leading-tight min-h-[16px] sm:min-h-[24px]">
                                 {mic.openMic}
                               </h3>
                               
-                              <div className="text-xs space-y-0.5">
-                                <div className="text-gray-700 font-medium">{mic.startTime}</div>
+                              <div className="text-[9px] sm:text-xs space-y-0.5">
+                                <div className="text-gray-700 font-medium truncate">{mic.startTime}</div>
                                 <div className="flex justify-between items-center">
-                                  <span className="text-green-600 font-medium">{mic.cost}</span>
-                                  <span className="text-orange-600 font-medium">
+                                  <span className="text-green-600 font-medium truncate text-[8px] sm:text-xs">{mic.cost}</span>
+                                  <span className="text-orange-600 font-medium text-[8px] sm:text-xs">
                                     {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
                                   </span>
                                 </div>
