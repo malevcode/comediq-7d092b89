@@ -118,11 +118,11 @@ const OpenMics = () => {
   // Verification status background colors
   const getVerificationColor = (status: string) => {
     if (status.toLowerCase().includes("tediously")) {
-      return "bg-yellow-100";
+      return "bg-amber-50";
     } else if (status.toLowerCase().includes("verified")) {
-      return "bg-green-100";
+      return "bg-emerald-50";
     } else {
-      return "bg-red-100";
+      return "bg-rose-50";
     }
   };
 
