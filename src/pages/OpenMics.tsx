@@ -114,12 +114,12 @@ const OpenMics = () => {
     return filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
   };
 
-  // Verification status background colors with updated green scheme
+  // Verification status background colors with custom green shade
   const getVerificationColor = (status: string) => {
     if (status.toLowerCase().includes("tediously")) {
       return "bg-yellow-100";
     } else if (status.toLowerCase().includes("verified")) {
-      return "bg-emerald-100"; // Updated to use emerald shade matching the bioplastics green
+      return "bg-[#7ED321]"; // Custom green shade matching the reference image
     } else {
       return "bg-red-100";
     }
