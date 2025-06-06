@@ -75,6 +75,42 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: number
+          instagram_handle: string | null
+          monthly_spend: number | null
+          name: string
+          open_mics_per_month: number | null
+          phone: string | null
+          years_in_comedy: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: number
+          instagram_handle?: string | null
+          monthly_spend?: number | null
+          name: string
+          open_mics_per_month?: number | null
+          phone?: string | null
+          years_in_comedy?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: number
+          instagram_handle?: string | null
+          monthly_spend?: number | null
+          name?: string
+          open_mics_per_month?: number | null
+          phone?: string | null
+          years_in_comedy?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
