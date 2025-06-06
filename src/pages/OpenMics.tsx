@@ -134,7 +134,7 @@ const OpenMics = () => {
     return outlines[borough as keyof typeof outlines] || "border-l-4 border-l-gray-400";
   };
   return <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
-      {/* Compact Header - 1/8 of page */}
+      {/* Compact Header */}
       <div className="h-auto bg-white border-b border-orange-100">
         <div className="max-w-7xl mx-auto px-4 py-4">
           {/* Title and Character */}
@@ -150,16 +150,16 @@ const OpenMics = () => {
             </div>
           </div>
 
-          {/* Ultra Compact Key/Legend Section */}
-          <div className="bg-orange-50 p-2 border border-orange-200 mx-[196px] my-0 py-0 px-0 rounded-none">
-            <div className="flex items-center gap-6">
+          {/* Ultra Compact Key/Legend Section - Single Line Layout */}
+          <div className="bg-orange-50 border border-orange-200 rounded p-2">
+            <div className="flex items-center gap-4 text-xs">
               {/* Example Tile */}
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Example:</p>
-                <Card className="cursor-pointer border-l-4 border-l-cyan-500 bg-green-100 w-32">
-                  <CardContent className="p-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600 font-medium">Example:</span>
+                <Card className="cursor-pointer border-l-4 border-l-cyan-500 bg-green-100 w-24">
+                  <CardContent className="p-1">
                     <div className="space-y-0.5">
-                      <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
+                      <h3 className="font-bold text-xs text-gray-900 leading-tight">
                         Comedy Night
                       </h3>
                       <div className="text-xs flex items-center justify-between">
@@ -172,46 +172,46 @@ const OpenMics = () => {
                 </Card>
               </div>
 
-              {/* Compact Info Grid */}
-              <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
-                {/* First Column */}
-                <div className="space-y-1">
-                  <div><span className="font-medium">Left border:</span> Borough</div>
-                  <div><span className="text-green-600 font-medium">Green:</span> Cost | <span className="text-orange-600 font-medium">Orange:</span> Stage time</div>
-                  <div className="flex gap-2">
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-green-100 border rounded"></div>
-                      <span>Verified</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-yellow-100 border rounded"></div>
-                      <span>Needs check</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-red-100 border rounded"></div>
-                      <span>Unverified</span>
-                    </div>
-                  </div>
-                </div>
+              {/* Compact Info in Single Line */}
+              <div className="flex items-center gap-3">
+                <span><span className="font-medium">Border:</span> Borough</span>
+                <span><span className="text-green-600 font-medium">Green:</span> Cost</span>
+                <span><span className="text-orange-600 font-medium">Orange:</span> Time</span>
+              </div>
 
-                {/* Second Column - Borough Colors */}
-                <div className="grid grid-cols-2 gap-1">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
-                    <span>Manhattan</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
-                    <span>Brooklyn</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
-                    <span>Queens</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
-                    <span>Bronx</span>
-                  </div>
+              {/* Status Indicators */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-green-100 border rounded"></div>
+                  <span>✓</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-yellow-100 border rounded"></div>
+                  <span>?</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-red-100 border rounded"></div>
+                  <span>✗</span>
+                </div>
+              </div>
+
+              {/* Borough Colors */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-cyan-500 rounded"></div>
+                  <span>M</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-amber-800 rounded"></div>
+                  <span>B</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-purple-600 rounded"></div>
+                  <span>Q</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-orange-600 rounded"></div>
+                  <span>Bx</span>
                 </div>
               </div>
             </div>
