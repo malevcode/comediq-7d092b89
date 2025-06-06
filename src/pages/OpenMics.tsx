@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from "react";
 import { Search, MapPin, Clock, DollarSign } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -114,27 +115,27 @@ const OpenMics = () => {
     return filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
   };
 
-  // Verification status background colors - updated to lighter shades
+  // Updated verification status background colors - more aesthetic
   const getVerificationColor = (status: string) => {
     if (status.toLowerCase().includes("tediously")) {
-      return "bg-yellow-50";
+      return "bg-gradient-to-br from-amber-50 to-yellow-100 border-amber-200";
     } else if (status.toLowerCase().includes("verified")) {
-      return "bg-green-50";
+      return "bg-gradient-to-br from-emerald-50 to-green-100 border-emerald-200";
     } else {
-      return "bg-red-50";
+      return "bg-gradient-to-br from-rose-50 to-red-100 border-rose-200";
     }
   };
 
-  // Borough outline colors for left and top borders
+  // Updated borough outline colors with left-side shadows only
   const getBoroughOutline = (borough: string) => {
     const outlines = {
-      Manhattan: "border-l-4 border-t-4 border-l-blue-600 border-t-blue-600",
-      Brooklyn: "border-l-4 border-t-4 border-l-pink-600 border-t-pink-600", 
-      Queens: "border-l-4 border-t-4 border-l-purple-600 border-t-purple-600",
-      Bronx: "border-l-4 border-t-4 border-l-orange-600 border-t-orange-600",
-      "Staten Island": "border-l-4 border-t-4 border-l-amber-800 border-t-amber-800"
+      Manhattan: "border-l-4 border-t-4 border-l-blue-600 border-t-blue-600 shadow-[-4px_0_8px_rgba(37,99,235,0.3)]",
+      Brooklyn: "border-l-4 border-t-4 border-l-pink-600 border-t-pink-600 shadow-[-4px_0_8px_rgba(219,39,119,0.3)]", 
+      Queens: "border-l-4 border-t-4 border-l-purple-600 border-t-purple-600 shadow-[-4px_0_8px_rgba(147,51,234,0.3)]",
+      Bronx: "border-l-4 border-t-4 border-l-orange-600 border-t-orange-600 shadow-[-4px_0_8px_rgba(234,88,12,0.3)]",
+      "Staten Island": "border-l-4 border-t-4 border-l-amber-800 border-t-amber-800 shadow-[-4px_0_8px_rgba(146,64,14,0.3)]"
     };
-    return outlines[borough as keyof typeof outlines] || "border-l-4 border-t-4 border-l-gray-400 border-t-gray-400";
+    return outlines[borough as keyof typeof outlines] || "border-l-4 border-t-4 border-l-gray-400 border-t-gray-400 shadow-[-4px_0_8px_rgba(156,163,175,0.3)]";
   };
 
   return (
@@ -147,11 +148,11 @@ const OpenMics = () => {
             <p className="text-sm text-gray-600">Discover comedy open mics across NYC</p>
           </div>
           
-          {/* Different character for Find Mics */}
+          {/* Comedian character for Find Mics */}
           <div className="flex-shrink-0 ml-4">
             <img 
-              src="/lovable-uploads/bca90a5b-c6c8-4db0-a8b1-bde4330757d3.png" 
-              alt="Find Mics Character" 
+              src="/lovable-uploads/d5110735-5af1-44b9-b8db-3948f428bb20.png" 
+              alt="Comedian Character" 
               className="w-20 h-20 object-contain"
             />
           </div>
@@ -310,7 +311,7 @@ const OpenMics = () => {
         </Tabs>
       </div>
 
-      {/* Modal for detailed view */}
+      {/* Updated Modal for detailed view with changes/updates data */}
       {selectedMic && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
