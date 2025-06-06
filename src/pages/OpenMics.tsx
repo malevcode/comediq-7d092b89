@@ -148,7 +148,7 @@ const OpenMics = () => {
             {/* Key/Legend Section - Moved up to header */}
             <div className="flex-1 mx-4">
               <div className="bg-orange-50 p-2 border border-orange-200 rounded">
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-4">
                   {/* Example Tile */}
                   <div>
                     <p className="text-xs text-gray-600 mb-1">Example:</p>
@@ -168,45 +168,50 @@ const OpenMics = () => {
                     </Card>
                   </div>
 
-                  {/* Compact Info Grid */}
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
-                    {/* First Column */}
-                    <div className="space-y-1">
-                      <div><span className="font-medium">Left border:</span> Borough</div>
-                      <div><span className="text-green-600 font-medium">Green:</span> Cost | <span className="text-orange-600 font-medium">Orange:</span> Stage time</div>
-                      <div className="flex gap-2">
+                  {/* Condensed Explainer */}
+                  <div className="space-y-2 text-xs">
+                    <div>
+                      <span className="font-medium">Left border:</span> Borough
+                      <div className="flex gap-1 mt-1">
                         <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 bg-green-100 border rounded"></div>
-                          <span>Verified</span>
+                          <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
+                          <span>Man</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 bg-yellow-100 border rounded"></div>
-                          <span>Needs check</span>
+                          <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
+                          <span>Bkn</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 bg-red-100 border rounded"></div>
-                          <span>Unverified</span>
+                          <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
+                          <span>Qns</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
+                          <span>Brx</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
+                          <span>SI</span>
                         </div>
                       </div>
                     </div>
-
-                    {/* Second Column - Borough Colors */}
-                    <div className="grid grid-cols-2 gap-1">
+                    
+                    <div>
+                      Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
+                    </div>
+                    
+                    <div className="flex gap-2">
                       <div className="flex items-center gap-1">
-                        <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
-                        <span>Manhattan</span>
+                        <div className="w-3 h-2 bg-green-100 border rounded"></div>
+                        <span>Verified</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
-                        <span>Brooklyn</span>
+                        <div className="w-3 h-2 bg-yellow-100 border rounded"></div>
+                        <span>Needs check</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
-                        <span>Queens</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
-                        <span>Bronx</span>
+                        <div className="w-3 h-2 bg-red-100 border rounded"></div>
+                        <span>Unverified</span>
                       </div>
                     </div>
                   </div>
