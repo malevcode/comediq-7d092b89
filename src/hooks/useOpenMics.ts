@@ -10,9 +10,30 @@ export const useOpenMics = () => {
       console.log("Fetching open mics from Supabase...");
       
       try {
+        // Check if we can access the table at all
+        console.log("Testing basic table access...");
+        const { count, error: countError } = await supabase
+          .from("open_mics")
+          .select("*", { count: 'exact', head: true });
+          
+        console.log("Table count result:", { count, error: countError });
+        
+        // Try to get schema info
+        const { data: schemaData, error: schemaError } = await supabase
+          .rpc('pg_get_tabledef', {
+            in_schema: 'public',
+            in_table: 'open_mics'
+          })
+          .single();
+          
+        console.log("Schema check result:", { data: schemaData, error: schemaError });
+
+        // Now try the actual query
         const { data, error } = await supabase
           .from("open_mics")
           .select("*");
+
+        console.log("Main query result:", { data, error, dataLength: data?.length });
 
         if (error) {
           console.error("Supabase error:", error);
