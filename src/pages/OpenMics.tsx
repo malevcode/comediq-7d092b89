@@ -161,8 +161,8 @@ const OpenMics = () => {
                 <div className="flex items-center gap-4">
                   {/* Example Tile */}
                   <div>
-                    <p className="text-xs text-gray-600 mb-1">Example:</p>
-                    <Card className="cursor-pointer border-l-4 border-l-cyan-500 bg-green-100 w-32">
+                    <p className="text-xs text-gray-600 mb-2">Example:</p>
+                    <Card className="cursor-pointer border-l-4 border-l-cyan-500 bg-green-100 w-40">
                       <CardContent className="p-1.5">
                         <div className="space-y-0.5">
                           <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
@@ -179,29 +179,29 @@ const OpenMics = () => {
                   </div>
 
                   {/* Condensed Explainer */}
-                  <div className="space-y-2 text-xs">
+                  <div className="space-y-3 text-xs">
                     <div>
                       <span className="font-medium">Left border:</span> Borough
-                      <div className="flex gap-1 mt-1">
+                      <div className="flex flex-wrap gap-2 mt-1">
                         <div className="flex items-center gap-1">
                           <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
-                          <span>Man</span>
+                          <span>Manhattan</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
-                          <span>Bkn</span>
+                          <span>Brooklyn</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
-                          <span>Qns</span>
+                          <span>Queens</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
-                          <span>Brx</span>
+                          <span>Bronx</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
-                          <span>SI</span>
+                          <span>Staten Island</span>
                         </div>
                       </div>
                     </div>
@@ -210,9 +210,9 @@ const OpenMics = () => {
                       Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
                     </div>
                     
-                    <div className="flex items-start gap-2">
+                    <div className="flex flex-col gap-2">
                       <span className="font-medium">Active Status:</span>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-3">
                         <div className="flex items-center gap-1">
                           <div className="w-3 h-2 bg-green-100 border rounded"></div>
                           <span>Verified</span>
@@ -265,49 +265,73 @@ const OpenMics = () => {
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-2">
                 <div className="bg-orange-50 p-3 border border-orange-200 rounded-lg">
-                  <div className="text-xs space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">Boroughs:</span>
-                      <div className="flex gap-1">
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
-                          <span>Man</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
-                          <span>Bkn</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
-                          <span>Qns</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
-                          <span>Brx</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
-                          <span>SI</span>
+                  <div className="flex flex-col gap-3">
+                    {/* Example Tile */}
+                    <div>
+                      <p className="text-xs text-gray-600 mb-2">Example:</p>
+                      <Card className="cursor-pointer border-l-4 border-l-cyan-500 bg-green-100 w-40">
+                        <CardContent className="p-1.5">
+                          <div className="space-y-0.5">
+                            <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
+                              Comedy Night
+                            </h3>
+                            <div className="text-xs flex items-center justify-between">
+                              <span className="text-gray-700 font-medium">8:00 PM</span>
+                              <span className="text-green-600 font-medium">Free</span>
+                              <span className="text-orange-600 font-medium">5</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Detailed Explainer */}
+                    <div className="space-y-3 text-xs">
+                      <div>
+                        <span className="font-medium">Left border:</span> Borough
+                        <div className="flex flex-wrap gap-2 mt-1">
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
+                            <span>Manhattan</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
+                            <span>Brooklyn</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
+                            <span>Queens</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
+                            <span>Bronx</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
+                            <span>Staten Island</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div>
-                      Format: Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="font-medium">Active Status:</span>
-                      <div className="flex gap-2">
-                        <div className="flex items-center gap-1">
-                          <div className="w-3 h-2 bg-green-100 border rounded"></div>
-                          <span>Verified</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-3 h-2 bg-yellow-100 border rounded"></div>
-                          <span>Needs check</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-3 h-2 bg-red-100 border rounded"></div>
-                          <span>Unverified</span>
+                      
+                      <div>
+                        Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
+                      </div>
+                      
+                      <div className="flex flex-col gap-2">
+                        <span className="font-medium">Active Status:</span>
+                        <div className="flex flex-wrap gap-3">
+                          <div className="flex items-center gap-1">
+                            <div className="w-3 h-2 bg-green-100 border rounded"></div>
+                            <span>Verified</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-3 h-2 bg-yellow-100 border rounded"></div>
+                            <span>Needs check</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-3 h-2 bg-red-100 border rounded"></div>
+                            <span>Unverified</span>
+                          </div>
                         </div>
                       </div>
                     </div>
