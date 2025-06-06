@@ -125,16 +125,16 @@ const OpenMics = () => {
     }
   };
 
-  // Borough outline colors for left and top borders
+  // Borough outline colors for left border only
   const getBoroughOutline = (borough: string) => {
     const outlines = {
-      Manhattan: "border-l-4 border-t-4 border-l-blue-600 border-t-blue-600",
-      Brooklyn: "border-l-4 border-t-4 border-l-pink-600 border-t-pink-600", 
-      Queens: "border-l-4 border-t-4 border-l-purple-600 border-t-purple-600",
-      Bronx: "border-l-4 border-t-4 border-l-orange-600 border-t-orange-600",
-      "Staten Island": "border-l-4 border-t-4 border-l-amber-800 border-t-amber-800"
+      Manhattan: "border-l-4 border-l-blue-600",
+      Brooklyn: "border-l-4 border-l-pink-600", 
+      Queens: "border-l-4 border-l-purple-600",
+      Bronx: "border-l-4 border-l-orange-600",
+      "Staten Island": "border-l-4 border-l-amber-800"
     };
-    return outlines[borough as keyof typeof outlines] || "border-l-4 border-t-4 border-l-gray-400 border-t-gray-400";
+    return outlines[borough as keyof typeof outlines] || "border-l-4 border-l-gray-400";
   };
 
   return (
