@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import OpenMics from "./pages/OpenMics";
 import TrackSets from "./pages/TrackSets";
 import Auth from "./pages/Auth";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import BottomNavigation from "./components/BottomNavigation";
 
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/open-mics" element={<OpenMics />} />
             <Route path="/track-sets" element={<TrackSets />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/profile" element={<Profile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

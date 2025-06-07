@@ -18,6 +18,7 @@ const OpenMics = () => {
   const [activeTab, setActiveTab] = useState("active");
   const [showFilters, setShowFilters] = useState(false);
   const [showMobileKey, setShowMobileKey] = useState(false);
+  const [showDesktopKey, setShowDesktopKey] = useState(false);
   
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
@@ -202,9 +203,17 @@ const OpenMics = () => {
               </div>
             </div>
 
-            {/* Desktop auth section */}
+            {/* Desktop auth section with help button */}
             <div className="hidden sm:flex items-center justify-between">
-              <div></div>
+              <Button 
+                onClick={() => setShowDesktopKey(!showDesktopKey)} 
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <HelpCircle className="h-4 w-4" />
+                <span className="text-sm">Help</span>
+              </Button>
               {user ? (
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-600">Welcome back!</span>
@@ -220,86 +229,88 @@ const OpenMics = () => {
               )}
             </div>
 
-            {/* Desktop Key/Legend Section */}
-            <div className="hidden lg:block">
-              <div className="bg-orange-50 p-4 border border-orange-200 rounded-lg">
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
-                  {/* Example Tile */}
-                  <div>
-                    <p className="text-sm text-gray-600 mb-3 font-medium">Example:</p>
-                    <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-full max-w-48">
-                      <CardContent className="p-3">
-                        <div className="space-y-2">
-                          <h3 className="font-bold text-sm text-gray-900">
-                            Comedy Night
-                          </h3>
-                          <div className="text-xs space-y-1">
-                            <div className="text-gray-700 font-medium">8:00 PM</div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-green-600 font-medium">Free</span>
-                              <span className="text-orange-600 font-medium">5</span>
+            {/* Desktop Key/Legend Section - now controlled by button */}
+            {showDesktopKey && (
+              <div className="hidden lg:block">
+                <div className="bg-orange-50 p-4 border border-orange-200 rounded-lg">
+                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+                    {/* Example Tile */}
+                    <div>
+                      <p className="text-sm text-gray-600 mb-3 font-medium">Example:</p>
+                      <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-full max-w-48">
+                        <CardContent className="p-3">
+                          <div className="space-y-2">
+                            <h3 className="font-bold text-sm text-gray-900">
+                              Comedy Night
+                            </h3>
+                            <div className="text-xs space-y-1">
+                              <div className="text-gray-700 font-medium">8:00 PM</div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-green-600 font-medium">Free</span>
+                                <span className="text-orange-600 font-medium">5</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Borough Legend */}
-                  <div>
-                    <p className="text-sm text-gray-600 mb-3 font-medium">Left border = Borough:</p>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-4 bg-cyan-500 rounded-sm flex-shrink-0"></div>
-                        <span>Manhattan</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-4 bg-amber-800 rounded-sm flex-shrink-0"></div>
-                        <span>Brooklyn</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-4 bg-purple-600 rounded-sm flex-shrink-0"></div>
-                        <span>Queens</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-4 bg-orange-600 rounded-sm flex-shrink-0"></div>
-                        <span>Bronx</span>
-                      </div>
-                      <div className="flex items-center gap-2 col-span-2">
-                        <div className="w-3 h-4 bg-gray-500 rounded-sm flex-shrink-0"></div>
-                        <span>Staten Island</span>
-                      </div>
+                        </CardContent>
+                      </Card>
                     </div>
-                  </div>
-                  
-                  {/* Status Legend */}
-                  <div className="space-y-3">
+
+                    {/* Borough Legend */}
                     <div>
-                      <p className="text-sm text-gray-600 mb-2 font-medium">Format:</p>
-                      <p className="text-xs">Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span></p>
+                      <p className="text-sm text-gray-600 mb-3 font-medium">Left border = Borough:</p>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-4 bg-cyan-500 rounded-sm flex-shrink-0"></div>
+                          <span>Manhattan</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-4 bg-amber-800 rounded-sm flex-shrink-0"></div>
+                          <span>Brooklyn</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-4 bg-purple-600 rounded-sm flex-shrink-0"></div>
+                          <span>Queens</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-4 bg-orange-600 rounded-sm flex-shrink-0"></div>
+                          <span>Bronx</span>
+                        </div>
+                        <div className="flex items-center gap-2 col-span-2">
+                          <div className="w-3 h-4 bg-gray-500 rounded-sm flex-shrink-0"></div>
+                          <span>Staten Island</span>
+                        </div>
+                      </div>
                     </div>
                     
-                    <div>
-                      <p className="text-sm text-gray-600 mb-2 font-medium">Status (host confirmed?):</p>
-                      <div className="space-y-1 text-xs">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-3 bg-green-100 border rounded flex-shrink-0"></div>
-                          <span>Verified</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-3 bg-yellow-100 border rounded flex-shrink-0"></div>
-                          <span>Needs check</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-3 bg-red-100 border rounded flex-shrink-0"></div>
-                          <span>Unverified</span>
+                    {/* Status Legend */}
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2 font-medium">Format:</p>
+                        <p className="text-xs">Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span></p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2 font-medium">Status (host confirmed?):</p>
+                        <div className="space-y-1 text-xs">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-3 bg-green-100 border rounded flex-shrink-0"></div>
+                            <span>Verified</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-3 bg-yellow-100 border rounded flex-shrink-0"></div>
+                            <span>Needs check</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-3 bg-red-100 border rounded flex-shrink-0"></div>
+                            <span>Unverified</span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

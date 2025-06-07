@@ -1,14 +1,17 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { Search, List, Compass } from "lucide-react";
+import { Search, List, Compass, User } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const BottomNavigation = () => {
   const location = useLocation();
+  const { user } = useAuth();
 
   const navItems = [
     { path: "/", icon: Compass, label: "Home" },
     { path: "/open-mics", icon: Search, label: "Find Mics" },
-    { path: "/track-sets", icon: List, label: "Track Sets" }
+    { path: "/track-sets", icon: List, label: "Track Sets" },
+    ...(user ? [{ path: "/profile", icon: User, label: "Profile" }] : [])
   ];
 
   return (
