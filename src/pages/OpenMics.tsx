@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Search, Filter, HelpCircle, Heart, ThumbsDown, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -164,113 +165,134 @@ const OpenMics = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
-      {/* Compact Header - Mobile optimized */}
-      <div className="h-auto bg-white border-b border-orange-100">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          {/* Mobile: Stack vertically, Desktop: Keep horizontal */}
-          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-            {/* Title Section */}
-            <div className="flex items-center justify-between">
-              <div className="flex-shrink-0">
-                <div className="flex items-center gap-4">
-                  <div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Find Open Mics</h1>
-                    <p className="text-sm text-gray-600">Discover comedy open mics across NYC ({openMics.length} mics total)</p>
-                  </div>
-                  
-                  {/* Auth button */}
-                  <div className="hidden sm:block">
-                    {user ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-600">Welcome back!</span>
-                        <Button onClick={signOut} variant="outline" size="sm">
-                          Sign Out
-                        </Button>
-                      </div>
-                    ) : (
-                      <Button onClick={() => navigate('/auth')} className="bg-orange-500 hover:bg-orange-600">
-                        <LogIn className="h-4 w-4 mr-2" />
-                        Sign In
+      {/* Improved Header - Better responsive design */}
+      <div className="bg-white border-b border-orange-100">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex flex-col space-y-6">
+            {/* Title and Character Section */}
+            <div className="flex items-start justify-between">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Find Open Mics</h1>
+                <p className="text-gray-600">Discover comedy open mics across NYC ({openMics.length} mics total)</p>
+                
+                {/* Mobile auth section */}
+                <div className="mt-4 sm:hidden">
+                  {user ? (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Welcome back!</span>
+                      <Button onClick={signOut} variant="outline" size="sm">
+                        Sign Out
                       </Button>
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <Button onClick={() => navigate('/auth')} className="w-full bg-orange-500 hover:bg-orange-600">
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Sign In to Like Mics
+                    </Button>
+                  )}
                 </div>
               </div>
               
-              {/* Comedian character - visible on mobile, bigger size */}
-              <div className="flex-shrink-0 lg:hidden">
-                <img src="/lovable-uploads/ed025a0f-85b1-4f87-8235-673628f9ffdb.png" alt="Find Mics Comedian Character" className="w-20 h-20 object-contain" />
+              {/* Comedian character - centered and properly sized */}
+              <div className="flex-shrink-0 ml-4">
+                <img 
+                  src="/lovable-uploads/ed025a0f-85b1-4f87-8235-673628f9ffdb.png" 
+                  alt="Find Mics Comedian Character" 
+                  className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 object-contain" 
+                />
               </div>
             </div>
 
-            {/* Key/Legend Section - Hidden on mobile, shown on desktop */}
-            <div className="hidden lg:flex flex-1 mx-4">
-              <div className="bg-orange-50 p-2 border border-orange-200 rounded">
-                <div className="flex items-center gap-4">
+            {/* Desktop auth section */}
+            <div className="hidden sm:flex items-center justify-between">
+              <div></div>
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">Welcome back!</span>
+                  <Button onClick={signOut} variant="outline" size="sm">
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <Button onClick={() => navigate('/auth')} className="bg-orange-500 hover:bg-orange-600">
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign In
+                </Button>
+              )}
+            </div>
+
+            {/* Key/Legend Section - Better responsive layout */}
+            <div className="hidden lg:block">
+              <div className="bg-orange-50 p-4 border border-orange-200 rounded-lg">
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
                   {/* Example Tile */}
                   <div>
-                    <p className="text-xs text-gray-600 mb-2">Example:</p>
-                    <Card className="cursor-pointer border-l-4 border-l-cyan-500 bg-green-100 w-40">
-                      <CardContent className="p-1.5">
-                        <div className="space-y-0.5">
-                          <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
+                    <p className="text-sm text-gray-600 mb-3 font-medium">Example:</p>
+                    <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-full max-w-48">
+                      <CardContent className="p-3">
+                        <div className="space-y-2">
+                          <h3 className="font-bold text-sm text-gray-900">
                             Comedy Night
                           </h3>
-                          <div className="text-xs flex items-center justify-between">
-                            <span className="text-gray-700 font-medium">8:00 PM</span>
-                            <span className="text-green-600 font-medium">Free</span>
-                            <span className="text-orange-600 font-medium">5</span>
+                          <div className="text-xs space-y-1">
+                            <div className="text-gray-700 font-medium">8:00 PM</div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-green-600 font-medium">Free</span>
+                              <span className="text-orange-600 font-medium">5</span>
+                            </div>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                   </div>
 
-                  {/* Condensed Explainer */}
-                  <div className="space-y-3 text-xs">
-                    <div>
-                      <span className="font-medium">Left border:</span> Borough
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
-                          <span>Manhattan</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
-                          <span>Brooklyn</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
-                          <span>Queens</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
-                          <span>Bronx</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
-                          <span>Staten Island</span>
-                        </div>
+                  {/* Borough Legend */}
+                  <div>
+                    <p className="text-sm text-gray-600 mb-3 font-medium">Left border = Borough:</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-4 bg-cyan-500 rounded-sm flex-shrink-0"></div>
+                        <span>Manhattan</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-4 bg-amber-800 rounded-sm flex-shrink-0"></div>
+                        <span>Brooklyn</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-4 bg-purple-600 rounded-sm flex-shrink-0"></div>
+                        <span>Queens</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-4 bg-orange-600 rounded-sm flex-shrink-0"></div>
+                        <span>Bronx</span>
+                      </div>
+                      <div className="flex items-center gap-2 col-span-2">
+                        <div className="w-3 h-4 bg-gray-500 rounded-sm flex-shrink-0"></div>
+                        <span>Staten Island</span>
                       </div>
                     </div>
-                    
+                  </div>
+                  
+                  {/* Status Legend */}
+                  <div className="space-y-3">
                     <div>
-                      Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
+                      <p className="text-sm text-gray-600 mb-2 font-medium">Format:</p>
+                      <p className="text-xs">Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span></p>
                     </div>
                     
-                    <div className="flex flex-col gap-2">
-                      <span className="font-medium">Active Status (did the host text to confirm?):</span>
-                      <div className="flex flex-wrap gap-3">
-                        <div className="flex items-center gap-1">
-                          <div className="w-3 h-2 bg-green-100 border rounded"></div>
+                    <div>
+                      <p className="text-sm text-gray-600 mb-2 font-medium">Status (host confirmed?):</p>
+                      <div className="space-y-1 text-xs">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-3 bg-green-100 border rounded flex-shrink-0"></div>
                           <span>Verified</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-3 h-2 bg-yellow-100 border rounded"></div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-3 bg-yellow-100 border rounded flex-shrink-0"></div>
                           <span>Needs check</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-3 h-2 bg-red-100 border rounded"></div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-3 bg-red-100 border rounded flex-shrink-0"></div>
                           <span>Unverified</span>
                         </div>
                       </div>
@@ -279,34 +301,12 @@ const OpenMics = () => {
                 </div>
               </div>
             </div>
-            
-            {/* Comedian character for desktop - bigger size */}
-            <div className="hidden lg:block flex-shrink-0">
-              <img src="/lovable-uploads/ed025a0f-85b1-4f87-8235-673628f9ffdb.png" alt="Find Mics Comedian Character" className="w-24 h-24 object-contain" />
-            </div>
-          </div>
-          
-          {/* Mobile auth section */}
-          <div className="sm:hidden mt-4">
-            {user ? (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Welcome back!</span>
-                <Button onClick={signOut} variant="outline" size="sm">
-                  Sign Out
-                </Button>
-              </div>
-            ) : (
-              <Button onClick={() => navigate('/auth')} className="w-full bg-orange-500 hover:bg-orange-600">
-                <LogIn className="h-4 w-4 mr-2" />
-                Sign In to Like Mics
-              </Button>
-            )}
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Search and Filters - Hidden on mobile by default */}
+        {/* Search and Filters */}
         <div className={`bg-white rounded-xl shadow-lg p-4 mb-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
@@ -330,11 +330,11 @@ const OpenMics = () => {
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-2">
                 <div className="bg-orange-50 p-3 border border-orange-200 rounded-lg">
-                  <div className="flex flex-col gap-3">
+                  <div className="space-y-4">
                     {/* Example Tile */}
                     <div>
                       <p className="text-xs text-gray-600 mb-2">Example:</p>
-                      <Card className="cursor-pointer border-l-4 border-l-cyan-500 bg-green-100 w-40">
+                      <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-40">
                         <CardContent className="p-1.5">
                           <div className="space-y-0.5">
                             <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
@@ -350,53 +350,51 @@ const OpenMics = () => {
                       </Card>
                     </div>
 
-                    {/* Detailed Explainer */}
-                    <div className="space-y-3 text-xs">
-                      <div>
-                        <span className="font-medium">Left border:</span> Borough
-                        <div className="flex flex-wrap gap-2 mt-1">
-                          <div className="flex items-center gap-1">
-                            <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
-                            <span>Manhattan</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
-                            <span>Brooklyn</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
-                            <span>Queens</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
-                            <span>Bronx</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
-                            <span>Staten Island</span>
-                          </div>
+                    {/* Borough Legend */}
+                    <div>
+                      <span className="font-medium text-xs">Left border = Borough:</span>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
+                          <span className="text-xs">Manhattan</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
+                          <span className="text-xs">Brooklyn</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
+                          <span className="text-xs">Queens</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
+                          <span className="text-xs">Bronx</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
+                          <span className="text-xs">Staten Island</span>
                         </div>
                       </div>
-                      
-                      <div>
-                        Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
-                      </div>
-                      
-                      <div className="flex flex-col gap-2">
-                        <span className="font-medium">Active Status (did the host text to confirm?):</span>
-                        <div className="flex flex-wrap gap-3">
-                          <div className="flex items-center gap-1">
-                            <div className="w-3 h-2 bg-green-100 border rounded"></div>
-                            <span>Verified</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <div className="w-3 h-2 bg-yellow-100 border rounded"></div>
-                            <span>Needs check</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <div className="w-3 h-2 bg-red-100 border rounded"></div>
-                            <span>Unverified</span>
-                          </div>
+                    </div>
+                    
+                    <div className="text-xs">
+                      Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
+                    </div>
+                    
+                    <div>
+                      <span className="font-medium text-xs">Status (host confirmed?):</span>
+                      <div className="flex flex-wrap gap-3 mt-1">
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-2 bg-green-100 border rounded"></div>
+                          <span className="text-xs">Verified</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-2 bg-yellow-100 border rounded"></div>
+                          <span className="text-xs">Needs check</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-2 bg-red-100 border rounded"></div>
+                          <span className="text-xs">Unverified</span>
                         </div>
                       </div>
                     </div>
@@ -437,20 +435,20 @@ const OpenMics = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-1 max-h-[calc(100vh-300px)] overflow-y-auto">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 max-h-[calc(100vh-400px)] overflow-y-auto">
                     {filteredMics.map((mic, index) => (
                       <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`} onClick={() => setSelectedMic(mic)}>
-                        <CardContent className="p-1">
-                          <div className="space-y-0.5">
-                            <h3 className="font-bold text-[10px] sm:text-xs text-gray-900 line-clamp-2 leading-tight min-h-[16px] sm:min-h-[24px]">
+                        <CardContent className="p-2">
+                          <div className="space-y-1">
+                            <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight min-h-[24px]">
                               {mic.openMic}
                             </h3>
                             
-                            <div className="text-[9px] sm:text-xs space-y-0.5">
+                            <div className="text-xs space-y-1">
                               <div className="text-gray-700 font-medium truncate">{mic.startTime}</div>
                               <div className="flex justify-between items-center">
-                                <span className="text-green-600 font-medium truncate text-[8px] sm:text-xs">{mic.cost}</span>
-                                <span className="text-orange-600 font-medium text-[8px] sm:text-xs">
+                                <span className="text-green-600 font-medium truncate text-[10px]">{mic.cost}</span>
+                                <span className="text-orange-600 font-medium text-[10px]">
                                   {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
                                 </span>
                               </div>
@@ -489,20 +487,20 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-1 max-h-[calc(100vh-300px)] overflow-y-auto">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 max-h-[calc(100vh-400px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-1">
-                            <div className="space-y-0.5">
-                              <h3 className="font-bold text-[10px] sm:text-xs text-gray-900 line-clamp-2 leading-tight min-h-[16px] sm:min-h-[24px]">
+                          <CardContent className="p-2">
+                            <div className="space-y-1">
+                              <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight min-h-[24px]">
                                 {mic.openMic}
                               </h3>
                               
-                              <div className="text-[9px] sm:text-xs space-y-0.5">
+                              <div className="text-xs space-y-1">
                                 <div className="text-gray-700 font-medium truncate">{mic.startTime}</div>
                                 <div className="flex justify-between items-center">
-                                  <span className="text-green-600 font-medium truncate text-[8px] sm:text-xs">{mic.cost}</span>
-                                  <span className="text-orange-600 font-medium text-[8px] sm:text-xs">
+                                  <span className="text-green-600 font-medium truncate text-[10px]">{mic.cost}</span>
+                                  <span className="text-orange-600 font-medium text-[10px]">
                                     {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
                                   </span>
                                 </div>
@@ -537,20 +535,20 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-1 max-h-[calc(100vh-300px)] overflow-y-auto">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 max-h-[calc(100vh-400px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-1">
-                            <div className="space-y-0.5">
-                              <h3 className="font-bold text-[10px] sm:text-xs text-gray-900 line-clamp-2 leading-tight min-h-[16px] sm:min-h-[24px]">
+                          <CardContent className="p-2">
+                            <div className="space-y-1">
+                              <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight min-h-[24px]">
                                 {mic.openMic}
                               </h3>
                               
-                              <div className="text-[9px] sm:text-xs space-y-0.5">
+                              <div className="text-xs space-y-1">
                                 <div className="text-gray-700 font-medium truncate">{mic.startTime}</div>
                                 <div className="flex justify-between items-center">
-                                  <span className="text-green-600 font-medium truncate text-[8px] sm:text-xs">{mic.cost}</span>
-                                  <span className="text-orange-600 font-medium text-[8px] sm:text-xs">
+                                  <span className="text-green-600 font-medium truncate text-[10px]">{mic.cost}</span>
+                                  <span className="text-orange-600 font-medium text-[10px]">
                                     {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
                                   </span>
                                 </div>
