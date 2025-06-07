@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, Filter, HelpCircle, Heart, ThumbsDown, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -193,12 +192,12 @@ const OpenMics = () => {
                 </div>
               </div>
               
-              {/* Comedian character - centered and properly sized */}
-              <div className="flex-shrink-0 ml-4">
+              {/* Comedian character - better responsive positioning */}
+              <div className="flex-shrink-0 ml-4 self-start">
                 <img 
                   src="/lovable-uploads/ed025a0f-85b1-4f87-8235-673628f9ffdb.png" 
                   alt="Find Mics Comedian Character" 
-                  className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 object-contain" 
+                  className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 object-contain" 
                 />
               </div>
             </div>
@@ -221,7 +220,7 @@ const OpenMics = () => {
               )}
             </div>
 
-            {/* Key/Legend Section - Better responsive layout */}
+            {/* Desktop Key/Legend Section */}
             <div className="hidden lg:block">
               <div className="bg-orange-50 p-4 border border-orange-200 rounded-lg">
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
@@ -306,7 +305,108 @@ const OpenMics = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Search and Filters */}
+        {/* Mobile Control Buttons - Fixed positioning above content */}
+        <div className="lg:hidden mb-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Collapsible open={showMobileKey} onOpenChange={setShowMobileKey}>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <HelpCircle className="h-4 w-4" />
+                  <span className="text-xs">Help</span>
+                </Button>
+              </CollapsibleTrigger>
+            </Collapsible>
+            
+            <Button 
+              onClick={() => setShowFilters(!showFilters)} 
+              variant="outline" 
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              <span className="text-xs">Filters</span>
+            </Button>
+          </div>
+
+          {/* Mobile Key/Legend - positioned properly below buttons */}
+          <Collapsible open={showMobileKey} onOpenChange={setShowMobileKey}>
+            <CollapsibleContent className="mb-4">
+              <div className="bg-orange-50 p-3 border border-orange-200 rounded-lg">
+                <div className="space-y-4">
+                  {/* Example Tile */}
+                  <div>
+                    <p className="text-xs text-gray-600 mb-2">Example:</p>
+                    <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-40">
+                      <CardContent className="p-1.5">
+                        <div className="space-y-0.5">
+                          <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
+                            Comedy Night
+                          </h3>
+                          <div className="text-xs flex items-center justify-between">
+                            <span className="text-gray-700 font-medium">8:00 PM</span>
+                            <span className="text-green-600 font-medium">Free</span>
+                            <span className="text-orange-600 font-medium">5</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Borough Legend */}
+                  <div>
+                    <span className="font-medium text-xs">Left border = Borough:</span>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
+                        <span className="text-xs">Manhattan</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
+                        <span className="text-xs">Brooklyn</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
+                        <span className="text-xs">Queens</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
+                        <span className="text-xs">Bronx</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
+                        <span className="text-xs">Staten Island</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-xs">
+                    Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
+                  </div>
+                  
+                  <div>
+                    <span className="font-medium text-xs">Status (host confirmed?):</span>
+                    <div className="flex flex-wrap gap-3 mt-1">
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-2 bg-green-100 border rounded"></div>
+                        <span className="text-xs">Verified</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-2 bg-yellow-100 border rounded"></div>
+                        <span className="text-xs">Needs check</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-2 bg-red-100 border rounded"></div>
+                        <span className="text-xs">Unverified</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
+
+        {/* Search and Filters - positioned properly below mobile buttons */}
         <div className={`bg-white rounded-xl shadow-lg p-4 mb-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
@@ -316,99 +416,6 @@ const OpenMics = () => {
             <select value={selectedBorough} onChange={e => setSelectedBorough(e.target.value)} className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
               {boroughs.map(borough => <option key={borough} value={borough}>{borough}</option>)}
             </select>
-          </div>
-        </div>
-
-        {/* Mobile Key/Legend with collapsible help button */}
-        <div className="lg:hidden mb-4">
-          <div className="flex items-center gap-2">
-            <Collapsible open={showMobileKey} onOpenChange={setShowMobileKey}>
-              <CollapsibleTrigger asChild>
-                <Button variant="outline" size="sm" className="p-2">
-                  <HelpCircle className="h-4 w-4" />
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-2">
-                <div className="bg-orange-50 p-3 border border-orange-200 rounded-lg">
-                  <div className="space-y-4">
-                    {/* Example Tile */}
-                    <div>
-                      <p className="text-xs text-gray-600 mb-2">Example:</p>
-                      <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-40">
-                        <CardContent className="p-1.5">
-                          <div className="space-y-0.5">
-                            <h3 className="font-bold text-xs text-gray-900 line-clamp-2 leading-tight">
-                              Comedy Night
-                            </h3>
-                            <div className="text-xs flex items-center justify-between">
-                              <span className="text-gray-700 font-medium">8:00 PM</span>
-                              <span className="text-green-600 font-medium">Free</span>
-                              <span className="text-orange-600 font-medium">5</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    {/* Borough Legend */}
-                    <div>
-                      <span className="font-medium text-xs">Left border = Borough:</span>
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-cyan-500 rounded-sm"></div>
-                          <span className="text-xs">Manhattan</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-amber-800 rounded-sm"></div>
-                          <span className="text-xs">Brooklyn</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-purple-600 rounded-sm"></div>
-                          <span className="text-xs">Queens</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-orange-600 rounded-sm"></div>
-                          <span className="text-xs">Bronx</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-gray-500 rounded-sm"></div>
-                          <span className="text-xs">Staten Island</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="text-xs">
-                      Time | <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
-                    </div>
-                    
-                    <div>
-                      <span className="font-medium text-xs">Status (host confirmed?):</span>
-                      <div className="flex flex-wrap gap-3 mt-1">
-                        <div className="flex items-center gap-1">
-                          <div className="w-3 h-2 bg-green-100 border rounded"></div>
-                          <span className="text-xs">Verified</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-3 h-2 bg-yellow-100 border rounded"></div>
-                          <span className="text-xs">Needs check</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-3 h-2 bg-red-100 border rounded"></div>
-                          <span className="text-xs">Unverified</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-            <Button 
-              onClick={() => setShowFilters(!showFilters)} 
-              variant="outline" 
-              size="sm"
-            >
-              <Filter className="h-4 w-4" />
-            </Button>
           </div>
         </div>
 
