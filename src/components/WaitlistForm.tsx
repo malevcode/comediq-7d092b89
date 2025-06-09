@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,10 +88,10 @@ const WaitlistForm = () => {
       <div className="max-w-3xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Ready to Level Up Your Comedy Game?
+            Comedian Affiliate Application Form
           </h2>
           <p className="text-xl text-gray-600">
-            Join the waitlist to be the first to access Comediq and take your comedy career to the next level.
+            Join our comedian affiliate program to be the first to access Comediq and help us spread the word to other comedians.
           </p>
         </div>
 
