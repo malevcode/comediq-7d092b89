@@ -1,11 +1,14 @@
 
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
-interface PricingProps {
-  onJoinWaitlist: () => void;
-}
+const Pricing = () => {
+  const navigate = useNavigate();
 
-const Pricing = ({ onJoinWaitlist }: PricingProps) => {
+  const handleSignUp = () => {
+    navigate("/auth");
+  };
+
   return (
     <section className="py-20 bg-white">
       <div className="max-w-6xl mx-auto px-4">
@@ -40,7 +43,7 @@ const Pricing = ({ onJoinWaitlist }: PricingProps) => {
               </li>
             </ul>
             <Button 
-              onClick={onJoinWaitlist}
+              onClick={handleSignUp}
               className="w-full bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full"
             >
               Get Started Free

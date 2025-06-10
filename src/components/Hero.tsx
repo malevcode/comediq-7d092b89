@@ -1,11 +1,14 @@
 
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
-interface HeroProps {
-  onJoinWaitlist: () => void;
-}
+const Hero = () => {
+  const navigate = useNavigate();
 
-const Hero = ({ onJoinWaitlist }: HeroProps) => {
+  const handleSignUp = () => {
+    navigate("/auth");
+  };
+
   return (
     <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4 py-8">
       <div className="max-w-6xl mx-auto w-full">
@@ -18,10 +21,10 @@ const Hero = ({ onJoinWaitlist }: HeroProps) => {
               Find open mics, track your sets, analyze your performance, and grow your comedy career - all in one place.
             </p>
             <Button 
-              onClick={onJoinWaitlist} 
+              onClick={handleSignUp} 
               className="bg-orange-500 hover:bg-orange-600 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-full transition-all duration-300 transform hover:scale-105 mb-6 lg:mb-8 w-full sm:w-auto"
             >
-              Join the Waitlist
+              Sign Up
             </Button>
             <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto lg:mx-0 px-4 sm:px-8 lg:px-0 leading-relaxed">
               ComediQ is not an AI comedy writer. Your comedy comes from your unique human experience, writing style, and performance personality. Our AI simply helps you understand and improve your impact.

@@ -30,11 +30,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen pb-20">
-      <Navigation onJoinWaitlist={scrollToWaitlist} />
+      <Navigation />
       <div className="pt-20">
-        <Hero onJoinWaitlist={scrollToWaitlist} />
+        <Hero />
         <Features />
-        <Pricing onJoinWaitlist={scrollToWaitlist} />
+        <Pricing />
         <WaitlistForm />
       </div>
     </div>
