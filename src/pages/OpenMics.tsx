@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, Filter, HelpCircle, Heart, ThumbsDown, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,7 @@ import { useOpenMics } from "@/hooks/useOpenMics";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMicRatings, useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate } from "react-router-dom";
+import MicDetailModal from "@/components/MicDetailModal";
 
 const OpenMics = () => {
   const [searchTerm, setSearchTerm] = useState("");
