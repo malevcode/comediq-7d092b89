@@ -85,9 +85,10 @@ const OpenMics = () => {
     return initials[cleanBorough as keyof typeof initials] || "?";
   };
 
-  // Helper function to format time without AM/PM
-  const formatTimeWithoutPeriod = (timeStr: string) => {
-    return timeStr.replace(/\s*(AM|PM)/gi, '');
+  // Helper function to format time
+  const formatTime = (timeStr: string) => {
+    // Convert "8:00 PM" to "8:00 PM" format, keeping it readable
+    return timeStr;
   };
 
   // Helper function to format cost for display
@@ -96,7 +97,7 @@ const OpenMics = () => {
     // Remove dollar sign and extract numbers, keep it short
     const match = cost.match(/\$?(\d+)/);
     if (match) return `$${match[1]}`;
-    return cost.length > 6 ? cost.substring(0, 6) + '...' : cost;
+    return cost.length > 8 ? cost.substring(0, 8) + '...' : cost;
   };
 
   // Helper function to format stage time for display
@@ -499,18 +500,18 @@ const OpenMics = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-7 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
+                  <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-7 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
                     {filteredMics.map((mic, index) => (
                       <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
-                        <CardContent className="p-3 h-full flex flex-col justify-between">
+                        <CardContent className="p-2 h-full flex flex-col justify-between">
                           <div className="space-y-1 flex-1 min-h-0">
-                            <h3 className="font-bold text-sm text-gray-900 leading-tight overflow-hidden line-clamp-2 break-words">
+                            <h3 className="font-bold text-xs leading-tight overflow-hidden line-clamp-3 break-words text-gray-900">
                               {mic.openMic}
                             </h3>
                             <div className="text-xs text-gray-700 font-medium">
-                              {formatTimeWithoutPeriod(mic.startTime)} {getBoroughInitial(mic.borough)}
+                              {formatTime(mic.startTime)}
                             </div>
-                            <div className="flex justify-between items-center text-xs">
+                            <div className="flex justify-between items-center text-xs mt-auto">
                               <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[60%]">
                                 {formatCost(mic.cost)}
                               </span>
@@ -552,18 +553,18 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-7 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
+                    <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-7 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-3 h-full flex flex-col justify-between">
+                          <CardContent className="p-2 h-full flex flex-col justify-between">
                             <div className="space-y-1 flex-1 min-h-0">
-                              <h3 className="font-bold text-sm text-gray-900 leading-tight overflow-hidden line-clamp-2 break-words">
+                              <h3 className="font-bold text-xs leading-tight overflow-hidden line-clamp-3 break-words text-gray-900">
                                 {mic.openMic}
                               </h3>
                               <div className="text-xs text-gray-700 font-medium">
-                                {formatTimeWithoutPeriod(mic.startTime)} {getBoroughInitial(mic.borough)}
+                                {formatTime(mic.startTime)}
                               </div>
-                              <div className="flex justify-between items-center text-xs">
+                              <div className="flex justify-between items-center text-xs mt-auto">
                                 <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[60%]">
                                   {formatCost(mic.cost)}
                                 </span>
@@ -601,18 +602,18 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-7 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
+                    <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-7 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-3 h-full flex flex-col justify-between">
+                          <CardContent className="p-2 h-full flex flex-col justify-between">
                             <div className="space-y-1 flex-1 min-h-0">
-                              <h3 className="font-bold text-sm text-gray-900 leading-tight overflow-hidden line-clamp-2 break-words">
+                              <h3 className="font-bold text-xs leading-tight overflow-hidden line-clamp-3 break-words text-gray-900">
                                 {mic.openMic}
                               </h3>
                               <div className="text-xs text-gray-700 font-medium">
-                                {formatTimeWithoutPeriod(mic.startTime)} {getBoroughInitial(mic.borough)}
+                                {formatTime(mic.startTime)}
                               </div>
-                              <div className="flex justify-between items-center text-xs">
+                              <div className="flex justify-between items-center text-xs mt-auto">
                                 <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[60%]">
                                   {formatCost(mic.cost)}
                                 </span>
