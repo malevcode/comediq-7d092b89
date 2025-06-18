@@ -216,7 +216,7 @@ const OpenMics = () => {
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
                 <h1 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Find Open Mics</h1>
-                <p className="text-xs text-gray-600">Discover comedy open mics across NYC ({openMics.length} mics total)</p>
+                <p className="text-xs text-gray-600">Discover comedy open mics across NYC</p>
                 
                 {/* Mobile auth section */}
                 <div className="mt-2 sm:hidden">
