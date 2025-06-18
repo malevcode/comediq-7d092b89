@@ -32,6 +32,9 @@ const Hero = () => {
             
             {/* Footer with links */}
             <div className="mt-8 pt-8 border-t border-gray-200 text-center lg:text-left">
+              <p className="text-sm text-gray-600 mb-4 px-4 sm:px-8 lg:px-0">
+                This Web App Started as a Google Sheet tracking all of NYC's open mics, still publicly editable here
+              </p>
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 text-sm text-gray-500">
                 <a 
                   href="https://docs.google.com/spreadsheets/d/1wROLFgLrbgP1aP_b9VIJn0QzbGzmifT9r7CV15Lw7Mw/edit?usp=drivesdk" 
@@ -49,7 +52,7 @@ const Hero = () => {
           
           <div className="flex justify-center order-1 lg:order-2">
             <img 
-              src="/lovable-uploads/05168ab8-2327-4ef4-90ca-54c3f66da85c.png" 
+              src="/lovable-uploads/fc65b384-6c71-4c5e-9c70-52716864f5ad.png" 
               alt="Comediq Mascot" 
               className="w-48 sm:w-64 lg:w-80 h-auto max-w-full object-cover" 
             />
