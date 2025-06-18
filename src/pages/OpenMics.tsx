@@ -72,10 +72,17 @@ const OpenMics = () => {
   });
   const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
 
-  // Helper function to truncate text to specified length
-  const truncateText = (text: string, maxLength: number) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength);
+  // Helper function to get borough initial
+  const getBoroughInitial = (borough: string) => {
+    const cleanBorough = borough.trim();
+    const initials = {
+      Manhattan: "M",
+      Brooklyn: "B", 
+      Queens: "Q",
+      Bronx: "X",
+      "Staten Island": "S"
+    };
+    return initials[cleanBorough as keyof typeof initials] || "?";
   };
 
   // Helper function to format time without AM/PM
@@ -85,11 +92,11 @@ const OpenMics = () => {
 
   // Helper function to format cost for display
   const formatCost = (cost: string) => {
-    if (cost.toLowerCase().includes('free')) return 'Fre';
+    if (cost.toLowerCase().includes('free')) return 'Free';
     // Remove dollar sign and extract numbers, keep it short
     const match = cost.match(/\$?(\d+)/);
     if (match) return `$${match[1]}`;
-    return truncateText(cost, 3);
+    return cost.length > 6 ? cost.substring(0, 6) + '...' : cost;
   };
 
   // Helper function to format stage time for display
@@ -97,7 +104,7 @@ const OpenMics = () => {
     // Extract numbers from stage time
     const match = stageTime.match(/(\d+)/);
     if (match) return match[1];
-    return truncateText(stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 2);
+    return stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim().substring(0, 3);
   };
 
   // Get filtered mics based on time and day
@@ -302,15 +309,15 @@ const OpenMics = () => {
                     {/* Example Tile */}
                     <div>
                       <p className="text-xs text-gray-600 mb-2 font-medium">Example:</p>
-                      <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-full max-w-24">
-                        <CardContent className="p-2 aspect-square flex flex-col justify-between">
+                      <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-full max-w-32">
+                        <CardContent className="p-3 aspect-square flex flex-col justify-between">
                           <div className="space-y-1">
-                            <h3 className="font-bold text-xs text-gray-900">
-                              Comed
+                            <h3 className="font-bold text-sm text-gray-900 line-clamp-2">
+                              Comedy Mic Name
                             </h3>
-                            <div className="text-xs text-gray-700 font-medium">8:00</div>
+                            <div className="text-xs text-gray-700 font-medium">8:00 M</div>
                             <div className="flex justify-between items-center text-xs">
-                              <span className="text-green-600 font-medium">Fre</span>
+                              <span className="text-green-600 font-medium">Free</span>
                               <span className="text-orange-600 font-medium">5</span>
                             </div>
                           </div>
@@ -324,23 +331,23 @@ const OpenMics = () => {
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div className="flex items-center gap-1">
                           <div className="w-2 h-3 bg-cyan-500 rounded-sm flex-shrink-0"></div>
-                          <span>Manhattan</span>
+                          <span>Manhattan (M)</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <div className="w-2 h-3 bg-amber-800 rounded-sm flex-shrink-0"></div>
-                          <span>Brooklyn</span>
+                          <span>Brooklyn (B)</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <div className="w-2 h-3 bg-purple-600 rounded-sm flex-shrink-0"></div>
-                          <span>Queens</span>
+                          <span>Queens (Q)</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <div className="w-2 h-3 bg-orange-600 rounded-sm flex-shrink-0"></div>
-                          <span>Bronx</span>
+                          <span>Bronx (X)</span>
                         </div>
                         <div className="flex items-center gap-1 col-span-2">
                           <div className="w-2 h-3 bg-gray-500 rounded-sm flex-shrink-0"></div>
-                          <span>Staten Island</span>
+                          <span>Staten Island (S)</span>
                         </div>
                       </div>
                     </div>
@@ -349,7 +356,7 @@ const OpenMics = () => {
                     <div className="space-y-3">
                       <div>
                         <p className="text-xs text-gray-600 mb-1 font-medium">Format:</p>
-                        <p className="text-xs">5 chars → Time → <span className="text-green-600 font-medium">3 chars</span> | <span className="text-orange-600 font-medium">3 chars</span></p>
+                        <p className="text-xs">Name → Time Borough → <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Mins</span></p>
                       </div>
                       
                       <div>
@@ -387,15 +394,15 @@ const OpenMics = () => {
                 {/* Example Tile */}
                 <div>
                   <p className="text-xs text-gray-600 mb-1">Example:</p>
-                  <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-16 h-16">
-                    <CardContent className="p-1.5 h-full flex flex-col justify-between">
+                  <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-24 h-24">
+                    <CardContent className="p-2 h-full flex flex-col justify-between">
                       <div className="space-y-0.5">
-                        <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden">
-                          Comed
+                        <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden line-clamp-2">
+                          Comedy Mic
                         </h3>
-                        <div className="text-xs text-gray-700 font-medium">8:00</div>
+                        <div className="text-xs text-gray-700 font-medium">8:00 M</div>
                         <div className="flex justify-between items-center text-xs">
-                          <span className="text-green-600 font-medium">Fre</span>
+                          <span className="text-green-600 font-medium">Free</span>
                           <span className="text-orange-600 font-medium">5</span>
                         </div>
                       </div>
@@ -409,29 +416,29 @@ const OpenMics = () => {
                   <div className="flex flex-wrap gap-2 mt-1">
                     <div className="flex items-center gap-1">
                       <div className="w-2 h-2 bg-cyan-500 rounded-sm"></div>
-                      <span className="text-xs">Manhattan</span>
+                      <span className="text-xs">Manhattan (M)</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <div className="w-2 h-2 bg-amber-800 rounded-sm"></div>
-                      <span className="text-xs">Brooklyn</span>
+                      <span className="text-xs">Brooklyn (B)</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <div className="w-2 h-2 bg-purple-600 rounded-sm"></div>
-                      <span className="text-xs">Queens</span>
+                      <span className="text-xs">Queens (Q)</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <div className="w-2 h-2 bg-orange-600 rounded-sm"></div>
-                      <span className="text-xs">Bronx</span>
+                      <span className="text-xs">Bronx (X)</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <div className="w-2 h-2 bg-gray-500 rounded-sm"></div>
-                      <span className="text-xs">SI</span>
+                      <span className="text-xs">SI (S)</span>
                     </div>
                   </div>
                 </div>
                 
                 <div className="text-xs">
-                  Name → Time → <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Time</span>
+                  Name → Time Borough → <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Mins</span>
                 </div>
                 
                 <div>
@@ -492,17 +499,19 @@ const OpenMics = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-5 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
+                  <div className="grid grid-cols-3 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                     {filteredMics.map((mic, index) => (
                       <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
-                        <CardContent className="p-2 h-full flex flex-col justify-between">
+                        <CardContent className="p-3 h-full flex flex-col justify-between">
                           <div className="space-y-1 flex-1 min-h-0">
-                            <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden whitespace-nowrap text-ellipsis">
-                              {truncateText(mic.openMic, 15)}
+                            <h3 className="font-bold text-sm text-gray-900 leading-tight overflow-hidden line-clamp-2 break-words">
+                              {mic.openMic}
                             </h3>
-                            <div className="text-xs text-gray-700 font-medium">{formatTimeWithoutPeriod(mic.startTime)}</div>
+                            <div className="text-xs text-gray-700 font-medium">
+                              {formatTimeWithoutPeriod(mic.startTime)} {getBoroughInitial(mic.borough)}
+                            </div>
                             <div className="flex justify-between items-center text-xs">
-                              <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[50%]">
+                              <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[60%]">
                                 {formatCost(mic.cost)}
                               </span>
                               <span className="text-orange-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis">
@@ -543,17 +552,19 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-5 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
+                    <div className="grid grid-cols-3 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-2 h-full flex flex-col justify-between">
+                          <CardContent className="p-3 h-full flex flex-col justify-between">
                             <div className="space-y-1 flex-1 min-h-0">
-                              <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden whitespace-nowrap text-ellipsis">
-                                {truncateText(mic.openMic, 15)}
+                              <h3 className="font-bold text-sm text-gray-900 leading-tight overflow-hidden line-clamp-2 break-words">
+                                {mic.openMic}
                               </h3>
-                              <div className="text-xs text-gray-700 font-medium">{formatTimeWithoutPeriod(mic.startTime)}</div>
+                              <div className="text-xs text-gray-700 font-medium">
+                                {formatTimeWithoutPeriod(mic.startTime)} {getBoroughInitial(mic.borough)}
+                              </div>
                               <div className="flex justify-between items-center text-xs">
-                                <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[50%]">
+                                <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[60%]">
                                   {formatCost(mic.cost)}
                                 </span>
                                 <span className="text-orange-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis">
@@ -590,17 +601,19 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-5 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
+                    <div className="grid grid-cols-3 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-2 h-full flex flex-col justify-between">
+                          <CardContent className="p-3 h-full flex flex-col justify-between">
                             <div className="space-y-1 flex-1 min-h-0">
-                              <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden whitespace-nowrap text-ellipsis">
-                                {truncateText(mic.openMic, 15)}
+                              <h3 className="font-bold text-sm text-gray-900 leading-tight overflow-hidden line-clamp-2 break-words">
+                                {mic.openMic}
                               </h3>
-                              <div className="text-xs text-gray-700 font-medium">{formatTimeWithoutPeriod(mic.startTime)}</div>
+                              <div className="text-xs text-gray-700 font-medium">
+                                {formatTimeWithoutPeriod(mic.startTime)} {getBoroughInitial(mic.borough)}
+                              </div>
                               <div className="flex justify-between items-center text-xs">
-                                <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[50%]">
+                                <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[60%]">
                                   {formatCost(mic.cost)}
                                 </span>
                                 <span className="text-orange-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis">
