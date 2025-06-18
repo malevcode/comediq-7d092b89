@@ -14,7 +14,7 @@ const Consume = () => {
       id: 1,
       title: "Eddie Murphy: Raw",
       year: 1987,
-      poster: "/lovable-uploads/d3825c3d-325c-4af7-b66a-2a50a1fd2ee2.png",
+      poster: "/lovable-uploads/649dc4d7-4cd4-43f6-80b6-d87a0b9d736e.png",
       rating: 5,
       review: "A masterclass in stand-up comedy. Eddie Murphy's raw energy and storytelling ability shine through every joke. The leather suit, the crowd work, the impressions - everything about this special is iconic. This is what comedy specials should aspire to be.",
       watchedDate: "2024-01-15",
@@ -57,34 +57,34 @@ const Consume = () => {
               <div className="grid gap-6">
                 {comedySpecials.map((special) => (
                   <Card key={special.id} className="overflow-hidden">
-                    <CardContent className="p-6">
-                      <div className="flex gap-6">
-                        <div className="flex-shrink-0">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                        <div className="flex-shrink-0 mx-auto sm:mx-0">
                           <img 
                             src={special.poster}
                             alt={special.title}
-                            className="w-32 h-48 object-cover rounded-lg"
+                            className="w-24 h-36 sm:w-32 sm:h-48 object-cover rounded-lg"
                           />
                         </div>
                         
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1 text-center sm:text-left">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-2">
                             <div>
-                              <h3 className="text-2xl font-bold text-gray-900">{special.title}</h3>
+                              <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{special.title}</h3>
                               <p className="text-gray-600">{special.year}</p>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center justify-center sm:justify-start gap-2 mt-2 sm:mt-0">
                               {renderStars(special.rating)}
                               <span className="text-sm text-gray-600">({special.rating}/5)</span>
                             </div>
                           </div>
                           
-                          <div className="flex gap-2 mb-4">
+                          <div className="flex justify-center sm:justify-start gap-2 mb-4">
                             <Badge variant="secondary">{special.platform}</Badge>
                             <Badge variant="outline">Watched {special.watchedDate}</Badge>
                           </div>
                           
-                          <p className="text-gray-700 leading-relaxed">{special.review}</p>
+                          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">{special.review}</p>
                         </div>
                       </div>
                     </CardContent>
