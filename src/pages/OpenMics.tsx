@@ -73,7 +73,7 @@ const OpenMics = () => {
   });
   const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
 
-  // Helper function to truncate text to fit within character limit
+  // Helper function to truncate text to specified length
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength);
@@ -255,11 +255,11 @@ const OpenMics = () => {
                         <CardContent className="p-2 aspect-square flex flex-col justify-between">
                           <div className="space-y-1">
                             <h3 className="font-bold text-xs text-gray-900">
-                              Comedy Night
+                              Comedy
                             </h3>
                             <div className="text-xs text-gray-700 font-medium">8:00 PM</div>
                             <div className="flex justify-between items-center text-xs">
-                              <span className="text-green-600 font-medium">Free</span>
+                              <span className="text-green-600 font-medium">Fre</span>
                               <span className="text-orange-600 font-medium">5</span>
                             </div>
                           </div>
@@ -298,7 +298,7 @@ const OpenMics = () => {
                     <div className="space-y-3">
                       <div>
                         <p className="text-xs text-gray-600 mb-1 font-medium">Format:</p>
-                        <p className="text-xs">Title → Time → <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span></p>
+                        <p className="text-xs">7 chars → Time → <span className="text-green-600 font-medium">3 chars</span> | <span className="text-orange-600 font-medium">3 chars</span></p>
                       </div>
                       
                       <div>
@@ -363,11 +363,11 @@ const OpenMics = () => {
                       <CardContent className="p-1.5 aspect-square flex flex-col justify-between">
                         <div className="space-y-1">
                           <h3 className="font-bold text-xs text-gray-900">
-                            Comedy Night
+                            Comedy
                           </h3>
                           <div className="text-xs text-gray-700 font-medium">8:00 PM</div>
                           <div className="flex justify-between items-center text-xs">
-                            <span className="text-green-600 font-medium">Free</span>
+                            <span className="text-green-600 font-medium">Fre</span>
                             <span className="text-orange-600 font-medium">5</span>
                           </div>
                         </div>
@@ -403,7 +403,7 @@ const OpenMics = () => {
                   </div>
                   
                   <div className="text-xs">
-                    Title → Time → <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Stage time</span>
+                    7 chars → Time → <span className="text-green-600 font-medium">3 chars</span> | <span className="text-orange-600 font-medium">3 chars</span>
                   </div>
                   
                   <div>
@@ -444,7 +444,7 @@ const OpenMics = () => {
 
         {/* Day Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full ${user ? 'grid-cols-9' : 'grid-cols-8'} mb-4 h-9 gap-1`}>
+          <TabsList className={`grid w-full ${user ? 'grid-cols-9' : 'grid-cols-8'} mb-6 h-9 gap-1.5`}>
             <TabsTrigger value="active" className="text-xs py-1 px-1">Active</TabsTrigger>
             {user && <TabsTrigger value="liked" className="text-xs py-1 px-1">❤️</TabsTrigger>}
             {daysOfWeek.map(day => (
@@ -459,26 +459,26 @@ const OpenMics = () => {
               const filteredMics = getFilteredMics("active");
               return (
                 <>
-                  <div className="mb-2">
+                  <div className="mb-4">
                     <p className="text-sm text-gray-600">
                       Showing {filteredMics.length} active open mic{filteredMics.length !== 1 ? 's' : ''} (today & upcoming)
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 2xl:grid-cols-10 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
+                  <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 2xl:grid-cols-10 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                     {filteredMics.map((mic, index) => (
                       <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`} onClick={() => setSelectedMic(mic)}>
                         <CardContent className="p-2 w-full h-0 pb-[100%] relative">
                           <div className="absolute inset-2 flex flex-col justify-between">
                             <div className="space-y-1 flex-1 min-h-0">
-                              <h3 className="font-semibold text-[10px] text-gray-900 leading-tight">
-                                {truncateText(mic.openMic, 18)}
+                              <h3 className="font-bold text-xs text-gray-900 leading-tight">
+                                {truncateText(mic.openMic, 7)}
                               </h3>
-                              <div className="text-[10px] text-gray-700 font-medium">{truncateText(mic.startTime, 8)}</div>
-                              <div className="flex justify-between items-center text-[9px] mt-auto">
-                                <span className="text-green-600 font-medium">{truncateText(mic.cost, 8)}</span>
+                              <div className="text-xs text-gray-700 font-medium">{mic.startTime}</div>
+                              <div className="flex justify-between items-center text-xs mt-auto">
+                                <span className="text-green-600 font-medium">{truncateText(mic.cost, 3)}</span>
                                 <span className="text-orange-600 font-medium">
-                                  {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 4)}
+                                  {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 3)}
                                 </span>
                               </div>
                             </div>
@@ -510,26 +510,26 @@ const OpenMics = () => {
                 const filteredMics = getFilteredMics("liked");
                 return (
                   <>
-                    <div className="mb-2">
+                    <div className="mb-4">
                       <p className="text-sm text-gray-600">
                         Showing {filteredMics.length} liked open mic{filteredMics.length !== 1 ? 's' : ''}
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 2xl:grid-cols-10 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
+                    <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 2xl:grid-cols-10 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`} onClick={() => setSelectedMic(mic)}>
                           <CardContent className="p-2 w-full h-0 pb-[100%] relative">
                             <div className="absolute inset-2 flex flex-col justify-between">
                               <div className="space-y-1 flex-1 min-h-0">
-                                <h3 className="font-semibold text-[10px] text-gray-900 leading-tight">
-                                  {truncateText(mic.openMic, 18)}
+                                <h3 className="font-bold text-xs text-gray-900 leading-tight">
+                                  {truncateText(mic.openMic, 7)}
                                 </h3>
-                                <div className="text-[10px] text-gray-700 font-medium">{truncateText(mic.startTime, 8)}</div>
-                                <div className="flex justify-between items-center text-[9px] mt-auto">
-                                  <span className="text-green-600 font-medium">{truncateText(mic.cost, 8)}</span>
+                                <div className="text-xs text-gray-700 font-medium">{mic.startTime}</div>
+                                <div className="flex justify-between items-center text-xs mt-auto">
+                                  <span className="text-green-600 font-medium">{truncateText(mic.cost, 3)}</span>
                                   <span className="text-orange-600 font-medium">
-                                    {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 4)}
+                                    {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 3)}
                                   </span>
                                 </div>
                               </div>
@@ -557,26 +557,26 @@ const OpenMics = () => {
                 const filteredMics = getFilteredMics("day", day);
                 return (
                   <>
-                    <div className="mb-2">
+                    <div className="mb-4">
                       <p className="text-sm text-gray-600">
                         Showing {filteredMics.length} open mic{filteredMics.length !== 1 ? 's' : ''} on {day}
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 2xl:grid-cols-10 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
+                    <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 2xl:grid-cols-10 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`} onClick={() => setSelectedMic(mic)}>
                           <CardContent className="p-2 w-full h-0 pb-[100%] relative">
                             <div className="absolute inset-2 flex flex-col justify-between">
                               <div className="space-y-1 flex-1 min-h-0">
-                                <h3 className="font-semibold text-[10px] text-gray-900 leading-tight">
-                                  {truncateText(mic.openMic, 18)}
+                                <h3 className="font-bold text-xs text-gray-900 leading-tight">
+                                  {truncateText(mic.openMic, 7)}
                                 </h3>
-                                <div className="text-[10px] text-gray-700 font-medium">{truncateText(mic.startTime, 8)}</div>
-                                <div className="flex justify-between items-center text-[9px] mt-auto">
-                                  <span className="text-green-600 font-medium">{truncateText(mic.cost, 8)}</span>
+                                <div className="text-xs text-gray-700 font-medium">{mic.startTime}</div>
+                                <div className="flex justify-between items-center text-xs mt-auto">
+                                  <span className="text-green-600 font-medium">{truncateText(mic.cost, 3)}</span>
                                   <span className="text-orange-600 font-medium">
-                                    {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 4)}
+                                    {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 3)}
                                   </span>
                                 </div>
                               </div>
