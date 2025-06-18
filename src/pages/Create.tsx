@@ -3,9 +3,11 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OpenMics from "./OpenMics";
 import TrackSets from "./TrackSets";
+import Shows from "./Shows";
 
 const Create = () => {
   const [activeTab, setActiveTab] = useState("find-mics");
+  const [trackSetsTab, setTrackSetsTab] = useState("coming-soon");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
@@ -24,7 +26,24 @@ const Create = () => {
         </TabsContent>
 
         <TabsContent value="track-sets" className="mt-0">
-          <TrackSets />
+          <Tabs value={trackSetsTab} onValueChange={setTrackSetsTab} className="w-full">
+            <div className="bg-gray-50 border-b border-gray-200">
+              <div className="max-w-7xl mx-auto px-4">
+                <TabsList className="grid w-full grid-cols-2 mb-0">
+                  <TabsTrigger value="coming-soon">Coming Soon</TabsTrigger>
+                  <TabsTrigger value="show-scheduler">Show Scheduler</TabsTrigger>
+                </TabsList>
+              </div>
+            </div>
+
+            <TabsContent value="coming-soon" className="mt-0">
+              <TrackSets />
+            </TabsContent>
+
+            <TabsContent value="show-scheduler" className="mt-0">
+              <Shows />
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
     </div>

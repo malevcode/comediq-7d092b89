@@ -197,25 +197,14 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
 
         {/* Content */}
         <div className="p-6">
-          {/* Date and Time Info - Prominent */}
+          {/* Date and Time Info - Condensed to single line */}
           <Card className="mb-6 bg-gradient-to-r from-orange-50 to-red-50 border-orange-200">
             <CardContent className="p-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                <div className="flex flex-col items-center">
-                  <Calendar className="w-5 h-5 text-orange-600 mb-1" />
-                  <span className="font-semibold text-gray-900">{mic.day}</span>
-                  <span className="text-sm text-gray-600">Every week</span>
+              <div className="text-center">
+                <div className="text-lg font-semibold text-gray-900">
+                  {mic.day} • {mic.startTime} • {mic.stageTime} stage time
                 </div>
-                <div className="flex flex-col items-center">
-                  <Clock className="w-5 h-5 text-orange-600 mb-1" />
-                  <span className="font-semibold text-gray-900">{mic.startTime}</span>
-                  <span className="text-sm text-gray-600">Start time</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <Timer className="w-5 h-5 text-orange-600 mb-1" />
-                  <span className="font-semibold text-gray-900">{mic.stageTime}</span>
-                  <span className="text-sm text-gray-600">Stage time</span>
-                </div>
+                <div className="text-sm text-gray-600 mt-1">Every week</div>
               </div>
             </CardContent>
           </Card>
