@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, Filter, HelpCircle, Heart, ThumbsDown, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -261,17 +260,17 @@ const OpenMics = () => {
                     {/* Example Tile */}
                     <div>
                       <p className="text-xs text-gray-600 mb-2 font-medium">Example:</p>
-                      <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-full max-w-24">
-                        <CardContent className="p-2 aspect-square flex flex-col justify-between">
-                          <div className="space-y-1">
-                            <h3 className="font-bold text-xs text-gray-900">
+                      <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-16 h-16">
+                        <CardContent className="p-1 h-full flex flex-col justify-between">
+                          <div className="space-y-0.5">
+                            <h3 className="font-bold text-xs text-gray-900 leading-tight">
                               Comed
                             </h3>
                             <div className="text-xs text-gray-700 font-medium">8:00</div>
-                            <div className="flex justify-between items-center text-xs">
-                              <span className="text-green-600 font-medium">Fre</span>
-                              <span className="text-orange-600 font-medium">5</span>
-                            </div>
+                          </div>
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-green-600 font-bold">Fre</span>
+                            <span className="text-orange-600 font-bold">5</span>
                           </div>
                         </CardContent>
                       </Card>
@@ -369,17 +368,17 @@ const OpenMics = () => {
                   {/* Example Tile */}
                   <div>
                     <p className="text-xs text-gray-600 mb-1">Example:</p>
-                    <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-20">
-                      <CardContent className="p-1.5 aspect-square flex flex-col justify-between">
-                        <div className="space-y-1">
-                          <h3 className="font-bold text-xs text-gray-900">
+                    <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-16 h-16">
+                      <CardContent className="p-1 h-full flex flex-col justify-between">
+                        <div className="space-y-0.5">
+                          <h3 className="font-bold text-xs text-gray-900 leading-tight">
                             Comed
                           </h3>
                           <div className="text-xs text-gray-700 font-medium">8:00</div>
-                          <div className="flex justify-between items-center text-xs">
-                            <span className="text-green-600 font-medium">Fre</span>
-                            <span className="text-orange-600 font-medium">5</span>
-                          </div>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-green-600 font-bold">Fre</span>
+                          <span className="text-orange-600 font-bold">5</span>
                         </div>
                       </CardContent>
                     </Card>
@@ -585,26 +584,25 @@ const OpenMics = () => {
                                 {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 2)}
                               </span>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-
-                  {filteredMics.length === 0 && (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500">No open mics found for {day}.</p>
-                      <Button onClick={() => {
-                        setSearchTerm("");
-                        setSelectedBorough("All");
-                      }} className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm">
-                        Clear Filters
-                      </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
                     </div>
-                  )}
-                </>
-              );
-            })()}
+
+                    {filteredMics.length === 0 && (
+                      <div className="text-center py-8">
+                        <p className="text-gray-500">No open mics found for {day}.</p>
+                        <Button onClick={() => {
+                          setSearchTerm("");
+                          setSelectedBorough("All");
+                        }} className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm">
+                          Clear Filters
+                        </Button>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </TabsContent>
           ))}
         </Tabs>
