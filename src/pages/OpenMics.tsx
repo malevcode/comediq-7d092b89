@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, Filter, HelpCircle, Heart, ThumbsDown, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -128,18 +127,18 @@ const OpenMics = () => {
     return filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
   };
 
-  // Verification status background colors with softer green shade
+  // Verification status background colors - FIXED COLORS
   const getVerificationColor = (status: string) => {
     if (status.toLowerCase().includes("tediously")) {
       return "bg-yellow-100";
     } else if (status.toLowerCase().includes("verified")) {
       return "bg-green-100";
     } else {
-      return "bg-red-100";
+      return "bg-red-100"; // Unverified should be red
     }
   };
 
-  // Borough outline colors for left border only - fixed Manhattan color
+  // Borough outline colors for left border only
   const getBoroughOutline = (borough: string) => {
     const cleanBorough = borough.trim();
     const outlines = {
@@ -210,7 +209,27 @@ const OpenMics = () => {
               </div>
               
               {/* Right side with buttons and character */}
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-2">
+                {/* Mobile controls - help and filters buttons moved here */}
+                <div className="sm:hidden flex items-center gap-2">
+                  <Button 
+                    onClick={() => setShowMobileKey(!showMobileKey)} 
+                    variant="outline" 
+                    size="sm"
+                    className="flex items-center gap-1 text-xs px-2 py-1"
+                  >
+                    <HelpCircle className="h-3 w-3" />
+                  </Button>
+                  <Button 
+                    onClick={() => setShowFilters(!showFilters)} 
+                    variant="outline" 
+                    size="sm"
+                    className="flex items-center gap-1 text-xs px-2 py-1"
+                  >
+                    <Filter className="h-3 w-3" />
+                  </Button>
+                </div>
+
                 {/* Desktop controls - help and filters buttons */}
                 <div className="hidden sm:flex items-center gap-2">
                   <Button 
@@ -238,13 +257,13 @@ const OpenMics = () => {
                   <img 
                     src="/lovable-uploads/ed025a0f-85b1-4f87-8235-673628f9ffdb.png" 
                     alt="Find Mics Comedian Character" 
-                    className="w-20 h-20 sm:w-24 sm:h-24 object-contain" 
+                    className="w-16 h-16 sm:w-20 sm:h-20 object-contain" 
                   />
                 </div>
               </div>
             </div>
 
-            {/* Desktop auth section - moved below */}
+            {/* Desktop auth section */}
             <div className="hidden sm:flex items-center justify-end">
               {user ? (
                 <div className="flex items-center gap-2">
@@ -343,106 +362,82 @@ const OpenMics = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-3">
-        {/* Mobile Control Buttons */}
-        <div className="lg:hidden mb-3">
-          <div className="flex items-center gap-3 mb-2">
-            <Collapsible open={showMobileKey} onOpenChange={setShowMobileKey}>
-              <CollapsibleTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs px-3 py-1">
-                  <HelpCircle className="h-3 w-3" />
-                  <span>Help</span>
-                </Button>
-              </CollapsibleTrigger>
-            </Collapsible>
-            
-            <Button 
-              onClick={() => setShowFilters(!showFilters)} 
-              variant="outline" 
-              size="sm"
-              className="flex items-center gap-1 text-xs px-3 py-1"
-            >
-              <Filter className="h-3 w-3" />
-              <span>Filters</span>
-            </Button>
-          </div>
-
-          {/* Mobile Key/Legend */}
-          <Collapsible open={showMobileKey} onOpenChange={setShowMobileKey}>
-            <CollapsibleContent className="mb-2">
-              <div className="bg-orange-50 p-3 border border-orange-200 rounded-lg">
-                <div className="space-y-3">
-                  {/* Example Tile */}
-                  <div>
-                    <p className="text-xs text-gray-600 mb-1">Example:</p>
-                    <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-20">
-                      <CardContent className="p-1.5 aspect-square flex flex-col justify-between">
-                        <div className="space-y-1">
-                          <h3 className="font-bold text-xs text-gray-900">
-                            Comed
-                          </h3>
-                          <div className="text-xs text-gray-700 font-medium">8:00</div>
-                          <div className="flex justify-between items-center text-xs">
-                            <span className="text-green-600 font-medium">Fre</span>
-                            <span className="text-orange-600 font-medium">5</span>
-                          </div>
+        {/* Mobile Key/Legend - simplified since buttons moved to header */}
+        {showMobileKey && (
+          <div className="lg:hidden mb-3">
+            <div className="bg-orange-50 p-3 border border-orange-200 rounded-lg">
+              <div className="space-y-3">
+                {/* Example Tile */}
+                <div>
+                  <p className="text-xs text-gray-600 mb-1">Example:</p>
+                  <Card className="border-l-4 border-l-cyan-500 bg-green-100 w-16 h-16">
+                    <CardContent className="p-1.5 h-full flex flex-col justify-between">
+                      <div className="space-y-0.5">
+                        <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden">
+                          Comed
+                        </h3>
+                        <div className="text-xs text-gray-700 font-medium">8:00</div>
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-green-600 font-medium">Fre</span>
+                          <span className="text-orange-600 font-medium">5</span>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
 
-                  {/* Borough Legend */}
-                  <div>
-                    <span className="font-medium text-xs">Left border = Borough:</span>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-cyan-500 rounded-sm"></div>
-                        <span className="text-xs">Manhattan</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-amber-800 rounded-sm"></div>
-                        <span className="text-xs">Brooklyn</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-purple-600 rounded-sm"></div>
-                        <span className="text-xs">Queens</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-orange-600 rounded-sm"></div>
-                        <span className="text-xs">Bronx</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-gray-500 rounded-sm"></div>
-                        <span className="text-xs">SI</span>
-                      </div>
+                {/* Borough Legend */}
+                <div>
+                  <span className="font-medium text-xs">Left border = Borough:</span>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-cyan-500 rounded-sm"></div>
+                      <span className="text-xs">Manhattan</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-amber-800 rounded-sm"></div>
+                      <span className="text-xs">Brooklyn</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-purple-600 rounded-sm"></div>
+                      <span className="text-xs">Queens</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-orange-600 rounded-sm"></div>
+                      <span className="text-xs">Bronx</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-gray-500 rounded-sm"></div>
+                      <span className="text-xs">SI</span>
                     </div>
                   </div>
-                  
-                  <div className="text-xs">
-                    5 chars → Time → <span className="text-green-600 font-medium">3 chars</span> | <span className="text-orange-600 font-medium">3 chars</span>
-                  </div>
-                  
-                  <div>
-                    <span className="font-medium text-xs">Status:</span>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-1.5 bg-green-100 border rounded"></div>
-                        <span className="text-xs">Verified</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-1.5 bg-yellow-100 border rounded"></div>
-                        <span className="text-xs">Check</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-1.5 bg-red-100 border rounded"></div>
-                        <span className="text-xs">Unverified</span>
-                      </div>
+                </div>
+                
+                <div className="text-xs">
+                  Name → Time → <span className="text-green-600 font-medium">Cost</span> | <span className="text-orange-600 font-medium">Time</span>
+                </div>
+                
+                <div>
+                  <span className="font-medium text-xs">Status:</span>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-1.5 bg-green-100 border rounded"></div>
+                      <span className="text-xs">Verified</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-1.5 bg-yellow-100 border rounded"></div>
+                      <span className="text-xs">Tedious</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-1.5 bg-red-100 border rounded"></div>
+                      <span className="text-xs">Unverified</span>
                     </div>
                   </div>
                 </div>
               </div>
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
+            </div>
+          </div>
+        )}
 
         {/* Search and Filters */}
         <div className={`bg-white rounded-xl shadow-lg p-3 mb-3 ${showFilters ? 'block' : 'hidden lg:block'}`}>
@@ -482,11 +477,11 @@ const OpenMics = () => {
 
                   <div className="grid grid-cols-5 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
                     {filteredMics.map((mic, index) => (
-                      <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg`} onClick={() => setSelectedMic(mic)}>
-                        <CardContent className="p-2 aspect-square flex flex-col justify-between">
-                          <div className="space-y-1">
-                            <h3 className="font-bold text-xs text-gray-900 leading-tight">
-                              {truncateText(mic.openMic, 5)}
+                      <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
+                        <CardContent className="p-2 h-full flex flex-col justify-between">
+                          <div className="space-y-1 flex-1 min-h-0">
+                            <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>
+                              {mic.openMic}
                             </h3>
                             <div className="text-xs text-gray-700 font-medium">{formatTimeWithoutPeriod(mic.startTime)}</div>
                             <div className="flex justify-between items-center text-xs">
@@ -531,11 +526,11 @@ const OpenMics = () => {
 
                     <div className="grid grid-cols-5 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
-                        <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-2 aspect-square flex flex-col justify-between">
-                            <div className="space-y-1">
-                              <h3 className="font-bold text-xs text-gray-900 leading-tight">
-                                {truncateText(mic.openMic, 5)}
+                        <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
+                          <CardContent className="p-2 h-full flex flex-col justify-between">
+                            <div className="space-y-1 flex-1 min-h-0">
+                              <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>
+                                {mic.openMic}
                               </h3>
                               <div className="text-xs text-gray-700 font-medium">{formatTimeWithoutPeriod(mic.startTime)}</div>
                               <div className="flex justify-between items-center text-xs">
@@ -576,11 +571,11 @@ const OpenMics = () => {
 
                     <div className="grid grid-cols-5 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
-                        <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-2 aspect-square flex flex-col justify-between">
-                            <div className="space-y-1">
-                              <h3 className="font-bold text-xs text-gray-900 leading-tight">
-                                {truncateText(mic.openMic, 5)}
+                        <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
+                          <CardContent className="p-2 h-full flex flex-col justify-between">
+                            <div className="space-y-1 flex-1 min-h-0">
+                              <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>
+                                {mic.openMic}
                               </h3>
                               <div className="text-xs text-gray-700 font-medium">{formatTimeWithoutPeriod(mic.startTime)}</div>
                               <div className="flex justify-between items-center text-xs">
