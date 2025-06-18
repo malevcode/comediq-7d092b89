@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, Filter, HelpCircle, Heart, ThumbsDown, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -465,23 +464,21 @@ const OpenMics = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 2xl:grid-cols-10 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                     {filteredMics.map((mic, index) => (
-                      <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`} onClick={() => setSelectedMic(mic)}>
-                        <CardContent className="p-2 w-full h-0 pb-[100%] relative">
-                          <div className="absolute inset-2 flex flex-col justify-between">
-                            <div className="space-y-1 flex-1 min-h-0">
-                              <h3 className="font-bold text-xs text-gray-900 leading-tight">
-                                {truncateText(mic.openMic, 7)}
-                              </h3>
-                              <div className="text-xs text-gray-700 font-medium">{mic.startTime}</div>
-                              <div className="flex justify-between items-center text-xs mt-auto">
-                                <span className="text-green-600 font-medium">{truncateText(mic.cost, 3)}</span>
-                                <span className="text-orange-600 font-medium">
-                                  {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 3)}
-                                </span>
-                              </div>
-                            </div>
+                      <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg`} onClick={() => setSelectedMic(mic)}>
+                        <CardContent className="p-3 h-32 flex flex-col justify-between">
+                          <div className="space-y-1 flex-1">
+                            <h3 className="font-bold text-sm text-gray-900 leading-tight line-clamp-2">
+                              {truncateText(mic.openMic, 12)}
+                            </h3>
+                            <div className="text-sm text-gray-700 font-medium">{mic.startTime}</div>
+                          </div>
+                          <div className="flex justify-between items-center text-sm mt-2">
+                            <span className="text-green-600 font-bold">{truncateText(mic.cost, 4)}</span>
+                            <span className="text-orange-600 font-bold">
+                              {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 3)}
+                            </span>
                           </div>
                         </CardContent>
                       </Card>
@@ -516,23 +513,21 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 2xl:grid-cols-10 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
-                        <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-2 w-full h-0 pb-[100%] relative">
-                            <div className="absolute inset-2 flex flex-col justify-between">
-                              <div className="space-y-1 flex-1 min-h-0">
-                                <h3 className="font-bold text-xs text-gray-900 leading-tight">
-                                  {truncateText(mic.openMic, 7)}
-                                </h3>
-                                <div className="text-xs text-gray-700 font-medium">{mic.startTime}</div>
-                                <div className="flex justify-between items-center text-xs mt-auto">
-                                  <span className="text-green-600 font-medium">{truncateText(mic.cost, 3)}</span>
-                                  <span className="text-orange-600 font-medium">
-                                    {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 3)}
-                                  </span>
-                                </div>
-                              </div>
+                        <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg`} onClick={() => setSelectedMic(mic)}>
+                          <CardContent className="p-3 h-32 flex flex-col justify-between">
+                            <div className="space-y-1 flex-1">
+                              <h3 className="font-bold text-sm text-gray-900 leading-tight line-clamp-2">
+                                {truncateText(mic.openMic, 12)}
+                              </h3>
+                              <div className="text-sm text-gray-700 font-medium">{mic.startTime}</div>
+                            </div>
+                            <div className="flex justify-between items-center text-sm mt-2">
+                              <span className="text-green-600 font-bold">{truncateText(mic.cost, 4)}</span>
+                              <span className="text-orange-600 font-bold">
+                                {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 3)}
+                              </span>
                             </div>
                           </CardContent>
                         </Card>
@@ -563,23 +558,21 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 2xl:grid-cols-10 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
-                        <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)}`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-2 w-full h-0 pb-[100%] relative">
-                            <div className="absolute inset-2 flex flex-col justify-between">
-                              <div className="space-y-1 flex-1 min-h-0">
-                                <h3 className="font-bold text-xs text-gray-900 leading-tight">
-                                  {truncateText(mic.openMic, 7)}
-                                </h3>
-                                <div className="text-xs text-gray-700 font-medium">{mic.startTime}</div>
-                                <div className="flex justify-between items-center text-xs mt-auto">
-                                  <span className="text-green-600 font-medium">{truncateText(mic.cost, 3)}</span>
-                                  <span className="text-orange-600 font-medium">
-                                    {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 3)}
-                                  </span>
-                                </div>
-                              </div>
+                        <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg`} onClick={() => setSelectedMic(mic)}>
+                          <CardContent className="p-3 h-32 flex flex-col justify-between">
+                            <div className="space-y-1 flex-1">
+                              <h3 className="font-bold text-sm text-gray-900 leading-tight line-clamp-2">
+                                {truncateText(mic.openMic, 12)}
+                              </h3>
+                              <div className="text-sm text-gray-700 font-medium">{mic.startTime}</div>
+                            </div>
+                            <div className="flex justify-between items-center text-sm mt-2">
+                              <span className="text-green-600 font-bold">{truncateText(mic.cost, 4)}</span>
+                              <span className="text-orange-600 font-bold">
+                                {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 3)}
+                              </span>
                             </div>
                           </CardContent>
                         </Card>
