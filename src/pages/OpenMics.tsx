@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Search, Filter, HelpCircle, Heart, ThumbsDown, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -87,14 +88,12 @@ const OpenMics = () => {
 
   // Helper function to format time
   const formatTime = (timeStr: string) => {
-    // Convert "8:00 PM" to "8:00 PM" format, keeping it readable
     return timeStr;
   };
 
   // Helper function to format cost for display
   const formatCost = (cost: string) => {
     if (cost.toLowerCase().includes('free')) return 'Free';
-    // Remove dollar sign and extract numbers, keep it short
     const match = cost.match(/\$?(\d+)/);
     if (match) return `$${match[1]}`;
     return cost.length > 8 ? cost.substring(0, 8) + '...' : cost;
@@ -102,7 +101,6 @@ const OpenMics = () => {
 
   // Helper function to format stage time for display
   const formatStageTime = (stageTime: string) => {
-    // Extract numbers from stage time
     const match = stageTime.match(/(\d+)/);
     if (match) return match[1];
     return stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim().substring(0, 3);
@@ -479,7 +477,7 @@ const OpenMics = () => {
 
         {/* Day Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full ${user ? 'grid-cols-9' : 'grid-cols-8'} mb-6 h-9 gap-1.5`}>
+          <TabsList className={`grid w-full ${user ? 'grid-cols-10' : 'grid-cols-9'} mb-6 h-9 gap-1.5`}>
             <TabsTrigger value="active" className="text-xs py-1 px-1">Active</TabsTrigger>
             {user && <TabsTrigger value="liked" className="text-xs py-1 px-1">❤️</TabsTrigger>}
             {daysOfWeek.map(day => (
@@ -504,18 +502,21 @@ const OpenMics = () => {
                     {filteredMics.map((mic, index) => (
                       <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
                         <CardContent className="p-2 h-full flex flex-col justify-between">
-                          <div className="space-y-1 flex-1 min-h-0">
-                            <h3 className="font-bold text-xs leading-tight overflow-hidden line-clamp-3 break-words text-gray-900">
+                          <div className="flex flex-col h-full">
+                            {/* Line 1-2: Mic name (max 2 lines) */}
+                            <h3 className="font-bold text-xs leading-tight text-gray-900 mb-1 line-clamp-2 flex-none">
                               {mic.openMic}
                             </h3>
-                            <div className="text-xs text-gray-700 font-medium">
-                              {formatTime(mic.startTime)}
+                            {/* Line 3: Time + Borough initial */}
+                            <div className="text-xs text-gray-700 font-medium mb-1 flex-none">
+                              {formatTime(mic.startTime)} {getBoroughInitial(mic.borough)}
                             </div>
-                            <div className="flex justify-between items-center text-xs mt-auto">
-                              <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[60%]">
+                            {/* Line 4: Cost + Stage time */}
+                            <div className="flex justify-between items-center text-xs flex-none mt-auto">
+                              <span className="text-green-600 font-medium truncate mr-1">
                                 {formatCost(mic.cost)}
                               </span>
-                              <span className="text-orange-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis">
+                              <span className="text-orange-600 font-medium flex-shrink-0">
                                 {formatStageTime(mic.stageTime)}
                               </span>
                             </div>
@@ -557,18 +558,21 @@ const OpenMics = () => {
                       {filteredMics.map((mic, index) => (
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
                           <CardContent className="p-2 h-full flex flex-col justify-between">
-                            <div className="space-y-1 flex-1 min-h-0">
-                              <h3 className="font-bold text-xs leading-tight overflow-hidden line-clamp-3 break-words text-gray-900">
+                            <div className="flex flex-col h-full">
+                              {/* Line 1-2: Mic name (max 2 lines) */}
+                              <h3 className="font-bold text-xs leading-tight text-gray-900 mb-1 line-clamp-2 flex-none">
                                 {mic.openMic}
                               </h3>
-                              <div className="text-xs text-gray-700 font-medium">
-                                {formatTime(mic.startTime)}
+                              {/* Line 3: Time + Borough initial */}
+                              <div className="text-xs text-gray-700 font-medium mb-1 flex-none">
+                                {formatTime(mic.startTime)} {getBoroughInitial(mic.borough)}
                               </div>
-                              <div className="flex justify-between items-center text-xs mt-auto">
-                                <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[60%]">
+                              {/* Line 4: Cost + Stage time */}
+                              <div className="flex justify-between items-center text-xs flex-none mt-auto">
+                                <span className="text-green-600 font-medium truncate mr-1">
                                   {formatCost(mic.cost)}
                                 </span>
-                                <span className="text-orange-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis">
+                                <span className="text-orange-600 font-medium flex-shrink-0">
                                   {formatStageTime(mic.stageTime)}
                                 </span>
                               </div>
@@ -606,18 +610,21 @@ const OpenMics = () => {
                       {filteredMics.map((mic, index) => (
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
                           <CardContent className="p-2 h-full flex flex-col justify-between">
-                            <div className="space-y-1 flex-1 min-h-0">
-                              <h3 className="font-bold text-xs leading-tight overflow-hidden line-clamp-3 break-words text-gray-900">
+                            <div className="flex flex-col h-full">
+                              {/* Line 1-2: Mic name (max 2 lines) */}
+                              <h3 className="font-bold text-xs leading-tight text-gray-900 mb-1 line-clamp-2 flex-none">
                                 {mic.openMic}
                               </h3>
-                              <div className="text-xs text-gray-700 font-medium">
-                                {formatTime(mic.startTime)}
+                              {/* Line 3: Time + Borough initial */}
+                              <div className="text-xs text-gray-700 font-medium mb-1 flex-none">
+                                {formatTime(mic.startTime)} {getBoroughInitial(mic.borough)}
                               </div>
-                              <div className="flex justify-between items-center text-xs mt-auto">
-                                <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[60%]">
+                              {/* Line 4: Cost + Stage time */}
+                              <div className="flex justify-between items-center text-xs flex-none mt-auto">
+                                <span className="text-green-600 font-medium truncate mr-1">
                                   {formatCost(mic.cost)}
                                 </span>
-                                <span className="text-orange-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis">
+                                <span className="text-orange-600 font-medium flex-shrink-0">
                                   {formatStageTime(mic.stageTime)}
                                 </span>
                               </div>
