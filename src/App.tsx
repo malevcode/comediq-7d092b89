@@ -9,6 +9,8 @@ import Index from "./pages/Index";
 import OpenMics from "./pages/OpenMics";
 import TrackSets from "./pages/TrackSets";
 import Shows from "./pages/Shows";
+import Create from "./pages/Create";
+import Consume from "./pages/Consume";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -25,6 +27,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/create" element={<Create />} />
+            <Route path="/consume" element={<Consume />} />
             <Route path="/open-mics" element={<OpenMics />} />
             <Route path="/track-sets" element={<TrackSets />} />
             <Route path="/shows" element={<Shows />} />
