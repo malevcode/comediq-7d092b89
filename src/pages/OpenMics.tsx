@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, Filter, HelpCircle, Heart, ThumbsDown, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -12,6 +11,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useMicRatings, useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate } from "react-router-dom";
 import MicDetailModal from "@/components/MicDetailModal";
+import OpenMicsMap from "@/components/OpenMicsMap";
+import ViewToggle from "@/components/ViewToggle";
 
 const OpenMics = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,6 +22,17 @@ const OpenMics = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showMobileKey, setShowMobileKey] = useState(false);
   const [showDesktopKey, setShowDesktopKey] = useState(false);
+  const [viewModes, setViewModes] = useState<Record<string, 'list' | 'map'>>({
+    active: 'list',
+    liked: 'list',
+    Sunday: 'list',
+    Monday: 'list', 
+    Tuesday: 'list',
+    Wednesday: 'list',
+    Thursday: 'list',
+    Friday: 'list',
+    Saturday: 'list'
+  });
   
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
@@ -174,6 +186,85 @@ const OpenMics = () => {
       "Staten Island": "border-l-4 border-l-gray-500"
     };
     return outlines[cleanBorough as keyof typeof outlines] || "border-l-4 border-l-gray-400";
+  };
+
+  const renderMicContent = (filteredMics: OpenMic[], tabName: string) => {
+    const currentViewMode = viewModes[tabName];
+
+    return (
+      <>
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-sm text-gray-600">
+            Showing {filteredMics.length} {tabName === 'active' ? 'active ' : tabName === 'liked' ? 'liked ' : ''}open mic{filteredMics.length !== 1 ? 's' : ''}{tabName !== 'active' && tabName !== 'liked' ? ` on ${tabName}` : ''}
+          </p>
+          <ViewToggle 
+            viewMode={currentViewMode}
+            onViewChange={(mode) => handleViewModeChange(tabName, mode)}
+          />
+        </div>
+
+        {currentViewMode === 'list' ? (
+          <div className="grid grid-cols-5 gap-1 max-h-[calc(100vh-320px)] overflow-y-auto">
+            {filteredMics.map((mic, index) => (
+              <Card 
+                key={index} 
+                className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-lg w-24 h-24`} 
+                onClick={() => setSelectedMic(mic)}
+              >
+                <CardContent className="p-2 h-full flex flex-col justify-between">
+                  <div className="flex flex-col h-full justify-between">
+                    {/* Line 1-2: Mic name (max 2 lines) */}
+                    <h3 className="font-bold text-sm leading-tight text-gray-900 line-clamp-2 flex-none">
+                      {mic.openMic}
+                    </h3>
+                    {/* Line 3: Time + Borough initial */}
+                    <div className="text-sm text-gray-800 font-semibold flex-none">
+                      {formatTime(mic.startTime)} {getBoroughInitial(mic.borough)}
+                    </div>
+                    {/* Line 4: Cost + Stage time */}
+                    <div className="flex justify-between items-center text-sm flex-none">
+                      <span className="text-green-700 font-bold truncate mr-1">
+                        {formatCost(mic.cost)}
+                      </span>
+                      <span className="text-orange-700 font-bold flex-shrink-0">
+                        {formatStageTime(mic.stageTime)}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <OpenMicsMap 
+            mics={filteredMics}
+            onMicSelect={setSelectedMic}
+          />
+        )}
+
+        {filteredMics.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-gray-500">
+              {tabName === 'liked' ? 'No liked open mics found.' : `No ${tabName === 'active' ? 'active ' : ''}open mics found${tabName !== 'active' && tabName !== 'liked' ? ` for ${tabName}` : ''}.`}
+            </p>
+            {tabName === 'liked' ? (
+              <p className="text-gray-400 text-sm mt-1">Start liking mics to see them here!</p>
+            ) : (
+              <Button onClick={() => {
+                setSearchTerm("");
+                setSelectedBorough("All");
+              }} className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm">
+                Clear Filters
+              </Button>
+            )}
+          </div>
+        )}
+      </>
+    );
+  };
+
+  const handleViewModeChange = (tabName: string, mode: 'list' | 'map') => {
+    setViewModes(prev => ({ ...prev, [tabName]: mode }));
   };
 
   if (isLoading) {
@@ -489,178 +580,18 @@ const OpenMics = () => {
           </TabsList>
 
           <TabsContent value="active" className="mt-2">
-            {(() => {
-              const filteredMics = getFilteredMics("active");
-              return (
-                <>
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-600">
-                      Showing {filteredMics.length} active open mic{filteredMics.length !== 1 ? 's' : ''} (today & upcoming)
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-5 gap-1 max-h-[calc(100vh-320px)] overflow-y-auto">
-                    {filteredMics.map((mic, index) => (
-                      <Card 
-                        key={index} 
-                        className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-lg w-24 h-24`} 
-                        onClick={() => setSelectedMic(mic)}
-                      >
-                        <CardContent className="p-2 h-full flex flex-col justify-between">
-                          <div className="flex flex-col h-full justify-between">
-                            {/* Line 1-2: Mic name (max 2 lines) */}
-                            <h3 className="font-bold text-sm leading-tight text-gray-900 line-clamp-2 flex-none">
-                              {mic.openMic}
-                            </h3>
-                            {/* Line 3: Time + Borough initial */}
-                            <div className="text-sm text-gray-800 font-semibold flex-none">
-                              {formatTime(mic.startTime)} {getBoroughInitial(mic.borough)}
-                            </div>
-                            {/* Line 4: Cost + Stage time */}
-                            <div className="flex justify-between items-center text-sm flex-none">
-                              <span className="text-green-700 font-bold truncate mr-1">
-                                {formatCost(mic.cost)}
-                              </span>
-                              <span className="text-orange-700 font-bold flex-shrink-0">
-                                {formatStageTime(mic.stageTime)}
-                              </span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-
-                  {filteredMics.length === 0 && (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500">No active open mics found.</p>
-                      <Button onClick={() => {
-                        setSearchTerm("");
-                        setSelectedBorough("All");
-                      }} className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm">
-                        Clear Filters
-                      </Button>
-                    </div>
-                  )}
-                </>
-              );
-            })()}
+            {renderMicContent(getFilteredMics("active"), "active")}
           </TabsContent>
 
           {user && (
             <TabsContent value="liked" className="mt-2">
-              {(() => {
-                const filteredMics = getFilteredMics("liked");
-                return (
-                  <>
-                    <div className="mb-4">
-                      <p className="text-sm text-gray-600">
-                        Showing {filteredMics.length} liked open mic{filteredMics.length !== 1 ? 's' : ''}
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-5 gap-1 max-h-[calc(100vh-320px)] overflow-y-auto">
-                      {filteredMics.map((mic, index) => (
-                        <Card 
-                          key={index} 
-                          className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-lg w-24 h-24`} 
-                          onClick={() => setSelectedMic(mic)}
-                        >
-                          <CardContent className="p-2 h-full flex flex-col justify-between">
-                            <div className="flex flex-col h-full justify-between">
-                              {/* Line 1-2: Mic name (max 2 lines) */}
-                              <h3 className="font-bold text-sm leading-tight text-gray-900 line-clamp-2 flex-none">
-                                {mic.openMic}
-                              </h3>
-                              {/* Line 3: Time + Borough initial */}
-                              <div className="text-sm text-gray-800 font-semibold flex-none">
-                                {formatTime(mic.startTime)} {getBoroughInitial(mic.borough)}
-                              </div>
-                              {/* Line 4: Cost + Stage time */}
-                              <div className="flex justify-between items-center text-sm flex-none">
-                                <span className="text-green-700 font-bold truncate mr-1">
-                                  {formatCost(mic.cost)}
-                                </span>
-                                <span className="text-orange-700 font-bold flex-shrink-0">
-                                  {formatStageTime(mic.stageTime)}
-                                </span>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-
-                    {filteredMics.length === 0 && (
-                      <div className="text-center py-8">
-                        <p className="text-gray-500">No liked open mics found.</p>
-                        <p className="text-gray-400 text-sm mt-1">Start liking mics to see them here!</p>
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
+              {renderMicContent(getFilteredMics("liked"), "liked")}
             </TabsContent>
           )}
 
           {daysOfWeek.map(day => (
             <TabsContent key={day} value={day} className="mt-2">
-              {(() => {
-                const filteredMics = getFilteredMics("day", day);
-                return (
-                  <>
-                    <div className="mb-4">
-                      <p className="text-sm text-gray-600">
-                        Showing {filteredMics.length} open mic{filteredMics.length !== 1 ? 's' : ''} on {day}
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-5 gap-1 max-h-[calc(100vh-320px)] overflow-y-auto">
-                      {filteredMics.map((mic, index) => (
-                        <Card 
-                          key={index} 
-                          className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-lg w-24 h-24`} 
-                          onClick={() => setSelectedMic(mic)}
-                        >
-                          <CardContent className="p-2 h-full flex flex-col justify-between">
-                            <div className="flex flex-col h-full justify-between">
-                              {/* Line 1-2: Mic name (max 2 lines) */}
-                              <h3 className="font-bold text-sm leading-tight text-gray-900 line-clamp-2 flex-none">
-                                {mic.openMic}
-                              </h3>
-                              {/* Line 3: Time + Borough initial */}
-                              <div className="text-sm text-gray-800 font-semibold flex-none">
-                                {formatTime(mic.startTime)} {getBoroughInitial(mic.borough)}
-                              </div>
-                              {/* Line 4: Cost + Stage time */}
-                              <div className="flex justify-between items-center text-sm flex-none">
-                                <span className="text-green-700 font-bold truncate mr-1">
-                                  {formatCost(mic.cost)}
-                                </span>
-                                <span className="text-orange-700 font-bold flex-shrink-0">
-                                  {formatStageTime(mic.stageTime)}
-                                </span>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-
-                    {filteredMics.length === 0 && (
-                      <div className="text-center py-8">
-                        <p className="text-gray-500">No open mics found for {day}.</p>
-                        <Button onClick={() => {
-                          setSearchTerm("");
-                          setSelectedBorough("All");
-                        }} className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm">
-                          Clear Filters
-                        </Button>
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
+              {renderMicContent(getFilteredMics("day", day), day)}
             </TabsContent>
           ))}
         </Tabs>
