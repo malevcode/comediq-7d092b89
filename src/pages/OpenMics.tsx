@@ -499,7 +499,7 @@ const OpenMics = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
+                  <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-7 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                     {filteredMics.map((mic, index) => (
                       <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
                         <CardContent className="p-3 h-full flex flex-col justify-between">
@@ -552,7 +552,7 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
+                    <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-7 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
                           <CardContent className="p-3 h-full flex flex-col justify-between">
@@ -601,7 +601,7 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
+                    <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-7 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
                           <CardContent className="p-3 h-full flex flex-col justify-between">
