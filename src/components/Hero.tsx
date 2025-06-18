@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -10,9 +9,9 @@ const Hero = () => {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4 pt-0 pb-4">
+    <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-start justify-center px-4">
       <div className="max-w-6xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
           <div className="text-center lg:text-left order-2 lg:order-1">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-4 lg:mb-6">
               Comediq
@@ -50,7 +49,7 @@ const Hero = () => {
             </div>
           </div>
           
-          <div className="flex justify-center order-1 lg:order-2">
+          <div className="flex justify-center order-1 lg:order-2 -mt-4">
             <img 
               src="/lovable-uploads/fc65b384-6c71-4c5e-9c70-52716864f5ad.png" 
               alt="Comediq Mascot" 
