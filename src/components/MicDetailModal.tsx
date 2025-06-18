@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -164,10 +165,10 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
   };
 
   const getStatusBadgeColor = () => {
-    if (mic.lastVerified.toLowerCase().includes("verified")) {
-      return "bg-green-100 text-green-800 border-green-200";
-    } else if (mic.lastVerified.toLowerCase().includes("tediously")) {
+    if (mic.lastVerified.toLowerCase().includes("tediously")) {
       return "bg-yellow-100 text-yellow-800 border-yellow-200";
+    } else if (mic.lastVerified.toLowerCase().includes("verified")) {
+      return "bg-green-100 text-green-800 border-green-200";
     } else {
       return "bg-red-100 text-red-800 border-red-200";
     }
@@ -202,35 +203,34 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
 
         {/* Content */}
         <div className="p-6">
-          {/* Quick Actions */}
+          {/* Quick Actions - Now in single row */}
           <div className="mb-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <Button 
                 onClick={() => window.open(getGoogleCalendarUrl(), '_blank')}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add to Google Calendar
+                Google Calendar
               </Button>
               <Button 
                 onClick={generateICalFile}
                 variant="outline"
-                className="border-green-300 hover:bg-green-50"
+                className="border-green-300 hover:bg-green-50 text-sm"
               >
                 <Calendar className="w-4 h-4 mr-2" />
                 Download iCal
               </Button>
+              {user && (
+                <Button 
+                  onClick={handleAddToSchedule}
+                  className="bg-orange-600 hover:bg-orange-700 text-white text-sm"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  My Schedule
+                </Button>
+              )}
             </div>
-            
-            {user && (
-              <Button 
-                onClick={handleAddToSchedule}
-                className="w-full mt-3 bg-orange-600 hover:bg-orange-700 text-white"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add to My Schedule
-              </Button>
-            )}
           </div>
 
           {/* Rating Section */}

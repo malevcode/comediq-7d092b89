@@ -83,6 +83,23 @@ const OpenMics = () => {
     return timeStr.replace(/\s*(AM|PM)/gi, '');
   };
 
+  // Helper function to format cost for display
+  const formatCost = (cost: string) => {
+    if (cost.toLowerCase().includes('free')) return 'Fre';
+    // Remove dollar sign and extract numbers, keep it short
+    const match = cost.match(/\$?(\d+)/);
+    if (match) return `$${match[1]}`;
+    return truncateText(cost, 3);
+  };
+
+  // Helper function to format stage time for display
+  const formatStageTime = (stageTime: string) => {
+    // Extract numbers from stage time
+    const match = stageTime.match(/(\d+)/);
+    if (match) return match[1];
+    return truncateText(stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 2);
+  };
+
   // Get filtered mics based on time and day
   const getFilteredMics = (tabType: string, dayFilter?: string) => {
     let filtered = openMics;
@@ -480,14 +497,16 @@ const OpenMics = () => {
                       <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
                         <CardContent className="p-2 h-full flex flex-col justify-between">
                           <div className="space-y-1 flex-1 min-h-0">
-                            <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>
-                              {mic.openMic}
+                            <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden whitespace-nowrap text-ellipsis">
+                              {truncateText(mic.openMic, 15)}
                             </h3>
                             <div className="text-xs text-gray-700 font-medium">{formatTimeWithoutPeriod(mic.startTime)}</div>
                             <div className="flex justify-between items-center text-xs">
-                              <span className="text-green-600 font-medium">{truncateText(mic.cost, 3)}</span>
-                              <span className="text-orange-600 font-medium">
-                                {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 2)}
+                              <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[50%]">
+                                {formatCost(mic.cost)}
+                              </span>
+                              <span className="text-orange-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis">
+                                {formatStageTime(mic.stageTime)}
                               </span>
                             </div>
                           </div>
@@ -529,14 +548,16 @@ const OpenMics = () => {
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
                           <CardContent className="p-2 h-full flex flex-col justify-between">
                             <div className="space-y-1 flex-1 min-h-0">
-                              <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>
-                                {mic.openMic}
+                              <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden whitespace-nowrap text-ellipsis">
+                                {truncateText(mic.openMic, 15)}
                               </h3>
                               <div className="text-xs text-gray-700 font-medium">{formatTimeWithoutPeriod(mic.startTime)}</div>
                               <div className="flex justify-between items-center text-xs">
-                                <span className="text-green-600 font-medium">{truncateText(mic.cost, 3)}</span>
-                                <span className="text-orange-600 font-medium">
-                                  {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 2)}
+                                <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[50%]">
+                                  {formatCost(mic.cost)}
+                                </span>
+                                <span className="text-orange-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis">
+                                  {formatStageTime(mic.stageTime)}
                                 </span>
                               </div>
                             </div>
@@ -574,14 +595,16 @@ const OpenMics = () => {
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg aspect-square`} onClick={() => setSelectedMic(mic)}>
                           <CardContent className="p-2 h-full flex flex-col justify-between">
                             <div className="space-y-1 flex-1 min-h-0">
-                              <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>
-                                {mic.openMic}
+                              <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden whitespace-nowrap text-ellipsis">
+                                {truncateText(mic.openMic, 15)}
                               </h3>
                               <div className="text-xs text-gray-700 font-medium">{formatTimeWithoutPeriod(mic.startTime)}</div>
                               <div className="flex justify-between items-center text-xs">
-                                <span className="text-green-600 font-medium">{truncateText(mic.cost, 3)}</span>
-                                <span className="text-orange-600 font-medium">
-                                  {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 2)}
+                                <span className="text-green-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-[50%]">
+                                  {formatCost(mic.cost)}
+                                </span>
+                                <span className="text-orange-600 font-medium overflow-hidden whitespace-nowrap text-ellipsis">
+                                  {formatStageTime(mic.stageTime)}
                                 </span>
                               </div>
                             </div>
