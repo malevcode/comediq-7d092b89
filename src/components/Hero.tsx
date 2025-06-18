@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -10,9 +9,9 @@ const Hero = () => {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4 py-8">
+    <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4 py-4">
       <div className="max-w-6xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
           <div className="text-center lg:text-left order-2 lg:order-1">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-4 lg:mb-6">
               Comediq
