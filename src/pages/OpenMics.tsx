@@ -164,6 +164,12 @@ const OpenMics = () => {
     );
   }
 
+  const handleAddToSchedule = (showData: any) => {
+    // This function will be passed to the MicDetailModal to handle adding shows to the schedule
+    console.log('Adding show to schedule:', showData);
+    // You can implement the actual logic here or pass it through context
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
       {/* Compact Header */}
@@ -587,120 +593,13 @@ const OpenMics = () => {
       </div>
 
       {/* Modal for detailed view */}
-      {selectedMic && <MicDetailModal mic={selectedMic} onClose={() => setSelectedMic(null)} />}
-    </div>
-  );
-};
-
-// Separate component for the mic detail modal
-const MicDetailModal = ({ mic, onClose }: { mic: OpenMic, onClose: () => void }) => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(mic.uniqueIdentifier);
-
-  const handleRating = (rating: 'like' | 'dislike') => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-
-    if (userRating === rating) {
-      // Remove rating if clicking the same rating
-      removeRating(mic.uniqueIdentifier);
-    } else {
-      // Add or change rating
-      rateMic({ micUniqueIdentifier: mic.uniqueIdentifier, rating });
-    }
-  };
-
-  const makeLinksClickable = (text: string) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const parts = text.split(urlRegex);
-    
-    return parts.map((part, index) => {
-      if (urlRegex.test(part)) {
-        return (
-          <a
-            key={index}
-            href={part}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 underline"
-          >
-            {part}
-          </a>
-        );
-      }
-      return part;
-    });
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-start mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">{mic.openMic}</h2>
-            <Button onClick={onClose} variant="outline" size="sm">
-              Close
-            </Button>
-          </div>
-          
-          {/* Rating Section */}
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Button
-                  onClick={() => handleRating('like')}
-                  variant={userRating === 'like' ? 'default' : 'outline'}
-                  size="sm"
-                  disabled={isRating}
-                  className={userRating === 'like' ? 'bg-green-500 hover:bg-green-600' : ''}
-                >
-                  <Heart className={`h-4 w-4 mr-1 ${userRating === 'like' ? 'fill-current' : ''}`} />
-                  {ratingCounts?.likes || 0}
-                </Button>
-                
-                <Button
-                  onClick={() => handleRating('dislike')}
-                  variant={userRating === 'dislike' ? 'default' : 'outline'}
-                  size="sm"
-                  disabled={isRating}
-                  className={userRating === 'dislike' ? 'bg-red-500 hover:bg-red-600' : ''}
-                >
-                  <ThumbsDown className={`h-4 w-4 mr-1 ${userRating === 'dislike' ? 'fill-current' : ''}`} />
-                  {ratingCounts?.dislikes || 0}
-                </Button>
-              </div>
-              
-              {!user && (
-                <Button onClick={() => navigate('/auth')} size="sm" className="bg-orange-500 hover:bg-orange-600">
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Sign In to Rate
-                </Button>
-              )}
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div><strong>Day:</strong> {mic.day}</div>
-            <div><strong>Start Time:</strong> {mic.startTime}</div>
-            <div><strong>End Time:</strong> {mic.latestEndTime}</div>
-            <div><strong>Venue:</strong> {mic.venueName}</div>
-            <div><strong>Borough:</strong> {mic.borough}</div>
-            <div><strong>Neighborhood:</strong> {mic.neighborhood}</div>
-            <div className="md:col-span-2"><strong>Location:</strong> {makeLinksClickable(mic.location)}</div>
-            <div><strong>Venue Type:</strong> {mic.venueType}</div>
-            <div><strong>Cost:</strong> {mic.cost}</div>
-            <div><strong>Stage Time:</strong> {mic.stageTime}</div>
-            <div className="md:col-span-2"><strong>Sign-Up:</strong> {makeLinksClickable(mic.signUpInstructions)}</div>
-            <div className="md:col-span-2"><strong>Host(s):</strong> {mic.hosts}</div>
-            <div className="md:col-span-2"><strong>Changes/Updates:</strong> {makeLinksClickable(mic.changesUpdates)}</div>
-            <div><strong>Last Verified:</strong> {mic.lastVerified}</div>
-            <div className="md:col-span-2"><strong>Other Rules:</strong> {makeLinksClickable(mic.otherRules)}</div>
-          </div>
-        </div>
-      </div>
+      {selectedMic && (
+        <MicDetailModal 
+          mic={selectedMic} 
+          onClose={() => setSelectedMic(null)} 
+          onAddToSchedule={handleAddToSchedule}
+        />
+      )}
     </div>
   );
 };
