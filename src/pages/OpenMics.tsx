@@ -464,20 +464,20 @@ const OpenMics = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
+                  <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
                     {filteredMics.map((mic, index) => (
                       <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg`} onClick={() => setSelectedMic(mic)}>
-                        <CardContent className="p-3 h-32 flex flex-col justify-between">
+                        <CardContent className="p-2 h-28 flex flex-col justify-between">
                           <div className="space-y-1 flex-1">
-                            <h3 className="font-bold text-sm text-gray-900 leading-tight line-clamp-2">
-                              {truncateText(mic.openMic, 12)}
+                            <h3 className="font-bold text-xs text-gray-900 leading-tight line-clamp-2">
+                              {truncateText(mic.openMic, 10)}
                             </h3>
-                            <div className="text-sm text-gray-700 font-medium">{mic.startTime}</div>
+                            <div className="text-xs text-gray-700 font-medium">{mic.startTime}</div>
                           </div>
-                          <div className="flex justify-between items-center text-sm mt-2">
-                            <span className="text-green-600 font-bold">{truncateText(mic.cost, 4)}</span>
+                          <div className="flex justify-between items-center text-xs mt-1">
+                            <span className="text-green-600 font-bold">{truncateText(mic.cost, 3)}</span>
                             <span className="text-orange-600 font-bold">
-                              {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 3)}
+                              {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 2)}
                             </span>
                           </div>
                         </CardContent>
@@ -513,20 +513,20 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
+                    <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-3 h-32 flex flex-col justify-between">
+                          <CardContent className="p-2 h-28 flex flex-col justify-between">
                             <div className="space-y-1 flex-1">
-                              <h3 className="font-bold text-sm text-gray-900 leading-tight line-clamp-2">
-                                {truncateText(mic.openMic, 12)}
+                              <h3 className="font-bold text-xs text-gray-900 leading-tight line-clamp-2">
+                                {truncateText(mic.openMic, 10)}
                               </h3>
-                              <div className="text-sm text-gray-700 font-medium">{mic.startTime}</div>
+                              <div className="text-xs text-gray-700 font-medium">{mic.startTime}</div>
                             </div>
-                            <div className="flex justify-between items-center text-sm mt-2">
-                              <span className="text-green-600 font-bold">{truncateText(mic.cost, 4)}</span>
+                            <div className="flex justify-between items-center text-xs mt-1">
+                              <span className="text-green-600 font-bold">{truncateText(mic.cost, 3)}</span>
                               <span className="text-orange-600 font-bold">
-                                {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 3)}
+                                {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 2)}
                               </span>
                             </div>
                           </CardContent>
@@ -558,20 +558,20 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-3 max-h-[calc(100vh-320px)] overflow-y-auto">
+                    <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
                         <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationColor(mic.lastVerified)} rounded-lg`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-3 h-32 flex flex-col justify-between">
+                          <CardContent className="p-2 h-28 flex flex-col justify-between">
                             <div className="space-y-1 flex-1">
-                              <h3 className="font-bold text-sm text-gray-900 leading-tight line-clamp-2">
-                                {truncateText(mic.openMic, 12)}
+                              <h3 className="font-bold text-xs text-gray-900 leading-tight line-clamp-2">
+                                {truncateText(mic.openMic, 10)}
                               </h3>
-                              <div className="text-sm text-gray-700 font-medium">{mic.startTime}</div>
+                              <div className="text-xs text-gray-700 font-medium">{mic.startTime}</div>
                             </div>
-                            <div className="flex justify-between items-center text-sm mt-2">
-                              <span className="text-green-600 font-bold">{truncateText(mic.cost, 4)}</span>
+                            <div className="flex justify-between items-center text-xs mt-1">
+                              <span className="text-green-600 font-bold">{truncateText(mic.cost, 3)}</span>
                               <span className="text-orange-600 font-bold">
-                                {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 3)}
+                                {truncateText(mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim(), 2)}
                               </span>
                             </div>
                           </CardContent>

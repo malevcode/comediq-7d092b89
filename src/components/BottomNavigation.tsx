@@ -9,7 +9,7 @@ const BottomNavigation = () => {
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
-    { path: "/create", icon: Plus, label: "Make" },
+    { path: "/create", icon: Plus, label: "Create" },
     { path: "/consume", icon: Eye, label: "Laugh" },
     ...(user ? [{ path: "/profile", icon: User, label: "Profile" }] : [])
   ];

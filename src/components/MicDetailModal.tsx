@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -183,10 +182,16 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
             <div className="flex-1 min-w-0">
               <h2 className="text-2xl font-bold text-gray-900 mb-1">{mic.openMic}</h2>
               <p className="text-gray-600">{mic.venueName}</p>
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-4 mt-2">
                 <Badge className={`${getStatusBadgeColor()} text-xs`}>
                   {mic.lastVerified}
                 </Badge>
+                <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 px-3 py-1 rounded-lg">
+                  <div className="text-sm font-semibold text-gray-900">
+                    {mic.day} • {mic.startTime} • {mic.stageTime} stage time
+                  </div>
+                  <div className="text-xs text-gray-600">Every week</div>
+                </div>
               </div>
             </div>
             <Button onClick={onClose} variant="ghost" size="sm" className="rounded-full">
@@ -197,18 +202,6 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
 
         {/* Content */}
         <div className="p-6">
-          {/* Date and Time Info - Condensed to single line */}
-          <Card className="mb-6 bg-gradient-to-r from-orange-50 to-red-50 border-orange-200">
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-lg font-semibold text-gray-900">
-                  {mic.day} • {mic.startTime} • {mic.stageTime} stage time
-                </div>
-                <div className="text-sm text-gray-600 mt-1">Every week</div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Quick Actions */}
           <div className="mb-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
