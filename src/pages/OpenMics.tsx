@@ -106,6 +106,19 @@ const OpenMics = () => {
     return stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim().substring(0, 3);
   };
 
+  // Helper function to get verification status background color
+  const getVerificationBackgroundColor = (lastVerified: string) => {
+    const verification = lastVerified?.toLowerCase() || '';
+    
+    if (verification.includes('tediously verified') || verification.includes('tedious')) {
+      return "bg-yellow-100"; // Verified tediously - light yellow
+    } else if (verification.includes('verified') || verification.includes('confirm')) {
+      return "bg-emerald-100"; // Verified - light mint
+    } else {
+      return "bg-red-100"; // Unverified - light red
+    }
+  };
+
   // Get filtered mics based on time and day
   const getFilteredMics = (tabType: string, dayFilter?: string) => {
     let filtered = openMics;
@@ -148,19 +161,6 @@ const OpenMics = () => {
 
     // Sort by time
     return filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
-  };
-
-  // Alternating background colors to match reference image
-  const getTileBackgroundColor = (index: number) => {
-    const colors = [
-      "bg-yellow-200",
-      "bg-green-200", 
-      "bg-blue-200",
-      "bg-pink-200",
-      "bg-purple-200",
-      "bg-orange-200"
-    ];
-    return colors[index % colors.length];
   };
 
   // Borough outline colors for left border only
@@ -310,9 +310,9 @@ const OpenMics = () => {
                     {/* Example Tile */}
                     <div>
                       <p className="text-xs text-gray-600 mb-2 font-medium">Example:</p>
-                      <Card className="border-l-4 border-l-cyan-500 bg-yellow-200 w-full max-w-32">
-                        <CardContent className="p-2.5 aspect-square flex flex-col justify-between">
-                          <div className="space-y-1">
+                      <Card className="border-l-4 border-l-cyan-500 bg-yellow-100 w-24 h-24">
+                        <CardContent className="p-2 h-full flex flex-col justify-between">
+                          <div className="flex flex-col h-full justify-between">
                             <h3 className="font-bold text-sm text-gray-900 line-clamp-2 leading-tight">
                               Comedy Mic Name
                             </h3>
@@ -324,6 +324,25 @@ const OpenMics = () => {
                           </div>
                         </CardContent>
                       </Card>
+                    </div>
+
+                    {/* Verification Status Legend */}
+                    <div>
+                      <p className="text-xs text-gray-600 mb-2 font-medium">Background = Verification:</p>
+                      <div className="space-y-1 text-xs">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-3 bg-yellow-100 rounded-sm border"></div>
+                          <span>Verified Tediously</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-3 bg-emerald-100 rounded-sm border"></div>
+                          <span>Verified</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-3 bg-red-100 rounded-sm border"></div>
+                          <span>Unverified</span>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Borough Legend */}
@@ -351,17 +370,10 @@ const OpenMics = () => {
                           <span>Staten Island (S)</span>
                         </div>
                       </div>
-                    </div>
-                    
-                    {/* Format Legend */}
-                    <div className="space-y-3">
-                      <div>
+                      
+                      <div className="mt-3">
                         <p className="text-xs text-gray-600 mb-1 font-medium">Format:</p>
                         <p className="text-xs">Name → Time Borough → <span className="text-green-700 font-bold">Cost</span> | <span className="text-orange-700 font-bold">Mins</span></p>
-                      </div>
-                      
-                      <div>
-                        <p className="text-xs text-gray-600 mb-2 font-medium">Colors rotate for visual variety</p>
                       </div>
                     </div>
                   </div>
@@ -381,10 +393,10 @@ const OpenMics = () => {
                 {/* Example Tile */}
                 <div>
                   <p className="text-xs text-gray-600 mb-1">Example:</p>
-                  <Card className="border-l-4 border-l-cyan-500 bg-yellow-200 w-24 h-24">
+                  <Card className="border-l-4 border-l-cyan-500 bg-yellow-100 w-24 h-24">
                     <CardContent className="p-2 h-full flex flex-col justify-between">
-                      <div className="space-y-0.5">
-                        <h3 className="font-bold text-xs text-gray-900 leading-tight overflow-hidden line-clamp-2">
+                      <div className="flex flex-col h-full justify-between">
+                        <h3 className="font-bold text-xs text-gray-900 leading-tight line-clamp-2">
                           Comedy Mic
                         </h3>
                         <div className="text-xs text-gray-800 font-semibold">8:00 PM M</div>
@@ -395,6 +407,25 @@ const OpenMics = () => {
                       </div>
                     </CardContent>
                   </Card>
+                </div>
+
+                {/* Verification Legend */}
+                <div>
+                  <span className="font-medium text-xs">Background = Verification:</span>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-2 bg-yellow-100 rounded-sm border"></div>
+                      <span className="text-xs">Tedious</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-2 bg-emerald-100 rounded-sm border"></div>
+                      <span className="text-xs">Verified</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-2 bg-red-100 rounded-sm border"></div>
+                      <span className="text-xs">Unverified</span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Borough Legend */}
@@ -468,21 +499,25 @@ const OpenMics = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-7 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
+                  <div className="grid grid-cols-5 gap-1 max-h-[calc(100vh-320px)] overflow-y-auto">
                     {filteredMics.map((mic, index) => (
-                      <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getTileBackgroundColor(index)} rounded-lg aspect-square shadow-sm`} onClick={() => setSelectedMic(mic)}>
-                        <CardContent className="p-2.5 h-full flex flex-col justify-between">
-                          <div className="flex flex-col h-full">
+                      <Card 
+                        key={index} 
+                        className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-lg w-24 h-24`} 
+                        onClick={() => setSelectedMic(mic)}
+                      >
+                        <CardContent className="p-2 h-full flex flex-col justify-between">
+                          <div className="flex flex-col h-full justify-between">
                             {/* Line 1-2: Mic name (max 2 lines) */}
-                            <h3 className="font-bold text-sm leading-tight text-gray-900 mb-1 line-clamp-2 flex-none">
+                            <h3 className="font-bold text-sm leading-tight text-gray-900 line-clamp-2 flex-none">
                               {mic.openMic}
                             </h3>
                             {/* Line 3: Time + Borough initial */}
-                            <div className="text-sm text-gray-800 font-semibold mb-1 flex-none">
+                            <div className="text-sm text-gray-800 font-semibold flex-none">
                               {formatTime(mic.startTime)} {getBoroughInitial(mic.borough)}
                             </div>
                             {/* Line 4: Cost + Stage time */}
-                            <div className="flex justify-between items-center text-sm flex-none mt-auto">
+                            <div className="flex justify-between items-center text-sm flex-none">
                               <span className="text-green-700 font-bold truncate mr-1">
                                 {formatCost(mic.cost)}
                               </span>
@@ -524,21 +559,25 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-7 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
+                    <div className="grid grid-cols-5 gap-1 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
-                        <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getTileBackgroundColor(index)} rounded-lg aspect-square shadow-sm`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-2.5 h-full flex flex-col justify-between">
-                            <div className="flex flex-col h-full">
+                        <Card 
+                          key={index} 
+                          className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-lg w-24 h-24`} 
+                          onClick={() => setSelectedMic(mic)}
+                        >
+                          <CardContent className="p-2 h-full flex flex-col justify-between">
+                            <div className="flex flex-col h-full justify-between">
                               {/* Line 1-2: Mic name (max 2 lines) */}
-                              <h3 className="font-bold text-sm leading-tight text-gray-900 mb-1 line-clamp-2 flex-none">
+                              <h3 className="font-bold text-sm leading-tight text-gray-900 line-clamp-2 flex-none">
                                 {mic.openMic}
                               </h3>
                               {/* Line 3: Time + Borough initial */}
-                              <div className="text-sm text-gray-800 font-semibold mb-1 flex-none">
+                              <div className="text-sm text-gray-800 font-semibold flex-none">
                                 {formatTime(mic.startTime)} {getBoroughInitial(mic.borough)}
                               </div>
                               {/* Line 4: Cost + Stage time */}
-                              <div className="flex justify-between items-center text-sm flex-none mt-auto">
+                              <div className="flex justify-between items-center text-sm flex-none">
                                 <span className="text-green-700 font-bold truncate mr-1">
                                   {formatCost(mic.cost)}
                                 </span>
@@ -576,21 +615,25 @@ const OpenMics = () => {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-7 gap-2 max-h-[calc(100vh-320px)] overflow-y-auto">
+                    <div className="grid grid-cols-5 gap-1 max-h-[calc(100vh-320px)] overflow-y-auto">
                       {filteredMics.map((mic, index) => (
-                        <Card key={index} className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getTileBackgroundColor(index)} rounded-lg aspect-square shadow-sm`} onClick={() => setSelectedMic(mic)}>
-                          <CardContent className="p-2.5 h-full flex flex-col justify-between">
-                            <div className="flex flex-col h-full">
+                        <Card 
+                          key={index} 
+                          className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-lg w-24 h-24`} 
+                          onClick={() => setSelectedMic(mic)}
+                        >
+                          <CardContent className="p-2 h-full flex flex-col justify-between">
+                            <div className="flex flex-col h-full justify-between">
                               {/* Line 1-2: Mic name (max 2 lines) */}
-                              <h3 className="font-bold text-sm leading-tight text-gray-900 mb-1 line-clamp-2 flex-none">
+                              <h3 className="font-bold text-sm leading-tight text-gray-900 line-clamp-2 flex-none">
                                 {mic.openMic}
                               </h3>
                               {/* Line 3: Time + Borough initial */}
-                              <div className="text-sm text-gray-800 font-semibold mb-1 flex-none">
+                              <div className="text-sm text-gray-800 font-semibold flex-none">
                                 {formatTime(mic.startTime)} {getBoroughInitial(mic.borough)}
                               </div>
                               {/* Line 4: Cost + Stage time */}
-                              <div className="flex justify-between items-center text-sm flex-none mt-auto">
+                              <div className="flex justify-between items-center text-sm flex-none">
                                 <span className="text-green-700 font-bold truncate mr-1">
                                   {formatCost(mic.cost)}
                                 </span>
