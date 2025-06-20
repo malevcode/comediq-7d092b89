@@ -22,10 +22,5 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     exclude: ['mapbox-gl']
-  },
-  build: {
-    rollupOptions: {
-      external: mode === 'production' ? [] : ['mapbox-gl']
-    }
   }
 }));
