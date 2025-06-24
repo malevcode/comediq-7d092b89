@@ -140,7 +140,7 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
   const initializeMap = () => {
     if (!mapContainer.current || !mapboxToken) return;
 
-    mapboxgl.accessToken = mapboxToken;
+    (mapboxgl as any).accessToken = mapboxToken;
     
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
