@@ -5,7 +5,7 @@ const Hero = () => {
   const handleSignUp = () => {
     navigate("/auth");
   };
-  return <section className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-start justify-center px-4">
+  return <section className="py-20 min-h-full bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-start justify-center px-4">
       <div className="max-w-6xl mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
           <div className="text-center lg:text-left order-2 lg:order-1">
