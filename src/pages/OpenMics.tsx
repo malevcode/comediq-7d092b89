@@ -22,7 +22,7 @@ const OpenMics = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showMobileKey, setShowMobileKey] = useState(false);
   const [showDesktopKey, setShowDesktopKey] = useState(false);
-  const [viewModes, setViewModes] = useState<Record<string, 'list' | 'map'>>({
+  const [viewModes, setViewModes] = useState<Record<string, 'list' | 'detailed list' | 'map'>>({
     active: 'list',
     liked: 'list',
     Sunday: 'list',
@@ -263,7 +263,7 @@ const OpenMics = () => {
     );
   };
 
-  const handleViewModeChange = (tabName: string, mode: 'list' | 'map') => {
+  const handleViewModeChange = (tabName: string, mode: 'list' | 'detailed list' | 'map') => {
     setViewModes(prev => ({ ...prev, [tabName]: mode }));
   };
 
