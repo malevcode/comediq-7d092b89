@@ -1,11 +1,11 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Grid3x3, MapPin } from 'lucide-react';
+import { Grid3x3, List, MapPin } from 'lucide-react';
 
 interface ViewToggleProps {
-  viewMode: 'list' | 'map';
-  onViewChange: (mode: 'list' | 'map') => void;
+  viewMode: 'list' | 'detailed_list' | 'map';
+  onViewChange: (mode: 'list' | 'detailed_list' | 'map') => void;
 }
 
 const ViewToggle = ({ viewMode, onViewChange }: ViewToggleProps) => {
@@ -19,6 +19,15 @@ const ViewToggle = ({ viewMode, onViewChange }: ViewToggleProps) => {
       >
         <Grid3x3 className="h-3 w-3 mr-1" />
         List
+      </Button>
+      <Button
+        variant={viewMode === 'detailed_list' ? 'default' : 'ghost'}
+        size="sm"
+        onClick={() => onViewChange('detailed_list')}
+        className="h-8 px-3 text-xs"
+      >
+        <List className="h-3 w-3 mr-1" />
+        Detailed List
       </Button>
       <Button
         variant={viewMode === 'map' ? 'default' : 'ghost'}

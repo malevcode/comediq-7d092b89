@@ -12,6 +12,7 @@ import { useMicRatings, useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate } from "react-router-dom";
 import MicDetailModal from "@/components/MicDetailModal";
 import OpenMicsMap from "@/components/OpenMicsMap";
+import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import ViewToggle from "@/components/ViewToggle";
 
 const OpenMics = () => {
@@ -22,17 +23,7 @@ const OpenMics = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showMobileKey, setShowMobileKey] = useState(false);
   const [showDesktopKey, setShowDesktopKey] = useState(false);
-  const [viewModes, setViewModes] = useState<Record<string, 'list' | 'map'>>({
-    active: 'list',
-    liked: 'list',
-    Sunday: 'list',
-    Monday: 'list', 
-    Tuesday: 'list',
-    Wednesday: 'list',
-    Thursday: 'list',
-    Friday: 'list',
-    Saturday: 'list'
-  });
+  const [viewMode, setViewMode] = useState<'list' | 'detailed_list' | 'map'>('list');
   
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
@@ -189,7 +180,7 @@ const OpenMics = () => {
   };
 
   const renderMicContent = (filteredMics: OpenMic[], tabName: string) => {
-    const currentViewMode = viewModes[tabName];
+    const currentViewMode = viewMode;
 
     return (
       <>
@@ -199,7 +190,7 @@ const OpenMics = () => {
           </p>
           <ViewToggle 
             viewMode={currentViewMode}
-            onViewChange={(mode) => handleViewModeChange(tabName, mode)}
+            onViewChange={handleViewModeChange}
           />
         </div>
 
@@ -235,6 +226,10 @@ const OpenMics = () => {
               </Card>
             ))}
           </div>
+        ) : currentViewMode === 'detailed_list' ? (
+          <OpenMicsDetailedList 
+            mics={filteredMics}
+          />
         ) : (
           <OpenMicsMap 
             mics={filteredMics}
@@ -263,8 +258,8 @@ const OpenMics = () => {
     );
   };
 
-  const handleViewModeChange = (tabName: string, mode: 'list' | 'map') => {
-    setViewModes(prev => ({ ...prev, [tabName]: mode }));
+  const handleViewModeChange = (mode: 'list' | 'detailed_list' | 'map') => {
+    setViewMode(mode);
   };
 
   if (isLoading) {
