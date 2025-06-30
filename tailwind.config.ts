@@ -61,7 +61,9 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				papaya: 'hsl(var(--color-papaya) / <alpha-value>)',
+				sky: 'hsl(var(--color-sky) / <alpha-value>)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

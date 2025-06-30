@@ -56,7 +56,7 @@ function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
         </div>
         {/* Group 2: Add to Calendar + User Score (right column) */}
         <div className="flex flex-col justify-around h-15 items-end">
-          <Button size="sm" className="bg-black text-white hover:bg-[#5DC9E3]">Add to Calendar</Button>
+          <Button size="sm" className="bg-papaya text-white hover:bg-papaya/80">Add to Calendar</Button>
           <span className="flex items-center gap-1 text-xs text-gray-600">
             <CircleUser className="w-4 h-4 text-gray-400" />
             {userRating ?? "not rated"}
@@ -93,7 +93,7 @@ export default function OpenMicsDetailedList({
       {visibleCount < validMics.length && (
         <div className="flex justify-center">
           <button
-            className="px-2 py-2 w-auto bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
+            className="px-2 py-2 w-auto bg-papaya text-white rounded hover:bg-orange-600 text-sm"
             onClick={() => setVisibleCount(c => c + 25)}
           >
             Show More
@@ -103,7 +103,7 @@ export default function OpenMicsDetailedList({
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className={`
-          fixed bottom-24 right-4 z-50 bg-orange-500 text-white p-2 rounded-full shadow-lg hover:bg-orange-600 transition
+          fixed bottom-24 right-4 z-50 bg-papaya text-white p-2 rounded-full shadow-lg hover:bg-orange-600 transition
           transform
           ${showScrollTop ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
           duration-300
