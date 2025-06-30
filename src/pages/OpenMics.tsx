@@ -23,7 +23,8 @@ const OpenMics = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showMobileKey, setShowMobileKey] = useState(false);
   const [showDesktopKey, setShowDesktopKey] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'detailed_list' | 'map'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'map'>('list');
+  const [visibleCount, setVisibleCount] = useState(25);
   
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
@@ -185,21 +186,29 @@ const OpenMics = () => {
     return (
       <>
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm text-gray-600">
-            Showing {filteredMics.length} {tabName === 'active' ? 'active ' : tabName === 'liked' ? 'liked ' : ''}open mic{filteredMics.length !== 1 ? 's' : ''}{tabName !== 'active' && tabName !== 'liked' ? ` on ${tabName}` : ''}
+          <p className="text-sm text-gray-600 max-w-full">
+            Showing {currentViewMode === 'list'
+              ? `${Math.min(visibleCount, filteredMics.length)} of ${filteredMics.length}`
+              : filteredMics.length
+            }
+            {tabName === 'active' ? ' active' : tabName === 'liked' ? ' liked ' : ''}
+            {' open mic'}{filteredMics.length !== 1 ? 's' : ''}
+            {tabName !== 'active' && tabName !== 'liked' ? ` on ${tabName}` : ''}
           </p>
-          <ViewToggle 
-            viewMode={currentViewMode}
-            onViewChange={handleViewModeChange}
-          />
+          <div className="w-full max-w-xs md:max-w-none md:w-auto flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+            <ViewToggle 
+              viewMode={currentViewMode}
+              onViewChange={handleViewModeChange}
+            />
+          </div>
         </div>
 
-        {currentViewMode === 'list' ? (
-          <div className="grid grid-cols-5 gap-1 max-h-[calc(100vh-320px)] overflow-y-auto">
+        {currentViewMode === 'grid' ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1 max-h-[calc(100vh-320px)] overflow-y-auto">
             {filteredMics.map((mic, index) => (
               <Card 
                 key={index} 
-                className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-lg w-24 h-24`} 
+                className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-lg w-full sm:w-24 h-24`} 
                 onClick={() => setSelectedMic(mic)}
               >
                 <CardContent className="p-2 h-full flex flex-col justify-between">
@@ -226,9 +235,11 @@ const OpenMics = () => {
               </Card>
             ))}
           </div>
-        ) : currentViewMode === 'detailed_list' ? (
+        ) : currentViewMode === 'list' ? (
           <OpenMicsDetailedList 
             mics={filteredMics}
+            visibleCount={visibleCount}
+            setVisibleCount={setVisibleCount}
           />
         ) : (
           <OpenMicsMap 
@@ -258,7 +269,7 @@ const OpenMics = () => {
     );
   };
 
-  const handleViewModeChange = (mode: 'list' | 'detailed_list' | 'map') => {
+  const handleViewModeChange = (mode: 'list' | 'grid' | 'map') => {
     setViewMode(mode);
   };
 
