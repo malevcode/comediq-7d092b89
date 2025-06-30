@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import * as mapboxgl from 'mapbox-gl';
+import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { OpenMic } from '@/types/openMic';
 import { Button } from '@/components/ui/button';
@@ -140,7 +140,7 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
   const initializeMap = () => {
     if (!mapContainer.current || !mapboxToken) return;
 
-    mapboxgl.accessToken = mapboxToken;
+    (mapboxgl as any).accessToken = mapboxToken;
     
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
