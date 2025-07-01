@@ -9,8 +9,8 @@ interface ViewToggleProps {
 
 const ViewToggle = ({ viewMode, onViewChange }: ViewToggleProps) => {
   return (
-    <div className="w-full max-w-full overflow-x-hidden">
-      <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+    <div className="w-full sm:w-auto overflow-x-hidden">
+      <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg w-full sm:w-auto">
         <Button
           size="sm"
           onClick={() => onViewChange('list')}

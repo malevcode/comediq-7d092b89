@@ -195,7 +195,7 @@ const OpenMics = () => {
             {' open mic'}{filteredMics.length !== 1 ? 's' : ''}
             {tabName !== 'active' && tabName !== 'liked' ? ` on ${tabName}` : ''}
           </p>
-          <div className="w-full max-w-xs md:max-w-none md:w-auto flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+          <div className="flex-shrink-0">
             <ViewToggle 
               viewMode={currentViewMode}
               onViewChange={handleViewModeChange}
