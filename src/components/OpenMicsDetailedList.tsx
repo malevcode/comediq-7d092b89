@@ -1,4 +1,4 @@
-import { Calendar, Clock, Users, DollarSign, Star, MapPin, CircleUser, CircleAlert, CircleCheckBig, ArrowUp } from "lucide-react";
+import { Calendar, Clock, Users, DollarSign, Star, MapPin, CircleUser, CircleAlert, CircleCheckBig, ArrowUp, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
 import { useMicRatings } from "@/hooks/useMicRatings";
@@ -6,6 +6,13 @@ import { useState, useEffect } from "react";
 
 function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
   const { userRating, ratingCounts } = useMicRatings(mic.uniqueIdentifier);
+  const [expanded, setExpanded] = useState(false);
+  // Helper to get first line or summary
+  const getSummary = (text: string) => {
+    if (!text) return '';
+    const firstLine = text.split('\n')[0];
+    return firstLine.length > 80 ? firstLine.slice(0, 80) + '...' : firstLine;
+  };
   return (
     <div className="flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-4 gap-2 md:gap-6 overflow-x-hidden">
       {/* Left: Name, Location, Date */}
@@ -44,15 +51,28 @@ function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
       </div>
       {/* Right: Value, Ratings, Button */}
       <div className="w-full md:flex-[1.2] flex flex-col justify-center">
-        <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-2">
-          <div className="font-semibold text-xs text-blue-800 mb-1 flex items-center gap-1">
+        <button
+          className="appearance-none cursor-pointer bg-blue-50 border border-blue-100 rounded-lg p-2 mb-2 relative w-full text-left flex flex-col hover:bg-blue-100 transition font-semibold text-xs text-blue-800 gap-1 outline-none"
+          aria-label={expanded ? 'Collapse details' : 'Expand details'}
+          onClick={() => setExpanded(e => !e)}
+          type="button"
+        >
+          <span className="flex items-center gap-1">
             <CircleUser className="w-4 h-4" />
-            Sign-Up Instructions
-          </div>
-          <div className="text-xs text-blue-700 break-words">
-            {mic.signUpInstructions}
-          </div>
-        </div>
+            <span>Sign-Up Instructions</span>
+            <ChevronDown
+              className={`w-4 h-4 ml-auto transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+            />
+          </span>
+          {expanded && (
+            <div
+              className="text-xs text-blue-700 break-words mt-2 font-normal select-text cursor-text"
+              onClick={e => e.stopPropagation()}
+            >
+              {mic.signUpInstructions}
+            </div>
+          )}
+        </button>
         <Button
           size="sm"
           className="w-full bg-papaya text-white hover:bg-papaya/80 flex items-center justify-center gap-2"

@@ -7,14 +7,14 @@ const Features = () => {
       title: "Open Mic Finder",
       description: "A real-time directory of NYC open mics, verified by hosts via SMS, searchable by day and location.",
       mascotImage: "/lovable-uploads/c8d06f54-cc90-4a76-b9f9-35c2804c5940.png",
-      link: "/open-mics"
+      link: "/create?tab=find-mics"
     },
     {
       emoji: "📈",
       title: "Set Transcriptions & Bit Analysis",
       description: "Upload and transcribe recorded sets, track filler words, joke evolution, and laugh density.",
       mascotImage: "/lovable-uploads/887bd963-c0c7-4f16-8844-82db23fa6d23.png",
-      link: "/track-sets"
+      link: "/create?tab=track-sets"
     },
     {
       emoji: "🎥",
