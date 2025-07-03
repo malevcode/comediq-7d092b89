@@ -195,7 +195,7 @@ const OpenMics = () => {
             {' open mic'}{filteredMics.length !== 1 ? 's' : ''}
             {tabName !== 'active' && tabName !== 'liked' ? ` on ${tabName}` : ''}
           </p>
-          <div className="w-full max-w-xs md:max-w-none md:w-auto flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+          <div className="flex-shrink-0">
             <ViewToggle 
               viewMode={currentViewMode}
               onViewChange={handleViewModeChange}
@@ -575,7 +575,7 @@ const OpenMics = () => {
 
         {/* Day Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full ${user ? 'grid-cols-10' : 'grid-cols-9'} mb-6 h-9 gap-1.5`}>
+          <TabsList className={`grid w-full ${user ? 'grid-cols-9' : 'grid-cols-8'} mb-6 h-9 gap-1.5`}>
             <TabsTrigger value="active" className="text-xs py-1 px-1">Active</TabsTrigger>
             {user && <TabsTrigger value="liked" className="text-xs py-1 px-1">❤️</TabsTrigger>}
             {daysOfWeek.map(day => (

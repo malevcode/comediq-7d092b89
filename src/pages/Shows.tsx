@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,49 +8,61 @@ import ShowNotepad from "@/components/ShowNotepad";
 
 interface ShowNote {
   id: string;
+  title: string;
   venue: string;
+  location: string;
+  date: string; // ISO date string
   time: string;
-  day: string;
-  minutes: string;
+  status: 'upcoming' | 'cancelled' | 'completed';
   plannedJokes: string;
   audienceCount: string;
   rating: string;
-  createdAt: Date;
+  borough: string;
+  createdAt: string;
 }
 
 const Shows = () => {
   const [shows, setShows] = useState<ShowNote[]>([
     {
       id: '1',
+      title: 'Comedy Night at Comedy Cellar',
       venue: 'Comedy Cellar',
+      location: 'New York, NY',
+      date: '2024-06-10',
       time: '8:00 PM',
-      day: 'Friday',
-      minutes: '7',
+      status: 'completed',
       plannedJokes: 'Dating app material, subway observations',
       audienceCount: '45',
       rating: '8',
-      createdAt: new Date('2024-06-10')
+      borough: 'Manhattan', 
+      createdAt: '2024-06-10',
     },
     {
       id: '2',
+      title: 'Saturday Showcase',
       venue: 'Eastville Comedy Club',
+      location: 'Brooklyn, NY',
+      date: '2024-06-11',
       time: '9:30 PM',
-      day: 'Saturday',
-      minutes: '5',
+      status: 'upcoming',
       plannedJokes: 'Family stories, work complaints',
       audienceCount: '30',
       rating: '6',
-      createdAt: new Date('2024-06-11')
+      borough: 'Brooklyn',
+      createdAt: '2024-06-11',
     }
   ]);
 
-  const addShow = (newShow: Omit<ShowNote, 'id' | 'createdAt'>) => {
+  const addShow = (newShow: Omit<ShowNote, 'id'>) => {
     const show: ShowNote = {
       ...newShow,
       id: Date.now().toString(),
-      createdAt: new Date()
     };
     setShows([show, ...shows]);
+  };
+
+  const updateShow = (id: string, updatedFields: Partial<ShowNote>) => {
+    setShows(shows => shows.map(show => show.id === id ? { ...show, ...updatedFields } : show));
   };
 
   const deleteShow = (id: string) => {
@@ -61,14 +72,10 @@ const Shows = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Show Notes</h1>
-          <p className="text-lg text-gray-600">Quick notepad for tracking your comedy performances</p>
-        </div>
-
         <ShowNotepad 
           shows={shows}
           onAddShow={addShow}
+          onUpdateShow={updateShow}
           onDeleteShow={deleteShow}
         />
       </div>

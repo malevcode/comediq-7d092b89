@@ -1,59 +1,72 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Save, Trash2 } from "lucide-react";
+import { Plus, Save, Trash2, MapPin, Calendar, Clock, Users, Star, CircleAlert, CircleCheckBig } from "lucide-react";
+import ShowForm from "./ShowForm";
 
 interface ShowNote {
   id: string;
+  title: string;
   venue: string;
+  location: string;
+  date: string; // ISO date string
   time: string;
-  day: string;
-  minutes: string;
+  status: 'upcoming' | 'cancelled' | 'completed';
   plannedJokes: string;
   audienceCount: string;
   rating: string;
-  createdAt: Date;
+  borough: string;
+  createdAt: string;
 }
 
 interface ShowNotepadProps {
   shows: ShowNote[];
-  onAddShow: (show: Omit<ShowNote, 'id' | 'createdAt'>) => void;
+  onAddShow: (show: Omit<ShowNote, 'id'>) => void;
+  onUpdateShow: (id: string, updatedFields: Partial<ShowNote>) => void;
   onDeleteShow: (id: string) => void;
 }
 
-const ShowNotepad = ({ shows, onAddShow, onDeleteShow }: ShowNotepadProps) => {
-  const [newShow, setNewShow] = useState({
-    venue: '',
-    time: '',
-    day: '',
-    minutes: '',
-    plannedJokes: '',
-    audienceCount: '',
-    rating: ''
-  });
+const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow }: ShowNotepadProps) => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editShow, setEditShow] = useState<ShowNote | null>(null);
 
-  const handleAddShow = () => {
-    if (newShow.venue.trim()) {
-      onAddShow(newShow);
-      setNewShow({
-        venue: '',
-        time: '',
-        day: '',
-        minutes: '',
-        plannedJokes: '',
-        audienceCount: '',
-        rating: ''
+  // Handler for opening modal to add
+  const handleAddClick = () => {
+    setEditShow(null);
+    setModalOpen(true);
+  };
+
+  // Handler for opening modal to edit
+  const handleEditClick = (show: ShowNote) => {
+    setEditShow(show);
+    setModalOpen(true);
+  };
+
+  // Handler for submitting form
+  const handleFormSubmit = (showData: any) => {
+    if (editShow) {
+      onUpdateShow(editShow.id, {
+        ...showData,
+        plannedJokes: showData.notes || '',
+        borough: showData.borough,
       });
+      setModalOpen(false);
+    } else {
+      onAddShow({
+        ...showData,
+        plannedJokes: showData.notes || '',
+        borough: showData.borough,
+        createdAt: new Date().toISOString().slice(0, 10),
+      });
+      setModalOpen(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
-      handleAddShow();
-    }
+  // Handler for cancel
+  const handleFormCancel = () => {
+    setModalOpen(false);
   };
 
   const getRatingColor = (rating: string) => {
@@ -64,140 +77,235 @@ const ShowNotepad = ({ shows, onAddShow, onDeleteShow }: ShowNotepadProps) => {
     return 'bg-red-100 text-red-800';
   };
 
+  // Helper to get borough outline color
+  const getBoroughOutline = (borough: string) => {
+    const cleanBorough = (borough || '').trim();
+    const outlines: Record<string, string> = {
+      Manhattan: "border-l-4 border-l-cyan-500",
+      Brooklyn: "border-l-4 border-l-amber-800",
+      Queens: "border-l-4 border-l-purple-600",
+      Bronx: "border-l-4 border-l-orange-600",
+      "Staten Island": "border-l-4 border-l-gray-500"
+    };
+    return outlines[cleanBorough] || "border-l-4 border-l-gray-400";
+  };
+
+  // Helper to convert 24-hour time to 12-hour am/pm
+  const toAmPm = (time: string) => {
+    if (!time) return '';
+    // If already contains AM or PM, return as is (after trimming)
+    if (/am|pm/i.test(time)) return time.trim().replace(/\s+/g, ' ').toUpperCase();
+    const [h, m] = time.split(':');
+    let hour = parseInt(h, 10);
+    const min = m || '00';
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+    return `${hour}:${min.padStart(2, '0')} ${ampm}`;
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Quick Entry Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Quick Show Entry</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <Input
-              placeholder="Venue"
-              value={newShow.venue}
-              onChange={(e) => setNewShow({ ...newShow, venue: e.target.value })}
-              onKeyDown={handleKeyPress}
-              className="text-sm"
-            />
-            <Input
-              placeholder="Time"
-              value={newShow.time}
-              onChange={(e) => setNewShow({ ...newShow, time: e.target.value })}
-              onKeyDown={handleKeyPress}
-              className="text-sm"
-            />
-            <Input
-              placeholder="Day"
-              value={newShow.day}
-              onChange={(e) => setNewShow({ ...newShow, day: e.target.value })}
-              onKeyDown={handleKeyPress}
-              className="text-sm"
-            />
-            <Input
-              placeholder="Minutes"
-              value={newShow.minutes}
-              onChange={(e) => setNewShow({ ...newShow, minutes: e.target.value })}
-              onKeyDown={handleKeyPress}
-              className="text-sm"
-            />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-            <Input
-              placeholder="Planned jokes"
-              value={newShow.plannedJokes}
-              onChange={(e) => setNewShow({ ...newShow, plannedJokes: e.target.value })}
-              onKeyDown={handleKeyPress}
-              className="text-sm"
-            />
-            <Input
-              placeholder="# Audience"
-              value={newShow.audienceCount}
-              onChange={(e) => setNewShow({ ...newShow, audienceCount: e.target.value })}
-              onKeyDown={handleKeyPress}
-              className="text-sm"
-            />
-            <Input
-              placeholder="Rating (1-10)"
-              value={newShow.rating}
-              onChange={(e) => setNewShow({ ...newShow, rating: e.target.value })}
-              onKeyDown={handleKeyPress}
-              className="text-sm"
-            />
-          </div>
+      {/* Header Row: Show Notes + Add Show Button */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Show Notes</h1>
+          <p className="text-base md:text-lg text-gray-600">Quick notepad for tracking your comedy performances</p>
+        </div>
+        <Button onClick={handleAddClick} className="bg-orange-500 hover:bg-orange-600">
+          <Plus className="w-4 h-4 mr-2" /> Add Show
+        </Button>
+      </div>
 
-          <Button 
-            onClick={handleAddShow}
-            className="w-full bg-orange-500 hover:bg-orange-600"
-            disabled={!newShow.venue.trim()}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Show (Ctrl+Enter)
-          </Button>
-        </CardContent>
-      </Card>
+      {/* Modal for Add/Edit Show */}
+      {modalOpen && (
+        <ShowForm
+          onSubmit={handleFormSubmit}
+          onCancel={handleFormCancel}
+          {...(editShow ? {
+            initialData: {
+              title: editShow.title || '',
+              venue: editShow.venue || '',
+              date: editShow.date || '',
+              time: editShow.time || '',
+              status: (editShow.status === 'completed' ? 'completed' : (['upcoming', 'cancelled', 'completed'].includes(editShow.status) ? editShow.status : 'upcoming')) as 'upcoming' | 'cancelled' | 'completed',
+              notes: editShow.plannedJokes || '',
+              borough: editShow.borough || '',
+            },
+            onDelete: () => {
+              if (editShow) {
+                onDeleteShow(editShow.id);
+                setModalOpen(false);
+              }
+            },
+            showDelete: true
+          } : {})}
+        />
+      )}
 
-      {/* Shows List */}
-      <div className="space-y-3">
-        {shows.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-gray-500">No shows recorded yet. Add your first show above!</p>
-            </CardContent>
-          </Card>
-        ) : (
-          shows.map((show) => (
-            <Card key={show.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{show.venue}</h3>
-                    <div className="flex flex-wrap gap-2 text-sm text-gray-600 mt-1">
-                      <span>{show.day}</span>
-                      {show.time && <span>• {show.time}</span>}
-                      {show.minutes && <span>• {show.minutes} min</span>}
+      {/* Upcoming Shows Section */}
+      <div>
+        <h2 className="text-xl font-bold mb-2">Upcoming Shows</h2>
+        <div className="space-y-3">
+          {shows.filter(show => show.status === 'upcoming').length === 0 ? (
+            <Card><CardContent className="py-8 text-center text-gray-500">No upcoming shows.</CardContent></Card>
+          ) : (
+            shows.filter(show => show.status === 'upcoming').map((show) => (
+              <Card key={show.id} className={`hover:shadow-md transition-shadow ${getBoroughOutline(show.borough || '')}`}>
+                <CardContent className="p-4">
+                  <div className="flex flex-col md:flex-row w-full gap-2 md:gap-6">
+                    {/* Left: Title, Venue, Date */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-md text-gray-900 w-auto inline-block">{show.title || show.venue}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium
+                          ${show.status === 'completed'
+                            ? 'border border-green-200 bg-green-50 text-green-700'
+                            : show.status === 'cancelled'
+                              ? 'border border-red-200 bg-red-50 text-red-700'
+                              : 'border border-gray-200 bg-gray-50 text-gray-700'}
+                        `}>
+                          <span className="flex items-center gap-1">
+                            {show.status === 'completed' && (
+                              <><CircleCheckBig className="w-3 h-3" /> Completed</>
+                            )}
+                            {show.status === 'cancelled' && (
+                              <><CircleAlert className="w-3 h-3" /> Cancelled</>
+                            )}
+                            {show.status === 'upcoming' && (
+                              <><Clock className="w-3 h-3" /> Upcoming</>
+                            )}
+                          </span>
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {show.venue && <span className="flex items-center gap-1"><MapPin className="w-3 h-3 flex-shrink-0" />{show.venue}</span>}
+                        {show.date && <span className="flex items-center gap-1"><Calendar className="w-3 h-3 flex-shrink-0" />{new Date(show.date).toLocaleDateString()}</span>}
+                        {show.time && <span className="flex items-center gap-1"><Clock className="w-3 h-3 flex-shrink-0" />{toAmPm(show.time)}</span>}
+                        {show.createdAt && (
+                          <span className="flex items-center gap-1 mt-1 text-xs">
+                            {'Added '}
+                            {new Date(show.createdAt).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {/* Mid: Time, Minutes, Audience, Rating, Planned Jokes */}
+                    <div className="flex-1 flex flex-col justify-evenly min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700 max-w-lg">
+                      {show.plannedJokes && (
+                        <div className="text-base text-gray-800 min-h-[2.5rem] mt-1 w-[320px]">Jokes: {show.plannedJokes}</div>
+                      )}
+                    </div>
+                    {/* Right: Actions */}
+                    <div className="flex flex-col items-end gap-2 max-w-lg">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditClick(show)}
+                        className="text-blue-500 hover:text-blue-700 w-full"
+                      >
+                        Edit
+                      </Button>
+                      {show.status === 'upcoming' && (
+                        <div className="flex gap-0 w-full border rounded overflow-hidden">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => onUpdateShow(show.id, { status: 'completed' })}
+                            className="text-green-600 hover:text-green-800 w-full rounded-none"
+                          >
+                            I performed
+                          </Button>
+                          <div className="w-px bg-gray-300 self-stretch" />
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => onUpdateShow(show.id, { status: 'cancelled' })}
+                            className="text-red-600 hover:text-red-800 w-full rounded-none"
+                          >
+                            I didn't perform
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {show.rating && (
-                      <Badge className={getRatingColor(show.rating)}>
-                        {show.rating}/10
-                      </Badge>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onDeleteShow(show.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Past Shows Section */}
+      <div>
+        <h2 className="text-xl font-bold mt-8 mb-2">Past Shows</h2>
+        <div className="space-y-3">
+          {shows.filter(show => show.status === 'completed' || show.status === 'cancelled').length === 0 ? (
+            <Card><CardContent className="py-8 text-center text-gray-500">No past shows.</CardContent></Card>
+          ) : (
+            shows.filter(show => show.status === 'completed' || show.status === 'cancelled').map((show) => (
+              <Card key={show.id} className={`hover:shadow-md transition-shadow ${getBoroughOutline(show.borough || '')}`}>
+                <CardContent className="p-4">
+                  <div className="flex flex-col md:flex-row w-full gap-2 md:gap-6">
+                    {/* Left: Title, Venue, Date */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-md text-gray-900 w-auto inline-block">{show.title || show.venue}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium
+                          ${show.status === 'completed'
+                            ? 'border border-green-200 bg-green-50 text-green-700'
+                            : show.status === 'cancelled'
+                              ? 'border border-red-200 bg-red-50 text-red-700'
+                              : 'border border-gray-200 bg-gray-50 text-gray-700'}
+                        `}>
+                          <span className="flex items-center gap-1">
+                            {show.status === 'completed' && (
+                              <><CircleCheckBig className="w-3 h-3" /> Completed</>
+                            )}
+                            {show.status === 'cancelled' && (
+                              <><CircleAlert className="w-3 h-3" /> Cancelled</>
+                            )}
+                            {show.status === 'upcoming' && (
+                              <><Clock className="w-3 h-3" /> Upcoming</>
+                            )}
+                          </span>
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {show.venue && <span className="flex items-center gap-1"><MapPin className="w-3 h-3 flex-shrink-0" />{show.venue}</span>}
+                        {show.date && <span className="flex items-center gap-1"><Calendar className="w-3 h-3 flex-shrink-0" />{new Date(show.date).toLocaleDateString()}</span>}
+                        {show.time && <span className="flex items-center gap-1"><Clock className="w-3 h-3 flex-shrink-0" />{toAmPm(show.time)}</span>}
+                        {show.createdAt && (
+                          <span className="flex items-center gap-1 mt-1 text-xs">
+                            {'Added '}
+                            {new Date(show.createdAt).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {/* Mid: Time, Minutes, Audience, Rating, Planned Jokes */}
+                    <div className="flex-1 flex flex-col justify-evenly min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700 max-w-lg">
+                      {show.plannedJokes && (
+                        <div className="text-base text-gray-800 min-h-[2.5rem] mt-1 w-[320px]">Jokes: {show.plannedJokes}</div>
+                      )}
+                    </div>
+                    {/* Right: Actions */}
+                    <div className="flex flex-col items-end gap-2 w-[200px]">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditClick(show)}
+                        className="text-blue-500 hover:text-blue-700 w-full"
+                      >
+                        Edit
+                      </Button>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  {show.plannedJokes && (
-                    <div>
-                      <span className="font-medium text-gray-700">Planned Jokes:</span>
-                      <p className="text-gray-600 mt-1">{show.plannedJokes}</p>
-                    </div>
-                  )}
-                  {show.audienceCount && (
-                    <div>
-                      <span className="font-medium text-gray-700">Audience:</span>
-                      <p className="text-gray-600 mt-1">{show.audienceCount} people</p>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="text-xs text-gray-400 mt-3">
-                  Added {show.createdAt.toLocaleDateString()}
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

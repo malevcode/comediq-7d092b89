@@ -1,4 +1,4 @@
-import { Calendar, Clock, Users, DollarSign, Star, MapPin, CircleUser, CircleAlert, CircleCheckBig, ArrowUp } from "lucide-react";
+import { Calendar, Clock, Users, DollarSign, Star, MapPin, CircleUser, CircleAlert, CircleCheckBig, ArrowUp, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
 import { useMicRatings } from "@/hooks/useMicRatings";
@@ -6,11 +6,27 @@ import { useState, useEffect } from "react";
 
 function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
   const { userRating, ratingCounts } = useMicRatings(mic.uniqueIdentifier);
-  const audienceSize = (mic as any).audienceSize ?? "?";
-  const valueScore = (mic as any).valueScore ?? "?";
-
+  const [expanded, setExpanded] = useState(false);
+  // Helper to get first line or summary
+  const getSummary = (text: string) => {
+    if (!text) return '';
+    const firstLine = text.split('\n')[0];
+    return firstLine.length > 80 ? firstLine.slice(0, 80) + '...' : firstLine;
+  };
+  // Helper to get borough outline color
+  const getBoroughOutline = (borough: string) => {
+    const cleanBorough = (borough || '').trim();
+    const outlines: Record<string, string> = {
+      Manhattan: "border-l-4 border-l-cyan-500",
+      Brooklyn: "border-l-4 border-l-amber-800",
+      Queens: "border-l-4 border-l-purple-600",
+      Bronx: "border-l-4 border-l-orange-600",
+      "Staten Island": "border-l-4 border-l-gray-500"
+    };
+    return outlines[cleanBorough] || "border-l-4 border-l-gray-400";
+  };
   return (
-    <div className="flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-4 gap-2 md:gap-6">
+    <div className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-4 gap-2 md:gap-6 overflow-x-hidden ${getBoroughOutline(mic.borough)}`}>
       {/* Left: Name, Location, Date */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
@@ -31,37 +47,51 @@ function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
         </div>
       </div>
       {/* Mid: Time, Cost, Audience Size, Stage Time, Rules */}
-      <div className="flex-1 flex flex-col justify-around min-w-0">
+      <div className="flex-1 flex flex-col justify-evenly min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700 max-w-lg">
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-700 max-w-lg">
           <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />{mic.startTime} - {mic.latestEndTime}</span>
-          <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />{mic.stageTime}{!/min/i.test(mic.stageTime) && " min"} stage time</span>
+          <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />{mic.stageTime}{!/min/i.test(mic.stageTime) && " min"}</span>
           <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-gray-400 flex-shrink-0" />{mic.cost}</span>
-          <span className="flex items-center gap-1"><Users className="w-3 h-3 text-gray-400 flex-shrink-0" />~{audienceSize}</span>
+          <span className="flex items-center gap-1 text-gray-600">
+            <CircleUser className="w-4 h-4 text-gray-400" />
+            {userRating ?? "not rated"}
+          </span>
         </div>
         {mic.otherRules && (
           <div className="text-xs text-gray-500 mt-1">Rules: {mic.otherRules}</div>
         )}
       </div>
       {/* Right: Value, Ratings, Button */}
-      <div className="w-full md:w-60 flex flex-row justify-between items-around">
-        {/* Group 1: Value + Community Score (left column) */}
-        <div className="flex flex-col justify-around h-15">
-          <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-semibold">
-            Value: {valueScore}
+      <div className="w-full md:flex-[1.2] flex flex-col justify-center">
+        <button
+          className="appearance-none cursor-pointer bg-blue-50 border border-blue-100 rounded-lg p-2 mb-2 relative w-full text-left flex flex-col hover:bg-blue-100 transition font-semibold text-xs text-blue-800 gap-1 outline-none"
+          aria-label={expanded ? 'Collapse details' : 'Expand details'}
+          onClick={() => setExpanded(e => !e)}
+          type="button"
+        >
+          <span className="flex items-center gap-1">
+            <CircleUser className="w-4 h-4" />
+            <span>Sign-Up Instructions</span>
+            <ChevronDown
+              className={`w-4 h-4 ml-auto transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+            />
           </span>
-          <span className="flex items-center gap-1 text-xs text-gray-600">
-            <Star fill="#ffbe00" className="w-4 h-4 text-[#FFBE00]" />
-            {ratingCounts?.likes ?? 0} community
-          </span>
-        </div>
-        {/* Group 2: Add to Calendar + User Score (right column) */}
-        <div className="flex flex-col justify-around h-15 items-end">
-          <Button size="sm" className="bg-papaya text-white hover:bg-papaya/80">Add to Calendar</Button>
-          <span className="flex items-center gap-1 text-xs text-gray-600">
-            <CircleUser className="w-4 h-4 text-gray-400" />
-            {userRating ?? "not rated"}
-          </span>
-        </div>
+          {expanded && (
+            <div
+              className="text-xs text-blue-700 break-words mt-2 font-normal select-text cursor-text"
+              onClick={e => e.stopPropagation()}
+            >
+              {mic.signUpInstructions}
+            </div>
+          )}
+        </button>
+        <Button
+          size="sm"
+          className="w-full bg-papaya text-white hover:bg-papaya/80 flex items-center justify-center gap-2"
+        >
+          <Calendar className="w-4 h-4" />
+          Add to Calendar
+        </Button>
       </div>
     </div>
   );
