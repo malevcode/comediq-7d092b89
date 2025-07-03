@@ -211,7 +211,7 @@ function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
             >
               <span className="flex items-center gap-1">
                 <span className="inline-block w-4 h-4 bg-white text-sky font-bold rounded-full flex items-center justify-center">G</span>
-                <span className="text-sky">Google</span>
+                <span className="text-sky">Google Calendar</span>
               </span>
             </a>
           </Button>
@@ -223,7 +223,7 @@ function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
             aria-label="Download iCal file"
           >
             <Calendar className="text-papaya w-4 h-4" />
-            <span className="text-papaya">iCal</span>
+            <span className="text-papaya">Download iCal</span>
           </Button>
         </div>
       </div>
