@@ -105,18 +105,14 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow }: ShowNotep
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header Row: Show Notes + Add Show Button */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Show Notes</h1>
-          <p className="text-base md:text-lg text-gray-600">Quick notepad for tracking your comedy performances</p>
-        </div>
+    <div className="max-w-4xl mx-auto space-y-2">
+      {/* Upcoming Shows Section Header Row: Upcoming Shows + Add Show Button */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold">Upcoming Shows</h2>
         <Button onClick={handleAddClick} className="bg-orange-500 hover:bg-orange-600">
           <Plus className="w-4 h-4 mr-2" /> Add Show
         </Button>
       </div>
-
       {/* Modal for Add/Edit Show */}
       {modalOpen && (
         <ShowForm
@@ -142,10 +138,8 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow }: ShowNotep
           } : {})}
         />
       )}
-
       {/* Upcoming Shows Section */}
       <div>
-        <h2 className="text-xl font-bold mb-2">Upcoming Shows</h2>
         <div className="space-y-3">
           {shows.filter(show => show.status === 'upcoming').length === 0 ? (
             <Card><CardContent className="py-8 text-center text-gray-500">No upcoming shows.</CardContent></Card>

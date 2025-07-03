@@ -10,8 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Calendar, Clock, MapPin, Users, Star, Plus, Edit3, BarChart3, Zap, Target } from "lucide-react"
+import { Calendar, Clock, MapPin, Users, Star, Plus, Edit3, BarChart3, Zap, Target, HelpCircle, Filter, LogIn } from "lucide-react"
 import { PerformanceChart } from "@/components/PerformanceChart"
+import { useAuth } from "@/contexts/AuthContext"
+import { useNavigate } from "react-router-dom"
 
 // Mock data for performances
 const mockPerformances = [
@@ -95,6 +97,8 @@ export default function ProgressTracker() {
   const [selectedPerformanceId, setSelectedPerformanceId] = useState(mockPerformances[0].id)
   const [timePeriod, setTimePeriod] = useState("month")
   const [newNote, setNewNote] = useState("")
+  const { user } = useAuth()
+  const navigate = useNavigate()
 
   const selectedPerformance = mockPerformances.find((p) => p.id === selectedPerformanceId) || mockPerformances[0]
 
@@ -106,15 +110,15 @@ export default function ProgressTracker() {
   const killBombRatio = totalBombs > 0 ? (totalKills / totalBombs).toFixed(1) : totalKills.toString()
 
   return (
-    <div className="min-h-screen bg-background p-6 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Performance Tracker</h1>
+            <h1 className="text-3xl font-bold">Progress Tracker</h1>
             <p className="text-muted-foreground">Track your comedy journey and improve your craft</p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2 bg-papaya text-white hover:bg-papaya/80">
             <Plus className="w-4 h-4" />
             Add Performance
           </Button>

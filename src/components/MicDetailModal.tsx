@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -262,7 +261,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
                 </div>
                 
                 {!user && (
-                  <Button onClick={() => navigate('/auth')} size="sm" className="bg-orange-500 hover:bg-orange-600">
+                  <Button onClick={() => navigate('/auth')} size="sm" className="bg-papaya hover:bg-papaya/80">
                     <LogIn className="h-4 w-4 mr-2" />
                     Sign In to Rate
                   </Button>
