@@ -191,7 +191,7 @@ const ShowForm = ({ onSubmit, onCancel, initialData, onDelete, showDelete }: Sho
                 >
                   <span className="sr-only">Delete</span>
                   <Trash2 className="w-5 h-5" />
-                </Button>
+              </Button>
               )}
               
             </div>

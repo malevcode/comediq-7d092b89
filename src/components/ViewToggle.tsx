@@ -31,16 +31,16 @@ const ViewToggle = ({ viewMode, onViewChange }: ViewToggleProps) => {
           <Grid3x3 className="h-3 w-3 mr-1" />
           Grid
         </Button>
-        <Button
+        {/* <Button
           size="sm"
           onClick={() => onViewChange('map')}
           className={`h-8 px-3 text-xs hover:bg-sky ${
             viewMode === 'map' ? 'bg-sky text-white' : 'bg-gray-100 text-gray-600'
           }`}
         >
-          <MapPin className="h-3 w-3 mr-1" />
+        <MapPin className="h-3 w-3 mr-1" />
           Map
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
