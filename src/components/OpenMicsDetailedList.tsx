@@ -13,8 +13,20 @@ function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
     const firstLine = text.split('\n')[0];
     return firstLine.length > 80 ? firstLine.slice(0, 80) + '...' : firstLine;
   };
+  // Helper to get borough outline color
+  const getBoroughOutline = (borough: string) => {
+    const cleanBorough = (borough || '').trim();
+    const outlines: Record<string, string> = {
+      Manhattan: "border-l-4 border-l-cyan-500",
+      Brooklyn: "border-l-4 border-l-amber-800",
+      Queens: "border-l-4 border-l-purple-600",
+      Bronx: "border-l-4 border-l-orange-600",
+      "Staten Island": "border-l-4 border-l-gray-500"
+    };
+    return outlines[cleanBorough] || "border-l-4 border-l-gray-400";
+  };
   return (
-    <div className="flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-4 gap-2 md:gap-6 overflow-x-hidden">
+    <div className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-4 gap-2 md:gap-6 overflow-x-hidden ${getBoroughOutline(mic.borough)}`}>
       {/* Left: Name, Location, Date */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
@@ -35,7 +47,7 @@ function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
         </div>
       </div>
       {/* Mid: Time, Cost, Audience Size, Stage Time, Rules */}
-      <div className="flex-1 flex flex-col justify-around min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700 max-w-lg">
+      <div className="flex-1 flex flex-col justify-evenly min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700 max-w-lg">
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-700 max-w-lg">
           <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />{mic.startTime} - {mic.latestEndTime}</span>
           <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />{mic.stageTime}{!/min/i.test(mic.stageTime) && " min"}</span>

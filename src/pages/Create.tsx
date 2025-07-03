@@ -17,9 +17,10 @@ const Create = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="bg-white border-b border-orange-100 sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-4">
-            <TabsList className="grid w-full grid-cols-2 mb-0">
+            <TabsList className="grid w-full grid-cols-3 mb-0">
               <TabsTrigger value="find-mics">Find Mics</TabsTrigger>
-              <TabsTrigger value="track-sets">Track Sets</TabsTrigger>
+              <TabsTrigger value="track-sets">Performance Tracker</TabsTrigger>
+              <TabsTrigger value="show-scheduler">Show Scheduler</TabsTrigger>
             </TabsList>
           </div>
         </div>
@@ -29,24 +30,11 @@ const Create = () => {
         </TabsContent>
 
         <TabsContent value="track-sets" className="mt-0">
-          <Tabs value={trackSetsTab} onValueChange={setTrackSetsTab} className="w-full">
-            <div className="bg-gray-50 border-b border-gray-200">
-              <div className="max-w-7xl mx-auto px-4">
-                <TabsList className="grid w-full grid-cols-2 mb-0">
-                  <TabsTrigger value="coming-soon">Performance Tracker</TabsTrigger>
-                  <TabsTrigger value="show-scheduler">Show Scheduler</TabsTrigger>
-                </TabsList>
-              </div>
-            </div>
+            <TrackSets />
+        </TabsContent>
 
-            <TabsContent value="coming-soon" className="mt-0">
-              <TrackSets />
-            </TabsContent>
-
-            <TabsContent value="show-scheduler" className="mt-0">
-              <Shows />
-            </TabsContent>
-          </Tabs>
+        <TabsContent value="show-scheduler" className="mt-0">
+          <Shows />
         </TabsContent>
       </Tabs>
     </div>
