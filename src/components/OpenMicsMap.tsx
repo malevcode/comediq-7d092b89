@@ -139,14 +139,13 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
 
   const initializeMap = () => {
     if (!mapContainer.current || !mapboxToken) return;
-
-    (mapboxgl as any).accessToken = mapboxToken;
     
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/light-v11',
       center: [-73.935242, 40.730610], // NYC center
-      zoom: 11
+      zoom: 11,
+      accessToken: mapboxToken
     });
 
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');

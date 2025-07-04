@@ -12,6 +12,7 @@ import { useMicRatings, useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate } from "react-router-dom";
 import MicDetailModal from "@/components/MicDetailModal";
 import OpenMicsMap from "@/components/OpenMicsMap";
+import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import ViewToggle from "@/components/ViewToggle";
 
 const OpenMics = () => {
@@ -22,17 +23,8 @@ const OpenMics = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showMobileKey, setShowMobileKey] = useState(false);
   const [showDesktopKey, setShowDesktopKey] = useState(false);
-  const [viewModes, setViewModes] = useState<Record<string, 'list' | 'map'>>({
-    active: 'list',
-    liked: 'list',
-    Sunday: 'list',
-    Monday: 'list', 
-    Tuesday: 'list',
-    Wednesday: 'list',
-    Thursday: 'list',
-    Friday: 'list',
-    Saturday: 'list'
-  });
+  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'map'>('list');
+  const [visibleCount, setVisibleCount] = useState(25);
   
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
@@ -189,26 +181,34 @@ const OpenMics = () => {
   };
 
   const renderMicContent = (filteredMics: OpenMic[], tabName: string) => {
-    const currentViewMode = viewModes[tabName];
+    const currentViewMode = viewMode;
 
     return (
       <>
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm text-gray-600">
-            Showing {filteredMics.length} {tabName === 'active' ? 'active ' : tabName === 'liked' ? 'liked ' : ''}open mic{filteredMics.length !== 1 ? 's' : ''}{tabName !== 'active' && tabName !== 'liked' ? ` on ${tabName}` : ''}
+          <p className="text-sm text-gray-600 max-w-full">
+            Showing {currentViewMode === 'list'
+              ? `${Math.min(visibleCount, filteredMics.length)} of ${filteredMics.length}`
+              : filteredMics.length
+            }
+            {tabName === 'active' ? ' active' : tabName === 'liked' ? ' liked ' : ''}
+            {' open mic'}{filteredMics.length !== 1 ? 's' : ''}
+            {tabName !== 'active' && tabName !== 'liked' ? ` on ${tabName}` : ''}
           </p>
-          <ViewToggle 
-            viewMode={currentViewMode}
-            onViewChange={(mode) => handleViewModeChange(tabName, mode)}
-          />
+          <div className="flex-shrink-0">
+            <ViewToggle 
+              viewMode={currentViewMode}
+              onViewChange={handleViewModeChange}
+            />
+          </div>
         </div>
 
-        {currentViewMode === 'list' ? (
-          <div className="grid grid-cols-5 gap-1 max-h-[calc(100vh-320px)] overflow-y-auto">
+        {currentViewMode === 'grid' ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1 max-h-[calc(100vh-320px)] overflow-y-auto">
             {filteredMics.map((mic, index) => (
               <Card 
                 key={index} 
-                className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-lg w-24 h-24`} 
+                className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-lg w-full sm:w-24 h-24`} 
                 onClick={() => setSelectedMic(mic)}
               >
                 <CardContent className="p-2 h-full flex flex-col justify-between">
@@ -219,7 +219,8 @@ const OpenMics = () => {
                     </h3>
                     {/* Line 3: Time + Borough initial */}
                     <div className="text-sm text-gray-800 font-semibold flex-none">
-                      {formatTime(mic.startTime)} {getBoroughInitial(mic.borough)}
+                      {formatTime(mic.startTime)}
+                      {/* {getBoroughInitial(mic.borough)} */}
                     </div>
                     {/* Line 4: Cost + Stage time */}
                     <div className="flex justify-between items-center text-sm flex-none">
@@ -235,6 +236,12 @@ const OpenMics = () => {
               </Card>
             ))}
           </div>
+        ) : currentViewMode === 'list' ? (
+          <OpenMicsDetailedList 
+            mics={filteredMics}
+            visibleCount={visibleCount}
+            setVisibleCount={setVisibleCount}
+          />
         ) : (
           <OpenMicsMap 
             mics={filteredMics}
@@ -253,7 +260,7 @@ const OpenMics = () => {
               <Button onClick={() => {
                 setSearchTerm("");
                 setSelectedBorough("All");
-              }} className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm">
+              }} className="mt-2 bg-papaya hover:bg-papaya/80 text-sm">
                 Clear Filters
               </Button>
             )}
@@ -263,8 +270,8 @@ const OpenMics = () => {
     );
   };
 
-  const handleViewModeChange = (tabName: string, mode: 'list' | 'map') => {
-    setViewModes(prev => ({ ...prev, [tabName]: mode }));
+  const handleViewModeChange = (mode: 'list' | 'grid' | 'map') => {
+    setViewMode(mode);
   };
 
   if (isLoading) {
@@ -283,7 +290,7 @@ const OpenMics = () => {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">Error loading open mics</p>
-          <Button onClick={() => window.location.reload()} className="bg-orange-500 hover:bg-orange-600">
+          <Button onClick={() => window.location.reload()} className="bg-papaya hover:bg-papaya/80">
             Try Again
           </Button>
         </div>
@@ -298,10 +305,10 @@ const OpenMics = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
       {/* Compact Header */}
-      <div className="bg-white border-b border-orange-100">
-        <div className="max-w-7xl mx-auto px-4 py-3">
+      <div className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 py-4 mb-3">
           <div className="flex flex-col space-y-3">
             {/* Title and Character Section */}
             <div className="flex items-start justify-between">
@@ -316,7 +323,7 @@ const OpenMics = () => {
                       <span className="text-xs text-gray-600">Welcome back!</span>
                     </div>
                   ) : (
-                    <Button onClick={() => navigate('/auth')} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-1.5">
+                    <Button onClick={() => navigate('/auth')} className="w-full bg-papaya hover:bg-papaya/80 text-xs py-1.5">
                       <LogIn className="h-3 w-3 mr-1" />
                       Sign In to Like Mics
                     </Button>
@@ -367,6 +374,18 @@ const OpenMics = () => {
                     <span>Filters</span>
                   </Button>
                 </div>
+
+                {/* Desktop auth section - moved here */}
+                <div className="hidden sm:flex items-center gap-2">
+                  {user ? (
+                    <span className="text-xs text-gray-600">Welcome back!</span>
+                  ) : (
+                    <Button onClick={() => navigate('/auth')} className="bg-papaya hover:bg-papaya/80 text-xs px-3 py-1">
+                      <LogIn className="h-3 w-3 mr-1" />
+                      Sign In
+                    </Button>
+                  )}
+                </div>
                 
                 {/* Comedian character */}
                 <div className="flex-shrink-0">
@@ -377,20 +396,6 @@ const OpenMics = () => {
                   />
                 </div>
               </div>
-            </div>
-
-            {/* Desktop auth section */}
-            <div className="hidden sm:flex items-center justify-end">
-              {user ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-600">Welcome back!</span>
-                </div>
-              ) : (
-                <Button onClick={() => navigate('/auth')} className="bg-orange-500 hover:bg-orange-600 text-xs px-3 py-1">
-                  <LogIn className="h-3 w-3 mr-1" />
-                  Sign In
-                </Button>
-              )}
             </div>
 
             {/* Desktop Key/Legend Section */}
@@ -475,7 +480,7 @@ const OpenMics = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-3">
+      <div className="max-w-7xl mx-auto px-4 py-0">
         {/* Mobile Key/Legend - simplified since buttons moved to header */}
         {showMobileKey && (
           <div className="lg:hidden mb-3">
@@ -569,8 +574,8 @@ const OpenMics = () => {
 
         {/* Day Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full ${user ? 'grid-cols-10' : 'grid-cols-9'} mb-6 h-9 gap-1.5`}>
-            <TabsTrigger value="active" className="text-xs py-1 px-1">Active</TabsTrigger>
+          <TabsList className={`grid w-full ${user ? 'grid-cols-9' : 'grid-cols-8'} mb-6 h-9 gap-1.5`}>
+            <TabsTrigger value="active" className="text-xs py-1 px-1">All</TabsTrigger>
             {user && <TabsTrigger value="liked" className="text-xs py-1 px-1">❤️</TabsTrigger>}
             {daysOfWeek.map(day => (
               <TabsTrigger key={day} value={day} className="text-xs py-1 px-1">
