@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { Home, Plus, Eye, User, Book } from "lucide-react";
+import { Home, Plus, Eye, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const BottomNavigation = () => {
@@ -11,7 +11,6 @@ const BottomNavigation = () => {
     { path: "/", icon: Home, label: "Home" },
     { path: "/create", icon: Plus, label: "Create" },
     { path: "/consume", icon: Eye, label: "Laugh" },
-    { path: "/learn", icon: Book, label: "Learn" },
     ...(user ? [{ path: "/profile", icon: User, label: "Profile" }] : [])
   ];
 
