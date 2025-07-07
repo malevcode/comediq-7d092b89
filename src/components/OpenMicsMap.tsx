@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
+import * as mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { OpenMic } from '@/types/openMic';
 import { Button } from '@/components/ui/button';
