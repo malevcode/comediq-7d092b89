@@ -51,7 +51,7 @@ const Auth = () => {
           navigate('/open-mics');
         } else {
           // For sign up, redirect immediately since we're not requiring email confirmation
-          navigate('/open-mics');
+          navigate('/auth');
         }
       }
     } catch (error) {
