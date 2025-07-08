@@ -13,6 +13,7 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   
   const { signUp, signIn, user } = useAuth();
@@ -29,9 +30,20 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
+    // Phone validation BEFORE signUp
+    if (isSignUp && phone && phone.length !== 10) {
+      toast({
+        title: "Invalid phone number",
+        description: "Phone number must be exactly 10 digits.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = isSignUp 
-        ? await signUp(email, password, username)
+        ? await signUp(email, password, username, phone)
         : await signIn(email, password);
 
       if (error) {
@@ -50,7 +62,6 @@ const Auth = () => {
         if (!isSignUp) {
           navigate('/open-mics');
         } else {
-          // For sign up, redirect immediately since we're not requiring email confirmation
           navigate('/auth');
         }
       }
@@ -147,11 +158,20 @@ const Auth = () => {
               <div>
                 <Input
                   type="text"
-                  placeholder="Username (optional)"
+                  placeholder="Username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                 />
-              </div>
+                
+                <Input
+                  className="mt-2"
+                  type="text"
+                  placeholder="Phone Number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                  maxLength={10}
+                />
+              </div>  
             )}
             
             <div>
