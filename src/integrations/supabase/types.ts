@@ -120,6 +120,43 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_open_mics: {
+        Row: {
+          id: string;
+          profile_id: string;
+          open_mic_id: string;
+          relationship_type: "liked" | "upcoming" | "past";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          profile_id: string;
+          open_mic_id: string;
+          relationship_type: "liked" | "upcoming" | "past";
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          profile_id?: string;
+          open_mic_id?: string;
+          relationship_type?: "liked" | "upcoming" | "past";
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "profile_open_mics_profile_id_fkey";
+            columns: ["profile_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+          {
+            foreignKeyName: "profile_open_mics_open_mic_id_fkey";
+            columns: ["open_mic_id"];
+            referencedRelation: "open_mics";
+            referencedColumns: ["unique_identifier"];
+          }
+        ];
+      },
       waitlist: {
         Row: {
           created_at: string | null

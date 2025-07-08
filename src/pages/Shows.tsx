@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { format, isToday, isFuture } from "date-fns";
 import ShowNotepad from "@/components/ShowNotepad";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ShowNote {
   id: string;
@@ -23,58 +24,121 @@ interface ShowNote {
   createdAt: string;
 }
 
+const useUserShows = () => {
+  const { user } = useAuth();
+  const [shows, setShows] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchShows = async () => {
+      setLoading(true);
+      // Fetch profile_open_mics for this user, join open_mics for details
+      const { data, error } = await supabase
+        .from("profile_open_mics")
+        .select(`
+          *,
+          open_mics:open_mic_id (
+            *
+          )
+        `)
+        .eq("profile_id", user.id);
+
+      console.log('Current user:', user);
+      console.log('Fetched data:', data);
+      console.log('Supabase error:', error);
+
+      if (error) {
+        console.error("Error fetching shows:", error);
+        setShows([]);
+      } else {
+        setShows(data);
+      }
+      setLoading(false);
+    };
+
+    fetchShows();
+  }, [user]);
+
+  return { shows, loading };
+};
+
+function getNextOccurrence(day, time) {
+  const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const today = new Date();
+  const currentDay = today.getDay();
+  const targetDay = daysOfWeek.indexOf(day);
+  let daysUntil = targetDay - currentDay;
+  if (daysUntil < 0) daysUntil += 7;
+  const nextDate = new Date(today);
+  nextDate.setDate(today.getDate() + daysUntil);
+
+  // Set the time
+  if (time) {
+    const [hourMin, ampm] = time.split(' ');
+    let [hour, min] = hourMin.split(':').map(Number);
+    if (ampm === 'PM' && hour !== 12) hour += 12;
+    if (ampm === 'AM' && hour === 12) hour = 0;
+    nextDate.setHours(hour, min || 0, 0, 0);
+  }
+  return nextDate.toISOString();
+}
+
 const Shows = () => {
-  const [shows, setShows] = useState<ShowNote[]>([
-    {
-      id: '1',
-      title: 'Comedy Night at Comedy Cellar',
-      venue: 'Comedy Cellar',
-      location: 'New York, NY',
-      date: '2024-06-10',
-      time: '8:00 PM',
-      status: 'completed',
-      plannedJokes: 'Dating app material, subway observations',
-      audienceCount: '45',
-      rating: '8',
-      borough: 'Manhattan', 
-      createdAt: '2024-06-10',
-    },
-    {
-      id: '2',
-      title: 'Saturday Showcase',
-      venue: 'Eastville Comedy Club',
-      location: 'Brooklyn, NY',
-      date: '2024-06-11',
-      time: '9:30 PM',
-      status: 'upcoming',
-      plannedJokes: 'Family stories, work complaints',
-      audienceCount: '30',
-      rating: '6',
-      borough: 'Brooklyn',
-      createdAt: '2024-06-11',
-    }
-  ]);
   const [showFilters, setShowFilters] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
+  const { shows, loading } = useUserShows();
 
-  const addShow = (newShow: Omit<ShowNote, 'id'>) => {
-    const show: ShowNote = {
-      ...newShow,
-      id: Date.now().toString(),
-    };
-    setShows([show, ...shows]);
-  };
+  const upcomingShows = shows.filter(
+    (row) => row.relationship_type === "upcoming"
+  );
+  const pastShows = shows.filter(
+    (row) => row.relationship_type === "past"
+  );
 
-  const updateShow = (id: string, updatedFields: Partial<ShowNote>) => {
-    setShows(shows => shows.map(show => show.id === id ? { ...show, ...updatedFields } : show));
-  };
+  const mappedShowNotes = (shows
+    .filter(row => row.open_mics)
+    .map(row => ({
+      id: row.id,
+      title: row.open_mics["Open Mic"] || "",
+      venue: row.open_mics["Venue Name"] || "",
+      location: row.open_mics.Location || "",
+      date: getNextOccurrence(row.open_mics.Day, row.open_mics["Start Time"]),
+      time: row.open_mics["Start Time"] || "",
+      status:
+        row.relationship_type === "upcoming"
+          ? "upcoming"
+          : row.relationship_type === "past"
+          ? "completed"
+          : "upcoming", // fallback to "upcoming"
+      plannedJokes: "",
+      audienceCount: "",
+      rating: "",
+      borough: row.open_mics.Borough || "",
+      createdAt: row.created_at,
+    }))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  ) as ShowNote[];
 
-  const deleteShow = (id: string) => {
-    setShows(shows.filter(show => show.id !== id));
-  };
+  // const addShow = (newShow: Omit<ShowNote, 'id'>) => {
+  //   const show: ShowNote = {
+  //     ...newShow,
+  //     id: Date.now().toString(),
+  //   };
+  //   setShows([show, ...shows]);
+  // };
+
+  // const updateShow = (id: string, updatedFields: Partial<ShowNote>) => {
+  //   setShows(shows => shows.map(show => show.id === id ? { ...show, ...updatedFields } : show));
+  // };
+
+  // const deleteShow = (id: string) => {
+  //   setShows(shows.filter(show => show.id !== id));
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
@@ -91,7 +155,7 @@ const Shows = () => {
                       <span className="text-xs text-gray-600">Welcome back!</span>
                     </div>
                   ) : (
-                    <Button onClick={() => navigate('/auth')} className="w-full bg-papaya hover:bg-papaya/80 text-xs py-1.5">
+                    <Button onClick={() => navigate('/auth')} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-1.5">
                       <LogIn className="h-3 w-3 mr-1" />
                       Sign In
                     </Button>
@@ -141,7 +205,7 @@ const Shows = () => {
                   {user ? (
                     <span className="text-xs text-gray-600">Welcome back!</span>
                   ) : (
-                    <Button onClick={() => navigate('/auth')} className="bg-papaya hover:bg-papaya/80 text-xs px-3 py-1">
+                    <Button onClick={() => navigate('/auth')} className="bg-orange-500 hover:bg-orange-600 text-xs px-3 py-1">
                       <LogIn className="h-3 w-3 mr-1" />
                       Sign In
                     </Button>
@@ -184,10 +248,10 @@ const Shows = () => {
       </div>
       <div className="max-w-6xl mx-auto px-4 py-8">
         <ShowNotepad 
-          shows={shows}
-          onAddShow={addShow}
-          onUpdateShow={updateShow}
-          onDeleteShow={deleteShow}
+          shows={mappedShowNotes}
+          onAddShow={() => {}}
+          onUpdateShow={() => {}}
+          onDeleteShow={() => {}}
         />
       </div>
     </div>

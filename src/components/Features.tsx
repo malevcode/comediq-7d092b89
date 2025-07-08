@@ -10,18 +10,18 @@ const Features = () => {
       link: "/create?tab=find-mics"
     },
     {
-      emoji: "🏆",
-      title: "Progress Tracker",
-      description: "A gamified system to track your growth, audience reactions, and unlock milestones.",
-      mascotImage: "/lovable-uploads/05168ab8-2327-4ef4-90ca-54c3f66da85c.png",
-      link: "/create?tab=track-sets"
-    },
-    {
       emoji: "📆",
       title: "Calendar & Booking Tools",
       description: "Manage gigs, fliers, footage, and bookings in one place.",
       mascotImage: "/lovable-uploads/fd1b1a3e-150b-47cc-a11d-55ca99ec75bb.png",
       link: "/create?tab=show-scheduler"
+    },
+    {
+      emoji: "🏆",
+      title: "Progress Tracker",
+      description: "A gamified system to track your growth, audience reactions, and unlock milestones.",
+      mascotImage: "/lovable-uploads/05168ab8-2327-4ef4-90ca-54c3f66da85c.png",
+      link: "/create?tab=track-sets"
     },
     {
       emoji: "🎥",

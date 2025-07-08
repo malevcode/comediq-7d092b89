@@ -118,7 +118,7 @@ export default function ProgressTracker() {
             <h1 className="text-3xl font-bold">Progress Tracker</h1>
             <p className="text-muted-foreground">Track your comedy journey and improve your craft</p>
           </div>
-          <Button className="gap-2 bg-papaya text-white hover:bg-papaya/80">
+          <Button className="gap-2 bg-orange-500 text-white hover:bg-orange-600">
             <Plus className="w-4 h-4" />
             Add Performance
           </Button>
