@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OpenMics from "./OpenMics";
 import TrackSets from "./TrackSets";
@@ -12,6 +12,11 @@ const Create = () => {
   const initialTab = params.get('tab') || 'find-mics';
   const [activeTab, setActiveTab] = useState(initialTab);
   const [trackSetsTab, setTrackSetsTab] = useState("coming-soon");
+
+  // Scroll to top when switching tabs
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeTab]);
 
   return (
     <div className="h-full">
