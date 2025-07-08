@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
 import { useMicRatings } from "@/hooks/useMicRatings";
 import { useState, useEffect } from "react";
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 function downloadICal(mic: OpenMic) {
   const event = generateCalendarEvent(mic);
@@ -102,9 +105,10 @@ function getGoogleCalendarUrl(mic: OpenMic) {
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
-function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
+function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void }) {
   const { userRating, ratingCounts } = useMicRatings(mic.uniqueIdentifier);
   const [expanded, setExpanded] = useState(false);
+  const { user } = useAuth();
   // Helper to get first line or summary
   const getSummary = (text: string) => {
     if (!text) return '';
@@ -190,13 +194,16 @@ function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
           )}
         </button>
         <div className="flex flex-row gap-2 mb-2">
-          {/* <Button
-            size="sm"
-            className="w-full bg-papaya text-white hover:bg-papaya/80 flex items-center justify-center gap-2"
-          >
-            <Calendar className="w-4 h-4" />
-            Add to Calendar
-          </Button> */}
+          {user && (
+            <Button
+              size="sm"
+              className="w-full bg-papaya text-white hover:bg-papaya/80 flex items-center justify-center gap-2"
+              onClick={() => onAddToCalendar(mic)}
+            >
+              <Calendar className="w-4 h-4" />
+              Add to Calendar
+            </Button>
+          )}
           <Button
             size="sm"
             variant="outline"
@@ -222,8 +229,8 @@ function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
             onClick={() => downloadICal(mic)}
             aria-label="Download iCal file"
           >
-            <Calendar className="text-papaya w-4 h-4" />
-            <span className="text-papaya">Download iCal</span>
+            <Calendar className="text-orange-500 w-4 h-4" />
+            <span className="text-orange-500">Download iCal</span>
           </Button>
         </div>
       </div>
@@ -242,6 +249,8 @@ export default function OpenMicsDetailedList({
 }) {
   const validMics = mics.filter(Boolean);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     const onScroll = () => setShowScrollTop(window.scrollY > 400);
@@ -249,15 +258,52 @@ export default function OpenMicsDetailedList({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const handleAddToCalendar = async (mic: OpenMic) => {
+    if (!user) return;
+    try {
+      console.log({
+        profile_id: user.id,
+        open_mic_id: mic.uniqueIdentifier,
+        relationship_type: 'upcoming',
+      });
+      const { error } = await supabase.from('profile_open_mics').insert([
+        {
+          profile_id: user.id,
+          open_mic_id: mic.uniqueIdentifier,
+          relationship_type: 'upcoming',
+        },
+      ]);
+      if (error) {
+        console.error('Supabase error:', error);
+        toast({
+          title: 'Error',
+          description: error.message || 'Failed to add to your schedule.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Added to Schedule',
+          description: 'This open mic has been added to your schedule.',
+        });
+      }
+    } catch (e) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col gap-3">
       {validMics.slice(0, visibleCount).map((mic) => (
-        <OpenMicDetailedCard key={mic.uniqueIdentifier} mic={mic} />
+        <OpenMicDetailedCard key={mic.uniqueIdentifier} mic={mic} onAddToCalendar={handleAddToCalendar} />
       ))}
       {visibleCount < validMics.length && (
         <div className="flex justify-center">
           <button
-            className="px-2 py-2 w-auto bg-papaya text-white rounded hover:bg-orange-600 text-sm"
+            className="px-2 py-2 w-auto bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
             onClick={() => setVisibleCount(c => c + 25)}
           >
             Show More
@@ -267,7 +313,7 @@ export default function OpenMicsDetailedList({
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className={`
-          fixed bottom-24 right-4 z-50 bg-papaya text-white p-2 rounded-full shadow-lg hover:bg-orange-600 transition
+          fixed bottom-24 right-4 z-50 bg-orange-500 text-white p-2 rounded-full shadow-lg hover:bg-orange-600 transition
           transform
           ${showScrollTop ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
           duration-300

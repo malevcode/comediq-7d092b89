@@ -260,7 +260,7 @@ const OpenMics = () => {
               <Button onClick={() => {
                 setSearchTerm("");
                 setSelectedBorough("All");
-              }} className="mt-2 bg-papaya hover:bg-papaya/80 text-sm">
+              }} className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm">
                 Clear Filters
               </Button>
             )}
@@ -290,7 +290,7 @@ const OpenMics = () => {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">Error loading open mics</p>
-          <Button onClick={() => window.location.reload()} className="bg-papaya hover:bg-papaya/80">
+          <Button onClick={() => window.location.reload()} className="bg-orange-500 hover:bg-orange-600">
             Try Again
           </Button>
         </div>
@@ -323,7 +323,7 @@ const OpenMics = () => {
                       <span className="text-xs text-gray-600">Welcome back!</span>
                     </div>
                   ) : (
-                    <Button onClick={() => navigate('/auth')} className="w-full bg-papaya hover:bg-papaya/80 text-xs py-1.5">
+                    <Button onClick={() => navigate('/auth')} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-1.5">
                       <LogIn className="h-3 w-3 mr-1" />
                       Sign In to Like Mics
                     </Button>
@@ -380,7 +380,7 @@ const OpenMics = () => {
                   {user ? (
                     <span className="text-xs text-gray-600">Welcome back!</span>
                   ) : (
-                    <Button onClick={() => navigate('/auth')} className="bg-papaya hover:bg-papaya/80 text-xs px-3 py-1">
+                    <Button onClick={() => navigate('/auth')} className="bg-orange-500 hover:bg-orange-600 text-xs px-3 py-1">
                       <LogIn className="h-3 w-3 mr-1" />
                       Sign In
                     </Button>

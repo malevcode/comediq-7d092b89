@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Save, Trash2, MapPin, Calendar, Clock, Users, Star, CircleAlert, CircleCheckBig } from "lucide-react";
 import ShowForm from "./ShowForm";
+import { supabase } from '@/integrations/supabase/client';
 
 interface ShowNote {
   id: string;
@@ -26,9 +27,10 @@ interface ShowNotepadProps {
   onAddShow: (show: Omit<ShowNote, 'id'>) => void;
   onUpdateShow: (id: string, updatedFields: Partial<ShowNote>) => void;
   onDeleteShow: (id: string) => void;
+  onSetActiveTab?: (tab: string) => void;
 }
 
-const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow }: ShowNotepadProps) => {
+const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActiveTab }: ShowNotepadProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editShow, setEditShow] = useState<ShowNote | null>(null);
 
@@ -109,12 +111,19 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow }: ShowNotep
       {/* Upcoming Shows Section Header Row: Upcoming Shows + Add Show Button */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Upcoming Shows</h2>
-        <Button onClick={handleAddClick} className="bg-orange-500 hover:bg-orange-600">
+        {/* <Button
+          className="bg-orange-500 hover:bg-orange-600"
+          onClick={() => {
+            if (onSetActiveTab) {
+              onSetActiveTab('find-mics');
+            }
+          }}
+        >
           <Plus className="w-4 h-4 mr-2" /> Add Show
-        </Button>
+        </Button> */}
       </div>
       {/* Modal for Add/Edit Show */}
-      {modalOpen && (
+      {/* {modalOpen && (
         <ShowForm
           onSubmit={handleFormSubmit}
           onCancel={handleFormCancel}
@@ -137,7 +146,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow }: ShowNotep
             showDelete: true
           } : {})}
         />
-      )}
+      )} */}
       {/* Upcoming Shows Section */}
       <div>
         <div className="space-y-3">
@@ -192,33 +201,61 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow }: ShowNotep
                     </div>
                     {/* Right: Actions */}
                     <div className="flex flex-col items-end gap-2 max-w-lg">
-                      <Button
+                      {/* <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleEditClick(show)}
                         className="text-blue-500 hover:text-blue-700 w-full"
                       >
                         Edit
-                      </Button>
+                      </Button> */}
                       {show.status === 'upcoming' && (
-                        <div className="flex gap-0 w-full border rounded overflow-hidden">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => onUpdateShow(show.id, { status: 'completed' })}
-                            className="text-green-600 hover:text-green-800 w-full rounded-none"
-                          >
-                            I performed
-                          </Button>
-                          <div className="w-px bg-gray-300 self-stretch" />
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => onUpdateShow(show.id, { status: 'cancelled' })}
-                            className="text-red-600 hover:text-red-800 w-full rounded-none"
-                          >
-                            I didn't perform
-                          </Button>
+                        <div className="flex flex-1 flex-col justify-center items-center overflow-hidden">
+                          <div className="border rounded overflow-hidden w-full">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={async () => {
+                                console.log('Updating row with id:', show.id);
+                                const { data, error, count } = await supabase
+                                  .from('profile_open_mics')
+                                  .update({ relationship_type: 'past' })
+                                  .eq('id', show.id)
+                                  .select();
+                                console.log('Update result:', data, count);
+                                if (error) {
+                                  console.error('Supabase update error:', error);
+                                  alert('Failed to update show in database!');
+                                  return;
+                                }
+                                onUpdateShow(show.id, { status: 'completed' });
+                              }}
+                              className="text-green-600 hover:text-green-800 w-full rounded-none"
+                            >
+                              I performed
+                            </Button>
+                            <div className="h-px bg-gray-300 self-stretch" />
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={async () => {
+                                console.log('Updating row with id:', show.id);
+                                const { error } = await supabase
+                                  .from('profile_open_mics')
+                                  .update({ relationship_type: 'past' })
+                                  .eq('id', show.id);
+                                if (error) {
+                                  console.error('Supabase update error:', error);
+                                  alert('Failed to update show in database!');
+                                  return;
+                                }
+                                onUpdateShow(show.id, { status: 'cancelled' });
+                              }}
+                              className="text-red-600 hover:text-red-800 w-full rounded-none"
+                            >
+                              I didn't perform
+                            </Button>
+                          </div>
                         </div>
                       )}
                     </div>

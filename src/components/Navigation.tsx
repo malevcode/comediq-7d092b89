@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -20,7 +19,7 @@ const Navigation = () => {
             onClick={handleSignUp}
             className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full"
           >
-            Sign Up
+            Sign In
           </Button>
         </div>
       </div>
