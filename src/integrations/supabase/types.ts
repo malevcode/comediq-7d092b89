@@ -80,22 +80,68 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_open_mics: {
+        Row: {
+          created_at: string
+          id: string
+          open_mic_id: string | null
+          profile_id: string | null
+          relationship_type: Database["public"]["Enums"]["relation_type"] | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          open_mic_id?: string | null
+          profile_id?: string | null
+          relationship_type?:
+            | Database["public"]["Enums"]["relation_type"]
+            | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          open_mic_id?: string | null
+          profile_id?: string | null
+          relationship_type?:
+            | Database["public"]["Enums"]["relation_type"]
+            | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_open_mics_open_mic_id_fkey"
+            columns: ["open_mic_id"]
+            isOneToOne: false
+            referencedRelation: "open_mics"
+            referencedColumns: ["unique_identifier"]
+          },
+          {
+            foreignKeyName: "profile_open_mics_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
           id: string
+          phone: string | null
           user_id: string
           username: string | null
         }
         Insert: {
           created_at?: string
           id?: string
+          phone?: string | null
           user_id: string
           username?: string | null
         }
         Update: {
           created_at?: string
           id?: string
+          phone?: string | null
           user_id?: string
           username?: string | null
         }
@@ -170,6 +216,7 @@ export type Database = {
     }
     Enums: {
       rating_type: "like" | "dislike"
+      relation_type: "liked" | "upcoming" | "past"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -298,6 +345,7 @@ export const Constants = {
   public: {
     Enums: {
       rating_type: ["like", "dislike"],
+      relation_type: ["liked", "upcoming", "past"],
     },
   },
 } as const
