@@ -135,7 +135,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
                     <div className="flex-grow flex flex-col justify-evenly min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700">
                       <div className="flex flex-col w-full">
                         <div className="flex items-center mb-1 justify-between">
-                          <div className="text-base text-gray-800 min-h-[2.5rem]">Notes:</div>
+                          <div className="font-semibold text-gray-800">Notes:</div>
                           <Button
                               size="icon"
                               variant="ghost"
@@ -200,7 +200,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
                           </>
                         ) : (
                           <div className="flex items-center gap-2">
-                            <div className="text-base text-gray-800 min-h-[2.5rem] w-full ">{<span className="text-sm">{show.notes || <span className='text-gray-400'>No notes</span>}</span>}</div>
+                            <div className="text-base text-gray-800 w-full ">{<span className="text-sm">{show.notes || <span className='text-gray-400'>No notes</span>}</span>}</div>
                           </div>
                         )}
                       </div>
@@ -264,7 +264,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
                     <div className="flex-grow flex flex-col justify-evenly min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700">
                       <div className="flex flex-col w-full">
                         <div className="flex items-center mb-1 justify-between">
-                          <div className="text-base text-gray-800 min-h-[2.5rem]">Notes:</div>
+                          <div className="font-semibold text-gray-800">Notes:</div>
                           <Button
                               size="icon"
                               variant="ghost"
@@ -328,7 +328,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
                           </>
                         ) : (
                           <div className="flex items-center gap-2">
-                          <div className="text-base text-gray-800 min-h-[2.5rem] w-full ">{<span className="text-sm">{show.notes || <span className='text-gray-400'>No notes</span>}</span>}</div>
+                          <div className="text-base text-gray-800 w-full ">{<span className="text-sm">{show.notes || <span className='text-gray-400'>No notes</span>}</span>}</div>
                         </div>
                         )}
                       </div>
