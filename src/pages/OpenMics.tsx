@@ -128,17 +128,15 @@ const OpenMics = () => {
     let filtered = openMics;
     
     if (tabType === "active") {
-      // Show mics that are still happening (haven't started yet today) or are happening in the future
+      // Show all mics for today and all future mics
       filtered = openMics.filter(mic => {
         if (mic.day === currentDay) {
-          return timeToMinutes(mic.startTime) > currentTimeMinutes;
+          return true; // Show all mics for today
         } else {
           // Show all mics for future days
           const dayIndex = daysOfWeek.indexOf(mic.day);
           const currentDayIndex = daysOfWeek.indexOf(currentDay);
-          
           if (dayIndex === -1) return false;
-          
           // If it's later in the week or next week
           return dayIndex > currentDayIndex || 
                  (dayIndex < currentDayIndex); // Next week's occurrence

@@ -42,7 +42,8 @@ function getNextOccurrence(mic: OpenMic) {
   const currentDay = today.getDay();
   const targetDay = daysOfWeek.indexOf(mic.day);
   let daysUntil = targetDay - currentDay;
-  if (daysUntil <= 0) {
+  // Only add 7 if the day is in the past (not today)
+  if (daysUntil < 0) {
     daysUntil += 7;
   }
   const nextDate = new Date(today);
@@ -162,7 +163,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-gray-400 flex-shrink-0" />{mic.cost}</span>
           <span className="flex items-center gap-1 text-gray-600">
             <CircleUser className="w-4 h-4 text-gray-400" />
-            {userRating ?? "not rated"}
+            {mic.hosts ?? "No host"}
           </span>
         </div>
         {mic.otherRules && (
@@ -248,6 +249,12 @@ export default function OpenMicsDetailedList({
   setVisibleCount: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const validMics = mics.filter(Boolean);
+  // Sort mics by soonest next occurrence from today
+  const sortedMics = [...validMics].sort((a, b) => {
+    const aDate = getNextOccurrence(a);
+    const bDate = getNextOccurrence(b);
+    return aDate.getTime() - bDate.getTime();
+  });
   const [showScrollTop, setShowScrollTop] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -297,7 +304,7 @@ export default function OpenMicsDetailedList({
 
   return (
     <div className="flex flex-col gap-3">
-      {validMics.slice(0, visibleCount).map((mic) => (
+      {sortedMics.slice(0, visibleCount).map((mic) => (
         <OpenMicDetailedCard key={mic.uniqueIdentifier} mic={mic} onAddToCalendar={handleAddToCalendar} />
       ))}
       {visibleCount < validMics.length && (
