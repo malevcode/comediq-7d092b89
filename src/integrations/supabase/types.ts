@@ -130,22 +130,25 @@ export type Database = {
           id: string;
           profile_id: string;
           open_mic_id: string;
-          relationship_type: "liked" | "upcoming" | "past";
+          schedule_type: "upcoming" | "completed" | "cancelled";
           created_at: string;
+          notes: string | null;
         };
         Insert: {
           id?: string;
           profile_id: string;
           open_mic_id: string;
-          relationship_type: "liked" | "upcoming" | "past";
+          schedule_type: "upcoming" | "completed" | "cancelled";
           created_at?: string;
+          notes?: string | null;
         };
         Update: {
           id?: number;
           profile_id?: string;
           open_mic_id?: string;
-          relationship_type?: "liked" | "upcoming" | "past";
+          schedule_type?: "upcoming" | "completed" | "cancelled";
           created_at?: string;
+          notes?: string | null;
         };
         Relationships: [
           {

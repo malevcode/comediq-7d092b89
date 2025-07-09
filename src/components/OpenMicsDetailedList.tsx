@@ -264,13 +264,13 @@ export default function OpenMicsDetailedList({
       console.log({
         profile_id: user.id,
         open_mic_id: mic.uniqueIdentifier,
-        relationship_type: 'upcoming',
+        schedule_type: 'upcoming',
       });
       const { error } = await supabase.from('profile_open_mics').insert([
         {
           profile_id: user.id,
           open_mic_id: mic.uniqueIdentifier,
-          relationship_type: 'upcoming',
+          schedule_type: 'upcoming',
         },
       ]);
       if (error) {

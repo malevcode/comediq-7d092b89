@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Save, Trash2, MapPin, Calendar, Clock, Users, Star, CircleAlert, CircleCheckBig } from "lucide-react";
+import { Plus, Save, Trash2, MapPin, Calendar, Clock, Users, Star, CircleAlert, CircleCheckBig, Pencil } from "lucide-react";
 import ShowForm from "./ShowForm";
 import { supabase } from '@/integrations/supabase/client';
 
@@ -15,7 +15,7 @@ interface ShowNote {
   date: string; // ISO date string
   time: string;
   status: 'upcoming' | 'cancelled' | 'completed';
-  plannedJokes: string;
+  notes: string;
   audienceCount: string;
   rating: string;
   borough: string;
@@ -33,42 +33,15 @@ interface ShowNotepadProps {
 const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActiveTab }: ShowNotepadProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editShow, setEditShow] = useState<ShowNote | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<string>("");
+  const [editStatus, setEditStatus] = useState<ShowNote['status'] | null>(null);
+
 
   // Handler for opening modal to add
   const handleAddClick = () => {
     setEditShow(null);
     setModalOpen(true);
-  };
-
-  // Handler for opening modal to edit
-  const handleEditClick = (show: ShowNote) => {
-    setEditShow(show);
-    setModalOpen(true);
-  };
-
-  // Handler for submitting form
-  const handleFormSubmit = (showData: any) => {
-    if (editShow) {
-      onUpdateShow(editShow.id, {
-        ...showData,
-        plannedJokes: showData.notes || '',
-        borough: showData.borough,
-      });
-      setModalOpen(false);
-    } else {
-      onAddShow({
-        ...showData,
-        plannedJokes: showData.notes || '',
-        borough: showData.borough,
-        createdAt: new Date().toISOString().slice(0, 10),
-      });
-      setModalOpen(false);
-    }
-  };
-
-  // Handler for cancel
-  const handleFormCancel = () => {
-    setModalOpen(false);
   };
 
   const getRatingColor = (rating: string) => {
@@ -111,42 +84,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
       {/* Upcoming Shows Section Header Row: Upcoming Shows + Add Show Button */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Upcoming Shows</h2>
-        {/* <Button
-          className="bg-orange-500 hover:bg-orange-600"
-          onClick={() => {
-            if (onSetActiveTab) {
-              onSetActiveTab('find-mics');
-            }
-          }}
-        >
-          <Plus className="w-4 h-4 mr-2" /> Add Show
-        </Button> */}
       </div>
-      {/* Modal for Add/Edit Show */}
-      {/* {modalOpen && (
-        <ShowForm
-          onSubmit={handleFormSubmit}
-          onCancel={handleFormCancel}
-          {...(editShow ? {
-            initialData: {
-              title: editShow.title || '',
-              venue: editShow.venue || '',
-              date: editShow.date || '',
-              time: editShow.time || '',
-              status: (editShow.status === 'completed' ? 'completed' : (['upcoming', 'cancelled', 'completed'].includes(editShow.status) ? editShow.status : 'upcoming')) as 'upcoming' | 'cancelled' | 'completed',
-              notes: editShow.plannedJokes || '',
-              borough: editShow.borough || '',
-            },
-            onDelete: () => {
-              if (editShow) {
-                onDeleteShow(editShow.id);
-                setModalOpen(false);
-              }
-            },
-            showDelete: true
-          } : {})}
-        />
-      )} */}
       {/* Upcoming Shows Section */}
       <div>
         <div className="space-y-3">
@@ -158,7 +96,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
                 <CardContent className="p-4">
                   <div className="flex flex-col md:flex-row w-full gap-2 md:gap-6">
                     {/* Left: Title, Venue, Date */}
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-shrink-0 min-w-[220px] max-w-[320px]">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-semibold text-md text-gray-900 w-auto inline-block">{show.title || show.venue}</span>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium
@@ -193,71 +131,79 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
                         )}
                       </div>
                     </div>
-                    {/* Mid: Time, Minutes, Audience, Rating, Planned Jokes */}
-                    <div className="flex-1 flex flex-col justify-evenly min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700 max-w-lg">
-                      {show.plannedJokes && (
-                        <div className="text-base text-gray-800 min-h-[2.5rem] mt-1 w-[320px]">Jokes: {show.plannedJokes}</div>
-                      )}
-                    </div>
-                    {/* Right: Actions */}
-                    <div className="flex flex-col items-end gap-2 max-w-lg">
-                      {/* <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEditClick(show)}
-                        className="text-blue-500 hover:text-blue-700 w-full"
-                      >
-                        Edit
-                      </Button> */}
-                      {show.status === 'upcoming' && (
-                        <div className="flex flex-1 flex-col justify-center items-center overflow-hidden">
-                          <div className="border rounded overflow-hidden w-full">
-                            <Button
-                              size="sm"
+                    {/* Notes Section - now stretches across */}
+                    <div className="flex-grow flex flex-col justify-evenly min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700">
+                      <div className="flex flex-col w-full">
+                        <div className="flex items-center mb-1 justify-between">
+                          <div className="text-base text-gray-800 min-h-[2.5rem]">Notes:</div>
+                          <Button
+                              size="icon"
                               variant="ghost"
-                              onClick={async () => {
-                                console.log('Updating row with id:', show.id);
-                                const { data, error, count } = await supabase
-                                  .from('profile_open_mics')
-                                  .update({ relationship_type: 'past' })
-                                  .eq('id', show.id)
-                                  .select();
-                                console.log('Update result:', data, count);
-                                if (error) {
-                                  console.error('Supabase update error:', error);
-                                  alert('Failed to update show in database!');
-                                  return;
-                                }
-                                onUpdateShow(show.id, { status: 'completed' });
+                              onClick={() => {
+                                setEditingId(show.id);
+                                setEditValue(show.notes);
+                                setEditStatus(show.status);
                               }}
-                              className="text-green-600 hover:text-green-800 w-full rounded-none"
+                              className="text-blue-500 hover:text-blue-700"
+                              aria-label="Edit notes"
                             >
-                              I performed
+                              <Pencil size={16} />
                             </Button>
-                            <div className="h-px bg-gray-300 self-stretch" />
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={async () => {
-                                console.log('Updating row with id:', show.id);
-                                const { error } = await supabase
-                                  .from('profile_open_mics')
-                                  .update({ relationship_type: 'past' })
-                                  .eq('id', show.id);
-                                if (error) {
-                                  console.error('Supabase update error:', error);
-                                  alert('Failed to update show in database!');
-                                  return;
-                                }
-                                onUpdateShow(show.id, { status: 'cancelled' });
-                              }}
-                              className="text-red-600 hover:text-red-800 w-full rounded-none"
-                            >
-                              I didn't perform
-                            </Button>
-                          </div>
                         </div>
-                      )}
+                        {editingId === show.id ? (
+                          <>
+                            <textarea
+                              className="w-full border rounded p-2 mb-2"
+                              value={editValue}
+                              onChange={e => setEditValue(e.target.value)}
+                            />
+                            <div className="flex gap-2 justify-between">
+                              <select
+                                className="border rounded px-2 py-1 mr-2"
+                                value={editStatus || show.status}
+                                onChange={e => setEditStatus(e.target.value as 'upcoming' | 'completed' | 'cancelled')}
+                              >
+                                <option value="upcoming">Upcoming</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                              </select>
+                              <div className="flex gap-2 mt-1 justify-end">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={async () => {
+                                  const { error } = await supabase
+                                    .from('profile_open_mics')
+                                    .update({ notes: editValue, schedule_type: editStatus })
+                                    .eq('id', show.id);
+                                  if (error) {
+                                    alert('Failed to update notes and schedule type in database!');
+                                    return;
+                                  }
+                                  onUpdateShow(show.id, { notes: editValue, status: editStatus });
+                                  setEditingId(null);
+                                }}
+                                className="text-green-600 hover:text-green-800"
+                              >
+                                <Save size={16} /> Save
+                              </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => setEditingId(null)}
+                                  className="text-red-600 hover:text-red-800"
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <div className="text-base text-gray-800 min-h-[2.5rem] w-full ">{<span className="text-sm">{show.notes || <span className='text-gray-400'>No notes</span>}</span>}</div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -279,7 +225,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
                 <CardContent className="p-4">
                   <div className="flex flex-col md:flex-row w-full gap-2 md:gap-6">
                     {/* Left: Title, Venue, Date */}
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-shrink-0 min-w-[220px] max-w-[320px]">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-semibold text-md text-gray-900 w-auto inline-block">{show.title || show.venue}</span>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium
@@ -314,22 +260,78 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
                         )}
                       </div>
                     </div>
-                    {/* Mid: Time, Minutes, Audience, Rating, Planned Jokes */}
-                    <div className="flex-1 flex flex-col justify-evenly min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700 max-w-lg">
-                      {show.plannedJokes && (
-                        <div className="text-base text-gray-800 min-h-[2.5rem] mt-1 w-[320px]">Jokes: {show.plannedJokes}</div>
-                      )}
-                    </div>
-                    {/* Right: Actions */}
-                    <div className="flex flex-col items-end gap-2 w-[200px]">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEditClick(show)}
-                        className="text-blue-500 hover:text-blue-700 w-full"
-                      >
-                        Edit
-                      </Button>
+                    {/* Notes Section - now stretches across */}
+                    <div className="flex-grow flex flex-col justify-evenly min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700">
+                      <div className="flex flex-col w-full">
+                        <div className="flex items-center mb-1 justify-between">
+                          <div className="text-base text-gray-800 min-h-[2.5rem]">Notes:</div>
+                          <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => {
+                                setEditingId(show.id);
+                                setEditValue(show.notes);
+                              }}
+                              className="text-blue-500 hover:text-blue-700"
+                              aria-label="Edit notes"
+                            >
+                              <Pencil size={16} />
+                            </Button>
+                        </div>
+                        {editingId === show.id ? (
+                          <>
+                            <textarea
+                              className="w-full border rounded p-2 mb-2"
+                              value={editValue}
+                              onChange={e => setEditValue(e.target.value)}
+                            />
+                            <div className="flex gap-2 justify-between">
+                              <select
+                                className="border rounded px-2 py-1 mr-2"
+                                value={editStatus || show.status}
+                                onChange={e => setEditStatus(e.target.value as 'upcoming' | 'completed' | 'cancelled')}
+                              >
+                                <option value="upcoming">Upcoming</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                              </select>
+                              <div className="flex gap-2 mt-1 justify-end">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={async () => {
+                                  const { error } = await supabase
+                                    .from('profile_open_mics')
+                                    .update({ notes: editValue, schedule_type: editStatus })
+                                    .eq('id', show.id);
+                                  if (error) {
+                                    alert('Failed to update notes and schedule type in database!');
+                                    return;
+                                  }
+                                  onUpdateShow(show.id, { notes: editValue, status: editStatus });
+                                  setEditingId(null);
+                                }}
+                                className="text-green-600 hover:text-green-800"
+                              >
+                                <Save size={16} /> Save
+                              </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => setEditingId(null)}
+                                  className="text-red-600 hover:text-red-800"
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                          <div className="text-base text-gray-800 min-h-[2.5rem] w-full ">{<span className="text-sm">{show.notes || <span className='text-gray-400'>No notes</span>}</span>}</div>
+                        </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
