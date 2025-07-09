@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OpenMics from "./OpenMics";
 import TrackSets from "./TrackSets";
@@ -13,9 +13,33 @@ const Create = () => {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [trackSetsTab, setTrackSetsTab] = useState("coming-soon");
 
-  // Scroll to top when switching tabs
+  // Store scroll positions for each tab
+  const scrollPositions = useRef({
+    'find-mics': 0,
+    'show-scheduler': 0,
+    'track-sets': 0
+  });
+
+  // Save current scroll position before tab change
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const saveScrollPosition = () => {
+      scrollPositions.current[activeTab as keyof typeof scrollPositions.current] = window.scrollY;
+    };
+
+    // Save scroll position when tab is about to change
+    return saveScrollPosition;
+  }, [activeTab]);
+
+  // Restore scroll position when tab changes
+  useEffect(() => {
+    const restoreScrollPosition = () => {
+      const savedPosition = scrollPositions.current[activeTab as keyof typeof scrollPositions.current];
+      requestAnimationFrame(() => {
+        window.scrollTo(0, savedPosition);
+      });
+    };
+
+    restoreScrollPosition();
   }, [activeTab]);
 
   return (
