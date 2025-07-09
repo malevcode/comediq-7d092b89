@@ -17,7 +17,7 @@ interface ShowNote {
   date: string; // ISO date string
   time: string;
   status: 'upcoming' | 'cancelled' | 'completed';
-  plannedJokes: string;
+  notes: string;
   audienceCount: string;
   rating: string;
   borough: string;
@@ -91,38 +91,37 @@ const Shows = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
-  const { shows, loading } = useUserShows();
+  const { shows: rawShows, loading } = useUserShows();
+  const [mappedShowNotes, setMappedShowNotes] = useState<ShowNote[]>([]);
 
-  const upcomingShows = shows.filter(
-    (row) => row.relationship_type === "upcoming"
-  );
-  const pastShows = shows.filter(
-    (row) => row.relationship_type === "past"
-  );
-
-  const mappedShowNotes = (shows
-    .filter(row => row.open_mics)
-    .map(row => ({
-      id: row.id,
-      title: row.open_mics["Open Mic"] || "",
-      venue: row.open_mics["Venue Name"] || "",
-      location: row.open_mics.Location || "",
-      date: getNextOccurrence(row.open_mics.Day, row.open_mics["Start Time"]),
-      time: row.open_mics["Start Time"] || "",
-      status:
-        row.relationship_type === "upcoming"
-          ? "upcoming"
-          : row.relationship_type === "past"
-          ? "completed"
-          : "upcoming", // fallback to "upcoming"
-      plannedJokes: "",
-      audienceCount: "",
-      rating: "",
-      borough: row.open_mics.Borough || "",
-      createdAt: row.created_at,
-    }))
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-  ) as ShowNote[];
+  useEffect(() => {
+    setMappedShowNotes(
+      rawShows
+        .filter(row => row.open_mics)
+        .map(row => ({
+          id: row.id,
+          title: row.open_mics["Open Mic"] || "",
+          venue: row.open_mics["Venue Name"] || "",
+          location: row.open_mics.Location || "",
+          date: getNextOccurrence(row.open_mics.Day, row.open_mics["Start Time"]),
+          time: row.open_mics["Start Time"] || "",
+          status:
+            row.schedule_type === "upcoming"
+              ? "upcoming"
+              : row.schedule_type === "completed"
+              ? "completed"
+              : row.schedule_type === "cancelled"
+              ? "cancelled"
+              : "upcoming" as "upcoming" | "cancelled" | "completed",
+          notes: row.notes || "",
+          audienceCount: "",
+          rating: "",
+          borough: row.open_mics.Borough || "",
+          createdAt: row.created_at,
+        }))
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    );
+  }, [rawShows]);
 
   // const addShow = (newShow: Omit<ShowNote, 'id'>) => {
   //   const show: ShowNote = {
@@ -132,9 +131,13 @@ const Shows = () => {
   //   setShows([show, ...shows]);
   // };
 
-  // const updateShow = (id: string, updatedFields: Partial<ShowNote>) => {
-  //   setShows(shows => shows.map(show => show.id === id ? { ...show, ...updatedFields } : show));
-  // };
+  const onUpdateShow = (id: string, updatedFields: Partial<ShowNote>) => {
+    setMappedShowNotes(shows =>
+      shows.map(show =>
+        show.id === id ? { ...show, ...updatedFields } : show
+      )
+    );
+  };
 
   // const deleteShow = (id: string) => {
   //   setShows(shows.filter(show => show.id !== id));
@@ -250,7 +253,7 @@ const Shows = () => {
         <ShowNotepad 
           shows={mappedShowNotes}
           onAddShow={() => {}}
-          onUpdateShow={() => {}}
+          onUpdateShow={onUpdateShow}
           onDeleteShow={() => {}}
         />
       </div>

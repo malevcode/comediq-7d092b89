@@ -156,7 +156,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
         {
           profile_id: user.id,
           open_mic_id: mic.uniqueIdentifier,
-          relationship_type: 'upcoming',
+          schedule_type: 'upcoming',
         },
       ]);
       if (error) {
