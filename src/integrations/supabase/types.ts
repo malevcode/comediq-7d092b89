@@ -206,7 +206,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      mic_like_counts: {
+        Row: {
+          mic_unique_identifier: string
+          likes: number
+          dislikes: number
+        }
+        Insert: never
+        Update: never
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

@@ -34,16 +34,12 @@ export const useMicRatings = (micUniqueIdentifier?: string) => {
       if (!micUniqueIdentifier) return { likes: 0, dislikes: 0 };
       
       const { data, error } = await supabase
-        .from('user_mic_ratings')
-        .select('rating')
-        .eq('mic_unique_identifier', micUniqueIdentifier);
-
+        .from('mic_like_counts') // new VIEW
+        .select('likes, dislikes')
+        .eq('mic_unique_identifier', micUniqueIdentifier)
+        .maybeSingle(); // get back one row or null
       if (error) throw error;
-      
-      const likes = data?.filter(r => r.rating === 'like').length || 0;
-      const dislikes = data?.filter(r => r.rating === 'dislike').length || 0;
-      
-      return { likes, dislikes };
+      return data ?? { likes: 0, dislikes: 0 };
     },
     enabled: !!micUniqueIdentifier,
   });
