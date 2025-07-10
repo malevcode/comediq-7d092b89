@@ -22,7 +22,7 @@ const OpenMics = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBorough, setSelectedBorough] = useState("All");
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
-  const [activeTab, setActiveTab] = useState("active");
+  const [activeTab, setActiveTab] = useState("next");
   const [showFilters, setShowFilters] = useState(false);
   const [showMobileKey, setShowMobileKey] = useState(false);
   const [showDesktopKey, setShowDesktopKey] = useState(false);
@@ -81,6 +81,34 @@ const OpenMics = () => {
   });
   const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
 
+  // Helper function to calculate time until a mic starts (in minutes)
+  const calculateTimeUntilMic = (mic: OpenMic) => {
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const micDayIndex = daysOfWeek.indexOf(mic.day);
+    const currentDayIndex = daysOfWeek.indexOf(currentDay);
+    
+    if (micDayIndex === -1) return Infinity; // Invalid day
+    
+    const micStartMinutes = timeToMinutes(mic.startTime);
+    
+    if (micDayIndex === currentDayIndex) {
+      // Same day - check if mic hasn't started yet
+      if (micStartMinutes > currentTimeMinutes) {
+        return micStartMinutes - currentTimeMinutes; // Minutes until mic starts today
+      } else {
+        // Mic already started today, show next week's occurrence
+        return (7 * 24 * 60) + micStartMinutes - currentTimeMinutes;
+      }
+    } else {
+      // Different day
+      let daysUntil = micDayIndex - currentDayIndex;
+      if (daysUntil <= 0) {
+        daysUntil += 7; // Next week
+      }
+      return (daysUntil * 24 * 60) + micStartMinutes - currentTimeMinutes;
+    }
+  };
+
   // Helper function to get borough initial
   const getBoroughInitial = (borough: string) => {
     const cleanBorough = borough.trim();
@@ -131,20 +159,16 @@ const OpenMics = () => {
   const getFilteredMics = (tabType: string, dayFilter?: string) => {
     let filtered = openMics;
     
-    if (tabType === "active") {
-      // Show all mics for today and all future mics
+    if (tabType === "next") {
+      // Show only upcoming mics, sorted by time until they happen
       filtered = openMics.filter(mic => {
-        if (mic.day === currentDay) {
-          return true; // Show all mics for today
-        } else {
-          // Show all mics for future days
-          const dayIndex = daysOfWeek.indexOf(mic.day);
-          const currentDayIndex = daysOfWeek.indexOf(currentDay);
-          if (dayIndex === -1) return false;
-          // If it's later in the week or next week
-          return dayIndex > currentDayIndex || 
-                 (dayIndex < currentDayIndex); // Next week's occurrence
-        }
+        const timeUntil = calculateTimeUntilMic(mic);
+        return timeUntil > 0 && timeUntil < Infinity; // Only show valid upcoming mics
+      });
+      
+      // Sort by time until mic starts (closest first)
+      filtered = filtered.sort((a, b) => {
+        return calculateTimeUntilMic(a) - calculateTimeUntilMic(b);
       });
     } else if (tabType === "liked") {
       // Show only liked mics
@@ -165,8 +189,12 @@ const OpenMics = () => {
       return matchesSearch && matchesBorough;
     });
 
-    // Sort by time
-    return filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
+    // Sort by time (except for "next" tab which is already sorted)
+    if (tabType !== "next") {
+      return filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
+    }
+    
+    return filtered;
   };
 
   // Borough outline colors for left border only
@@ -193,9 +221,9 @@ const OpenMics = () => {
               ? `${Math.min(visibleCount, filteredMics.length)} of ${filteredMics.length}`
               : filteredMics.length
             }
-            {tabName === 'active' ? ' active' : tabName === 'liked' ? ' liked ' : ''}
+            {tabName === 'next' ? ' upcoming' : tabName === 'liked' ? ' liked ' : ''}
             {' open mic'}{filteredMics.length !== 1 ? 's' : ''}
-            {tabName !== 'active' && tabName !== 'liked' ? ` on ${tabName}` : ''}
+            {tabName !== 'next' && tabName !== 'liked' ? ` on ${tabName}` : ''}
           </p>
           <div className="flex-shrink-0">
             <ViewToggle 
@@ -254,7 +282,7 @@ const OpenMics = () => {
         {filteredMics.length === 0 && (
           <div className="text-center py-8">
             <p className="text-gray-500">
-              {tabName === 'liked' ? 'No liked open mics found.' : `No ${tabName === 'active' ? 'active ' : ''}open mics found${tabName !== 'active' && tabName !== 'liked' ? ` for ${tabName}` : ''}.`}
+              {tabName === 'liked' ? 'No liked open mics found.' : `No ${tabName === 'next' ? 'upcoming ' : ''}open mics found${tabName !== 'next' && tabName !== 'liked' ? ` for ${tabName}` : ''}.`}
             </p>
             {tabName === 'liked' ? (
               <p className="text-gray-400 text-sm mt-1">Start liking mics to see them here!</p>
@@ -615,7 +643,7 @@ const OpenMics = () => {
         {/* Day Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className={`grid w-full ${user ? 'grid-cols-9' : 'grid-cols-8'} mb-6 h-9 gap-1.5`}>
-            <TabsTrigger value="active" className="text-xs py-1 px-1">All</TabsTrigger>
+            <TabsTrigger value="next" className="text-xs py-1 px-1">Next</TabsTrigger>
             {user && <TabsTrigger value="liked" className="text-xs py-1 px-1">❤️</TabsTrigger>}
             {daysOfWeek.map(day => (
               <TabsTrigger key={day} value={day} className="text-xs py-1 px-1">
@@ -624,8 +652,8 @@ const OpenMics = () => {
             ))}
           </TabsList>
 
-          <TabsContent value="active" className="mt-2">
-            {renderMicContent(getFilteredMics("active"), "active")}
+          <TabsContent value="next" className="mt-2">
+            {renderMicContent(getFilteredMics("next"), "next")}
           </TabsContent>
 
           {user && (
