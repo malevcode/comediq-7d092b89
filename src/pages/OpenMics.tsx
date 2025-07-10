@@ -14,6 +14,9 @@ import MicDetailModal from "@/components/MicDetailModal";
 import OpenMicsMap from "@/components/OpenMicsMap";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import ViewToggle from "@/components/ViewToggle";
+import ShowForm from '@/components/ShowForm';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 const OpenMics = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,6 +28,7 @@ const OpenMics = () => {
   const [showDesktopKey, setShowDesktopKey] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid' | 'map'>('list');
   const [visibleCount, setVisibleCount] = useState(25);
+  const [showRequestModal, setShowRequestModal] = useState(false);
   
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
@@ -270,6 +274,44 @@ const OpenMics = () => {
 
   const handleViewModeChange = (mode: 'list' | 'grid' | 'map') => {
     setViewMode(mode);
+  };
+
+  // Handler for submitting a mic request
+  const handleRequestMic = async (formData) => {
+    const { anonymous, ...rest } = formData;
+    try {
+      const insertObj = {
+        show_title: formData.title,
+        venue_name: formData.venue,
+        borough: formData.borough,
+        date: formData.date,
+        time: formData.time,
+        created_at: new Date().toISOString(),
+        ...(anonymous ? {} : { user_id: user?.id || null }),
+      };
+      const { error } = await (supabase as any).from('open_mics_requests').insert([
+        insertObj
+      ]);
+      if (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to submit your request. Please try again.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Request submitted!',
+          description: 'Thank you for your suggestion. We will review it soon.',
+        });
+        setShowRequestModal(false);
+      }
+    } catch (e) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+    }
   };
 
   if (isLoading) {
@@ -606,6 +648,25 @@ const OpenMics = () => {
           mic={selectedMic} 
           onClose={() => setSelectedMic(null)} 
           onAddToSchedule={handleAddToSchedule}
+        />
+      )}
+
+      {/* Request a mic CTA and modal */}
+      <div className="max-w-sm mx-auto mt-6 mb-8 text-center">
+        <Card>
+          <CardContent className="py-8">
+            <p className="text-lg font-semibold mb-2">Don't see a mic here?</p>
+            <p className="mb-4 text-gray-600">Request it to be added!</p>
+            <Button className="bg-orange-500 hover:bg-orange-600" onClick={() => setShowRequestModal(true)}>
+              Request a Mic
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+      {showRequestModal && (
+        <ShowForm
+          onSubmit={handleRequestMic}
+          onCancel={() => setShowRequestModal(false)}
         />
       )}
     </div>
