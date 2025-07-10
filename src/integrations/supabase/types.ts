@@ -203,6 +203,72 @@ export type Database = {
           years_in_comedy?: string | null
         }
         Relationships: []
+      },
+      open_mics_july: {
+        Row: {
+          Borough: string | null
+          "Changes/updates": string | null
+          Cost: string | null
+          Day: string | null
+          "Help other comics! Leave reviews": string | null
+          "Host(s) / Organizer": string | null
+          "Last verified": string | null
+          "Latest End Time": string | null
+          Location: string | null
+          Neighborhood: string | null
+          "Open Mic": string | null
+          "Other Rules": string | null
+          "Sign-Up Instructions": string | null
+          SMS: string | null
+          "Stage time": string | null
+          "Start Time": string | null
+          unique_identifier: string
+          "Venue Name": string | null
+          "Venue type": string | null
+        }
+        Insert: {
+          Borough?: string | null
+          "Changes/updates"?: string | null
+          Cost?: string | null
+          Day?: string | null
+          "Help other comics! Leave reviews"?: string | null
+          "Host(s) / Organizer"?: string | null
+          "Last verified"?: string | null
+          "Latest End Time"?: string | null
+          Location?: string | null
+          Neighborhood?: string | null
+          "Open Mic"?: string | null
+          "Other Rules"?: string | null
+          "Sign-Up Instructions"?: string | null
+          SMS?: string | null
+          "Stage time"?: string | null
+          "Start Time"?: string | null
+          unique_identifier: string
+          "Venue Name"?: string | null
+          "Venue type"?: string | null
+        }
+        Update: {
+          Borough?: string | null
+          "Changes/updates"?: string | null
+          Cost?: string | null
+          Day?: string | null
+          "Help other comics! Leave reviews"?: string | null
+          "Host(s) / Organizer"?: string | null
+          "Last verified"?: string | null
+          "Latest End Time"?: string | null
+          Location?: string | null
+          Neighborhood?: string | null
+          "Open Mic"?: string | null
+          "Other Rules"?: string | null
+          "Sign-Up Instructions"?: string | null
+          SMS?: string | null
+          "Stage time"?: string | null
+          "Start Time"?: string | null
+          unique_identifier?: string
+          "Venue Name"?: string | null
+          "Venue type"?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {
