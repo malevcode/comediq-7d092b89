@@ -10,7 +10,7 @@ export const useOpenMics = () => {
       console.log("Fetching open mics from Supabase...");
       
       const { data, error } = await supabase
-        .from("open_mics")
+        .from("open_mics_july")
         .select("*");
 
       if (error) {
