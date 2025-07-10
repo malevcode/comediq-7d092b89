@@ -194,7 +194,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             </div>
           )}
         </button>
-        <div className="flex flex-row gap-2 mb-2">
+        <div className="flex flex-col md:flex-row gap-2 mb-2">
           {user && (
             <Button
               size="sm"
@@ -205,34 +205,36 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
               Add to Calendar
             </Button>
           )}
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-100"
-            asChild
-          >
-            <a
-              href={getGoogleCalendarUrl(mic)}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Add to Google Calendar"
+          <div className="flex flex-row gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-100"
+              asChild
             >
-              <span className="flex items-center gap-1">
-                <span className="inline-block w-4 h-4 bg-white text-sky font-bold rounded-full flex items-center justify-center">G</span>
-                <span className="text-sky">Google Calendar</span>
-              </span>
-            </a>
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-100"
-            onClick={() => downloadICal(mic)}
-            aria-label="Download iCal file"
-          >
-            <Calendar className="text-orange-500 w-4 h-4" />
-            <span className="text-orange-500">Download iCal</span>
-          </Button>
+              <a
+                href={getGoogleCalendarUrl(mic)}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Add to Google Calendar"
+              >
+                <span className="flex items-center gap-1">
+                  <span className="inline-block w-4 h-4 bg-white text-sky font-bold rounded-full flex items-center justify-center">G</span>
+                  <span className="text-sky">Google Calendar</span>
+                </span>
+              </a>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-100"
+              onClick={() => downloadICal(mic)}
+              aria-label="Download iCal file"
+            >
+              <Calendar className="text-orange-500 w-4 h-4" />
+              <span className="text-orange-500">Download iCal</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

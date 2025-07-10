@@ -362,7 +362,7 @@ const OpenMics = () => {
                     <HelpCircle className="h-3 w-3" />
                     <span>Help</span>
                   </Button>
-                  <Button 
+                  {/* <Button 
                     onClick={() => setShowFilters(!showFilters)} 
                     variant="outline" 
                     size="sm"
@@ -370,7 +370,7 @@ const OpenMics = () => {
                   >
                     <Filter className="h-3 w-3" />
                     <span>Filters</span>
-                  </Button>
+                  </Button> */}
                 </div>
 
                 {/* Desktop auth section - moved here */}
