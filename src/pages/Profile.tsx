@@ -1,4 +1,3 @@
-
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserLikedMics } from '@/hooks/useMicRatings';
 import { useOpenMics } from '@/hooks/useOpenMics';

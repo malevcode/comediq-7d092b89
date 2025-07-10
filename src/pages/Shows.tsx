@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { format, isToday, isFuture } from "date-fns";
 import ShowNotepad from "@/components/ShowNotepad";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ShowNote {
   id: string;
@@ -16,64 +17,130 @@ interface ShowNote {
   date: string; // ISO date string
   time: string;
   status: 'upcoming' | 'cancelled' | 'completed';
-  plannedJokes: string;
+  notes: string;
   audienceCount: string;
   rating: string;
   borough: string;
   createdAt: string;
 }
 
+const useUserShows = () => {
+  const { user } = useAuth();
+  const [shows, setShows] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchShows = async () => {
+      setLoading(true);
+      // Fetch profile_open_mics for this user, join open_mics for details
+      const { data, error } = await supabase
+        .from("profile_open_mics")
+        .select(`
+          *,
+          open_mics:open_mic_id (
+            *
+          )
+        `)
+        .eq("profile_id", user.id);
+
+      console.log('Current user:', user);
+      console.log('Fetched data:', data);
+      console.log('Supabase error:', error);
+
+      if (error) {
+        console.error("Error fetching shows:", error);
+        setShows([]);
+      } else {
+        setShows(data);
+      }
+      setLoading(false);
+    };
+
+    fetchShows();
+  }, [user]);
+
+  return { shows, loading };
+};
+
+function getNextOccurrence(day, time) {
+  const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const today = new Date();
+  const currentDay = today.getDay();
+  const targetDay = daysOfWeek.indexOf(day);
+  let daysUntil = targetDay - currentDay;
+  if (daysUntil < 0) daysUntil += 7;
+  const nextDate = new Date(today);
+  nextDate.setDate(today.getDate() + daysUntil);
+
+  // Set the time
+  if (time) {
+    const [hourMin, ampm] = time.split(' ');
+    let [hour, min] = hourMin.split(':').map(Number);
+    if (ampm === 'PM' && hour !== 12) hour += 12;
+    if (ampm === 'AM' && hour === 12) hour = 0;
+    nextDate.setHours(hour, min || 0, 0, 0);
+  }
+  return nextDate.toISOString();
+}
+
 const Shows = () => {
-  const [shows, setShows] = useState<ShowNote[]>([
-    {
-      id: '1',
-      title: 'Comedy Night at Comedy Cellar',
-      venue: 'Comedy Cellar',
-      location: 'New York, NY',
-      date: '2024-06-10',
-      time: '8:00 PM',
-      status: 'completed',
-      plannedJokes: 'Dating app material, subway observations',
-      audienceCount: '45',
-      rating: '8',
-      borough: 'Manhattan', 
-      createdAt: '2024-06-10',
-    },
-    {
-      id: '2',
-      title: 'Saturday Showcase',
-      venue: 'Eastville Comedy Club',
-      location: 'Brooklyn, NY',
-      date: '2024-06-11',
-      time: '9:30 PM',
-      status: 'upcoming',
-      plannedJokes: 'Family stories, work complaints',
-      audienceCount: '30',
-      rating: '6',
-      borough: 'Brooklyn',
-      createdAt: '2024-06-11',
-    }
-  ]);
   const [showFilters, setShowFilters] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
+  const { shows: rawShows, loading } = useUserShows();
+  const [mappedShowNotes, setMappedShowNotes] = useState<ShowNote[]>([]);
 
-  const addShow = (newShow: Omit<ShowNote, 'id'>) => {
-    const show: ShowNote = {
-      ...newShow,
-      id: Date.now().toString(),
-    };
-    setShows([show, ...shows]);
+  useEffect(() => {
+    setMappedShowNotes(
+      rawShows
+        .filter(row => row.open_mics)
+        .map(row => ({
+          id: row.id,
+          title: row.open_mics["Open Mic"] || "",
+          venue: row.open_mics["Venue Name"] || "",
+          location: row.open_mics.Location || "",
+          date: getNextOccurrence(row.open_mics.Day, row.open_mics["Start Time"]),
+          time: row.open_mics["Start Time"] || "",
+          status:
+            row.schedule_type === "upcoming"
+              ? "upcoming"
+              : row.schedule_type === "completed"
+              ? "completed"
+              : row.schedule_type === "cancelled"
+              ? "cancelled"
+              : "upcoming" as "upcoming" | "cancelled" | "completed",
+          notes: row.notes || "",
+          audienceCount: "",
+          rating: "",
+          borough: row.open_mics.Borough || "",
+          createdAt: row.created_at,
+        }))
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    );
+  }, [rawShows]);
+
+  // const addShow = (newShow: Omit<ShowNote, 'id'>) => {
+  //   const show: ShowNote = {
+  //     ...newShow,
+  //     id: Date.now().toString(),
+  //   };
+  //   setShows([show, ...shows]);
+  // };
+
+  const onUpdateShow = (id: string, updatedFields: Partial<ShowNote>) => {
+    setMappedShowNotes(shows =>
+      shows.map(show =>
+        show.id === id ? { ...show, ...updatedFields } : show
+      )
+    );
   };
 
-  const updateShow = (id: string, updatedFields: Partial<ShowNote>) => {
-    setShows(shows => shows.map(show => show.id === id ? { ...show, ...updatedFields } : show));
-  };
-
-  const deleteShow = (id: string) => {
-    setShows(shows.filter(show => show.id !== id));
+  const onDeleteShow = (id: string) => {
+    setMappedShowNotes(shows => shows.filter(show => show.id !== id));
   };
 
   return (
@@ -91,7 +158,7 @@ const Shows = () => {
                       <span className="text-xs text-gray-600">Welcome back!</span>
                     </div>
                   ) : (
-                    <Button onClick={() => navigate('/auth')} className="w-full bg-papaya hover:bg-papaya/80 text-xs py-1.5">
+                    <Button onClick={() => navigate('/auth')} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-1.5">
                       <LogIn className="h-3 w-3 mr-1" />
                       Sign In
                     </Button>
@@ -118,30 +185,10 @@ const Shows = () => {
                   </Button>
                 </div>
                 <div className="hidden sm:flex items-center gap-2">
-                  <Button 
-                    onClick={() => setShowHelp(!showHelp)} 
-                    variant="outline" 
-                    size="sm"
-                    className="flex items-center gap-1 text-xs px-3 py-1"
-                  >
-                    <HelpCircle className="h-3 w-3" />
-                    <span>Help</span>
-                  </Button>
-                  <Button 
-                    onClick={() => setShowFilters(!showFilters)} 
-                    variant="outline" 
-                    size="sm"
-                    className="flex items-center gap-1 text-xs px-3 py-1"
-                  >
-                    <Filter className="h-3 w-3" />
-                    <span>Filters</span>
-                  </Button>
-                </div>
-                <div className="hidden sm:flex items-center gap-2">
                   {user ? (
                     <span className="text-xs text-gray-600">Welcome back!</span>
                   ) : (
-                    <Button onClick={() => navigate('/auth')} className="bg-papaya hover:bg-papaya/80 text-xs px-3 py-1">
+                    <Button onClick={() => navigate('/auth')} className="bg-orange-500 hover:bg-orange-600 text-xs px-3 py-1">
                       <LogIn className="h-3 w-3 mr-1" />
                       Sign In
                     </Button>
@@ -156,39 +203,25 @@ const Shows = () => {
                 </div>
               </div>
             </div>
-            <div className="max-w-7xl mx-auto px-4">
-              <button
-                className="appearance-none cursor-pointer bg-red-50 border border-red-200 rounded-lg p-2 mb-4 relative w-full text-left flex flex-col hover:bg-red-100 transition font-semibold text-xs text-red-800 gap-1 outline-none"
-                aria-label={showInstructions ? 'Collapse instructions' : 'Expand instructions'}
-                onClick={() => setShowInstructions(e => !e)}
-                type="button"
-              >
-                <span className="flex items-center gap-1">
-                  <span>Demo Only</span>
-                  <ChevronDown
-                    className={`w-4 h-4 ml-auto transition-transform duration-200 ${showInstructions ? 'rotate-180' : ''}`}
-                  />
-                </span>
-                {showInstructions && (
-                  <div
-                    className="text-xs text-red-700 break-words mt-2 font-normal select-text cursor-text"
-                    onClick={e => e.stopPropagation()}
-                  >
-                    This is just a demonstration. Data entered here will not be saved permanently.
-                  </div>
-                )}
-              </button>
-            </div>
           </div>
         </div>
       </div>
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <ShowNotepad 
-          shows={shows}
-          onAddShow={addShow}
-          onUpdateShow={updateShow}
-          onDeleteShow={deleteShow}
-        />
+        {user ? (
+          <ShowNotepad 
+            shows={mappedShowNotes}
+            onAddShow={() => {}}
+            onUpdateShow={onUpdateShow}
+            onDeleteShow={onDeleteShow}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12">
+            <p className="text-lg text-gray-700 mb-4">Sign in to view and manage your show schedule.</p>
+            <Button onClick={() => navigate('/auth')} className="bg-orange-500 hover:bg-orange-600 text-base px-6 py-2">
+              <LogIn className="h-4 w-4 mr-2" /> Sign In
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

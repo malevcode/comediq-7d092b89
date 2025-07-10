@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
 import { useMicRatings } from "@/hooks/useMicRatings";
 import { useState, useEffect } from "react";
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 function downloadICal(mic: OpenMic) {
   const event = generateCalendarEvent(mic);
@@ -39,7 +42,8 @@ function getNextOccurrence(mic: OpenMic) {
   const currentDay = today.getDay();
   const targetDay = daysOfWeek.indexOf(mic.day);
   let daysUntil = targetDay - currentDay;
-  if (daysUntil <= 0) {
+  // Only add 7 if the day is in the past (not today)
+  if (daysUntil < 0) {
     daysUntil += 7;
   }
   const nextDate = new Date(today);
@@ -102,9 +106,10 @@ function getGoogleCalendarUrl(mic: OpenMic) {
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
-function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
+function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void }) {
   const { userRating, ratingCounts } = useMicRatings(mic.uniqueIdentifier);
   const [expanded, setExpanded] = useState(false);
+  const { user } = useAuth();
   // Helper to get first line or summary
   const getSummary = (text: string) => {
     if (!text) return '';
@@ -158,7 +163,7 @@ function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
           <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-gray-400 flex-shrink-0" />{mic.cost}</span>
           <span className="flex items-center gap-1 text-gray-600">
             <CircleUser className="w-4 h-4 text-gray-400" />
-            {userRating ?? "not rated"}
+            {mic.hosts ?? "No host"}
           </span>
         </div>
         {mic.otherRules && (
@@ -189,42 +194,47 @@ function OpenMicDetailedCard({ mic }: { mic: OpenMic }) {
             </div>
           )}
         </button>
-        <div className="flex flex-row gap-2 mb-2">
-          {/* <Button
-            size="sm"
-            className="w-full bg-papaya text-white hover:bg-papaya/80 flex items-center justify-center gap-2"
-          >
-            <Calendar className="w-4 h-4" />
-            Add to Calendar
-          </Button> */}
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-100"
-            asChild
-          >
-            <a
-              href={getGoogleCalendarUrl(mic)}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Add to Google Calendar"
+        <div className="flex flex-col md:flex-row gap-2 mb-2">
+          {user && (
+            <Button
+              size="sm"
+              className="w-full bg-papaya text-white hover:bg-papaya/80 flex items-center justify-center gap-2"
+              onClick={() => onAddToCalendar(mic)}
             >
-              <span className="flex items-center gap-1">
-                <span className="inline-block w-4 h-4 bg-white text-sky font-bold rounded-full flex items-center justify-center">G</span>
-                <span className="text-sky">Google Calendar</span>
-              </span>
-            </a>
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-100"
-            onClick={() => downloadICal(mic)}
-            aria-label="Download iCal file"
-          >
-            <Calendar className="text-papaya w-4 h-4" />
-            <span className="text-papaya">Download iCal</span>
-          </Button>
+              <Calendar className="w-4 h-4" />
+              Add to Calendar
+            </Button>
+          )}
+          <div className="flex flex-row gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-100"
+              asChild
+            >
+              <a
+                href={getGoogleCalendarUrl(mic)}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Add to Google Calendar"
+              >
+                <span className="flex items-center gap-1">
+                  <span className="inline-block w-4 h-4 bg-white text-sky font-bold rounded-full flex items-center justify-center">G</span>
+                  <span className="text-sky">Google Calendar</span>
+                </span>
+              </a>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-100"
+              onClick={() => downloadICal(mic)}
+              aria-label="Download iCal file"
+            >
+              <Calendar className="text-orange-500 w-4 h-4" />
+              <span className="text-orange-500">Download iCal</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -241,7 +251,15 @@ export default function OpenMicsDetailedList({
   setVisibleCount: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const validMics = mics.filter(Boolean);
+  // Sort mics by soonest next occurrence from today
+  const sortedMics = [...validMics].sort((a, b) => {
+    const aDate = getNextOccurrence(a);
+    const bDate = getNextOccurrence(b);
+    return aDate.getTime() - bDate.getTime();
+  });
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     const onScroll = () => setShowScrollTop(window.scrollY > 400);
@@ -249,15 +267,52 @@ export default function OpenMicsDetailedList({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const handleAddToCalendar = async (mic: OpenMic) => {
+    if (!user) return;
+    try {
+      console.log({
+        profile_id: user.id,
+        open_mic_id: mic.uniqueIdentifier,
+        schedule_type: 'upcoming',
+      });
+      const { error } = await supabase.from('profile_open_mics').insert([
+        {
+          profile_id: user.id,
+          open_mic_id: mic.uniqueIdentifier,
+          schedule_type: 'upcoming',
+        },
+      ]);
+      if (error) {
+        console.error('Supabase error:', error);
+        toast({
+          title: 'Error',
+          description: error.message || 'Failed to add to your schedule.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Added to Schedule',
+          description: 'This open mic has been added to your schedule.',
+        });
+      }
+    } catch (e) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col gap-3">
-      {validMics.slice(0, visibleCount).map((mic) => (
-        <OpenMicDetailedCard key={mic.uniqueIdentifier} mic={mic} />
+      {sortedMics.slice(0, visibleCount).map((mic) => (
+        <OpenMicDetailedCard key={mic.uniqueIdentifier} mic={mic} onAddToCalendar={handleAddToCalendar} />
       ))}
       {visibleCount < validMics.length && (
         <div className="flex justify-center">
           <button
-            className="px-2 py-2 w-auto bg-papaya text-white rounded hover:bg-orange-600 text-sm"
+            className="px-2 py-2 w-auto bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
             onClick={() => setVisibleCount(c => c + 25)}
           >
             Show More
@@ -267,7 +322,7 @@ export default function OpenMicsDetailedList({
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className={`
-          fixed bottom-24 right-4 z-50 bg-papaya text-white p-2 rounded-full shadow-lg hover:bg-orange-600 transition
+          fixed bottom-24 right-4 z-50 bg-orange-500 text-white p-2 rounded-full shadow-lg hover:bg-orange-600 transition
           transform
           ${showScrollTop ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
           duration-300

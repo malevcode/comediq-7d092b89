@@ -27,7 +27,7 @@ export default function ProgressTrackerPage() {
                       <span className="text-xs text-gray-600">Welcome back!</span>
                     </div>
                   ) : (
-                    <Button onClick={() => navigate('/auth')} className="w-full bg-papaya hover:bg-papaya/80 text-xs py-1.5">
+                    <Button onClick={() => navigate('/auth')} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-1.5">
                       <LogIn className="h-3 w-3 mr-1" />
                       Sign In
                     </Button>
@@ -41,7 +41,7 @@ export default function ProgressTrackerPage() {
                   {user ? (
                     <span className="text-xs text-gray-600">Welcome back!</span>
                   ) : (
-                    <Button onClick={() => navigate('/auth')} className="bg-papaya hover:bg-papaya/80 text-xs px-3 py-1">
+                    <Button onClick={() => navigate('/auth')} className="bg-orange-500 hover:bg-orange-600 text-xs px-3 py-1">
                       <LogIn className="h-3 w-3 mr-1" />
                       Sign In
                     </Button>

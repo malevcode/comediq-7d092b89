@@ -14,6 +14,9 @@ import MicDetailModal from "@/components/MicDetailModal";
 import OpenMicsMap from "@/components/OpenMicsMap";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import ViewToggle from "@/components/ViewToggle";
+import ShowForm from '@/components/ShowForm';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 const OpenMics = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,6 +28,7 @@ const OpenMics = () => {
   const [showDesktopKey, setShowDesktopKey] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid' | 'map'>('list');
   const [visibleCount, setVisibleCount] = useState(25);
+  const [showRequestModal, setShowRequestModal] = useState(false);
   
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
@@ -128,17 +132,15 @@ const OpenMics = () => {
     let filtered = openMics;
     
     if (tabType === "active") {
-      // Show mics that are still happening (haven't started yet today) or are happening in the future
+      // Show all mics for today and all future mics
       filtered = openMics.filter(mic => {
         if (mic.day === currentDay) {
-          return timeToMinutes(mic.startTime) > currentTimeMinutes;
+          return true; // Show all mics for today
         } else {
           // Show all mics for future days
           const dayIndex = daysOfWeek.indexOf(mic.day);
           const currentDayIndex = daysOfWeek.indexOf(currentDay);
-          
           if (dayIndex === -1) return false;
-          
           // If it's later in the week or next week
           return dayIndex > currentDayIndex || 
                  (dayIndex < currentDayIndex); // Next week's occurrence
@@ -260,7 +262,7 @@ const OpenMics = () => {
               <Button onClick={() => {
                 setSearchTerm("");
                 setSelectedBorough("All");
-              }} className="mt-2 bg-papaya hover:bg-papaya/80 text-sm">
+              }} className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm">
                 Clear Filters
               </Button>
             )}
@@ -272,6 +274,44 @@ const OpenMics = () => {
 
   const handleViewModeChange = (mode: 'list' | 'grid' | 'map') => {
     setViewMode(mode);
+  };
+
+  // Handler for submitting a mic request
+  const handleRequestMic = async (formData) => {
+    const { anonymous, ...rest } = formData;
+    try {
+      const insertObj = {
+        show_title: formData.title,
+        venue_name: formData.venue,
+        borough: formData.borough,
+        date: formData.date,
+        time: formData.time,
+        created_at: new Date().toISOString(),
+        ...(anonymous ? {} : { user_id: user?.id || null }),
+      };
+      const { error } = await (supabase as any).from('open_mics_requests').insert([
+        insertObj
+      ]);
+      if (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to submit your request. Please try again.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Request submitted!',
+          description: 'Thank you for your suggestion. We will review it soon.',
+        });
+        setShowRequestModal(false);
+      }
+    } catch (e) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+    }
   };
 
   if (isLoading) {
@@ -290,7 +330,7 @@ const OpenMics = () => {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">Error loading open mics</p>
-          <Button onClick={() => window.location.reload()} className="bg-papaya hover:bg-papaya/80">
+          <Button onClick={() => window.location.reload()} className="bg-orange-500 hover:bg-orange-600">
             Try Again
           </Button>
         </div>
@@ -323,7 +363,7 @@ const OpenMics = () => {
                       <span className="text-xs text-gray-600">Welcome back!</span>
                     </div>
                   ) : (
-                    <Button onClick={() => navigate('/auth')} className="w-full bg-papaya hover:bg-papaya/80 text-xs py-1.5">
+                    <Button onClick={() => navigate('/auth')} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-1.5">
                       <LogIn className="h-3 w-3 mr-1" />
                       Sign In to Like Mics
                     </Button>
@@ -364,7 +404,7 @@ const OpenMics = () => {
                     <HelpCircle className="h-3 w-3" />
                     <span>Help</span>
                   </Button>
-                  <Button 
+                  {/* <Button 
                     onClick={() => setShowFilters(!showFilters)} 
                     variant="outline" 
                     size="sm"
@@ -372,7 +412,7 @@ const OpenMics = () => {
                   >
                     <Filter className="h-3 w-3" />
                     <span>Filters</span>
-                  </Button>
+                  </Button> */}
                 </div>
 
                 {/* Desktop auth section - moved here */}
@@ -380,7 +420,7 @@ const OpenMics = () => {
                   {user ? (
                     <span className="text-xs text-gray-600">Welcome back!</span>
                   ) : (
-                    <Button onClick={() => navigate('/auth')} className="bg-papaya hover:bg-papaya/80 text-xs px-3 py-1">
+                    <Button onClick={() => navigate('/auth')} className="bg-orange-500 hover:bg-orange-600 text-xs px-3 py-1">
                       <LogIn className="h-3 w-3 mr-1" />
                       Sign In
                     </Button>
@@ -608,6 +648,25 @@ const OpenMics = () => {
           mic={selectedMic} 
           onClose={() => setSelectedMic(null)} 
           onAddToSchedule={handleAddToSchedule}
+        />
+      )}
+
+      {/* Request a mic CTA and modal */}
+      <div className="max-w-sm mx-auto mt-6 mb-8 text-center">
+        <Card>
+          <CardContent className="py-8">
+            <p className="text-lg font-semibold mb-2">Don't see a mic here?</p>
+            <p className="mb-4 text-gray-600">Request it to be added!</p>
+            <Button className="bg-orange-500 hover:bg-orange-600" onClick={() => setShowRequestModal(true)}>
+              Request a Mic
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+      {showRequestModal && (
+        <ShowForm
+          onSubmit={handleRequestMic}
+          onCancel={() => setShowRequestModal(false)}
         />
       )}
     </div>

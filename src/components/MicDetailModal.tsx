@@ -6,6 +6,8 @@ import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMicRatings, useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate } from "react-router-dom";
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface MicDetailModalProps {
   mic: OpenMic;
@@ -17,6 +19,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
   const { user } = useAuth();
   const navigate = useNavigate();
   const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(mic.uniqueIdentifier);
+  const { toast } = useToast();
 
   const handleRating = (rating: 'like' | 'dislike') => {
     if (!user) {
@@ -141,24 +144,53 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
     URL.revokeObjectURL(url);
   };
 
-  const handleAddToSchedule = () => {
+  const handleAddToSchedule = async () => {
     if (!user) {
       navigate('/auth');
       return;
     }
 
-    const event = generateCalendarEvent();
-    const showData = {
-      title: mic.openMic,
-      venue: mic.venueName,
-      location: mic.location,
-      date: event.date,
-      time: mic.startTime,
-      status: 'upcoming' as const,
-      notes: `Open mic - ${mic.cost} - ${mic.stageTime} stage time`
-    };
+    // Insert into profile_open_mics table
+    try {
+      const { error } = await supabase.from('profile_open_mics').insert([
+        {
+          profile_id: user.id,
+          open_mic_id: mic.uniqueIdentifier,
+          schedule_type: 'upcoming',
+        },
+      ]);
+      if (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to add to your schedule.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Added to Schedule',
+          description: 'This open mic has been added to your schedule.',
+        });
+      }
+    } catch (e) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+    }
 
+    // Optionally call the old onAddToSchedule logic
     if (onAddToSchedule) {
+      const event = generateCalendarEvent();
+      const showData = {
+        title: mic.openMic,
+        venue: mic.venueName,
+        location: mic.location,
+        date: event.date,
+        time: mic.startTime,
+        status: 'upcoming' as const,
+        notes: `Open mic - ${mic.cost} - ${mic.stageTime} stage time`
+      };
       onAddToSchedule(showData);
     }
   };
@@ -261,7 +293,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
                 </div>
                 
                 {!user && (
-                  <Button onClick={() => navigate('/auth')} size="sm" className="bg-papaya hover:bg-papaya/80">
+                  <Button onClick={() => navigate('/auth')} size="sm" className="bg-orange-500 hover:bg-orange-600">
                     <LogIn className="h-4 w-4 mr-2" />
                     Sign In to Rate
                   </Button>

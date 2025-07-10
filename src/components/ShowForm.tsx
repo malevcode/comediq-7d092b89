@@ -14,9 +14,9 @@ interface ShowFormProps {
     venue: string;
     date: Date;
     time: string;
-    status: 'upcoming' | 'completed' | 'cancelled';
-    notes?: string;
     borough: string;
+    notes?: string;
+    anonymous?: boolean;
   }) => void;
   onCancel: () => void;
   initialData?: {
@@ -24,9 +24,11 @@ interface ShowFormProps {
     venue: string;
     date: string | Date;
     time: string;
-    status: 'upcoming' | 'completed' | 'cancelled';
-    notes?: string;
     borough?: string;
+    notes?: string;
+    neighborhood?: string;
+    status?: 'upcoming' | 'cancelled' | 'completed';
+    anonymous?: boolean;
   };
   onDelete?: () => void;
   showDelete?: boolean;
@@ -48,9 +50,11 @@ const ShowForm = ({ onSubmit, onCancel, initialData, onDelete, showDelete }: Sho
     venue: initialData?.venue || '',
     date: initialData?.date ? (typeof initialData.date === 'string' ? initialData.date : new Date(initialData.date).toISOString().slice(0, 10)) : '',
     time: initialData?.time ? to24Hour(initialData.time) : '',
-    status: (initialData?.status as 'upcoming' | 'cancelled' | 'completed') || 'upcoming',
-    notes: initialData?.notes || '',
     borough: initialData?.borough || '',
+    notes: initialData?.notes || '',
+    neighborhood: initialData?.neighborhood || '',
+    status: (initialData?.status as 'upcoming' | 'cancelled' | 'completed') || 'upcoming',
+    anonymous: initialData?.anonymous || false,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -61,7 +65,8 @@ const ShowForm = ({ onSubmit, onCancel, initialData, onDelete, showDelete }: Sho
 
     onSubmit({
       ...formData,
-      date: new Date(formData.date)
+      date: new Date(formData.date),
+      anonymous: formData.anonymous,
     });
   };
 
@@ -71,8 +76,8 @@ const ShowForm = ({ onSubmit, onCancel, initialData, onDelete, showDelete }: Sho
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>{initialData ? 'Edit Show' : 'Add New Show'}</CardTitle>
-              <CardDescription>{initialData ? 'Edit the details of your comedy show' : 'Schedule a new comedy show'}</CardDescription>
+              <CardTitle>Request New Show</CardTitle>
+              <CardDescription>Request a new comedy show to be added</CardDescription>
             </div>
             <Button variant="ghost" size="sm" onClick={onCancel}>
               <X className="w-4 h-4" />
@@ -107,7 +112,7 @@ const ShowForm = ({ onSubmit, onCancel, initialData, onDelete, showDelete }: Sho
               <Label htmlFor="borough">Borough</Label>
               <select
                 id="borough"
-                className="block w-full border border-gray-300 rounded px-2 py-1"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm bg-white"
                 value={formData.borough}
                 onChange={(e) => setFormData({ ...formData, borough: e.target.value })}
                 required
@@ -143,24 +148,6 @@ const ShowForm = ({ onSubmit, onCancel, initialData, onDelete, showDelete }: Sho
                 />
               </div>
             </div>
-
-            <div>
-              <Label htmlFor="status">Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => setFormData({ ...formData, status: value as 'upcoming' | 'cancelled' | 'completed' })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="z-[120]">
-                  <SelectItem value="upcoming">Upcoming</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <div>
               <Label htmlFor="notes">Notes (Optional)</Label>
               <Textarea
@@ -171,10 +158,20 @@ const ShowForm = ({ onSubmit, onCancel, initialData, onDelete, showDelete }: Sho
                 rows={3}
               />
             </div>
+            <div className="flex items-center gap-2 pt-2">
+              <input
+                id="anonymous"
+                type="checkbox"
+                checked={formData.anonymous}
+                onChange={e => setFormData({ ...formData, anonymous: e.target.checked })}
+                className="h-4 w-4 border-gray-300 rounded"
+              />
+              <Label htmlFor="anonymous" className="text-xs font-normal text-gray-600">Submit anonymously (you won't be notified when the show gets added)</Label>
+            </div>
 
             <div className="flex gap-2 pt-4 items-center">
               <Button type="submit" className="flex-1 bg-orange-500 hover:bg-orange-600">
-                {initialData ? 'Save Changes' : 'Add Show'}
+                Request Show
               </Button>
               {showDelete && onDelete && (
                 <Button

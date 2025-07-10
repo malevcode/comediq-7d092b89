@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -22,7 +21,7 @@ const Auth = () => {
 
   useEffect(() => {
     if (user) {
-      navigate('/open-mics');
+      navigate('/create');
     }
   }, [user, navigate]);
 
@@ -60,7 +59,7 @@ const Auth = () => {
             : "You've been signed in successfully.",
         });
         if (!isSignUp) {
-          navigate('/open-mics');
+          navigate('/create');
         } else {
           navigate('/auth');
         }
@@ -81,7 +80,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/open-mics`
+          redirectTo: `${window.location.origin}/create`
         }
       });
 
