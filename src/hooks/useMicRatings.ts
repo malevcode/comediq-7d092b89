@@ -65,6 +65,7 @@ export const useMicRatings = (micUniqueIdentifier?: string) => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['micRating', variables.micUniqueIdentifier] });
       queryClient.invalidateQueries({ queryKey: ['micRatingCounts', variables.micUniqueIdentifier] });
+      queryClient.invalidateQueries({ queryKey: ['userLikedMics', user?.id] });
       toast({
         title: variables.rating === 'like' ? 'Liked!' : 'Disliked!',
         description: `You ${variables.rating}d this open mic.`,
@@ -95,6 +96,7 @@ export const useMicRatings = (micUniqueIdentifier?: string) => {
     onSuccess: (_, micUniqueIdentifier) => {
       queryClient.invalidateQueries({ queryKey: ['micRating', micUniqueIdentifier] });
       queryClient.invalidateQueries({ queryKey: ['micRatingCounts', micUniqueIdentifier] });
+      queryClient.invalidateQueries({ queryKey: ['userLikedMics', user?.id] });
       toast({
         title: 'Rating removed',
         description: 'Your rating has been removed.',
