@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  signUp: (email: string, password: string, username?: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, username?: string, phone?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   loading: boolean;
@@ -48,22 +48,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, username?: string) => {
-    // Get the current domain - works for both localhost and production
-    const currentUrl = window.location.origin;
-    
-    const { error } = await supabase.auth.signUp({
+  const signUp = async (
+    email: string,
+    password: string,
+    username?: string,
+    phone?: string
+  ): Promise<{ error: Error | null }> => {
+    // 0️⃣ PRE-CHECK username uniqueness
+    if (username) {
+      const { count, error: countError } = await supabase
+        .from('profiles')
+        .select('*', { head: true, count: 'exact' })
+        .eq('username', username);
+  
+      if (countError) {
+        return { error: new Error(countError.message) };
+      }
+      if (count! > 0) {
+        return { error: new Error('That username is already taken.') };
+      }
+    }
+  
+    // 1️⃣ sign up in Auth…
+    const { data: { user }, error: signUpErr } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        // Don't require email confirmation for now - makes testing easier
-        emailRedirectTo: `${currentUrl}/open-mics`,
-        data: {
-          username: username || email.split('@')[0]
-        }
+        emailRedirectTo: `${window.location.origin}/open-mics`,
+        data: { username: username || email.split('@')[0], ...(phone ? { phone } : {}) }
       }
     });
-    return { error };
+    if (signUpErr || !user) {
+      return { error: new Error(signUpErr?.message || 'Signup failed') };
+    }
+  
+    // 2️⃣ upsert your profile
+    const { error: profileErr, status } = await supabase
+      .from('profiles')
+      .upsert(
+        { user_id: user.id, username: username || email.split('@')[0], phone: phone ?? null },
+        { onConflict: 'user_id' }
+      );
+    if (profileErr) {
+      if (status === 409) {
+        return { error: new Error('That username is already taken.') };
+      }
+      return { error: new Error(profileErr.message) };
+    }
+  
+    // 3️⃣ success
+    return { error: null };
   };
 
   const signIn = async (email: string, password: string) => {
