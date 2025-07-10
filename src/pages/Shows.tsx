@@ -139,9 +139,9 @@ const Shows = () => {
     );
   };
 
-  // const deleteShow = (id: string) => {
-  //   setShows(shows.filter(show => show.id !== id));
-  // };
+  const onDeleteShow = (id: string) => {
+    setMappedShowNotes(shows => shows.filter(show => show.id !== id));
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
@@ -185,26 +185,6 @@ const Shows = () => {
                   </Button>
                 </div>
                 <div className="hidden sm:flex items-center gap-2">
-                  <Button 
-                    onClick={() => setShowHelp(!showHelp)} 
-                    variant="outline" 
-                    size="sm"
-                    className="flex items-center gap-1 text-xs px-3 py-1"
-                  >
-                    <HelpCircle className="h-3 w-3" />
-                    <span>Help</span>
-                  </Button>
-                  <Button 
-                    onClick={() => setShowFilters(!showFilters)} 
-                    variant="outline" 
-                    size="sm"
-                    className="flex items-center gap-1 text-xs px-3 py-1"
-                  >
-                    <Filter className="h-3 w-3" />
-                    <span>Filters</span>
-                  </Button>
-                </div>
-                <div className="hidden sm:flex items-center gap-2">
                   {user ? (
                     <span className="text-xs text-gray-600">Welcome back!</span>
                   ) : (
@@ -223,39 +203,25 @@ const Shows = () => {
                 </div>
               </div>
             </div>
-            <div className="max-w-7xl mx-auto px-4">
-              <button
-                className="appearance-none cursor-pointer bg-red-50 border border-red-200 rounded-lg p-2 mb-4 relative w-full text-left flex flex-col hover:bg-red-100 transition font-semibold text-xs text-red-800 gap-1 outline-none"
-                aria-label={showInstructions ? 'Collapse instructions' : 'Expand instructions'}
-                onClick={() => setShowInstructions(e => !e)}
-                type="button"
-              >
-                <span className="flex items-center gap-1">
-                  <span>Demo Only</span>
-                  <ChevronDown
-                    className={`w-4 h-4 ml-auto transition-transform duration-200 ${showInstructions ? 'rotate-180' : ''}`}
-                  />
-                </span>
-                {showInstructions && (
-                  <div
-                    className="text-xs text-red-700 break-words mt-2 font-normal select-text cursor-text"
-                    onClick={e => e.stopPropagation()}
-                  >
-                    This is just a demonstration. Data entered here will not be saved permanently.
-                  </div>
-                )}
-              </button>
-            </div>
           </div>
         </div>
       </div>
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <ShowNotepad 
-          shows={mappedShowNotes}
-          onAddShow={() => {}}
-          onUpdateShow={onUpdateShow}
-          onDeleteShow={() => {}}
-        />
+        {user ? (
+          <ShowNotepad 
+            shows={mappedShowNotes}
+            onAddShow={() => {}}
+            onUpdateShow={onUpdateShow}
+            onDeleteShow={onDeleteShow}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12">
+            <p className="text-lg text-gray-700 mb-4">Sign in to view and manage your show schedule.</p>
+            <Button onClick={() => navigate('/auth')} className="bg-orange-500 hover:bg-orange-600 text-base px-6 py-2">
+              <LogIn className="h-4 w-4 mr-2" /> Sign In
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

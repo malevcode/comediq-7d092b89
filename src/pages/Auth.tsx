@@ -20,7 +20,7 @@ const Auth = () => {
 
   useEffect(() => {
     if (user) {
-      navigate('/open-mics');
+      navigate('/create');
     }
   }, [user, navigate]);
 
@@ -47,7 +47,7 @@ const Auth = () => {
             : "You've been signed in successfully.",
         });
         if (!isSignUp) {
-          navigate('/open-mics');
+          navigate('/create');
         } else {
           // For sign up, redirect immediately since we're not requiring email confirmation
           navigate('/auth');
@@ -69,7 +69,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/open-mics`
+          redirectTo: `${window.location.origin}/create`
         }
       });
 
