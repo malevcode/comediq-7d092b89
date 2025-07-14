@@ -415,7 +415,7 @@ const OpenMics = () => {
 
                 <div className="flex flex-col">
                   {/* Mobile controls - help and filters buttons moved here */}
-                  <div className="flex flex-row">
+                  <div className="flex items-start gap-2">
                     <div className="sm:hidden flex items-center gap-2">
                       <Button 
                         onClick={() => setShowMobileKey(!showMobileKey)} 
