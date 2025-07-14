@@ -355,44 +355,10 @@ const OpenMics = () => {
               <div className="flex-1 min-w-0">
                 <h1 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Find Open Mics</h1>
                 <p className="text-xs text-gray-600">Discover comedy open mics across NYC</p>
-                
-                {/* Mobile auth section */}
-                <div className="mt-2 sm:hidden">
-                  {user ? (
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-600">Welcome back!</span>
-                    </div>
-                  ) : (
-                    <Button onClick={() => navigate('/auth')} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-1.5">
-                      <LogIn className="h-3 w-3 mr-1" />
-                      Sign In to Like Mics
-                    </Button>
-                  )}
-                </div>
               </div>
               
               {/* Right side with buttons and character */}
               <div className="flex items-start gap-2">
-                {/* Mobile controls - help and filters buttons moved here */}
-                <div className="sm:hidden flex items-center gap-2">
-                  <Button 
-                    onClick={() => setShowMobileKey(!showMobileKey)} 
-                    variant="outline" 
-                    size="sm"
-                    className="flex items-center gap-1 text-xs px-2 py-1"
-                  >
-                    <HelpCircle className="h-3 w-3" />
-                  </Button>
-                  <Button 
-                    onClick={() => setShowFilters(!showFilters)} 
-                    variant="outline" 
-                    size="sm"
-                    className="flex items-center gap-1 text-xs px-2 py-1"
-                  >
-                    <Filter className="h-3 w-3" />
-                  </Button>
-                </div>
-
                 {/* Desktop controls - help and filters buttons */}
                 <div className="hidden sm:flex items-center gap-2">
                   <Button 
@@ -416,9 +382,29 @@ const OpenMics = () => {
                 </div>
 
                 {/* Desktop auth section - moved here */}
-                <div className="hidden sm:flex items-center gap-2">
+                <div className="hidden sm:flex flex-col w-full items-end gap-2">
                   {user ? (
-                    <span className="text-xs text-gray-600">Welcome back!</span>
+                    <>
+                      <span className="text-xs text-gray-600">
+                        Welcome back
+                        {user.user_metadata?.username
+                          ? ` ${user.user_metadata.username}!`
+                          : '!'}
+                      </span>
+                      <div className="flex justify-end w-full">
+                        <Button
+                          onClick={async () => {
+                            await signOut();
+                            navigate('/');
+                          }}
+                          size="sm"
+                          variant="outline"
+                          className="mt-1 text-xs px-2 py-1"
+                        >
+                          Sign Out
+                        </Button>
+                      </div>
+                    </>
                   ) : (
                     <Button onClick={() => navigate('/auth')} className="bg-orange-500 hover:bg-orange-600 text-xs px-3 py-1">
                       <LogIn className="h-3 w-3 mr-1" />
@@ -426,16 +412,62 @@ const OpenMics = () => {
                     </Button>
                   )}
                 </div>
-                
-                {/* Comedian character */}
-                <div className="flex-shrink-0">
-                  <img 
-                    src="/lovable-uploads/ed025a0f-85b1-4f87-8235-673628f9ffdb.png" 
-                    alt="Find Mics Comedian Character" 
-                    className="w-16 h-16 sm:w-20 sm:h-20 object-contain" 
-                  />
+
+                <div className="flex flex-col">
+                  {/* Mobile controls - help and filters buttons moved here */}
+                  <div className="flex flex-row">
+                    <div className="sm:hidden flex items-center gap-2">
+                      <Button 
+                        onClick={() => setShowMobileKey(!showMobileKey)} 
+                        variant="outline" 
+                        size="sm"
+                        className="flex items-center gap-1 text-xs px-2 py-1"
+                      >
+                        <HelpCircle className="h-3 w-3" />
+                      </Button>
+
+                    </div>
+                  
+                    {/* Comedian character */}
+                    <div className="flex-shrink-0">
+                      <img 
+                        src="/lovable-uploads/ed025a0f-85b1-4f87-8235-673628f9ffdb.png" 
+                        alt="Find Mics Comedian Character" 
+                        className="w-16 h-16 sm:w-20 sm:h-20 object-contain" 
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
+            {/* Mobile auth section (moved below buttons and character) */}
+            <div className="mt-2 sm:hidden w-full">
+              {user ? (
+                <div className="flex flex-row w-full items-center justify-end gap-2">
+                  <span className="text-xs text-gray-600">
+                    Welcome back
+                    {user.user_metadata?.username
+                      ? ` ${user.user_metadata.username}!`
+                      : '!'}
+                  </span>
+                  <Button
+                    onClick={async () => {
+                      await signOut();
+                      navigate('/');
+                    }}
+                    size="sm"
+                    variant="outline"
+                    className="mt-1 text-xs px-2 py-1 self-end"
+                  >
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <Button onClick={() => navigate('/auth')} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-1.5">
+                  <LogIn className="h-3 w-3 mr-1" />
+                  Sign In to Like Mics
+                </Button>
+              )}
             </div>
 
             {/* Desktop Key/Legend Section */}

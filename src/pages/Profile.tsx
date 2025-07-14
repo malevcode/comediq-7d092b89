@@ -11,7 +11,7 @@ const Profile = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { data: likedMicIds = [] } = useUserLikedMics();
-  const { data: openMics = [] } = useOpenMics();
+  const { data: openMics = [] } = useOpenMics('open_mics_historical');
 
   useEffect(() => {
     if (!user) {
@@ -34,9 +34,9 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
       {/* Header */}
-      <div className="bg-white border-b border-orange-100">
+      <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -44,7 +44,7 @@ const Profile = () => {
                 <User className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{user.user_metadata?.username ? user.user_metadata.username : 'My Profile'}</h1>
                 <p className="text-gray-600">{user.email}</p>
               </div>
             </div>
