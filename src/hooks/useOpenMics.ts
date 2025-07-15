@@ -3,14 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic } from "@/types/openMic";
 
-export const useOpenMics = () => {
+export const useOpenMics = (tableName: 'open_mics_july' | 'open_mics_historical' = 'open_mics_july') => {
   return useQuery({
-    queryKey: ["openMics"],
+    queryKey: ["openMics", tableName],
     queryFn: async (): Promise<OpenMic[]> => {
-      console.log("Fetching open mics from Supabase...");
-      
+      console.log(`Fetching open mics from Supabase table: ${tableName}...`);
       const { data, error } = await supabase
-        .from("open_mics_july")
+        .from(tableName)
         .select("*");
 
       if (error) {
@@ -22,7 +21,7 @@ export const useOpenMics = () => {
       console.log("Number of records fetched:", data?.length || 0);
 
       if (!data || data.length === 0) {
-        console.warn("No data returned from open_mics table");
+        console.warn(`No data returned from ${tableName} table`);
         return [];
       }
 
@@ -47,7 +46,6 @@ export const useOpenMics = () => {
           otherRules: row["Other Rules"] || "",
           uniqueIdentifier: row["unique_identifier"] || ""
         };
-        
         return mapped;
       });
 
