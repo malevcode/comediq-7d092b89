@@ -5,12 +5,12 @@ import TrackSets from "./TrackSets";
 import Shows from "./Shows";
 import { useLocation } from 'react-router-dom';
 import ProgressTrackerPage from "./ProgressTracker";
+import { useTabContext } from "@/contexts/TabContext";
 
 const Create = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const initialTab = params.get('tab') || 'find-mics';
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const { activeTab, setActiveTab } = useTabContext();
   const [trackSetsTab, setTrackSetsTab] = useState("coming-soon");
 
   // Store scroll positions for each tab
@@ -20,13 +20,17 @@ const Create = () => {
     'track-sets': 0
   });
 
+  // On mount, sync tab with query param if present
+  useEffect(() => {
+    const tabParam = params.get('tab');
+    if (tabParam) setActiveTab(tabParam);
+  }, [location.search, setActiveTab]);
+
   // Save current scroll position before tab change
   useEffect(() => {
     const saveScrollPosition = () => {
       scrollPositions.current[activeTab as keyof typeof scrollPositions.current] = window.scrollY;
     };
-
-    // Save scroll position when tab is about to change
     return saveScrollPosition;
   }, [activeTab]);
 
@@ -38,7 +42,6 @@ const Create = () => {
         window.scrollTo(0, savedPosition);
       });
     };
-
     restoreScrollPosition();
   }, [activeTab]);
 
