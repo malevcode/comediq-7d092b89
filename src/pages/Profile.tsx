@@ -5,19 +5,22 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { User, Heart, MapPin, Clock } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import MicDetailModal from '@/components/MicDetailModal';
+import { OpenMic } from '@/types/openMic';
 
 const Profile = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const { data: likedMicIds = [] } = useUserLikedMics();
   const { data: openMics = [] } = useOpenMics('open_mics_historical');
+  const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !user) {
       navigate('/auth');
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
   if (!user) {
     return null;
@@ -103,7 +106,11 @@ const Profile = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {likedMics.map((mic, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow">
+                <Card
+                  key={index}
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => setSelectedMic(mic)}
+                >
                   <CardContent className="p-4">
                     <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">
                       {mic.openMic}
@@ -131,6 +138,12 @@ const Profile = () => {
           )}
         </div>
       </div>
+      {selectedMic && (
+        <MicDetailModal
+          mic={selectedMic}
+          onClose={() => setSelectedMic(null)}
+        />
+      )}
     </div>
   );
 };
