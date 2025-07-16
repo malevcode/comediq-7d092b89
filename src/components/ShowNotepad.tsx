@@ -7,6 +7,8 @@ import { Plus, Save, Trash2, MapPin, Calendar, Clock, Users, Star, CircleAlert, 
 import ShowForm from "./ShowForm";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useNavigate, useLocation } from "react-router-dom";
+import { useTabContext } from "@/contexts/TabContext";
 
 interface ShowNote {
   id: string;
@@ -206,6 +208,9 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>("");
   const [editStatus, setEditStatus] = useState<ShowNote['status'] | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { setActiveTab } = useTabContext();
 
 
   // Handler for opening modal to add
@@ -254,6 +259,20 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
       {/* Upcoming Shows Section Header Row: Upcoming Shows + Add Show Button */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Upcoming Shows</h2>
+        <Button
+          size="sm"
+          className="bg-papaya text-white hover:bg-papaya/80 flex items-center justify-center gap-2"
+          onClick={() => {
+            if (location.pathname === "/create") {
+              setActiveTab("find-mics");
+            } else {
+              navigate("/create?tab=find-mics");
+            }
+          }}
+        >
+          <Plus className="w-4 h-4" />
+          Add Show
+        </Button>
       </div>
       {/* Upcoming Shows Section */}
       <div>

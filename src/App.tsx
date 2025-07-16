@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import BottomNavigation from "./components/BottomNavigation";
 import ScrollToTop from "./components/ScrollToTop";
 import ProgressTrackerPage from "./pages/ProgressTracker";
+import { TabProvider } from "@/contexts/TabContext";
 import AdminTest from "./pages/Admintest"; // FOR TESTING, REMOVE LATER
 
 const queryClient = new QueryClient();
@@ -30,7 +31,7 @@ const App = () => (
           <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/create" element={<Create />} />
+            <Route path="/create" element={<TabProvider><Create /></TabProvider>} />
             <Route path="/consume" element={<Consume />} />
             <Route path="/open-mics" element={<OpenMics />} />
             <Route path="/track-sets" element={<ProgressTrackerPage />} />

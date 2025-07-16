@@ -7,7 +7,7 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 export default function ProgressTrackerPage() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
   return (
@@ -20,26 +20,33 @@ export default function ProgressTrackerPage() {
               <div className="flex-1 min-w-0">
                 <h1 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Progress Tracker</h1>
                 <p className="text-xs text-gray-600">Track your comedy journey and improve your craft</p>
-                {/* Mobile auth section */}
-                <div className="mt-2 sm:hidden">
-                  {user ? (
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-600">Welcome back!</span>
-                    </div>
-                  ) : (
-                    <Button onClick={() => navigate('/auth')} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-1.5">
-                      <LogIn className="h-3 w-3 mr-1" />
-                      Sign In
-                    </Button>
-                  )}
-                </div>
               </div>
               {/* Right side: only auth and character */}
               <div className="flex items-start gap-2">
-                {/* Desktop auth section */}
-                <div className="hidden sm:flex items-center gap-2">
+                {/* Desktop auth section (edit only) */}
+                <div className="hidden sm:flex flex-col w-full items-end gap-2">
                   {user ? (
-                    <span className="text-xs text-gray-600">Welcome back!</span>
+                    <>
+                      <span className="text-xs text-gray-600">
+                        Welcome back
+                        {user.user_metadata?.username
+                          ? ` ${user.user_metadata.username}!`
+                          : '!'}
+                      </span>
+                      <div className="flex justify-end w-full">
+                        <Button
+                          onClick={async () => {
+                            await signOut();
+                            navigate('/');
+                          }}
+                          size="sm"
+                          variant="outline"
+                          className="mt-1 text-xs px-2 py-1"
+                        >
+                          Sign Out
+                        </Button>
+                      </div>
+                    </>
                   ) : (
                     <Button onClick={() => navigate('/auth')} className="bg-orange-500 hover:bg-orange-600 text-xs px-3 py-1">
                       <LogIn className="h-3 w-3 mr-1" />
@@ -57,6 +64,35 @@ export default function ProgressTrackerPage() {
                 </div>
               </div>
             </div>
+            {/* Mobile auth section (edit only) */}
+            <div className="mt-2 sm:hidden w-full">
+                  {user ? (
+                    <div className="flex flex-row w-full items-center justify-end gap-2">
+                      <span className="text-xs text-gray-600">
+                        Welcome back
+                        {user.user_metadata?.username
+                          ? ` ${user.user_metadata.username}!`
+                          : '!'}
+                      </span>
+                      <Button
+                        onClick={async () => {
+                          await signOut();
+                          navigate('/');
+                        }}
+                        size="sm"
+                        variant="outline"
+                        className="mt-1 text-xs px-2 py-1 self-end"
+                      >
+                        Sign Out
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button onClick={() => navigate('/auth')} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-1.5">
+                      <LogIn className="h-3 w-3 mr-1" />
+                      Sign In to Like Mics
+                    </Button>
+                  )}
+                </div>
             {/* Instructions dropdown styled to match Show Scheduler */}
             <div className="max-w-7xl mx-auto px-4">
               <button
