@@ -7,7 +7,7 @@ import { useLocation } from 'react-router-dom';
 import ProgressTrackerPage from "./ProgressTracker";
 import { useTabContext } from "@/contexts/TabContext";
 
-const Create = () => {
+const Perform = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const { activeTab, setActiveTab } = useTabContext();
@@ -74,4 +74,4 @@ const Create = () => {
   );
 };
 
-export default Create;
+export default Perform;

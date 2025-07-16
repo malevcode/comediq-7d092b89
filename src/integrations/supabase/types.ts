@@ -385,6 +385,19 @@ export type Database = {
         }
         Relationships: []
       },
+      user_visits: {
+        Row: {
+          id: string
+          user_id: string
+          visit_date: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          visit_date?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       mic_like_counts: {

@@ -263,10 +263,10 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
           size="sm"
           className="bg-papaya text-white hover:bg-papaya/80 flex items-center justify-center gap-2"
           onClick={() => {
-            if (location.pathname === "/create") {
+            if (location.pathname === "/perform") {
               setActiveTab("find-mics");
             } else {
-              navigate("/create?tab=find-mics");
+              navigate("/perform?tab=find-mics");
             }
           }}
         >
