@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import BottomNavigation from "./components/BottomNavigation";
 import ScrollToTop from "./components/ScrollToTop";
 import ProgressTrackerPage from "./pages/ProgressTracker";
+import AdminTest from "./pages/Admintest"; // FOR TESTING, REMOVE LATER
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/shows" element={<Shows />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/admintest" element={<AdminTest />} /* FOR TESTING, REMOVE LATER */ /> 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
