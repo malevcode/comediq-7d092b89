@@ -7,21 +7,21 @@ const Features = () => {
       title: "Open Mic Finder",
       description: "A real-time directory of NYC open mics, verified by hosts via SMS, searchable by day and location.",
       mascotImage: "/lovable-uploads/c8d06f54-cc90-4a76-b9f9-35c2804c5940.png",
-      link: "/create?tab=find-mics"
+      link: "/perform?tab=find-mics"
     },
     {
       emoji: "📆",
       title: "Calendar & Booking Tools",
       description: "Manage gigs, fliers, footage, and bookings in one place.",
       mascotImage: "/lovable-uploads/fd1b1a3e-150b-47cc-a11d-55ca99ec75bb.png",
-      link: "/create?tab=show-scheduler"
+      link: "/perform?tab=show-scheduler"
     },
     {
       emoji: "🏆",
       title: "Progress Tracker",
       description: "A gamified system to track your growth, audience reactions, and unlock milestones.",
       mascotImage: "/lovable-uploads/05168ab8-2327-4ef4-90ca-54c3f66da85c.png",
-      link: "/create?tab=track-sets"
+      link: "/perform?tab=track-sets"
     },
     {
       emoji: "🎥",

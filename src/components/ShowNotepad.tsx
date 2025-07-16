@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Save, Trash2, MapPin, Calendar, Clock, Users, Star, CircleAlert, CircleCheckBig, Pencil } from "lucide-react";
+import { Plus, Save, Trash2, MapPin, Calendar, Clock, Users, Star, CircleAlert, CircleCheckBig, Pencil, Search } from "lucide-react";
 import ShowForm from "./ShowForm";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -259,20 +259,36 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
       {/* Upcoming Shows Section Header Row: Upcoming Shows + Add Show Button */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Upcoming Shows</h2>
-        <Button
-          size="sm"
-          className="bg-papaya text-white hover:bg-papaya/80 flex items-center justify-center gap-2"
-          onClick={() => {
-            if (location.pathname === "/create") {
-              setActiveTab("find-mics");
-            } else {
-              navigate("/create?tab=find-mics");
-            }
-          }}
-        >
-          <Plus className="w-4 h-4" />
-          Add Show
-        </Button>
+        <div className="flex flex-row gap-2">
+          <Button
+            size="sm"
+            className="bg-white text-black border hover:bg-gray/80 flex items-center justify-center gap-2"
+            onClick={() => {
+              if (location.pathname === "/perform") {
+                setActiveTab("find-mics");
+              } else {
+                navigate("/perform?tab=find-mics");
+              }
+            }}
+          >
+            <Plus className="w-4 h-4" />
+            Add a Custom Show
+          </Button>
+          <Button
+            size="sm"
+            className="bg-papaya text-white hover:bg-papaya/80 flex items-center justify-center gap-2"
+            onClick={() => {
+              if (location.pathname === "/perform") {
+                setActiveTab("find-mics");
+              } else {
+                navigate("/perform?tab=find-mics");
+              }
+            }}
+          >
+            <Search className="w-4 h-4" />
+            Find Shows
+          </Button>
+        </div>
       </div>
       {/* Upcoming Shows Section */}
       <div>

@@ -1,4 +1,4 @@
-import { Calendar, Clock, Users, DollarSign, Star, MapPin, CircleUser, CircleAlert, CircleCheckBig, ArrowUp, ChevronDown, ChevronUp } from "lucide-react";
+import { Calendar, Clock, Users, DollarSign, Star, MapPin, CircleUser, CircleAlert, CircleCheckBig, ArrowUp, ChevronDown, ChevronUp, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
 import { useMicRatings } from "@/hooks/useMicRatings";
@@ -107,7 +107,7 @@ function getGoogleCalendarUrl(mic: OpenMic) {
 }
 
 function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void }) {
-  const { userRating, ratingCounts } = useMicRatings(mic.uniqueIdentifier);
+  const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(mic.uniqueIdentifier);
   const [expanded, setExpanded] = useState(false);
   const { user } = useAuth();
   // Helper to get first line or summary
@@ -149,6 +149,24 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
               }
             </span>
           </span>
+          {/* Like Button to the right of mic name and status */}
+          <Button
+            className={`flex items-center justify-center rounded-3xl px-2 text-sm transition-all
+              ${userRating === 'like'
+                ? 'bg-pink-50 hover:bg-pink-100 border-pink-300'
+                : 'bg-white border-gray-300 hover:bg-gray-100'} text-gray-700`}
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              if (userRating === 'like') removeRating(mic.uniqueIdentifier);
+              else rateMic({ micUniqueIdentifier: mic.uniqueIdentifier, rating: 'like' });
+            }}
+            disabled={isRating}
+            aria-label={userRating === 'like' ? 'Unlike' : 'Like'}
+          >
+            <Heart className={`w-4 h-4 ${userRating === 'like' ? 'fill-red-400 text-red-400' : ''}`} />
+            <span className="mr-1 text-sm text-gray-600">{ratingCounts?.likes || 0}</span>
+          </Button>
         </div>
         <div className="text-sm text-gray-500">
           <span className="flex items-center gap-1"><MapPin className="w-3 h-3 flex-shrink-0" />{mic.venueName}, {mic.neighborhood}</span>
