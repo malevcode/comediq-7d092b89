@@ -6,13 +6,14 @@ import { MicVocal } from "lucide-react";
 
 const BottomNavigation = () => {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
     { path: "/create", icon: MicVocal, label: "Peform" },
     { path: "/consume", icon: Eye, label: "Laugh" },
-    ...(user ? [{ path: "/profile", icon: User, label: "Profile" }] : [])
+    ...(user ? [{ path: "/profile", icon: User, label: "Profile" }] : []),
+    ...(isAdmin ? [{ path: "/admintest", icon: Book, label: "Admin" }] : [])
   ];
 
   return (
