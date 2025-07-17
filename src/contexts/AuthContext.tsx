@@ -10,6 +10,8 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   loading: boolean;
+  visitInserted: boolean;
+  resetVisitInserted: () => void;
   isAdmin: boolean;
 }
 
@@ -27,6 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [visitInserted, setVisitInserted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -127,8 +130,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email,
       password,
     });
+    // Record visit if login successful and user is available
+    if (!error) {
+      // Wait for user state to update
+      setTimeout(async () => {
+        const currentUser = supabase.auth.getUser ? (await supabase.auth.getUser()).data.user : null;
+        const userId = currentUser?.id || user?.id;
+        if (userId) {
+          const visitDate = new Date().toISOString();
+          console.log('Inserting user_visits:', { userId, visitDate });
+          const { error: insertError, data: insertData } = await supabase
+            .from('user_visits')
+            .insert([{ user_id: userId, visit_date: visitDate }]);
+          if (insertError) {
+            console.error('user_visits insert error:', insertError);
+          } else {
+            console.log('user_visits insert success:', insertData);
+            setVisitInserted(true); // Trigger visitInserted
+          }
+        }
+      }, 500);
+    }
     return { error };
   };
+
+  // Function to reset visitInserted after Home refetches
+  const resetVisitInserted = () => setVisitInserted(false);
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -142,6 +169,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signOut,
     loading,
+    visitInserted,
+    resetVisitInserted,
     isAdmin,
   };
 

@@ -5,8 +5,11 @@ import Hero from "@/components/Hero";
 import Features from "@/components/Features";
 import Pricing from "@/components/Pricing";
 import WaitlistForm from "@/components/WaitlistForm";
+import { useAuth } from "@/contexts/AuthContext";
+import Home from "@/components/Home";
 
 const Index = () => {
+  const { user, loading } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -32,10 +35,16 @@ const Index = () => {
     <div className="min-h-screen pb-20">
       <Navigation />
       <div className="pt-20">
-        <Hero />
-        <Features />
-        <Pricing />
-        <WaitlistForm />
+        {/* {loading ? null : user ? (
+          <Home />
+        ) : ( */}
+          <>
+            <Hero />
+            <Features />
+            <Pricing />
+            <WaitlistForm />
+          </>
+        {/* )} */}
       </div>
     </div>
   );

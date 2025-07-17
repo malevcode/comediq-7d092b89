@@ -21,7 +21,7 @@ const Auth = () => {
 
   useEffect(() => {
     if (user) {
-      navigate('/create');
+      navigate('/');
     }
   }, [user, navigate]);
 
@@ -59,7 +59,7 @@ const Auth = () => {
             : "You've been signed in successfully.",
         });
         if (!isSignUp) {
-          navigate('/create');
+          navigate('/');
         } else {
           navigate('/auth');
         }
@@ -80,7 +80,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/create`
+          redirectTo: `${window.location.origin}/perform`
         }
       });
 

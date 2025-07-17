@@ -8,7 +8,7 @@ import Index from "./pages/Index";
 import OpenMics from "./pages/OpenMics";
 import TrackSets from "./pages/TrackSets";
 import Shows from "./pages/Shows";
-import Create from "./pages/Create";
+import Perform from "./pages/Perform";
 import Consume from "./pages/Consume";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
@@ -31,7 +31,7 @@ const App = () => (
           <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/create" element={<TabProvider><Create /></TabProvider>} />
+            <Route path="/perform" element={<TabProvider><Perform /></TabProvider>} />
             <Route path="/consume" element={<Consume />} />
             <Route path="/open-mics" element={<OpenMics />} />
             <Route path="/track-sets" element={<ProgressTrackerPage />} />
