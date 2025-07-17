@@ -83,11 +83,11 @@ function useUserCompletedShows(userId) {
 }
 
 // Custom hook to fetch user visits for streak calculation
-function useUserVisits(userId) {
+function useUserVisits(userId, refetchTrigger) {
   const [visits, setVisits] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchVisits = () => {
     if (!userId) return;
     setLoading(true);
     supabase
@@ -103,18 +103,32 @@ function useUserVisits(userId) {
         }
         setLoading(false);
       });
-  }, [userId]);
+  };
 
-  return { visits, loading };
+  useEffect(() => {
+    fetchVisits();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, refetchTrigger]);
+
+  return { visits, loading, refetch: fetchVisits };
 }
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, visitInserted, resetVisitInserted } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile(user?.id);
   const { shows: upcomingMics, loading: showsLoading } = useUserShows(user?.id);
   const { completedShows, loading: completedLoading } = useUserCompletedShows(user?.id);
-  const { visits, loading: visitsLoading } = useUserVisits(user?.id);
+  const { visits, loading: visitsLoading, refetch } = useUserVisits(user?.id, visitInserted);
   const navigate = useNavigate();
+
+  // Refetch visits when visitInserted is true, then reset the flag
+  useEffect(() => {
+    if (visitInserted) {
+      refetch();
+      resetVisitInserted();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visitInserted]);
 
   // Fallbacks
   const displayName = profile?.username || user?.email?.split("@")[0] || "Comedian";
@@ -137,24 +151,38 @@ export default function Home() {
   // Calculate streak (consecutive days with a visit)
   let streak = 0;
   if (!visitsLoading && visits.length > 0) {
-    // Extract unique days in YYYY-MM-DD format
+    // Extract unique days in YYYY-MM-DD format, using local time
     const uniqueDays = Array.from(
       new Set(
-        visits.map(v => new Date(v.visit_date).toISOString().slice(0, 10))
+        visits.map(v => {
+          const d = new Date(v.visit_date);
+          // Get local date in YYYY-MM-DD
+          const year = d.getFullYear();
+          const month = (d.getMonth() + 1).toString().padStart(2, '0');
+          const day = d.getDate().toString().padStart(2, '0');
+          //console.log(d.getFullYear(), d.getMonth() + 1, d.getDate()); // Local
+          return `${year}-${month}-${day}`;
+        })
       )
     ).sort((a, b) => b.localeCompare(a)); // Descending
+    //console.log('uniqueDays:', uniqueDays);
     let current = new Date();
+    // Use local date for current
+    current.setHours(0, 0, 0, 0);
     for (let i = 0; i < uniqueDays.length; i++) {
-      const day = new Date(uniqueDays[i]);
+      const [y, m, d] = uniqueDays[i].split('-').map(Number);
+      const day = new Date(y, m - 1, d);
       if (i === 0) {
-        // If the most recent day is today or yesterday, start streak
         const diff = Math.floor((current.getTime() - day.getTime()) / (1000 * 60 * 60 * 24));
+        //console.log(`i=0: current=${current}, day=${day}, diff=${diff}`);
         if (diff > 1) break;
         streak = 1;
         current = day;
       } else {
-        const prevDay = new Date(uniqueDays[i - 1]);
+        const [py, pm, pd] = uniqueDays[i - 1].split('-').map(Number);
+        const prevDay = new Date(py, pm - 1, pd);
         const diff = Math.floor((prevDay.getTime() - day.getTime()) / (1000 * 60 * 60 * 24));
+        //console.log(`i=${i}: prevDay=${prevDay}, day=${day}, diff=${diff}`);
         if (diff === 1) {
           streak++;
           current = day;
@@ -164,6 +192,7 @@ export default function Home() {
       }
     }
   }
+  //console.log('Final streak:', streak);
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-br from-orange-50 to-amber-50">

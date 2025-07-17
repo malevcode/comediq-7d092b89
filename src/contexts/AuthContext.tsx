@@ -10,6 +10,8 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   loading: boolean;
+  visitInserted: boolean;
+  resetVisitInserted: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,6 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [visitInserted, setVisitInserted] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener
@@ -121,12 +124,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('user_visits insert error:', insertError);
           } else {
             console.log('user_visits insert success:', insertData);
+            setVisitInserted(true); // Trigger visitInserted
           }
         }
       }, 500);
     }
     return { error };
   };
+
+  // Function to reset visitInserted after Home refetches
+  const resetVisitInserted = () => setVisitInserted(false);
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -140,6 +147,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signOut,
     loading,
+    visitInserted,
+    resetVisitInserted,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
