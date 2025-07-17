@@ -15,6 +15,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
+import { toast } from '@/components/ui/use-toast';
 
 const OPEN_MIC_FIELDS = [
   'Open Mic', 'Day', 'Start Time', 'Latest End Time', 'Venue Name', 'Borough', 'Neighborhood', 'Location', 'Venue type', 'Cost', 'Stage time', 'Sign-Up Instructions', 'Host(s) / Organizer', 'Changes/updates', 'Last verified', 'SMS', 'Other Rules', 'Help other comics! Leave reviews', 'Formerly verified'
@@ -118,29 +119,47 @@ const AdminTest = () => {
     setSubmitting(true);
     const insertData = { ...formData, unique_identifier: id };
 
-    const { error: julyError } = await supabase
-    .from('open_mics_july')
-    .upsert([insertData], { onConflict: 'unique_identifier' });
-
-    if (julyError) {
-    console.error('❌ Failed to upsert into open_mics_july:', julyError);
-    }
-
+    // Step 1: Upsert into historical FIRST to satisfy foreign key constraint
     const { error: historicalError } = await supabase
-    .from('open_mics_historical')
-    .upsert([insertData], { onConflict: 'unique_identifier' });
+      .from('open_mics_historical')
+      .upsert([insertData], { onConflict: 'unique_identifier' });
 
     if (historicalError) {
-    console.error('❌ Failed to upsert into open_mics_historical:', historicalError);
+      console.error('Failed to upsert into open_mics_historical:', historicalError);
+      setSubmitting(false);
+      return; // Don't proceed if insert fails
     }
 
-    // Mark as reviewed and approved
-    await supabase.from('open_mics_requests').update({ reviewed: true, status: 'approved' }).eq('unique_identifier', id);
-    setMicRequests((prev: any[]) => prev.map((r: any) =>
-      r.unique_identifier === id
-        ? ({ ...r, reviewed: true } as any)
-        : r
-    ));
+    // Step 2: Upsert into July table
+    const { error: julyError } = await supabase
+      .from('open_mics_july')
+      .upsert([insertData], { onConflict: 'unique_identifier' });
+
+    if (julyError) {
+      console.error('Failed to upsert into open_mics_july:', julyError);
+      toast({ title: 'Insert failed', description: 'Could not update active mics.', variant: 'destructive' });
+      setSubmitting(false);
+      return; // Stop if insert fails
+    }
+
+    // Step 3: Mark request as approved
+    const { error: updateError } = await supabase
+      .from('open_mics_requests')
+      .update({ reviewed: true, status: 'approved' })
+      .eq('unique_identifier', id);
+
+    if (updateError) {
+      console.error('Failed to update request status', updateError);
+    }
+
+    setMicRequests((prev: any[]) => 
+      prev.map((r: any) =>
+        r.unique_identifier === id
+          ? ({ ...r, reviewed: true } as any)
+          : r
+      )
+    );
+
     setSubmitting(false);
     setSubmitId(null);
     handleCancel();
