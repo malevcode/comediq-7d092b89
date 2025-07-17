@@ -3,12 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { X } from "lucide-react";
-import { Trash2 } from "lucide-react";
 
-interface ShowFormProps {
+interface AddShowFormProps {
   onSubmit: (show: {
     title: string;
     venue: string;
@@ -30,21 +28,20 @@ interface ShowFormProps {
     status?: 'upcoming' | 'cancelled' | 'completed';
     anonymous?: boolean;
   };
-  onDelete?: () => void;
-  showDelete?: boolean;
 }
 
-function to24Hour(timeStr: string) {
-  if (!timeStr) return "";
-  if (/^\d{2}:\d{2}$/.test(timeStr)) return timeStr; // already 24-hour
-  const [time, modifier] = timeStr.split(" ");
-  let [hours, minutes] = time.split(":").map(Number);
-  if (modifier === "PM" && hours < 12) hours += 12;
-  if (modifier === "AM" && hours === 12) hours = 0;
-  return `${hours.toString().padStart(2, "0")}:${(minutes || 0).toString().padStart(2, "0")}`;
+function to24Hour(time: string) {
+  // If already in 24-hour format, return as is
+  if (!time.match(/am|pm/i)) return time;
+  let [h, m] = time.replace(/am|pm/i, '').split(':');
+  let hour = parseInt(h, 10);
+  const min = m || '00';
+  if (/pm/i.test(time) && hour !== 12) hour += 12;
+  if (/am/i.test(time) && hour === 12) hour = 0;
+  return `${hour.toString().padStart(2, '0')}:${min.padStart(2, '0')}`;
 }
 
-const ShowForm = ({ onSubmit, onCancel, initialData, onDelete, showDelete }: ShowFormProps) => {
+const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
     venue: initialData?.venue || '',
@@ -76,8 +73,8 @@ const ShowForm = ({ onSubmit, onCancel, initialData, onDelete, showDelete }: Sho
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Request New Mic</CardTitle>
-              <CardDescription>Request a new open mic to be added</CardDescription>
+              <CardTitle>Add a Show</CardTitle>
+              <CardDescription>Add a new show to your schedule</CardDescription>
             </div>
             <Button variant="ghost" size="sm" onClick={onCancel}>
               <X className="w-4 h-4" />
@@ -158,39 +155,11 @@ const ShowForm = ({ onSubmit, onCancel, initialData, onDelete, showDelete }: Sho
                 rows={3}
               />
             </div>
-            <div className="flex items-center gap-2 pt-2">
-              <input
-                id="anonymous"
-                type="checkbox"
-                checked={formData.anonymous}
-                onChange={e => setFormData({ ...formData, anonymous: e.target.checked })}
-                className="h-4 w-4 border-gray-300 rounded"
-              />
-              <Label htmlFor="anonymous" className="text-xs font-normal text-gray-600">Submit anonymously (you won't be notified when the show gets added)</Label>
-            </div>
 
             <div className="flex gap-2 pt-4 items-center">
               <Button type="submit" className="flex-1 bg-orange-500 hover:bg-orange-600">
-                Request Show
+                Add Show
               </Button>
-              {showDelete && onDelete && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="icon"
-                  className="ml-auto"
-                  title="Delete show"
-                  onClick={() => {
-                    if (window.confirm('Are you sure you want to delete this show? This cannot be undone.')) {
-                      onDelete();
-                    }
-                  }}
-                >
-                  <span className="sr-only">Delete</span>
-                  <Trash2 className="w-5 h-5" />
-              </Button>
-              )}
-              
             </div>
           </form>
         </CardContent>
@@ -199,4 +168,4 @@ const ShowForm = ({ onSubmit, onCancel, initialData, onDelete, showDelete }: Sho
   );
 };
 
-export default ShowForm;
+export default AddShowForm; 

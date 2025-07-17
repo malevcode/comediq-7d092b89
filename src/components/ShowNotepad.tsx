@@ -4,11 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Save, Trash2, MapPin, Calendar, Clock, Users, Star, CircleAlert, CircleCheckBig, Pencil, Search } from "lucide-react";
-import ShowForm from "./ShowForm";
+import AddShowForm from "./AddShowForm";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTabContext } from "@/contexts/TabContext";
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ShowNote {
   id: string;
@@ -211,6 +212,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
   const navigate = useNavigate();
   const location = useLocation();
   const { setActiveTab } = useTabContext();
+  const { user } = useAuth();
 
 
   // Handler for opening modal to add
@@ -263,13 +265,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
           <Button
             size="sm"
             className="bg-white text-black border hover:bg-gray/80 flex items-center justify-center gap-2"
-            onClick={() => {
-              if (location.pathname === "/perform") {
-                setActiveTab("find-mics");
-              } else {
-                navigate("/perform?tab=find-mics");
-              }
-            }}
+            onClick={handleAddClick}
           >
             <Plus className="w-4 h-4" />
             Add a Custom Show
@@ -344,6 +340,39 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
           )}
         </div>
       </div>
+      {/* ShowForm Modal for Adding Custom Show */}
+      {modalOpen && editShow === null && (
+        <AddShowForm
+          onSubmit={async (show) => {
+            if (!user) return;
+            const customShow = {
+              profile_id: user.id,
+              title: show.title,
+              venue: show.venue,
+              borough: show.borough,
+              date: show.date instanceof Date ? show.date.toISOString() : show.date,
+              notes: show.notes || '',
+              created_at: new Date().toISOString(),
+            };
+            const { error, data } = await supabase.from('profile_custom_shows').insert([customShow]).select();
+            if (error) {
+              toast({
+                title: 'Error',
+                description: error.message || 'Failed to add custom show.',
+                variant: 'destructive',
+              });
+            } else {
+              toast({
+                title: 'Show Added',
+                description: 'Your custom show has been added to your schedule.',
+              });
+              // Optionally update local state/UI here
+              setModalOpen(false);
+            }
+          }}
+          onCancel={() => setModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
