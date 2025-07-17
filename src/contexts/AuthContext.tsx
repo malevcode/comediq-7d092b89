@@ -12,6 +12,7 @@ interface AuthContextType {
   loading: boolean;
   visitInserted: boolean;
   resetVisitInserted: () => void;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [visitInserted, setVisitInserted] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener
@@ -50,6 +52,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Fetch isAdmin from profiles table whenever user changes
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('profiles')
+        .select('isadmin')
+        .eq('user_id', user.id)
+        .single<{ isadmin: boolean }>()
+        .then(({ data, error }) => {
+          if (error || !data) {
+            setIsAdmin(false);
+          } else {
+            setIsAdmin(!!(data as { isadmin: boolean }).isadmin);
+          }
+        });
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user]);
 
   const signUp = async (
     email: string,
@@ -149,6 +171,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
     visitInserted,
     resetVisitInserted,
+    isAdmin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
