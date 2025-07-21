@@ -139,10 +139,12 @@ function ShowCard({ show, editingId, setEditingId, editValue, setEditValue, edit
                         size="sm"
                         variant="ghost"
                         onClick={async () => {
+                          const table = show.type === 'mic' ? 'profile_open_mics' : 'profile_custom_shows';
                           const { error } = await supabase
-                            .from('profile_open_mics')
-                            .update({ notes: editValue, schedule_type: editStatus })
+                            .from(table)
+                            .update({ notes: editValue, schedule_type: editStatus, last_modified: new Date().toISOString() })
                             .eq('id', show.id);
+
                           if (error) {
                             alert('Failed to update notes and schedule type in database!');
                             return;
@@ -345,6 +347,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
         <AddShowForm
           onSubmit={async (show) => {
             if (!user) return;
+            const date_now = new Date().toISOString()     
             const customShow = {
               profile_id: user.id,
               title: show.title,
@@ -352,7 +355,8 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
               borough: show.borough,
               date: show.date instanceof Date ? show.date.toISOString() : show.date,
               notes: show.notes || '',
-              created_at: new Date().toISOString(),
+              created_at: date_now,
+              last_modified: date_now,
             };
             const { error, data } = await supabase.from('profile_custom_shows').insert([customShow]).select();
             if (error) {
