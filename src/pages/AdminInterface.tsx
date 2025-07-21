@@ -16,6 +16,8 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
 import { toast } from '@/components/ui/use-toast';
+import TimePicker from '@/components/ui/TimePicker';
+import DayOfWeekPicker from '@/components/ui/DayOfWeekPicker';
 
 const OPEN_MIC_FIELDS = [
   'Open Mic', 'Day', 'Start Time', 'Latest End Time', 'Venue Name', 'Borough', 'Neighborhood', 'Location', 'Venue type', 'Cost', 'Stage time', 'Sign-Up Instructions', 'Host(s) / Organizer', 'Changes/updates', 'Last verified', 'SMS', 'Other Rules', 'Help other comics! Leave reviews', 'Formerly verified'
@@ -213,11 +215,19 @@ const AdminInterface = () => {
                                 {OPEN_MIC_FIELDS.map((field) => (
                                   <div key={field} className="flex flex-col">
                                     <label className="text-xs font-semibold text-gray-700 mb-1">{field}</label>
-                                    <input
-                                      className="border rounded px-2 py-1 text-sm"
-                                      value={formData[field] || ''}
-                                      onChange={e => handleFormChange(field, e.target.value)}
-                                    />
+                                    {field === 'Start Time' ? (
+                                      <TimePicker value={formData['Start Time'] || ''} onChange={v => handleFormChange('Start Time', v)} />
+                                    ) : field === 'Latest End Time' ? (
+                                      <TimePicker value={formData['Latest End Time'] || ''} onChange={v => handleFormChange('Latest End Time', v)} />
+                                    ) : field === 'Day' ? (
+                                      <DayOfWeekPicker value={formData['Day'] || ''} onChange={v => handleFormChange('Day', v)} />
+                                    ) : (
+                                      <input
+                                        className="border rounded px-2 py-1 text-sm"
+                                        value={formData[field] || ''}
+                                        onChange={e => handleFormChange(field, e.target.value)}
+                                      />
+                                    )}
                                   </div>
                                 ))}
                               </form>
