@@ -170,8 +170,9 @@ function ShowCard({ show, editingId, setEditingId, editValue, setEditValue, edit
                         onClick={async () => {
                           const confirmed = window.confirm('Are you sure you want to delete this show? This action cannot be undone.');
                           if (!confirmed) return;
+                          const table = show.type === 'mic' ? 'profile_open_mics' : 'profile_custom_shows';
                           const { error } = await supabase
-                            .from('profile_open_mics')
+                            .from(table)
                             .delete()
                             .eq('id', show.id);
                           if (error) {

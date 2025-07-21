@@ -21,7 +21,7 @@ const Auth = () => {
 
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate('/perform');
     }
   }, [user, navigate]);
 
@@ -59,7 +59,7 @@ const Auth = () => {
             : "You've been signed in successfully.",
         });
         if (!isSignUp) {
-          navigate('/');
+          navigate('/perform');
         } else {
           navigate('/auth');
         }
