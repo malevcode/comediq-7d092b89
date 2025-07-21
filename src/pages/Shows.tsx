@@ -22,6 +22,7 @@ interface ShowNote {
   rating: string;
   borough: string;
   createdAt: string;
+  type: string;
 }
 
 const useUserShows = () => {
@@ -64,6 +65,35 @@ const useUserShows = () => {
   return { shows, loading };
 };
 
+const useUserCustomShows = () => {
+  const { user } = useAuth();
+  const [customShows, setCustomShows] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchCustomShows = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("profile_custom_shows")
+        .select("*")
+        .eq("profile_id", user.id);
+
+      if (error) {
+        setCustomShows([]);
+      } else {
+        setCustomShows(data);
+      }
+      setLoading(false);
+    };
+
+    fetchCustomShows();
+  }, [user]);
+
+  return { customShows, loading };
+};
+
 function getNextOccurrence(day, time) {
   const daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   const today = new Date();
@@ -92,36 +122,53 @@ const Shows = () => {
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
   const { shows: rawShows, loading } = useUserShows();
-  const [mappedShowNotes, setMappedShowNotes] = useState<ShowNote[]>([]);
+  const { customShows, loading: customLoading } = useUserCustomShows();
+
+  const [allShowNotes, setAllShowNotes] = useState<ShowNote[]>([]);
 
   useEffect(() => {
-    setMappedShowNotes(
-      rawShows
-        .filter(row => row.open_mics)
-        .map(row => ({
-          id: row.id,
-          title: row.open_mics["Open Mic"] || "",
-          venue: row.open_mics["Venue Name"] || "",
-          location: row.open_mics.Location || "",
-          date: getNextOccurrence(row.open_mics.Day, row.open_mics["Start Time"]),
-          time: row.open_mics["Start Time"] || "",
-          status:
-            row.schedule_type === "upcoming"
-              ? "upcoming"
-              : row.schedule_type === "completed"
-              ? "completed"
-              : row.schedule_type === "cancelled"
-              ? "cancelled"
-              : "upcoming" as "upcoming" | "cancelled" | "completed",
-          notes: row.notes || "",
-          audienceCount: "",
-          rating: "",
-          borough: row.open_mics.Borough || "",
-          createdAt: row.created_at,
-        }))
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    // Map open mic shows as before
+    const mappedOpenMicShows = rawShows
+      .filter(row => row.open_mics)
+      .map(row => ({
+        id: row.id,
+        title: row.open_mics["Open Mic"] || "",
+        venue: row.open_mics["Venue Name"] || "",
+        location: row.open_mics.Location || "",
+        date: getNextOccurrence(row.open_mics.Day, row.open_mics["Start Time"]),
+        time: row.open_mics["Start Time"] || "",
+        status: row.schedule_type || "",
+        notes: row.notes || "",
+        audienceCount: "",
+        rating: "",
+        borough: row.open_mics.Borough || "",
+        createdAt: row.created_at,
+        type: "mic",
+      }));
+
+    // Map custom shows
+    const mappedCustomShows = (customShows || []).map(show => ({
+      id: show.id,
+      title: show.title || "",
+      venue: show.venue || "",
+      location: show.location || "",
+      date: show.date || "",
+      time: show.time || "",
+      status: show.schedule_type || "",
+      notes: show.notes || "",
+      audienceCount: show.audienceCount || "",
+      rating: show.rating || "",
+      borough: show.borough || "",
+      createdAt: show.created_at || show.createdAt || "",
+      type: "show",
+    }));
+
+    // Merge and sort by date
+    const merged = [...mappedOpenMicShows, ...mappedCustomShows].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
-  }, [rawShows]);
+    setAllShowNotes(merged);
+  }, [rawShows, customShows]);
 
   // const addShow = (newShow: Omit<ShowNote, 'id'>) => {
   //   const show: ShowNote = {
@@ -132,7 +179,7 @@ const Shows = () => {
   // };
 
   const onUpdateShow = (id: string, updatedFields: Partial<ShowNote>) => {
-    setMappedShowNotes(shows =>
+    setAllShowNotes(shows =>
       shows.map(show =>
         show.id === id ? { ...show, ...updatedFields } : show
       )
@@ -140,7 +187,7 @@ const Shows = () => {
   };
 
   const onDeleteShow = (id: string) => {
-    setMappedShowNotes(shows => shows.filter(show => show.id !== id));
+    setAllShowNotes(shows => shows.filter(show => show.id !== id));
   };
 
   return (
@@ -227,7 +274,7 @@ const Shows = () => {
       <div className="max-w-6xl mx-auto px-4 py-8">
         {user ? (
           <ShowNotepad 
-            shows={mappedShowNotes}
+            shows={allShowNotes}
             onAddShow={() => {}}
             onUpdateShow={onUpdateShow}
             onDeleteShow={onDeleteShow}

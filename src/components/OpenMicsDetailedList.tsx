@@ -150,23 +150,25 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             </span>
           </span>
           {/* Like Button to the right of mic name and status */}
-          <Button
-            className={`flex items-center justify-center rounded-3xl px-2 text-sm transition-all
-              ${userRating === 'like'
-                ? 'bg-pink-50 hover:bg-pink-100 border-pink-300'
-                : 'bg-white border-gray-300 hover:bg-gray-100'} text-gray-700`}
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              if (userRating === 'like') removeRating(mic.uniqueIdentifier);
-              else rateMic({ micUniqueIdentifier: mic.uniqueIdentifier, rating: 'like' });
-            }}
-            disabled={isRating}
-            aria-label={userRating === 'like' ? 'Unlike' : 'Like'}
-          >
-            <Heart className={`w-4 h-4 ${userRating === 'like' ? 'fill-red-400 text-red-400' : ''}`} />
-            <span className="mr-1 text-sm text-gray-600">{ratingCounts?.likes || 0}</span>
-          </Button>
+          {user ? (
+            <Button
+              className={`flex items-center justify-center rounded-3xl px-2 text-sm transition-all
+                ${userRating === 'like'
+                  ? 'bg-pink-50 hover:bg-pink-100 border-pink-300'
+                  : 'bg-white border-gray-300 hover:bg-gray-100'} text-gray-700`}
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                if (userRating === 'like') removeRating(mic.uniqueIdentifier);
+                else rateMic({ micUniqueIdentifier: mic.uniqueIdentifier, rating: 'like' });
+              }}
+              disabled={isRating}
+              aria-label={userRating === 'like' ? 'Unlike' : 'Like'}
+            >
+              <Heart className={`w-4 h-4 ${userRating === 'like' ? 'fill-red-400 text-red-400' : ''}`} />
+              <span className="mr-1 text-sm text-gray-600">{ratingCounts?.likes || 0}</span>
+            </Button>
+          ) : null}
         </div>
         <div className="text-sm text-gray-500">
           <span className="flex items-center gap-1"><MapPin className="w-3 h-3 flex-shrink-0" />{mic.venueName}, {mic.neighborhood}</span>
@@ -208,7 +210,39 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
               className="text-xs text-blue-700 break-words mt-2 font-normal select-text cursor-text"
               onClick={e => e.stopPropagation()}
             >
-              {mic.signUpInstructions}
+              {(() => {
+                // Simple regex to detect a URL
+                const urlRegex = /(https?:\/\/[^\s]+)/g;
+                const match = mic.signUpInstructions.match(urlRegex);
+                if (match && match.length === 1 && mic.signUpInstructions.trim() === match[0]) {
+                  // If the entire instructions is just a URL
+                  return (
+                    <a
+                      href={match[0]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline break-all"
+                    >
+                      Sign up at this link
+                    </a>
+                  );
+                } else if (match && match.length === 1 && mic.signUpInstructions.replace(match[0], '').trim() === '') {
+                  // If the only content is a URL (with whitespace)
+                  return (
+                    <a
+                      href={match[0]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline break-all"
+                    >
+                      Sign up at this link
+                    </a>
+                  );
+                } else {
+                  // Otherwise, show the instructions as text
+                  return mic.signUpInstructions;
+                }
+              })()}
             </div>
           )}
         </button>
