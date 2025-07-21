@@ -73,6 +73,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user]);
 
+  // Record a visit whenever a user is logged in (session restored or login), but only once per day
+  useEffect(() => {
+    if (!user) return;
+
+    // Get today's date in YYYY-MM-DD (local time)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().slice(0, 10);
+
+    // Check if a visit for today already exists
+    const checkAndInsertVisit = async () => {
+      const { data, error } = await supabase
+        .from('user_visits')
+        .select('id, visit_date')
+        .eq('user_id', user.id)
+        .gte('visit_date', todayStr + 'T00:00:00.000Z')
+        .lt('visit_date', todayStr + 'T23:59:59.999Z');
+      if (error) {
+        console.error('Error checking user_visits:', error);
+        return;
+      }
+      if (!data || data.length === 0) {
+        // No visit for today, insert one
+        const visitDate = new Date().toISOString();
+        const { error: insertError, data: insertData } = await supabase
+          .from('user_visits')
+          .insert([{ user_id: user.id, visit_date: visitDate }]);
+        if (insertError) {
+          console.error('user_visits insert error:', insertError);
+        } else {
+          console.log('user_visits insert success (session restore):', insertData);
+          setVisitInserted(true);
+        }
+      }
+    };
+
+    checkAndInsertVisit();
+    // Only run when user changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   const signUp = async (
     email: string,
     password: string,

@@ -35,16 +35,16 @@ const Index = () => {
     <div className="min-h-screen pb-20">
       <Navigation />
       <div className="pt-20">
-        {/* {loading ? null : user ? (
+        {loading ? null : user ? (
           <Home />
-        ) : ( */}
+        ) : (
           <>
             <Hero />
             <Features />
             <Pricing />
             <WaitlistForm />
           </>
-        {/* )} */}
+        )}
       </div>
     </div>
   );
