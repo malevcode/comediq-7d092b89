@@ -21,6 +21,7 @@ import DayOfWeekPicker from '@/components/ui/DayOfWeekPicker';
 import { CheckCircle, XCircle, Clock, FileText, UserCheck, UserX, Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdminRequestList from '@/components/admin/AdminRequestList';
+import AdminAllMicsList from '@/components/admin/AdminAllMicsList';
 
 const OPEN_MIC_FIELDS = [
   'Open Mic', 'Day', 'Start Time', 'Latest End Time', 'Venue Name', 'Borough', 'Neighborhood', 'Location', 'Venue type', 'Cost', 'Stage time', 'Sign-Up Instructions', 'Host(s) / Organizer', 'Changes/updates', 'Last verified', 'SMS', 'Other Rules', 'Help other comics! Leave reviews', 'Formerly verified'
@@ -200,9 +201,10 @@ const AdminInterface = () => {
           <FileText className="w-8 h-8 text-orange-400" /> Admin Dashboard
         </h1>
         <Tabs defaultValue="pending" className="w-full" onValueChange={setTab}>
-          <TabsList className="mb-8 w-full grid grid-cols-2">
+          <TabsList className="mb-8 w-full grid grid-cols-3">
             <TabsTrigger value="pending" className="text-lg">Pending Requests</TabsTrigger>
             <TabsTrigger value="reviewed" className="text-lg">Reviewed Mics</TabsTrigger>
+            <TabsTrigger value="all" className="text-lg">All Mics</TabsTrigger>
           </TabsList>
           <TabsContent value="pending">
             <Card className="mb-8 shadow-lg rounded-2xl border-0">
@@ -279,6 +281,13 @@ const AdminInterface = () => {
                     deleting={false}
                   />
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="all">
+            <Card className="mb-6 shadow-lg rounded-2xl border-0">
+              <CardContent className="p-8 flex flex-col items-start">
+                <AdminAllMicsList />
               </CardContent>
             </Card>
           </TabsContent>
