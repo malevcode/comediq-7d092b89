@@ -22,7 +22,7 @@ interface ShowNote {
   rating: string;
   borough: string;
   createdAt: string;
-  type: string;
+  type: 'mic' | 'show'; // <-- change from string to this
 }
 
 const useUserShows = () => {
@@ -65,7 +65,7 @@ const useUserShows = () => {
   return { shows, loading };
 };
 
-const useUserCustomShows = () => {
+const useUserCustomShows = (refreshKey = 0) => {
   const { user } = useAuth();
   const [customShows, setCustomShows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -89,7 +89,7 @@ const useUserCustomShows = () => {
     };
 
     fetchCustomShows();
-  }, [user]);
+  }, [user, refreshKey]);
 
   return { customShows, loading };
 };
@@ -123,28 +123,35 @@ const Shows = () => {
   const [showInstructions, setShowInstructions] = useState(false);
   const { shows: rawShows, loading } = useUserShows();
   const { customShows, loading: customLoading } = useUserCustomShows();
+  const [customShowsRefreshKey, setCustomShowsRefreshKey] = useState(0);
+
+  const refreshCustomShows = () => setCustomShowsRefreshKey(k => k + 1);
 
   const [allShowNotes, setAllShowNotes] = useState<ShowNote[]>([]);
 
   useEffect(() => {
-    // Map open mic shows as before
+    // Map open mic shows
     const mappedOpenMicShows = rawShows
       .filter(row => row.open_mics)
-      .map(row => ({
-        id: row.id,
-        title: row.open_mics["Open Mic"] || "",
-        venue: row.open_mics["Venue Name"] || "",
-        location: row.open_mics.Location || "",
-        date: getNextOccurrence(row.open_mics.Day, row.open_mics["Start Time"]),
-        time: row.open_mics["Start Time"] || "",
-        status: row.schedule_type || "",
-        notes: row.notes || "",
-        audienceCount: "",
-        rating: "",
-        borough: row.open_mics.Borough || "",
-        createdAt: row.created_at,
-        type: "mic",
-      }));
+      .map(row => {
+        const dateISO = getNextOccurrence(row.open_mics.Day, row.open_mics["Start Time"]);
+        const time = dateISO ? new Date(dateISO).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : "";
+        return {
+          id: row.id,
+          title: row.open_mics["Open Mic"] || "",
+          venue: row.open_mics["Venue Name"] || "",
+          location: row.open_mics.Location || "",
+          date: dateISO, // full ISO string
+          time,
+          status: row.schedule_type || "",
+          notes: row.notes || "",
+          audienceCount: "",
+          rating: "",
+          borough: row.open_mics.Borough || "",
+          createdAt: row.created_at,
+          type: "mic" as "mic",
+        };
+      });
 
     // Map custom shows
     const mappedCustomShows = (customShows || []).map(show => ({
@@ -152,31 +159,29 @@ const Shows = () => {
       title: show.title || "",
       venue: show.venue || "",
       location: show.location || "",
-      date: show.date || "",
-      time: show.time || "",
+      date: show.date || "", // full ISO string
+      time: show.date ? new Date(show.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : "",
       status: show.schedule_type || "",
       notes: show.notes || "",
       audienceCount: show.audienceCount || "",
       rating: show.rating || "",
       borough: show.borough || "",
       createdAt: show.created_at || show.createdAt || "",
-      type: "show",
+      type: "show" as "show",
     }));
 
-    // Merge and sort by date
+    // Merge and sort by date+time
     const merged = [...mappedOpenMicShows, ...mappedCustomShows].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
     setAllShowNotes(merged);
   }, [rawShows, customShows]);
 
-  // const addShow = (newShow: Omit<ShowNote, 'id'>) => {
-  //   const show: ShowNote = {
-  //     ...newShow,
-  //     id: Date.now().toString(),
-  //   };
-  //   setShows([show, ...shows]);
-  // };
+  const onAddShow = (newShow) => {
+    setAllShowNotes(shows =>
+      [...shows, newShow].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    );
+  };
 
   const onUpdateShow = (id: string, updatedFields: Partial<ShowNote>) => {
     setAllShowNotes(shows =>
@@ -275,7 +280,7 @@ const Shows = () => {
         {user ? (
           <ShowNotepad 
             shows={allShowNotes}
-            onAddShow={() => {}}
+            onAddShow={onAddShow}
             onUpdateShow={onUpdateShow}
             onDeleteShow={onDeleteShow}
           />

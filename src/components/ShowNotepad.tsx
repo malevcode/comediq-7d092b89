@@ -24,11 +24,12 @@ interface ShowNote {
   rating: string;
   borough: string;
   createdAt: string;
+  type: 'mic' | 'show';
 }
 
 interface ShowNotepadProps {
   shows: ShowNote[];
-  onAddShow: (show: Omit<ShowNote, 'id'>) => void;
+  onAddShow: (show: ShowNote) => void;
   onUpdateShow: (id: string, updatedFields: Partial<ShowNote>) => void;
   onDeleteShow: (id: string) => void;
   onSetActiveTab?: (tab: string) => void;
@@ -58,6 +59,7 @@ function ShowCard({ show, editingId, setEditingId, editValue, setEditValue, edit
     if (hour === 0) hour = 12;
     return `${hour}:${min.padStart(2, '0')} ${ampm}`;
   };
+  console.log(new Date(show.date).toLocaleDateString())
   return (
     <Card key={show.id} className={`hover:shadow-md transition-shadow ${getBoroughOutline(show.borough || '')}`}>
       <CardContent className="p-4">
@@ -88,8 +90,18 @@ function ShowCard({ show, editingId, setEditingId, editValue, setEditValue, edit
             </div>
             <div className="text-sm text-gray-500">
               {show.venue && <span className="flex items-center gap-1"><MapPin className="w-3 h-3 flex-shrink-0" />{show.venue}</span>}
-              {show.date && <span className="flex items-center gap-1"><Calendar className="w-3 h-3 flex-shrink-0" />{new Date(show.date).toLocaleDateString()}</span>}
-              {show.time && <span className="flex items-center gap-1"><Clock className="w-3 h-3 flex-shrink-0" />{toAmPm(show.time)}</span>}
+              {show.date && show.time && (
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3 flex-shrink-0" />
+                  {new Date(show.date).toLocaleDateString()}
+                </span>
+              )}
+              {show.date && show.time && (
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3 h-3 flex-shrink-0" />
+                  {new Date(show.date).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}
+                </span>
+              )}
               {show.createdAt && (
                 <span className="flex items-center gap-1 mt-1 text-xs">
                   {'Added '}
@@ -245,20 +257,6 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
     return outlines[cleanBorough] || "border-l-4 border-l-gray-400";
   };
 
-  // Helper to convert 24-hour time to 12-hour am/pm
-  const toAmPm = (time: string) => {
-    if (!time) return '';
-    // If already contains AM or PM, return as is (after trimming)
-    if (/am|pm/i.test(time)) return time.trim().replace(/\s+/g, ' ').toUpperCase();
-    const [h, m] = time.split(':');
-    let hour = parseInt(h, 10);
-    const min = m || '00';
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    hour = hour % 12;
-    if (hour === 0) hour = 12;
-    return `${hour}:${min.padStart(2, '0')} ${ampm}`;
-  };
-
   return (
     <div className="max-w-4xl mx-auto space-y-2">
       {/* Upcoming Shows Section Header Row: Upcoming Shows + Add Show Button */}
@@ -348,16 +346,17 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
         <AddShowForm
           onSubmit={async (show) => {
             if (!user) return;
-            const date_now = new Date().toISOString()     
+            const date_now = new Date().toISOString();
             const customShow = {
               profile_id: user.id,
               title: show.title,
               venue: show.venue,
               borough: show.borough,
-              date: show.date instanceof Date ? show.date.toISOString() : show.date,
+              date: show.date,
               notes: show.notes || '',
               created_at: date_now,
               last_modified: date_now,
+              schedule_type: 'upcoming',
             };
             const { error, data } = await supabase.from('profile_custom_shows').insert([customShow]).select();
             if (error) {
@@ -366,14 +365,34 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
                 description: error.message || 'Failed to add custom show.',
                 variant: 'destructive',
               });
-            } else {
-              toast({
-                title: 'Show Added',
-                description: 'Your custom show has been added to your schedule.',
-              });
-              // Optionally update local state/UI here
-              setModalOpen(false);
+              return; // Only return here if there's an error
             }
+            toast({
+              title: 'Show Added',
+              description: 'Your custom show has been added to your schedule.',
+            });
+            if (data && data[0]) {
+              const dateObj = data[0].date ? new Date(data[0].date) : null;
+              const localTime = dateObj
+                ? dateObj.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
+                : "";
+              onAddShow({
+                id: data[0].id,
+                title: data[0].title || "",
+                venue: data[0].venue || "",
+                location: data[0].location || "",
+                date: data[0].date, // use the ISO string directly
+                time: localTime,
+                status: data[0].schedule_type || "",
+                notes: data[0].notes || "",
+                audienceCount: data[0].audienceCount || "",
+                rating: data[0].rating || "",
+                borough: data[0].borough || "",
+                createdAt: data[0].created_at || data[0].createdAt || "",
+                type: "show",
+              });
+            }
+            setModalOpen(false); // Always close modal after successful insert
           }}
           onCancel={() => setModalOpen(false)}
         />

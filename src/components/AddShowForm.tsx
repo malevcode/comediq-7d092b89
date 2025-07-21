@@ -10,11 +10,10 @@ interface AddShowFormProps {
   onSubmit: (show: {
     title: string;
     venue: string;
-    date: Date;
+    date: string; // ISO string
     time: string;
     borough: string;
     notes?: string;
-    anonymous?: boolean;
   }) => void;
   onCancel: () => void;
   initialData?: {
@@ -26,7 +25,6 @@ interface AddShowFormProps {
     notes?: string;
     neighborhood?: string;
     status?: 'upcoming' | 'cancelled' | 'completed';
-    anonymous?: boolean;
   };
 }
 
@@ -51,19 +49,25 @@ const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
     notes: initialData?.notes || '',
     neighborhood: initialData?.neighborhood || '',
     status: (initialData?.status as 'upcoming' | 'cancelled' | 'completed') || 'upcoming',
-    anonymous: initialData?.anonymous || false,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.venue || !formData.date || !formData.time || !formData.borough) {
+    // Combine date and time into a single ISO string
+    let dateTimeISO = '';
+    if (formData.date && formData.time) {
+      // This creates a local time ISO string
+      dateTimeISO = new Date(`${formData.date}T${formData.time}`).toISOString();
+    } else {
+      dateTimeISO = formData.date || '';
+    }
+    if (!formData.title || !formData.venue || !dateTimeISO || !formData.borough) {
       return;
     }
 
     onSubmit({
       ...formData,
-      date: new Date(formData.date),
-      anonymous: formData.anonymous,
+      date: dateTimeISO,
     });
   };
 
