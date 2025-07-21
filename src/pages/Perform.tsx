@@ -20,10 +20,17 @@ const Perform = () => {
     'track-sets': 0
   });
 
-  // On mount, sync tab with query param if present
+  // On mount, sync tab with query param if present, else use localStorage
   useEffect(() => {
     const tabParam = params.get('tab');
-    if (tabParam) setActiveTab(tabParam);
+    if (tabParam) {
+      setActiveTab(tabParam);
+      localStorage.setItem('perform-last-tab', tabParam);
+    } else {
+      const lastTab = localStorage.getItem('perform-last-tab');
+      if (lastTab) setActiveTab(lastTab);
+    }
+    // eslint-disable-next-line
   }, [location.search, setActiveTab]);
 
   // Save current scroll position before tab change
@@ -43,6 +50,13 @@ const Perform = () => {
       });
     };
     restoreScrollPosition();
+  }, [activeTab]);
+
+  // Save active tab to localStorage on change
+  useEffect(() => {
+    if (activeTab) {
+      localStorage.setItem('perform-last-tab', activeTab);
+    }
   }, [activeTab]);
 
   return (
