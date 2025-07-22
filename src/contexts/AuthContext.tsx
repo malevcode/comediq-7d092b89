@@ -199,8 +199,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const resetVisitInserted = () => setVisitInserted(false);
 
   const signOut = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setUser(null);
+      setSession(null);
+      return;
+    }
     const { error } = await supabase.auth.signOut();
-    if (error) console.error('Error signing out:', error);
+    if (error) {
+      console.error('Error signing out:', error);
+      // Fallback: clear local state anyway
+      setUser(null);
+      setSession(null);
+    }
   };
 
   const value = {
