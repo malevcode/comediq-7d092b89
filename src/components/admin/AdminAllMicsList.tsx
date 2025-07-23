@@ -62,14 +62,32 @@ const AdminAllMicsList = () => {
   };
 
   const handleSave = async (updated: any) => {
+    // Always regenerate unique_identifier from form data
+    const day = updated['Day']?.trim() || '';
+    const startTime = updated['Start Time']?.trim() || '';
+    const changes = updated['Changes/updates']?.trim().replace(/\s+/g, '') || '';
+    const venue = updated['Venue Name']?.trim() || '';
+    const unique_identifier = `${day}_${startTime}_${changes}_${venue}`;
+    const insertData = { ...updated, unique_identifier };
+
+    // Check for duplicate unique_identifier (exclude current mic if editing)
+    const { data: dupes, error: dupeError } = await supabase
+      .from('open_mics_july')
+      .select('unique_identifier')
+      .eq('unique_identifier', unique_identifier);
+    if (dupeError) {
+      toast({ title: 'Error', description: dupeError.message, variant: 'destructive' });
+      return;
+    }
+    if (
+      (isAdding && dupes && dupes.length > 0) ||
+      (!isAdding && dupes && dupes.length > 0 && unique_identifier !== selectedMic.unique_identifier)
+    ) {
+      toast({ title: 'Duplicate', description: 'A mic with this unique identifier already exists.', variant: 'destructive' });
+      return;
+    }
+
     if (isAdding) {
-      // Generate a unique_identifier in the same format as in admin approve
-      const day = updated['Day']?.trim() || '';
-      const startTime = updated['Start Time']?.trim() || '';
-      const changes = updated['Changes/updates']?.trim().replace(/\s+/g, '') || '';
-      const venue = updated['Venue Name']?.trim() || '';
-      const unique_identifier = `${day}_${startTime}_${changes}_${venue}`;
-      const insertData = { ...updated, unique_identifier };
       // Insert into historical first
       const { error: histError } = await supabase.from('open_mics_historical').insert([insertData]);
       if (histError) {
@@ -86,15 +104,15 @@ const AdminAllMicsList = () => {
         handleModalClose();
       }
     } else {
-      const { unique_identifier, ...fields } = updated;
+      // Update with new unique_identifier
       const { error } = await supabase
         .from('open_mics_july')
-        .update(fields)
-        .eq('unique_identifier', unique_identifier);
+        .update({ ...insertData })
+        .eq('unique_identifier', selectedMic.unique_identifier);
       if (error) {
         toast({ title: 'Error', description: error.message, variant: 'destructive' });
       } else {
-        setMics(mics => mics.map(m => m.unique_identifier === unique_identifier ? updated : m));
+        setMics(mics => mics.map(m => m.unique_identifier === selectedMic.unique_identifier ? insertData : m));
         toast({ title: 'Mic updated', description: 'Mic information saved.' });
         handleModalClose();
       }
