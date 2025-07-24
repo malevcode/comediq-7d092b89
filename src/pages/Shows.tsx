@@ -22,7 +22,9 @@ interface ShowNote {
   rating: string;
   borough: string;
   createdAt: string;
-  type: 'mic' | 'show'; // <-- change from string to this
+  type: 'mic' | 'show';
+  stageTime: string;
+  cost: string;
 }
 
 const useUserShows = () => {
@@ -150,6 +152,8 @@ const Shows = () => {
           borough: row.open_mics.Borough || "",
           createdAt: row.created_at,
           type: "mic" as "mic",
+          stageTime: row.open_mics["Stage time"] || "",
+          cost: row.open_mics["Cost"] || "",
         };
       });
 
@@ -168,6 +172,8 @@ const Shows = () => {
       borough: show.borough || "",
       createdAt: show.created_at || show.createdAt || "",
       type: "show" as "show",
+      stageTime: show.stageTime || "",
+      cost: show.cost || "",
     }));
 
     // Merge and sort by date+time
