@@ -129,7 +129,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
     return outlines[cleanBorough] || "border-l-4 border-l-gray-400";
   };
   return (
-    <div className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-4 gap-2 md:gap-6 overflow-x-hidden ${getBoroughOutline(mic.borough)}`}>
+    <div className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-4 gap-2md:gap-6 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${getBoroughOutline(mic.borough)}`}>
       {/* Left: Name, Location, Date */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
@@ -172,7 +172,13 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
         </div>
         <div className="text-sm text-gray-500">
           <span className="flex items-center gap-1"><MapPin className="w-3 h-3 flex-shrink-0" />{mic.venueName}, {mic.neighborhood}</span>
-          <span className="flex items-center gap-1"><Calendar className="w-3 h-3 flex-shrink-0"/>{mic.day !== "Daily" ? "Weekly - " + mic.day : mic.day}</span>
+          <span className="flex items-center gap-1"><Calendar className="w-3 h-3 flex-shrink-0"/>
+          {mic.openMic?.toLowerCase().includes("biweekly")
+            ? "Biweekly - " + mic.day
+            : mic.day !== "Daily"
+              ? "Weekly - " + mic.day
+              : "Daily - " + mic.day}
+          </span>
         </div>
       </div>
       {/* Mid: Time, Cost, Audience Size, Stage Time, Rules */}
@@ -238,6 +244,8 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
                       Sign up at this link
                     </a>
                   );
+                } else if (mic.signUpInstructions === "") {
+                  return <span>N/A</span>
                 } else {
                   // Otherwise, show the instructions as text
                   return mic.signUpInstructions;

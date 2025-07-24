@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Save, Trash2, MapPin, Calendar, Clock, Users, Star, CircleAlert, CircleCheckBig, Pencil, Search } from "lucide-react";
+import { Plus, Save, Trash2, MapPin, Calendar, Clock, Users, Share, CircleAlert, CircleCheckBig, Pencil, Search } from "lucide-react";
 import AddShowForm from "./AddShowForm";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -35,6 +35,39 @@ interface ShowNotepadProps {
   onSetActiveTab?: (tab: string) => void;
 }
 
+const handleExportCalendar = (show) => {
+  const url = getGoogleCalendarUrl(show)
+  window.open(url, "_blank")
+}
+
+function getGoogleCalendarDateTimeRange(show) {
+  const localDate = show.date.split('T')[0];
+  const localDateTimeString = `${localDate}T${show.time}:00`;
+  const localDateTime = new Date(localDateTimeString);
+  const endDateTime = new Date(localDateTime.getTime() + 90 * 60 * 1000);
+  const format = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  return `${format(localDateTime)}/${format(endDateTime)}`;
+}
+
+function getGoogleCalendarUrl(show) {
+  const description = show.type === "mic"
+  ? `Open mic at ${show.venue}\nCost: ${show.cost}\nStage time: ${show.stageTime}`
+  : `Comedy show at ${show.venue}`;
+
+  console.log(show.date)
+  console.log(show.time)
+
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: show.title,
+    dates: getGoogleCalendarDateTimeRange(show),
+    details: description,
+    location: show.location ? show.location : '',
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
 // New ShowCard component
 function ShowCard({ show, editingId, setEditingId, editValue, setEditValue, editStatus, setEditStatus, onUpdateShow, onDeleteShow, isPast, supabase, toast }) {
   const getBoroughOutline = (borough: string) => {
@@ -48,18 +81,7 @@ function ShowCard({ show, editingId, setEditingId, editValue, setEditValue, edit
     };
     return outlines[cleanBorough] || "border-l-4 border-l-gray-400";
   };
-  const toAmPm = (time: string) => {
-    if (!time) return '';
-    if (/am|pm/i.test(time)) return time.trim().replace(/\s+/g, ' ').toUpperCase();
-    const [h, m] = time.split(':');
-    let hour = parseInt(h, 10);
-    const min = m || '00';
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    hour = hour % 12;
-    if (hour === 0) hour = 12;
-    return `${hour}:${min.padStart(2, '0')} ${ampm}`;
-  };
-  console.log(new Date(show.date).toLocaleDateString())
+
   return (
     <Card key={show.id} className={`hover:shadow-md transition-shadow ${getBoroughOutline(show.borough || '')}`}>
       <CardContent className="p-4">
@@ -113,21 +135,31 @@ function ShowCard({ show, editingId, setEditingId, editValue, setEditValue, edit
           {/* Notes Section - now stretches across */}
           <div className="flex-grow flex flex-col justify-between min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700">
             <div className="flex flex-col w-full">
-              <div className="flex items-center mb-0 justify-between">
+              <div className="flex items-center mb-2 justify-between">
                 <div className="font-semibold text-gray-800">Notes:</div>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => {
-                    setEditingId(show.id);
-                    setEditValue(show.notes);
-                    setEditStatus(show.status);
-                  }}
-                  className="text-blue-500 hover:text-blue-700 h-8 w-8"
-                  aria-label="Edit notes"
-                >
-                  <Pencil className="w-4 h-4" size={16} />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    className="bg-blue-500 hover:bg-blue-600 text-white text-sm"
+                    onClick={() => handleExportCalendar(show)}
+                  >
+                    <Share className="w-4 h-4" />
+                    Export to GCal
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => {
+                      setEditingId(show.id);
+                      setEditValue(show.notes);
+                      setEditStatus(show.status);
+                    }}
+                    className="text-blue-500 hover:text-blue-700 h-8 w-8"
+                    aria-label="Edit notes"
+                  >
+                    <Pencil className="w-4 h-4" size={16} />
+                  </Button>
+                </div>
               </div>
               {editingId === show.id ? (
                 <>
@@ -236,33 +268,12 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
     setModalOpen(true);
   };
 
-  const getRatingColor = (rating: string) => {
-    const num = parseInt(rating);
-    if (num >= 8) return 'bg-green-100 text-green-800';
-    if (num >= 6) return 'bg-yellow-100 text-yellow-800';
-    if (num >= 4) return 'bg-orange-100 text-orange-800';
-    return 'bg-red-100 text-red-800';
-  };
-
-  // Helper to get borough outline color
-  const getBoroughOutline = (borough: string) => {
-    const cleanBorough = (borough || '').trim();
-    const outlines: Record<string, string> = {
-      Manhattan: "border-l-4 border-l-cyan-500",
-      Brooklyn: "border-l-4 border-l-amber-800",
-      Queens: "border-l-4 border-l-purple-600",
-      Bronx: "border-l-4 border-l-orange-600",
-      "Staten Island": "border-l-4 border-l-gray-500"
-    };
-    return outlines[cleanBorough] || "border-l-4 border-l-gray-400";
-  };
-
   return (
     <div className="max-w-4xl mx-auto space-y-2">
       {/* Upcoming Shows Section Header Row: Upcoming Shows + Add Show Button */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Upcoming Shows</h2>
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row gap-2 flex-wrap justify-end">
           <Button
             size="sm"
             className="bg-white text-black border hover:bg-gray/80 flex items-center justify-center gap-2"
