@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import BottomNavigation from "./components/BottomNavigation";
 import ScrollToTop from "./components/ScrollToTop";
 import ProgressTrackerPage from "./pages/ProgressTracker";
+import Home from "./components/Home";
 import { TabProvider } from "@/contexts/TabContext";
 import AdminInterface from "./pages/AdminInterface"; 
 
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admintest" element={<AdminInterface />} /> 
+            <Route path="/home" element={<Home />} /* FOR TESTING, REMOVE LATER */ /> 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

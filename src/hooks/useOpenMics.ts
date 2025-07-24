@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic } from "@/types/openMic";
 
-export const useOpenMics = (tableName: 'open_mics_july' | 'open_mics_historical' = 'open_mics_july') => {
+export const useOpenMics = (tableName: 'open_mics_active' | 'open_mics_historical' = 'open_mics_active') => {
   return useQuery({
     queryKey: ["openMics", tableName],
     queryFn: async (): Promise<OpenMic[]> => {
