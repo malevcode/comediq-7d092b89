@@ -18,7 +18,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import ProgressTrackerPage from "./pages/ProgressTracker";
 import Home from "./components/Home";
 import { TabProvider } from "@/contexts/TabContext";
-import AdminTest from "./pages/Admintest"; // FOR TESTING, REMOVE LATER
+import AdminInterface from "./pages/AdminInterface"; 
 
 const queryClient = new QueryClient();
 
@@ -39,7 +39,7 @@ const App = () => (
             <Route path="/shows" element={<Shows />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/admintest" element={<AdminTest />} /* FOR TESTING, REMOVE LATER */ /> 
+            <Route path="/admintest" element={<AdminInterface />} /> 
             <Route path="/home" element={<Home />} /* FOR TESTING, REMOVE LATER */ /> 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
