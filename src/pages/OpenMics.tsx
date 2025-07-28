@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Search, Filter, HelpCircle, Heart, ThumbsDown, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import ViewToggle from "@/components/ViewToggle";
 import ShowForm from '@/components/ShowForm';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilters";
 
 const OpenMics = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,6 +32,35 @@ const OpenMics = () => {
   const [showRequestModal, setShowRequestModal] = useState(false);
   
   const { data: openMics = [], isLoading, error } = useOpenMics();
+  
+  // Calculate max cost from all open mics for filter slider
+  const maxCost = useMemo(() => {
+    const costs = openMics.map(mic => {
+      const cost = mic.cost.toLowerCase();
+      if (cost.includes('free')) return 0;
+      if (cost.includes('drink')) {
+        const drinkMatch = cost.match(/(\d+)\s*drink/);
+        if (drinkMatch) return 10 + (parseInt(drinkMatch[1]) * 5); // Map drinks to cost range
+      }
+      const match = cost.match(/\$?(\d+)/);
+      return match ? parseInt(match[1]) : 0;
+    }).filter(cost => !isNaN(cost));
+    return Math.max(...costs, 20); // Default max of 20 if no costs found
+  }, [openMics]);
+
+  // Filter state
+  const [filters, setFilters] = useState<MicFiltersType>({
+    costRange: [0, maxCost],
+    timeOfDay: []
+  });
+
+  // Update cost range when maxCost changes
+  useMemo(() => {
+    setFilters(prev => ({
+      ...prev,
+      costRange: [0, maxCost]
+    }));
+  }, [maxCost]);
   const { user, signOut } = useAuth();
   const { data: likedMics = [] } = useUserLikedMics();
   const navigate = useNavigate();
@@ -155,6 +185,38 @@ const OpenMics = () => {
     }
   };
 
+  // Helper function to get cost value for filtering
+  const getCostValue = (costStr: string) => {
+    const cost = costStr.toLowerCase();
+    if (cost.includes('free')) return 0;
+    if (cost.includes('drink')) {
+      const drinkMatch = cost.match(/(\d+)\s*drink/);
+      if (drinkMatch) return 10 + (parseInt(drinkMatch[1]) * 5); // Map drinks to cost range
+    }
+    const match = cost.match(/\$?(\d+)/);
+    return match ? parseInt(match[1]) : 0;
+  };
+
+  // Helper function to check if mic matches time of day filter
+  const matchesTimeOfDay = (mic: OpenMic, timeSlots: string[]) => {
+    if (timeSlots.length === 0) return true; // No filter applied
+    
+    const startHour = timeToMinutes(mic.startTime) / 60; // Convert to hours
+    
+    return timeSlots.some(slot => {
+      switch (slot) {
+        case 'daytime':
+          return startHour < 17; // Before 5pm
+        case 'evening':
+          return startHour >= 17 && startHour < 21; // 5-9pm
+        case 'late':
+          return startHour >= 21; // 9pm+
+        default:
+          return false;
+      }
+    });
+  };
+
   // Get filtered mics based on time and day
   const getFilteredMics = (tabType: string, dayFilter?: string) => {
     let filtered = openMics;
@@ -180,13 +242,21 @@ const OpenMics = () => {
       filtered = openMics.filter(mic => mic.day === dayFilter);
     }
 
-    // Apply search and borough filters
+    // Apply search, borough, cost, and time filters
     filtered = filtered.filter(mic => {
       const matchesSearch = mic.openMic.toLowerCase().includes(searchTerm.toLowerCase()) || 
                            mic.venueName.toLowerCase().includes(searchTerm.toLowerCase()) || 
                            mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesBorough = selectedBorough === "All" || mic.borough === selectedBorough;
-      return matchesSearch && matchesBorough;
+      
+      // Check cost filter
+      const micCost = getCostValue(mic.cost);
+      const matchesCost = micCost >= filters.costRange[0] && micCost <= filters.costRange[1];
+      
+      // Check time of day filter
+      const matchesTime = matchesTimeOfDay(mic, filters.timeOfDay);
+      
+      return matchesSearch && matchesBorough && matchesCost && matchesTime;
     });
 
     // Sort by time (except for "next" tab which is already sorted)
@@ -666,9 +736,16 @@ const OpenMics = () => {
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
               <Input placeholder="Search venues, neighborhoods, or open mic names..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 py-2 text-sm" />
             </div>
-            <select value={selectedBorough} onChange={e => setSelectedBorough(e.target.value)} className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-              {boroughs.map(borough => <option key={borough} value={borough}>{borough}</option>)}
-            </select>
+            <div className="flex gap-2">
+              <select value={selectedBorough} onChange={e => setSelectedBorough(e.target.value)} className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                {boroughs.map(borough => <option key={borough} value={borough}>{borough}</option>)}
+              </select>
+              <MicFilters
+                filters={filters}
+                onFiltersChange={setFilters}
+                maxCost={maxCost}
+              />
+            </div>
           </div>
         </div>
 
