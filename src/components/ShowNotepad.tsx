@@ -40,6 +40,59 @@ const handleExportCalendar = (show) => {
   window.open(url, "_blank")
 }
 
+const handleDownloadICal = (show) => {
+  const event = generateCalendarEvent(show);
+  const icalContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Comediq//Show Notepad//EN',
+    'BEGIN:VEVENT',
+    `DTSTART:${event.start}`,
+    `DTEND:${event.end}`,
+    `SUMMARY:${event.title}`,
+    `DESCRIPTION:${event.description.replace(/\n/g, '\\n')}`,
+    `LOCATION:${event.location}`,
+    `UID:${show.id || show.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}@comediq.app`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+  const blob = new Blob([icalContent], { type: 'text/calendar' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${show.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 0);
+}
+
+function generateCalendarEvent(show) {
+  const localDate = show.date.split('T')[0];
+  const localDateTimeString = `${localDate}T${show.time}:00`;
+  const localDateTime = new Date(localDateTimeString);
+  const endDateTime = new Date(localDateTime.getTime() + 90 * 60 * 1000); // 90 minutes duration
+  
+  const formatDate = (date) => {
+    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  };
+  
+  const description = show.type === "mic"
+    ? `${show.type === "mic" ? "Open mic" : "Comedy show"} at ${show.venue}\n${show.notes ? `Notes: ${show.notes}` : ''}`
+    : `Comedy show at ${show.venue}\n${show.notes ? `Notes: ${show.notes}` : ''}`;
+  
+  return {
+    title: show.title || show.venue,
+    start: formatDate(localDateTime),
+    end: formatDate(endDateTime),
+    description: description,
+    location: show.location || show.venue,
+    date: localDateTime
+  };
+}
+
 function getGoogleCalendarDateTimeRange(show) {
   const localDate = show.date.split('T')[0];
   const localDateTimeString = `${localDate}T${show.time}:00`;
@@ -140,11 +193,19 @@ function ShowCard({ show, editingId, setEditingId, editValue, setEditValue, edit
                 <div className="flex gap-2">
                   <Button
                     size="sm"
-                    className="bg-blue-500 hover:bg-blue-600 text-white text-sm"
+                    className="bg-white hover:bg-white border text-blue-500 hover:text-blue-600 text-sm"
                     onClick={() => handleExportCalendar(show)}
                   >
                     <Share className="w-4 h-4" />
-                    Export to GCal
+                    Export to Google Calendar
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-white hover:bg-white border text-orange-500 hover:text-orange-600 text-sm"
+                    onClick={() => handleDownloadICal(show)}
+                  >
+                    <Calendar className="w-4 h-4" />
+                    Download ICS file
                   </Button>
                   <Button
                     size="icon"

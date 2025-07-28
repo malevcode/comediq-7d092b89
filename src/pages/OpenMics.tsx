@@ -20,7 +20,9 @@ import { toast } from '@/hooks/use-toast';
 
 const OpenMics = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedBorough, setSelectedBorough] = useState("All");
+  const [selectedBorough, setSelectedBorough] = useState("Borough");
+  const [selectedCost, setSelectedCost] = useState("Cost")
+  const [selectedTime, setSelectedTime] = useState("Time")
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [activeTab, setActiveTab] = useState("next");
   const [showFilters, setShowFilters] = useState(false);
@@ -35,31 +37,11 @@ const OpenMics = () => {
   const { data: likedMics = [] } = useUserLikedMics();
   const navigate = useNavigate();
   
-  const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"];
+  const boroughs = ["Borough", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"];
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const costs = ["Free", "Other"]
+  const times = ["Time", "Daytime", "After Work", "Late Night"]
 
-  // Helper function to make links clickable
-  const makeLinksClickable = (text: string) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const parts = text.split(urlRegex);
-    
-    return parts.map((part, index) => {
-      if (urlRegex.test(part)) {
-        return (
-          <a
-            key={index}
-            href={part}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 underline"
-          >
-            {part}
-          </a>
-        );
-      }
-      return part;
-    });
-  };
 
   // Helper function to convert time string to 24-hour format for comparison
   const timeToMinutes = (timeStr: string) => {
@@ -107,19 +89,6 @@ const OpenMics = () => {
       }
       return (daysUntil * 24 * 60) + micStartMinutes - currentTimeMinutes;
     }
-  };
-
-  // Helper function to get borough initial
-  const getBoroughInitial = (borough: string) => {
-    const cleanBorough = borough.trim();
-    const initials = {
-      Manhattan: "M",
-      Brooklyn: "B", 
-      Queens: "Q",
-      Bronx: "X",
-      "Staten Island": "S"
-    };
-    return initials[cleanBorough as keyof typeof initials] || "?";
   };
 
   // Helper function to format time
@@ -180,13 +149,27 @@ const OpenMics = () => {
       filtered = openMics.filter(mic => mic.day === dayFilter);
     }
 
-    // Apply search and borough filters
+    const getMicTime = (time: string) => {
+      const timeMinutes = timeToMinutes(time);
+      
+      // Define time categories
+      if (timeMinutes >= 6 * 60 && timeMinutes < 17 * 60) {
+        return "Daytime"; // 6:00 AM - 4:59 PM
+      } else if (timeMinutes >= 17 * 60 && timeMinutes < 21 * 60) {
+        return "After Work"; // 5:00 PM - 8:59 PM
+      } else {
+        return "Late Night"; // 10:00 PM - 5:59 AM
+      }
+    }
+
+    // Apply search, borough, and time filters
     filtered = filtered.filter(mic => {
       const matchesSearch = mic.openMic.toLowerCase().includes(searchTerm.toLowerCase()) || 
                            mic.venueName.toLowerCase().includes(searchTerm.toLowerCase()) || 
                            mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesBorough = selectedBorough === "All" || mic.borough === selectedBorough;
-      return matchesSearch && matchesBorough;
+      const matchesBorough = selectedBorough === "Borough" || mic.borough === selectedBorough;
+      const matchesTime = selectedTime === "Time" || getMicTime(mic.startTime) === selectedTime;
+      return matchesSearch && matchesBorough && matchesTime;
     });
 
     // Sort by time (except for "next" tab which is already sorted)
@@ -289,7 +272,8 @@ const OpenMics = () => {
             ) : (
               <Button onClick={() => {
                 setSearchTerm("");
-                setSelectedBorough("All");
+                setSelectedBorough("Borough");
+                setSelectedTime("Time")
               }} className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm">
                 Clear Filters
               </Button>
@@ -502,7 +486,7 @@ const OpenMics = () => {
             {showDesktopKey && (
               <div className="hidden lg:block">
                 <div className="bg-orange-50 p-3 border border-orange-200 rounded-lg">
-                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
+                  <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 items-start">
                     {/* Example Tile */}
                     <div>
                       <p className="text-xs text-gray-600 mb-2 font-medium">Example:</p>
@@ -537,6 +521,25 @@ const OpenMics = () => {
                         <div className="flex items-center gap-2">
                           <div className="w-4 h-3 bg-red-100 rounded-sm border"></div>
                           <span>Unverified</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Time Categories Legend */}
+                    <div>
+                      <p className="text-xs text-gray-600 mb-2 font-medium">Time Categories:</p>
+                      <div className="space-y-1 text-xs">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-3 bg-blue-50 rounded-sm border"></div>
+                          <span>Daytime (6:00 AM - 4:59 PM)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-3 bg-orange-50 rounded-sm border"></div>
+                          <span>After Work (5:00 PM - 8:59 PM)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-3 bg-purple-50 rounded-sm border"></div>
+                          <span>Late Night (9:00 PM - 5:59 AM)</span>
                         </div>
                       </div>
                     </div>
@@ -624,6 +627,25 @@ const OpenMics = () => {
                   </div>
                 </div>
 
+                {/* Time Categories Legend */}
+                <div>
+                  <span className="font-medium text-xs">Time Categories:</span>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-2 bg-blue-50 rounded-sm border"></div>
+                      <span className="text-xs">Daytime (6AM-5PM)</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-2 bg-orange-50 rounded-sm border"></div>
+                      <span className="text-xs">After Work (5PM-9PM)</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-2 bg-purple-50 rounded-sm border"></div>
+                      <span className="text-xs">Late Night (9PM-6AM)</span>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Borough Legend */}
                 <div>
                   <span className="font-medium text-xs">Left border = Borough:</span>
@@ -666,9 +688,17 @@ const OpenMics = () => {
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
               <Input placeholder="Search venues, neighborhoods, or open mic names..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 py-2 text-sm" />
             </div>
-            <select value={selectedBorough} onChange={e => setSelectedBorough(e.target.value)} className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-              {boroughs.map(borough => <option key={borough} value={borough}>{borough}</option>)}
-            </select>
+            <div className="flex flex-row gap-3">
+              <select value={selectedBorough} onChange={e => setSelectedBorough(e.target.value)} className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                {boroughs.map(borough => <option key={borough} value={borough}>{borough}</option>)}
+              </select>
+              {/* <select value={selectedBorough} onChange={e => setSelectedBorough(e.target.value)} className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                {boroughs.map(borough => <option key={borough} value={borough}>{borough}</option>)}
+              </select> */}
+              <select value={selectedTime} onChange={e => setSelectedTime(e.target.value)} className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                {times.map(time => <option key={time} value={time}>{time}</option>)}
+              </select>
+            </div>
           </div>
         </div>
 

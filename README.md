@@ -4,6 +4,35 @@
 
 **URL**: https://lovable.dev/projects/a8910b23-961d-4052-9e5f-aa1fc519789f
 
+## Environment Variables
+
+This project uses several environment variables for configuration. Create a `.env` file in the root directory with the following variables:
+
+```bash
+# Supabase Configuration (already configured)
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Mapbox Configuration (for map functionality)
+VITE_MAPBOX_TOKEN=your_mapbox_public_token
+```
+
+### Getting API Keys
+
+**Supabase**: 
+- Go to [supabase.com](https://supabase.com) and create a project
+- Find your project URL and anon key in the project settings
+
+**Mapbox**: 
+- Go to [mapbox.com](https://mapbox.com) and create a free account
+- Create a new token with public scope
+- Use the public token (starts with `pk.`)
+
+### Development vs Production
+
+- **Development**: You can manually enter the Mapbox token in the app, and it will be stored in localStorage
+- **Production**: Set `VITE_MAPBOX_TOKEN` in your environment variables for automatic configuration
+
 ## How can I edit this code?
 
 There are several ways of editing your application.
@@ -32,7 +61,11 @@ cd <YOUR_PROJECT_NAME>
 # Step 3: Install the necessary dependencies.
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Create environment variables file
+cp .env.example .env
+# Edit .env with your API keys
+
+# Step 5: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
@@ -59,6 +92,8 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Supabase (Backend)
+- Mapbox (Maps)
 
 ## How can I deploy this project?
 
