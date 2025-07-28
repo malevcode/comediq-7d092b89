@@ -14,7 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      open_mics_historical: {
+      open_mics_active: {
         Row: {
           Borough: string | null
           "Changes/updates": string | null
@@ -81,7 +81,241 @@ export type Database = {
           "Venue Name"?: string | null
           "Venue type"?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "open_mics_active_unique_identifier_fkey"
+            columns: ["unique_identifier"]
+            isOneToOne: true
+            referencedRelation: "open_mics_historical"
+            referencedColumns: ["unique_identifier"]
+          },
+        ]
+      }
+      open_mics_active_duplicate: {
+        Row: {
+          Borough: string | null
+          "Changes/updates": string | null
+          Cost: string | null
+          Day: string | null
+          "Formerly verified": string | null
+          "Help other comics! Leave reviews": string | null
+          "Host(s) / Organizer": string | null
+          "Last verified": string | null
+          "Latest End Time": string | null
+          Location: string | null
+          Neighborhood: string | null
+          "Open Mic": string | null
+          "Other Rules": string | null
+          "Sign-Up Instructions": string | null
+          SMS: string | null
+          "Stage time": string | null
+          "Start Time": string | null
+          unique_identifier: string
+          "Venue Name": string | null
+          "Venue type": string | null
+        }
+        Insert: {
+          Borough?: string | null
+          "Changes/updates"?: string | null
+          Cost?: string | null
+          Day?: string | null
+          "Formerly verified"?: string | null
+          "Help other comics! Leave reviews"?: string | null
+          "Host(s) / Organizer"?: string | null
+          "Last verified"?: string | null
+          "Latest End Time"?: string | null
+          Location?: string | null
+          Neighborhood?: string | null
+          "Open Mic"?: string | null
+          "Other Rules"?: string | null
+          "Sign-Up Instructions"?: string | null
+          SMS?: string | null
+          "Stage time"?: string | null
+          "Start Time"?: string | null
+          unique_identifier: string
+          "Venue Name"?: string | null
+          "Venue type"?: string | null
+        }
+        Update: {
+          Borough?: string | null
+          "Changes/updates"?: string | null
+          Cost?: string | null
+          Day?: string | null
+          "Formerly verified"?: string | null
+          "Help other comics! Leave reviews"?: string | null
+          "Host(s) / Organizer"?: string | null
+          "Last verified"?: string | null
+          "Latest End Time"?: string | null
+          Location?: string | null
+          Neighborhood?: string | null
+          "Open Mic"?: string | null
+          "Other Rules"?: string | null
+          "Sign-Up Instructions"?: string | null
+          SMS?: string | null
+          "Stage time"?: string | null
+          "Start Time"?: string | null
+          unique_identifier?: string
+          "Venue Name"?: string | null
+          "Venue type"?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "open_mics_active_duplicate_unique_identifier_fkey"
+            columns: ["unique_identifier"]
+            isOneToOne: true
+            referencedRelation: "open_mics_historical"
+            referencedColumns: ["unique_identifier"]
+          },
+        ]
+      }
+      open_mics_historical: {
+        Row: {
+          Borough: string | null
+          "Changes/updates": string | null
+          Cost: string | null
+          Day: string | null
+          "Formerly verified": string | null
+          "Help other comics! Leave reviews": string | null
+          "Host(s) / Organizer": string | null
+          "Last verified": string | null
+          last_available: string | null
+          "Latest End Time": string | null
+          Location: string | null
+          Neighborhood: string | null
+          "Open Mic": string | null
+          "Other Rules": string | null
+          "Sign-Up Instructions": string | null
+          SMS: string | null
+          "Stage time": string | null
+          "Start Time": string | null
+          unique_identifier: string
+          "Venue Name": string | null
+          "Venue type": string | null
+        }
+        Insert: {
+          Borough?: string | null
+          "Changes/updates"?: string | null
+          Cost?: string | null
+          Day?: string | null
+          "Formerly verified"?: string | null
+          "Help other comics! Leave reviews"?: string | null
+          "Host(s) / Organizer"?: string | null
+          "Last verified"?: string | null
+          last_available?: string | null
+          "Latest End Time"?: string | null
+          Location?: string | null
+          Neighborhood?: string | null
+          "Open Mic"?: string | null
+          "Other Rules"?: string | null
+          "Sign-Up Instructions"?: string | null
+          SMS?: string | null
+          "Stage time"?: string | null
+          "Start Time"?: string | null
+          unique_identifier: string
+          "Venue Name"?: string | null
+          "Venue type"?: string | null
+        }
+        Update: {
+          Borough?: string | null
+          "Changes/updates"?: string | null
+          Cost?: string | null
+          Day?: string | null
+          "Formerly verified"?: string | null
+          "Help other comics! Leave reviews"?: string | null
+          "Host(s) / Organizer"?: string | null
+          "Last verified"?: string | null
+          last_available?: string | null
+          "Latest End Time"?: string | null
+          Location?: string | null
+          Neighborhood?: string | null
+          "Open Mic"?: string | null
+          "Other Rules"?: string | null
+          "Sign-Up Instructions"?: string | null
+          SMS?: string | null
+          "Stage time"?: string | null
+          "Start Time"?: string | null
+          unique_identifier?: string
+          "Venue Name"?: string | null
+          "Venue type"?: string | null
+        }
         Relationships: []
+      }
+      open_mics_july: {
+        Row: {
+          Borough: string | null
+          "Changes/updates": string | null
+          Cost: string | null
+          Day: string | null
+          "Formerly verified": string | null
+          "Help other comics! Leave reviews": string | null
+          "Host(s) / Organizer": string | null
+          "Last verified": string | null
+          "Latest End Time": string | null
+          Location: string | null
+          Neighborhood: string | null
+          "Open Mic": string | null
+          "Other Rules": string | null
+          "Sign-Up Instructions": string | null
+          SMS: string | null
+          "Stage time": string | null
+          "Start Time": string | null
+          unique_identifier: string
+          "Venue Name": string | null
+          "Venue type": string | null
+        }
+        Insert: {
+          Borough?: string | null
+          "Changes/updates"?: string | null
+          Cost?: string | null
+          Day?: string | null
+          "Formerly verified"?: string | null
+          "Help other comics! Leave reviews"?: string | null
+          "Host(s) / Organizer"?: string | null
+          "Last verified"?: string | null
+          "Latest End Time"?: string | null
+          Location?: string | null
+          Neighborhood?: string | null
+          "Open Mic"?: string | null
+          "Other Rules"?: string | null
+          "Sign-Up Instructions"?: string | null
+          SMS?: string | null
+          "Stage time"?: string | null
+          "Start Time"?: string | null
+          unique_identifier: string
+          "Venue Name"?: string | null
+          "Venue type"?: string | null
+        }
+        Update: {
+          Borough?: string | null
+          "Changes/updates"?: string | null
+          Cost?: string | null
+          Day?: string | null
+          "Formerly verified"?: string | null
+          "Help other comics! Leave reviews"?: string | null
+          "Host(s) / Organizer"?: string | null
+          "Last verified"?: string | null
+          "Latest End Time"?: string | null
+          Location?: string | null
+          Neighborhood?: string | null
+          "Open Mic"?: string | null
+          "Other Rules"?: string | null
+          "Sign-Up Instructions"?: string | null
+          SMS?: string | null
+          "Stage time"?: string | null
+          "Start Time"?: string | null
+          unique_identifier?: string
+          "Venue Name"?: string | null
+          "Venue type"?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "open_mics_july_unique_identifier_fkey"
+            columns: ["unique_identifier"]
+            isOneToOne: true
+            referencedRelation: "open_mics_historical"
+            referencedColumns: ["unique_identifier"]
+          },
+        ]
       }
       open_mics_june: {
         Row: {
@@ -102,7 +336,7 @@ export type Database = {
           SMS: string | null
           "Stage time": string | null
           "Start Time": string | null
-          unique_identifier: string | null
+          unique_identifier: string
           "Venue Name": string | null
           "Venue type": string | null
         }
@@ -124,7 +358,7 @@ export type Database = {
           SMS?: string | null
           "Stage time"?: string | null
           "Start Time"?: string | null
-          unique_identifier?: string | null
+          unique_identifier: string
           "Venue Name"?: string | null
           "Venue type"?: string | null
         }
@@ -146,18 +380,28 @@ export type Database = {
           SMS?: string | null
           "Stage time"?: string | null
           "Start Time"?: string | null
-          unique_identifier?: string | null
+          unique_identifier?: string
           "Venue Name"?: string | null
           "Venue type"?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "open_mics_june_unique_identifier_fkey"
+            columns: ["unique_identifier"]
+            isOneToOne: true
+            referencedRelation: "open_mics_historical"
+            referencedColumns: ["unique_identifier"]
+          },
+        ]
       }
       open_mics_requests: {
         Row: {
           borough: string | null
           created_at: string | null
           date: string | null
+          reviewed: boolean
           show_title: string | null
+          status: string | null
           time: string | null
           unique_identifier: string
           user_id: string | null
@@ -167,7 +411,9 @@ export type Database = {
           borough?: string | null
           created_at?: string | null
           date?: string | null
+          reviewed?: boolean
           show_title?: string | null
+          status?: string | null
           time?: string | null
           unique_identifier?: string
           user_id?: string | null
@@ -177,7 +423,9 @@ export type Database = {
           borough?: string | null
           created_at?: string | null
           date?: string | null
+          reviewed?: boolean
           show_title?: string | null
+          status?: string | null
           time?: string | null
           unique_identifier?: string
           user_id?: string | null
@@ -193,10 +441,58 @@ export type Database = {
           },
         ]
       }
+      profile_custom_shows: {
+        Row: {
+          borough: string | null
+          created_at: string
+          date: string | null
+          id: string
+          last_modified: string | null
+          notes: string | null
+          profile_id: string | null
+          schedule_type: Database["public"]["Enums"]["schedule_type"]
+          title: string | null
+          venue: string | null
+        }
+        Insert: {
+          borough?: string | null
+          created_at?: string
+          date?: string | null
+          id?: string
+          last_modified?: string | null
+          notes?: string | null
+          profile_id?: string | null
+          schedule_type?: Database["public"]["Enums"]["schedule_type"]
+          title?: string | null
+          venue?: string | null
+        }
+        Update: {
+          borough?: string | null
+          created_at?: string
+          date?: string | null
+          id?: string
+          last_modified?: string | null
+          notes?: string | null
+          profile_id?: string | null
+          schedule_type?: Database["public"]["Enums"]["schedule_type"]
+          title?: string | null
+          venue?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_custom_shows_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       profile_open_mics: {
         Row: {
           created_at: string
           id: string
+          last_modified: string | null
           notes: string | null
           open_mic_id: string | null
           profile_id: string | null
@@ -205,6 +501,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          last_modified?: string | null
           notes?: string | null
           open_mic_id?: string | null
           profile_id?: string | null
@@ -213,6 +510,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          last_modified?: string | null
           notes?: string | null
           open_mic_id?: string | null
           profile_id?: string | null
@@ -239,6 +537,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          isadmin: boolean
           phone: string | null
           user_id: string
           username: string | null
@@ -246,6 +545,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          isadmin?: boolean
           phone?: string | null
           user_id: string
           username?: string | null
@@ -253,6 +553,34 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          isadmin?: boolean
+          phone?: string | null
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      profiles_duplicate: {
+        Row: {
+          created_at: string
+          id: string
+          isadmin: boolean
+          phone: string | null
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          isadmin?: boolean
+          phone?: string | null
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          isadmin?: boolean
           phone?: string | null
           user_id?: string
           username?: string | null
@@ -282,6 +610,32 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_visits: {
+        Row: {
+          id: number
+          user_id: string | null
+          visit_date: string
+        }
+        Insert: {
+          id?: number
+          user_id?: string | null
+          visit_date?: string
+        }
+        Update: {
+          id?: number
+          user_id?: string | null
+          visit_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_visits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       waitlist: {
         Row: {
@@ -316,85 +670,6 @@ export type Database = {
           open_mics_per_month?: number | null
           phone?: string | null
           years_in_comedy?: string | null
-        }
-        Relationships: []
-      },
-      open_mics_july: {
-        Row: {
-          Borough: string | null
-          "Changes/updates": string | null
-          Cost: string | null
-          Day: string | null
-          "Help other comics! Leave reviews": string | null
-          "Host(s) / Organizer": string | null
-          "Last verified": string | null
-          "Latest End Time": string | null
-          Location: string | null
-          Neighborhood: string | null
-          "Open Mic": string | null
-          "Other Rules": string | null
-          "Sign-Up Instructions": string | null
-          SMS: string | null
-          "Stage time": string | null
-          "Start Time": string | null
-          unique_identifier: string
-          "Venue Name": string | null
-          "Venue type": string | null
-        }
-        Insert: {
-          Borough?: string | null
-          "Changes/updates"?: string | null
-          Cost?: string | null
-          Day?: string | null
-          "Help other comics! Leave reviews"?: string | null
-          "Host(s) / Organizer"?: string | null
-          "Last verified"?: string | null
-          "Latest End Time"?: string | null
-          Location?: string | null
-          Neighborhood?: string | null
-          "Open Mic"?: string | null
-          "Other Rules"?: string | null
-          "Sign-Up Instructions"?: string | null
-          SMS?: string | null
-          "Stage time"?: string | null
-          "Start Time"?: string | null
-          unique_identifier: string
-          "Venue Name"?: string | null
-          "Venue type"?: string | null
-        }
-        Update: {
-          Borough?: string | null
-          "Changes/updates"?: string | null
-          Cost?: string | null
-          Day?: string | null
-          "Help other comics! Leave reviews"?: string | null
-          "Host(s) / Organizer"?: string | null
-          "Last verified"?: string | null
-          "Latest End Time"?: string | null
-          Location?: string | null
-          Neighborhood?: string | null
-          "Open Mic"?: string | null
-          "Other Rules"?: string | null
-          "Sign-Up Instructions"?: string | null
-          SMS?: string | null
-          "Stage time"?: string | null
-          "Start Time"?: string | null
-          unique_identifier?: string
-          "Venue Name"?: string | null
-          "Venue type"?: string | null
-        }
-        Relationships: []
-      },
-      user_visits: {
-        Row: {
-          id: string
-          user_id: string
-          visit_date: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          visit_date?: string
         }
         Relationships: []
       }
