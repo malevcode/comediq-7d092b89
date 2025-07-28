@@ -56,88 +56,125 @@ export default function MicFilters({ filters, onFiltersChange, maxCost }: MicFil
   const hasActiveFilters = filters.costRange[0] > 0 || filters.costRange[1] < maxCost || filters.timeOfDay.length > 0;
 
   return (
-    <div className="relative">
+    <>
       <Button
         onClick={() => setShowFilters(!showFilters)}
         variant="outline"
         size="sm"
-        className="flex items-center gap-1 text-xs px-3 py-1 relative"
+        className={`flex items-center gap-2 text-sm px-4 py-2 relative transition-all ${
+          hasActiveFilters 
+            ? 'bg-cyan-50 border-cyan-300 text-cyan-800 hover:bg-cyan-100' 
+            : 'bg-cyan-50 border-cyan-200 text-cyan-700 hover:bg-cyan-100'
+        }`}
       >
-        <Filter className="h-3 w-3" />
-        <span>Filters</span>
+        <Filter className="h-4 w-4" />
+        <span className="font-medium">Filters</span>
         {hasActiveFilters && (
-          <Badge variant="destructive" className="absolute -top-1 -right-1 h-2 w-2 p-0 text-xs">
-            <span className="sr-only">Active filters</span>
+          <Badge variant="destructive" className="absolute -top-1 -right-1 h-3 w-3 p-0 text-xs flex items-center justify-center">
+            <span className="w-1 h-1 bg-white rounded-full"></span>
           </Badge>
         )}
       </Button>
 
       {showFilters && (
-        <Card className="absolute top-full left-0 z-50 mt-2 w-80 shadow-lg">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-sm">Filter Open Mics</h3>
-              <Button
-                onClick={() => setShowFilters(false)}
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {/* Cost Filter */}
-            <div className="mb-6">
-              <label className="text-sm font-medium mb-2 block">
-                Cost Range: {formatCostValue(filters.costRange[0])} - {formatCostValue(filters.costRange[1])}
-              </label>
-              <Slider
-                value={filters.costRange}
-                onValueChange={(value) => onFiltersChange({ ...filters, costRange: value as [number, number] })}
-                max={maxCost}
-                min={0}
-                step={1}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>Free</span>
-                <span>{formatCostValue(maxCost)}</span>
-              </div>
-            </div>
-
-            {/* Time of Day Filter */}
-            <div className="mb-6">
-              <label className="text-sm font-medium mb-2 block">Time of Day</label>
-              <div className="space-y-2">
-                {timeSlots.map((slot) => (
+        <>
+          {/* Mobile overlay backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/50 z-50 md:hidden" 
+            onClick={() => setShowFilters(false)}
+          />
+          
+          {/* Filter panel */}
+          <div className={`
+            fixed md:absolute 
+            inset-0 md:inset-auto
+            md:top-full md:left-0 md:mt-2 
+            z-50 
+            md:w-80 
+            ${showFilters ? 'block' : 'hidden'}
+          `}>
+            <Card className="h-full md:h-auto md:shadow-lg border-0 md:border rounded-none md:rounded-lg">
+              <CardContent className="p-6 h-full flex flex-col">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-semibold text-lg text-gray-900">Filter Open Mics</h3>
                   <Button
-                    key={slot.id}
-                    onClick={() => toggleTimeSlot(slot.id)}
-                    variant={filters.timeOfDay.includes(slot.id) ? "default" : "outline"}
+                    onClick={() => setShowFilters(false)}
+                    variant="ghost"
                     size="sm"
-                    className="w-full justify-start text-xs"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
                   >
-                    {slot.label}
+                    <X className="h-5 w-5" />
                   </Button>
-                ))}
-              </div>
-            </div>
+                </div>
 
-            {/* Clear Filters */}
-            {hasActiveFilters && (
-              <Button
-                onClick={clearFilters}
-                variant="outline"
-                size="sm"
-                className="w-full text-xs"
-              >
-                Clear All Filters
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+                <div className="flex-1 space-y-8">
+                  {/* Cost Filter */}
+                  <div>
+                    <label className="text-base font-medium mb-4 block text-gray-900">
+                      Cost Range: {formatCostValue(filters.costRange[0])} - {formatCostValue(filters.costRange[1])}
+                    </label>
+                    <div className="px-2">
+                      <Slider
+                        value={filters.costRange}
+                        onValueChange={(value) => onFiltersChange({ ...filters, costRange: value as [number, number] })}
+                        max={maxCost}
+                        min={0}
+                        step={1}
+                        className="w-full [&_.range-slider]:h-2 [&_.range-slider]:rounded-full [&_.range-slider]:bg-cyan-200 [&_.range-fill]:bg-cyan-500 [&_.range-thumb]:h-6 [&_.range-thumb]:w-6 [&_.range-thumb]:bg-white [&_.range-thumb]:border-2 [&_.range-thumb]:border-cyan-500 [&_.range-thumb]:shadow-lg"
+                        style={{
+                          "--slider-track-color": "rgb(165 243 252)",
+                          "--slider-range-color": "rgb(6 182 212)",
+                          "--slider-thumb-color": "white",
+                        } as any}
+                      />
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-500 mt-3 px-2">
+                      <span>Free</span>
+                      <span>{formatCostValue(maxCost)}</span>
+                    </div>
+                  </div>
+
+                  {/* Time of Day Filter */}
+                  <div>
+                    <label className="text-base font-medium mb-4 block text-gray-900">Time of Day</label>
+                    <div className="space-y-3">
+                      {timeSlots.map((slot) => (
+                        <Button
+                          key={slot.id}
+                          onClick={() => toggleTimeSlot(slot.id)}
+                          variant={filters.timeOfDay.includes(slot.id) ? "default" : "outline"}
+                          size="lg"
+                          className={`w-full justify-start text-sm py-3 h-auto ${
+                            filters.timeOfDay.includes(slot.id)
+                              ? 'bg-cyan-500 hover:bg-cyan-600 text-white border-cyan-500'
+                              : 'border-gray-300 text-gray-700 hover:bg-cyan-50 hover:border-cyan-300'
+                          }`}
+                        >
+                          {slot.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Clear Filters */}
+                <div className="mt-8 pt-6 border-t border-gray-200">
+                  {hasActiveFilters && (
+                    <Button
+                      onClick={clearFilters}
+                      variant="outline"
+                      size="lg"
+                      className="w-full text-sm py-3 border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                      Clear All Filters
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </>
       )}
-    </div>
+    </>
   );
 }
