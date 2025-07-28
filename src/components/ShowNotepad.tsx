@@ -367,7 +367,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
               notes: show.notes || '',
               created_at: date_now,
               last_modified: date_now,
-              schedule_type: 'upcoming',
+              schedule_type: 'upcoming' as const,
             };
             const { error, data } = await supabase.from('profile_custom_shows').insert([customShow]).select();
             if (error) {
@@ -391,15 +391,15 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
                 id: data[0].id,
                 title: data[0].title || "",
                 venue: data[0].venue || "",
-                location: data[0].location || "",
+                location: data[0].borough || "", // Use borough as location fallback
                 date: data[0].date, // use the ISO string directly
                 time: localTime,
-                status: data[0].schedule_type || "",
+                status: data[0].schedule_type as 'upcoming' | 'cancelled' | 'completed',
                 notes: data[0].notes || "",
-                audienceCount: data[0].audienceCount || "",
-                rating: data[0].rating || "",
+                audienceCount: "", // Not available in database, set to empty
+                rating: "", // Not available in database, set to empty
                 borough: data[0].borough || "",
-                createdAt: data[0].created_at || data[0].createdAt || "",
+                createdAt: data[0].created_at || "", // Use correct property name
                 type: "show",
               });
             }
