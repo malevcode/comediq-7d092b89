@@ -21,6 +21,9 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    exclude: ['mapbox-gl']
+    include: ['mapbox-gl']
+  },
+  define: {
+    global: 'globalThis',
   }
 }));
