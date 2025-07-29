@@ -171,7 +171,7 @@ const ShowForm = ({ onSubmit, onCancel, initialData, onDelete, showDelete }: Sho
 
             <div className="flex gap-2 pt-4 items-center">
               <Button type="submit" className="flex-1 bg-orange-500 hover:bg-orange-600">
-                Request Show
+                Request Mic
               </Button>
               {showDelete && onDelete && (
                 <Button
