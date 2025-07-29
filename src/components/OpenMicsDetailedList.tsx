@@ -182,7 +182,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
         </div>
       </div>
       {/* Mid: Time, Cost, Audience Size, Stage Time, Rules */}
-      <div className="flex-1 flex flex-col justify-evenly min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700 max-w-lg">
+      <div className="flex-1 flex flex-col justify-evenly min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700 max-w-lg mr-5 ml-5">
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-700 max-w-lg">
           <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />{mic.startTime} - {mic.latestEndTime}</span>
           <span className="flex items-center gap-1">
@@ -194,7 +194,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-gray-400 flex-shrink-0" />{mic.cost}</span>
           <span className="flex items-center gap-1 text-gray-600">
             <CircleUser className="w-4 h-4 text-gray-400" />
-            {mic.hosts && mic.hosts.trim() ? mic.hosts : "No host"}
+            {mic.instagramHandle && mic.instagramHandle.trim() ? mic.instagramHandle : "No host"}
           </span>
         </div>
         {mic.otherRules && (
