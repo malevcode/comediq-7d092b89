@@ -20,7 +20,18 @@ import Home from "./components/Home";
 import { TabProvider } from "@/contexts/TabContext";
 import AdminInterface from "./pages/AdminInterface"; 
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes - data is fresh for 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes - keep unused data in cache for 10 minutes
+      refetchOnWindowFocus: false, // Don't refetch when window regains focus
+      refetchOnReconnect: true, // Only refetch when reconnecting to network
+      retry: 1,
+      retryDelay: 1000,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

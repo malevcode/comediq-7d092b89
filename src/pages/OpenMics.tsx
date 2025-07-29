@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Search, HelpCircle, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -256,7 +256,11 @@ const OpenMics = () => {
         ) : currentViewMode === "list" ? (
           <OpenMicsDetailedList mics={filteredMics} visibleCount={visibleCount} setVisibleCount={setVisibleCount} />
         ) : (
-          <OpenMicsMap mics={filteredMics} onMicSelect={setSelectedMic} />
+          <OpenMicsMap 
+            key={`map-${filteredMics.map(m => m.uniqueIdentifier).join('-')}`}
+            mics={filteredMics} 
+            onMicSelect={handleMicSelect} 
+          />
         )}
 
         {filteredMics.length === 0 && (
@@ -289,6 +293,11 @@ const OpenMics = () => {
   };
 
   const handleViewModeChange = (mode: "list" | "grid" | "map") => setViewMode(mode);
+
+  // Memoize the onMicSelect callback to prevent map re-renders
+  const handleMicSelect = useCallback((mic: OpenMic) => {
+    setSelectedMic(mic);
+  }, []);
 
   const handleRequestMic = async (formData: any) => {
     const { anonymous } = formData;
