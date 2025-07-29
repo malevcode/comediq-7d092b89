@@ -28,22 +28,22 @@ export const useOpenMics = (tableName: 'open_mics_active' | 'open_mics_historica
       // Map the database columns to our OpenMic interface
       const mappedData = data.map((row: any) => {
         const mapped: OpenMic = {
-          openMic: row["Open Mic"] || "",
-          day: row["Day"] || "",
-          startTime: row["Start Time"] || "",
-          latestEndTime: row["Latest End Time"] || "",
-          venueName: row["Venue Name"] || "",
-          borough: row["Borough"]?.trim() || "",
-          neighborhood: row["Neighborhood"] || "",
-          location: row["Location"] || "",
-          venueType: row["Venue type"] || "",
-          cost: row["Cost"] || "",
-          stageTime: row["Stage time"] || "",
-          signUpInstructions: row["Sign-Up Instructions"] || "",
-          hosts: row["Host(s) / Organizer"] || "",
-          changesUpdates: row["Changes/updates"] || "",
-          lastVerified: row["Last verified"] || "",
-          otherRules: row["Other Rules"] || "",
+          openMic: row["Open Mic"] || row["open_mic"] || "",
+          day: row["Day"] || row["day"] || "",
+          startTime: row["Start Time"] || row["start_time"] || "",
+          latestEndTime: row["Latest End Time"] || row["latest_end_time"] || "",
+          venueName: row["Venue Name"] || row["venue_name"] || "",
+          borough: (row["Borough"] || row["borough"])?.trim() || "",
+          neighborhood: row["Neighborhood"] || row["neighborhood"] || "",
+          location: row["Location"] || row["location"] || "",
+          venueType: row["Venue type"] || row["venue_type"] || "",
+          cost: row["Cost"] || row["cost"] || "",
+          stageTime: row["Stage time"] || row["stage_time"] || "",
+          signUpInstructions: row["Sign-Up Instructions"] || row["signup_instructions"] || "",
+          hosts: row["Host(s) / Organizer"] || row["hosts"] || "",
+          instagramHandle: row["instagram_handle"] || "",
+          lastVerified: row["Last verified"] || row["last_verified"] || "",
+          otherRules: row["Other Rules"] || row["other_rules"] || "",
           uniqueIdentifier: row["unique_identifier"] || ""
         };
         return mapped;
