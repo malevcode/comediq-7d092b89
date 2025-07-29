@@ -13,7 +13,7 @@ export interface OpenMic {
   stageTime: string;
   signUpInstructions: string;
   hosts: string;
-  changesUpdates: string;
+  instagramHandle: string;
   lastVerified: string;
   otherRules: string;
   uniqueIdentifier: string;
