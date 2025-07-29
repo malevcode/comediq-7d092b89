@@ -28,22 +28,22 @@ export const useOpenMics = (tableName: 'open_mics_active' | 'open_mics_historica
       // Map the database columns to our OpenMic interface
       const mappedData = data.map((row: any) => {
         const mapped: OpenMic = {
-          openMic: row["Open Mic"] || "",
-          day: row["Day"] || "",
-          startTime: row["Start Time"] || "",
-          latestEndTime: row["Latest End Time"] || "",
-          venueName: row["Venue Name"] || "",
-          borough: row["Borough"]?.trim() || "",
-          neighborhood: row["Neighborhood"] || "",
-          location: row["Location"] || "",
-          venueType: row["Venue type"] || "",
-          cost: row["Cost"] || "",
-          stageTime: row["Stage time"] || "",
-          signUpInstructions: row["Sign-Up Instructions"] || "",
-          hosts: row["Host(s) / Organizer"] || "",
-          changesUpdates: row["Changes/updates"] || "",
-          lastVerified: row["Last verified"] || "",
-          otherRules: row["Other Rules"] || "",
+          openMic: row["open_mic"] || "",
+          day: row["day"] || "",
+          startTime: row["start_time"] || "",
+          latestEndTime: row["latest_end_time"] || "",
+          venueName: row["venue_name"] || "",
+          borough: row["borough"]?.trim() || "",
+          neighborhood: row["neighborhood"] || "",
+          location: row["location"] || "",
+          venueType: row["venue_type"] || "",
+          cost: row["cost"] || "",
+          stageTime: row["stage_time"] || "",
+          signUpInstructions: row["signup_instructions"] || "",
+          hosts: row["hosts"] || "",
+          changesUpdates: row["instagram_handle"] || "",
+          lastVerified: row["last_verified"] || "",
+          otherRules: row["other_rules"] || "",
           uniqueIdentifier: row["unique_identifier"] || ""
         };
         return mapped;
