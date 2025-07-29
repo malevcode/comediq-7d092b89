@@ -41,7 +41,7 @@ export const useOpenMics = (tableName: 'open_mics_active' | 'open_mics_historica
           stageTime: row["Stage time"] || row["stage_time"] || "",
           signUpInstructions: row["Sign-Up Instructions"] || row["signup_instructions"] || "",
           hosts: row["Host(s) / Organizer"] || row["hosts"] || "",
-          instagramHandle: row["instagram_handle"] || "",
+          instagramHandle: row["Changes/updates"] || row["instagram_handle"] || "",
           lastVerified: row["Last verified"] || row["last_verified"] || "",
           otherRules: row["Other Rules"] || row["other_rules"] || "",
           uniqueIdentifier: row["unique_identifier"] || ""
