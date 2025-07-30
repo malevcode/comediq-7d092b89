@@ -7,6 +7,22 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
+// Helper function to get map URL based on device
+function getMapUrl(location: string, venueName: string) {
+  const searchQuery = encodeURIComponent(`${venueName}, ${location}`);
+  
+  // Detect if user is on iOS
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  
+  if (isIOS) {
+    // Use Apple Maps on iOS
+    return `https://maps.apple.com/?q=${searchQuery}`;
+  } else {
+    // Use Google Maps on other devices
+    return `https://www.google.com/maps/search/?api=1&query=${searchQuery}`;
+  }
+}
+
 function downloadICal(mic: OpenMic) {
   const event = generateCalendarEvent(mic);
   const icalContent = [
@@ -133,7 +149,15 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
       {/* Left: Name, Location, Date */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className="font-semibold text-md text-gray-900 w-auto inline-block">{mic.openMic}</span>
+          <a 
+            href={getMapUrl(mic.location, mic.venueName)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-md text-gray-900 w-auto inline-block hover:text-blue-600 hover:bg-blue-50 hover:rounded px-1 py-0.5 cursor-pointer transition-all duration-200"
+            title={`Open ${/iPad|iPhone|iPod/.test(navigator.userAgent) ? 'Apple Maps' : 'Google Maps'} for ${mic.venueName}`}
+          >
+            {mic.openMic}
+          </a>
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium
             ${/tediously/i.test(mic.lastVerified)
               ? 'border border-yellow-200 bg-yellow-50 text-yellow-700'
