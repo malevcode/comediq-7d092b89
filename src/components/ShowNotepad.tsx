@@ -197,7 +197,8 @@ function ShowCard({ show, editingId, setEditingId, editValue, setEditValue, edit
                     onClick={() => handleExportCalendar(show)}
                   >
                     <Share className="w-4 h-4" />
-                    Export to Google Calendar
+                    <span className="hidden sm:inline">Export to Google Calendar</span>
+                    <span className="sm:hidden">Google</span>
                   </Button>
                   <Button
                     size="sm"
@@ -205,7 +206,8 @@ function ShowCard({ show, editingId, setEditingId, editValue, setEditValue, edit
                     onClick={() => handleDownloadICal(show)}
                   >
                     <Calendar className="w-4 h-4" />
-                    Download ICS file
+                    <span className="hidden sm:inline">Download ICS file</span>
+                    <span className="sm:hidden">iCal</span>
                   </Button>
                   <Button
                     size="icon"
