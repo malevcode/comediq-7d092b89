@@ -637,6 +637,44 @@ export type Database = {
           },
         ]
       }
+      user_notes: {
+        Row: {
+          id: string
+          user_id: string
+          content: string
+          title: string | null
+          created_at: string
+          updated_at: string
+          is_draft: boolean
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          content: string
+          title?: string | null
+          created_at?: string
+          updated_at?: string
+          is_draft?: boolean
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          content?: string
+          title?: string | null
+          created_at?: string
+          updated_at?: string
+          is_draft?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          }
+        ]
+      }
       waitlist: {
         Row: {
           created_at: string | null
