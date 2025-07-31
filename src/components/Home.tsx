@@ -450,11 +450,11 @@ export default function Home() {
                         Saved Notes
                       </Button>
                     </SheetTrigger>
-                    <SheetContent>
+                    <SheetContent className="overflow-y-auto">
                       <SheetHeader>
                         <SheetTitle>Saved Notes</SheetTitle>
                       </SheetHeader>
-                      <div className="mt-4 space-y-3">
+                      <div className="mt-4 space-y-3 pb-4">
                         {savedNotes.map((note) => (
                           <div 
                             key={note.id} 
