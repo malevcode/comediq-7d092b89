@@ -171,27 +171,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email,
       password,
     });
-    // Record visit if login successful and user is available
-    if (!error) {
-      // Wait for user state to update
-      setTimeout(async () => {
-        const currentUser = supabase.auth.getUser ? (await supabase.auth.getUser()).data.user : null;
-        const userId = currentUser?.id || user?.id;
-        if (userId) {
-          const visitDate = new Date().toISOString();
-          console.log('Inserting user_visits:', { userId, visitDate });
-          const { error: insertError, data: insertData } = await supabase
-            .from('user_visits')
-            .insert([{ user_id: userId, visit_date: visitDate }]);
-          if (insertError) {
-            console.error('user_visits insert error:', insertError);
-          } else {
-            console.log('user_visits insert success:', insertData);
-            setVisitInserted(true); // Trigger visitInserted
-          }
-        }
-      }, 500);
-    }
+    // Note: Visit recording is handled by checkAndInsertVisit when user state changes
     return { error };
   };
 
