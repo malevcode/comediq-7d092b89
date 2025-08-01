@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate } from "react-router-dom";
 import MicDetailModal from "@/components/MicDetailModal";
-import OpenMicsMap from "@/components/OpenMicsMap";
+import { OpenMicsMapRefactored as OpenMicsMap } from "@/components/map";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import ViewToggle from "@/components/ViewToggle";
 import ShowForm from "@/components/ShowForm";
