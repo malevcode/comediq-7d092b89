@@ -20,13 +20,17 @@ interface OpenMicsMapProps {
   onMicSelect: (mic: OpenMic) => void;
 }
 
+
+
 const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [mapboxToken, setMapboxToken] = useState('');
   const [showTokenInput, setShowTokenInput] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [geocodingProgress, setGeocodingProgress] = useState<{ current: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const geocodeCache = useRef<Map<string, [number, number]>>(new Map());
   const micDataRef = useRef<OpenMic[]>([]);
@@ -58,10 +62,11 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
     return '';
   };
 
-  // Get user's current location
-  const getUserLocation = useCallback(() => {
+  // Recenter map on user location
+  const recenterOnUserLocation = useCallback(() => {
     if (!navigator.geolocation) {
       console.log('Geolocation is not supported by this browser');
+      setError('Geolocation is not supported by this browser.');
       return;
     }
 
@@ -71,15 +76,18 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
       (position) => {
         const { longitude, latitude } = position.coords;
         const location: [number, number] = [longitude, latitude];
-        setUserLocation(location);
-        setLocationLoading(false);
+        
         console.log('User location obtained:', location);
         
-        // Center map on user location if map is already loaded
+        setUserLocation(location);
+        setLocationLoading(false);
+        
+        // Center map on user location
         if (map.current) {
+          console.log('Recentering map on user location:', location);
           map.current.flyTo({
             center: location,
-            zoom: 11,
+            zoom: 12, // Closer zoom for user location
             duration: 2000
           });
         }
@@ -87,7 +95,18 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
       (error) => {
         console.error('Error getting location:', error);
         setLocationLoading(false);
-        setError(`Location error: ${error.message}`);
+        
+        // Show user-friendly error message
+        let errorMessage = 'Unable to get your location.';
+        if (error.code === 1) {
+          errorMessage = 'Location permission denied. Please allow location access in your browser settings.';
+        } else if (error.code === 2) {
+          errorMessage = 'Location unavailable. Please check your device location settings.';
+        } else if (error.code === 3) {
+          errorMessage = 'Location request timed out. Please try again.';
+        }
+        
+        setError(errorMessage);
       },
       {
         enableHighAccuracy: true,
@@ -110,23 +129,34 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
     return R * c;
   };
 
+  const getMarkerColor = (verified: string, tediouslyVerified: string): string => {
+    if (tediouslyVerified === 'true') return '#fef3c7'; // yellow-100
+    if (verified === 'true') return '#d1fae5'; // emerald-100
+    return '#fee2e2'; // red-100
+  };
+
   // Initialize token on component mount
   useEffect(() => {
     console.log('OpenMicsMap: Token initialization effect running');
     const token = getMapboxToken();
     if (token) {
+      // Set the global Mapbox token
+      MapboxGL.accessToken = token;
       setMapboxToken(token);
       setShowTokenInput(false);
+      localStorage.removeItem('geocode_cache');
+      geocodeCache.current.clear();
     } else {
       setShowTokenInput(true);
     }
   }, []);
 
-  // Get user location on mount
+  // Get user location on mount - automatically request permission
   useEffect(() => {
     console.log('OpenMicsMap: User location effect running');
-    getUserLocation();
-  }, [getUserLocation]);
+    // Automatically request location when component mounts
+    recenterOnUserLocation();
+  }, [recenterOnUserLocation]);
 
   // Borough color mapping matching the existing system
   const getBoroughColor = useCallback((borough: string) => {
@@ -194,69 +224,68 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
     }
 
     try {
-      // Use user location for better local geocoding if available
-      let geocodingUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxToken}&limit=5&types=poi,address&country=us`;
+      // Try to get the most accurate result by using address type first
+      let geocodingUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxToken}&limit=5&types=address&country=us`;
       
-      if (userLocation) {
-        // Add proximity bias to user location
-        geocodingUrl += `&proximity=${userLocation[0]},${userLocation[1]}`;
-      }
-      
-      const response = await fetch(geocodingUrl);
+      let response = await fetch(geocodingUrl);
       
       if (!response.ok) {
         throw new Error(`Geocoding failed: ${response.status}`);
       }
       
-      const data = await response.json();
+      let data = await response.json();
+      
+      // If no address results, try with poi type
+      if (!data.features || data.features.length === 0) {
+        console.log(`No address results for "${address}", trying POI search...`);
+        geocodingUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxToken}&limit=5&types=poi&country=us`;
+        response = await fetch(geocodingUrl);
+        
+        if (!response.ok) {
+          throw new Error(`Geocoding failed: ${response.status}`);
+        }
+        
+        data = await response.json();
+      }
       
       if (data.features && data.features.length > 0) {
-        // Find the best match
+        // Look for the best match - prefer exact address matches
+        let bestFeature = data.features[0];
+        let bestScore = 0;
+        
         for (const feature of data.features) {
-          const coordinates = feature.center as [number, number];
-          const [lng, lat] = coordinates;
+          const placeName = feature.place_name.toLowerCase();
+          const addressLower = address.toLowerCase();
           
-          // Check if this coordinate is already used by another address (avoid clustering)
-          const isDuplicate = Array.from(geocodeCache.current.values()).some(
-            ([cachedLng, cachedLat]) => 
-              Math.abs(cachedLng - lng) < 0.0001 && Math.abs(cachedLat - lat) < 0.0001
-          );
+          // Score based on how well the address matches
+          let score = feature.relevance || 0;
           
-          if (!isDuplicate) {
-            // Add a small random offset to prevent exact clustering
-            const offsetLng = lng + (Math.random() - 0.5) * 0.0002; // ±0.0001 degrees
-            const offsetLat = lat + (Math.random() - 0.5) * 0.0002; // ±0.0001 degrees
-            const finalCoordinates: [number, number] = [offsetLng, offsetLat];
-            
-            // Cache the result
-            geocodeCache.current.set(address, finalCoordinates);
-            
-            // Check distance from user location for logging
-            if (userLocation) {
-              const distance = calculateDistance(userLocation[1], userLocation[0], lat, lng);
-              console.log(`Geocoded "${address}" to [${offsetLng}, ${offsetLat}] (${distance.toFixed(1)}km from user)`);
-            } else {
-              console.log(`Geocoded "${address}" to [${offsetLng}, ${offsetLat}]`);
-            }
-            
-            return finalCoordinates;
-          } else {
-            console.warn(`Skipping duplicate coordinates for "${address}": [${lng}, ${lat}]`);
+          // Bonus for exact address match
+          if (placeName.includes(addressLower) || addressLower.includes(placeName.split(',')[0])) {
+            score += 0.3;
+          }
+          
+          // Bonus for having the full address
+          if (placeName.includes('new york') || placeName.includes('ny')) {
+            score += 0.2;
+          }
+          
+          if (score > bestScore) {
+            bestScore = score;
+            bestFeature = feature;
           }
         }
         
-        // If no good match found, try the first result
-        const firstFeature = data.features[0];
-        const coordinates = firstFeature.center as [number, number];
-        const [lng, lat] = coordinates;
-        
-        console.warn(`Using fallback coordinates for "${address}": [${lng}, ${lat}]`);
-        geocodeCache.current.set(address, coordinates);
-        return coordinates;
+        const [rawLng, rawLat] = bestFeature.center as [number, number];
+        // rawLng is longitude, rawLat is latitude
+        const lng = rawLng + (Math.random() - 0.5) * 0.0002;
+        const lat = rawLat + (Math.random() - 0.5) * 0.0002;
+        geocodeCache.current.set(address, [lng, lat]);
+        return [lng, lat];
       }
     } catch (error) {
       console.error('Geocoding error:', error);
-      setError(`Failed to geocode address: ${address}`);
+      // Don't set error for individual geocoding failures to avoid UI disruption
     }
     return null;
   }, [mapboxToken, userLocation]);
@@ -298,11 +327,15 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
       console.log('Container element:', mapContainer.current);
       console.log('Token (first 10 chars):', mapboxToken.substring(0, 10) + '...');
       
+      // Always start with NYC center, we'll center on user location after getting permission
+      const mapCenter = [-73.935242, 40.730610]; // NYC center
+      console.log('Map initialization - starting with NYC center');
+      
       map.current = new MapboxGL.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        center: userLocation || [-73.935242, 40.730610], // User location or NYC center
-        zoom: userLocation ? 11 : 9, // Closer zoom if we have user location
+        center: mapCenter,
+        zoom: 9, // Start with wider view
         accessToken: mapboxToken,
         maxZoom: 18,
         minZoom: 6 // Allow zooming out further to see out-of-area mics
@@ -321,19 +354,11 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
       map.current.on('load', () => {
         console.log('Map loaded successfully');
         setError(null);
+        setMapLoaded(true);
         
-        // Add user location marker if available
+        // Add user location marker if available (this will be handled by the useEffect above)
         if (userLocation) {
-          const userMarker = new MapboxGL.Marker({
-            color: '#ff4444',
-            scale: 0.8
-          })
-            .setLngLat(userLocation)
-            .setPopup(new MapboxGL.Popup().setHTML('<div>You are here</div>'))
-            .addTo(map.current!);
-          
-          // Store reference to remove later
-          markersRef.current.push(userMarker);
+          console.log('User location available on map load, marker will be added by useEffect');
         }
       });
 
@@ -351,257 +376,411 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
   const updateMarkers = useCallback(async () => {
     if (!map.current) return;
 
+    // Wait for map to be fully loaded before adding layers
+    if (!map.current.isStyleLoaded()) {
+      console.log('Map style not loaded yet, waiting...');
+      await new Promise<void>((resolve) => {
+        const checkStyleLoaded = () => {
+          if (map.current?.isStyleLoaded()) {
+            resolve();
+          } else {
+            setTimeout(checkStyleLoaded, 100);
+          }
+        };
+        checkStyleLoaded();
+      });
+    }
+
+    // Double-check that map is still valid after waiting
+    if (!map.current) {
+      console.log('Map was destroyed while waiting for style to load');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // Clear existing markers
-      markersRef.current.forEach(marker => marker.remove());
-      markersRef.current = [];
+      // Clear existing markers but preserve user location marker
+      const userLocationMarker = markersRef.current.find(marker => 
+        marker.getElement().style.color === '#ff4444'
+      );
+      
+      markersRef.current.forEach(marker => {
+        if (marker.getElement().style.color !== '#ff4444') {
+          marker.remove();
+        }
+      });
+      
+      // Keep only the user location marker
+      markersRef.current = userLocationMarker ? [userLocationMarker] : [];
 
-      // Collect all valid coordinates and mic data
-      const micData: Array<{ coordinates: [number, number], mic: OpenMic }> = [];
-      
-      // Process mics in batches to avoid overwhelming the API
-      const batchSize = 5;
-      
-      for (let i = 0; i < mics.length; i += batchSize) {
-        const batch = mics.slice(i, i + batchSize);
-        
-        await Promise.all(
-          batch.map(async (mic) => {
-            if (mic.location) {
-              const coordinates = await geocodeAddress(mic.location);
-              if (coordinates) {
-                micData.push({ coordinates, mic });
-              } else {
-                console.warn(`Could not geocode address for ${mic.openMic}: ${mic.location}`);
-              }
-            }
-          })
-        );
-        
-        // Small delay between batches to be respectful to the API
-        if (i + batchSize < mics.length) {
-          await new Promise(resolve => setTimeout(resolve, 100));
+      // Load cached geocoding data from localStorage
+      const loadGeocodeCache = () => {
+        try {
+          const cached = localStorage.getItem('geocode_cache');
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            geocodeCache.current = new Map(Object.entries(parsed));
+            console.log(`Loaded ${geocodeCache.current.size} cached geocodes`);
+          }
+        } catch (error) {
+          console.warn('Failed to load geocode cache:', error);
+        }
+      };
+
+      // Save geocoding cache to localStorage
+      const saveGeocodeCache = () => {
+        try {
+          const cacheObj = Object.fromEntries(geocodeCache.current);
+          localStorage.setItem('geocode_cache', JSON.stringify(cacheObj));
+        } catch (error) {
+          console.warn('Failed to save geocode cache:', error);
+        }
+      };
+
+      // Load existing cache
+      loadGeocodeCache();
+
+      // Filter out bad coordinates from cache
+      const badCoordinates: string[] = [];
+      geocodeCache.current.forEach((coordinates, address) => {
+        const [lng, lat] = coordinates;
+        // NYC area: longitude -74.5 to -73.5, latitude 40.4 to 41.0
+        const isValid = lng >= -74.5 && lng <= -73.5 && lat >= 40.4 && lat <= 41.0;
+        if (!isValid) {
+          badCoordinates.push(address);
+          console.warn(`Found bad coordinates in cache for "${address}": [${lng}, ${lat}]`);
+        }
+      });
+
+      // Remove bad coordinates from cache
+      if (badCoordinates.length > 0) {
+        console.log(`Removing ${badCoordinates.length} bad coordinates from cache`);
+        badCoordinates.forEach(address => {
+          geocodeCache.current.delete(address);
+        });
+        // Save updated cache
+        try {
+          const cacheObj = Object.fromEntries(geocodeCache.current);
+          localStorage.setItem('geocode_cache', JSON.stringify(cacheObj));
+        } catch (error) {
+          console.warn('Failed to save updated cache:', error);
         }
       }
 
-      // Create GeoJSON source for clustering
-      const geojson = {
-        type: 'FeatureCollection',
-        features: micData.map(({ coordinates, mic }, index) => ({
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: coordinates
-          },
-          properties: {
-            id: mic.uniqueIdentifier,
-            micIndex: index, // Store index instead of full object
-            borough: mic.borough,
-            verification: mic.lastVerified,
-            micName: mic.openMic, // Store key properties as strings
-            venueName: mic.venueName,
-            startTime: mic.startTime,
-            cost: mic.cost,
-            stageTime: mic.stageTime
-          }
-        }))
+      // Create initial GeoJSON with only cached coordinates
+      const initialMicData: Array<{ coordinates: [number, number], mic: OpenMic }> = [];
+      const uncachedMics: OpenMic[] = [];
+
+      // First pass: add all mics with cached coordinates (now filtered)
+      mics.forEach(mic => {
+        if (mic.location && geocodeCache.current.has(mic.location)) {
+          const coordinates = geocodeCache.current.get(mic.location)!;
+          initialMicData.push({ coordinates, mic });
+        } else if (mic.location) {
+          uncachedMics.push(mic);
+        }
+      });
+
+      console.log(`updateMarkers: ${mics.length} total mics, ${initialMicData.length} cached, ${uncachedMics.length} uncached`);
+
+      // Store mic data for later use
+      micDataRef.current = mics;
+
+      const initialGeojson = {
+        type: 'FeatureCollection' as const,
+        features: initialMicData.map(({ coordinates, mic }, index) => {
+          const [lng, lat] = coordinates;  // guaranteed [longitude, latitude]
+          return {
+            type: 'Feature' as const,
+            geometry: {
+              type: 'Point' as const,
+              coordinates: [lng, lat]
+            },
+            properties: {
+              id: mic.uniqueIdentifier,
+              micName: mic.openMic,
+              venueName: mic.venueName,
+              location: mic.location,
+              day: mic.day,
+              startTime: mic.startTime,
+              latestEndTime: mic.latestEndTime,
+              cost: mic.cost,
+              stageTime: mic.stageTime,
+              lastVerified: mic.lastVerified,
+              borough: mic.borough,
+              index
+            }
+          };
+        })
       };
+      
 
-      // Store mic data in a ref for reliable access
-      micDataRef.current = micData.map(({ mic }) => mic);
+      console.log('Initial GeoJSON:', initialGeojson);
 
-      // Add the source to the map
+      // Remove existing source and layers
       if (map.current.getSource('mics')) {
         map.current.removeLayer('clusters');
         map.current.removeLayer('cluster-count');
         map.current.removeLayer('unclustered-point');
-        map.current.removeLayer('unclustered-point-hover'); // Remove the new layer
+        map.current.removeLayer('unclustered-point-hover');
         map.current.removeSource('mics');
       }
 
+      // Note: We can't easily remove specific event listeners without storing references
+      // This is a limitation of Mapbox GL JS, but it shouldn't cause issues in practice
+
       map.current.addSource('mics', {
         type: 'geojson',
-        data: geojson as any,
+        data: initialGeojson as any,
         cluster: true,
-        clusterMaxZoom: 12, // Lower max zoom for clustering to accommodate out-of-area mics
-        clusterRadius: 60 // Slightly larger radius for better clustering with dispersed mics
+        clusterMaxZoom: 12,
+        clusterRadius: 60
       });
 
-      // Add cluster layers
-      map.current.addLayer({
-        id: 'clusters',
-        type: 'circle',
-        source: 'mics',
-        filter: ['has', 'point_count'],
-        paint: {
-          'circle-color': [
-            'step',
-            ['get', 'point_count'],
-            '#51bbd6',
-            100,
-            '#f1f075',
-            750,
-            '#f28cb1'
-          ],
-          'circle-radius': [
-            'step',
-            ['get', 'point_count'],
-            20,
-            100,
-            30,
-            750,
-            40
-          ]
+      // Add all the layers
+      const layers = [
+        {
+          id: 'clusters',
+          type: 'circle',
+          source: 'mics',
+          filter: ['has', 'point_count'],
+          paint: {
+            'circle-color': [
+              'step',
+              ['get', 'point_count'],
+              '#51bbd6',
+              100,
+              '#f1f075',
+              750,
+              '#f28cb1'
+            ],
+            'circle-radius': [
+              'step',
+              ['get', 'point_count'],
+              20,
+              100,
+              30,
+              750,
+              40
+            ]
+          }
+        },
+        {
+          id: 'cluster-count',
+          type: 'symbol',
+          source: 'mics',
+          filter: ['has', 'point_count'],
+          layout: {
+            'text-field': '{point_count_abbreviated}',
+            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 12
+          }
+        },
+        {
+          id: 'unclustered-point',
+          type: 'circle',
+          source: 'mics',
+          filter: ['!', ['has', 'point_count']],
+          paint: {
+            'circle-color': '#11b4da',
+            'circle-radius': 12,
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#fff',
+            'circle-opacity': 0.8
+          }
+        },
+        {
+          id: 'unclustered-point-hover',
+          type: 'circle',
+          source: 'mics',
+          filter: ['!', ['has', 'point_count']],
+          paint: {
+            'circle-color': '#11b4da',
+            'circle-radius': 16,
+            'circle-stroke-width': 3,
+            'circle-stroke-color': '#fff',
+            'circle-opacity': 0
+          }
         }
+      ];
+
+      layers.forEach(layer => {
+        map.current.addLayer(layer as any);
       });
 
-      map.current.addLayer({
-        id: 'cluster-count',
-        type: 'symbol',
-        source: 'mics',
-        filter: ['has', 'point_count'],
-        layout: {
-          'text-field': '{point_count_abbreviated}',
-          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-          'text-size': 12
-        }
-      });
-
-      // Add unclustered point layer with custom markers
-      map.current.addLayer({
-        id: 'unclustered-point',
-        type: 'circle',
-        source: 'mics',
-        filter: ['!', ['has', 'point_count']],
-        paint: {
-          'circle-color': '#11b4da',
-          'circle-radius': 12,
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#fff',
-          'circle-opacity': 0.8
-        }
-      });
-
-      // Add hover effect for unclustered points
-      map.current.addLayer({
-        id: 'unclustered-point-hover',
-        type: 'circle',
-        source: 'mics',
-        filter: ['!', ['has', 'point_count']],
-        paint: {
-          'circle-color': '#11b4da',
-          'circle-radius': 16,
-          'circle-stroke-width': 3,
-          'circle-stroke-color': '#fff',
-          'circle-opacity': 0
-        }
-      });
-
-      // Handle clicks on clusters
+      // Add event handlers
       map.current.on('click', 'clusters', (e) => {
-        console.log('Cluster clicked:', e.features);
-        const features = map.current!.queryRenderedFeatures(e.point, {
+        const features = map.current.queryRenderedFeatures(e.point, {
           layers: ['clusters']
         });
-        const clusterId = features[0].properties!.cluster_id;
-        (map.current!.getSource('mics') as any).getClusterExpansionZoom(
-          clusterId,
-          (err: any, zoom: number) => {
-            if (err) return;
-
-            map.current!.easeTo({
-              center: (features[0].geometry as any).coordinates,
-              zoom: zoom
-            });
-          }
-        );
-      });
-
-      // Handle clicks on individual points
-      map.current.on('click', 'unclustered-point', (e) => {
-        console.log('Individual point clicked:', e.features);
-        if (e.features && e.features.length > 0) {
-          const coordinates = (e.features[0].geometry as any).coordinates.slice();
-          const properties = e.features[0].properties;
-          
-          // Get mic data from the ref using the stored index
-          const micIndex = properties?.micIndex;
-          const mic = micIndex !== undefined ? micDataRef.current[micIndex] : null;
-          
-          console.log('Mic index:', micIndex, 'Mic data:', mic);
-          
-          if (mic) {
-            console.log('Opening modal for mic:', mic.openMic);
-            
-            // Call the onMicSelect callback to open the modal
-            onMicSelect(mic);
-            
-            // Also create a popup for immediate feedback
-            const popup = new MapboxGL.Popup()
-              .setLngLat(coordinates)
-              .setHTML(`
-                <div style="padding: 8px; min-width: 200px;">
-                  <h3 style="font-weight: bold; margin: 0 0 4px 0; font-size: 14px;">${mic.openMic}</h3>
-                  <p style="margin: 0; font-size: 12px; color: #666;">${mic.venueName}</p>
-                  <p style="margin: 4px 0 0 0; font-size: 12px;">
-                    <strong>${formatTime(mic.startTime)}</strong> • 
-                    <span style="color: #059669;">${formatCost(mic.cost)}</span> • 
-                    <span style="color: #d97706;">${formatStageTime(mic.stageTime)} min</span>
-                  </p>
-                  <p style="margin: 4px 0 0 0; font-size: 11px; color: #888;">
-                    Click to view details
-                  </p>
-                </div>
-              `);
-
-            popup.addTo(map.current!);
-            
-            // Remove popup after a short delay
-            setTimeout(() => {
-              if (popup.isOpen()) {
-                popup.remove();
+        if (features.length > 0) {
+          const clusterId = features[0].properties!.cluster_id;
+          const source = map.current.getSource('mics') as any;
+          if (source && source.getClusterExpansionZoom) {
+            source.getClusterExpansionZoom(
+              clusterId,
+              (err: any, zoom: number) => {
+                if (err || !map.current) return;
+                map.current.easeTo({
+                  center: (features[0].geometry as any).coordinates,
+                  zoom: zoom
+                });
               }
-            }, 3000);
-          } else {
-            console.error('Could not find mic data for index:', micIndex);
-            console.error('Available mic data:', micDataRef.current);
+            );
           }
         }
       });
 
-      // Change cursor on hover
-      map.current.on('mouseenter', 'clusters', () => {
-        map.current!.getCanvas().style.cursor = 'pointer';
+      map.current.on('click', 'unclustered-point', (e) => {
+        const features = map.current.queryRenderedFeatures(e.point, {
+          layers: ['unclustered-point']
+        });
+        if (features.length > 0) {
+          const feature = features[0];
+          const micIndex = feature.properties!.index;
+          const mic = micDataRef.current[micIndex];
+          if (mic) {
+            onMicSelect(mic);
+          }
+        }
       });
+
+      map.current.on('mouseenter', 'clusters', () => {
+        map.current.getCanvas().style.cursor = 'pointer';
+      });
+
       map.current.on('mouseleave', 'clusters', () => {
-        map.current!.getCanvas().style.cursor = '';
+        map.current.getCanvas().style.cursor = '';
       });
 
       map.current.on('mouseenter', 'unclustered-point', () => {
-        map.current!.getCanvas().style.cursor = 'pointer';
-        // Show hover effect
-        map.current!.setPaintProperty('unclustered-point-hover', 'circle-opacity', 0.3);
-      });
-      map.current.on('mouseleave', 'unclustered-point', () => {
-        map.current!.getCanvas().style.cursor = '';
-        // Hide hover effect
-        map.current!.setPaintProperty('unclustered-point-hover', 'circle-opacity', 0);
+        map.current.getCanvas().style.cursor = 'pointer';
       });
 
-      // Fit map bounds to show all markers
-      if (micData.length > 0) {
-        const bounds = new MapboxGL.LngLatBounds();
-        micData.forEach(({ coordinates }) => bounds.extend(coordinates));
+      map.current.on('mouseleave', 'unclustered-point', () => {
+        map.current.getCanvas().style.cursor = '';
+      });
+
+      // Progressive geocoding for uncached mics
+      if (uncachedMics.length > 0) {
+        setGeocodingProgress({ current: 0, total: uncachedMics.length });
         
-        // Add some padding to the bounds
-        map.current.fitBounds(bounds, {
-          padding: 100, // More padding to accommodate out-of-area mics
-          maxZoom: 12, // Don't zoom in too much if there are out-of-area mics
-          duration: 1000
+        for (let i = 0; i < uncachedMics.length; i++) {
+          const mic = uncachedMics[i];
+          if (!mic.location) continue;
+
+          try {
+            const coordinates = await geocodeAddress(mic.location);
+            if (coordinates) {
+              // const [lng, lat] = coordinates; // name explicitly
+              // const marker = new MapboxGL.Marker({
+              //   color: getVerificationColor(mic.lastVerified),
+              //   scale: 0.8
+              // })
+              //   .setLngLat([lng, lat])
+              //   .setPopup(
+              //     new MapboxGL.Popup({ offset: 25}) // create the popup
+              //     .setHTML(`
+              //       <div class="p-2">
+              //         <h3 class="font-bold text-lg">${mic.openMic}</h3>
+              //         <p class="text-sm text-gray-600">${mic.venueName}</p>
+              //         <p class="text-sm">
+              //           ${formatTime(mic.startTime)} - ${formatTime(mic.latestEndTime)}
+              //         </p>
+              //         <p class="text-sm">${formatCost(mic.cost)}</p>
+              //         <p class="text-sm">Stage time: ${formatStageTime(mic.stageTime)}</p>
+              //       </div>
+              //     `)
+              //   )
+              //   .addTo(map.current!);
+              // markersRef.current.push(marker);
+              const [lng, lat] = coordinates;
+              const popup = new MapboxGL.Popup({
+                offset: 25,
+                closeButton: false,
+                closeOnClick: false
+              }).setHTML(`
+                  <div class="p-2">
+                    <h3 class="font-bold text-lg">${mic.openMic}</h3>
+                    <p class="text-sm text-gray-600">${mic.venueName}</p>
+                    <p class="text-sm">
+                      ${formatTime(mic.startTime)} – ${formatTime(mic.latestEndTime)}
+                    </p>
+                    <p class="text-sm">${formatCost(mic.cost)}</p>
+                    <p class="text-sm">Stage time: ${formatStageTime(mic.stageTime)}</p>
+                  </div>
+              `);
+
+              const marker = new MapboxGL.Marker({
+                color: getVerificationColor(mic.lastVerified),
+                scale: 0.8
+              })
+                .setLngLat([lng, lat])
+                .setPopup(popup)
+                .addTo(map.current!);
+
+              // 1) on mouse-enter, show the popup
+              marker.getElement().addEventListener('mouseenter', () => {
+                popup.addTo(map.current!);
+              });
+
+              // 2) on mouse-leave, hide it
+              marker.getElement().addEventListener('mouseleave', () => {
+                popup.remove();
+              });
+
+              // 3) on click, open modal instead of popup
+              marker.getElement().addEventListener('click', () => {
+                popup.remove();
+                onMicSelect(mic);
+              });
+
+              markersRef.current.push(marker);
+            }
+          } catch (error) {
+            console.warn(`Failed to geocode "${mic.location}":`, error);
+          }
+          
+          // Update progress
+          setGeocodingProgress({ current: i + 1, total: uncachedMics.length });
+          
+          // Small delay to avoid overwhelming the API
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        // Save updated cache
+        saveGeocodeCache();
+        setGeocodingProgress(null);
+      }
+
+      // Fit map to show all markers if we have any valid coordinates
+      if (initialMicData.length > 0 || markersRef.current.length > 0) {
+        const coordinates = [
+          ...initialMicData.map(({ coordinates }) => coordinates),
+          ...markersRef.current.map(marker => marker.getLngLat().toArray())
+        ];
+        
+        // Filter out invalid coordinates (outside NYC area)
+        const validCoordinates = coordinates.filter(coord => {
+          const [lng, lat] = coord;
+          return lng >= -74.5 && lng <= -73.5 && lat >= 40.4 && lat <= 41.0;
         });
+        
+        if (validCoordinates.length > 0) {
+          const bounds = validCoordinates.reduce((bounds, coord) => {
+            return bounds.extend(coord as [number, number]);
+          }, new mapboxgl.LngLatBounds(validCoordinates[0] as [number, number], validCoordinates[0] as [number, number]));
+          
+          map.current.fitBounds(bounds, {
+            padding: 50,
+            maxZoom: 12
+          });
+        } else {
+          // If no valid coordinates, stay at NYC center
+          console.log('No valid coordinates found, staying at NYC center');
+        }
       }
 
     } catch (error) {
@@ -663,10 +842,16 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
 
   // Update user location marker when user location changes
   useEffect(() => {
-    if (map.current && userLocation) {
+    console.log('User location effect triggered:', { userLocation, hasMap: !!map.current, isStyleLoaded: map.current?.isStyleLoaded() });
+    
+    // Helper function to add the user location marker
+    const addUserLocationMarker = () => {
+      if (!map.current || !userLocation) return;
+      
       // Remove existing user markers
       markersRef.current.forEach(marker => {
         if (marker.getElement().style.color === '#ff4444') {
+          console.log('Removing existing user location marker');
           marker.remove();
         }
       });
@@ -681,6 +866,32 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
         .addTo(map.current!);
       
       markersRef.current.push(userMarker);
+      console.log('User location marker added successfully:', userLocation);
+    };
+    
+    if (map.current && userLocation) {
+      // If map style isn't loaded yet, wait for it
+      if (!map.current.isStyleLoaded()) {
+        console.log('Map style not loaded, waiting for style to load before adding user marker...');
+        const checkStyleAndAddMarker = () => {
+          if (map.current?.isStyleLoaded()) {
+            console.log('Map style now loaded, adding user location marker...');
+            addUserLocationMarker();
+          } else {
+            setTimeout(checkStyleAndAddMarker, 100);
+          }
+        };
+        checkStyleAndAddMarker();
+      } else {
+        console.log('Map style already loaded, adding user location marker immediately...');
+        addUserLocationMarker();
+      }
+    } else {
+      console.log('Cannot add user location marker:', { 
+        hasMap: !!map.current, 
+        hasUserLocation: !!userLocation, 
+        isStyleLoaded: map.current?.isStyleLoaded() 
+      });
     }
   }, [userLocation]);
 
@@ -692,74 +903,15 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
     }
   };
 
-  const clearGeocodeCache = () => {
-    geocodeCache.current.clear();
-    console.log('Geocoding cache cleared');
-    // Refresh markers
-    if (map.current && mapboxToken) {
-      updateMarkers();
-    }
-  };
 
-  const fitMapToMarkers = () => {
-    if (map.current && markersRef.current.length > 0) {
-      const bounds = new MapboxGL.LngLatBounds();
-      markersRef.current.forEach(marker => {
-        const lngLat = marker.getLngLat();
-        bounds.extend([lngLat.lng, lngLat.lat]);
-      });
-      
-      map.current.fitBounds(bounds, {
-        padding: 100, // More padding to accommodate out-of-area mics
-        maxZoom: 12, // Don't zoom in too much if there are out-of-area mics
-        duration: 1000
-      });
-      console.log('Fitted map to markers');
-    }
-  };
 
-  const clearClustering = () => {
-    if (map.current) {
-      if (map.current.getLayer('clusters')) {
-        map.current.removeLayer('clusters');
-      }
-      if (map.current.getLayer('cluster-count')) {
-        map.current.removeLayer('cluster-count');
-      }
-      if (map.current.getLayer('unclustered-point')) {
-        map.current.removeLayer('unclustered-point');
-      }
-      if (map.current.getLayer('unclustered-point-hover')) { // Remove the new layer
-        map.current.removeLayer('unclustered-point-hover');
-      }
-      if (map.current.getSource('mics')) {
-        map.current.removeSource('mics');
-      }
-      console.log('Cleared clustering layers');
-    }
-  };
 
-  const testClickEvents = () => {
-    if (map.current) {
-      console.log('Testing click events...');
-      console.log('Map layers:', map.current.getStyle().layers?.map(l => l.id));
-      console.log('Unclustered point layer exists:', !!map.current.getLayer('unclustered-point'));
-      console.log('Clusters layer exists:', !!map.current.getLayer('clusters'));
-      console.log('Mic data ref length:', micDataRef.current.length);
-      console.log('First mic in ref:', micDataRef.current[0]);
-      
-      // Test if we can query features
-      const center = map.current.getCenter();
-      const features = map.current.queryRenderedFeatures([center.lng, center.lat], {
-        layers: ['unclustered-point']
-      });
-      console.log('Features at center:', features);
-      
-      if (features.length > 0) {
-        console.log('First feature properties:', features[0].properties);
-      }
-    }
-  };
+
+
+
+
+
+
 
   if (showTokenInput) {
     return (
@@ -798,78 +950,9 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
   }
 
   return (
-    <div className="relative w-full h-96 rounded-lg overflow-hidden border">
-      <div ref={mapContainer} className="absolute inset-0" />
-      
-      {/* Debug panel - remove in production */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="absolute top-4 right-4 bg-blue-100 border border-blue-300 p-2 rounded-lg shadow-lg max-w-xs">
-          <div className="text-xs">
-            <div><strong>Debug Info:</strong></div>
-            <div>Token: {mapboxToken ? `${mapboxToken.substring(0, 10)}...` : 'None'}</div>
-            <div>Container: {mapContainer.current ? 'Ready' : 'Not ready'}</div>
-            <div>Map: {map.current ? 'Loaded' : 'Not loaded'}</div>
-            <div>Loading: {isLoading ? 'Yes' : 'No'}</div>
-            <div>Mics: {mics.length}</div>
-            <div>Cache: {geocodeCache.current.size} entries</div>
-            <div>User Location: {userLocation ? `${userLocation[1].toFixed(4)}, ${userLocation[0].toFixed(4)}` : 'Not set'}</div>
-            <button 
-              onClick={getUserLocation}
-              disabled={locationLoading}
-              className="mt-1 px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 disabled:opacity-50"
-            >
-              {locationLoading ? 'Getting Location...' : 'Get My Location'}
-            </button>
-            <button 
-              onClick={clearGeocodeCache}
-              className="mt-1 px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
-            >
-              Clear Cache
-            </button>
-            <button 
-              onClick={fitMapToMarkers}
-              className="mt-1 px-2 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600"
-            >
-              Fit to Markers
-            </button>
-            <button 
-              onClick={clearClustering}
-              className="mt-1 px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
-            >
-              Clear Clustering
-            </button>
-            <button 
-              onClick={testClickEvents}
-              className="mt-1 px-2 py-1 bg-purple-500 text-white text-xs rounded hover:bg-purple-600"
-            >
-              Test Click Events
-            </button>
-          </div>
-        </div>
-      )}
-      
-      {/* Loading indicator */}
-      {isLoading && (
-        <div className="absolute top-4 right-4 bg-white p-2 rounded-lg shadow-lg">
-          <div className="text-xs text-gray-600">Loading markers...</div>
-        </div>
-      )}
-      
-      {/* Error indicator */}
-      {error && (
-        <div className="absolute top-4 right-4 bg-red-100 border border-red-300 p-2 rounded-lg shadow-lg max-w-xs">
-          <div className="text-xs text-red-600">{error}</div>
-          <button 
-            onClick={() => setError(null)}
-            className="text-xs text-red-500 underline mt-1"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
-      
-      {/* Map legend */}
-      <div className="absolute top-4 left-4 bg-white p-3 rounded-lg shadow-lg max-w-xs">
+    <div className="w-full">
+      {/* Map legend - moved outside map */}
+      <div className="bg-white p-3 rounded-lg shadow-lg mb-3 max-w-xs">
         <h4 className="text-xs font-semibold mb-2">Pin Colors</h4>
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs">
@@ -910,6 +993,68 @@ const OpenMicsMap = ({ mics, onMicSelect }: OpenMicsMapProps) => {
           </div>
         </div>
       </div>
+      
+      {/* Map container */}
+      <div className="relative w-full h-96 rounded-lg overflow-hidden border">
+        <div ref={mapContainer} className="absolute inset-0" />
+        
+        {/* Recenter button - production ready */}
+        <div className="absolute top-4 right-4">
+          <button 
+            onClick={recenterOnUserLocation}
+            disabled={locationLoading}
+            className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium transition-colors duration-200"
+          >
+            {locationLoading ? 'Getting Location...' : 'Recenter'}
+          </button>
+        </div>
+        
+        {/* Loading indicator */}
+        {isLoading && (
+          <div className="absolute top-4 right-4 bg-white p-2 rounded-lg shadow-lg">
+            <div className="text-xs text-gray-600">Loading markers...</div>
+          </div>
+        )}
+        
+        {/* Map loading indicator */}
+        {!mapLoaded && mapboxToken && (
+          <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+              <div className="text-sm text-gray-600">Loading map...</div>
+            </div>
+          </div>
+        )}
+        
+        {/* Geocoding progress indicator */}
+        {geocodingProgress && (
+          <div className="absolute top-4 right-4 bg-blue-50 border border-blue-200 p-3 rounded-lg shadow-lg max-w-xs">
+            <div className="text-xs text-blue-800 font-medium mb-1">Geocoding addresses...</div>
+            <div className="text-xs text-blue-600 mb-2">
+              {geocodingProgress.current} of {geocodingProgress.total} completed
+            </div>
+            <div className="w-full bg-blue-200 rounded-full h-1.5">
+              <div 
+                className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                style={{ width: `${(geocodingProgress.current / geocodingProgress.total) * 100}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+        
+        {/* Error indicator */}
+        {error && (
+          <div className="absolute top-4 right-4 bg-red-100 border border-red-300 p-2 rounded-lg shadow-lg max-w-xs">
+            <div className="text-xs text-red-600">{error}</div>
+            <button 
+              onClick={() => setError(null)}
+              className="text-xs text-red-500 underline mt-1"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -921,9 +1066,15 @@ const arePropsEqual = (prevProps: OpenMicsMapProps, nextProps: OpenMicsMapProps)
     return false;
   }
   
-  // Check if any mic has changed by comparing unique identifiers
+  // Check if any mic has changed by comparing unique identifiers and key properties
   for (let i = 0; i < prevProps.mics.length; i++) {
-    if (prevProps.mics[i].uniqueIdentifier !== nextProps.mics[i].uniqueIdentifier) {
+    const prevMic = prevProps.mics[i];
+    const nextMic = nextProps.mics[i];
+    
+    if (prevMic.uniqueIdentifier !== nextMic.uniqueIdentifier ||
+        prevMic.location !== nextMic.location ||
+        prevMic.openMic !== nextMic.openMic ||
+        prevMic.venueName !== nextMic.venueName) {
       return false;
     }
   }
