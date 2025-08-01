@@ -8,6 +8,7 @@ interface MapControlsProps {
   error?: string | null;
   onDismissError?: () => void;
   loadedMicCount?: number;
+  backgroundLoading?: boolean;
 }
 
 export const MapControls: React.FC<MapControlsProps> = ({
@@ -17,7 +18,8 @@ export const MapControls: React.FC<MapControlsProps> = ({
   geocodingProgress,
   error,
   onDismissError,
-  loadedMicCount
+  loadedMicCount,
+  backgroundLoading
 }) => {
   return (
     <>
@@ -75,6 +77,11 @@ export const MapControls: React.FC<MapControlsProps> = ({
         <div className="absolute bottom-4 left-4 bg-white p-2 rounded-lg shadow-lg">
           <div className="text-xs text-gray-600">
             {loadedMicCount} mics loaded
+            {backgroundLoading && (
+              <div className="text-xs text-blue-600 mt-1">
+                Loading more...
+              </div>
+            )}
           </div>
         </div>
       )}

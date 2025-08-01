@@ -28,6 +28,7 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [loadedMicCount, setLoadedMicCount] = useState(0);
+  const [backgroundLoading, setBackgroundLoading] = useState(false);
 
   // Component mount/unmount logging
   useEffect(() => {
@@ -204,6 +205,24 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
       // Update loaded mic count
       setLoadedMicCount(markerManager.current.getLoadedMicCount());
 
+      // Show background loading indicator if there might be more mics
+      const totalMicsInBounds = mics.filter(mic => {
+        if (!mic.location) return false;
+        const cachedCoords = geocodingService.current!.getCachedCoordinates(mic.location);
+        if (cachedCoords) {
+          const [lng, lat] = cachedCoords;
+          return lng >= viewportBounds.west && lng <= viewportBounds.east && 
+                 lat >= viewportBounds.south && lat <= viewportBounds.north;
+        }
+        return true; // Assume uncached mics might be in bounds
+      }).length;
+
+      if (totalMicsInBounds > micsInViewport.length) {
+        setBackgroundLoading(true);
+        // Hide background loading after a delay
+        setTimeout(() => setBackgroundLoading(false), 3000);
+      }
+
     } catch (error) {
       console.error('Error loading markers for viewport:', error);
       setError('Failed to load markers for current area');
@@ -292,6 +311,7 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
           error={error}
           onDismissError={() => setError(null)}
           loadedMicCount={loadedMicCount}
+          backgroundLoading={backgroundLoading}
         />
         
         {/* Map loading indicator */}

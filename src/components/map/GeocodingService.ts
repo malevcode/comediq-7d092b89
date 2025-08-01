@@ -183,9 +183,10 @@ export class GeocodingService {
 
   // New method: Get mics within viewport bounds
   public async getMicsInViewport(mics: any[], bounds: ViewportBounds, onProgress?: (progress: GeocodingProgress) => void): Promise<Array<{ coordinates: [number, number], mic: any }>> {
-    const micsInBounds: any[] = [];
+    const micsInBounds: Array<{ coordinates: [number, number], mic: any }> = [];
+    const uncachedMics: any[] = [];
     
-    // First, get all mics that might be in bounds (based on cached coordinates)
+    // First pass: get all mics that might be in bounds (based on cached coordinates)
     for (const mic of mics) {
       if (!mic.location) continue;
       
@@ -197,37 +198,59 @@ export class GeocodingService {
         }
       } else {
         // If not cached, we'll need to geocode it
-        micsInBounds.push({ mic });
+        uncachedMics.push(mic);
       }
     }
 
-    // Geocode uncached mics in bounds
-    const uncachedMics = micsInBounds.filter(item => !item.coordinates);
-    if (uncachedMics.length > 0) {
-      const addresses = uncachedMics.map(item => item.mic.location);
+    // Return cached results immediately for better UX
+    if (uncachedMics.length === 0) {
+      return micsInBounds;
+    }
+
+    // Progressive geocoding for uncached mics (limit to first 10 for initial load)
+    const micsToGeocode = uncachedMics.slice(0, 10);
+    const remainingMics = uncachedMics.slice(10);
+    
+    if (micsToGeocode.length > 0) {
+      const addresses = micsToGeocode.map(item => item.location);
       const coordinatesMap = await this.geocodeAddresses(addresses, onProgress);
       
-      // Update mics with coordinates and filter by bounds
-      const result: Array<{ coordinates: [number, number], mic: any }> = [];
-      
-      for (const item of micsInBounds) {
-        if (item.coordinates) {
-          result.push(item);
-        } else {
-          const coords = coordinatesMap.get(item.mic.location);
-          if (coords) {
-            const [lng, lat] = coords;
-            if (lng >= bounds.west && lng <= bounds.east && lat >= bounds.south && lat <= bounds.north) {
-              result.push({ coordinates: coords, mic: item.mic });
-            }
+      // Add newly geocoded mics that are in bounds
+      for (const mic of micsToGeocode) {
+        const coords = coordinatesMap.get(mic.location);
+        if (coords) {
+          const [lng, lat] = coords;
+          if (lng >= bounds.west && lng <= bounds.east && lat >= bounds.south && lat <= bounds.north) {
+            micsInBounds.push({ coordinates: coords, mic });
           }
         }
       }
-      
-      return result;
+    }
+
+    // If there are remaining mics, geocode them in the background
+    if (remainingMics.length > 0) {
+      this.geocodeRemainingMics(remainingMics, bounds);
     }
     
     return micsInBounds;
+  }
+
+  // Background geocoding for remaining mics
+  private async geocodeRemainingMics(mics: any[], bounds: ViewportBounds): Promise<void> {
+    try {
+      const addresses = mics.map(mic => mic.location);
+      const coordinatesMap = await this.geocodeAddresses(addresses);
+      
+      // Cache the results for future use
+      coordinatesMap.forEach((coords, address) => {
+        this.cache.set(address, coords);
+      });
+      
+      // Save updated cache
+      this.saveCache();
+    } catch (error) {
+      console.warn('Background geocoding failed:', error);
+    }
   }
 
   public clearCache(): void {

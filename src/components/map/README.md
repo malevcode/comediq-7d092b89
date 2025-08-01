@@ -44,10 +44,12 @@ This directory contains the refactored map components that were previously part 
 - **Distance Display**: Shows distance from user location in popup (📍 1.4mi away)
 
 ### ⚡ **Performance Benefits**
-- **Reduced Initial Load**: Only loads nearby mics instead of all mics
+- **Fast Initial Load**: Shows cached mics immediately, geocodes only first 10 uncached mics
 - **Progressive Loading**: Markers appear as user explores the map
+- **Background Processing**: Continues geocoding remaining mics in background
 - **Memory Efficient**: Removes markers outside current viewport
 - **Cached Geocoding**: Avoids repeated API calls for same addresses
+- **Smart Batching**: Limits initial geocoding to prevent API overload
 
 ## Usage
 
