@@ -52,6 +52,10 @@ export const useOpenMics = (tableName: 'open_mics_active' | 'open_mics_historica
       console.log("Final mapped data count:", mappedData.length);
       return mappedData;
     },
+    staleTime: 10 * 60 * 1000, // 10 minutes - data is fresh for 10 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes - keep unused data in cache for 30 minutes
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnMount: false, // Don't refetch when component mounts if data is fresh
     retry: 1,
     retryDelay: 1000,
   });
