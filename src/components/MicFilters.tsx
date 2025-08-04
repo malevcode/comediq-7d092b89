@@ -8,15 +8,17 @@ import { Badge } from "@/components/ui/badge";
 export interface MicFilters {
   costRange: [number, number];
   timeOfDay: string[];
+  borough: string;
 }
 
 interface MicFiltersProps {
   filters: MicFilters;
   onFiltersChange: (filters: MicFilters) => void;
   maxCost: number;
+  boroughs: string[];
 }
 
-export default function MicFilters({ filters, onFiltersChange, maxCost }: MicFiltersProps) {
+export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs }: MicFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
 
   const timeSlots = [
@@ -49,14 +51,15 @@ export default function MicFilters({ filters, onFiltersChange, maxCost }: MicFil
   const clearFilters = () => {
     onFiltersChange({
       costRange: [0, maxCost],
-      timeOfDay: []
+      timeOfDay: [],
+      borough: "All"
     });
   };
 
-  const hasActiveFilters = filters.costRange[0] > 0 || filters.costRange[1] < maxCost || filters.timeOfDay.length > 0;
+  const hasActiveFilters = filters.costRange[0] > 0 || filters.costRange[1] < maxCost || filters.timeOfDay.length > 0 || filters.borough !== "All";
 
   return (
-    <>
+    <div className="relative">
       <Button
         onClick={() => setShowFilters(!showFilters)}
         variant="outline"
@@ -89,7 +92,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost }: MicFil
             fixed md:absolute 
             inset-0 md:inset-auto
             md:top-full md:left-0 md:mt-2 
-            z-50 
+            z-[9999] 
             md:w-80 
             ${showFilters ? 'block' : 'hidden'}
           `}>
@@ -134,6 +137,22 @@ export default function MicFilters({ filters, onFiltersChange, maxCost }: MicFil
                     </div>
                   </div>
 
+                  {/* Borough Filter */}
+                  <div>
+                    <label className="text-base font-medium mb-4 block text-gray-900">Borough</label>
+                    <select
+                      value={filters.borough}
+                      onChange={(e) => onFiltersChange({ ...filters, borough: e.target.value })}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                    >
+                      {boroughs.map((borough) => (
+                        <option key={borough} value={borough}>
+                          {borough}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   {/* Time of Day Filter */}
                   <div>
                     <label className="text-base font-medium mb-4 block text-gray-900">Time of Day</label>
@@ -175,6 +194,6 @@ export default function MicFilters({ filters, onFiltersChange, maxCost }: MicFil
           </div>
         </>
       )}
-    </>
+    </div>
   );
 }

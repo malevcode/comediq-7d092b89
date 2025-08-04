@@ -299,7 +299,8 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           {user && (
             <Button
               size="sm"
-              className="w-full bg-papaya text-white hover:bg-papaya/80 flex items-center justify-center gap-2"
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2 border-gray-300 text-papaya hover:text-papaya hover:bg-gray-100"
               onClick={() => onAddToCalendar(mic)}
             >
               <Calendar className="w-4 h-4" />
@@ -310,7 +311,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             <Button
               size="sm"
               variant="outline"
-              className="w-full flex items-center justify-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-100"
+              className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100"
               asChild
             >
               <a
@@ -328,7 +329,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             <Button
               size="sm"
               variant="outline"
-              className="w-full flex items-center justify-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-100"
+              className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100"
               onClick={() => downloadICal(mic)}
               aria-label="Download iCal file"
             >

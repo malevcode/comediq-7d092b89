@@ -20,7 +20,6 @@ import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilter
 
 const OpenMics = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedBorough, setSelectedBorough] = useState("All");
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [activeTab, setActiveTab] = useState("next");
   const [showKey, setShowKey] = useState(false);
@@ -57,6 +56,7 @@ const OpenMics = () => {
   const [filters, setFilters] = useState<MicFiltersType>({
     costRange: [0, maxCost],
     timeOfDay: [],
+    borough: "All",
   });
 
   // Update cost range when maxCost changes
@@ -178,7 +178,7 @@ const OpenMics = () => {
         mic.venueName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesBorough = selectedBorough === "All" || mic.borough === selectedBorough;
+      const matchesBorough = filters.borough === "All" || mic.borough === filters.borough;
 
       // Cost filter
       const micCost = getCostValue(mic.cost);
@@ -277,8 +277,7 @@ const OpenMics = () => {
               <Button
                 onClick={() => {
                   setSearchTerm("");
-                  setSelectedBorough("All");
-                  setFilters({ costRange: [0, maxCost], timeOfDay: [] });
+                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All" });
                 }}
                 className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm"
               >
@@ -466,89 +465,88 @@ const OpenMics = () => {
               )}
             </div>
           </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-0">
-        {/* Mobile Key/Legend */}
+          {/* Key/Legend */}
         {showKey && (
-              <div className="block mb-3">
-                <div className="bg-orange-50 p-3 border border-orange-200 rounded-lg">
-                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
-                    {/* Example Tile */}
-                    <div>
-                      <p className="text-xs text-gray-600 mb-2 font-medium">Example:</p>
-                      <Card className="border-l-4 border-l-cyan-500 bg-yellow-100 w-24 h-24">
-                        <CardContent className="p-2 h-full flex flex-col justify-between">
-                          <div className="flex flex-col h-full justify-between">
-                            <h3 className="font-bold text-sm text-gray-900 line-clamp-2 leading-tight">
-                              Comedy Mic Name
-                            </h3>
-                            <div className="text-sm text-gray-800 font-semibold">8:00 PM M</div>
-                            <div className="flex justify-between items-center text-sm">
-                              <span className="text-green-700 font-bold">Free</span>
-                              <span className="text-orange-700 font-bold">5</span>
-                            </div>
+            <div className="block mb-3">
+              <div className="bg-orange-50 p-3 border border-orange-200 rounded-lg">
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
+                  {/* Example Tile */}
+                  <div>
+                    <p className="text-xs text-gray-600 mb-2 font-medium">Example:</p>
+                    <Card className="border-l-4 border-l-cyan-500 bg-yellow-100 w-24 h-24">
+                      <CardContent className="p-2 h-full flex flex-col justify-between">
+                        <div className="flex flex-col h-full justify-between">
+                          <h3 className="font-bold text-sm text-gray-900 line-clamp-2 leading-tight">
+                            Comedy Mic Name
+                          </h3>
+                          <div className="text-sm text-gray-800 font-semibold">8:00 PM M</div>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-green-700 font-bold">Free</span>
+                            <span className="text-orange-700 font-bold">5</span>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
 
-                    {/* Borough Legend */}
-                    <div>
-                      <p className="text-xs text-gray-600 mb-2 font-medium">Left border = Borough:</p>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-cyan-500 rounded-sm flex-shrink-0"></div>
-                          <span>Manhattan (M)</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-amber-800 rounded-sm flex-shrink-0"></div>
-                          <span>Brooklyn (B)</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-purple-600 rounded-sm flex-shrink-0"></div>
-                          <span>Queens (Q)</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-3 bg-orange-600 rounded-sm flex-shrink-0"></div>
-                          <span>Bronx (X)</span>
-                        </div>
-                        <div className="flex items-center gap-1 col-span-2">
-                          <div className="w-2 h-3 bg-gray-500 rounded-sm flex-shrink-0"></div>
-                          <span>Staten Island (S)</span>
-                        </div>
+                  {/* Borough Legend */}
+                  <div>
+                    <p className="text-xs text-gray-600 mb-2 font-medium">Left border = Borough:</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-cyan-500 rounded-sm flex-shrink-0"></div>
+                        <span>Manhattan (M)</span>
                       </div>
-                      
-                      <div className="mt-3">
-                        <p className="text-xs text-gray-600 mb-1 font-medium">Format:</p>
-                        <p className="text-xs">Name → Time Borough → <span className="text-green-700 font-bold">Cost</span> | <span className="text-orange-700 font-bold">Mins</span></p>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-amber-800 rounded-sm flex-shrink-0"></div>
+                        <span>Brooklyn (B)</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-purple-600 rounded-sm flex-shrink-0"></div>
+                        <span>Queens (Q)</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-orange-600 rounded-sm flex-shrink-0"></div>
+                        <span>Bronx (X)</span>
+                      </div>
+                      <div className="flex items-center gap-1 col-span-2">
+                        <div className="w-2 h-3 bg-gray-500 rounded-sm flex-shrink-0"></div>
+                        <span>Staten Island (S)</span>
                       </div>
                     </div>
+                    
+                    <div className="mt-3">
+                      <p className="text-xs text-gray-600 mb-1 font-medium">Format:</p>
+                      <p className="text-xs">Name → Time Borough → <span className="text-green-700 font-bold">Cost</span> | <span className="text-orange-700 font-bold">Mins</span></p>
+                    </div>
+                  </div>
 
-                    {/* Time Categories Legend */}
-                    <div>
-                      <p className="text-xs text-gray-600 mb-2 font-medium">Time Categories:</p>
-                      <div className="space-y-1 text-xs">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-3 bg-blue-50 rounded-sm border"></div>
-                          <span>Daytime (6:00 AM - 4:59 PM)</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-3 bg-orange-50 rounded-sm border"></div>
-                          <span>After Work (5:00 PM - 8:59 PM)</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-3 bg-purple-50 rounded-sm border"></div>
-                          <span>Late Night (9:00 PM - 5:59 AM)</span>
-                        </div>
+                  {/* Time Categories Legend */}
+                  <div>
+                    <p className="text-xs text-gray-600 mb-2 font-medium">Time Categories:</p>
+                    <div className="space-y-1 text-xs">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-3 bg-blue-50 rounded-sm border"></div>
+                        <span>Daytime (6:00 AM - 4:59 PM)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-3 bg-orange-50 rounded-sm border"></div>
+                        <span>After Work (5:00 PM - 8:59 PM)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-3 bg-purple-50 rounded-sm border"></div>
+                        <span>Late Night (9:00 PM - 5:59 AM)</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
             )}
+        </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 py-0">
         {/* Search and Filters */}
         <div className={`bg-white rounded-xl shadow-lg p-3 mb-3 block`}>
           <div className="flex flex-col md:flex-row gap-3">
@@ -563,19 +561,7 @@ const OpenMics = () => {
             </div>
 
             <div className="flex gap-2">
-              <select
-                value={selectedBorough}
-                onChange={(e) => setSelectedBorough(e.target.value)}
-                className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-              >
-                {boroughs.map((borough) => (
-                  <option key={borough} value={borough}>
-                    {borough}
-                  </option>
-                ))}
-              </select>
-
-              <MicFilters filters={filters} onFiltersChange={setFilters} maxCost={maxCost} />
+              <MicFilters filters={filters} onFiltersChange={setFilters} maxCost={maxCost} boroughs={boroughs} />
             </div>
           </div>
         </div>
