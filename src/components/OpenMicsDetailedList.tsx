@@ -1,4 +1,4 @@
-import { Calendar, Clock, Users, DollarSign, Star, MapPin, CircleUser, CircleAlert, CircleCheckBig, ArrowUp, ChevronDown, ChevronUp, Heart } from "lucide-react";
+import { Calendar, Clock, Users, DollarSign, Star, MapPin, CircleUser, CircleAlert, CircleCheckBig, ArrowUp, ChevronDown, ChevronUp, Heart, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
 import { useMicRatings } from "@/hooks/useMicRatings";
@@ -147,16 +147,17 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
   return (
     <div className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-4 gap-2md:gap-6 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${getBoroughOutline(mic.borough)}`}>
       {/* Left: Name, Location, Date */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
+      <div className="flex-1 min-w-0 mr-2">
+        <div className="flex items-center gap-2">
           <a 
             href={getMapUrl(mic.location, mic.venueName)}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-semibold text-md text-gray-900 w-auto inline-block hover:text-blue-600 hover:bg-blue-50 hover:rounded px-1 py-0.5 cursor-pointer transition-all duration-200"
+            className="font-semibold text-md text-gray-900 w-auto inline-block hover:text-blue-600 hover:bg-blue-50 hover:rounded px-1 py-0.5 cursor-pointer transition-all duration-200 flex items-center gap-1"
             title={`Open ${/iPad|iPhone|iPod/.test(navigator.userAgent) ? 'Apple Maps' : 'Google Maps'} for ${mic.venueName}`}
           >
             {mic.openMic}
+            <ExternalLink className="w-3 h-3" />
           </a>
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium
             ${/tediously/i.test(mic.lastVerified)
@@ -194,20 +195,29 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             </Button>
           ) : null}
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 mb-1">
           <span className="flex items-center gap-1"><MapPin className="w-3 h-3 flex-shrink-0" />{mic.venueName}, {mic.neighborhood}</span>
-          <span className="flex items-center gap-1"><Calendar className="w-3 h-3 flex-shrink-0"/>
-          {mic.openMic?.toLowerCase().includes("biweekly")
-            ? "Biweekly - " + mic.day
-            : mic.day !== "Daily"
-              ? "Weekly - " + mic.day
-              : "Daily - " + mic.day}
+          <span className="flex flex-row md:flex-col gap-2 md:gap-0">
+            <span className="flex items-center gap-1">
+              <Calendar className="w-3 h-3 flex-shrink-0" />
+              {mic.openMic?.toLowerCase().includes("biweekly")
+                ? "Biweekly - " + mic.day
+                : mic.day !== "Daily"
+                  ? "Weekly - " + mic.day
+                  : "Daily - " + mic.day}
+            </span>
+            <span className="flex items-center gap-1 md:hidden">
+              <CircleUser className="w-3 h-3 flex-shrink-0" />
+              <span className="truncate">
+                {mic.instagramHandle && mic.instagramHandle.trim() ? mic.instagramHandle : "No host"}
+              </span>
+            </span>
           </span>
         </div>
       </div>
       {/* Mid: Time, Cost, Audience Size, Stage Time, Rules */}
-      <div className="flex-1 flex flex-col justify-evenly min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700 mr-5 ml-5">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-700 max-w-lg">
+      <div className="flex-1 flex flex-col justify-center min-w-0 gap-x-4 gap-y-1 text-sm text-gray-700 mb-1 mr-2">
+        <div className="flex flex-row gap-x-6 sm:gap-2 sm:items-center md:grid md:grid-cols-2 text-sm text-gray-700">
           <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />{mic.startTime} - {mic.latestEndTime}</span>
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />
@@ -216,8 +226,8 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
               : "Not specified"}
           </span>
           <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-gray-400 flex-shrink-0" />{mic.cost}</span>
-          <span className="flex items-center gap-1 text-gray-600">
-            <CircleUser className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <span className="hidden sm:hidden md:flex items-center gap-1">
+            <CircleUser className="w-3 h-3 flex-shrink-0 text-gray-400" />
             <span className="truncate">
               {mic.instagramHandle && mic.instagramHandle.trim() ? mic.instagramHandle : "No host"}
             </span>
@@ -230,7 +240,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
       {/* Right: Value, Ratings, Button */}
       <div className="w-full md:flex-[1.2] flex flex-col justify-center">
         <button
-          className="appearance-none cursor-pointer bg-blue-50 border border-blue-100 rounded-lg p-2 mb-2 relative w-full text-left flex flex-col hover:bg-blue-100 transition font-semibold text-xs text-blue-800 gap-1 outline-none"
+          className="appearance-none cursor-pointer bg-blue-50 border border-blue-100 rounded-lg p-1.5 mb-2 relative w-full text-left flex flex-col hover:bg-blue-100 transition font-semibold text-xs text-blue-800 gap-1 outline-none"
           aria-label={expanded ? 'Collapse details' : 'Expand details'}
           onClick={() => setExpanded(e => !e)}
           type="button"
@@ -244,7 +254,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           </span>
           {expanded && (
             <div
-              className="text-xs text-blue-700 break-words mt-2 font-normal select-text cursor-text"
+              className="text-xs text-blue-700 break-words mt-1 font-normal select-text cursor-text"
               onClick={e => e.stopPropagation()}
             >
               {(() => {
@@ -285,11 +295,12 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             </div>
           )}
         </button>
-        <div className="flex flex-col md:flex-row gap-2 mb-2">
+        <div className="flex flex-col md:flex-row gap-2 mb-1">
           {user && (
             <Button
               size="sm"
-              className="w-full bg-papaya text-white hover:bg-papaya/80 flex items-center justify-center gap-2"
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2 border-gray-300 text-papaya hover:text-papaya hover:bg-gray-100"
               onClick={() => onAddToCalendar(mic)}
             >
               <Calendar className="w-4 h-4" />
@@ -300,7 +311,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             <Button
               size="sm"
               variant="outline"
-              className="w-full flex items-center justify-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-100"
+              className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100"
               asChild
             >
               <a
@@ -318,7 +329,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             <Button
               size="sm"
               variant="outline"
-              className="w-full flex items-center justify-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-100"
+              className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100"
               onClick={() => downloadICal(mic)}
               aria-label="Download iCal file"
             >

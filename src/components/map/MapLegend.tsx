@@ -1,8 +1,12 @@
 import React from 'react';
 
-export const MapLegend: React.FC = () => {
+interface MapLegendProps {
+  className?: string;
+}
+
+export const MapLegend: React.FC<MapLegendProps> = ({ className = "" }) => {
   return (
-    <div className="bg-white p-3 rounded-lg shadow-lg mb-3 max-w-xs">
+    <div className={`bg-white p-3 rounded-lg shadow-lg mb-3 max-w-xs ${className}`}>
       <h4 className="text-xs font-semibold mb-2">Pin Colors</h4>
       <div className="space-y-1">
         <div className="flex items-center gap-2 text-xs">

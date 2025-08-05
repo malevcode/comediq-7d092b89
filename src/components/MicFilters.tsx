@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,16 +8,36 @@ import { Badge } from "@/components/ui/badge";
 export interface MicFilters {
   costRange: [number, number];
   timeOfDay: string[];
+  borough: string;
 }
 
 interface MicFiltersProps {
   filters: MicFilters;
   onFiltersChange: (filters: MicFilters) => void;
   maxCost: number;
+  boroughs: string[];
 }
 
-export default function MicFilters({ filters, onFiltersChange, maxCost }: MicFiltersProps) {
+export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs }: MicFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  // Close filters when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setShowFilters(false);
+      }
+    };
+
+    if (showFilters) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showFilters]);
 
   const timeSlots = [
     { id: "daytime", label: "Daytime (Before 5pm)", hours: [0, 17] },
@@ -49,19 +69,20 @@ export default function MicFilters({ filters, onFiltersChange, maxCost }: MicFil
   const clearFilters = () => {
     onFiltersChange({
       costRange: [0, maxCost],
-      timeOfDay: []
+      timeOfDay: [],
+      borough: "All"
     });
   };
 
-  const hasActiveFilters = filters.costRange[0] > 0 || filters.costRange[1] < maxCost || filters.timeOfDay.length > 0;
+  const hasActiveFilters = filters.costRange[0] > 0 || filters.costRange[1] < maxCost || filters.timeOfDay.length > 0 || filters.borough !== "All";
 
   return (
-    <>
+    <div className="relative" ref={filterRef}>
       <Button
         onClick={() => setShowFilters(!showFilters)}
         variant="outline"
         size="sm"
-        className={`flex items-center gap-2 text-sm px-4 py-2 relative transition-all ${
+        className={`flex items-center gap-2 text-sm px-4 py-4 relative transition-all ${
           hasActiveFilters 
             ? 'bg-cyan-50 border-cyan-300 text-cyan-800 hover:bg-cyan-100' 
             : 'bg-cyan-50 border-cyan-200 text-cyan-700 hover:bg-cyan-100'
@@ -88,8 +109,8 @@ export default function MicFilters({ filters, onFiltersChange, maxCost }: MicFil
           <div className={`
             fixed md:absolute 
             inset-0 md:inset-auto
-            md:top-full md:left-0 md:mt-2 
-            z-50 
+            md:top-full md:right-0 md:mt-2 
+            z-[9999] 
             md:w-80 
             ${showFilters ? 'block' : 'hidden'}
           `}>
@@ -120,10 +141,10 @@ export default function MicFilters({ filters, onFiltersChange, maxCost }: MicFil
                         max={maxCost}
                         min={0}
                         step={1}
-                        className="w-full [&_.range-slider]:h-2 [&_.range-slider]:rounded-full [&_.range-slider]:bg-cyan-200 [&_.range-fill]:bg-cyan-500 [&_.range-thumb]:h-6 [&_.range-thumb]:w-6 [&_.range-thumb]:bg-white [&_.range-thumb]:border-2 [&_.range-thumb]:border-cyan-500 [&_.range-thumb]:shadow-lg"
+                        className="w-full [&_.range-slider]:h-2 [&_.range-slider]:rounded-full [&_.range-slider]:bg-orange-200 [&_.range-fill]:bg-orange-500 [&_.range-thumb]:h-6 [&_.range-thumb]:w-6 [&_.range-thumb]:bg-white [&_.range-thumb]:border-2 [&_.range-thumb]:border-orange-500 [&_.range-thumb]:shadow-lg"
                         style={{
-                          "--slider-track-color": "rgb(165 243 252)",
-                          "--slider-range-color": "rgb(6 182 212)",
+                          "--slider-track-color": "rgb(254 215 170)",
+                          "--slider-range-color": "rgb(249 115 22)",
                           "--slider-thumb-color": "white",
                         } as any}
                       />
@@ -134,6 +155,29 @@ export default function MicFilters({ filters, onFiltersChange, maxCost }: MicFil
                     </div>
                   </div>
 
+                  {/* Borough Filter */}
+                  <div>
+                    <label className="text-base font-medium mb-4 block text-gray-900">Borough</label>
+                    <select
+                      value={filters.borough}
+                      onChange={(e) => onFiltersChange({ ...filters, borough: e.target.value })}
+                      className={`w-full px-3 py-2 text-sm border border-gray-300 rounded-md border-l-4 ${
+                        filters.borough === "Manhattan" ? "border-l-cyan-500" :
+                        filters.borough === "Brooklyn" ? "border-l-amber-800" :
+                        filters.borough === "Queens" ? "border-l-purple-600" :
+                        filters.borough === "Bronx" ? "border-l-orange-600" :
+                        filters.borough === "Staten Island" ? "border-l-gray-500" :
+                        "border-l-gray-400"
+                      }`}
+                    >
+                      {boroughs.map((borough) => (
+                        <option key={borough} value={borough}>
+                          {borough}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   {/* Time of Day Filter */}
                   <div>
                     <label className="text-base font-medium mb-4 block text-gray-900">Time of Day</label>
@@ -142,15 +186,24 @@ export default function MicFilters({ filters, onFiltersChange, maxCost }: MicFil
                         <Button
                           key={slot.id}
                           onClick={() => toggleTimeSlot(slot.id)}
-                          variant={filters.timeOfDay.includes(slot.id) ? "default" : "outline"}
+                          variant="outline"
                           size="lg"
-                          className={`w-full justify-start text-sm py-3 h-auto ${
+                          className={`w-full justify-start text-sm py-3 h-auto relative ${
                             filters.timeOfDay.includes(slot.id)
-                              ? 'bg-cyan-500 hover:bg-cyan-600 text-white border-cyan-500'
-                              : 'border-gray-300 text-gray-700 hover:bg-cyan-50 hover:border-cyan-300'
+                              ? 'bg-cyan-50 border-cyan-300 hover:bg-cyan-100'
+                              : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
                           }`}
                         >
-                          {slot.label}
+                          {filters.timeOfDay.includes(slot.id) && (
+                            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-cyan-500 rounded-sm flex items-center justify-center">
+                              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                          )}
+                            <span className={filters.timeOfDay.includes(slot.id) ? 'ml-8' : 'ml-0'}>
+                            {slot.label}
+                          </span>
                         </Button>
                       ))}
                     </div>
@@ -158,8 +211,8 @@ export default function MicFilters({ filters, onFiltersChange, maxCost }: MicFil
                 </div>
 
                 {/* Clear Filters */}
-                <div className="mt-8 pt-6 border-t border-gray-200">
                   {hasActiveFilters && (
+                    <div className="mt-8 pt-6 border-t border-gray-200">
                     <Button
                       onClick={clearFilters}
                       variant="outline"
@@ -168,13 +221,13 @@ export default function MicFilters({ filters, onFiltersChange, maxCost }: MicFil
                     >
                       Clear All Filters
                     </Button>
+                    </div>
                   )}
-                </div>
               </CardContent>
             </Card>
           </div>
         </>
       )}
-    </>
+    </div>
   );
 }
