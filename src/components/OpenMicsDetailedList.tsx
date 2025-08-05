@@ -1,4 +1,4 @@
-import { Calendar, Clock, Users, DollarSign, Star, MapPin, CircleUser, CircleAlert, CircleCheckBig, ArrowUp, ChevronDown, ChevronUp, Heart, ExternalLink } from "lucide-react";
+import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, CircleAlert, CircleCheckBig, ArrowUp, ChevronDown, ChevronUp, Heart, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
 import { useMicRatings } from "@/hooks/useMicRatings";
@@ -246,67 +246,75 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           type="button"
         >
           <span className="flex items-center gap-1">
-            <CircleUser className="w-4 h-4" />
-            <span>Sign-Up Instructions</span>
+            <span>Additional Details</span>
             <ChevronDown
               className={`w-4 h-4 ml-auto transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
             />
           </span>
           {expanded && (
-            <div
-              className="text-xs text-blue-700 break-words mt-1 font-normal select-text cursor-text"
-              onClick={e => e.stopPropagation()}
-            >
-              {(() => {
-                // Simple regex to detect a URL
-                const urlRegex = /(https?:\/\/[^\s]+)/g;
-                const match = mic.signUpInstructions.match(urlRegex);
-                if (match && match.length === 1 && mic.signUpInstructions.trim() === match[0]) {
-                  // If the entire instructions is just a URL
-                  return (
-                    <a
-                      href={match[0]}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 underline break-all"
-                    >
-                      Sign up at this link
-                    </a>
-                  );
-                } else if (match && match.length === 1 && mic.signUpInstructions.replace(match[0], '').trim() === '') {
-                  // If the only content is a URL (with whitespace)
-                  return (
-                    <a
-                      href={match[0]}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 underline break-all"
-                    >
-                      Sign up at this link
-                    </a>
-                  );
-                } else if (mic.signUpInstructions === "") {
-                  return <span>N/A</span>
-                } else {
-                  // Otherwise, show the instructions as text
-                  return mic.signUpInstructions;
-                }
-              })()}
+            <div className="flex flex-col gap-2">
+              <div
+                className="break-words mt-1 font-normal select-text cursor-text flex flex-row"
+                onClick={e => e.stopPropagation()}
+              >
+                <span className="flex items-center gap-2 mr-1"><UserRoundCheck className="w-3 h-3" />Sign-Up Instructions:</span>
+                {(() => {
+                  // Simple regex to detect a URL
+                  const urlRegex = /(https?:\/\/[^\s]+)/g;
+                  const match = mic.signUpInstructions.match(urlRegex);
+                  if (match && match.length === 1 && mic.signUpInstructions.trim() === match[0]) {
+                    // If the entire instructions is just a URL
+                    return (
+                      <a
+                        href={match[0]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline break-all"
+                      >
+                        Sign up at this link
+                      </a>
+                    );
+                  } else if (match && match.length === 1 && mic.signUpInstructions.replace(match[0], '').trim() === '') {
+                    // If the only content is a URL (with whitespace)
+                    return (
+                      <a
+                        href={match[0]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline break-all"
+                      >
+                        Sign up at this link
+                      </a>
+                    );
+                  } else if (mic.signUpInstructions === "") {
+                    return <span>N/A</span>
+                  } else {
+                    // Otherwise, show the instructions as text
+                    return <span className="flex">{mic.signUpInstructions}</span>;
+                  }
+                })()}
+              </div>
+              <div>
+                <a href={getMapUrl(mic.location, mic.venueName)} target="_blank" rel="noopener noreferrer" className="flex flex-row gap-2 items-center hover:underline font-normal">
+                  <MapPin className="w-3 h-3" /> {mic.location}
+                </a>
+              </div>
+              <div className="">
+              {user && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex items-center justify-center gap-2"
+                  onClick={() => onAddToCalendar(mic)}
+                >
+                  <Calendar className="w-4 h-4" />
+                  Add to Calendar
+                </Button>
+              )}
             </div>
+          </div>
           )}
         </button>
-        <div className="flex flex-col md:flex-row gap-2 mb-1">
-          {user && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-full flex items-center justify-center gap-2 border-gray-300 text-papaya hover:text-papaya hover:bg-gray-100"
-              onClick={() => onAddToCalendar(mic)}
-            >
-              <Calendar className="w-4 h-4" />
-              Add to Calendar
-            </Button>
-          )}
           <div className="flex flex-row gap-2">
             <Button
               size="sm"
@@ -319,6 +327,20 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Add to Google Calendar"
+                onClick={async () => {
+                  if (user) {
+                    try {
+                      await supabase
+                        .from('gcal_clicks')
+                        .insert({
+                          user_id: user.id,
+                          created_at: new Date().toISOString()
+                        });
+                    } catch (error) {
+                      console.error('Error logging Google Calendar click:', error);
+                    }
+                  }
+                }}
               >
                 <span className="flex items-center gap-1">
                   <span className="inline-block w-4 h-4 bg-white text-sky font-bold rounded-full flex items-center justify-center">G</span>
@@ -339,7 +361,6 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           </div>
         </div>
       </div>
-    </div>
   );
 }
 
