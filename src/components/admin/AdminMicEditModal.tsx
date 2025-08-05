@@ -7,7 +7,7 @@ import DayOfWeekPicker from '@/components/ui/DayOfWeekPicker';
 import BoroughPicker from '@/components/ui/BoroughPicker';
 
 const OPEN_MIC_FIELDS = [
-  'Open Mic', 'Day', 'Start Time', 'Latest End Time', 'Venue Name', 'Borough', 'Neighborhood', 'Location', 'Venue type', 'Cost', 'Stage time', 'Sign-Up Instructions', 'Host(s) / Organizer', 'Changes/updates', 'Last verified', 'SMS', 'Other Rules', 'Help other comics! Leave reviews', 'Formerly verified'
+  'Open Mic', 'Day', 'Start Time', 'Latest End Time', 'Venue Name', 'Borough', 'Neighborhood', 'Location', 'Venue type', 'Cost', 'Stage time', 'Sign-Up Instructions', 'Host(s) / Organizer', 'Changes/updates', 'Last verified', 'Other Rules', 'Help other comics! Leave reviews', 'Formerly verified'
 ];
 const OPTIONAL_FIELDS = ['Other Rules', 'Help other comics! Leave reviews', 'Formerly verified'];
 const REQUIRED_FIELDS = OPEN_MIC_FIELDS.filter(f => !OPTIONAL_FIELDS.includes(f));

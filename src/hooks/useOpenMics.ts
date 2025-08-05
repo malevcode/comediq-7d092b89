@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic } from "@/types/openMic";
 
-export const useOpenMics = (tableName: 'open_mics_active' | 'open_mics_historical' = 'open_mics_active') => {
+export const useOpenMics = (tableName: 'open_mics_historical' = 'open_mics_historical') => {
   return useQuery({
     queryKey: ["openMics", tableName],
     queryFn: async (): Promise<OpenMic[]> => {
@@ -17,7 +17,6 @@ export const useOpenMics = (tableName: 'open_mics_active' | 'open_mics_historica
         throw error;
       }
 
-      console.log("Raw data from Supabase:", data);
       console.log("Number of records fetched:", data?.length || 0);
 
       if (!data || data.length === 0) {
@@ -25,8 +24,11 @@ export const useOpenMics = (tableName: 'open_mics_active' | 'open_mics_historica
         return [];
       }
 
+      const filteredData = data.filter((row: any) => row["active"] === true || row["active"] === 1);
+      console.log("Filtered data count:", filteredData.length);
+      
       // Map the database columns to our OpenMic interface
-      const mappedData = data.map((row: any) => {
+      const mappedData = filteredData.map((row: any) => {
         const mapped: OpenMic = {
           openMic: row["Open Mic"] || row["open_mic"] || "",
           day: row["Day"] || row["day"] || "",
