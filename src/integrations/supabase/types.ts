@@ -662,6 +662,32 @@ export type Database = {
           }
         ]
       }
+      gcal_clicks: {
+        Row: {
+          id: string
+          user_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gcal_clicks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          }
+        ]
+      }
       waitlist: {
         Row: {
           created_at: string | null
