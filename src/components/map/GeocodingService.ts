@@ -73,8 +73,13 @@ export class GeocodingService {
     }
 
     try {
-      // Try to get the most accurate result by using address type first
-      let geocodingUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${this.token}&limit=5&types=address&country=us`;
+      // Clean the address for better geocoding
+      const cleanedAddress = this.cleanAddress(address);
+      const zipCode = this.extractZipCode(address);
+      const borough = this.detectBoroughFromAddress(address);
+      
+      // Build geocoding URL with clean parameters
+      let geocodingUrl = this.buildGeocodingUrl(cleanedAddress, zipCode);
       
       let response = await fetch(geocodingUrl);
       
@@ -86,8 +91,8 @@ export class GeocodingService {
       
       // If no address results, try with poi type
       if (!data.features || data.features.length === 0) {
-        console.log(`No address results for "${address}", trying POI search...`);
-        geocodingUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${this.token}&limit=5&types=poi&country=us`;
+        console.log(`No address results for "${cleanedAddress}", trying POI search...`);
+        geocodingUrl = this.buildGeocodingUrl(cleanedAddress, zipCode, 'poi');
         response = await fetch(geocodingUrl);
         
         if (!response.ok) {
@@ -98,7 +103,7 @@ export class GeocodingService {
       }
       
       if (data.features && data.features.length > 0) {
-        // Look for the best match - prefer exact address matches
+        // Let Mapbox do the heavy lifting - just pick the best result
         let bestFeature = data.features[0];
         let bestScore = 0;
         
@@ -106,16 +111,27 @@ export class GeocodingService {
           const placeName = feature.place_name.toLowerCase();
           const addressLower = address.toLowerCase();
           
-          // Score based on how well the address matches
+          // Start with Mapbox's relevance score
           let score = feature.relevance || 0;
           
-          // Bonus for exact address match
-          if (placeName.includes(addressLower) || addressLower.includes(placeName.split(',')[0])) {
+          // Bonus for zip code match (highest priority)
+          if (zipCode && placeName.includes(zipCode)) {
             score += 0.3;
           }
           
-          // Bonus for having the full address
-          if (placeName.includes('new york') || placeName.includes('ny')) {
+          // Bonus for borough match (if specified)
+          if (borough && placeName.includes(borough)) {
+            score += 0.2;
+          }
+          
+          // Bonus for exact address match
+          if (placeName.includes(addressLower) || addressLower.includes(placeName.split(',')[0])) {
+            score += 0.2;
+          }
+          
+          // Bonus for having the exact street number
+          const streetNumber = this.extractStreetNumber(address);
+          if (streetNumber && placeName.includes(streetNumber)) {
             score += 0.2;
           }
           
@@ -130,6 +146,8 @@ export class GeocodingService {
         const lng = rawLng + (Math.random() - 0.5) * 0.0002;
         const lat = rawLat + (Math.random() - 0.5) * 0.0002;
         
+        console.log(`Geocoded "${address}" to [${lng}, ${lat}] - ${bestFeature.place_name} (score: ${bestScore}, borough: ${borough || 'none'}, zip: ${zipCode || 'none'})`);
+        
         this.cache.set(address, [lng, lat]);
         return [lng, lat];
       }
@@ -137,6 +155,90 @@ export class GeocodingService {
       console.error('Geocoding error:', error);
     }
     return null;
+  }
+
+  private enhanceAddressForNYC(address: string): string {
+    // Add "New York, NY" if not present
+    if (!address.toLowerCase().includes('new york') && !address.toLowerCase().includes('ny')) {
+      return `${address}, New York, NY`;
+    }
+    
+    // Don't add Manhattan context if the address already specifies a borough
+    if (address.includes('St') || address.includes('Ave') || address.includes('Street') || address.includes('Avenue')) {
+      const lowerAddress = address.toLowerCase();
+      if (!lowerAddress.includes('manhattan') && 
+          !lowerAddress.includes('brooklyn') && 
+          !lowerAddress.includes('queens') && 
+          !lowerAddress.includes('bronx') && 
+          !lowerAddress.includes('staten island')) {
+        return `${address}, Manhattan, New York, NY`;
+      }
+    }
+    
+    return address;
+  }
+
+  private detectBoroughFromAddress(address: string): string | null {
+    const lowerAddress = address.toLowerCase();
+    
+    // Only check for explicit borough mentions
+    if (lowerAddress.includes('brooklyn') || lowerAddress.includes('bk')) {
+      return 'brooklyn';
+    }
+    if (lowerAddress.includes('queens') || lowerAddress.includes('qn')) {
+      return 'queens';
+    }
+    if (lowerAddress.includes('bronx') || lowerAddress.includes('bx')) {
+      return 'bronx';
+    }
+    if (lowerAddress.includes('staten island') || lowerAddress.includes('si')) {
+      return 'staten island';
+    }
+    if (lowerAddress.includes('manhattan') || lowerAddress.includes('nyc') || lowerAddress.includes('new york, ny')) {
+      return 'manhattan';
+    }
+    
+    return null;
+  }
+
+  private extractStreetNumber(address: string): string | null {
+    const match = address.match(/^(\d+)/);
+    return match ? match[1] : null;
+  }
+
+  private extractZipCode(address: string): string | null {
+    // Match 5-digit zip codes
+    const zipMatch = address.match(/\b(\d{5})\b/);
+    return zipMatch ? zipMatch[1] : null;
+  }
+
+  private cleanAddress(address: string): string {
+    // Remove extra spaces and normalize
+    let cleaned = address.trim().replace(/\s+/g, ' ');
+    
+    // Ensure we have proper formatting
+    if (!cleaned.includes(',')) {
+      // If no commas, try to add basic formatting
+      if (cleaned.match(/\d{5}$/)) {
+        // Has zip code at end, add state if missing
+        if (!cleaned.match(/,\s*[A-Z]{2}\s+\d{5}$/)) {
+          cleaned = cleaned.replace(/(\d{5})$/, ', NY $1');
+        }
+      }
+    }
+    
+    return cleaned;
+  }
+
+  private buildGeocodingUrl(address: string, zipCode?: string | null, type: 'address' | 'poi' = 'address'): string {
+    let url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${this.token}&limit=10&types=${type}&country=us`;
+    
+    // Add zip code for precision if available
+    if (zipCode) {
+      url += `&postcode=${zipCode}`;
+    }
+    
+    return url;
   }
 
   public async geocodeAddresses(addresses: string[], onProgress?: (progress: GeocodingProgress) => void): Promise<Map<string, [number, number]>> {
@@ -256,5 +358,20 @@ export class GeocodingService {
   public clearCache(): void {
     this.cache.clear();
     localStorage.removeItem('geocode_cache');
+    console.log('Geocode cache cleared');
+  }
+
+  public clearCacheForAddress(address: string): void {
+    this.cache.delete(address);
+    this.saveCache();
+    console.log(`Cleared cache for address: ${address}`);
+  }
+
+  public clearCacheForAddresses(addresses: string[]): void {
+    addresses.forEach(address => {
+      this.cache.delete(address);
+    });
+    this.saveCache();
+    console.log(`Cleared cache for ${addresses.length} addresses`);
   }
 } 
