@@ -549,7 +549,7 @@ const OpenMics = () => {
       <div className="max-w-7xl mx-auto px-4 py-0">
         {/* Search and Filters */}
         <div className={`bg-white rounded-xl shadow-lg p-3 mb-3 block`}>
-          <div className="flex flex-col md:flex-row gap-3 items-center">
+          <div className="flex flex-row gap-3 items-center">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
               <Input
