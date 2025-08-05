@@ -8,6 +8,7 @@ import { LocationService } from './LocationService';
 import { MarkerManager, MarkerData } from './MarkerManager';
 import { MapLegend } from './MapLegend';
 import { MapControls } from './MapControls';
+import { TokenInput } from './TokenInput';
 
 interface OpenMicsMapProps {
   mics: OpenMic[];
@@ -29,6 +30,7 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
   const [locationLoading, setLocationLoading] = useState(false);
   const [loadedMicCount, setLoadedMicCount] = useState(0);
   const [backgroundLoading, setBackgroundLoading] = useState(false);
+  const [inputToken, setInputToken] = useState('');
 
   // Component mount/unmount logging
   useEffect(() => {
@@ -41,17 +43,22 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
   // Initialize token on component mount
   useEffect(() => {
     console.log('OpenMicsMap: Token initialization effect running');
-    const token = getMapboxToken();
     
-    if (!token) {
-      setError('Mapbox token not found. Please set VITE_MAPBOX_TOKEN in your .env file');
-      return;
-    }
+    const initializeToken = async () => {
+      const token = await getMapboxToken();
+      
+      if (!token) {
+        setError('Mapbox token not found. Please set VITE_MAPBOX_TOKEN in your environment variables or enter it below.');
+        return;
+      }
+      
+      // Set the global Mapbox token
+      MapboxGL.accessToken = token;
+      setMapboxToken(token);
+      geocodingService.current = new GeocodingService(token);
+    };
     
-    // Set the global Mapbox token
-    MapboxGL.accessToken = token;
-    setMapboxToken(token);
-    geocodingService.current = new GeocodingService(token);
+    initializeToken();
   }, []);
 
   // Get user location on mount - automatically request permission
@@ -232,6 +239,25 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
     }
   }, [mics]);
 
+  // Handle token input submission
+  const handleTokenSubmit = useCallback(() => {
+    if (inputToken) {
+      // Store token in localStorage for development
+      localStorage.setItem('mapbox_token', inputToken);
+      
+      // Set the global Mapbox token
+      MapboxGL.accessToken = inputToken;
+      setMapboxToken(inputToken);
+      setError(null);
+      geocodingService.current = new GeocodingService(inputToken);
+    }
+  }, [inputToken]);
+
+  // Handle token input change
+  const handleTokenChange = useCallback((token: string) => {
+    setInputToken(token);
+  }, []);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -300,31 +326,40 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
       
       {/* Map container */}
       <div className="relative w-full h-96 rounded-lg overflow-hidden border">
-        <div ref={mapContainer} className="absolute inset-0" />
-        
-        {/* Map controls */}
-        <MapControls
-          onRecenter={recenterOnUserLocation}
-          locationLoading={locationLoading}
-          isLoading={isLoading}
-          geocodingProgress={geocodingProgress}
-          error={error}
-          onDismissError={() => setError(null)}
-          loadedMicCount={loadedMicCount}
-          backgroundLoading={backgroundLoading}
-        />
-        
-        {/* Map loading indicator */}
-        {!mapLoaded && mapboxToken && (
-          <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-              <div className="text-sm text-gray-600">Loading map...</div>
-            </div>
-          </div>
+        {!mapboxToken ? (
+          // Show TokenInput when no token is available
+          <TokenInput
+            token={inputToken}
+            onTokenChange={handleTokenChange}
+            onSubmit={handleTokenSubmit}
+          />
+        ) : (
+          <>
+            <div ref={mapContainer} className="absolute inset-0" />
+            
+            {/* Map controls */}
+            <MapControls
+              onRecenter={recenterOnUserLocation}
+              locationLoading={locationLoading}
+              isLoading={isLoading}
+              geocodingProgress={geocodingProgress}
+              error={error}
+              onDismissError={() => setError(null)}
+              loadedMicCount={loadedMicCount}
+              backgroundLoading={backgroundLoading}
+            />
+            
+            {/* Map loading indicator */}
+            {!mapLoaded && mapboxToken && (
+              <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                  <div className="text-sm text-gray-600">Loading map...</div>
+                </div>
+              </div>
+            )}
+          </>
         )}
-
-
       </div>
     </div>
   );
