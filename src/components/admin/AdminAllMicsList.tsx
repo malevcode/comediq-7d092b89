@@ -9,7 +9,7 @@ import { toast } from '@/components/ui/use-toast';
 
 const PAGE_SIZE = 10;
 const OPEN_MIC_FIELDS = [
-  'Open Mic', 'Day', 'Start Time', 'Latest End Time', 'Venue Name', 'Borough', 'Neighborhood', 'Location', 'Venue type', 'Cost', 'Stage time', 'Sign-Up Instructions', 'Host(s) / Organizer', 'Changes/updates', 'Last verified', 'SMS', 'Other Rules', 'Help other comics! Leave reviews', 'Formerly verified'
+  'Open Mic', 'Day', 'Start Time', 'Latest End Time', 'Venue Name', 'Borough', 'Neighborhood', 'Location', 'Venue type', 'Cost', 'Stage time', 'Sign-Up Instructions', 'Host(s) / Organizer', 'Changes/updates', 'Last verified', 'Other Rules', 'Help other comics! Leave reviews', 'Formerly verified'
 ];
 const EMPTY_MIC = Object.fromEntries(OPEN_MIC_FIELDS.map(f => [f, '']));
 
@@ -72,7 +72,7 @@ const AdminAllMicsList = () => {
 
     // Check for duplicate unique_identifier (exclude current mic if editing)
     const { data: dupes, error: dupeError } = await supabase
-      .from('open_mics_july')
+      .from('open_mics_historical')
       .select('unique_identifier')
       .eq('unique_identifier', unique_identifier);
     if (dupeError) {
@@ -95,7 +95,7 @@ const AdminAllMicsList = () => {
         return;
       }
       // Then insert into July
-      const { error } = await supabase.from('open_mics_july').insert([insertData]);
+      const { error } = await supabase.from('open_mics_active').insert([insertData]);
       if (error) {
         toast({ title: 'Error', description: error.message, variant: 'destructive' });
       } else {
@@ -106,7 +106,7 @@ const AdminAllMicsList = () => {
     } else {
       // Update with new unique_identifier
       const { error } = await supabase
-        .from('open_mics_july')
+        .from('open_mics_historical')
         .update({ ...insertData })
         .eq('unique_identifier', selectedMic.unique_identifier);
       if (error) {

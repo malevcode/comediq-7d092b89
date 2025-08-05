@@ -30,7 +30,6 @@ export type Database = {
           "Open Mic": string | null
           "Other Rules": string | null
           "Sign-Up Instructions": string | null
-          SMS: string | null
           "Stage time": string | null
           "Start Time": string | null
           unique_identifier: string
@@ -52,7 +51,6 @@ export type Database = {
           "Open Mic"?: string | null
           "Other Rules"?: string | null
           "Sign-Up Instructions"?: string | null
-          SMS?: string | null
           "Stage time"?: string | null
           "Start Time"?: string | null
           unique_identifier: string
@@ -74,7 +72,6 @@ export type Database = {
           "Open Mic"?: string | null
           "Other Rules"?: string | null
           "Sign-Up Instructions"?: string | null
-          SMS?: string | null
           "Stage time"?: string | null
           "Start Time"?: string | null
           unique_identifier?: string
@@ -107,7 +104,6 @@ export type Database = {
           "Open Mic": string | null
           "Other Rules": string | null
           "Sign-Up Instructions": string | null
-          SMS: string | null
           "Stage time": string | null
           "Start Time": string | null
           unique_identifier: string
@@ -129,7 +125,7 @@ export type Database = {
           "Open Mic"?: string | null
           "Other Rules"?: string | null
           "Sign-Up Instructions"?: string | null
-          SMS?: string | null
+
           "Stage time"?: string | null
           "Start Time"?: string | null
           unique_identifier: string
@@ -151,7 +147,7 @@ export type Database = {
           "Open Mic"?: string | null
           "Other Rules"?: string | null
           "Sign-Up Instructions"?: string | null
-          SMS?: string | null
+
           "Stage time"?: string | null
           "Start Time"?: string | null
           unique_identifier?: string
@@ -185,7 +181,6 @@ export type Database = {
           "Open Mic": string | null
           "Other Rules": string | null
           "Sign-Up Instructions": string | null
-          SMS: string | null
           "Stage time": string | null
           "Start Time": string | null
           unique_identifier: string
@@ -208,7 +203,6 @@ export type Database = {
           "Open Mic"?: string | null
           "Other Rules"?: string | null
           "Sign-Up Instructions"?: string | null
-          SMS?: string | null
           "Stage time"?: string | null
           "Start Time"?: string | null
           unique_identifier: string
@@ -231,7 +225,6 @@ export type Database = {
           "Open Mic"?: string | null
           "Other Rules"?: string | null
           "Sign-Up Instructions"?: string | null
-          SMS?: string | null
           "Stage time"?: string | null
           "Start Time"?: string | null
           unique_identifier?: string
@@ -256,7 +249,6 @@ export type Database = {
           "Open Mic": string | null
           "Other Rules": string | null
           "Sign-Up Instructions": string | null
-          SMS: string | null
           "Stage time": string | null
           "Start Time": string | null
           unique_identifier: string
@@ -278,7 +270,6 @@ export type Database = {
           "Open Mic"?: string | null
           "Other Rules"?: string | null
           "Sign-Up Instructions"?: string | null
-          SMS?: string | null
           "Stage time"?: string | null
           "Start Time"?: string | null
           unique_identifier: string
@@ -300,7 +291,6 @@ export type Database = {
           "Open Mic"?: string | null
           "Other Rules"?: string | null
           "Sign-Up Instructions"?: string | null
-          SMS?: string | null
           "Stage time"?: string | null
           "Start Time"?: string | null
           unique_identifier?: string
@@ -333,7 +323,6 @@ export type Database = {
           "Open Mic": string | null
           "Other Rules": string | null
           "Sign-Up Instructions": string | null
-          SMS: string | null
           "Stage time": string | null
           "Start Time": string | null
           unique_identifier: string
@@ -355,7 +344,6 @@ export type Database = {
           "Open Mic"?: string | null
           "Other Rules"?: string | null
           "Sign-Up Instructions"?: string | null
-          SMS?: string | null
           "Stage time"?: string | null
           "Start Time"?: string | null
           unique_identifier: string
@@ -377,7 +365,6 @@ export type Database = {
           "Open Mic"?: string | null
           "Other Rules"?: string | null
           "Sign-Up Instructions"?: string | null
-          SMS?: string | null
           "Stage time"?: string | null
           "Start Time"?: string | null
           unique_identifier?: string
@@ -668,6 +655,32 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "user_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          }
+        ]
+      }
+      gcal_clicks: {
+        Row: {
+          id: string
+          user_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gcal_clicks_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"

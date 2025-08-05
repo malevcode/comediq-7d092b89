@@ -24,11 +24,11 @@ export const MapControls: React.FC<MapControlsProps> = ({
   return (
     <>
       {/* Recenter button */}
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-2 left-2">
         <button 
           onClick={onRecenter}
           disabled={locationLoading}
-          className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium transition-colors duration-200"
+          className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-3 py-2 rounded-lg shadow-lg text-sm font-medium transition-colors duration-200"
         >
           {locationLoading ? 'Getting Location...' : 'Recenter'}
         </button>
