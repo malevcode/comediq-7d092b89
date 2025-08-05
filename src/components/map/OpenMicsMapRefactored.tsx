@@ -8,6 +8,7 @@ import { LocationService } from './LocationService';
 import { MarkerManager, MarkerData } from './MarkerManager';
 import { MapLegend } from './MapLegend';
 import { MapControls } from './MapControls';
+import { Info } from 'lucide-react';
 
 interface OpenMicsMapProps {
   mics: OpenMic[];
@@ -295,11 +296,18 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
 
   return (
     <div className="w-full">
-      {/* Map legend */}
-      <MapLegend />
-      
       {/* Map container */}
       <div className="relative w-full h-96 rounded-lg overflow-hidden border">
+        {/* Map legend */}
+        <div className="absolute top-12 left-2 z-10 group">
+          <div className="flex items-center gap-1 mb-1 text-xs text-gray-600 opacity-100">
+            <Info className="w-3 h-3" />
+            <span>Legend</span>
+          </div>
+          <div className="opacity-0 group-hover:opacity-80 transition-opacity duration-200">
+            <MapLegend />
+          </div>
+        </div>
         <div ref={mapContainer} className="absolute inset-0" />
         
         {/* Map controls */}
