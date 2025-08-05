@@ -6,8 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3, Save, FileText, X } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3 } from "lucide-react";
+import { QuickNotes } from "./home/QuickNotes";
 
 // Custom hook to fetch user profile from Supabase
 function useUserProfile(userId) {
@@ -122,12 +122,7 @@ export default function Home() {
   const { visits, loading: visitsLoading, refetch } = useUserVisits(user?.id, visitInserted);
   const navigate = useNavigate();
 
-  // Notepad state
-  const [currentNote, setCurrentNote] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [savedNotes, setSavedNotes] = useState<any[]>([]);
-  const [showSidebar, setShowSidebar] = useState(false);
+
 
   // Refetch visits when visitInserted is true, then reset the flag
   useEffect(() => {
@@ -138,164 +133,9 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitInserted]);
 
-  // Load draft and saved notes on component mount
-  useEffect(() => {
-    const loadDraft = async () => {
-      if (!user) return;
-      
-      const { data, error } = await supabase
-        .from('user_notes')
-        .select('content, updated_at')
-        .eq('user_id', user.id)
-        .eq('is_draft', true)
-        .single();
-      
-      if (data) {
-        setCurrentNote(data.content);
-        setLastSaved(new Date(data.updated_at));
-      }
-    };
-    
-    const loadNotes = async () => {
-      if (!user) return;
-      
-      const { data, error } = await supabase
-        .from('user_notes')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('is_draft', false)
-        .order('updated_at', { ascending: false });
-      
-      if (data) {
-        setSavedNotes(data);
-      }
-    };
-    
-    loadDraft();
-    loadNotes();
-  }, [user]);
 
-  // Load saved notes
-  const loadSavedNotes = async () => {
-    if (!user) return;
-    
-    const { data, error } = await supabase
-      .from('user_notes')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('is_draft', false)
-      .order('updated_at', { ascending: false });
-    
-    if (data) {
-      setSavedNotes(data);
-    }
-  };
 
-  // Auto-save draft on input change
-  const saveDraft = async (content: string) => {
-    if (!user) return;
-    
-    setIsSaving(true);
-    
-    // First, try to update existing draft
-    const { data: existingDraft } = await supabase
-      .from('user_notes')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('is_draft', true)
-      .single();
-    
-    if (existingDraft) {
-      // Update existing draft
-      const { error } = await supabase
-        .from('user_notes')
-        .update({
-          content: content,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', existingDraft.id);
-      
-      if (!error) {
-        setLastSaved(new Date());
-      }
-    } else {
-      // Create new draft
-      const { error } = await supabase
-        .from('user_notes')
-        .insert({
-          user_id: user.id,
-          content: content,
-          is_draft: true,
-          updated_at: new Date().toISOString()
-        });
-      
-      if (!error) {
-        setLastSaved(new Date());
-      }
-    }
-    
-    setIsSaving(false);
-  };
 
-  // Save as new note
-  const saveAsNote = async () => {
-    if (!user || !currentNote.trim()) return;
-    
-    setIsSaving(true);
-    const timestamp = new Date().toISOString();
-    const { error } = await supabase
-      .from('user_notes')
-      .insert({
-        user_id: user.id,
-        content: currentNote,
-        title: `${currentNote.split('\n')[0].slice(0, 50)}`,
-        is_draft: false,
-        created_at: timestamp,
-        updated_at: timestamp
-      });
-    
-    if (!error) {
-      setCurrentNote('');
-      setLastSaved(null);
-      loadSavedNotes(); // Refresh saved notes
-    }
-    setIsSaving(false);
-  };
-
-  // Handle textarea input
-  const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const content = e.target.value;
-    setCurrentNote(content);
-    saveDraft(content);
-  };
-
-  // Load a saved note as draft
-  const loadNoteAsDraft = async (note: any) => {
-    if (!user) return;
-    
-    setCurrentNote(note.content);
-    
-    // Update the draft in database
-    setIsSaving(true);
-    const { error } = await supabase
-      .from('user_notes')
-      .upsert({
-        user_id: user.id,
-        content: note.content,
-        is_draft: true,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'user_id'
-      });
-    
-    if (!error) {
-      setLastSaved(new Date());
-    }
-    setIsSaving(false);
-    
-    // Close the sidebar
-    setShowSidebar(false);
-  };
 
   // Fallbacks
   const displayName = profile?.username || user?.email?.split("@")[0] || "Comedian";
@@ -431,77 +271,8 @@ export default function Home() {
                 </Card>
               </div>
 
-              {/* Notepad Section */}
-              <Card className="border-blue-200 bg-white/80 backdrop-blur">
-                <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
-                  <div>
-                    <CardTitle className="text-lg text-blue-800">📝 Quick Notes</CardTitle>
-                    <CardDescription className="text-blue-600">Jot down ideas and thoughts</CardDescription>
-                  </div>
-                  <Sheet open={showSidebar} onOpenChange={(open) => {
-                    setShowSidebar(open);
-                    if (open) {
-                      loadSavedNotes();
-                    }
-                  }}>
-                    <SheetTrigger asChild>
-                      <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700">
-                        <FileText className="w-4 h-4 mr-2" />
-                        Saved Notes
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent className="overflow-y-auto">
-                      <SheetHeader>
-                        <SheetTitle>Saved Notes</SheetTitle>
-                      </SheetHeader>
-                      <div className="mt-4 space-y-3 pb-4">
-                        {savedNotes.map((note) => (
-                          <div 
-                            key={note.id} 
-                            className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                            onClick={() => loadNoteAsDraft(note)}
-                          >
-                            <div className="font-medium text-sm mb-1">{note.title || 'Untitled'}</div>
-                            <div className="text-xs text-gray-600 mb-2">
-                              {new Date(note.updated_at).toLocaleString()}
-                            </div>
-                            <div className="text-sm text-gray-700 line-clamp-3">{note.content}</div>
-                          </div>
-                        ))}
-                        {savedNotes.length === 0 && (
-                          <div className="text-center text-gray-500 py-8">
-                            No saved notes yet
-                          </div>
-                        )}
-                      </div>
-                    </SheetContent>
-                  </Sheet>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <div className="relative">
-                    <textarea
-                      className="w-full h-32 p-3 border border-gray-200 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Write down your comedy ideas, material, or notes here..."
-                      value={currentNote}
-                      onChange={handleNoteChange}
-                    />
-                  </div>
-                  <div className="flex justify-between items-center mt-3">
-                    <div className="text-xs text-gray-500">
-                      {currentNote.length} characters
-                    </div>
-                    <Button 
-                      size="sm" 
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                      onClick={saveAsNote}
-                      disabled={!currentNote.trim()}
-                    >
-                      <Save className="w-4 h-4 mr-2" />
-                      Save Note
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Quick Notes Section */}
+              <QuickNotes />
             </div>
 
             {/* Right Column - Quick Actions and Next Open Mics */}
