@@ -206,8 +206,8 @@ export default function Home() {
       <main className="flex-1">
         <div className="container py-10">
           {/* Welcome Section */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-6">
+          <div className="mb-8 bg-white/80 backdrop-blur rounded-xl p-6 shadow-sm">
+            <div className="flex items-center gap-4">
               <div className="relative">
                 <Avatar className="h-16 w-16 ring-4 ring-orange-200 ring-offset-2">
                   <AvatarImage src={avatarUrl} alt={displayName} />
@@ -289,15 +289,6 @@ export default function Home() {
                       <MapPin className="mr-2 h-4 w-4" />
                       Find Open Mics
                     </Link>
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start border-amber-200 text-amber-700 hover:bg-amber-50 bg-transparent"
-                    size="sm"
-                  >
-                    <Edit3 className="mr-2 h-4 w-4" />
-                    Write New Material
                   </Button>
 
                   <Button asChild

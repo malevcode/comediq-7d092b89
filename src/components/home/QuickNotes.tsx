@@ -99,7 +99,7 @@ export const QuickNotes: React.FC<QuickNotesProps> = ({ className = "" }) => {
       .insert({
         user_id: user.id,
         content: currentNote,
-        title: currentNote.substring(0, 50) + (currentNote.length > 50 ? "..." : ""),
+        title: currentNote.split('\n')[0]|| 'Untitled Note',
         is_draft: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
