@@ -47,7 +47,7 @@ const App = () => (
             <Route path="/consume" element={<Consume />} />
             <Route path="/open-mics" element={<OpenMics />} />
             <Route path="/track-sets" element={<ProgressTrackerPage />} />
-            <Route path="/shows" element={<Shows />} />
+            <Route path="/shows" element={<TabProvider><Shows /></TabProvider>} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admintest" element={<AdminInterface />} /> 
