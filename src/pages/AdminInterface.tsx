@@ -22,6 +22,7 @@ import { CheckCircle, XCircle, Clock, FileText, UserCheck, UserX, Loader2 } from
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdminRequestList from '@/components/admin/AdminRequestList';
 import AdminAllMicsList from '@/components/admin/AdminAllMicsList';
+import { MicAnalyticsDashboard } from '@/components/admin/MicAnalyticsDashboard';
 
 const OPEN_MIC_FIELDS = [
   'Open Mic', 'Day', 'Start Time', 'Latest End Time', 'Venue Name', 'Borough', 'Neighborhood', 'Location', 'Venue type', 'Cost', 'Stage time', 'Sign-Up Instructions', 'Host(s) / Organizer', 'Changes/updates', 'Last verified', 'Other Rules', 'Help other comics! Leave reviews', 'Formerly verified'
@@ -48,6 +49,7 @@ interface MicRequest {
 const AdminInterface = () => {
   const { isAdmin, user } = useAuth();
   const [micRequests, setMicRequests] = useState<any[]>([]);
+  const [allMics, setAllMics] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [reviewedExpanded, setReviewedExpanded] = useState(false);
@@ -74,18 +76,31 @@ const AdminInterface = () => {
 
   useEffect(() => {
     if (!isAdmin) return;
-    const fetchRequests = async () => {
+    const fetchData = async () => {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Fetch mic requests
+      const { data: requestsData, error: requestsError } = await supabase
         .from('open_mics_requests')
         .select('*')
         .order('created_at', { ascending: false });
-      if (!error && data) {
-        setMicRequests(data as MicRequest[]);
+      
+      // Fetch all mics for analytics
+      const { data: micsData, error: micsError } = await supabase
+        .from('open_mics_historical')
+        .select('*');
+      
+      if (!requestsError && requestsData) {
+        setMicRequests(requestsData as MicRequest[]);
       }
+      
+      if (!micsError && micsData) {
+        setAllMics(micsData);
+      }
+      
       setLoading(false);
     };
-    fetchRequests();
+    fetchData();
   }, [isAdmin]);
 
   // Split requests
@@ -189,18 +204,35 @@ const AdminInterface = () => {
         <h1 className="text-3xl font-extrabold text-orange-600 mb-8 flex items-center gap-2">
           <FileText className="w-8 h-8 text-orange-400" /> Admin Dashboard
         </h1>
-        <Tabs defaultValue="pending" className="w-full" onValueChange={setTab}>
-          <TabsList className="mb-8 w-full grid grid-cols-3 gap-1">
+        <Tabs defaultValue="analytics" className="w-full" onValueChange={setTab}>
+          <TabsList className="mb-8 w-full grid grid-cols-4 gap-1">
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="all" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              All Mics
+            </TabsTrigger>
             <TabsTrigger value="pending" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               Pending
             </TabsTrigger>
             <TabsTrigger value="reviewed" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               Reviewed
             </TabsTrigger>
-            <TabsTrigger value="all" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
-              All Mics
-            </TabsTrigger>
           </TabsList>
+          <TabsContent value="analytics">
+            <Card className="mb-6 shadow-lg rounded-2xl border-0">
+              <CardContent className="p-8 flex flex-col items-start">
+                <MicAnalyticsDashboard mics={allMics} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="all">
+            <Card className="mb-6 shadow-lg rounded-2xl border-0">
+              <CardContent className="p-8 flex flex-col items-start">
+                <AdminAllMicsList />
+              </CardContent>
+            </Card>
+          </TabsContent>
           <TabsContent value="pending">
             <Card className="mb-8 shadow-lg rounded-2xl border-0">
               <CardContent className="p-8 flex flex-col items-start">
@@ -276,13 +308,6 @@ const AdminInterface = () => {
                     deleting={false}
                   />
                 )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="all">
-            <Card className="mb-6 shadow-lg rounded-2xl border-0">
-              <CardContent className="p-8 flex flex-col items-start">
-                <AdminAllMicsList />
               </CardContent>
             </Card>
           </TabsContent>
