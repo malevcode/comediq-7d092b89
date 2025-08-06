@@ -41,6 +41,7 @@ export const getVerificationStatus = (lastVerified: string): 'verified' | 'verif
     return 'unverified';
   }
   
+  // Check for "verified tediously" BEFORE "verified" to avoid false matches
   if (lower.includes('verified tediously')) {
     return 'verified_tediously';
   }
@@ -80,12 +81,16 @@ export const useMicAnalytics = (mics: any[]) => {
     // Verification Statistics
     const verificationStats = mics.reduce((stats, mic) => {
       const status = getVerificationStatus(mic['Last verified'] || '');
-      stats[status]++;
+      if (status === 'verified_tediously') {
+        stats.verifiedTediously++;
+      } else {
+        stats[status]++;
+      }
       stats.total++;
       return stats;
     }, {
       verified: 0,
-      verified_tediously: 0,
+      verifiedTediously: 0,
       unverified: 0,
       total: 0
     });
@@ -93,7 +98,7 @@ export const useMicAnalytics = (mics: any[]) => {
     const verificationStatsWithPercentages: VerificationStats = {
       ...verificationStats,
       verifiedPercentage: verificationStats.total > 0 ? (verificationStats.verified / verificationStats.total) * 100 : 0,
-      verifiedTediouslyPercentage: verificationStats.total > 0 ? (verificationStats.verified_tediously / verificationStats.total) * 100 : 0,
+      verifiedTediouslyPercentage: verificationStats.total > 0 ? (verificationStats.verifiedTediously / verificationStats.total) * 100 : 0,
       unverifiedPercentage: verificationStats.total > 0 ? (verificationStats.unverified / verificationStats.total) * 100 : 0,
     };
 
