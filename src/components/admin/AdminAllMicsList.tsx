@@ -2,11 +2,16 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Download, Trash2, Power, PowerOff, Filter } from 'lucide-react';
 import AdminMicEditModal from './AdminMicEditModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
+import { useMicFilters, MicFilters } from './hooks/useMicFilters';
+import { useBulkOperations } from './hooks/useBulkOperations';
+import { MicFiltersPanel } from './MicFiltersPanel';
+import { MicListItem } from './MicListItem';
 
 const PAGE_SIZE = 10;
 const OPEN_MIC_FIELDS = [
@@ -23,12 +28,54 @@ const AdminAllMicsList = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [activeTab, setActiveTab] = useState('active');
+  const [showFilters, setShowFilters] = useState(false);
+  
+  // Filter and sort state
+  const [filters, setFilters] = useState<MicFilters>({
+    borough: 'all',
+    day: 'all',
+    cost: 'all',
+    verifiedFrom: null,
+    verifiedTo: null,
+  });
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  
   const { user } = useAuth();
   const adminName = user?.user_metadata?.username || user?.email || 'Admin';
+
+  // Use custom hooks
+  const filteredMics = useMicFilters(mics, search, activeTab, filters, sortBy, sortOrder);
+  const {
+    selectedMics,
+    setSelectedMics,
+    bulkLoading,
+    handleSelectMic,
+    handleSelectAll,
+    handleBulkToggleStatus,
+    handleBulkDelete,
+    handleBulkExport,
+  } = useBulkOperations(mics, setMics);
 
   // Reset visible count when switching tabs
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
+  }, [activeTab]);
+
+  // Reset selected mics when switching tabs
+  useEffect(() => {
+    setSelectedMics(new Set());
+  }, [activeTab, setSelectedMics]);
+
+  // Reset filters when switching tabs
+  useEffect(() => {
+    setFilters({
+      borough: 'all',
+      day: 'all',
+      cost: 'all',
+      verifiedFrom: null,
+      verifiedTo: null,
+    });
   }, [activeTab]);
 
   useEffect(() => {
@@ -40,20 +87,6 @@ const AdminAllMicsList = () => {
     };
     fetchMics();
   }, []);
-
-  const filteredMics = mics.filter(mic => {
-    const s = search.toLowerCase();
-    const matchesSearch = (
-      mic['Open Mic']?.toLowerCase().includes(s) ||
-      mic['Venue Name']?.toLowerCase().includes(s) ||
-      mic['Borough']?.toLowerCase().includes(s)
-    );
-    
-    // Filter by active status based on current tab
-    const matchesStatus = activeTab === 'active' ? (mic.active === true || mic.active === 1) : (mic.active !== true && mic.active !== 1);
-    
-    return matchesSearch && matchesStatus;
-  });
 
   const handleEdit = (mic: any) => {
     setSelectedMic(mic);
@@ -126,6 +159,19 @@ const AdminAllMicsList = () => {
     }
   };
 
+  const resetFilters = () => {
+    setFilters({
+      borough: 'all',
+      day: 'all',
+      cost: 'all',
+      verifiedFrom: null,
+      verifiedTo: null,
+    });
+    setSortBy('name');
+    setSortOrder('asc');
+    setSearch('');
+  };
+
   return (
     <div className="w-full">
       <div className="mb-4 flex flex-col sm:flex-row gap-2 items-center">
@@ -135,10 +181,83 @@ const AdminAllMicsList = () => {
           onChange={e => setSearch(e.target.value)}
           className="w-full sm:w-80"
         />
+        <Button 
+          variant="outline" 
+          onClick={() => setShowFilters(!showFilters)}
+          className="flex items-center gap-2"
+        >
+          <Filter className="w-4 h-4" />
+          Filters
+        </Button>
         <Button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold" onClick={handleAdd}>
           + Add New Mic
         </Button>
       </div>
+
+      {/* Advanced Filters */}
+      <MicFiltersPanel
+        showFilters={showFilters}
+        filters={filters}
+        setFilters={setFilters}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+        resetFilters={resetFilters}
+      />
+
+      {/* Bulk Operations Bar */}
+      {selectedMics.size > 0 && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex flex-col sm:flex-row gap-2 items-center justify-between">
+            <div className="text-sm text-blue-700 font-medium">
+              {selectedMics.size} mic{selectedMics.size === 1 ? '' : 's'} selected
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleBulkToggleStatus(true)}
+                disabled={bulkLoading}
+                className="text-green-700 border-green-300 hover:bg-green-50"
+              >
+                <Power className="w-4 h-4 mr-1" />
+                Activate
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleBulkToggleStatus(false)}
+                disabled={bulkLoading}
+                className="text-orange-700 border-orange-300 hover:bg-orange-50"
+              >
+                <PowerOff className="w-4 h-4 mr-1" />
+                Deactivate
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleBulkExport}
+                disabled={bulkLoading}
+                className="text-blue-700 border-blue-300 hover:bg-blue-50"
+              >
+                <Download className="w-4 h-4 mr-1" />
+                Export
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleBulkDelete}
+                disabled={bulkLoading}
+                className="text-red-700 border-red-300 hover:bg-red-50"
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -155,16 +274,26 @@ const AdminAllMicsList = () => {
             <div className="text-gray-500 text-center">No active mics found.</div>
           ) : (
             <>
+              {/* Select All */}
+              <div className="mb-3 flex items-center gap-2">
+                <Checkbox
+                  checked={selectedMics.size === filteredMics.length && filteredMics.length > 0}
+                  onCheckedChange={(checked) => handleSelectAll(checked as boolean, filteredMics)}
+                />
+                <span className="text-sm text-gray-600">
+                  Select all ({filteredMics.length} mics)
+                </span>
+              </div>
+              
               <div className="space-y-4">
                 {filteredMics.slice(0, visibleCount).map(mic => (
-                  <div key={mic.unique_identifier} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white border rounded-lg p-4 shadow-sm">
-                    <div>
-                      <div className="font-bold text-md text-gray-900">{mic['Open Mic']}</div>
-                      <div className="text-sm text-gray-600">Venue: {mic['Venue Name'] || 'Unknown'} | Borough: {mic['Borough'] || 'Unknown'}</div>
-                      <div className="text-sm text-gray-600">Day: <span className="font-semibold">{mic['Day'] || 'Unknown'}</span> | Time: <span className="font-semibold">{mic['Start Time'] || 'Unknown'}</span></div>
-                    </div>
-                    <Button className="mt-2 sm:mt-0" size="sm" variant="outline" onClick={() => handleEdit(mic)}>Edit</Button>
-                  </div>
+                  <MicListItem
+                    key={mic.unique_identifier}
+                    mic={mic}
+                    isSelected={selectedMics.has(mic.unique_identifier)}
+                    onSelect={(checked) => handleSelectMic(mic.unique_identifier, checked)}
+                    onEdit={() => handleEdit(mic)}
+                  />
                 ))}
               </div>
               {visibleCount < filteredMics.length && (
@@ -185,17 +314,27 @@ const AdminAllMicsList = () => {
             <div className="text-gray-500 text-center">No inactive mics found.</div>
           ) : (
             <>
+              {/* Select All */}
+              <div className="mb-3 flex items-center gap-2">
+                <Checkbox
+                  checked={selectedMics.size === filteredMics.length && filteredMics.length > 0}
+                  onCheckedChange={(checked) => handleSelectAll(checked as boolean, filteredMics)}
+                />
+                <span className="text-sm text-gray-600">
+                  Select all ({filteredMics.length} mics)
+                </span>
+              </div>
+              
               <div className="space-y-4">
                 {filteredMics.slice(0, visibleCount).map(mic => (
-                  <div key={mic.unique_identifier} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white border rounded-lg p-4 shadow-sm border-gray-300 bg-gray-50">
-                    <div>
-                      <div className="font-bold text-md text-gray-700">{mic['Open Mic']}</div>
-                      <div className="text-sm text-gray-500">Venue: {mic['Venue Name'] || 'Unknown'} | Borough: {mic['Borough'] || 'Unknown'}</div>
-                      <div className="text-sm text-gray-500">Day: <span className="font-semibold">{mic['Day'] || 'Unknown'}</span> | Time: <span className="font-semibold">{mic['Start Time'] || 'Unknown'}</span></div>
-                      <div className="text-xs text-gray-400 mt-1">Inactive - Hidden from public listings</div>
-                    </div>
-                    <Button className="mt-2 sm:mt-0" size="sm" variant="outline" onClick={() => handleEdit(mic)}>Edit</Button>
-                  </div>
+                  <MicListItem
+                    key={mic.unique_identifier}
+                    mic={mic}
+                    isSelected={selectedMics.has(mic.unique_identifier)}
+                    onSelect={(checked) => handleSelectMic(mic.unique_identifier, checked)}
+                    onEdit={() => handleEdit(mic)}
+                    isInactive={true}
+                  />
                 ))}
               </div>
               {visibleCount < filteredMics.length && (
