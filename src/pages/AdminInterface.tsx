@@ -143,32 +143,21 @@ const AdminInterface = () => {
     const changes = formData['Changes/updates']?.trim().replace(/\s+/g, '') || '';
     const venue = formData['Venue Name']?.trim() || '';
     const unique_identifier = `${day}_${startTime}_${changes}_${venue}`;
-    const insertData = { ...formData, unique_identifier };
+    const insertData = { ...formData, unique_identifier, active: true };
 
-    // Step 1: Upsert into historical FIRST to satisfy foreign key constraint
+    // Upsert into historical table
     const { error: historicalError } = await supabase
       .from('open_mics_historical')
       .upsert([insertData], { onConflict: 'unique_identifier' });
 
     if (historicalError) {
       console.error('Failed to upsert into open_mics_historical:', historicalError);
+      toast({ title: 'Insert failed', description: 'Could not add mic to database.', variant: 'destructive' });
       setSubmitting(false);
       return; // Don't proceed if insert fails
     }
 
-    // Step 2: Upsert into July table
-    const { error: julyError } = await supabase
-      .from('open_mics_july')
-      .upsert([insertData], { onConflict: 'unique_identifier' });
-
-    if (julyError) {
-      console.error('Failed to upsert into open_mics_july:', julyError);
-      toast({ title: 'Insert failed', description: 'Could not update active mics.', variant: 'destructive' });
-      setSubmitting(false);
-      return; // Stop if insert fails
-    }
-
-    // Step 3: Mark request as approved
+    // Step 2: Mark request as approved
     const { error: updateError } = await supabase
       .from('open_mics_requests')
       .update({ reviewed: true, status: 'approved' })
