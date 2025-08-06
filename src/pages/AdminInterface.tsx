@@ -190,10 +190,16 @@ const AdminInterface = () => {
           <FileText className="w-8 h-8 text-orange-400" /> Admin Dashboard
         </h1>
         <Tabs defaultValue="pending" className="w-full" onValueChange={setTab}>
-          <TabsList className="mb-8 w-full grid grid-cols-3">
-            <TabsTrigger value="pending" className="text-lg">Pending Requests</TabsTrigger>
-            <TabsTrigger value="reviewed" className="text-lg">Reviewed Mics</TabsTrigger>
-            <TabsTrigger value="all" className="text-lg">All Mics</TabsTrigger>
+          <TabsList className="mb-8 w-full grid grid-cols-3 gap-1">
+            <TabsTrigger value="pending" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              Pending
+            </TabsTrigger>
+            <TabsTrigger value="reviewed" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              Reviewed
+            </TabsTrigger>
+            <TabsTrigger value="all" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              All Mics
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="pending">
             <Card className="mb-8 shadow-lg rounded-2xl border-0">
