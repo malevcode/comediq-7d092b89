@@ -5,31 +5,11 @@ import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3 } from "lucide-react";
 import { QuickNotes } from "./home/QuickNotes";
+import Header from "./Header";
 
-// Custom hook to fetch user profile from Supabase
-function useUserProfile(userId) {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!userId) return;
-    setLoading(true);
-    supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", userId)
-      .single()
-      .then(({ data, error }) => {
-        setProfile(data || null);
-        setLoading(false);
-      });
-  }, [userId]);
-
-  return { profile, loading };
-}
 
 // Custom hook to fetch user's upcoming shows (from Shows.tsx)
 function useUserShows(userId) {
@@ -116,7 +96,6 @@ function useUserVisits(userId, refetchTrigger) {
 
 export default function Home() {
   const { user, visitInserted, resetVisitInserted } = useAuth();
-  const { profile, loading: profileLoading } = useUserProfile(user?.id);
   const { shows: upcomingMics, loading: showsLoading } = useUserShows(user?.id);
   const { completedShows, loading: completedLoading } = useUserCompletedShows(user?.id);
   const { visits, loading: visitsLoading, refetch } = useUserVisits(user?.id, visitInserted);
@@ -137,10 +116,7 @@ export default function Home() {
 
 
 
-  // Fallbacks
-  const displayName = profile?.username || user?.email?.split("@")[0] || "Comedian";
-  const avatarUrl = profile?.avatar_url || "/lovable-uploads/fc65b384-6c71-4c5e-9c70-52716864f5ad.png";
-  const level = profile?.level || "Rising Star";
+
 
   // Calculate career stage time in minutes
   const careerStageTimeMinutes = completedShows.reduce((total, mic) => {
@@ -202,33 +178,11 @@ export default function Home() {
   //console.log('Final streak:', streak);
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-orange-50 to-amber-50">
-      <main className="flex-1">
-        <div className="container py-10">
+    <div className="min-h-screen flex-col bg-gradient-to-br from-[#f8f0e1] to-white">
+      <main className="max-w-7xl mx-auto px-8 py-10">
+        <div>
           {/* Welcome Section */}
-          <div className="mb-8 bg-white/80 backdrop-blur rounded-xl p-6 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Avatar className="h-16 w-16 ring-4 ring-orange-200 ring-offset-2">
-                  <AvatarImage src={avatarUrl} alt={displayName} />
-                  <AvatarFallback className="bg-gradient-to-r from-orange-400 to-amber-400 text-white text-lg">
-                    {displayName.slice(0,2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
-                  <Mic2 className="h-3 w-3 text-white" />
-                </div>
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-                  Welcome back, {displayName}! 🎤
-                </h1>
-                <p className="text-gray-600 text-lg">
-                  {user?.email} • <span className="text-orange-600 font-medium">{level}</span>
-                </p>
-              </div>
-            </div>
-          </div>
+          <Header className="mb-8" />
 
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Column - Stats and Notepad */}
@@ -278,14 +232,14 @@ export default function Home() {
             {/* Right Column - Quick Actions and Next Open Mics */}
             <div className="lg:w-1/3 space-y-6">
               {/* Quick Actions */}
-              <Card className="border-yellow-200 bg-white/80 backdrop-blur">
-                <CardHeader className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-t-lg">
-                  <CardTitle className="text-lg text-yellow-800">⚡ Quick Actions</CardTitle>
-                  <CardDescription className="text-yellow-600">Common tasks</CardDescription>
+              <Card className="border-blue-200 bg-white/80 backdrop-blur">
+                <CardHeader className="bg-gradient-to-r from-[#0E4898] to-[#5DC8E2] rounded-t-lg">
+                  <CardTitle className="text-lg text-white">⚡ Quick Actions</CardTitle>
+                  <CardDescription className="text-white/80">Common tasks</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2 pt-6">
                   <Button asChild variant="outline" className="w-full justify-start border-orange-200 text-orange-700 hover:bg-orange-50 bg-transparent" size="sm">
-                    <Link to="/perform">
+                    <Link to="/open-mics">
                       <MapPin className="mr-2 h-4 w-4" />
                       Find Open Mics
                     </Link>
@@ -296,7 +250,7 @@ export default function Home() {
                     className="w-full justify-start border-red-200 text-red-700 hover:bg-red-50 bg-transparent"
                     size="sm"
                   >
-                    <Link to="/perform?tab=show-scheduler">
+                    <Link to="/track-sets">
                       <Mic2 className="mr-2 h-4 w-4" />
                       Log Performance
                     </Link>
@@ -305,11 +259,11 @@ export default function Home() {
               </Card>
 
               {/* Next Open Mics */}
-              <Card className="border-orange-200 bg-white/80 backdrop-blur">
-                <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-orange-50 to-amber-50 rounded-t-lg">
+              <Card className="border-blue-200 bg-white/80 backdrop-blur">
+                <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-[#0E4898] to-[#5DC8E2] rounded-t-lg">
                   <div>
-                    <CardTitle className="text-lg text-orange-800">🎭 Next Open Mics</CardTitle>
-                    <CardDescription className="text-orange-600">
+                    <CardTitle className="text-lg text-white">🎭 Next Open Mics</CardTitle>
+                    <CardDescription className="text-white/80">
                       Your upcoming performances • {completedLoading ? '--' : upcomingMics.length} scheduled
                     </CardDescription>
                   </div>

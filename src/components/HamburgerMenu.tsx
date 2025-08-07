@@ -10,7 +10,6 @@ const HamburgerMenu = () => {
   const location = useLocation();
   const { user, signOut, isAdmin } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [expandedPerform, setExpandedPerform] = useState(false);
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
@@ -25,12 +24,13 @@ const HamburgerMenu = () => {
     { path: "/track-sets", icon: TrendingUp, label: "Progress Tracker" }
   ];
 
+  const isPerformActive = performSubItems.some(item => location.pathname === item.path);
+  const [expandedPerform, setExpandedPerform] = useState(isPerformActive);
+
   const handleNavClick = (path: string) => {
     setIsOpen(false);
     navigate(path);
   };
-
-  const isPerformActive = performSubItems.some(item => location.pathname === item.path);
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>

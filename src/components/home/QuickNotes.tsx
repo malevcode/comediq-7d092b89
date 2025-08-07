@@ -164,10 +164,10 @@ export const QuickNotes: React.FC<QuickNotesProps> = ({ className = "" }) => {
 
   return (
     <Card className={`border-blue-200 bg-white/80 backdrop-blur ${className}`}>
-      <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
+      <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-[#0E4898] to-[#5DC8E2] rounded-t-lg">
         <div>
-          <CardTitle className="text-lg text-blue-800">📝 Quick Notes</CardTitle>
-          <CardDescription className="text-blue-600">Jot down ideas and thoughts</CardDescription>
+          <CardTitle className="text-lg text-white">📝 Quick Notes</CardTitle>
+          <CardDescription className="text-white/80">Jot down ideas and thoughts</CardDescription>
         </div>
         <Popover open={showSidebar} onOpenChange={(open) => {
           setShowSidebar(open);
