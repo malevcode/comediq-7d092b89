@@ -688,6 +688,79 @@ export type Database = {
           }
         ]
       }
+      user_playlists: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          description: string | null
+          is_public: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          description?: string | null
+          is_public?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          description?: string | null
+          is_public?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_playlists_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          }
+        ]
+      }
+      playlist_items: {
+        Row: {
+          id: string
+          playlist_id: string
+          mic_id: string
+          added_at: string
+          notes: string | null
+          order_index: number
+        }
+        Insert: {
+          id?: string
+          playlist_id: string
+          mic_id: string
+          added_at?: string
+          notes?: string | null
+          order_index?: number
+        }
+        Update: {
+          id?: string
+          playlist_id?: string
+          mic_id?: string
+          added_at?: string
+          notes?: string | null
+          order_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_items_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "user_playlists"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       waitlist: {
         Row: {
           created_at: string | null
