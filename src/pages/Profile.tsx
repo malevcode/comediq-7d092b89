@@ -8,7 +8,7 @@ import { User, Heart, MapPin, Clock, LogIn } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
 import { OpenMic } from '@/types/openMic';
-import HamburgerMenu from '@/components/HamburgerMenu';
+import PageHeader from '@/components/PageHeader';
 
 const Profile = () => {
   const { user, signOut, loading } = useAuth();
@@ -39,61 +39,8 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50">
-      {/* Header */}
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 py-4 mb-3">
-          <div className="flex flex-col space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="mr-4 flex items-center">
-                <HamburgerMenu />
-              </div>
-              <div className="flex-1 min-w-0 flex items-center">
-                <div>
-                  <h1 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Profile</h1>
-                  <p className="text-xs text-gray-600">Manage your account and preferences</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="hidden sm:flex flex-col w-full items-end gap-2">
-                  <span className="text-xs text-gray-600">
-                    Welcome back{user.user_metadata?.username ? ` ${user.user_metadata.username}!` : "!"}
-                  </span>
-                  <div className="flex justify-end w-full">
-                    <Button
-                      onClick={handleSignOut}
-                      size="sm"
-                      variant="outline"
-                      className="mt-1 text-xs px-2 py-1"
-                    >
-                      Sign Out
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile auth */}
-            <div className="mt-2 sm:hidden w-full">
-              <div className="flex flex-row w-full items-center justify-end gap-2">
-                <span className="text-xs text-gray-600">
-                  Welcome back{user.user_metadata?.username ? ` ${user.user_metadata.username}!` : "!"}
-                </span>
-                <Button
-                  onClick={handleSignOut}
-                  size="sm"
-                  variant="outline"
-                  className="mt-1 text-xs px-2 py-1 self-end"
-                >
-                  Sign Out
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <PageHeader title="Profile" subtitle="Your comedy profile and stats" />
+      <div className="max-w-7xl mx-auto px-4 pt-28 pb-6">
         {/* Profile Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
