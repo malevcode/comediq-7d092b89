@@ -18,7 +18,8 @@ import ScrollToTop from "./components/ScrollToTop";
 import ProgressTrackerPage from "./pages/ProgressTracker";
 import Home from "./components/Home";
 import { TabProvider } from "@/contexts/TabContext";
-import AdminInterface from "./pages/AdminInterface"; 
+import AdminInterface from "./pages/AdminInterface";
+import Playlists from "./pages/Playlists";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,15 +48,15 @@ const App = () => (
             <Route path="/consume" element={<Consume />} />
             <Route path="/open-mics" element={<OpenMics />} />
             <Route path="/track-sets" element={<ProgressTrackerPage />} />
-            <Route path="/shows" element={<Shows />} />
+            <Route path="/shows" element={<TabProvider><Shows /></TabProvider>} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admintest" element={<AdminInterface />} /> 
-            <Route path="/home" element={<Home />} /* FOR TESTING, REMOVE LATER */ /> 
+            <Route path="/playlists" element={<Playlists />} />
+            <Route path="/home" element={<Home />} /* FOR TESTING, REMOVE LATER */ />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <BottomNavigation />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

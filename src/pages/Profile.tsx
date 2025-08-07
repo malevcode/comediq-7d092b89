@@ -8,6 +8,7 @@ import { User, Heart, MapPin, Clock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
 import { OpenMic } from '@/types/openMic';
+import PageHeader from '@/components/PageHeader';
 
 const Profile = () => {
   const { user, signOut, loading } = useAuth();
@@ -37,28 +38,9 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
-      {/* Header */}
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
-                <User className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">{user.user_metadata?.username ? user.user_metadata.username : 'My Profile'}</h1>
-                <p className="text-gray-600">{user.email}</p>
-              </div>
-            </div>
-            <Button onClick={handleSignOut} variant="outline">
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50">
+      <PageHeader title="Profile" subtitle="Your comedy profile and stats" />
+      <div className="max-w-7xl mx-auto px-4 pt-28 pb-6">
         {/* Profile Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>

@@ -2,7 +2,11 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star } from "lucide-react";
+import { Star, LogIn } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import PageHeader from "@/components/PageHeader";
 
 const Consume = () => {
   const [activeTab, setActiveTab] = useState("specials");
@@ -31,6 +35,8 @@ const Consume = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+      <PageHeader title="Specials" subtitle="Track and discover comedy content" />
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="bg-white border-b border-orange-100 sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-4">
@@ -42,8 +48,8 @@ const Consume = () => {
         </div>
 
         <TabsContent value="specials" className="mt-0">
-          <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
-            <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+            <div className="max-w-6xl mx-auto px-4 pt-24 pb-8">
               <div className="text-center mb-8">
                 <h1 className="text-4xl font-bold text-gray-900 mb-4">Comedy Specials</h1>
                 <p className="text-lg text-gray-600">Track the comedy specials you've watched and leave Letterboxd style reviews</p>
@@ -97,8 +103,8 @@ const Consume = () => {
         </TabsContent>
 
         <TabsContent value="discover" className="mt-0">
-          <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
-            <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+            <div className="max-w-6xl mx-auto px-4 pt-24 pb-8">
               <div className="text-center">
                 <h1 className="text-4xl font-bold text-gray-900 mb-4">Discover Shows</h1>
                 <p className="text-lg text-gray-600 mb-8">Find comedy shows in your area - coming soon!</p>
