@@ -200,34 +200,16 @@ const AdminInterface = () => {
   if (!isAdmin) return <div>Not authorized. You are not an admin.</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
-      <div className="max-w-3xl mx-auto px-4 py-10">
-        <h1 className="text-3xl font-extrabold text-orange-600 mb-8 flex items-center gap-2">
-          <FileText className="w-8 h-8 text-orange-400" /> Admin Dashboard
-        </h1>
-        <Tabs defaultValue="analytics" className="w-full" onValueChange={setTab}>
-          <TabsList className="mb-8 w-full grid grid-cols-4 gap-1">
-            <TabsTrigger value="analytics" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="all" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
-              All Mics
-            </TabsTrigger>
-            <TabsTrigger value="pending" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
-              Pending
-            </TabsTrigger>
-            <TabsTrigger value="reviewed" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
-              Reviewed
-            </TabsTrigger>
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
       <PageHeader title="Admin Dashboard" subtitle="Manage open mic requests and content" />
 
       <div className="max-w-3xl mx-auto px-4 pt-28 pb-10">
         <Tabs defaultValue="pending" className="w-full" onValueChange={setTab}>
-          <TabsList className="mb-8 w-full grid grid-cols-3">
+          <TabsList className="mb-8 w-full grid grid-cols-4">
             <TabsTrigger value="pending" className="text-lg">Pending Requests</TabsTrigger>
             <TabsTrigger value="reviewed" className="text-lg">Reviewed Mics</TabsTrigger>
             <TabsTrigger value="all" className="text-lg">All Mics</TabsTrigger>
+            <TabsTrigger value="analytics" className="text-lg">Analytics</TabsTrigger>
           </TabsList>
           <TabsContent value="analytics">
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
