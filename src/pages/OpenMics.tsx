@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilters";
 import PageHeader from "@/components/PageHeader";
+import HamburgerMenu from "@/components/HamburgerMenu";
 
 const OpenMics = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -364,6 +365,7 @@ const OpenMics = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
       <PageHeader title="Find Open Mics" subtitle="Discover comedy open mics across NYC" />
+
       <div className="max-w-7xl mx-auto px-4 pt-28 pb-0">
         {/* Key/Legend */}
         {showKey && (

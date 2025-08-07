@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
 import { OpenMic } from '@/types/openMic';
 import PageHeader from '@/components/PageHeader';
+import HamburgerMenu from '@/components/HamburgerMenu';
 
 const Profile = () => {
   const { user, signOut, loading } = useAuth();

@@ -6,6 +6,7 @@ import { LogIn } from "lucide-react";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import HamburgerMenu from "@/components/HamburgerMenu";
 
 export default function ProgressTrackerPage() {
   const { user, signOut } = useAuth();
@@ -35,6 +36,10 @@ export default function ProgressTrackerPage() {
               onClick={e => e.stopPropagation()}
             >
               This is just a demonstration. Data entered here will not be saved permanently.
+            </div>
+          )}
+        </button>
+      </div>
             </div>
           )}
         </button>
