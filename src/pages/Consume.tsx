@@ -2,15 +2,9 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, LogIn } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import HamburgerMenu from "@/components/HamburgerMenu";
+import { Star } from "lucide-react";
 
 const Consume = () => {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("specials");
 
   // Example comedy special data
@@ -37,94 +31,18 @@ const Consume = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
-      {/* Header */}
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 py-4 mb-3">
-          <div className="flex flex-col space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="mr-4 flex items-center">
-                <HamburgerMenu />
-              </div>
-              <div className="flex-1 min-w-0 flex items-center">
-                <div>
-                  <h1 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Laugh</h1>
-                  <p className="text-xs text-gray-600">Discover and track comedy content</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="hidden sm:flex flex-col w-full items-end gap-2">
-                  {user ? (
-                    <>
-                      <span className="text-xs text-gray-600">
-                        Welcome back{user.user_metadata?.username ? ` ${user.user_metadata.username}!` : "!"}
-                      </span>
-                      <div className="flex justify-end w-full">
-                        <Button
-                          onClick={async () => {
-                            await signOut();
-                            navigate("/");
-                          }}
-                          size="sm"
-                          variant="outline"
-                          className="mt-1 text-xs px-2 py-1"
-                        >
-                          Sign Out
-                        </Button>
-                      </div>
-                    </>
-                  ) : (
-                    <Button onClick={() => navigate("/auth")} className="bg-orange-500 hover:bg-orange-600 text-xs px-3 py-1">
-                      <LogIn className="h-3 w-3 mr-1" />
-                      Sign In
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile auth */}
-            <div className="mt-2 sm:hidden w-full">
-              {user ? (
-                <div className="flex flex-row w-full items-center justify-end gap-2">
-                  <span className="text-xs text-gray-600">
-                    Welcome back{user.user_metadata?.username ? ` ${user.user_metadata.username}!` : "!"}
-                  </span>
-                  <Button
-                    onClick={async () => {
-                      await signOut();
-                      navigate("/");
-                    }}
-                    size="sm"
-                    variant="outline"
-                    className="mt-1 text-xs px-2 py-1 self-end"
-                  >
-                    Sign Out
-                  </Button>
-                </div>
-              ) : (
-                <Button onClick={() => navigate("/auth")} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-1.5">
-                  <LogIn className="h-3 w-3 mr-1" />
-                  Sign In to Like Mics
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        {/* <div className="bg-white border-b border-orange-100 sticky top-0 z-40">
+        <div className="bg-white border-b border-orange-100 sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-4">
             <TabsList className="grid w-full grid-cols-2 mb-0">
               <TabsTrigger value="specials">Specials</TabsTrigger>
               <TabsTrigger value="discover">Discover</TabsTrigger>
             </TabsList>
           </div>
-        </div> */}
+        </div>
 
         <TabsContent value="specials" className="mt-0">
-          <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+          <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
             <div className="max-w-6xl mx-auto px-4 py-8">
               <div className="text-center mb-8">
                 <h1 className="text-4xl font-bold text-gray-900 mb-4">Comedy Specials</h1>
@@ -179,7 +97,7 @@ const Consume = () => {
         </TabsContent>
 
         <TabsContent value="discover" className="mt-0">
-          <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+          <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
             <div className="max-w-6xl mx-auto px-4 py-8">
               <div className="text-center">
                 <h1 className="text-4xl font-bold text-gray-900 mb-4">Discover Shows</h1>
