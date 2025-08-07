@@ -17,6 +17,7 @@ import ShowForm from "@/components/ShowForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilters";
+import HamburgerMenu from "@/components/HamburgerMenu";
 
 const OpenMics = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -373,6 +374,7 @@ const OpenMics = () => {
               </div>
 
               <div className="flex items-start gap-2">
+                <HamburgerMenu />
                 <div className="hidden sm:flex items-center gap-2">
                   <Button
                     onClick={() => setShowKey(!showKey)}

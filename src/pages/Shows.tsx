@@ -8,6 +8,7 @@ import ShowNotepad from "@/components/ShowNotepad";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import HamburgerMenu from "@/components/HamburgerMenu";
 
 interface ShowNote {
   id: string;
@@ -207,6 +208,7 @@ const Shows = () => {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex flex-col space-y-3">
             <div className="flex items-start gap-2">
+              <HamburgerMenu />
               <div className="flex-1">
                 <h1 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Show Scheduler</h1>
                 <p className="text-xs text-gray-600">Keep track of your upcoming and past shows</p>

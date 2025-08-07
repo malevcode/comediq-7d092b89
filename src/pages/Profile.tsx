@@ -8,6 +8,7 @@ import { User, Heart, MapPin, Clock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
 import { OpenMic } from '@/types/openMic';
+import HamburgerMenu from '@/components/HamburgerMenu';
 
 const Profile = () => {
   const { user, signOut, loading } = useAuth();
@@ -42,6 +43,7 @@ const Profile = () => {
       <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
+            <HamburgerMenu />
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
                 <User className="h-6 w-6 text-white" />

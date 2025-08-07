@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import HamburgerMenu from "@/components/HamburgerMenu";
 
 export default function ProgressTrackerPage() {
   const { user, signOut } = useAuth();
@@ -23,6 +24,7 @@ export default function ProgressTrackerPage() {
               </div>
               {/* Right side: only auth and character */}
               <div className="flex items-start gap-2">
+                <HamburgerMenu />
                 {/* Desktop auth section (edit only) */}
                 <div className="hidden sm:flex flex-col w-full items-end gap-2">
                   {user ? (
