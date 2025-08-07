@@ -351,11 +351,11 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
               </div>
             )}
 
-            {mic.instagramHandle && (
+            {mic.changesUpdates && (
               <div>
                 <p className="font-medium text-gray-900 mb-2">Recent Updates</p>
                 <div className="text-sm text-gray-600 bg-orange-50 p-3 rounded-lg">
-                  {makeLinksClickable(mic.instagramHandle)}
+                  {makeLinksClickable(mic.changesUpdates)}
                 </div>
               </div>
             )}

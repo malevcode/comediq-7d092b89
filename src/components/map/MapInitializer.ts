@@ -1,4 +1,5 @@
 import mapboxgl from 'mapbox-gl';
+import { supabase } from '@/integrations/supabase/client';
 
 // Fallback import in case the default import fails
 let MapboxGL: any = mapboxgl;
@@ -71,21 +72,84 @@ export const initializeMap = (config: MapConfig): mapboxgl.Map => {
   }
 };
 
-export const getMapboxToken = (): string => {
+export const debugEnvironmentVariables = () => {
+  console.log('MapInitializer: Environment variable debug info:', {
+    VITE_MAPBOX_TOKEN: {
+      exists: !!import.meta.env.VITE_MAPBOX_TOKEN,
+      length: import.meta.env.VITE_MAPBOX_TOKEN?.length,
+      prefix: import.meta.env.VITE_MAPBOX_TOKEN?.substring(0, 10) + '...',
+      value: import.meta.env.VITE_MAPBOX_TOKEN
+    },
+    VITE_SUPABASE_URL: {
+      exists: !!import.meta.env.VITE_SUPABASE_URL,
+      value: import.meta.env.VITE_SUPABASE_URL
+    },
+    VITE_SUPABASE_ANON_KEY: {
+      exists: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+      length: import.meta.env.VITE_SUPABASE_ANON_KEY?.length,
+      prefix: import.meta.env.VITE_SUPABASE_ANON_KEY?.substring(0, 10) + '...'
+    },
+    MODE: import.meta.env.MODE,
+    DEV: import.meta.env.DEV,
+    PROD: import.meta.env.PROD,
+    BASE_URL: import.meta.env.BASE_URL
+  });
+};
+
+export const getMapboxToken = async (): Promise<string> => {
+  // Debug environment variables in development
+  if (import.meta.env.DEV) {
+    debugEnvironmentVariables();
+  }
+
   // Check for environment variable (works with Supabase deployment)
   const envToken = import.meta.env.VITE_MAPBOX_TOKEN;
+  console.log('MapInitializer: Checking for Mapbox token:', {
+    hasEnvToken: !!envToken,
+    envTokenLength: envToken?.length,
+    envTokenPrefix: envToken?.substring(0, 10) + '...',
+    mode: import.meta.env.MODE,
+    isDev: import.meta.env.DEV,
+    isProd: import.meta.env.PROD
+  });
+  
   if (envToken) {
+    console.log('MapInitializer: Using environment variable token');
     return envToken;
   }
   
   // Fallback to localStorage for development override
   const storedToken = localStorage.getItem('mapbox_token');
+  console.log('MapInitializer: Checking localStorage:', {
+    hasStoredToken: !!storedToken,
+    storedTokenLength: storedToken?.length,
+    storedTokenPrefix: storedToken?.substring(0, 10) + '...'
+  });
+  
   if (storedToken) {
+    console.log('MapInitializer: Using localStorage token');
     return storedToken;
   }
   
+  // Try to get from edge function as last resort
+  try {
+    console.log('MapInitializer: Attempting to fetch token from edge function...');
+    const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+    
+    if (error) {
+      console.warn('MapInitializer: Edge function returned error:', error);
+    } else if (data && data.token) {
+      console.log('MapInitializer: Successfully retrieved token from edge function');
+      // Store the token in localStorage for future use
+      localStorage.setItem('mapbox_token', data.token);
+      return data.token;
+    }
+  } catch (error) {
+    console.warn('MapInitializer: Failed to fetch token from edge function:', error);
+  }
+  
   // No token found - this will cause the map to fail gracefully
-  console.warn('No Mapbox token found. Please set VITE_MAPBOX_TOKEN in your environment variables or .env file');
+  console.warn('MapInitializer: No Mapbox token found. Please set VITE_MAPBOX_TOKEN in your environment variables or use the token input form.');
   return '';
 };
 
