@@ -40,9 +40,14 @@ export const TokenInput: React.FC<TokenInputProps> = ({
             Load Map
           </Button>
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          For production, set VITE_MAPBOX_TOKEN in your environment variables
-        </p>
+        <div className="text-xs text-gray-500 mt-2 space-y-1">
+          <p>For production deployment, set VITE_MAPBOX_TOKEN in your environment variables:</p>
+          <ul className="text-left list-disc list-inside space-y-1">
+            <li><strong>Supabase:</strong> Dashboard → Settings → Environment Variables</li>
+            <li><strong>Vercel:</strong> Project Settings → Environment Variables</li>
+            <li><strong>Netlify:</strong> Site Settings → Environment Variables</li>
+          </ul>
+        </div>
       </div>
     </div>
   );
