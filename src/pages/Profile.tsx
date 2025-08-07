@@ -4,7 +4,7 @@ import { useOpenMics } from '@/hooks/useOpenMics';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { User, Heart, MapPin, Clock, LogIn } from 'lucide-react';
+import { User, Heart, MapPin, Clock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
 import { OpenMic } from '@/types/openMic';

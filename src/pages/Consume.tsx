@@ -9,8 +9,6 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 
 const Consume = () => {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("specials");
 
   // Example comedy special data
@@ -40,14 +38,14 @@ const Consume = () => {
       <PageHeader title="Specials" subtitle="Track and discover comedy content" />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        {/* <div className="bg-white border-b border-orange-100 sticky top-0 z-40">
+        <div className="bg-white border-b border-orange-100 sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-4">
             <TabsList className="grid w-full grid-cols-2 mb-0">
               <TabsTrigger value="specials">Specials</TabsTrigger>
               <TabsTrigger value="discover">Discover</TabsTrigger>
             </TabsList>
           </div>
-        </div> */}
+        </div>
 
         <TabsContent value="specials" className="mt-0">
           <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">

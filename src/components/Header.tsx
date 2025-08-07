@@ -73,8 +73,8 @@ export default function Header({ className = "", showEmail = true, showLevel = t
         </div>
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-            Welcome back, {displayName}! 
-         </h1>
+            Welcome back, {displayName}! 🎤
+          </h1>
           {showEmail && showLevel && (
             <p className="text-gray-600 text-lg">
               {user?.email} • <span className="text-orange-600 font-medium">{level}</span>

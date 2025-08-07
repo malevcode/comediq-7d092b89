@@ -332,7 +332,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-2">
+    <div className="max-w-4xl mx-auto space-y-2">
       {/* Upcoming Shows Section Header Row: Upcoming Shows + Add Show Button */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Upcoming Shows</h2>
