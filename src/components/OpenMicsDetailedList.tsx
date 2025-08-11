@@ -1,4 +1,4 @@
-import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, CircleAlert, CircleCheckBig, ArrowUp, ChevronDown, ChevronUp, Heart, ExternalLink } from "lucide-react";
+import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, CircleAlert, CircleCheckBig, ArrowUp, ChevronDown, ChevronUp, Heart, ExternalLink, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
 import { useMicRatings } from "@/hooks/useMicRatings";
@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useUserLocation } from '@/hooks/useUserLocation';
+import { DistanceService } from '@/services/distanceService';
 
 // Helper function to get map URL based on device
 function getMapUrl(location: string, venueName: string) {
@@ -126,6 +128,9 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
   const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(mic.uniqueIdentifier);
   const [expanded, setExpanded] = useState(false);
   const { user } = useAuth();
+  const { userLocation, locationLoading } = useUserLocation();
+  const [distance, setDistance] = useState<string | null>(null);
+  const [distanceLoading, setDistanceLoading] = useState(false);
   // Helper to get first line or summary
   const getSummary = (text: string) => {
     if (!text) return '';
@@ -144,6 +149,29 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
     };
     return outlines[cleanBorough] || "border-l-4 border-l-gray-400";
   };
+
+  // Calculate distance when user location changes
+  useEffect(() => {
+    const calculateDistance = async () => {
+      if (!userLocation || !mic.location) {
+        setDistance(null);
+        return;
+      }
+
+      setDistanceLoading(true);
+      try {
+        const distanceResult = await DistanceService.calculateDistanceFromUser(mic.location, userLocation);
+        setDistance(distanceResult);
+      } catch (error) {
+        console.error('Error calculating distance:', error);
+        setDistance(null);
+      } finally {
+        setDistanceLoading(false);
+      }
+    };
+
+    calculateDistance();
+  }, [userLocation, mic.location]);
   return (
     <div className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-4 gap-2md:gap-6 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${getBoroughOutline(mic.borough)}`}>
       {/* Left: Name, Location, Date */}
@@ -196,7 +224,30 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           ) : null}
         </div>
         <div className="text-sm text-gray-500 mb-1">
-          <span className="flex items-center gap-1"><MapPin className="w-3 h-3 flex-shrink-0" />{mic.venueName}, {mic.neighborhood}</span>
+          <span className="flex items-center gap-1">
+            <MapPin className="w-3 h-3 flex-shrink-0" />
+            <a 
+              href={getMapUrl(mic.location, mic.venueName)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+              title={`Open ${/iPad|iPhone|iPod/.test(navigator.userAgent) ? 'Apple Maps' : 'Google Maps'} for ${mic.venueName}`}
+            >
+            {mic.venueName}, {mic.neighborhood}
+            </a>
+            {distance && (
+              <span className="flex items-center gap-1 ml-2 text-blue-600 font-medium">
+                <Navigation className="w-3 h-3" />
+                {distance}
+              </span>
+            )}
+            {distanceLoading && (
+              <span className="flex items-center gap-1 ml-2 text-gray-400">
+                <Navigation className="w-3 h-3 animate-pulse" />
+                Calculating...
+              </span>
+            )}
+          </span>
           <span className="flex flex-row md:flex-col gap-2 md:gap-0">
             <span className="flex items-center gap-1">
               <Calendar className="w-3 h-3 flex-shrink-0" />

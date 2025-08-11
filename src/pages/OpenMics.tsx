@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Search, HelpCircle, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilters";
 import PageHeader from "@/components/PageHeader";
+
+
 
 const OpenMics = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -58,6 +60,7 @@ const OpenMics = () => {
     costRange: [0, maxCost],
     timeOfDay: [],
     borough: "All",
+    sortBy: "upcoming",
   });
 
   // Update cost range when maxCost changes
@@ -156,6 +159,7 @@ const OpenMics = () => {
   };
 
   // Filtered mics
+
   const getFilteredMics = (tabType: string, dayFilter?: string) => {
     let filtered = openMics;
 
@@ -164,15 +168,14 @@ const OpenMics = () => {
         .filter((mic) => {
           const timeUntil = calculateTimeUntilMic(mic);
           return timeUntil > 0 && timeUntil < Infinity;
-        })
-        .sort((a, b) => calculateTimeUntilMic(a) - calculateTimeUntilMic(b));
+        });
     } else if (tabType === "liked") {
       filtered = openMics.filter((mic) => likedMics.includes(mic.uniqueIdentifier));
     } else if (dayFilter) {
       filtered = openMics.filter((mic) => mic.day === dayFilter);
     }
 
-    // Apply search, borough, cost, and time filters  (INCOMING)
+    // Apply search, borough, cost, and time filters
     filtered = filtered.filter((mic) => {
       const matchesSearch =
         mic.openMic.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -191,9 +194,20 @@ const OpenMics = () => {
       return matchesSearch && matchesBorough && matchesCost && matchesTime;
     });
 
-    if (tabType !== "next") {
-      return filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
+    // Apply sorting based on filter selection
+    if (filters.sortBy === "upcoming") {
+      if (tabType === "next") {
+        // For "next" tab, sort by time until mic
+        filtered.sort((a, b) => calculateTimeUntilMic(a) - calculateTimeUntilMic(b));
+      } else {
+        // For other tabs, sort by start time
+        filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
+      }
+    } else {
+      // Default sorting by time
+      filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
     }
+
     return filtered;
   };
 
@@ -212,18 +226,21 @@ const OpenMics = () => {
 
   const renderMicContent = (filteredMics: OpenMic[], tabName: string) => {
     const currentViewMode = viewMode;
+    const micsToShow = filteredMics;
 
     return (
       <>
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm text-gray-600 max-w-full">
-            Showing{" "}
-            {currentViewMode === "list"
-              ? `${Math.min(visibleCount, filteredMics.length)} of ${filteredMics.length}`
-              : filteredMics.length}
-            {tabName === "next" ? " upcoming" : tabName === "liked" ? " liked " : ""} open mic
-            {filteredMics.length !== 1 ? "s" : ""}
-            {tabName !== "next" && tabName !== "liked" ? ` on ${tabName}` : ""}
+              <>
+                Showing{" "}
+                {currentViewMode === "list"
+                  ? `${Math.min(visibleCount, micsToShow.length)} of ${micsToShow.length}`
+                  : micsToShow.length}
+                {tabName === "next" ? " upcoming" : tabName === "liked" ? " liked " : ""} open mic
+                {micsToShow.length !== 1 ? "s" : ""}
+                {tabName !== "next" && tabName !== "liked" ? ` on ${tabName}` : ""}
+              </>
           </p>
           <div className="flex-shrink-0">
             <ViewToggle viewMode={currentViewMode} onViewChange={handleViewModeChange} />
@@ -232,7 +249,7 @@ const OpenMics = () => {
 
         {currentViewMode === "grid" ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1 max-h-[calc(100vh-320px)] overflow-y-auto">
-            {filteredMics.map((mic, index) => (
+            {micsToShow.map((mic, index) => (
               <Card
                 key={index}
                 className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-lg w-full sm:w-24 h-24`}
@@ -254,16 +271,16 @@ const OpenMics = () => {
             ))}
           </div>
         ) : currentViewMode === "list" ? (
-          <OpenMicsDetailedList mics={filteredMics} visibleCount={visibleCount} setVisibleCount={setVisibleCount} />
+          <OpenMicsDetailedList mics={micsToShow} visibleCount={visibleCount} setVisibleCount={setVisibleCount} />
         ) : (
           <OpenMicsMap 
-            key={`map-${filteredMics.map(m => m.uniqueIdentifier).join('-')}`}
-            mics={filteredMics} 
+            key={`map-${micsToShow.map(m => m.uniqueIdentifier).join('-')}`}
+            mics={micsToShow} 
             onMicSelect={handleMicSelect} 
           />
         )}
 
-        {filteredMics.length === 0 && (
+        {micsToShow.length === 0 && (
           <div className="text-center py-8">
             <p className="text-gray-500">
               {tabName === "liked"
@@ -275,15 +292,15 @@ const OpenMics = () => {
             {tabName === "liked" ? (
               <p className="text-gray-400 text-sm mt-1">Start liking mics to see them here!</p>
             ) : (
-              <Button
-                onClick={() => {
-                  setSearchTerm("");
-                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All" });
-                }}
-                className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm"
-              >
-                Clear Filters
-              </Button>
+                              <Button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", sortBy: "upcoming" });
+                  }}
+                  className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm"
+                >
+                  Clear Filters
+                </Button>
             )}
           </div>
         )}
