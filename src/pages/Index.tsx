@@ -32,9 +32,9 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen">
       <PageHeader title="Comediq" subtitle="Your comedy journey starts here" />
-      <div className="pt-20">
+      <div className="pt-0">
         {loading ? null : user ? (
           <Home />
         ) : (
