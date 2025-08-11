@@ -178,7 +178,7 @@ export default function Home() {
   //console.log('Final streak:', streak);
 
   return (
-    <div className="min-h-screen flex-col bg-gradient-to-br from-[#f8f0e1] to-white">
+    <div className="pt-20 flex-col bg-gradient-to-br from-[#f8f0e1] to-white">
       <main className="max-w-7xl mx-auto px-8 py-10">
         <div>
           {/* Welcome Section */}
