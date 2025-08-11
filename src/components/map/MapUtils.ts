@@ -25,6 +25,19 @@ export const formatDistance = (distanceMiles: number): string => {
   }
 };
 
+// Format distance for display (always in miles for consistency)
+export const formatDistanceMiles = (distanceMiles: number): string => {
+  if (distanceMiles < 0.1) {
+    return `${distanceMiles.toFixed(2)}mi`;
+  } else if (distanceMiles < 1) {
+    return `${distanceMiles.toFixed(2)}mi`;
+  } else if (distanceMiles < 10) {
+    return `${distanceMiles.toFixed(1)}mi`;
+  } else {
+    return `${Math.round(distanceMiles)}mi`;
+  }
+};
+
 // Borough color mapping matching the existing system
 export const getBoroughColor = (borough: string): string => {
   const cleanBorough = borough.trim();

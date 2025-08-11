@@ -70,7 +70,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
     onFiltersChange({
       costRange: [0, maxCost],
       timeOfDay: [],
-      borough: "All"
+      borough: "All",
     });
   };
 
@@ -208,6 +208,23 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                       ))}
                     </div>
                   </div>
+
+                  {/* Sort By Filter */}
+                  {/* <div>
+                    <label className="text-base font-medium mb-4 block text-gray-900">Sort By</label>
+                    <div className="space-y-3">
+                      <Button
+                        onClick={() => onFiltersChange({ ...filters, sortBy: 'upcoming' })}
+                        variant="outline"
+                        size="lg"
+                        className="w-full justify-start text-sm py-3 h-auto relative bg-cyan-50 border-cyan-300 hover:bg-cyan-100"
+                      >
+                        <span>
+                          Upcoming (Next)
+                        </span>
+                      </Button>
+                    </div>
+                  </div> */}
                 </div>
 
                 {/* Clear Filters */}
