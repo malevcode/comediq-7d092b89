@@ -36,7 +36,7 @@ const Consume = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
       <PageHeader title="Specials" subtitle="Track and discover comedy content" />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

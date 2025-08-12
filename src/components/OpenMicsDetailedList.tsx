@@ -204,23 +204,25 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           </span>
           {/* Like Button to the right of mic name and status */}
           {user ? (
-            <Button
-              className={`flex items-center justify-center rounded-3xl px-2 text-sm transition-all
-                ${userRating === 'like'
-                  ? 'bg-pink-50 hover:bg-pink-100 border-pink-300'
-                  : 'bg-white border-gray-300 hover:bg-gray-100'} text-gray-700`}
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                if (userRating === 'like') removeRating(mic.uniqueIdentifier);
-                else rateMic({ micUniqueIdentifier: mic.uniqueIdentifier, rating: 'like' });
-              }}
-              disabled={isRating}
-              aria-label={userRating === 'like' ? 'Unlike' : 'Like'}
-            >
-              <Heart className={`w-4 h-4 ${userRating === 'like' ? 'fill-red-400 text-red-400' : ''}`} />
-              <span className="mr-1 text-sm text-gray-600">{ratingCounts?.likes || 0}</span>
-            </Button>
+            <div className="ml-auto">
+              <Button
+                className={`flex items-center justify-center rounded-3xl px-2 text-sm transition-all
+                  ${userRating === 'like'
+                    ? 'bg-pink-50 hover:bg-pink-100 border-pink-300'
+                    : 'bg-white border-gray-300 hover:bg-gray-100'} text-gray-700`}
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  if (userRating === 'like') removeRating(mic.uniqueIdentifier);
+                  else rateMic({ micUniqueIdentifier: mic.uniqueIdentifier, rating: 'like' });
+                }}
+                disabled={isRating}
+                aria-label={userRating === 'like' ? 'Unlike' : 'Like'}
+              >
+                <Heart className={`w-4 h-4 ${userRating === 'like' ? 'fill-red-400 text-red-400' : ''}`} />
+                <span className="mr-1 text-sm text-gray-600">{ratingCounts?.likes || 0}</span>
+              </Button>
+            </div>
           ) : null}
         </div>
         <div className="text-sm text-gray-500 mb-1">

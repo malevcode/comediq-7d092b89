@@ -28,7 +28,7 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
             <div className="mr-4 flex items-center">
               <HamburgerMenu />
             </div>
-            <div>
+            <div className="min-w-md">
               <h1 className="text-2xl font-bold text-gray-900">{title || "Comediq"}</h1>
               {subtitle && (
                 <p className="text-xs text-gray-600">{subtitle}</p>
@@ -72,12 +72,6 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
           <div className="sm:hidden flex flex-row items-center gap-2">
             {user ? (
               <>
-                <span className="text-xs text-gray-600">
-                  Welcome back
-                  {user.user_metadata?.username
-                    ? ` ${user.user_metadata.username}!`
-                    : '!'}
-                </span>
                 <Button
                   onClick={async () => {
                     await signOut();
