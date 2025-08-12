@@ -25,6 +25,7 @@ import AdminRequestList from '@/components/admin/AdminRequestList';
 import AdminAllMicsList from '@/components/admin/AdminAllMicsList';
 import HamburgerMenu from '@/components/HamburgerMenu';
 import { MicAnalyticsDashboard } from '@/components/admin/MicAnalyticsDashboard';
+import BulkImportInterface from '@/components/admin/BulkImportInterface';
 import PageHeader from '@/components/PageHeader';
 
 const OPEN_MIC_FIELDS = [
@@ -222,13 +223,16 @@ const AdminInterface = () => {
               Reviewed
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="analytics">
-            <Card className="mb-6 shadow-lg rounded-2xl border-0">
-              <CardContent className="p-8 flex flex-col items-start">
-                <MicAnalyticsDashboard mics={allMics} />
-              </CardContent>
-            </Card>
-          </TabsContent>
+                      <TabsContent value="analytics">
+              <Card className="mb-6 shadow-lg rounded-2xl border-0">
+                <CardContent className="p-8 flex flex-col items-start">
+                  <MicAnalyticsDashboard mics={allMics} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="bulk-import">
+              <BulkImportInterface />
+            </TabsContent>
           <TabsContent value="all">
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
               <CardContent className="p-8 flex flex-col items-start">
