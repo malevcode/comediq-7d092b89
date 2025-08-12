@@ -12,7 +12,7 @@ export default function ProgressTrackerPage() {
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
   return (
-    <>
+    <div className="pb-20">
       <PageHeader title="Progress Tracker" subtitle="Track your comedy journey and improve your craft" />
       
       {/* Instructions dropdown styled to match Show Scheduler */}
@@ -41,6 +41,6 @@ export default function ProgressTrackerPage() {
       </div>
       
       <PerformanceTracker />
-    </>
+    </div>
   );
 } 

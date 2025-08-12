@@ -38,7 +38,6 @@ const Hero = () => {
       <div className="max-w-6xl">
         <div className="py-4">
           <div className="flex items-center justify-left space-x-6 flex-wrap gap-y-2">
-            <span className="text-sm px-4 sm:px-8 lg:px-0">Explore:</span>
             {navItems.map((item) => (
               <Button
                 key={item.label}

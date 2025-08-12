@@ -20,20 +20,33 @@ const BottomNavigation = () => {
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
       <div className="max-w-md mx-auto">
         <div className="flex justify-around py-2">
-          {navItems.map(({ path, icon: Icon, label }) => (
-            <Link
-              key={path}
-              to={path}
-              className={`flex flex-col items-center p-2 ${
-                location.pathname === path
-                  ? "text-orange-500"
-                  : "text-gray-400"
-              }`}
-            >
-              <Icon size={24} />
-              <span className="text-xs mt-1">{label}</span>
-            </Link>
-          ))}
+          {navItems.map(({ path, icon: Icon, label }) => {
+            // Check if current path matches this nav item
+            let isActive = location.pathname === path;
+            
+            // Special handling for Perform section - highlight when on any perform-related route
+            if (path === "/perform") {
+              isActive = location.pathname === "/perform" || 
+                        location.pathname === "/open-mics" || 
+                        location.pathname === "/track-sets" || 
+                        location.pathname === "/shows";
+            }
+            
+            return (
+              <Link
+                key={path}
+                to={path}
+                className={`flex flex-col items-center p-2 ${
+                  isActive
+                    ? "text-orange-500"
+                    : "text-gray-400"
+                }`}
+              >
+                <Icon size={24} />
+                <span className="text-xs mt-1">{label}</span>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </nav>
