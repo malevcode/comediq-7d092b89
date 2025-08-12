@@ -23,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdminRequestList from '@/components/admin/AdminRequestList';
 import AdminAllMicsList from '@/components/admin/AdminAllMicsList';
 import { MicAnalyticsDashboard } from '@/components/admin/MicAnalyticsDashboard';
+import BulkImportInterface from '@/components/admin/BulkImportInterface';
 import PageHeader from '@/components/PageHeader';
 
 const OPEN_MIC_FIELDS = [
@@ -205,19 +206,23 @@ const AdminInterface = () => {
 
       <div className="max-w-3xl mx-auto px-4 pt-28 pb-10">
         <Tabs defaultValue="pending" className="w-full" onValueChange={setTab}>
-          <TabsList className="mb-8 w-full grid grid-cols-4">
+          <TabsList className="mb-8 w-full grid grid-cols-5">
             <TabsTrigger value="pending" className="text-lg">Pending Requests</TabsTrigger>
             <TabsTrigger value="reviewed" className="text-lg">Reviewed Mics</TabsTrigger>
             <TabsTrigger value="all" className="text-lg">All Mics</TabsTrigger>
             <TabsTrigger value="analytics" className="text-lg">Analytics</TabsTrigger>
+            <TabsTrigger value="bulk-import" className="text-lg">Bulk Import</TabsTrigger>
           </TabsList>
-          <TabsContent value="analytics">
-            <Card className="mb-6 shadow-lg rounded-2xl border-0">
-              <CardContent className="p-8 flex flex-col items-start">
-                <MicAnalyticsDashboard mics={allMics} />
-              </CardContent>
-            </Card>
-          </TabsContent>
+                      <TabsContent value="analytics">
+              <Card className="mb-6 shadow-lg rounded-2xl border-0">
+                <CardContent className="p-8 flex flex-col items-start">
+                  <MicAnalyticsDashboard mics={allMics} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="bulk-import">
+              <BulkImportInterface />
+            </TabsContent>
           <TabsContent value="all">
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
               <CardContent className="p-8 flex flex-col items-start">
