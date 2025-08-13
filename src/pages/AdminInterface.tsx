@@ -209,7 +209,7 @@ const AdminInterface = () => {
 
       <div className="max-w-3xl mx-auto px-4 pt-28 pb-10">
         <Tabs defaultValue="analytics" className="w-full" onValueChange={setTab}>
-          <TabsList className="mb-8 w-full grid grid-cols-4 gap-1">
+          <TabsList className="mb-8 w-full grid grid-cols-5 gap-1">
             <TabsTrigger value="analytics" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               Analytics
             </TabsTrigger>
@@ -222,7 +222,10 @@ const AdminInterface = () => {
             <TabsTrigger value="reviewed" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               Reviewed
             </TabsTrigger>
-          </TabsList>
+            <TabsTrigger value="bulk-import" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              Bulk Import
+            </TabsTrigger>
+          </TabsList
                       <TabsContent value="analytics">
               <Card className="mb-6 shadow-lg rounded-2xl border-0">
                 <CardContent className="p-8 flex flex-col items-start">
