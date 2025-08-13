@@ -222,6 +222,9 @@ const AdminInterface = () => {
             <TabsTrigger value="reviewed" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               Reviewed
             </TabsTrigger>
+            <TabsTrigger value="bulk-import" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              Bulk Import
+            </TabsTrigger>
           </TabsList>
                       <TabsContent value="analytics">
               <Card className="mb-6 shadow-lg rounded-2xl border-0">

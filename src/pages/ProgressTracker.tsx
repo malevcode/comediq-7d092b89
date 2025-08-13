@@ -40,6 +40,7 @@ export default function ProgressTrackerPage() {
           )}
         </button>
       </div>
+      
       <PerformanceTracker />
     </div>
   );
