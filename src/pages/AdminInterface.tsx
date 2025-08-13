@@ -209,7 +209,7 @@ const AdminInterface = () => {
 
       <div className="max-w-3xl mx-auto px-4 pt-28 pb-10">
         <Tabs defaultValue="analytics" className="w-full" onValueChange={setTab}>
-          <TabsList className="mb-8 w-full grid grid-cols-4 gap-1">
+          <TabsList className="mb-8 w-full grid grid-cols-5 gap-1">
             <TabsTrigger value="analytics" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               Analytics
             </TabsTrigger>
