@@ -18,6 +18,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilters";
 import PageHeader from "@/components/PageHeader";
+import HamburgerMenu from "@/components/HamburgerMenu";
+
 
 
 
@@ -193,21 +195,6 @@ const OpenMics = () => {
 
       return matchesSearch && matchesBorough && matchesCost && matchesTime;
     });
-
-    // Apply sorting based on filter selection
-    if (filters.sortBy === "upcoming") {
-      if (tabType === "next") {
-        // For "next" tab, sort by time until mic
-        filtered.sort((a, b) => calculateTimeUntilMic(a) - calculateTimeUntilMic(b));
-      } else {
-        // For other tabs, sort by start time
-        filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
-      }
-    } else {
-      // Default sorting by time
-      filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
-    }
-
     return filtered;
   };
 
@@ -295,7 +282,7 @@ const OpenMics = () => {
                               <Button
                   onClick={() => {
                     setSearchTerm("");
-                    setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", sortBy: "upcoming" });
+                    setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All"});
                   }}
                   className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm"
                 >

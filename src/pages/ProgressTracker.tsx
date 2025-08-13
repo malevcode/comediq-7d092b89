@@ -6,6 +6,7 @@ import { LogIn } from "lucide-react";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import HamburgerMenu from "@/components/HamburgerMenu";
 
 export default function ProgressTrackerPage() {
   const { user, signOut } = useAuth();

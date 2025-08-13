@@ -1,8 +1,9 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, LogIn } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import {
   AlertDialog,
@@ -22,6 +23,7 @@ import { CheckCircle, XCircle, Clock, FileText, UserCheck, UserX, Loader2 } from
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdminRequestList from '@/components/admin/AdminRequestList';
 import AdminAllMicsList from '@/components/admin/AdminAllMicsList';
+import HamburgerMenu from '@/components/HamburgerMenu';
 import { MicAnalyticsDashboard } from '@/components/admin/MicAnalyticsDashboard';
 import BulkImportInterface from '@/components/admin/BulkImportInterface';
 import PageHeader from '@/components/PageHeader';
@@ -49,7 +51,8 @@ interface MicRequest {
 }
 
 const AdminInterface = () => {
-  const { isAdmin, user } = useAuth();
+  const { isAdmin, user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [micRequests, setMicRequests] = useState<any[]>([]);
   const [allMics, setAllMics] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -205,13 +208,23 @@ const AdminInterface = () => {
       <PageHeader title="Admin Dashboard" subtitle="Manage open mic requests and content" />
 
       <div className="max-w-3xl mx-auto px-4 pt-28 pb-10">
-        <Tabs defaultValue="pending" className="w-full" onValueChange={setTab}>
-          <TabsList className="mb-8 w-full grid grid-cols-5">
-            <TabsTrigger value="pending" className="text-lg">Pending Requests</TabsTrigger>
-            <TabsTrigger value="reviewed" className="text-lg">Reviewed Mics</TabsTrigger>
-            <TabsTrigger value="all" className="text-lg">All Mics</TabsTrigger>
-            <TabsTrigger value="analytics" className="text-lg">Analytics</TabsTrigger>
-            <TabsTrigger value="bulk-import" className="text-lg">Bulk Import</TabsTrigger>
+        <Tabs defaultValue="analytics" className="w-full" onValueChange={setTab}>
+          <TabsList className="mb-8 w-full grid grid-cols-4 gap-1">
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="all" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              All Mics
+            </TabsTrigger>
+            <TabsTrigger value="pending" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              Pending
+            </TabsTrigger>
+            <TabsTrigger value="reviewed" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              Reviewed
+            </TabsTrigger>
+            <TabsTrigger value="bulk-import" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              Bulk Import
+            </TabsTrigger>
           </TabsList>
                       <TabsContent value="analytics">
               <Card className="mb-6 shadow-lg rounded-2xl border-0">

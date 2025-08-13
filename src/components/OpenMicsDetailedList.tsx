@@ -190,15 +190,15 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium
             ${/tediously/i.test(mic.lastVerified)
               ? 'border border-yellow-200 bg-yellow-50 text-yellow-700'
-              : mic.lastVerified === 'Unverified'
-                ? 'border border-red-200 bg-red-50 text-red-700'
-                : 'border border-green-200 bg-green-50 text-green-700'}`}>
+              : mic.lastVerified?.includes('Verified')
+                ? 'border border-green-200 bg-green-50 text-green-700'
+                : 'border border-red-200 bg-red-50 text-red-700'}`}>
             <span className="flex items-center gap-1">
               {/tediously/i.test(mic.lastVerified)
                 ? <span className="flex items-center gap-1"><CircleCheckBig className="w-3 h-3" /> Verified Tediously</span>
-                : mic.lastVerified === 'Unverified'
-                  ? <span className="flex items-center gap-1"><CircleAlert className="w-3 h-3" /> Unverified</span>
-                  : <span className="flex items-center gap-1"><CircleCheckBig className="w-3 h-3" /> Verified</span>
+                : mic.lastVerified?.includes('Verified')
+                  ? <span className="flex items-center gap-1"><CircleCheckBig className="w-3 h-3" /> Verified</span>
+                  : <span className="flex items-center gap-1"><CircleAlert className="w-3 h-3" /> Unverified</span>
               }
             </span>
           </span>
