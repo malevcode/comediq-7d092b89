@@ -64,7 +64,7 @@ const AdminInterface = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [tab, setTab] = useState('pending');
+  const [tab, setTab] = useState('analytics');
   const [visiblePending, setVisiblePending] = useState(10);
   const [visibleReviewed, setVisibleReviewed] = useState(10);
 

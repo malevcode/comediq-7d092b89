@@ -18,11 +18,11 @@ export class LocationService {
         (position) => {
           const { longitude, latitude } = position.coords;
           const location: [number, number] = [longitude, latitude];
-          console.log('User location obtained:', location);
+          // console.log('User location obtained:', location);
           resolve(location);
         },
         (error) => {
-          console.error('Error getting location:', error);
+          // console.error('Error getting location:', error);
           
           // Show user-friendly error message
           let errorMessage = 'Unable to get your location.';
