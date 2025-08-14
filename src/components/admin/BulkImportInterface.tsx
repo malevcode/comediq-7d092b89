@@ -70,9 +70,9 @@ const BulkImportInterface = () => {
       const files = Array.from(e.dataTransfer?.files || []);
       const file = files[0];
 
-      if (file && (file.name.endsWith(".csv") || file.name.endsWith(".xlsx") || file.name.endsWith(".xls"))) {
+      if (file && file.name.endsWith(".csv")) {
         setUploadedFile(file);
-        parseFile(file);
+        parseUploadedFile(file);
       }
     };
 
@@ -89,59 +89,9 @@ const BulkImportInterface = () => {
     };
   }, []);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setUploadedFile(file);
-      parseFile(file);
-    }
-  };
 
-  const parseFile = (file: File) => {
-    const reader = new FileReader();
 
-    reader.onload = (e) => {
-      const data = e.target?.result;
-      let parsedData: ImportData[] = [];
 
-      if (file.name.endsWith(".csv")) {
-        const csvText = data as string;
-        const lines = csvText.split("\n");
-        const headers = lines[0].split(",").map((h) => h.trim().replace(/"/g, "")).filter((h) => h !== "");
-        setCsvHeaders(headers);
-        const missingColumns = validateColumns(headers);
-        setColumnErrors(missingColumns);
-
-        for (let i = 1; i < lines.length; i++) {
-          if (lines[i].trim()) {
-            const values = lines[i].split(",").map((v) => v.trim().replace(/"/g, ""));
-            const row: any = {};
-            headers.forEach((header, index) => {
-              row[header] = values[index] || "";
-            });
-            parsedData.push({
-              unique_identifier: row["unique_identifier"] || "",
-              openMic: row["Open Mic"] || "",
-              venueName: row["Venue Name"] || "",
-              borough: row["Borough"] || "",
-              neighborhood: row["Neighborhood"] || "",
-              day: row["Day"] || "",
-              startTime: row["Start Time"] || "",
-              stageTime: row["Stage time"] || "",
-              cost: row["Cost"] || "",
-              location: row["Location"] || "",
-              lastVerified: row["Last verified"] || "",
-              status: "pending",
-            });
-          }
-        }
-        setPreviewData(parsedData);
-        setActiveTab("preview");
-      }
-    };
-
-    reader.readAsText(file);
-  };
 
   const validateData = () => {
     setIsValidating(true);
@@ -166,15 +116,29 @@ const BulkImportInterface = () => {
       errors: allErrors,
     });
 
-    const status: ImportData['status'] =
-      allErrors.length === 0 ? 'valid' : 'error';
+    // Update each row's status individually based on specific validation
+    const updatedPreviewData = previewData.map((item) => {
+      let rowStatus: ImportData['status'] = 'valid';
+      const rowErrors: string[] = [];
 
-    const updatedPreviewData = previewData.map((item) => ({
-      ...item,
-      status,
-    }));
+      // Check for duplicate UUIDs (row-specific validation)
+      const duplicateUUIDs = previewData.filter(row => row.unique_identifier === item.unique_identifier);
+      if (duplicateUUIDs.length > 1) {
+        rowStatus = 'error';
+        rowErrors.push('Duplicate unique_identifier');
+      }
+
+      // Add any other row-specific validations here
+      // For example, required field validation, format validation, etc.
+
+      return {
+        ...item,
+        status: rowStatus,
+        errors: rowErrors
+      };
+    });
+
     setPreviewData(updatedPreviewData);
-    setValidationResults({ isValid: allErrors.length === 0, errors: allErrors });
     setIsValidating(false);
   };
 
@@ -191,8 +155,14 @@ const BulkImportInterface = () => {
     if (previewData.length === 0) return ["No data to validate"];
     if (csvHeaders.length === 0) return ["No CSV headers found for validation"];
 
+    console.log('Validation - csvHeaders:', csvHeaders);
+    console.log('Validation - OPEN_MIC_FIELDS:', OPEN_MIC_FIELDS);
+
     const missingColumns = OPEN_MIC_FIELDS.filter((field) => !csvHeaders.includes(field));
     const extraColumns = csvHeaders.filter((header) => !OPEN_MIC_FIELDS.includes(header));
+
+    console.log('Missing columns:', missingColumns);
+    console.log('Extra columns:', extraColumns);
 
     if (missingColumns.length > 0) errors.push(`Missing required columns: ${missingColumns.join(", ")}`);
     if (extraColumns.length > 0) errors.push(`Extra columns found: ${extraColumns.join(", ")}`);
@@ -214,6 +184,127 @@ const BulkImportInterface = () => {
     return OPEN_MIC_FIELDS.filter((col) => !headers.some((header) => header.trim().toLowerCase() === col.toLowerCase()));
   };
 
+  // Proper CSV parsing function that handles commas within quoted fields
+  const parseCSV = (csvText: string): { headers: string[], data: any[] } => {
+    const lines = csvText.split('\n').filter(line => line.trim() !== '');
+    if (lines.length === 0) return { headers: [], data: [] };
+
+    const parseCSVLine = (line: string): string[] => {
+      const result: string[] = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            // Handle escaped quotes
+            current += '"';
+            i++; // Skip the next quote
+          } else {
+            // Toggle quote state
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          // End of field
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      
+      // Add the last field
+      result.push(current.trim());
+      return result;
+    };
+
+    const headers = parseCSVLine(lines[0]);
+    const data = lines.slice(1).map(line => {
+      const values = parseCSVLine(line);
+      const row: any = {};
+      headers.forEach((header, index) => {
+        row[header] = values[index] || '';
+      });
+      return row;
+    });
+
+    // Remove empty columns (columns where all values are empty strings or just whitespace)
+    const nonEmptyColumns = headers.filter((header, columnIndex) => {
+      // Skip columns with empty header names
+      if (!header || header.trim() === '') {
+        return false;
+      }
+      
+      // Check if this column has any non-empty values
+      return data.some(row => {
+        const value = row[header];
+        return value && value.trim() !== '';
+      });
+    });
+
+    // Filter data to only include non-empty columns
+    const filteredData = data.map(row => {
+      const filteredRow: any = {};
+      nonEmptyColumns.forEach(header => {
+        filteredRow[header] = row[header] || '';
+      });
+      return filteredRow;
+    });
+
+    console.log('Original headers:', headers);
+    console.log('Non-empty columns:', nonEmptyColumns);
+    console.log('Removed columns:', headers.filter(h => !nonEmptyColumns.includes(h)));
+    
+    return { headers: nonEmptyColumns, data: filteredData };
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setUploadedFile(file);
+      parseUploadedFile(file);
+    }
+  };
+
+  const parseUploadedFile = (file: File) => {
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      const csvText = e.target?.result as string;
+      if (csvText) {
+        const { headers, data } = parseCSV(csvText);
+        setCsvHeaders(headers);
+        
+        // Convert data to ImportData format while preserving original CSV structure
+        const parsedData: ImportData[] = data.map((row: any) => ({
+          unique_identifier: row["unique_identifier"] || "",
+          openMic: row["Open Mic"] || "",
+          venueName: row["Venue Name"] || "",
+          borough: row["Borough"] || "",
+          neighborhood: row["Neighborhood"] || "",
+          day: row["Day"] || "",
+          startTime: row["Start Time"] || "",
+          stageTime: row["Stage time"] || "",
+          cost: row["Cost"] || "",
+          location: row["Location"] || "",
+          lastVerified: row["Last verified"] || "",
+          status: "pending",
+          // Preserve original CSV data for preview
+          ...row
+        }));
+        
+        setPreviewData(parsedData);
+        setActiveTab("preview");
+      }
+    };
+    
+    reader.readAsText(file);
+  };
+
+
+
   const importData = () => {
     setIsImporting(true);
     setTimeout(() => setIsImporting(false), 3000);
@@ -228,24 +319,57 @@ const BulkImportInterface = () => {
   };
 
   const downloadTemplate = () => {
-    const templateData = [
-      {
-        "Open Mic": "Example Comedy Night",
-        "Venue Name": "The Laugh Factory",
-        "Borough": "Manhattan",
-        "Neighborhood": "Chelsea",
-        "Day": "Monday",
-        "Start Time": "8:00 PM",
-        "Stage Time": "5 minutes",
-        "Cost": "Free",
-        "Location": "123 Main St, New York, NY",
-        "Last Verified": "2024-01-15"
-      }
+    // Create CSV content with all required headers
+    const headers = [
+      "Open Mic", "Day", "Start Time", "Latest End Time", "Venue Name", "Borough",
+      "Neighborhood", "Location", "Venue type", "Cost", "Stage time", "Sign-Up Instructions",
+      "Host(s) / Organizer", "Changes/updates", "Last verified", "SMS Response",
+      "Manually verified", "Formerly verified", "SMS", "Other Rules",
+      "Help other comics! Leave reviews", "unique_identifier"
     ];
-    const worksheet = XLSX.utils.json_to_sheet(templateData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
-    XLSX.writeFile(workbook, "open_mics_import_template.xlsx");
+    
+    // Create example data row
+    const exampleData = [
+      "Example Comedy Night",
+      "Monday",
+      "8:00 PM",
+      "11:00 PM",
+      "The Laugh Factory",
+      "Manhattan",
+      "Chelsea",
+      "123 Main St, New York, NY",
+      "Comedy Club",
+      "Free",
+      "5 minutes",
+      "Sign up at the door",
+      "John Doe",
+      "Updated weekly",
+      "2024-01-15",
+      "Yes",
+      "Yes",
+      "No",
+      "555-1234",
+      "Be respectful to other performers",
+      "Leave a review on our website",
+      "example-comedy-night-001"
+    ];
+    
+    // Create CSV content
+    const csvContent = [
+      headers.join(','),
+      exampleData.join(',')
+    ].join('\n');
+    
+    // Create and download the file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'open_mics_import_template.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -253,7 +377,7 @@ const BulkImportInterface = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Bulk Import</h1>
-          <p className="text-gray-600 mt-2">Import open mic data from CSV or Excel files</p>
+          <p className="text-gray-600 mt-2">Import open mic data from CSV files</p>
         </div>
         <Button variant="outline" className="flex items-center gap-2" onClick={downloadTemplate}>
           <Download className="h-4 w-4" />
@@ -292,7 +416,7 @@ const BulkImportInterface = () => {
             </CardHeader>
                          <CardContent className="relative space-y-4">
                                 <div 
-                  className={`upload-area relative z-[9999] border-2 border-dashed rounded-lg p-8 text-center transition-border duration-200 ${
+                  className={`upload-area relative hover:z-[9999] border-2 border-dashed rounded-lg p-8 text-center transition-border duration-200 ${
                     isDragOver 
                       ? 'border-blue-500 bg-gray-50 border-blue-500 shadow-lg' 
                       : 'border-gray-300'
@@ -302,12 +426,12 @@ const BulkImportInterface = () => {
                   isDragOver ? 'text-blue-500' : 'text-gray-400'
                 }`} />
                 <p className="text-lg font-medium text-gray-900 mb-2">
-                  {isDragOver ? 'Drop your file here' : 'Upload your CSV or Excel file'}
+                  {isDragOver ? 'Drop your file here' : 'Upload your CSV file'}
                 </p>
-                <p className="text-gray-600 mb-4">Supported formats: .csv, .xlsx, .xls</p>
+                <p className="text-gray-600 mb-4">Supported format: .csv</p>
                 <input
                   type="file"
-                  accept=".csv,.xlsx,.xls"
+                  accept=".csv"
                   onChange={handleFileUpload}
                   className="hidden"
                   id="file-upload"
