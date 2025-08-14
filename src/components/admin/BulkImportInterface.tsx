@@ -1,13 +1,15 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, FileText, CheckCircle, AlertCircle, Download, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 
 interface ImportData {
-  id: string;
+  unique_identifier: string;
   openMic: string;
   venueName: string;
   borough: string;
@@ -18,11 +20,12 @@ interface ImportData {
   cost: string;
   location: string;
   lastVerified: string;
-  status: 'pending' | 'valid' | 'error';
+  status: "pending" | "valid" | "error";
   errors?: string[];
 }
 
 const BulkImportInterface = () => {
+  console.log('BulkImportInterface component is being called');
   const [activeTab, setActiveTab] = useState("upload");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<ImportData[]>([]);
@@ -30,188 +33,343 @@ const BulkImportInterface = () => {
   const [isImporting, setIsImporting] = useState(false);
   const [importHistory, setImportHistory] = useState<any[]>([]);
   const [columnErrors, setColumnErrors] = useState<string[]>([]);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string[] }>({});
+  const [validationResults, setValidationResults] = useState<{ isValid: boolean; errors: string[] }>({ isValid: false, errors: [] });
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+
+  useEffect(() => {
+    const handleDocumentDragOver = (e: DragEvent) => {
+      e.preventDefault();
+    };
+
+    const handleDocumentDragEnter = (e: DragEvent) => {
+      e.preventDefault();
+      // Don't show overlay if dragging over the upload area
+      if (e.target && (e.target as Element).closest('.upload-area')) {
+        return;
+      }
+      setIsDragOver(true);
+    };
+
+    const handleDocumentDragLeave = (e: DragEvent) => {
+      e.preventDefault();
+      // Don't hide overlay if leaving the upload area
+      if (e.target && (e.target as Element).closest('.upload-area')) {
+        return;
+      }
+      if (!e.relatedTarget) {
+        setIsDragOver(false);
+      }
+    };
+
+    const handleDocumentDrop = (e: DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(false);
+
+      const files = Array.from(e.dataTransfer?.files || []);
+      const file = files[0];
+
+      if (file && file.name.endsWith(".csv")) {
+        setUploadedFile(file);
+        parseUploadedFile(file);
+      }
+    };
+
+    document.addEventListener("dragover", handleDocumentDragOver);
+    document.addEventListener("dragenter", handleDocumentDragEnter);
+    document.addEventListener("dragleave", handleDocumentDragLeave);
+    document.addEventListener("drop", handleDocumentDrop);
+
+    return () => {
+      document.removeEventListener("dragover", handleDocumentDragOver);
+      document.removeEventListener("dragenter", handleDocumentDragEnter);
+      document.removeEventListener("dragleave", handleDocumentDragLeave);
+      document.removeEventListener("drop", handleDocumentDrop);
+    };
+  }, []);
+
+
+
+
+
+  const validateData = () => {
+    setIsValidating(true);
+    const errors: { [key: string]: string[] } = {};
+    const allErrors: string[] = [];
+
+    const columnConsistencyErrors = validateColumnConsistency();
+    if (columnConsistencyErrors.length > 0) {
+      errors.columnConsistency = columnConsistencyErrors;
+      allErrors.push(...columnConsistencyErrors);
+    }
+
+    const duplicateErrors = validateDuplicateUUIDs();
+    if (duplicateErrors.length > 0) {
+      errors.duplicateUUIDs = duplicateErrors;
+      allErrors.push(...duplicateErrors);
+    }
+
+    setValidationErrors(errors);
+    setValidationResults({
+      isValid: allErrors.length === 0,
+      errors: allErrors,
+    });
+
+    // Update each row's status individually based on specific validation
+    const updatedPreviewData = previewData.map((item) => {
+      let rowStatus: ImportData['status'] = 'valid';
+      const rowErrors: string[] = [];
+
+      // Check for duplicate UUIDs (row-specific validation)
+      const duplicateUUIDs = previewData.filter(row => row.unique_identifier === item.unique_identifier);
+      if (duplicateUUIDs.length > 1) {
+        rowStatus = 'error';
+        rowErrors.push('Duplicate unique_identifier');
+      }
+
+      // Add any other row-specific validations here
+      // For example, required field validation, format validation, etc.
+
+      return {
+        ...item,
+        status: rowStatus,
+        errors: rowErrors
+      };
+    });
+
+    setPreviewData(updatedPreviewData);
+    setIsValidating(false);
+  };
+
+  const OPEN_MIC_FIELDS = [
+    "Open Mic", "Day", "Start Time", "Latest End Time", "Venue Name", "Borough",
+    "Neighborhood", "Location", "Venue type", "Cost", "Stage time", "Sign-Up Instructions",
+    "Host(s) / Organizer", "Changes/updates", "Last verified", "SMS Response",
+    "Manually verified", "Formerly verified", "SMS", "Other Rules",
+    "Help other comics! Leave reviews", "unique_identifier"
+  ];
+
+  const validateColumnConsistency = (): string[] => {
+    const errors: string[] = [];
+    if (previewData.length === 0) return ["No data to validate"];
+    if (csvHeaders.length === 0) return ["No CSV headers found for validation"];
+
+    console.log('Validation - csvHeaders:', csvHeaders);
+    console.log('Validation - OPEN_MIC_FIELDS:', OPEN_MIC_FIELDS);
+
+    const missingColumns = OPEN_MIC_FIELDS.filter((field) => !csvHeaders.includes(field));
+    const extraColumns = csvHeaders.filter((header) => !OPEN_MIC_FIELDS.includes(header));
+
+    console.log('Missing columns:', missingColumns);
+    console.log('Extra columns:', extraColumns);
+
+    if (missingColumns.length > 0) errors.push(`Missing required columns: ${missingColumns.join(", ")}`);
+    if (extraColumns.length > 0) errors.push(`Extra columns found: ${extraColumns.join(", ")}`);
+    return errors;
+  };
+
+  const validateDuplicateUUIDs = (): string[] => {
+    const errors: string[] = [];
+    const uniqueIdentifiers = previewData.map((item) => item.unique_identifier);
+    const duplicateUUIDs = uniqueIdentifiers.filter((uuid, index) => uniqueIdentifiers.indexOf(uuid) !== index);
+    if (duplicateUUIDs.length > 0) {
+      const uniqueDuplicates = [...new Set(duplicateUUIDs)];
+      errors.push(`Duplicate unique_identifiers found: ${uniqueDuplicates.join(", ")}`);
+    }
+    return errors;
+  };
+
+  const validateColumns = (headers: string[]) => {
+    return OPEN_MIC_FIELDS.filter((col) => !headers.some((header) => header.trim().toLowerCase() === col.toLowerCase()));
+  };
+
+  // Proper CSV parsing function that handles commas within quoted fields
+  const parseCSV = (csvText: string): { headers: string[], data: any[] } => {
+    const lines = csvText.split('\n').filter(line => line.trim() !== '');
+    if (lines.length === 0) return { headers: [], data: [] };
+
+    const parseCSVLine = (line: string): string[] => {
+      const result: string[] = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            // Handle escaped quotes
+            current += '"';
+            i++; // Skip the next quote
+          } else {
+            // Toggle quote state
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          // End of field
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      
+      // Add the last field
+      result.push(current.trim());
+      return result;
+    };
+
+    const headers = parseCSVLine(lines[0]);
+    const data = lines.slice(1).map(line => {
+      const values = parseCSVLine(line);
+      const row: any = {};
+      headers.forEach((header, index) => {
+        row[header] = values[index] || '';
+      });
+      return row;
+    });
+
+    // Remove empty columns (columns where all values are empty strings or just whitespace)
+    const nonEmptyColumns = headers.filter((header, columnIndex) => {
+      // Skip columns with empty header names
+      if (!header || header.trim() === '') {
+        return false;
+      }
+      
+      // Check if this column has any non-empty values
+      return data.some(row => {
+        const value = row[header];
+        return value && value.trim() !== '';
+      });
+    });
+
+    // Filter data to only include non-empty columns
+    const filteredData = data.map(row => {
+      const filteredRow: any = {};
+      nonEmptyColumns.forEach(header => {
+        filteredRow[header] = row[header] || '';
+      });
+      return filteredRow;
+    });
+
+    console.log('Original headers:', headers);
+    console.log('Non-empty columns:', nonEmptyColumns);
+    console.log('Removed columns:', headers.filter(h => !nonEmptyColumns.includes(h)));
+    
+    return { headers: nonEmptyColumns, data: filteredData };
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setUploadedFile(file);
-      parseFile(file);
+      parseUploadedFile(file);
     }
   };
 
-  const parseFile = (file: File) => {
+  const parseUploadedFile = (file: File) => {
     const reader = new FileReader();
     
     reader.onload = (e) => {
-      try {
-        const data = e.target?.result;
-        let parsedData: ImportData[] = [];
-
-        if (file.name.endsWith('.csv')) {
-          // Parse CSV
-          const csvText = data as string;
-          const lines = csvText.split('\n');
-          const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-          
-          // Validate columns
-          const missingColumns = validateColumns(headers);
-          setColumnErrors(missingColumns);
-          
-          if (missingColumns.length > 0) {
-            console.warn('Column validation failed:', missingColumns);
-          }
-          
-          for (let i = 1; i < lines.length; i++) {
-            if (lines[i].trim()) {
-              const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-              const row: any = {};
-              
-              headers.forEach((header, index) => {
-                row[header] = values[index] || '';
-              });
-              
-              parsedData.push({
-                id: `temp-${i}`,
-                openMic: getColumnValue(row, ['Open Mic', 'openMic', 'Open Mic Name', 'Mic Name']),
-                venueName: getColumnValue(row, ['Venue Name', 'venueName', 'Venue', 'Venue Name']),
-                borough: getColumnValue(row, ['Borough', 'borough']),
-                neighborhood: getColumnValue(row, ['Neighborhood', 'neighborhood']),
-                day: getColumnValue(row, ['Day', 'day']),
-                startTime: getColumnValue(row, ['Start Time', 'startTime', 'Time']),
-                stageTime: getColumnValue(row, ['Stage Time', 'stageTime', 'Stage time']),
-                cost: getColumnValue(row, ['Cost', 'cost']),
-                location: getColumnValue(row, ['Location', 'location']),
-                lastVerified: getColumnValue(row, ['Last Verified', 'lastVerified', 'Last verified']),
-                status: 'pending'
-              });
-            }
-          }
-        } else {
-          // Parse Excel
-          const workbook = XLSX.read(data, { type: 'binary' });
-          const sheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[sheetName];
-          const jsonData = XLSX.utils.sheet_to_json(worksheet);
-          
-          // Validate columns for Excel
-          const excelHeaders = Object.keys(jsonData[0] || {});
-          const missingColumns = validateColumns(excelHeaders);
-          setColumnErrors(missingColumns);
-          
-          parsedData = jsonData.map((row: any, index: number) => ({
-            id: `temp-${index}`,
-            openMic: getColumnValue(row, ['Open Mic', 'openMic', 'Open Mic Name', 'Mic Name']),
-            venueName: getColumnValue(row, ['Venue Name', 'venueName', 'Venue', 'Venue Name']),
-            borough: getColumnValue(row, ['Borough', 'borough']),
-            neighborhood: getColumnValue(row, ['Neighborhood', 'neighborhood']),
-            day: getColumnValue(row, ['Day', 'day']),
-            startTime: getColumnValue(row, ['Start Time', 'startTime', 'Time']),
-            stageTime: getColumnValue(row, ['Stage Time', 'stageTime', 'Stage time']),
-            cost: getColumnValue(row, ['Cost', 'cost']),
-            location: getColumnValue(row, ['Location', 'location']),
-            lastVerified: getColumnValue(row, ['Last Verified', 'lastVerified', 'Last verified']),
-            status: 'pending'
-          }));
-        }
+      const csvText = e.target?.result as string;
+      if (csvText) {
+        const { headers, data } = parseCSV(csvText);
+        setCsvHeaders(headers);
+        
+        // Convert data to ImportData format while preserving original CSV structure
+        const parsedData: ImportData[] = data.map((row: any) => ({
+          unique_identifier: row["unique_identifier"] || "",
+          openMic: row["Open Mic"] || "",
+          venueName: row["Venue Name"] || "",
+          borough: row["Borough"] || "",
+          neighborhood: row["Neighborhood"] || "",
+          day: row["Day"] || "",
+          startTime: row["Start Time"] || "",
+          stageTime: row["Stage time"] || "",
+          cost: row["Cost"] || "",
+          location: row["Location"] || "",
+          lastVerified: row["Last verified"] || "",
+          status: "pending",
+          // Preserve original CSV data for preview
+          ...row
+        }));
         
         setPreviewData(parsedData);
         setActiveTab("preview");
-      } catch (error) {
-        console.error('Error parsing file:', error);
-        alert('Error parsing file. Please check the file format.');
       }
     };
     
-    if (file.name.endsWith('.csv')) {
-      reader.readAsText(file);
-    } else {
-      reader.readAsBinaryString(file);
-    }
+    reader.readAsText(file);
   };
 
-  const validateData = () => {
-    setIsValidating(true);
-    // TODO: Validate preview data
-    setTimeout(() => setIsValidating(false), 2000);
-  };
+
 
   const importData = () => {
     setIsImporting(true);
-    // TODO: Import validated data to database
     setTimeout(() => setIsImporting(false), 3000);
   };
 
   const getValidationStats = () => {
     const total = previewData.length;
-    const valid = previewData.filter(item => item.status === 'valid').length;
-    const errors = previewData.filter(item => item.status === 'error').length;
-    const pending = previewData.filter(item => item.status === 'pending').length;
-    
+    const valid = previewData.filter((item) => item.status === "valid").length;
+    const errors = previewData.filter((item) => item.status === "error").length;
+    const pending = previewData.filter((item) => item.status === "pending").length;
     return { total, valid, errors, pending };
   };
 
-  const validateColumns = (headers: string[]) => {
-    const requiredColumns = ['Open Mic', 'Venue Name', 'Borough', 'Day', 'Start Time'];
-    const missingColumns = requiredColumns.filter(col => 
-      !headers.some(header => 
-        header.trim().toLowerCase() === col.toLowerCase()
-      )
-    );
-    
-    if (missingColumns.length > 0) {
-      console.warn('Missing columns:', missingColumns);
-      console.log('Available columns:', headers);
-    }
-    
-    return missingColumns;
-  };
-
-  const getColumnValue = (row: any, possibleNames: string[]) => {
-    for (const name of possibleNames) {
-      if (row[name] !== undefined && row[name] !== '') {
-        return row[name];
-      }
-    }
-    return '';
-  };
-
   const downloadTemplate = () => {
-    const templateData = [
-      {
-        'Open Mic': 'Example Comedy Night',
-        'Venue Name': 'The Laugh Factory',
-        'Borough': 'Manhattan',
-        'Neighborhood': 'Chelsea',
-        'Day': 'Monday',
-        'Start Time': '8:00 PM',
-        'Stage Time': '5 minutes',
-        'Cost': 'Free',
-        'Location': '123 Main St, New York, NY',
-        'Last Verified': '2024-01-15'
-      },
-      {
-        'Open Mic': 'Open Mic Night',
-        'Venue Name': 'Comedy Club',
-        'Borough': 'Brooklyn',
-        'Neighborhood': 'Williamsburg',
-        'Day': 'Tuesday',
-        'Start Time': '7:30 PM',
-        'Stage Time': '3 minutes',
-        'Cost': '$5',
-        'Location': '456 Oak Ave, Brooklyn, NY',
-        'Last Verified': '2024-01-16'
-      }
+    // Create CSV content with all required headers
+    const headers = [
+      "Open Mic", "Day", "Start Time", "Latest End Time", "Venue Name", "Borough",
+      "Neighborhood", "Location", "Venue type", "Cost", "Stage time", "Sign-Up Instructions",
+      "Host(s) / Organizer", "Changes/updates", "Last verified", "SMS Response",
+      "Manually verified", "Formerly verified", "SMS", "Other Rules",
+      "Help other comics! Leave reviews", "unique_identifier"
     ];
-
-    const worksheet = XLSX.utils.json_to_sheet(templateData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Template');
     
-    // Auto-size columns
-    const maxWidth = templateData.reduce((w, r) => Math.max(w, r['Open Mic'].length), 10);
-    worksheet['!cols'] = [{ wch: maxWidth }];
+    // Create example data row
+    const exampleData = [
+      "Example Comedy Night",
+      "Monday",
+      "8:00 PM",
+      "11:00 PM",
+      "The Laugh Factory",
+      "Manhattan",
+      "Chelsea",
+      "123 Main St, New York, NY",
+      "Comedy Club",
+      "Free",
+      "5 minutes",
+      "Sign up at the door",
+      "John Doe",
+      "Updated weekly",
+      "2024-01-15",
+      "Yes",
+      "Yes",
+      "No",
+      "555-1234",
+      "Be respectful to other performers",
+      "Leave a review on our website",
+      "example-comedy-night-001"
+    ];
     
-    XLSX.writeFile(workbook, 'open_mics_import_template.xlsx');
+    // Create CSV content
+    const csvContent = [
+      headers.join(','),
+      exampleData.join(',')
+    ].join('\n');
+    
+    // Create and download the file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'open_mics_import_template.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -219,7 +377,7 @@ const BulkImportInterface = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Bulk Import</h1>
-          <p className="text-gray-600 mt-2">Import open mic data from CSV or Excel files</p>
+          <p className="text-gray-600 mt-2">Import open mic data from CSV files</p>
         </div>
         <Button variant="outline" className="flex items-center gap-2" onClick={downloadTemplate}>
           <Download className="h-4 w-4" />
@@ -229,37 +387,51 @@ const BulkImportInterface = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="upload" className="flex items-center gap-2">
+          <TabsTrigger value="upload" className="flex items-center gap-2 h-10">
             <Upload className="h-4 w-4" />
             Upload
           </TabsTrigger>
-          <TabsTrigger value="preview" className="flex items-center gap-2">
+          <TabsTrigger value="preview" className="flex items-center gap-2 h-10">
             <FileText className="h-4 w-4" />
             Preview
           </TabsTrigger>
-          <TabsTrigger value="validate" className="flex items-center gap-2">
+          <TabsTrigger value="validate" className="flex items-center gap-2 h-10">
             <CheckCircle className="h-4 w-4" />
             Validate
           </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
+          <TabsTrigger value="history" className="flex items-center gap-2 h-10">
             <History className="h-4 w-4" />
             History
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="upload" className="mt-6">
-          <Card>
+        <TabsContent value="upload" className="mt-6 relative">
+          {isDragOver && (
+            <div className="fixed inset-0 bg-black/60 transition-colors duration-300 z-[9998]" />
+          )}
+          
+          <Card className="relative">
             <CardHeader>
               <CardTitle>Upload File</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-lg font-medium text-gray-900 mb-2">Upload your CSV or Excel file</p>
-                <p className="text-gray-600 mb-4">Supported formats: .csv, .xlsx, .xls</p>
+                         <CardContent className="relative space-y-4">
+                                <div 
+                  className={`upload-area relative hover:z-[9999] border-2 border-dashed rounded-lg p-8 text-center transition-border duration-200 ${
+                    isDragOver 
+                      ? 'border-blue-500 bg-gray-50 border-blue-500 shadow-lg' 
+                      : 'border-gray-300'
+                  }`}
+                >
+                <Upload className={`h-12 w-12 mx-auto mb-4 transition-colors duration-200 ${
+                  isDragOver ? 'text-blue-500' : 'text-gray-400'
+                }`} />
+                <p className="text-lg font-medium text-gray-900 mb-2">
+                  {isDragOver ? 'Drop your file here' : 'Upload your CSV file'}
+                </p>
+                <p className="text-gray-600 mb-4">Supported format: .csv</p>
                 <input
                   type="file"
-                  accept=".csv,.xlsx,.xls"
+                  accept=".csv"
                   onChange={handleFileUpload}
                   className="hidden"
                   id="file-upload"
@@ -310,9 +482,6 @@ const BulkImportInterface = () => {
                       <li key={index}>{error}</li>
                     ))}
                   </ul>
-                  <p className="text-red-700 text-sm mt-2">
-                    Please check your CSV format or download the template for the correct column names.
-                  </p>
                 </div>
               )}
               {previewData.length > 0 ? (
@@ -326,28 +495,30 @@ const BulkImportInterface = () => {
                     </Button>
                   </div>
                   <div className="border rounded-lg overflow-hidden">
-                    <table className="w-full">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Open Mic</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Venue</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Borough</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Day</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Time</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {previewData.slice(0, 10).map((item, index) => (
-                          <tr key={index} className="hover:bg-gray-50">
-                            <td className="px-4 py-2 text-sm">{item.openMic}</td>
-                            <td className="px-4 py-2 text-sm">{item.venueName}</td>
-                            <td className="px-4 py-2 text-sm">{item.borough}</td>
-                            <td className="px-4 py-2 text-sm">{item.day}</td>
-                            <td className="px-4 py-2 text-sm">{item.startTime}</td>
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-max">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            {csvHeaders.map((header, index) => (
+                              <th key={index} className="px-4 py-2 text-left text-xs font-medium text-gray-500 whitespace-nowrap">
+                                {header}
+                              </th>
+                            ))}
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {previewData.slice(0, 10).map((item, index) => (
+                            <tr key={index} className="hover:bg-gray-50">
+                              {csvHeaders.map((header, headerIndex) => (
+                                <td key={headerIndex} className="px-4 py-2 text-sm whitespace-nowrap max-w-xs truncate">
+                                  {item[header] || ''}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -390,6 +561,24 @@ const BulkImportInterface = () => {
                     </div>
                   </div>
                   
+                  {validationResults.errors.length > 0 && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <h3 className="text-lg font-semibold text-red-800 mb-2">Validation Errors</h3>
+                      <ul className="space-y-1">
+                        {validationResults.errors.map((error, index) => (
+                          <li key={index} className="text-red-700 text-sm">• {error}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {validationResults.isValid && validationResults.errors.length === 0 && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <h3 className="text-lg font-semibold text-green-800 mb-2">✓ Validation Passed</h3>
+                      <p className="text-green-700 text-sm">All data has been validated successfully.</p>
+                    </div>
+                  )}
+                  
                   <div className="flex items-center justify-between">
                     <Button 
                       onClick={validateData} 
@@ -409,7 +598,7 @@ const BulkImportInterface = () => {
                       )}
                     </Button>
                     
-                    {getValidationStats().errors === 0 && getValidationStats().valid > 0 && (
+                    {validationResults.isValid && getValidationStats().valid > 0 && (
                       <Button 
                         onClick={importData}
                         disabled={isImporting}

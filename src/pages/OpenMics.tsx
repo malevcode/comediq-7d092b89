@@ -160,6 +160,37 @@ const OpenMics = () => {
 
   // Filtered mics
 
+  // Helper function to get next occurrence (moved from OpenMicsDetailedList)
+  const getNextOccurrence = (mic: OpenMic) => {
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const today = new Date();
+    const currentDay = today.getDay();
+    const targetDay = daysOfWeek.indexOf(mic.day);
+    let daysUntil = targetDay - currentDay;
+    // Only add 7 if the day is in the past (not today)
+    if (daysUntil < 0) {
+      daysUntil += 7;
+    }
+    const nextDate = new Date(today);
+    nextDate.setDate(today.getDate() + daysUntil);
+    
+    // Parse the start time and set it on the nextDate
+    const timeMatch = mic.startTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    if (timeMatch) {
+      let hours = parseInt(timeMatch[1]);
+      const minutes = parseInt(timeMatch[2]);
+      const period = timeMatch[3].toUpperCase();
+      
+      // Convert to 24-hour format
+      if (period === 'PM' && hours !== 12) hours += 12;
+      if (period === 'AM' && hours === 12) hours = 0;
+      
+      nextDate.setHours(hours, minutes, 0, 0);
+    }
+    
+    return nextDate;
+  };
+
   const getFilteredMics = (tabType: string, dayFilter?: string) => {
     let filtered = openMics;
 
@@ -194,6 +225,24 @@ const OpenMics = () => {
       return matchesSearch && matchesBorough && matchesCost && matchesTime;
     });
 
+    // Sort by next occurrence (like OpenMicsDetailedList)
+    filtered.sort((a, b) => {
+      const aDate = getNextOccurrence(a);
+      const bDate = getNextOccurrence(b);
+      const comparison = aDate.getTime() - bDate.getTime();
+
+      
+      return comparison;
+    });
+
+    // Debug: Log the first 5 sorted results
+    console.log('First 5 sorted mics:', filtered.slice(0, 5).map(mic => ({
+      name: mic.openMic,
+      day: mic.day,
+      time: mic.startTime,
+      nextOccurrence: getNextOccurrence(mic).toISOString()
+    })));
+    
     return filtered;
   };
 
@@ -446,7 +495,7 @@ const OpenMics = () => {
                 </div>
               </div>
             </div>
-            )}
+        )}
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-0">
