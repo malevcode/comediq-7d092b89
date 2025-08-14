@@ -37,7 +37,7 @@ const Hero = () => {
   return <section className="py-20 min-h-full bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-start justify-center px-4">
       <div className="max-w-6xl">
         <div className="py-4">
-          <div className="flex items-center justify-left space-x-6 flex-wrap gap-y-2">
+          {/* <div className="flex items-center justify-left space-x-6 flex-wrap gap-y-2">
             {navItems.map((item) => (
               <Button
                 key={item.label}
@@ -50,7 +50,7 @@ const Hero = () => {
                 <span>{item.label}</span>
               </Button>
             ))}
-          </div>
+          </div> */}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
           <div className="text-center lg:text-left order-2 lg:order-1">

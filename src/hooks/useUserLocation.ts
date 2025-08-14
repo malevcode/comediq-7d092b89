@@ -21,7 +21,7 @@ export const useUserLocation = () => {
       setLocationLoading(false);
       return location;
     } catch (error: any) {
-      console.error('Error getting user location:', error);
+      // console.error('Error getting user location:', error);
       setLocationError(error.message || 'Failed to get location');
       setLocationLoading(false);
       return null;

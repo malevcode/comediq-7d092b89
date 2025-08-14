@@ -25,8 +25,15 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center justify-center h-12">
-            <div className="mr-4 flex items-center">
+            <div className="mr-2 flex items-center">
               <HamburgerMenu />
+            </div>
+            <div className="flex items-center mr-2">
+              <button 
+                onClick={() => navigate('/')}
+              >
+                <img src="/comediq_white.png" alt="Comediq" className="h-12" />
+              </button>
             </div>
             <div className="min-w-md">
               <h1 className="text-2xl font-bold text-gray-900">{title || "Comediq"}</h1>

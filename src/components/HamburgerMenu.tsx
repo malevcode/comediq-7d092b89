@@ -14,7 +14,7 @@ const HamburgerMenu = () => {
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
     { path: "/consume", icon: Eye, label: "Laugh" },
-    ...(user ? [{ path: "/playlists", icon: Music, label: "Playlists" }] : []),
+    // ...(user ? [{ path: "/playlists", icon: Music, label: "Playlists" }] : []),
     ...(user ? [{ path: "/profile", icon: User, label: "Profile" }] : []),
     ...(isAdmin ? [{ path: "/admintest", icon: Book, label: "Admin" }] : [])
   ];

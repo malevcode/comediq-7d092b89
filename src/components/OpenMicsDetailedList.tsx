@@ -427,12 +427,7 @@ export default function OpenMicsDetailedList({
   setVisibleCount: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const validMics = mics.filter(Boolean);
-  // Sort mics by soonest next occurrence from today
-  const sortedMics = [...validMics].sort((a, b) => {
-    const aDate = getNextOccurrence(a);
-    const bDate = getNextOccurrence(b);
-    return aDate.getTime() - bDate.getTime();
-  });
+  // Mics are already sorted by next occurrence from the parent component
   const [showScrollTop, setShowScrollTop] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -482,7 +477,7 @@ export default function OpenMicsDetailedList({
 
   return (
     <div className="flex flex-col gap-3">
-      {sortedMics.slice(0, visibleCount).map((mic) => (
+      {validMics.slice(0, visibleCount).map((mic) => (
         <OpenMicDetailedCard key={mic.uniqueIdentifier} mic={mic} onAddToCalendar={handleAddToCalendar} />
       ))}
       {visibleCount < validMics.length && (
