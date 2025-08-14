@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Search, HelpCircle, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,10 @@ import ShowForm from "@/components/ShowForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilters";
+import PageHeader from "@/components/PageHeader";
 import HamburgerMenu from "@/components/HamburgerMenu";
+
+
 
 const OpenMics = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -156,6 +159,7 @@ const OpenMics = () => {
   };
 
   // Filtered mics
+
   const getFilteredMics = (tabType: string, dayFilter?: string) => {
     let filtered = openMics;
 
@@ -164,15 +168,14 @@ const OpenMics = () => {
         .filter((mic) => {
           const timeUntil = calculateTimeUntilMic(mic);
           return timeUntil > 0 && timeUntil < Infinity;
-        })
-        .sort((a, b) => calculateTimeUntilMic(a) - calculateTimeUntilMic(b));
+        });
     } else if (tabType === "liked") {
       filtered = openMics.filter((mic) => likedMics.includes(mic.uniqueIdentifier));
     } else if (dayFilter) {
       filtered = openMics.filter((mic) => mic.day === dayFilter);
     }
 
-    // Apply search, borough, cost, and time filters  (INCOMING)
+    // Apply search, borough, cost, and time filters
     filtered = filtered.filter((mic) => {
       const matchesSearch =
         mic.openMic.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -191,9 +194,6 @@ const OpenMics = () => {
       return matchesSearch && matchesBorough && matchesCost && matchesTime;
     });
 
-    if (tabType !== "next") {
-      return filtered.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
-    }
     return filtered;
   };
 
@@ -212,18 +212,21 @@ const OpenMics = () => {
 
   const renderMicContent = (filteredMics: OpenMic[], tabName: string) => {
     const currentViewMode = viewMode;
+    const micsToShow = filteredMics;
 
     return (
       <>
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm text-gray-600 max-w-full">
-            Showing{" "}
-            {currentViewMode === "list"
-              ? `${Math.min(visibleCount, filteredMics.length)} of ${filteredMics.length}`
-              : filteredMics.length}
-            {tabName === "next" ? " upcoming" : tabName === "liked" ? " liked " : ""} open mic
-            {filteredMics.length !== 1 ? "s" : ""}
-            {tabName !== "next" && tabName !== "liked" ? ` on ${tabName}` : ""}
+              <>
+                Showing{" "}
+                {currentViewMode === "list"
+                  ? `${Math.min(visibleCount, micsToShow.length)} of ${micsToShow.length}`
+                  : micsToShow.length}
+                {tabName === "next" ? " upcoming" : tabName === "liked" ? " liked " : ""} open mic
+                {micsToShow.length !== 1 ? "s" : ""}
+                {tabName !== "next" && tabName !== "liked" ? ` on ${tabName}` : ""}
+              </>
           </p>
           <div className="flex-shrink-0">
             <ViewToggle viewMode={currentViewMode} onViewChange={handleViewModeChange} />
@@ -232,7 +235,7 @@ const OpenMics = () => {
 
         {currentViewMode === "grid" ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1 max-h-[calc(100vh-320px)] overflow-y-auto">
-            {filteredMics.map((mic, index) => (
+            {micsToShow.map((mic, index) => (
               <Card
                 key={index}
                 className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-lg w-full sm:w-24 h-24`}
@@ -254,16 +257,16 @@ const OpenMics = () => {
             ))}
           </div>
         ) : currentViewMode === "list" ? (
-          <OpenMicsDetailedList mics={filteredMics} visibleCount={visibleCount} setVisibleCount={setVisibleCount} />
+          <OpenMicsDetailedList mics={micsToShow} visibleCount={visibleCount} setVisibleCount={setVisibleCount} />
         ) : (
           <OpenMicsMap 
-            key={`map-${filteredMics.map(m => m.uniqueIdentifier).join('-')}`}
-            mics={filteredMics} 
+            key={`map-${micsToShow.map(m => m.uniqueIdentifier).join('-')}`}
+            mics={micsToShow} 
             onMicSelect={handleMicSelect} 
           />
         )}
 
-        {filteredMics.length === 0 && (
+        {micsToShow.length === 0 && (
           <div className="text-center py-8">
             <p className="text-gray-500">
               {tabName === "liked"
@@ -275,15 +278,15 @@ const OpenMics = () => {
             {tabName === "liked" ? (
               <p className="text-gray-400 text-sm mt-1">Start liking mics to see them here!</p>
             ) : (
-              <Button
-                onClick={() => {
-                  setSearchTerm("");
-                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All" });
-                }}
-                className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm"
-              >
-                Clear Filters
-              </Button>
+                              <Button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All"});
+                  }}
+                  className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm"
+                >
+                  Clear Filters
+                </Button>
             )}
           </div>
         )}
@@ -363,115 +366,10 @@ const OpenMics = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
-      {/* Header */}
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 py-4 mb-3">
-          <div className="flex flex-col space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="mr-4 flex items-center">
-                <HamburgerMenu />
-              </div>
-              <div className="flex-1 min-w-0 flex items-center">
-                <div>
-                  <h1 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Find Open Mics</h1>
-                  <p className="text-xs text-gray-600">Discover comedy open mics across NYC</p>
-                </div>
-              </div>
+      <PageHeader title="Find Open Mics" subtitle="Discover comedy open mics across NYC" />
 
-              <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center gap-2">
-                  <Button
-                    onClick={() => setShowKey(!showKey)}
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-1 text-xs px-3 py-1"
-                  >
-                    <HelpCircle className="h-3 w-3" />
-                    <span>Help</span>
-                  </Button>
-                </div>
-
-                <div className="hidden sm:flex flex-col w-full items-end gap-2">
-                  {user ? (
-                    <>
-                      <span className="text-xs text-gray-600">
-                        Welcome back{user.user_metadata?.username ? ` ${user.user_metadata.username}!` : "!"}
-                      </span>
-                      <div className="flex justify-end w-full">
-                        <Button
-                          onClick={async () => {
-                          await signOut();
-                          navigate("/");
-                          }}
-                          size="sm"
-                          variant="outline"
-                          className="mt-1 text-xs px-2 py-1"
-                        >
-                          Sign Out
-                        </Button>
-                      </div>
-                    </>
-                  ) : (
-                    <Button onClick={() => navigate("/auth")} className="bg-orange-500 hover:bg-orange-600 text-xs px-3 py-1">
-                      <LogIn className="h-3 w-3 mr-1" />
-                      Sign In
-                    </Button>
-                  )}
-                </div>
-
-                <div className="flex flex-col">
-                  <div className="flex items-start gap-2">
-                    <div className="sm:hidden flex items-center gap-2">
-                      <Button
-                        onClick={() => setShowKey(!showKey)}
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-1 text-xs px-2 py-1"
-                      >
-                        <HelpCircle className="h-3 w-3" />
-                      </Button>
-                    </div>
-
-                    <div className="flex-shrink-0">
-                      <img
-                        src="/lovable-uploads/ed025a0f-85b1-4f87-8235-673628f9ffdb.png"
-                        alt="Find Mics Comedian Character"
-                        className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile auth */}
-            <div className="mt-2 sm:hidden w-full">
-              {user ? (
-                <div className="flex flex-row w-full items-center justify-end gap-2">
-                  <span className="text-xs text-gray-600">
-                    Welcome back{user.user_metadata?.username ? ` ${user.user_metadata.username}!` : "!"}
-                  </span>
-                  <Button
-                    onClick={async () => {
-                      await signOut();
-                      navigate("/");
-                    }}
-                    size="sm"
-                    variant="outline"
-                    className="mt-1 text-xs px-2 py-1 self-end"
-                  >
-                    Sign Out
-                  </Button>
-                </div>
-              ) : (
-                <Button onClick={() => navigate("/auth")} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-1.5">
-                  <LogIn className="h-3 w-3 mr-1" />
-                  Sign In to Like Mics
-                </Button>
-              )}
-            </div>
-          </div>
-          {/* Key/Legend */}
+      <div className="max-w-7xl mx-auto px-4 pt-28 pb-0">
+        {/* Key/Legend */}
         {showKey && (
             <div className="block mb-3">
               <div className="bg-orange-50 p-3 border border-orange-200 rounded-lg">
@@ -549,7 +447,6 @@ const OpenMics = () => {
               </div>
             </div>
             )}
-        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-0">

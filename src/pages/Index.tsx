@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import Navigation from "@/components/Navigation";
+import PageHeader from "@/components/PageHeader";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
 import Pricing from "@/components/Pricing";
@@ -33,8 +33,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen pb-20">
-      <Navigation />
-      <div className="pt-20">
+      <PageHeader title="Comediq" subtitle="Your comedy journey starts here" />
+      <div className="pt-0">
         {loading ? null : user ? (
           <Home />
         ) : (

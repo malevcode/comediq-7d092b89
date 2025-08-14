@@ -60,20 +60,9 @@ export default function Header({ className = "", showEmail = true, showLevel = t
   return (
     <div className={`bg-white/80 backdrop-blur rounded-xl p-6 shadow-sm ${className}`}>
       <div className="flex items-center gap-4">
-        <div className="relative">
-          <Avatar className="h-16 w-16 ring-4 ring-orange-200 ring-offset-2">
-            <AvatarImage src={avatarUrl} alt={displayName} />
-            <AvatarFallback className="bg-gradient-to-r from-orange-400 to-amber-400 text-white text-lg">
-              {displayName.slice(0,2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
-            <Mic2 className="h-3 w-3 text-white" />
-          </div>
-        </div>
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-            Welcome back, {displayName}! 🎤
+            Welcome back, {displayName}!
           </h1>
           {showEmail && showLevel && (
             <p className="text-gray-600 text-lg">

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Home, MicVocal, Eye, User, Book, Search, Calendar, TrendingUp, Menu, X, ChevronRight } from "lucide-react";
+import { Home, MicVocal, Eye, User, Book, Search, Calendar, TrendingUp, Menu, X, ChevronRight, Music } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
@@ -14,6 +14,7 @@ const HamburgerMenu = () => {
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
     { path: "/consume", icon: Eye, label: "Laugh" },
+    ...(user ? [{ path: "/playlists", icon: Music, label: "Playlists" }] : []),
     ...(user ? [{ path: "/profile", icon: User, label: "Profile" }] : []),
     ...(isAdmin ? [{ path: "/admintest", icon: Book, label: "Admin" }] : [])
   ];

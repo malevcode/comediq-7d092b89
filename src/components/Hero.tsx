@@ -1,12 +1,57 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { 
+  MapPin, 
+  Mic, 
+  Calendar, 
+  TrendingUp, 
+  User, 
+  Play,
+  BookOpen
+} from "lucide-react";
 const Hero = () => {
   const navigate = useNavigate();
+  
+  const navItems = [
+    {
+      label: "Open Mics",
+      icon: <Mic className="w-4 h-4" />,
+      path: "/open-mics",
+    },
+    {
+      label: "Shows",
+      icon: <Calendar className="w-4 h-4" />,
+      path: "/shows",
+    },
+    {
+      label: "Track Sets",
+      icon: <TrendingUp className="w-4 h-4" />,
+      path: "/track-sets",
+    },
+  ];
+
   const handleSignUp = () => {
     navigate("/auth");
   };
+  
   return <section className="py-20 min-h-full bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-start justify-center px-4">
-      <div className="max-w-6xl mx-auto w-full">
+      <div className="max-w-6xl">
+        <div className="py-4">
+          <div className="flex items-center justify-left space-x-6 flex-wrap gap-y-2">
+            {navItems.map((item) => (
+              <Button
+                key={item.label}
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(item.path)}
+                className="flex items-center space-x-1 px-3 py-1 text-xs hover:text-orange-500 bg-white transition-colors whitespace-nowrap border hover:bg-gray-50 transition-all duration-300"
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </Button>
+            ))}
+          </div>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
           <div className="text-center lg:text-left order-2 lg:order-1">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-4 lg:mb-6">

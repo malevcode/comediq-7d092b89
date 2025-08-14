@@ -3,8 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import { LogIn } from "lucide-react";
+import { ReactNode } from "react";
 
-const Navigation = () => {
+interface PageHeaderProps {
+  title?: string;
+  subtitle?: string;
+  children?: ReactNode;
+  className?: string;
+}
+
+const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
@@ -20,7 +28,12 @@ const Navigation = () => {
             <div className="mr-4 flex items-center">
               <HamburgerMenu />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Comediq</h1>
+            <div className="min-w-md">
+              <h1 className="text-2xl font-bold text-gray-900">{title || "Comediq"}</h1>
+              {subtitle && (
+                <p className="text-xs text-gray-600">{subtitle}</p>
+              )}
+            </div>
           </div>
           {/* Desktop auth section */}
           <div className="hidden sm:flex flex-col items-end gap-2">
@@ -59,12 +72,6 @@ const Navigation = () => {
           <div className="sm:hidden flex flex-row items-center gap-2">
             {user ? (
               <>
-                <span className="text-xs text-gray-600">
-                  Welcome back
-                  {user.user_metadata?.username
-                    ? ` ${user.user_metadata.username}!`
-                    : '!'}
-                </span>
                 <Button
                   onClick={async () => {
                     await signOut();
@@ -92,4 +99,4 @@ const Navigation = () => {
   );
 };
 
-export default Navigation;
+export default PageHeader;

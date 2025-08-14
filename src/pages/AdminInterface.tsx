@@ -25,6 +25,8 @@ import AdminRequestList from '@/components/admin/AdminRequestList';
 import AdminAllMicsList from '@/components/admin/AdminAllMicsList';
 import HamburgerMenu from '@/components/HamburgerMenu';
 import { MicAnalyticsDashboard } from '@/components/admin/MicAnalyticsDashboard';
+import BulkImportInterface from '@/components/admin/BulkImportInterface';
+import PageHeader from '@/components/PageHeader';
 
 const OPEN_MIC_FIELDS = [
   'Open Mic', 'Day', 'Start Time', 'Latest End Time', 'Venue Name', 'Borough', 'Neighborhood', 'Location', 'Venue type', 'Cost', 'Stage time', 'Sign-Up Instructions', 'Host(s) / Organizer', 'Changes/updates', 'Last verified', 'Other Rules', 'Help other comics! Leave reviews', 'Formerly verified'
@@ -203,72 +205,11 @@ const AdminInterface = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
-      {/* Header */}
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 py-4 mb-3">
-          <div className="flex flex-col space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="mr-4 flex items-center">
-                <HamburgerMenu />
-              </div>
-              <div className="flex-1 min-w-0 flex items-center">
-                <div>
-                  <h1 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Admin Dashboard</h1>
-                  <p className="text-xs text-gray-600">Manage open mic requests and content</p>
-                </div>
-              </div>
+      <PageHeader title="Admin Dashboard" subtitle="Manage open mic requests and content" />
 
-              <div className="flex items-center gap-2">
-                <div className="hidden sm:flex flex-col w-full items-end gap-2">
-                  <span className="text-xs text-gray-600">
-                    Welcome back{user.user_metadata?.username ? ` ${user.user_metadata.username}!` : "!"}
-                  </span>
-                  <div className="flex justify-end w-full">
-                    <Button
-                      onClick={async () => {
-                        await signOut();
-                        navigate('/');
-                      }}
-                      size="sm"
-                      variant="outline"
-                      className="mt-1 text-xs px-2 py-1"
-                    >
-                      Sign Out
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile auth */}
-            <div className="mt-2 sm:hidden w-full">
-              <div className="flex flex-row w-full items-center justify-end gap-2">
-                <span className="text-xs text-gray-600">
-                  Welcome back{user.user_metadata?.username ? ` ${user.user_metadata.username}!` : "!"}
-                </span>
-                <Button
-                  onClick={async () => {
-                    await signOut();
-                    navigate('/');
-                  }}
-                  size="sm"
-                  variant="outline"
-                  className="mt-1 text-xs px-2 py-1 self-end"
-                >
-                  Sign Out
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-3xl mx-auto px-4 py-10">
-        <h1 className="text-3xl font-extrabold text-orange-600 mb-8 flex items-center gap-2">
-          <FileText className="w-8 h-8 text-orange-400" /> Admin Dashboard
-        </h1>
+      <div className="max-w-3xl mx-auto px-4 pt-28 pb-10">
         <Tabs defaultValue="analytics" className="w-full" onValueChange={setTab}>
-          <TabsList className="mb-8 w-full grid grid-cols-4 gap-1">
+          <TabsList className="mb-8 w-full grid grid-cols-5 gap-1">
             <TabsTrigger value="analytics" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               Analytics
             </TabsTrigger>
@@ -281,14 +222,20 @@ const AdminInterface = () => {
             <TabsTrigger value="reviewed" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               Reviewed
             </TabsTrigger>
+            <TabsTrigger value="bulk-import" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              Bulk Import
+            </TabsTrigger>
           </TabsList>
-          <TabsContent value="analytics">
-            <Card className="mb-6 shadow-lg rounded-2xl border-0">
-              <CardContent className="p-8 flex flex-col items-start">
-                <MicAnalyticsDashboard mics={allMics} />
-              </CardContent>
-            </Card>
-          </TabsContent>
+                      <TabsContent value="analytics">
+              <Card className="mb-6 shadow-lg rounded-2xl border-0">
+                <CardContent className="p-8 flex flex-col items-start">
+                  <MicAnalyticsDashboard mics={allMics} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="bulk-import">
+              <BulkImportInterface />
+            </TabsContent>
           <TabsContent value="all">
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
               <CardContent className="p-8 flex flex-col items-start">
