@@ -207,8 +207,11 @@ const OpenMics = () => {
     let filtered = openMics;
 
     if (tabType === "next") {
-      // Show all mics for the week, sorted by next occurrence
-      filtered = openMics;
+      // Filter out mics that have already started today, show all future mics
+      filtered = openMics.filter((mic) => {
+        const timeUntil = calculateTimeUntilMic(mic);
+        return timeUntil > 0; // Exclude mics that have already started
+      });
     } else if (tabType === "liked") {
       filtered = openMics.filter((mic) => likedMics.includes(mic.uniqueIdentifier));
     } else if (dayFilter) {
