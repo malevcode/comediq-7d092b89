@@ -86,7 +86,7 @@ const OpenMics = () => {
   const currentDay = now.toLocaleDateString("en-US", { weekday: "long" });
   const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
 
-  // Time until mic (minutes) - limited to next 48 hours
+  // Time until mic (minutes) - shows all upcoming mics for the week
   const calculateTimeUntilMic = (mic: OpenMic) => {
     const dow = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const micDayIndex = dow.indexOf(mic.day);
@@ -94,7 +94,6 @@ const OpenMics = () => {
     if (micDayIndex === -1) return Infinity;
 
     const micStartMinutes = timeToMinutes(mic.startTime);
-    const maxTimeWindow = 48 * 60; // 48 hours in minutes
     
     if (micDayIndex === currentDayIndex) {
       // Same day - check if mic hasn't started yet
@@ -104,15 +103,12 @@ const OpenMics = () => {
       // Mic already started today, don't show it in "next"
       return Infinity;
     } else {
-      // Different day - calculate days until mic
+      // Different day - calculate days until mic (show all for the week)
       let daysUntil = micDayIndex - currentDayIndex;
       if (daysUntil <= 0) daysUntil += 7;
       
-      // Only show mics within next 48 hours (2 days)
-      if (daysUntil > 2) return Infinity;
-      
       const timeUntil = daysUntil * 24 * 60 + micStartMinutes - currentTimeMinutes;
-      return timeUntil <= maxTimeWindow ? timeUntil : Infinity;
+      return timeUntil;
     }
   };
 
