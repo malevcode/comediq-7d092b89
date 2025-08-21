@@ -100,8 +100,8 @@ const OpenMics = () => {
       if (micStartMinutes > currentTimeMinutes) {
         return micStartMinutes - currentTimeMinutes;
       }
-      // Mic already started today, don't show it in "next"
-      return Infinity;
+      // Mic already started today - return large negative number to sort to bottom
+      return -999999 + (currentTimeMinutes - micStartMinutes);
     } else {
       // Different day - calculate days until mic (show all for the week)
       let daysUntil = micDayIndex - currentDayIndex;
@@ -206,7 +206,7 @@ const OpenMics = () => {
       filtered = openMics
         .filter((mic) => {
           const timeUntil = calculateTimeUntilMic(mic);
-          return timeUntil > 0 && timeUntil < Infinity;
+          return timeUntil !== Infinity;
         });
     } else if (tabType === "liked") {
       filtered = openMics.filter((mic) => likedMics.includes(mic.uniqueIdentifier));
