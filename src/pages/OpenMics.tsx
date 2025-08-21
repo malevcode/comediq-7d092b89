@@ -207,11 +207,11 @@ const OpenMics = () => {
     let filtered = openMics;
 
     if (tabType === "next") {
-      // Filter out mics that have already started today, show all future mics
-      filtered = openMics.filter((mic) => {
-        const timeUntil = calculateTimeUntilMic(mic);
-        return timeUntil > 0; // Exclude mics that have already started
-      });
+      filtered = openMics
+        .filter((mic) => {
+          const timeUntil = calculateTimeUntilMic(mic);
+          return timeUntil > 0 && timeUntil < Infinity;
+        });
     } else if (tabType === "liked") {
       filtered = openMics.filter((mic) => likedMics.includes(mic.uniqueIdentifier));
     } else if (dayFilter) {
