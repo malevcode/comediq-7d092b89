@@ -207,11 +207,8 @@ const OpenMics = () => {
     let filtered = openMics;
 
     if (tabType === "next") {
-      filtered = openMics
-        .filter((mic) => {
-          const timeUntil = calculateTimeUntilMic(mic);
-          return timeUntil > 0 && timeUntil < Infinity;
-        });
+      // Show all mics for the week, sorted by next occurrence
+      filtered = openMics;
     } else if (tabType === "liked") {
       filtered = openMics.filter((mic) => likedMics.includes(mic.uniqueIdentifier));
     } else if (dayFilter) {
