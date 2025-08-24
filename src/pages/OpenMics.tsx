@@ -233,15 +233,22 @@ const OpenMics = () => {
       return matchesSearch && matchesBorough && matchesCost && matchesTime;
     });
 
-    // Sort by next occurrence (like OpenMicsDetailedList)
-    filtered.sort((a, b) => {
-      const aDate = getNextOccurrence(a);
-      const bDate = getNextOccurrence(b);
-      const comparison = aDate.getTime() - bDate.getTime();
-
-      
-      return comparison;
-    });
+    // Sort differently for "next" tab vs other tabs
+    if (tabType === "next") {
+      // For "next" tab, sort by time until mic (upcoming first, then already started)
+      filtered.sort((a, b) => {
+        const aTimeUntil = calculateTimeUntilMic(a);
+        const bTimeUntil = calculateTimeUntilMic(b);
+        return aTimeUntil - bTimeUntil; // Ascending order: smaller values first (sooner mics first, then already-started at bottom)
+      });
+    } else {
+      // For other tabs, sort by next occurrence
+      filtered.sort((a, b) => {
+        const aDate = getNextOccurrence(a);
+        const bDate = getNextOccurrence(b);
+        return aDate.getTime() - bDate.getTime();
+      });
+    }
 
     // Debug: Log the first 5 sorted results
     console.log('First 5 sorted mics:', filtered.slice(0, 5).map(mic => ({
