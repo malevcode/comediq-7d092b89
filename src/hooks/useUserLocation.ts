@@ -28,8 +28,10 @@ export const useUserLocation = () => {
     }
   }, []);
 
-  // Note: Do NOT auto-request location on mount. Consumers should call getUserLocation()
-  // explicitly (e.g., when the user switches to the map view) to avoid unexpected prompts.
+  // Request location on mount (same as map component)
+  useEffect(() => {
+    getUserLocation();
+  }, [getUserLocation]);
 
   return {
     userLocation,

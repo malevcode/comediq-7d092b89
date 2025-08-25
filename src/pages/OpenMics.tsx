@@ -86,7 +86,7 @@ const OpenMics = () => {
   const currentDay = now.toLocaleDateString("en-US", { weekday: "long" });
   const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
 
-  // Time until mic (minutes) - shows all upcoming mics for the week
+  // Time until mic (minutes) - limited to next 48 hours
   const calculateTimeUntilMic = (mic: OpenMic) => {
     const dow = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const micDayIndex = dow.indexOf(mic.day);
@@ -94,21 +94,25 @@ const OpenMics = () => {
     if (micDayIndex === -1) return Infinity;
 
     const micStartMinutes = timeToMinutes(mic.startTime);
+    const maxTimeWindow = 48 * 60; // 48 hours in minutes
     
     if (micDayIndex === currentDayIndex) {
       // Same day - check if mic hasn't started yet
       if (micStartMinutes > currentTimeMinutes) {
         return micStartMinutes - currentTimeMinutes;
       }
-      // Mic already started today - return large negative number to sort to bottom
-      return -999999 + (currentTimeMinutes - micStartMinutes);
+      // Mic already started today, don't show it in "next"
+      return Infinity;
     } else {
-      // Different day - calculate days until mic (show all for the week)
+      // Different day - calculate days until mic
       let daysUntil = micDayIndex - currentDayIndex;
       if (daysUntil <= 0) daysUntil += 7;
       
+      // Only show mics within next 48 hours (2 days)
+      if (daysUntil > 2) return Infinity;
+      
       const timeUntil = daysUntil * 24 * 60 + micStartMinutes - currentTimeMinutes;
-      return timeUntil;
+      return timeUntil <= maxTimeWindow ? timeUntil : Infinity;
     }
   };
 
@@ -206,7 +210,7 @@ const OpenMics = () => {
       filtered = openMics
         .filter((mic) => {
           const timeUntil = calculateTimeUntilMic(mic);
-          return timeUntil !== Infinity;
+          return timeUntil > 0 && timeUntil < Infinity;
         });
     } else if (tabType === "liked") {
       filtered = openMics.filter((mic) => likedMics.includes(mic.uniqueIdentifier));
@@ -233,22 +237,15 @@ const OpenMics = () => {
       return matchesSearch && matchesBorough && matchesCost && matchesTime;
     });
 
-    // Sort differently for "next" tab vs other tabs
-    if (tabType === "next") {
-      // For "next" tab, sort by time until mic (upcoming first, then already started)
-      filtered.sort((a, b) => {
-        const aTimeUntil = calculateTimeUntilMic(a);
-        const bTimeUntil = calculateTimeUntilMic(b);
-        return aTimeUntil - bTimeUntil; // Ascending order: smaller values first (sooner mics first, then already-started at bottom)
-      });
-    } else {
-      // For other tabs, sort by next occurrence
-      filtered.sort((a, b) => {
-        const aDate = getNextOccurrence(a);
-        const bDate = getNextOccurrence(b);
-        return aDate.getTime() - bDate.getTime();
-      });
-    }
+    // Sort by next occurrence (like OpenMicsDetailedList)
+    filtered.sort((a, b) => {
+      const aDate = getNextOccurrence(a);
+      const bDate = getNextOccurrence(b);
+      const comparison = aDate.getTime() - bDate.getTime();
+
+      
+      return comparison;
+    });
 
     // Debug: Log the first 5 sorted results
     console.log('First 5 sorted mics:', filtered.slice(0, 5).map(mic => ({
