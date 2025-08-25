@@ -94,7 +94,7 @@ const OpenMics = () => {
     if (micDayIndex === -1) return Infinity;
 
     const micStartMinutes = timeToMinutes(mic.startTime);
-    const maxTimeWindow = 48 * 60; // 48 hours in minutes
+    const maxTimeWindow = 168 * 60; // 48 hours in minutes
     
     if (micDayIndex === currentDayIndex) {
       // Same day - check if mic hasn't started yet
