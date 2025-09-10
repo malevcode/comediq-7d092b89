@@ -196,12 +196,17 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
   };
 
   const getStatusBadgeColor = () => {
-    if (mic.lastVerified.toLowerCase().includes("tediously")) {
-      return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    } else if (mic.lastVerified.toLowerCase().includes("verified")) {
-      return "bg-green-100 text-green-800 border-green-200";
-    } else {
+    // if (mic.lastVerified.toLowerCase().includes("tediously")) {
+    //   return "bg-yellow-100 text-yellow-800 border-yellow-200";
+    // } else if (mic.lastVerified.toLowerCase().includes("verified")) {
+    //   return "bg-green-100 text-green-800 border-green-200";
+    // } else {
+    //   return "bg-red-100 text-red-800 border-red-200";
+    // }
+    if (mic.lastVerified.toLowerCase().includes("unverified")) {
       return "bg-red-100 text-red-800 border-red-200";
+    } else {
+      return "bg-green-100 text-green-800 border-green-200";
     }
   };
 

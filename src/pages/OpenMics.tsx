@@ -19,6 +19,7 @@ import { toast } from "@/hooks/use-toast";
 import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilters";
 import PageHeader from "@/components/PageHeader";
 import HamburgerMenu from "@/components/HamburgerMenu";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 
 
@@ -38,6 +39,7 @@ const OpenMics = () => {
 
   const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"];
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const cities = ["All", "New York", "Los Angeles"];
 
   // Calculate max cost from all open mics for filter slider
   const maxCost = useMemo(() => {
@@ -61,6 +63,7 @@ const OpenMics = () => {
     costRange: [0, maxCost],
     timeOfDay: [],
     borough: "All",
+    city: "New York"
   });
 
   // Update cost range when maxCost changes
@@ -133,12 +136,17 @@ const OpenMics = () => {
 
   const getVerificationBackgroundColor = (lastVerified: string) => {
     const verification = lastVerified?.toLowerCase() || "";
-    if (verification.includes("tediously verified") || verification.includes("tedious")) {
-      return "bg-yellow-100";
-    } else if (verification.includes("verified") || verification.includes("confirm")) {
-      return "bg-emerald-100";
-    } else {
+    // if (verification.includes("tediously verified") || verification.includes("tedious")) {
+    //   return "bg-yellow-100";
+    // } else if (verification.includes("verified") || verification.includes("confirm")) {
+    //   return "bg-emerald-100";
+    // } else {
+    //   return "bg-red-100";
+    // }
+    if (verification.includes("unverified")) {
       return "bg-red-100";
+    } else {
+      return "bg-emerald-100";
     }
   };
 
@@ -234,7 +242,9 @@ const OpenMics = () => {
       // Time-of-day filter
       const matchesTime = matchesTimeOfDay(mic, filters.timeOfDay);
 
-      return matchesSearch && matchesBorough && matchesCost && matchesTime;
+      const matchesCity = filters.city === "All" || mic.city === filters.city;
+
+      return matchesSearch && matchesBorough && matchesCost && matchesTime && matchesCity;
     });
 
     // Sort by next occurrence (like OpenMicsDetailedList)
@@ -268,7 +278,7 @@ const OpenMics = () => {
       Bronx: "border-l-4 border-l-orange-600",
       "Staten Island": "border-l-4 border-l-gray-500",
     };
-    return (outlines as any)[cleanBorough] || "border-l-4 border-l-gray-400";
+    return (outlines as unknown)[cleanBorough] || "border-l-4 border-l-gray-400";
   };
 
   const renderMicContent = (filteredMics: OpenMic[], tabName: string) => {
@@ -342,7 +352,7 @@ const OpenMics = () => {
                               <Button
                   onClick={() => {
                     setSearchTerm("");
-                    setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All"});
+                    setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", city: "New York"});
                   }}
                   className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm"
                 >
@@ -362,19 +372,19 @@ const OpenMics = () => {
     setSelectedMic(mic);
   }, []);
 
-  const handleRequestMic = async (formData: any) => {
+  const handleRequestMic = async (formData: unknown) => {
     const { anonymous } = formData;
     try {
       const insertObj = {
-        show_title: formData.title,
-        venue_name: formData.venue,
-        borough: formData.borough,
-        date: formData.date,
-        time: formData.time,
+        show_title: formData["title"],
+        venue_name: formData["venue"],
+        borough: formData["borough"],
+        date: formData["date"],
+        time: formData["time"],
         created_at: new Date().toISOString(),
         ...(anonymous ? {} : { user_id: user?.id || null }),
       };
-      const { error } = await (supabase as any).from("open_mics_requests").insert([insertObj]);
+      const { error } = await (supabase as SupabaseClient).from("open_mics_requests").insert([insertObj]);
       if (error) {
         toast({
           title: "Error",
@@ -525,7 +535,7 @@ const OpenMics = () => {
             </div>
 
             <div className="flex gap-2">
-              <MicFilters filters={filters} onFiltersChange={setFilters} maxCost={maxCost} boroughs={boroughs} />
+              <MicFilters filters={filters} onFiltersChange={setFilters} maxCost={maxCost} boroughs={boroughs} cities={cities}/>
             </div>
           </div>
         </div>

@@ -15,6 +15,6 @@ export interface OpenMic {
   hosts: string;
   instagramHandle: string;
   lastVerified: string;
-  otherRules: string;
   uniqueIdentifier: string;
+  city: string;
 }

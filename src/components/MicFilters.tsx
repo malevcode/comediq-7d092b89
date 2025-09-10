@@ -9,6 +9,7 @@ export interface MicFilters {
   costRange: [number, number];
   timeOfDay: string[];
   borough: string;
+  city: string;
 }
 
 interface MicFiltersProps {
@@ -16,9 +17,10 @@ interface MicFiltersProps {
   onFiltersChange: (filters: MicFilters) => void;
   maxCost: number;
   boroughs: string[];
+  cities: string[];
 }
 
-export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs }: MicFiltersProps) {
+export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs, cities }: MicFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
@@ -71,6 +73,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
       costRange: [0, maxCost],
       timeOfDay: [],
       borough: "All",
+      city: "New York"
     });
   };
 
@@ -146,7 +149,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                           "--slider-track-color": "rgb(254 215 170)",
                           "--slider-range-color": "rgb(249 115 22)",
                           "--slider-thumb-color": "white",
-                        } as any}
+                        } as unknown}
                       />
                     </div>
                     <div className="flex justify-between text-sm text-gray-500 mt-3 px-2">
@@ -173,6 +176,26 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                       {boroughs.map((borough) => (
                         <option key={borough} value={borough}>
                           {borough}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* City Filter */}
+                  <div>
+                    <label className="text-base font-medium mb-4 block text-gray-900">City</label>
+                    <select
+                      value={filters.city}
+                      onChange={(e) => onFiltersChange({ ...filters, city: e.target.value })}
+                      className={`w-full px-3 py-2 text-sm border border-gray-300 rounded-md border-l-4 ${
+                        filters.city === "New York" ? "border-l-cyan-500" :
+                        filters.city === "Los Angeles" ? "border-l-amber-800" :
+                        "border-l-gray-400"
+                      }`}
+                    >
+                      {cities.map((city) => (
+                        <option key={city} value={city}>
+                          {city}
                         </option>
                       ))}
                     </select>

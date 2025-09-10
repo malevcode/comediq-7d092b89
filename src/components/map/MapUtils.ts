@@ -55,12 +55,18 @@ export const getBoroughColor = (borough: string): string => {
 export const getVerificationColor = (lastVerified: string): string => {
   const verification = lastVerified?.toLowerCase() || '';
   
-  if (verification.includes('tediously verified') || verification.includes('tedious')) {
-    return "#fef3c7"; // yellow-100
-  } else if (verification.includes('verified') || verification.includes('confirm')) {
-    return "#d1fae5"; // emerald-100
-  } else {
+  // if (verification.includes('tediously verified') || verification.includes('tedious')) {
+  //   return "#fef3c7"; // yellow-100
+  // } else if (verification.includes('verified') || verification.includes('confirm')) {
+  //   return "#d1fae5"; // emerald-100
+  // } else {
+  //   return "#fee2e2"; // red-100
+  // }
+
+  if (verification.includes('unverified')) {
     return "#fee2e2"; // red-100
+  } else {
+    return "#d1fae5"; // emerald-100
   }
 };
 

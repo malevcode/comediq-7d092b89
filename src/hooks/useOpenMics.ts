@@ -24,29 +24,29 @@ export const useOpenMics = (tableName: 'open_mics_historical' = 'open_mics_histo
         return [];
       }
 
-      const filteredData = data.filter((row: any) => row["active"] === true || row["active"] === 1);
+      const filteredData = data.filter((row: unknown) => row["active"] === true || row["active"] === 1);
       console.log("Filtered data count:", filteredData.length);
       
       // Map the database columns to our OpenMic interface
-      const mappedData = filteredData.map((row: any) => {
+      const mappedData = filteredData.map((row: unknown) => {
         const mapped: OpenMic = {
-          openMic: row["Open Mic"] || row["open_mic"] || "",
-          day: row["Day"] || row["day"] || "",
-          startTime: row["Start Time"] || row["start_time"] || "",
-          latestEndTime: row["Latest End Time"] || row["latest_end_time"] || "",
-          venueName: row["Venue Name"] || row["venue_name"] || "",
-          borough: (row["Borough"] || row["borough"])?.trim() || "",
-          neighborhood: row["Neighborhood"] || row["neighborhood"] || "",
-          location: row["Location"] || row["location"] || "",
-          venueType: row["Venue type"] || row["venue_type"] || "",
-          cost: row["Cost"] || row["cost"] || "",
-          stageTime: row["Stage time"] || row["stage_time"] || "",
-          signUpInstructions: row["Sign-Up Instructions"] || row["signup_instructions"] || "",
-          hosts: row["Host(s) / Organizer"] || row["hosts"] || "",
-          instagramHandle: row["Changes/updates"] || row["instagram_handle"] || "",
-          lastVerified: row["Last verified"] || row["last_verified"] || "",
-          otherRules: row["Other Rules"] || row["other_rules"] || "",
-          uniqueIdentifier: row["unique_identifier"] || ""
+          openMic: row["open_mic"] || "",
+          day: row["day"] || "",
+          startTime: row["start_time"] || "",
+          latestEndTime: row["latest_end_time"] || "",
+          venueName: row["venue_name"] || "",
+          borough: row["borough"]?.trim() || "",
+          neighborhood: row["neighborhood"] || "",
+          location: row["location"] || "",
+          venueType: row["venue_type"] || "",
+          cost: row["cost"] || "",
+          stageTime: row["stage_time"] || "",
+          signUpInstructions: row["sign_up_instructions"] || "",
+          hosts: row["hosts_organizers"] || "",
+          instagramHandle: row["changes_updates"] || "",
+          lastVerified: row["last_verified"] || "",
+          uniqueIdentifier: row["unique_identifier"] || "",
+          city: row["city"] || ""
         };
         return mapped;
       });
