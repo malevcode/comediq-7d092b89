@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { X, Calendar, Clock, MapPin, User, DollarSign, Timer, Plus, Share, Heart, ThumbsDown, LogIn } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { X, Calendar, Clock, MapPin, User, DollarSign, Timer, Plus, Share, Heart, ThumbsDown, LogIn, ChevronDown } from "lucide-react";
 import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMicRatings, useUserLikedMics } from "@/hooks/useMicRatings";
@@ -239,35 +240,18 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
 
         {/* Content */}
         <div className="p-6">
-          {/* Quick Actions - Now in single row */}
-          <div className="mb-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Quick Actions - Only My Schedule button */}
+          {user && (
+            <div className="mb-6">
               <Button 
-                onClick={() => window.open(getGoogleCalendarUrl(), '_blank')}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                onClick={handleAddToSchedule}
+                className="bg-orange-600 hover:bg-orange-700 text-white text-sm w-full sm:w-auto"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Google Calendar
+                My Schedule
               </Button>
-              <Button 
-                onClick={generateICalFile}
-                variant="outline"
-                className="border-green-300 hover:bg-green-50 text-sm"
-              >
-                <Calendar className="w-4 h-4 mr-2" />
-                Download iCal
-              </Button>
-              {user && (
-                <Button 
-                  onClick={handleAddToSchedule}
-                  className="bg-orange-600 hover:bg-orange-700 text-white text-sm"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  My Schedule
-                </Button>
-              )}
             </div>
-          </div>
+          )}
 
           {/* Rating Section */}
           <Card className="mb-6 bg-gray-50 border-gray-200">
@@ -365,6 +349,41 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
               </div>
             )}
           </div>
+
+          {/* Additional Actions - Collapsible */}
+          <Collapsible>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className="w-full justify-between p-0 h-auto font-normal text-left mt-4"
+              >
+                <span className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  <span>Calendar Actions</span>
+                </span>
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Button 
+                  onClick={() => window.open(getGoogleCalendarUrl(), '_blank')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Google Calendar
+                </Button>
+                <Button 
+                  onClick={generateICalFile}
+                  variant="outline"
+                  className="border-green-300 hover:bg-green-50 text-sm"
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Download iCal
+                </Button>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       </div>
     </div>
