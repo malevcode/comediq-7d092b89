@@ -138,24 +138,24 @@ const Shows = () => {
     const mappedOpenMicShows = rawShows
       .filter(row => row.open_mics)
       .map(row => {
-        const dateISO = getNextOccurrence(row.open_mics.Day, row.open_mics["Start Time"]);
+        const dateISO = getNextOccurrence(row.open_mics["day"], row.open_mics["start_time"]);
         const time = dateISO ? new Date(dateISO).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : "";
         return {
           id: row.id,
-          title: row.open_mics["Open Mic"] || "",
-          venue: row.open_mics["Venue Name"] || "",
-          location: row.open_mics.Location || "",
+          title: row.open_mics["open_mic"] || "",
+          venue: row.open_mics["venue_name"] || "",
+          location: row.open_mics["location"] || "",
           date: dateISO, // full ISO string
           time,
-          status: row.schedule_type || "",
-          notes: row.notes || "",
+          status: row["schedule_type"] || "",
+          notes: row["notes"] || "",
           audienceCount: "",
           rating: "",
-          borough: row.open_mics.Borough || "",
-          createdAt: row.created_at,
+          borough: row.open_mics["borough"] || "",
+          createdAt: row["created_at"],
           type: "mic" as "mic",
-          stageTime: row.open_mics["Stage time"] || "",
-          cost: row.open_mics["Cost"] || "",
+          stageTime: row.open_mics["stage_time"] || "",
+          cost: row.open_mics["cost"] || "",
         };
       });
 
