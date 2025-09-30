@@ -112,7 +112,7 @@ const OpenMics = () => {
       if (daysUntil <= 0) daysUntil += 7;
       
       // Only show mics within next 48 hours (2 days)
-      if (daysUntil > 2) return Infinity;
+      // if (daysUntil > 2) return Infinity;
       
       const timeUntil = daysUntil * 24 * 60 + micStartMinutes - currentTimeMinutes;
       return timeUntil <= maxTimeWindow ? timeUntil : Infinity;
