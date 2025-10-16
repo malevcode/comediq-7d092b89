@@ -580,7 +580,7 @@ export default function OpenMicsDetailedList({
         <div className="flex justify-center">
           <button
             className="px-2 py-2 w-auto bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
-            onClick={() => setVisibleCount(c => c + 25)}
+            onClick={() => setVisibleCount(c => c + 100)}
           >
             Show More
           </button>

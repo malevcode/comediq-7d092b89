@@ -44,7 +44,7 @@ const AdminRequestList = ({
     </div>
     {visibleCount < requests.length && (
       <div className="flex justify-center w-full mt-6">
-        <Button onClick={() => setVisibleCount((v: number) => v + 10)} variant="outline" className="bg-orange-100 hover:bg-orange-200 text-orange-700">Show More</Button>
+        <Button onClick={() => setVisibleCount((v: number) => v + 100)} variant="outline" className="bg-orange-100 hover:bg-orange-200 text-orange-700">Show More</Button>
       </div>
     )}
   </>

@@ -13,7 +13,7 @@ import { useBulkOperations } from './hooks/useBulkOperations';
 import { MicFiltersPanel } from './MicFiltersPanel';
 import { MicListItem } from './MicListItem';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 100;
 const OPEN_MIC_FIELDS = [
   'Open Mic', 'Day', 'Start Time', 'Latest End Time', 'Venue Name', 'Borough', 'Neighborhood', 'Location', 'Venue type', 'Cost', 'Stage time', 'Sign-Up Instructions', 'Host(s) / Organizer', 'Changes/updates', 'Last verified', 'Other Rules', 'Help other comics! Leave reviews', 'Formerly verified'
 ];

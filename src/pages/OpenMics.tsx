@@ -29,7 +29,7 @@ const OpenMics = () => {
   const [activeTab, setActiveTab] = useState("next");
   const [showKey, setShowKey] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid" | "map">("list");
-  const [visibleCount, setVisibleCount] = useState(25);
+  const [visibleCount, setVisibleCount] = useState(100);
   const [showRequestModal, setShowRequestModal] = useState(false);
 
   const { data: openMics = [], isLoading, error } = useOpenMics();
@@ -80,7 +80,7 @@ const OpenMics = () => {
     const hash = window.location.hash;
     if (!hash) return;
 
-    // let retries = 0;
+    let retries = 0;
     const scrollToHash = () => {
       const el = document.getElementById(hash.slice(1));
     if (el) {
@@ -88,11 +88,11 @@ const OpenMics = () => {
       const scrollTop = window.scrollY + rect.top - 80;
       window.scrollTo({ top: scrollTop, behavior: "smooth" });
       hasScrolled.current = true;
-    // } else if (retries < 1) {
-    //   retries++;
-    //   setTimeout(scrollToHash, 50);
+    } else if (retries < 10) {
+      retries++;
+      setTimeout(scrollToHash, 50);
     }  else {
-      setVisibleCount(visibleCount + 25)
+      setVisibleCount(visibleCount + 100)
     }
     };
 
