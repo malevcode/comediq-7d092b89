@@ -90,7 +90,7 @@ const OpenMics = () => {
       hasScrolled.current = true;
     } else if (retries < 10) {
       retries++;
-      setTimeout(scrollToHash, 50);
+      setTimeout(scrollToHash, 150);
     }  else {
       retries = 0;
       setVisibleCount(visibleCount + 100)
