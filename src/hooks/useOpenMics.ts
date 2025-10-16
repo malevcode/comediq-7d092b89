@@ -30,6 +30,7 @@ export const useOpenMics = (tableName: 'open_mics_historical' = 'open_mics_histo
       // Map the database columns to our OpenMic interface
       const mappedData = filteredData.map((row: unknown) => {
         const mapped: OpenMic = {
+          id: row["unique_identifier"],
           openMic: row["open_mic"] || "",
           day: row["day"] || "",
           startTime: row["start_time"] || "",

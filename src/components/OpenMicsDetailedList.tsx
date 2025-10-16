@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { DistanceService } from '@/services/distanceService';
+import { set } from "date-fns";
 
 // Helper function to get map URL based on device
 function getMapUrl(location: string, venueName: string) {
@@ -131,6 +132,8 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
   const { userLocation, locationLoading } = useUserLocation();
   const [distance, setDistance] = useState<string | null>(null);
   const [distanceLoading, setDistanceLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
   // Helper to get first line or summary
   const getSummary = (text: string) => {
     if (!text) return '';
@@ -172,8 +175,59 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
 
     calculateDistance();
   }, [userLocation, mic.location]);
+
+  function copyToClipboard() {
+    const status = document.getElementById('copy-status');
+    let hideTimer = null;
+
+    function showStatus(success: boolean) {
+      // update text and show
+      setCopied(success);
+      if (hideTimer) clearTimeout(hideTimer);
+      // hide after 1.8s
+      hideTimer = setTimeout(() => {
+        setCopied(false);
+      }, 1800);
+    }
+
+    function fallbackCopyTextToClipboard(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        return true;
+      } catch (err) {
+        document.body.removeChild(ta);
+        return false;
+      }
+    }
+
+    const url = window.location.href + `#${mic.id}`;
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url);
+        showStatus(true);
+        console.log("Navigator copy");
+      } else {
+        const ok = fallbackCopyTextToClipboard(url);
+        showStatus(ok);
+        console.log("Fall back copy no error");
+      }
+    } catch (err) {
+      const ok = fallbackCopyTextToClipboard(url);
+      showStatus(ok);
+      console.log("Fall back copy after error");
+    }
+  }
+  
   return (
-    <div className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-4 gap-2md:gap-6 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${getBoroughOutline(mic.borough)}`}>
+    <div className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-4 gap-2md:gap-6 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${getBoroughOutline(mic.borough)}`} id={mic.id}>
       {/* Left: Name, Location, Date */}
       <div className="flex-1 min-w-0 mr-2">
         <div className="flex items-center gap-2">
@@ -408,6 +462,52 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           </div>
           )}
         </button>
+        
+      <div className="relative flex items-center space-x-3 justify-center">
+
+      <button
+        id="copy-share-btn"
+        type="button"
+        onClick={copyToClipboard}
+        aria-label="Copy shareable link"
+        className={`inline-flex items-center gap-2 px-4 py-2 ${copied ? "bg-green-600" : "bg-blue-600"} text-white rounded-md hover:${copied ? "bg-green-700" : "bg-blue-700"} transition`}
+      >
+        {copied == false ? 
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"></path>
+            <path d="M16 6l-4-4-4 4"></path>
+            <path d="M12 2v15"></path>
+          </svg>
+          :
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-5 w-5"
+            aria-hidden="true"
+          >
+            <rect x="9" y="2" width="6" height="4" rx="1" ry="1"></rect>
+            <path d="M9 2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-4"></path>
+            <path d="M9 14l2 2 4-4"></path>
+          </svg>}
+        <span className="text-sm font-medium">{copied == false ? "Share" : "Copied!"}</span>
+      </button>
+    </div>
+
         </div>
       </div>
   );
@@ -474,7 +574,7 @@ export default function OpenMicsDetailedList({
   return (
     <div className="flex flex-col gap-3">
       {validMics.slice(0, visibleCount).map((mic) => (
-        <OpenMicDetailedCard key={mic.uniqueIdentifier} mic={mic} onAddToCalendar={handleAddToCalendar} />
+        <OpenMicDetailedCard key={mic.id} mic={mic} onAddToCalendar={handleAddToCalendar}/>
       ))}
       {visibleCount < validMics.length && (
         <div className="flex justify-center">

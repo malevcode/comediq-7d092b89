@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Search, HelpCircle, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -36,8 +36,9 @@ const OpenMics = () => {
   const { user, signOut } = useAuth();
   const { data: likedMics = [] } = useUserLikedMics();
   const navigate = useNavigate();
+  const hasScrolled = useRef(false);
 
-  const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"];
+  const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island", "Inland Empire"];
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   const cities = ["All", "New York", "Los Angeles"];
 
@@ -73,6 +74,31 @@ const OpenMics = () => {
       costRange: [0, maxCost],
     }));
   }, [maxCost]);
+
+  useEffect(() => {
+    if (hasScrolled.current) return; 
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    // let retries = 0;
+    const scrollToHash = () => {
+      const el = document.getElementById(hash.slice(1));
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      const scrollTop = window.scrollY + rect.top - 80;
+      window.scrollTo({ top: scrollTop, behavior: "smooth" });
+      hasScrolled.current = true;
+    // } else if (retries < 1) {
+    //   retries++;
+    //   setTimeout(scrollToHash, 50);
+    }  else {
+      setVisibleCount(visibleCount + 25)
+    }
+    };
+
+    
+    setTimeout(scrollToHash, 50);
+  }, [visibleCount]);
 
   // Helper: 12h time string -> minutes
   const timeToMinutes = (timeStr: string) => {
