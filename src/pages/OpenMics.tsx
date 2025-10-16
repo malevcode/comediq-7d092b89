@@ -92,6 +92,7 @@ const OpenMics = () => {
       retries++;
       setTimeout(scrollToHash, 50);
     }  else {
+      retries = 0;
       setVisibleCount(visibleCount + 100)
     }
     };
