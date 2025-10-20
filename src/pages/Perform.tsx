@@ -6,8 +6,6 @@ import Shows from "./Shows";
 import { useLocation } from 'react-router-dom';
 import ProgressTrackerPage from "./ProgressTracker";
 import { useTabContext } from "@/contexts/TabContext";
-import { ExternalLink } from "lucide-react";
-import contestImage from "@/assets/nycf-contest.png";
 
 const Perform = () => {
   const location = useLocation();
@@ -63,29 +61,6 @@ const Perform = () => {
 
   return (
     <div className="h-full">
-      {/* Contest Banner */}
-      <div className="bg-gradient-to-r from-primary/10 to-accent/10 border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <a 
-            href="https://docs.google.com/forms/d/e/1FAIpQLScy2Af7v0cC8l-D_cso7F__uIS6sxqIH39OkNuxPDNoD1oKyA/viewform" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="block group"
-          >
-            <div className="relative rounded-lg overflow-hidden transition-transform duration-300 group-hover:scale-[1.02]">
-              <img 
-                src={contestImage}
-                alt="Comediq x NYCF 2025 Contest - Click to apply"
-                className="w-full h-auto"
-              />
-              <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm p-2 rounded-full transition-all duration-300 group-hover:bg-background">
-                <ExternalLink className="w-5 h-5 text-foreground" />
-              </div>
-            </div>
-          </a>
-        </div>
-      </div>
-
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="sticky top-2 z-40">
           <div className="max-w-7xl mx-auto px-4">
