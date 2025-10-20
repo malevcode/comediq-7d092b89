@@ -342,99 +342,86 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
       </div>
       {/* Right: Value, Ratings, Button */}
       <div className="w-full md:flex-[1.2] flex flex-col justify-center">
-        <div className="flex flex-row gap-2 mb-2">
-          <button
-            className="appearance-none cursor-pointer bg-blue-50 border border-blue-100 rounded-lg p-1.5 relative flex-1 text-left flex flex-col hover:bg-blue-100 transition font-semibold text-xs text-blue-800 gap-1 outline-none"
-            aria-label={expanded ? 'Collapse details' : 'Expand details'}
-            onClick={() => setExpanded(e => !e)}
-            type="button"
-          >
-            <span className="flex items-center gap-1">
-              <span>Additional Details</span>
-              <ChevronDown
-                className={`w-4 h-4 ml-auto transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
-              />
-            </span>
-          </button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100 px-3"
-            onClick={copyToClipboard}
-          >
-            <ExternalLink className="w-4 h-4" />
-          </Button>
-        </div>
-        {expanded && (
-          <div className="flex flex-col gap-2 bg-blue-50 border border-blue-100 rounded-lg p-2 mb-2">
-            <div
-              className="break-words font-normal select-text cursor-text flex flex-row text-xs text-blue-800"
-              onClick={e => e.stopPropagation()}
-            >
-              <span className="flex items-center gap-2 mr-1"><UserRoundCheck className="w-3 h-3" />Sign-Up Instructions:</span>
-              {(() => {
-                // Simple regex to detect a URL
-                const urlRegex = /(https?:\/\/[^\s]+)/g;
-                const match = mic.signUpInstructions.match(urlRegex);
-                if (match && match.length === 1 && mic.signUpInstructions.trim() === match[0]) {
-                  // If the entire instructions is just a URL
-                  return (
-                    <a
-                      href={match[0]}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 underline break-all"
-                    >
-                      Sign up at this link
-                    </a>
-                  );
-                } else if (match && match.length === 1 && mic.signUpInstructions.replace(match[0], '').trim() === '') {
-                  // If the only content is a URL (with whitespace)
-                  return (
-                    <a
-                      href={match[0]}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 underline break-all"
-                    >
-                      Sign up at this link
-                    </a>
-                  );
-                } else if (mic.signUpInstructions === "") {
-                  return <span>N/A</span>
-                } else {
-                  // Otherwise, show the instructions as text
-                  return <span className="flex">{mic.signUpInstructions}</span>;
-                }
-              })()}
+        <button
+          className="appearance-none cursor-pointer bg-blue-50 border border-blue-100 rounded-lg p-1.5 mb-2 relative w-full text-left flex flex-col hover:bg-blue-100 transition font-semibold text-xs text-blue-800 gap-1 outline-none"
+          aria-label={expanded ? 'Collapse details' : 'Expand details'}
+          onClick={() => setExpanded(e => !e)}
+          type="button"
+        >
+          <span className="flex items-center gap-1">
+            <span>Additional Details</span>
+            <ChevronDown
+              className={`w-4 h-4 ml-auto transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+            />
+          </span>
+          {expanded && (
+            <div className="flex flex-col gap-2">
+              <div
+                className="break-words mt-1 font-normal select-text cursor-text flex flex-row"
+                onClick={e => e.stopPropagation()}
+              >
+                <span className="flex items-center gap-2 mr-1"><UserRoundCheck className="w-3 h-3" />Sign-Up Instructions:</span>
+                {(() => {
+                  // Simple regex to detect a URL
+                  const urlRegex = /(https?:\/\/[^\s]+)/g;
+                  const match = mic.signUpInstructions.match(urlRegex);
+                  if (match && match.length === 1 && mic.signUpInstructions.trim() === match[0]) {
+                    // If the entire instructions is just a URL
+                    return (
+                      <a
+                        href={match[0]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline break-all"
+                      >
+                        Sign up at this link
+                      </a>
+                    );
+                  } else if (match && match.length === 1 && mic.signUpInstructions.replace(match[0], '').trim() === '') {
+                    // If the only content is a URL (with whitespace)
+                    return (
+                      <a
+                        href={match[0]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline break-all"
+                      >
+                        Sign up at this link
+                      </a>
+                    );
+                  } else if (mic.signUpInstructions === "") {
+                    return <span>N/A</span>
+                  } else {
+                    // Otherwise, show the instructions as text
+                    return <span className="flex">{mic.signUpInstructions}</span>;
+                  }
+                })()}
+              </div>
+              <div>
+                <a href={getMapUrl(mic.location, mic.venueName)} target="_blank" rel="noopener noreferrer" className="flex flex-row gap-2 items-center hover:underline font-normal">
+                  <MapPin className="w-3 h-3" /> {mic.location}
+                </a>
+              </div>
+              <div className="">
+              {user && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex items-center justify-center gap-2"
+                  onClick={() => onAddToCalendar(mic)}
+                >
+                  <Calendar className="w-4 h-4" />
+                  Add to Calendar
+                </Button>
+              )}
             </div>
-            <div className="text-xs text-blue-800">
-              <a href={getMapUrl(mic.location, mic.venueName)} target="_blank" rel="noopener noreferrer" className="flex flex-row gap-2 items-center hover:underline font-normal">
-                <MapPin className="w-3 h-3" /> {mic.location}
-              </a>
-            </div>
-            <div className="">
-            {user && (
+            <div className="flex flex-row gap-2 mt-2">
               <Button
                 size="sm"
                 variant="outline"
-                className="flex items-center justify-center gap-2"
-                onClick={() => onAddToCalendar(mic)}
+                className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100"
+                asChild
               >
-                <Calendar className="w-4 h-4" />
-                Add to Calendar
-              </Button>
-            )}
-          </div>
-          </div>
-        )}
-        <div className="flex flex-row gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100"
-            asChild
-          >
                 <a
                   href={getGoogleCalendarUrl(mic)}
                   target="_blank"
@@ -472,6 +459,55 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
                 <span className="text-orange-500">Download iCal</span>
               </Button>
             </div>
+          </div>
+          )}
+        </button>
+        
+      <div className="relative flex items-center space-x-3 justify-center">
+
+      <button
+        id="copy-share-btn"
+        type="button"
+        onClick={copyToClipboard}
+        aria-label="Copy shareable link"
+        className={`inline-flex items-center gap-2 px-4 py-2 ${copied ? "bg-green-600" : "bg-blue-600"} text-white rounded-md hover:${copied ? "bg-green-700" : "bg-blue-700"} transition`}
+      >
+        {copied == false ? 
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"></path>
+            <path d="M16 6l-4-4-4 4"></path>
+            <path d="M12 2v15"></path>
+          </svg>
+          :
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-5 w-5"
+            aria-hidden="true"
+          >
+            <rect x="9" y="2" width="6" height="4" rx="1" ry="1"></rect>
+            <path d="M9 2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-4"></path>
+            <path d="M9 14l2 2 4-4"></path>
+          </svg>}
+        <span className="text-sm font-medium">{copied == false ? "Share" : "Copied!"}</span>
+      </button>
+    </div>
+
         </div>
       </div>
   );
