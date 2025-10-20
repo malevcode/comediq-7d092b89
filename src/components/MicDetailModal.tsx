@@ -331,14 +331,6 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
               </div>
             </div>
 
-            {mic.otherRules && (
-              <div>
-                <p className="font-medium text-gray-900 mb-2">Rules & Notes</p>
-                <div className="text-sm text-gray-600 bg-yellow-50 p-3 rounded-lg">
-                  {makeLinksClickable(mic.otherRules)}
-                </div>
-              </div>
-            )}
 
             {mic.instagramHandle && (
               <div>

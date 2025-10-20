@@ -399,7 +399,7 @@ const OpenMics = () => {
     setSelectedMic(mic);
   }, []);
 
-  const handleRequestMic = async (formData: unknown) => {
+  const handleRequestMic = async (formData: any) => {
     const { anonymous } = formData;
     try {
       const insertObj = {

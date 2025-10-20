@@ -65,7 +65,7 @@ const Auth = () => {
       if (error) {
         toast({
           title: "Error",
-          description: error.message,
+          description: (error as any)?.message || "An error occurred",
           variant: "destructive",
         });
       } else {
