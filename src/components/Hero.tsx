@@ -40,7 +40,7 @@ const Hero = () => {
       <div className="max-w-6xl">
         {/* Contest Announcement Banner */}
         <a 
-          href="https://docs.google.com/forms/d/e/1FAIpQLScy2Af7v0cC8l-D_cso7F__uIS6sxqIH39OkNuxPDNoD1oKyA/viewform"
+          href="https://luma.com/izvkrket"
           target="_blank"
           rel="noopener noreferrer"
           className="block mb-8 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 group"
