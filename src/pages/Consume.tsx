@@ -41,7 +41,7 @@ const Consume = () => {
       <PageHeader title="Specials" subtitle="Track and discover comedy content" />
       
       {/* Contest Banner */}
-      <div className="max-w-6xl mx-auto px-4 pt-4">
+      <div className="max-w-6xl mx-auto px-4 pt-24">
         <a 
           href="https://luma.com/izvkrket"
           target="_blank"
