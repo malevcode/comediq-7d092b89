@@ -80,7 +80,7 @@ export const useMicAnalytics = (mics: any[]) => {
   return useMemo(() => {
     // Verification Statistics
     const verificationStats = mics.reduce((stats, mic) => {
-      const status = getVerificationStatus(mic['Last verified'] || '');
+      const status = getVerificationStatus(mic['last_verified'] || '');
       if (status === 'verified_tediously') {
         stats.verifiedTediously++;
       } else {
@@ -104,7 +104,7 @@ export const useMicAnalytics = (mics: any[]) => {
 
     // Borough Distribution
     const boroughStats = mics.reduce((acc, mic) => {
-      const borough = mic['Borough']?.trim() || 'Unknown';
+      const borough = mic['borough']?.trim() || 'Unknown';
       if (!acc[borough]) {
         acc[borough] = { count: 0, activeCount: 0, inactiveCount: 0 };
       }

@@ -2,12 +2,11 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, LogIn, ExternalLink } from "lucide-react";
+import { Star, LogIn } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
-import contestImage from "@/assets/nycf-contest.png";
 
 const Consume = () => {
   const { user, signOut } = useAuth();
@@ -39,29 +38,6 @@ const Consume = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 pb-20">
       <PageHeader title="Specials" subtitle="Track and discover comedy content" />
-      
-      {/* Contest Banner */}
-      <div className="max-w-6xl mx-auto px-4 pt-24">
-        <a 
-          href="https://luma.com/68hu0o6v"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block mb-4 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 group"
-        >
-          <div className="relative">
-            <img 
-              src={contestImage} 
-              alt="COMEDIQ's New York Comedy Festival Contest - Submit to perform at NYCF! Winner gets a spot on Saturday 11/15. Submissions close Sunday at 11:59 PM." 
-              className="w-full h-auto"
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white rounded-full p-3">
-                <ExternalLink className="w-6 h-6 text-orange-500" />
-              </div>
-            </div>
-          </div>
-        </a>
-      </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* <div className="bg-white border-b border-orange-100 sticky top-0 z-40">
