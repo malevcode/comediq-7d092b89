@@ -81,7 +81,6 @@ export const useMicAnalytics = (mics: any[]) => {
   return useMemo(() => {
     // Verification Statistics
     const verificationStats = mics.reduce((stats, mic) => {
-      console.log(mic)
       const status = getVerificationStatus(mic['last_verified'] || '');
       if (status === 'verified_tediously') {
         stats.verifiedTediously++;
