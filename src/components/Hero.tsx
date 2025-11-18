@@ -7,10 +7,8 @@ import {
   TrendingUp, 
   User, 
   Play,
-  BookOpen,
-  ExternalLink
+  BookOpen
 } from "lucide-react";
-import contestImage from "@/assets/nycf-contest.png";
 const Hero = () => {
   const navigate = useNavigate();
   
@@ -38,26 +36,6 @@ const Hero = () => {
   
   return <section className="py-20 min-h-full bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-start justify-center px-4">
       <div className="max-w-6xl">
-        {/* Contest Announcement Banner */}
-        <a 
-          href="https://luma.com/68hu0o6v"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block mb-8 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 group"
-        >
-          <div className="relative">
-            <img 
-              src={contestImage} 
-              alt="COMEDIQ's New York Comedy Festival Contest - Submit to perform at NYCF! Winner gets a spot on Saturday 11/15. Submissions close Sunday at 11:59 PM." 
-              className="w-full h-auto"
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white rounded-full p-3">
-                <ExternalLink className="w-6 h-6 text-orange-500" />
-              </div>
-            </div>
-          </div>
-        </a>
         <div className="py-4">
           {/* <div className="flex items-center justify-left space-x-6 flex-wrap gap-y-2">
             {navItems.map((item) => (
