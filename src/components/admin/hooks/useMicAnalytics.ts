@@ -49,8 +49,9 @@ export const getVerificationStatus = (lastVerified: string): 'verified' | 'verif
   if (lower.includes('verified')) {
     return 'verified';
   }
-  
-  return 'unverified';
+
+  // At the moment, all mics that have something other than "Unverified" are verified
+  return 'verified';
 };
 
 // Helper function to categorize time of day
