@@ -72,28 +72,9 @@ export default function Playlists() {
     
     setLoading(true);
     try {
-      // Get playlists with item counts
-      const { data: playlistsData, error: playlistsError } = await supabase
-        .from("user_playlists")
-        .select(`
-          *,
-          playlist_items(count)
-        `)
-        .eq("user_id", user.id)
-        .order("updated_at", { ascending: false });
-
-      if (playlistsError) {
-        console.error("Error loading playlists:", playlistsError);
-        return;
-      }
-
-      // Transform the data to include item count
-      const transformedPlaylists = playlistsData?.map(playlist => ({
-        ...playlist,
-        item_count: playlist.playlist_items?.[0]?.count || 0
-      })) || [];
-
-      setPlaylists(transformedPlaylists);
+      // TODO: Playlists feature needs database tables (user_playlists, playlist_items) to be created
+      // For now, just set empty array
+      setPlaylists([]);
     } catch (error) {
       console.error("Error loading playlists:", error);
     } finally {
@@ -105,25 +86,8 @@ export default function Playlists() {
     if (!user || !newPlaylist.name.trim()) return;
 
     try {
-      const { data, error } = await supabase
-        .from("user_playlists")
-        .insert({
-          user_id: user.id,
-          name: newPlaylist.name.trim(),
-          description: newPlaylist.description.trim() || null,
-          is_public: newPlaylist.is_public
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error("Error creating playlist:", error);
-        return;
-      }
-
-      setPlaylists([{ ...data, item_count: 0 }, ...playlists]);
-      setNewPlaylist({ name: "", description: "", is_public: false });
-      setShowCreateDialog(false);
+      // TODO: Implement once database tables are created
+      console.log("Create playlist:", newPlaylist);
     } catch (error) {
       console.error("Error creating playlist:", error);
     }
@@ -133,28 +97,8 @@ export default function Playlists() {
     if (!editingPlaylist || !editingPlaylist.name.trim()) return;
 
     try {
-      const { data, error } = await supabase
-        .from("user_playlists")
-        .update({
-          name: editingPlaylist.name.trim(),
-          description: editingPlaylist.description?.trim() || null,
-          is_public: editingPlaylist.is_public
-        })
-        .eq("id", editingPlaylist.id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error("Error updating playlist:", error);
-        return;
-      }
-
-      setPlaylists(playlists.map(p => 
-        p.id === editingPlaylist.id 
-          ? { ...data, item_count: p.item_count }
-          : p
-      ));
-      setEditingPlaylist(null);
+      // TODO: Implement once database tables are created
+      console.log("Update playlist:", editingPlaylist);
     } catch (error) {
       console.error("Error updating playlist:", error);
     }
@@ -164,17 +108,8 @@ export default function Playlists() {
     if (!confirm("Are you sure you want to delete this playlist?")) return;
 
     try {
-      const { error } = await supabase
-        .from("user_playlists")
-        .delete()
-        .eq("id", playlistId);
-
-      if (error) {
-        console.error("Error deleting playlist:", error);
-        return;
-      }
-
-      setPlaylists(playlists.filter(p => p.id !== playlistId));
+      // TODO: Implement once database tables are created
+      console.log("Delete playlist:", playlistId);
     } catch (error) {
       console.error("Error deleting playlist:", error);
     }
