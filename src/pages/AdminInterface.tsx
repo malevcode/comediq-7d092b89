@@ -27,6 +27,7 @@ import HamburgerMenu from '@/components/HamburgerMenu';
 import { MicAnalyticsDashboard } from '@/components/admin/MicAnalyticsDashboard';
 import BulkImportInterface from '@/components/admin/BulkImportInterface';
 import PageHeader from '@/components/PageHeader';
+import { approveMicRequest, type MicFormData } from '@/api/admin';
 
 const OPEN_MIC_FIELDS = [
   'Open Mic', 'Day', 'Start Time', 'Latest End Time', 'Venue Name', 'Borough', 'Neighborhood', 'Location', 'Venue type', 'Cost', 'Stage time', 'Sign-Up Instructions', 'Host(s) / Organizer', 'Changes/updates', 'Last verified', 'Other Rules', 'Help other comics! Leave reviews', 'Formerly verified'
@@ -157,47 +158,28 @@ const AdminInterface = () => {
 
   const handleSubmit = async (id: string) => {
     setSubmitting(true);
-    // Generate unique_identifier in the required format: Day_Start Time_Changes/updates_Venue Name
-    const day = formData['Day']?.trim() || '';
-    const startTime = formData['Start Time']?.trim() || '';
-    const changes = formData['Changes/updates']?.trim().replace(/\s+/g, '') || '';
-    const venue = formData['Venue Name']?.trim() || '';
-    const unique_identifier = `${day}_${startTime}_${changes}_${venue}`;
-    const insertData = { ...formData, unique_identifier, active: true };
-
-    // Upsert into historical table
-    const { error: historicalError } = await supabase
-      .from('open_mics_historical')
-      .upsert([insertData], { onConflict: 'unique_identifier' });
-
-    if (historicalError) {
-      console.error('Failed to upsert into open_mics_historical:', historicalError);
-      toast({ title: 'Insert failed', description: 'Could not add mic to database.', variant: 'destructive' });
+    try {
+      await approveMicRequest(id, formData as MicFormData);
+      toast({ title: 'Success', description: 'Mic approved and added to database.' });
+      
+      // Refresh data
+      const { data: requestsData } = await supabase
+        .from('open_mics_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (requestsData) {
+        setMicRequests(requestsData as MicRequest[]);
+      }
+      
+      handleCancel();
+    } catch (error: any) {
+      console.error('Failed to approve mic:', error);
+      toast({ title: 'Error', description: error.message || 'Could not approve mic.', variant: 'destructive' });
+    } finally {
       setSubmitting(false);
-      return; // Don't proceed if insert fails
+      setSubmitId(null);
     }
-
-    // Step 2: Mark request as approved
-    const { error: updateError } = await supabase
-      .from('open_mics_requests')
-      .update({ reviewed: true, status: 'approved' })
-      .eq('unique_identifier', id);
-
-    if (updateError) {
-      console.error('Failed to update request status', updateError);
-    }
-
-    setMicRequests((prev: any[]) => 
-      prev.map((r: any) =>
-        r.unique_identifier === id
-          ? ({ ...r, reviewed: true, unique_identifier } as any)
-          : r
-      )
-    );
-
-    setSubmitting(false);
-    setSubmitId(null);
-    handleCancel();
   };
 
   if (!user) return <div>Please log in.</div>;
