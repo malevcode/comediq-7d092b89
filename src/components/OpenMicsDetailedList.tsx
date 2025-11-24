@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { DistanceService } from '@/services/distanceService';
 import { set } from "date-fns";
+import { makeLinksClickable } from '@/utils/makeLinksClickable';
 
 // Helper function to get map URL based on device
 function getMapUrl(location: string, venueName: string) {
@@ -361,41 +362,9 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
                 onClick={e => e.stopPropagation()}
               >
                 <span className="flex items-center gap-2 mr-1"><UserRoundCheck className="w-3 h-3" />Sign-Up Instructions:</span>
-                {(() => {
-                  // Simple regex to detect a URL
-                  const urlRegex = /(https?:\/\/[^\s]+)/g;
-                  const match = mic.signUpInstructions.match(urlRegex);
-                  if (match && match.length === 1 && mic.signUpInstructions.trim() === match[0]) {
-                    // If the entire instructions is just a URL
-                    return (
-                      <a
-                        href={match[0]}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 underline break-all"
-                      >
-                        Sign up at this link
-                      </a>
-                    );
-                  } else if (match && match.length === 1 && mic.signUpInstructions.replace(match[0], '').trim() === '') {
-                    // If the only content is a URL (with whitespace)
-                    return (
-                      <a
-                        href={match[0]}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 underline break-all"
-                      >
-                        Sign up at this link
-                      </a>
-                    );
-                  } else if (mic.signUpInstructions === "") {
-                    return <span>N/A</span>
-                  } else {
-                    // Otherwise, show the instructions as text
-                    return <span className="flex">{mic.signUpInstructions}</span>;
-                  }
-                })()}
+                <span className="flex">
+                  {mic.signUpInstructions ? makeLinksClickable(mic.signUpInstructions) : 'N/A'}
+                </span>
               </div>
               <div>
                 <a href={getMapUrl(mic.location, mic.venueName)} target="_blank" rel="noopener noreferrer" className="flex flex-row gap-2 items-center hover:underline font-normal">
