@@ -77,17 +77,9 @@ const SiteFooter = () => {
                   className="text-gray-300 hover:text-orange-400 transition text-sm"
                 >
                   Brooklyn Mics
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to={linkManager.openMicsFilteredByDay('Monday')} 
-                  className="text-gray-300 hover:text-orange-400 transition text-sm"
-                >
-                  Monday Night Comedy
-                </Link>
-              </li>
-            </ul>
+              </Link>
+            </li>
+          </ul>
           </div>
           
           {/* Company */}
