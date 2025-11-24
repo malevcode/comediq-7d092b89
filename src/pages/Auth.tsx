@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -186,7 +187,14 @@ const Auth = () => {
 
   if (showResetPassword) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center p-4 pb-20">
+      <>
+        <SEO
+          title="Reset Password | Comediq"
+          description="Reset your Comediq password to access your saved open mics and comedy journey."
+          url="https://comediq.us/auth"
+          noindex={true}
+        />
+        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center p-4 pb-20">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-2xl text-center">Set New Password</CardTitle>
@@ -230,12 +238,20 @@ const Auth = () => {
             </form>
           </CardContent>
         </Card>
-      </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center p-4 pb-20">
+    <>
+      <SEO
+        title={showForgotPassword ? "Reset Password | Comediq" : isSignUp ? "Join Comediq - NYC Comedy Open Mics" : "Sign In | Comediq"}
+        description={isSignUp ? "Create your free Comediq account to save favorite open mics, track your comedy journey, and connect with the NYC comedy community." : "Sign in to Comediq to access your saved open mics and comedy journey."}
+        url="https://comediq.us/auth"
+        noindex={true}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center p-4 pb-20">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl text-center">
@@ -376,7 +392,8 @@ const Auth = () => {
           )}
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   );
 };
 

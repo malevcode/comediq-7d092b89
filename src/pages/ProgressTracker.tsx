@@ -7,14 +7,22 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import HamburgerMenu from "@/components/HamburgerMenu";
+import SEO from "@/components/SEO";
 
 export default function ProgressTrackerPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
   return (
-    <div className="pb-20">
-      <PageHeader title="Progress Tracker" subtitle="Track your comedy journey and improve your craft" />
+    <>
+      <SEO
+        title="Track Your Sets & Progress | Comediq"
+        description="Track your comedy sets, analyze performance metrics, and improve your craft. Monitor your progress as a comedian with detailed analytics."
+        url="https://comediq.us/track-sets"
+        noindex={true}
+      />
+      <div className="pb-20">
+        <PageHeader title="Progress Tracker" subtitle="Track your comedy journey and improve your craft" />
       
       {/* Instructions dropdown styled to match Show Scheduler */}
       <div className="max-w-xs mx-auto px-4 pt-28">
@@ -41,6 +49,7 @@ export default function ProgressTrackerPage() {
         </button>
       </div>
       <PerformanceTracker />
-    </div>
+      </div>
+    </>
   );
-} 
+}
