@@ -503,7 +503,7 @@ const OpenMics = () => {
         structuredData={breadcrumbSchema}
       />
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
-        <PageHeader title="Find Open Mics" subtitle="Discover comedy open mics across NYC" />
+        <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />
 
       <div className="max-w-7xl mx-auto px-4 pt-28 pb-0">
         {/* Key/Legend */}
