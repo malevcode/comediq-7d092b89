@@ -16,11 +16,18 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import BottomNavigation from "./components/BottomNavigation";
 import ScrollToTop from "./components/ScrollToTop";
+import SiteFooter from "./components/SiteFooter";
 import ProgressTrackerPage from "./pages/ProgressTracker";
 import Home from "./components/Home";
 import { TabProvider } from "@/contexts/TabContext";
 import AdminInterface from "./pages/AdminInterface";
 import Playlists from "./pages/Playlists";
+import MicDetailPage from "./pages/MicDetailPage";
+import MicsByBorough from "./pages/MicsByBorough";
+import MicsByNeighborhood from "./pages/MicsByNeighborhood";
+import MicsByDay from "./pages/MicsByDay";
+import FreeMics from "./pages/FreeMics";
+import BeginnerMics from "./pages/BeginnerMics";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,9 +63,19 @@ const App = () => (
             <Route path="/admintest" element={<AdminInterface />} /> 
             <Route path="/playlists" element={<Playlists />} />
             <Route path="/home" element={<Home />} /* FOR TESTING, REMOVE LATER */ />
+            
+            {/* SEO-optimized routes */}
+            <Route path="/mics/:venueSlug" element={<MicDetailPage />} />
+            <Route path="/boroughs/:borough" element={<MicsByBorough />} />
+            <Route path="/neighborhoods/:neighborhood" element={<MicsByNeighborhood />} />
+            <Route path="/mics/:day" element={<MicsByDay />} />
+            <Route path="/free-mics" element={<FreeMics />} />
+            <Route path="/beginner-friendly" element={<BeginnerMics />} />
+            
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <SiteFooter />
           <BottomNavigation />
         </BrowserRouter>
         </TooltipProvider>

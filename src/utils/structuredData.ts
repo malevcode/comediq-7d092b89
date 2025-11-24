@@ -196,3 +196,15 @@ export const generateWebSiteSchema = () => ({
     'query-input': 'required name=search_term_string',
   },
 });
+
+/**
+ * Generate AggregateRating schema for reviews
+ */
+export const generateAggregateRatingSchema = (rating: number, reviewCount: number) => ({
+  '@context': 'https://schema.org',
+  '@type': 'AggregateRating',
+  ratingValue: rating.toFixed(1),
+  reviewCount: reviewCount,
+  bestRating: '5',
+  worstRating: '1',
+});
