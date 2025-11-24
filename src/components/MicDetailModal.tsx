@@ -9,6 +9,7 @@ import { useMicRatings, useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate } from "react-router-dom";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { makeLinksClickable } from '@/utils/makeLinksClickable';
 
 interface MicDetailModalProps {
   mic: OpenMic;
@@ -33,28 +34,6 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
     } else {
       rateMic({ micUniqueIdentifier: mic.uniqueIdentifier, rating });
     }
-  };
-
-  const makeLinksClickable = (text: string) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const parts = text.split(urlRegex);
-    
-    return parts.map((part, index) => {
-      if (urlRegex.test(part)) {
-        return (
-          <a
-            key={index}
-            href={part}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 underline"
-          >
-            {part}
-          </a>
-        );
-      }
-      return part;
-    });
   };
 
   const getNextOccurrence = () => {
