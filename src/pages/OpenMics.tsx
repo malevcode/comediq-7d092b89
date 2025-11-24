@@ -10,7 +10,7 @@ import { OpenMic } from "@/types/openMic";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import MicDetailModal from "@/components/MicDetailModal";
 import { OpenMicsMapRefactored as OpenMicsMap } from "@/components/map";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
@@ -38,6 +38,7 @@ const OpenMics = () => {
   const { user, signOut } = useAuth();
   const { data: likedMics = [] } = useUserLikedMics();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const hasScrolled = useRef(false);
 
   const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island", "Inland Empire"];
@@ -76,6 +77,22 @@ const OpenMics = () => {
       costRange: [0, maxCost],
     }));
   }, [maxCost]);
+
+  // Read URL query params and apply filters
+  useEffect(() => {
+    const dayParam = searchParams.get('day');
+    const boroughParam = searchParams.get('borough');
+
+    if (dayParam) {
+      // Set active tab to the day
+      setActiveTab(dayParam);
+    }
+
+    if (boroughParam) {
+      // Apply borough filter
+      setFilters(prev => ({ ...prev, borough: boroughParam }));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (hasScrolled.current) return; 

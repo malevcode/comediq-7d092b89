@@ -68,7 +68,7 @@ const App = () => (
             <Route path="/mics/:venueSlug" element={<MicDetailPage />} />
             <Route path="/boroughs/:borough" element={<MicsByBorough />} />
             <Route path="/neighborhoods/:neighborhood" element={<MicsByNeighborhood />} />
-            <Route path="/mics/:day" element={<MicsByDay />} />
+            <Route path="/days/:day" element={<MicsByDay />} />
             <Route path="/free-mics" element={<FreeMics />} />
             <Route path="/beginner-friendly" element={<BeginnerMics />} />
             
