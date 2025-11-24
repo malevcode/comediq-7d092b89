@@ -9,16 +9,22 @@ import { MapPin, Clock, Calendar, Heart } from "lucide-react";
 const BeginnerMics = () => {
   const { data: mics, isLoading } = useOpenMics();
   
-  // Filter for beginner-friendly mics (free or low-cost, longer stage time)
+  // Filter for curated beginner-friendly venues
+  const beginnerVenues = [
+    'laughing buddha',
+    'luxor',
+    'comediq',
+    'easy lover',
+    'westside comedy club'
+  ];
+  
   const beginnerMics = mics?.filter(mic => {
-    const isFree = mic.cost.toLowerCase().includes('free') || mic.cost === '$0';
-    const isLowCost = mic.cost.includes('$5') || mic.cost.includes('$3');
-    const hasGoodStageTime = mic.stageTime && (
-      mic.stageTime.includes('5') || 
-      mic.stageTime.includes('7') || 
-      mic.stageTime.includes('10')
+    const venueLower = mic.venueName.toLowerCase();
+    const micNameLower = mic.openMic.toLowerCase();
+    
+    return beginnerVenues.some(venue => 
+      venueLower.includes(venue) || micNameLower.includes(venue)
     );
-    return (isFree || isLowCost) && hasGoodStageTime;
   });
 
   const structuredData = {
@@ -57,12 +63,12 @@ const BeginnerMics = () => {
               Perfect for your first time on stage! Found {beginnerMics?.length || 0} welcoming open mics.
             </p>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-semibold text-blue-900 mb-2">What makes a mic beginner-friendly?</h3>
+              <h3 className="font-semibold text-blue-900 mb-2">Why these mics?</h3>
               <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Free or low-cost entry</li>
-                <li>• Good stage time (5+ minutes)</li>
-                <li>• Supportive audience</li>
+                <li>• Hand-picked for new comedians</li>
+                <li>• Supportive audiences</li>
                 <li>• Welcoming hosts</li>
+                <li>• Great for building confidence</li>
               </ul>
             </div>
           </div>
