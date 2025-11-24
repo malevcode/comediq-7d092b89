@@ -16,7 +16,7 @@ const SiteFooter = () => {
               {daysOfWeek.map(day => (
                 <li key={day}>
                   <Link 
-                    to={linkManager.micsByDay(day)} 
+                    to={linkManager.openMicsFilteredByDay(day)} 
                     className="text-gray-300 hover:text-orange-400 transition text-sm"
                   >
                     {day} Mics
@@ -33,7 +33,7 @@ const SiteFooter = () => {
               {boroughs.map(borough => (
                 <li key={borough}>
                   <Link 
-                    to={linkManager.borough(borough)} 
+                    to={linkManager.openMicsFilteredByBorough(borough)} 
                     className="text-gray-300 hover:text-orange-400 transition text-sm"
                   >
                     {borough} Open Mics
@@ -65,7 +65,7 @@ const SiteFooter = () => {
               </li>
               <li>
                 <Link 
-                  to={linkManager.openMicsWithFilters({ borough: 'Manhattan' })} 
+                  to={linkManager.openMicsFilteredByBorough('Manhattan')} 
                   className="text-gray-300 hover:text-orange-400 transition text-sm"
                 >
                   Manhattan Mics
@@ -73,7 +73,7 @@ const SiteFooter = () => {
               </li>
               <li>
                 <Link 
-                  to={linkManager.openMicsWithFilters({ borough: 'Brooklyn' })} 
+                  to={linkManager.openMicsFilteredByBorough('Brooklyn')} 
                   className="text-gray-300 hover:text-orange-400 transition text-sm"
                 >
                   Brooklyn Mics
@@ -81,7 +81,7 @@ const SiteFooter = () => {
               </li>
               <li>
                 <Link 
-                  to={linkManager.micsByDay('Monday')} 
+                  to={linkManager.openMicsFilteredByDay('Monday')} 
                   className="text-gray-300 hover:text-orange-400 transition text-sm"
                 >
                   Monday Night Comedy

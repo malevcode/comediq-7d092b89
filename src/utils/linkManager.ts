@@ -17,12 +17,19 @@ export const linkManager = {
   // Mic pages
   micDetail: (mic: OpenMic) => `/mics/${generateVenueSlug(mic)}`,
   
-  // Geographic pages
+  // User navigation with filters (query params)
+  openMicsFilteredByDay: (day: string) => `/open-mics?day=${encodeURIComponent(day)}`,
+  openMicsFilteredByBorough: (borough: string) => `/open-mics?borough=${encodeURIComponent(borough)}`,
+  
+  // SEO pages (for search engines)
+  boroughSEO: (borough: string) => `/boroughs/${slugify(borough)}`,
+  neighborhoodSEO: (neighborhood: string) => `/neighborhoods/${slugify(neighborhood)}`,
+  micsByDaySEO: (day: string) => `/days/${slugify(day)}`,
+  
+  // Legacy aliases (keep for backward compatibility)
   borough: (borough: string) => `/boroughs/${slugify(borough)}`,
   neighborhood: (neighborhood: string) => `/neighborhoods/${slugify(neighborhood)}`,
-  
-  // Day pages
-  micsByDay: (day: string) => `/mics/${slugify(day)}`,
+  micsByDay: (day: string) => `/days/${slugify(day)}`,
   
   // Filter pages
   freeMics: () => '/free-mics',
