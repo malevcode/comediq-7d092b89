@@ -95,14 +95,54 @@ export const generateEventSchema = (mic: {
   const nextOccurrence = new Date(today);
   nextOccurrence.setDate(today.getDate() + daysUntilTarget);
   
+  // Helper function to parse time strings with AM/PM
+  const parseTime = (timeString: string): { hour: number; minute: number } => {
+    // Default to 7:00 PM if time is invalid or missing
+    if (!timeString || timeString.toLowerCase() === 'tbd') {
+      return { hour: 19, minute: 0 };
+    }
+    
+    // Remove any whitespace and convert to lowercase for easier parsing
+    const cleanTime = timeString.trim().toLowerCase();
+    
+    // Extract hour, minute, and AM/PM
+    const timeMatch = cleanTime.match(/(\d+):?(\d{2})?\s*(am|pm)?/);
+    if (!timeMatch) {
+      return { hour: 19, minute: 0 }; // Default fallback
+    }
+    
+    let hour = parseInt(timeMatch[1], 10);
+    const minute = timeMatch[2] ? parseInt(timeMatch[2], 10) : 0;
+    const period = timeMatch[3];
+    
+    // Convert to 24-hour format
+    if (period === 'pm' && hour !== 12) {
+      hour += 12;
+    } else if (period === 'am' && hour === 12) {
+      hour = 0;
+    }
+    
+    // Validate parsed values
+    if (isNaN(hour) || isNaN(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+      return { hour: 19, minute: 0 }; // Default fallback
+    }
+    
+    return { hour, minute };
+  };
+  
   // Parse times and create ISO strings
   const startDateTime = new Date(nextOccurrence);
-  const [startHour, startMinute] = mic.startTime.split(':').map(Number);
-  startDateTime.setHours(startHour, startMinute, 0);
+  const startParsed = parseTime(mic.startTime);
+  startDateTime.setHours(startParsed.hour, startParsed.minute, 0);
   
   const endDateTime = new Date(nextOccurrence);
-  const [endHour, endMinute] = mic.latestEndTime.split(':').map(Number);
-  endDateTime.setHours(endHour, endMinute, 0);
+  const endParsed = parseTime(mic.latestEndTime);
+  endDateTime.setHours(endParsed.hour, endParsed.minute, 0);
+  
+  // If end time is before start time, assume it's the next day
+  if (endDateTime <= startDateTime) {
+    endDateTime.setDate(endDateTime.getDate() + 1);
+  }
   
   const schema: EventSchema = {
     '@context': 'https://schema.org',

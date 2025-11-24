@@ -31,6 +31,6 @@ export function makeLinksClickable(text: string) {
         </a>
       );
     }
-    return <React.Fragment key={index}>{part}</React.Fragment>;
+    return part;
   });
 }
