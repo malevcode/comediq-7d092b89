@@ -2,6 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUserLikedMics } from '@/hooks/useMicRatings';
 import { useOpenMics } from '@/hooks/useOpenMics';
 import { useNavigate } from 'react-router-dom';
+import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { User, Heart, MapPin, Clock, LogIn } from 'lucide-react';
@@ -39,8 +40,15 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
-      <PageHeader title="Profile" subtitle="Your comedy profile and stats" />
+    <>
+      <SEO
+        title="My Profile | Comediq"
+        description="View your comedy profile, liked open mics, and track your progress as a comedian in NYC."
+        url="https://comediq.us/profile"
+        noindex={true}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
+        <PageHeader title="Profile" subtitle="Your comedy profile and stats" />
       <div className="max-w-7xl mx-auto px-4 pt-28 pb-6">
         {/* Profile Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -127,7 +135,8 @@ const Profile = () => {
           onClose={() => setSelectedMic(null)}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 };
 

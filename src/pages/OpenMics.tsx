@@ -1,5 +1,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Search, HelpCircle, LogIn } from "lucide-react";
+import SEO from "@/components/SEO";
+import { generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -462,9 +464,29 @@ const OpenMics = () => {
     console.log("Adding show to schedule:", showData);
   };
 
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://comediq.us' },
+    { name: 'Open Mics', url: 'https://comediq.us/open-mics' },
+  ]);
+
+  const seoTitle = filters.borough !== "All" 
+    ? `Comedy Open Mics in ${filters.borough} - NYC | Comediq`
+    : "Find Comedy Open Mics in NYC | Comediq";
+  
+  const seoDescription = filters.borough !== "All"
+    ? `Discover comedy open mics in ${filters.borough}. Real-time schedules, venue details, and comedian reviews.`
+    : "Find every comedy open mic in NYC. Real-time schedules, venue details, comedian reviews, and set tracking.";
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
-      <PageHeader title="Find Open Mics" subtitle="Discover comedy open mics across NYC" />
+    <>
+      <SEO
+        title={seoTitle}
+        description={seoDescription}
+        url="https://comediq.us/open-mics"
+        structuredData={breadcrumbSchema}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
+        <PageHeader title="Find Open Mics" subtitle="Discover comedy open mics across NYC" />
 
       <div className="max-w-7xl mx-auto px-4 pt-28 pb-0">
         {/* Key/Legend */}
@@ -621,7 +643,8 @@ const OpenMics = () => {
         </Card>
       </div>
       {showRequestModal && <ShowForm onSubmit={handleRequestMic} onCancel={() => setShowRequestModal(false)} />}
-    </div>
+      </div>
+    </>
   );
 };
 
