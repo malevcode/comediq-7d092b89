@@ -212,6 +212,7 @@ export type Database = {
           open_mic: string
           other_rules: string | null
           sign_up_instructions: string | null
+          signup_enabled: boolean
           sms_response: string | null
           stage_time: string | null
           start_time: string | null
@@ -234,6 +235,7 @@ export type Database = {
           open_mic: string
           other_rules?: string | null
           sign_up_instructions?: string | null
+          signup_enabled?: boolean
           sms_response?: string | null
           stage_time?: string | null
           start_time?: string | null
@@ -256,6 +258,7 @@ export type Database = {
           open_mic?: string
           other_rules?: string | null
           sign_up_instructions?: string | null
+          signup_enabled?: boolean
           sms_response?: string | null
           stage_time?: string | null
           start_time?: string | null

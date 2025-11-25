@@ -70,8 +70,9 @@ export default function MicSignup() {
             <CardHeader>
               <CardTitle>No Active Signups</CardTitle>
               <CardDescription>
-                There are no signup events currently available for this mic.
-                Check back later or contact the host.
+                {mic.signupEnabled 
+                  ? "There are no signup events currently available for this mic. The host hasn't created any events yet. Check back later!"
+                  : "This mic hasn't enabled Comediq signups yet. Contact the host directly using their sign-up instructions on the mic details page."}
               </CardDescription>
             </CardHeader>
           </Card>

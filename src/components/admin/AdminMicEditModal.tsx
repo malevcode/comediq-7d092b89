@@ -115,6 +115,23 @@ const AdminMicEditModal = ({ open, onClose, mic, onSave, adminName }: any) => {
               onCheckedChange={(checked) => handleChange('active', checked)}
             />
           </div>
+
+          {/* Signup Enabled Toggle */}
+          <div className="flex items-center justify-between pt-2 border-t">
+            <div className="flex flex-col">
+              <Label htmlFor="signup-toggle" className="text-sm font-semibold text-gray-700">
+                Comediq Signups
+              </Label>
+              <span className="text-xs text-gray-500">
+                {formData.signup_enabled ? 'Enabled - Hosts can manage signups on Comediq' : 'Disabled - No signup functionality'}
+              </span>
+            </div>
+            <Switch
+              id="signup-toggle"
+              checked={formData.signup_enabled || false}
+              onCheckedChange={(checked) => handleChange('signup_enabled', checked)}
+            />
+          </div>
         </div>
         <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4">
           <Button type="button" variant="outline" onClick={handleQuickVerify} className="w-full sm:w-auto">Quick Verify</Button>

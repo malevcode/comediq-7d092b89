@@ -224,15 +224,17 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
           {/* Quick Actions */}
           {user && (
             <div className="mb-6 flex gap-3">
-              <Button 
-                asChild
-                className="bg-orange-600 hover:bg-orange-700 text-white text-sm flex-1"
-              >
-                <Link to={linkManager.micSignup(mic)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Sign Up for Spots
-                </Link>
-              </Button>
+              {mic.signupEnabled && (
+                <Button 
+                  asChild
+                  className="bg-orange-600 hover:bg-orange-700 text-white text-sm flex-1"
+                >
+                  <Link to={linkManager.micSignup(mic)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Sign Up for Spots
+                  </Link>
+                </Button>
+              )}
               <Button 
                 onClick={handleAddToSchedule}
                 variant="outline"

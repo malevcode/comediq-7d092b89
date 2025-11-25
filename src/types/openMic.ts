@@ -18,4 +18,5 @@ export interface OpenMic {
   lastVerified: string;
   uniqueIdentifier: string;
   city: string;
+  signupEnabled: boolean;
 }

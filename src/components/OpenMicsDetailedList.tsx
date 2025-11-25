@@ -374,17 +374,19 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
                 </a>
               </div>
               <div className="flex flex-col gap-2">
-              <Button
-                size="sm"
-                variant="default"
-                className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
-                asChild
-              >
-                <Link to={linkManager.micSignup(mic)}>
-                  <UserRoundCheck className="w-4 h-4" />
-                  Sign Up for Spots
-                </Link>
-              </Button>
+              {mic.signupEnabled && (
+                <Button
+                  size="sm"
+                  variant="default"
+                  className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
+                  asChild
+                >
+                  <Link to={linkManager.micSignup(mic)}>
+                    <UserRoundCheck className="w-4 h-4" />
+                    Sign Up for Spots
+                  </Link>
+                </Button>
+              )}
               {user && (
                 <Button
                   size="sm"
