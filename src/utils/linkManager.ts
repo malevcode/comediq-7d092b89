@@ -16,6 +16,7 @@ interface FilterParams {
 export const linkManager = {
   // Mic pages
   micDetail: (mic: OpenMic) => `/mics/${generateVenueSlug(mic)}`,
+  micSignup: (mic: OpenMic) => `/mic/${generateVenueSlug(mic)}/signup`,
   
   // User navigation with filters (query params)
   openMicsFilteredByDay: (day: string) => `/open-mics?day=${encodeURIComponent(day)}`,

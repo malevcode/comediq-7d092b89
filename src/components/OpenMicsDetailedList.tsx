@@ -10,6 +10,8 @@ import { useUserLocation } from '@/hooks/useUserLocation';
 import { DistanceService } from '@/services/distanceService';
 import { set } from "date-fns";
 import { makeLinksClickable } from '@/utils/makeLinksClickable';
+import { linkManager } from '@/utils/linkManager';
+import { Link } from 'react-router-dom';
 
 // Helper function to get map URL based on device
 function getMapUrl(location: string, venueName: string) {
@@ -371,7 +373,18 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
                   <MapPin className="w-3 h-3" /> {mic.location}
                 </a>
               </div>
-              <div className="">
+              <div className="flex flex-col gap-2">
+              <Button
+                size="sm"
+                variant="default"
+                className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
+                asChild
+              >
+                <Link to={linkManager.micSignup(mic)}>
+                  <UserRoundCheck className="w-4 h-4" />
+                  Sign Up for Spots
+                </Link>
+              </Button>
               {user && (
                 <Button
                   size="sm"
