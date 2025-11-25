@@ -25,6 +25,7 @@ export interface OpenMicDisplay {
   'Other Rules': string;
   'unique_identifier': string;
   'active': boolean;
+  'signup_enabled': boolean;
 }
 
 export interface FetchOpenMicsOptions {
@@ -73,6 +74,7 @@ export async function fetchOpenMics(options: FetchOpenMicsOptions = {}) {
     'Other Rules': mic.other_rules || '',
     'unique_identifier': mic.unique_identifier || '',
     'active': mic.active ?? true,
+    'signup_enabled': mic.signup_enabled ?? false,
   } as OpenMicDisplay));
 }
 
@@ -115,6 +117,7 @@ export async function updateMic(uniqueId: string, updates: Partial<OpenMicDispla
   if (updates['Last verified'] !== undefined) dbUpdates.last_verified = updates['Last verified'];
   if (updates['Other Rules'] !== undefined) dbUpdates.other_rules = updates['Other Rules'];
   if (updates['active'] !== undefined) dbUpdates.active = updates['active'];
+  if (updates['signup_enabled'] !== undefined) dbUpdates.signup_enabled = updates['signup_enabled'];
 
   const { data, error } = await supabase
     .from('open_mics_historical')
