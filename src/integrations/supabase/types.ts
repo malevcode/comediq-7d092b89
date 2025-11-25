@@ -40,6 +40,162 @@ export type Database = {
           },
         ]
       }
+      mic_hosts: {
+        Row: {
+          created_at: string
+          id: string
+          is_verified: boolean
+          mic_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_verified?: boolean
+          mic_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_verified?: boolean
+          mic_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mic_hosts_mic_id_fkey"
+            columns: ["mic_id"]
+            isOneToOne: false
+            referencedRelation: "open_mics_historical"
+            referencedColumns: ["unique_identifier"]
+          },
+          {
+            foreignKeyName: "mic_hosts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      mic_signup_events: {
+        Row: {
+          created_at: string
+          event_date: string
+          event_time: string | null
+          host_id: string
+          id: string
+          is_active: boolean
+          mic_id: string
+          notes: string | null
+          signup_closes_at: string | null
+          signup_mode: Database["public"]["Enums"]["signup_mode"]
+          signup_opens_at: string | null
+          spots_remaining: number
+          total_spots: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_date: string
+          event_time?: string | null
+          host_id: string
+          id?: string
+          is_active?: boolean
+          mic_id: string
+          notes?: string | null
+          signup_closes_at?: string | null
+          signup_mode?: Database["public"]["Enums"]["signup_mode"]
+          signup_opens_at?: string | null
+          spots_remaining?: number
+          total_spots?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_date?: string
+          event_time?: string | null
+          host_id?: string
+          id?: string
+          is_active?: boolean
+          mic_id?: string
+          notes?: string | null
+          signup_closes_at?: string | null
+          signup_mode?: Database["public"]["Enums"]["signup_mode"]
+          signup_opens_at?: string | null
+          spots_remaining?: number
+          total_spots?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mic_signup_events_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "mic_hosts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mic_signup_events_mic_id_fkey"
+            columns: ["mic_id"]
+            isOneToOne: false
+            referencedRelation: "open_mics_historical"
+            referencedColumns: ["unique_identifier"]
+          },
+        ]
+      }
+      mic_signups: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          notes: string | null
+          signup_order: number | null
+          status: Database["public"]["Enums"]["signup_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          notes?: string | null
+          signup_order?: number | null
+          status?: Database["public"]["Enums"]["signup_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          notes?: string | null
+          signup_order?: number | null
+          status?: Database["public"]["Enums"]["signup_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mic_signups_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "mic_signup_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mic_signups_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       open_mics_historical: {
         Row: {
           active: boolean | null
@@ -438,6 +594,8 @@ export type Database = {
       rating_type: "like" | "dislike"
       relation_type: "liked" | "upcoming" | "past"
       schedule_type: "upcoming" | "completed" | "cancelled"
+      signup_mode: "first_come" | "lottery" | "bucket"
+      signup_status: "confirmed" | "waitlist" | "lottery_pending" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -568,6 +726,8 @@ export const Constants = {
       rating_type: ["like", "dislike"],
       relation_type: ["liked", "upcoming", "past"],
       schedule_type: ["upcoming", "completed", "cancelled"],
+      signup_mode: ["first_come", "lottery", "bucket"],
+      signup_status: ["confirmed", "waitlist", "lottery_pending", "cancelled"],
     },
   },
 } as const
