@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { makeLinksClickable } from '@/utils/makeLinksClickable';
+import { linkManager } from '@/utils/linkManager';
+import { Link } from 'react-router-dom';
 
 interface MicDetailModalProps {
   mic: OpenMic;
@@ -219,12 +221,22 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
 
         {/* Content */}
         <div className="p-6">
-          {/* Quick Actions - Only My Schedule button */}
+          {/* Quick Actions */}
           {user && (
-            <div className="mb-6">
+            <div className="mb-6 flex gap-3">
+              <Button 
+                asChild
+                className="bg-orange-600 hover:bg-orange-700 text-white text-sm flex-1"
+              >
+                <Link to={linkManager.micSignup(mic)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Sign Up for Spots
+                </Link>
+              </Button>
               <Button 
                 onClick={handleAddToSchedule}
-                className="bg-orange-600 hover:bg-orange-700 text-white text-sm w-full sm:w-auto"
+                variant="outline"
+                className="text-sm flex-1"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 My Schedule
