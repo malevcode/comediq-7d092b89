@@ -30,6 +30,7 @@ import FreeMics from "./pages/FreeMics";
 import BeginnerMics from "./pages/BeginnerMics";
 import HostDashboard from "./pages/HostDashboard";
 import MicSignup from "./pages/MicSignup";
+import JobBoard from "./pages/JobBoard";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -75,6 +76,7 @@ const App = () => (
             <Route path="/beginner-friendly" element={<BeginnerMics />} />
             <Route path="/host-dashboard" element={<HostDashboard />} />
             <Route path="/mic/:slug/signup" element={<MicSignup />} />
+            <Route path="/job-board" element={<JobBoard />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
