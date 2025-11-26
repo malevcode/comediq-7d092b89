@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      comedian_social_links: {
+        Row: {
+          created_at: string | null
+          handle: string
+          id: string
+          is_primary: boolean | null
+          platform: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          handle: string
+          id?: string
+          is_primary?: boolean | null
+          platform: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          handle?: string
+          id?: string
+          is_primary?: boolean | null
+          platform?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comedian_social_links_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       gcal_clicks: {
         Row: {
           created_at: string
@@ -409,28 +447,46 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bio: string | null
           created_at: string
+          credit: string | null
+          headshot_url: string | null
           id: string
           isadmin: boolean
           phone: string | null
+          stage_name: string | null
+          updated_at: string | null
           user_id: string
           username: string | null
+          years_performing: number | null
         }
         Insert: {
+          bio?: string | null
           created_at?: string
+          credit?: string | null
+          headshot_url?: string | null
           id?: string
           isadmin?: boolean
           phone?: string | null
+          stage_name?: string | null
+          updated_at?: string | null
           user_id: string
           username?: string | null
+          years_performing?: number | null
         }
         Update: {
+          bio?: string | null
           created_at?: string
+          credit?: string | null
+          headshot_url?: string | null
           id?: string
           isadmin?: boolean
           phone?: string | null
+          stage_name?: string | null
+          updated_at?: string | null
           user_id?: string
           username?: string | null
+          years_performing?: number | null
         }
         Relationships: []
       }
