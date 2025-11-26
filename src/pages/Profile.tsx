@@ -6,7 +6,7 @@ import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Heart, MapPin, Clock, LogIn, Edit } from 'lucide-react';
+import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
 import { OpenMic } from '@/types/openMic';
@@ -14,6 +14,7 @@ import PageHeader from '@/components/PageHeader';
 import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import SocialLinksManager from '@/components/profile/SocialLinksManager';
 import ComedianCard from '@/components/profile/ComedianCard';
+import WorkHistorySection from '@/components/profile/WorkHistorySection';
 import { 
   useComedianProfile, 
   useUpdateProfile, 
@@ -90,10 +91,11 @@ const Profile = () => {
         
         <div className="max-w-7xl mx-auto px-4 pt-28 pb-6">
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="profile">My Profile</TabsTrigger>
+              <TabsTrigger value="work">Work History</TabsTrigger>
               <TabsTrigger value="liked">Liked Mics</TabsTrigger>
-              <TabsTrigger value="signups">My Signups</TabsTrigger>
+              <TabsTrigger value="signups">Signups</TabsTrigger>
             </TabsList>
 
             {/* My Profile Tab */}
@@ -164,6 +166,11 @@ const Profile = () => {
                   />
                 </>
               )}
+            </TabsContent>
+
+            {/* Work History Tab */}
+            <TabsContent value="work" className="space-y-6">
+              <WorkHistorySection userId={user.id} />
             </TabsContent>
 
             {/* Liked Mics Tab */}

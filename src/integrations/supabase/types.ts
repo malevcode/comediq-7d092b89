@@ -583,6 +583,7 @@ export type Database = {
             | Database["public"]["Enums"]["experience_level"]
             | null
           id: string
+          is_custom_role: boolean | null
           posting_id: string
           requirements: string | null
           role_category: Database["public"]["Enums"]["role_category"]
@@ -601,6 +602,7 @@ export type Database = {
             | Database["public"]["Enums"]["experience_level"]
             | null
           id?: string
+          is_custom_role?: boolean | null
           posting_id: string
           requirements?: string | null
           role_category: Database["public"]["Enums"]["role_category"]
@@ -619,6 +621,7 @@ export type Database = {
             | Database["public"]["Enums"]["experience_level"]
             | null
           id?: string
+          is_custom_role?: boolean | null
           posting_id?: string
           requirements?: string | null
           role_category?: Database["public"]["Enums"]["role_category"]
@@ -919,6 +922,109 @@ export type Database = {
         }
         Relationships: []
       }
+      work_history: {
+        Row: {
+          application_id: string | null
+          borough: string | null
+          compensation_amount: number | null
+          compensation_type:
+            | Database["public"]["Enums"]["compensation_type"]
+            | null
+          completed_at: string | null
+          confirmed_by_producer: boolean | null
+          created_at: string | null
+          id: string
+          posting_id: string | null
+          producer_id: string | null
+          producer_notes: string | null
+          producer_rating: number | null
+          role_category: Database["public"]["Enums"]["role_category"]
+          role_id: string | null
+          role_type: string
+          show_date: string
+          show_title: string
+          show_type: string | null
+          stage_time_minutes: number | null
+          user_id: string
+          venue_address: string | null
+          venue_name: string
+        }
+        Insert: {
+          application_id?: string | null
+          borough?: string | null
+          compensation_amount?: number | null
+          compensation_type?:
+            | Database["public"]["Enums"]["compensation_type"]
+            | null
+          completed_at?: string | null
+          confirmed_by_producer?: boolean | null
+          created_at?: string | null
+          id?: string
+          posting_id?: string | null
+          producer_id?: string | null
+          producer_notes?: string | null
+          producer_rating?: number | null
+          role_category: Database["public"]["Enums"]["role_category"]
+          role_id?: string | null
+          role_type: string
+          show_date: string
+          show_title: string
+          show_type?: string | null
+          stage_time_minutes?: number | null
+          user_id: string
+          venue_address?: string | null
+          venue_name: string
+        }
+        Update: {
+          application_id?: string | null
+          borough?: string | null
+          compensation_amount?: number | null
+          compensation_type?:
+            | Database["public"]["Enums"]["compensation_type"]
+            | null
+          completed_at?: string | null
+          confirmed_by_producer?: boolean | null
+          created_at?: string | null
+          id?: string
+          posting_id?: string | null
+          producer_id?: string | null
+          producer_notes?: string | null
+          producer_rating?: number | null
+          role_category?: Database["public"]["Enums"]["role_category"]
+          role_id?: string | null
+          role_type?: string
+          show_date?: string
+          show_title?: string
+          show_type?: string | null
+          stage_time_minutes?: number | null
+          user_id?: string
+          venue_address?: string | null
+          venue_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_history_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "job_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_history_posting_id_fkey"
+            columns: ["posting_id"]
+            isOneToOne: false
+            referencedRelation: "show_postings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_history_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "role_openings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       mic_like_counts: {
@@ -940,6 +1046,8 @@ export type Database = {
         | "declined"
         | "withdrawn"
         | "waitlisted"
+        | "completed"
+        | "no_show"
       compensation_type:
         | "paid"
         | "unpaid"
@@ -1090,6 +1198,8 @@ export const Constants = {
         "declined",
         "withdrawn",
         "waitlisted",
+        "completed",
+        "no_show",
       ],
       compensation_type: [
         "paid",
