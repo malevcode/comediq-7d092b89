@@ -135,3 +135,47 @@ export interface PostingFilters {
   dateTo?: string;
   showType?: string;
 }
+
+export interface WorkHistoryItem {
+  id: string;
+  user_id: string;
+  application_id?: string;
+  posting_id?: string;
+  role_id?: string;
+  
+  // Show details (preserved)
+  show_title: string;
+  venue_name: string;
+  venue_address?: string;
+  borough?: string;
+  show_date: string;
+  show_type?: string;
+  
+  // Role details
+  role_category: RoleCategory;
+  role_type: string;
+  stage_time_minutes?: number;
+  compensation_type?: CompensationType;
+  compensation_amount?: number;
+  
+  // Verification
+  confirmed_by_producer: boolean;
+  producer_id?: string;
+  producer_rating?: number;
+  producer_notes?: string;
+  
+  completed_at: string;
+  created_at: string;
+}
+
+export interface WorkStats {
+  total_gigs: number;
+  performer_gigs: number;
+  crew_gigs: number;
+  role_breakdown: Record<string, number>;
+  average_rating?: number;
+  total_ratings: number;
+  venues_worked: string[];
+  first_gig_date?: string;
+  latest_gig_date?: string;
+}

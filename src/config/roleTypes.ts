@@ -14,10 +14,16 @@ export const CREW_ROLES = [
   { value: 'videographer', label: 'Videographer' },
   { value: 'photographer', label: 'Photographer' },
   { value: 'barker', label: 'Barker/Street Team' },
+  { value: 'barker_2', label: 'Barker #2' },
+  { value: 'barker_3', label: 'Barker #3' },
   { value: 'sound', label: 'Sound Tech' },
   { value: 'lighting', label: 'Lighting Tech' },
   { value: 'producer_assistant', label: 'Producer Assistant' },
   { value: 'stage_manager', label: 'Stage Manager' },
+  { value: 'security', label: 'Security' },
+  { value: 'server', label: 'Server/Waiter' },
+  { value: 'runner', label: 'Runner' },
+  { value: 'custom', label: 'Other (Custom)' },
 ] as const;
 
 export const SHOW_TYPES = [
