@@ -15,6 +15,7 @@ import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import SocialLinksManager from '@/components/profile/SocialLinksManager';
 import ComedianCard from '@/components/profile/ComedianCard';
 import WorkHistorySection from '@/components/profile/WorkHistorySection';
+import ProfileCompleteness from '@/components/profile/ProfileCompleteness';
 import { 
   useComedianProfile, 
   useUpdateProfile, 
@@ -102,6 +103,11 @@ const Profile = () => {
             <TabsContent value="profile" className="space-y-6">
               {!isEditing ? (
                 <>
+                  <ProfileCompleteness 
+                    profile={profile} 
+                    onEditClick={() => setIsEditing(true)} 
+                  />
+                  
                   <div className="flex justify-end">
                     <Button onClick={() => setIsEditing(true)} variant="outline">
                       <Edit className="h-4 w-4 mr-2" />

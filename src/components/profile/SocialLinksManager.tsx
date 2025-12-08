@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, Instagram, Youtube, Music2, Twitter, Globe } from 'lucide-react';
+import { Plus, Trash2, Instagram, Youtube, Music2, Twitter, Globe, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,8 +19,30 @@ const PLATFORMS = [
   { value: 'youtube', label: 'YouTube', icon: Youtube },
   { value: 'tiktok', label: 'TikTok', icon: Music2 },
   { value: 'twitter', label: 'Twitter/X', icon: Twitter },
+  { value: 'venmo', label: 'Venmo', icon: DollarSign },
   { value: 'website', label: 'Website', icon: Globe },
 ];
+
+// Auto-generate URLs from handles
+const generateUrl = (platform: string, handle: string): string => {
+  // Clean up handle - remove @ if present
+  const cleanHandle = handle.replace(/^@/, '');
+  
+  switch (platform) {
+    case 'instagram':
+      return `https://instagram.com/${cleanHandle}`;
+    case 'youtube':
+      return `https://youtube.com/@${cleanHandle}`;
+    case 'tiktok':
+      return `https://tiktok.com/@${cleanHandle}`;
+    case 'twitter':
+      return `https://x.com/${cleanHandle}`;
+    case 'venmo':
+      return `https://venmo.com/u/${cleanHandle}`;
+    default:
+      return handle; // For website, user enters full URL
+  }
+};
 
 export default function SocialLinksManager({
   socialLinks,
@@ -31,15 +53,16 @@ export default function SocialLinksManager({
   const [showAddForm, setShowAddForm] = useState(false);
   const [newPlatform, setNewPlatform] = useState('');
   const [newHandle, setNewHandle] = useState('');
-  const [newUrl, setNewUrl] = useState('');
 
   const handleAdd = () => {
-    if (!newPlatform || !newHandle || !newUrl) return;
+    if (!newPlatform || !newHandle) return;
     
-    onAdd(newPlatform, newHandle, newUrl);
+    const url = generateUrl(newPlatform, newHandle);
+    const cleanHandle = newHandle.replace(/^@/, '');
+    
+    onAdd(newPlatform, cleanHandle, url);
     setNewPlatform('');
     setNewHandle('');
-    setNewUrl('');
     setShowAddForm(false);
   };
 
@@ -52,6 +75,16 @@ export default function SocialLinksManager({
   const availablePlatforms = PLATFORMS.filter(
     p => !socialLinks.some(link => link.platform === p.value)
   );
+
+  const getPlaceholder = (platform: string) => {
+    if (platform === 'website') return 'https://yoursite.com';
+    if (platform === 'venmo') return 'username (no @)';
+    return '@username';
+  };
+
+  const getInputLabel = (platform: string) => {
+    return platform === 'website' ? 'URL' : 'Handle';
+  };
 
   return (
     <Card>
@@ -81,10 +114,16 @@ export default function SocialLinksManager({
 
         {socialLinks.map((link) => (
           <div key={link.platform} className="flex items-center gap-3 p-3 border rounded-lg">
-            <div className="text-primary">{getIcon(link.platform)}</div>
+            <div className={link.platform === 'venmo' ? 'text-green-600' : 'text-primary'}>
+              {getIcon(link.platform)}
+            </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium capitalize">{link.platform}</p>
-              <p className="text-sm text-muted-foreground truncate">@{link.handle}</p>
+              <p className="font-medium capitalize">
+                {link.platform === 'venmo' ? '💸 Venmo (Tip Me)' : link.platform}
+              </p>
+              <p className="text-sm text-muted-foreground truncate">
+                {link.platform === 'website' ? link.url : `@${link.handle}`}
+              </p>
             </div>
             <Button
               type="button"
@@ -103,14 +142,20 @@ export default function SocialLinksManager({
           <div className="space-y-3 p-4 border rounded-lg bg-muted/50">
             <div>
               <Label htmlFor="platform">Platform</Label>
-              <Select value={newPlatform} onValueChange={setNewPlatform}>
+              <Select value={newPlatform} onValueChange={(val) => {
+                setNewPlatform(val);
+                setNewHandle(''); // Reset handle when platform changes
+              }}>
                 <SelectTrigger id="platform">
                   <SelectValue placeholder="Select platform" />
                 </SelectTrigger>
                 <SelectContent>
                   {availablePlatforms.map((platform) => (
                     <SelectItem key={platform.value} value={platform.value}>
-                      {platform.label}
+                      <div className="flex items-center gap-2">
+                        <platform.icon className="h-4 w-4" />
+                        {platform.label}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -118,23 +163,18 @@ export default function SocialLinksManager({
             </div>
 
             <div>
-              <Label htmlFor="handle">Handle</Label>
+              <Label htmlFor="handle">{newPlatform ? getInputLabel(newPlatform) : 'Handle'}</Label>
               <Input
                 id="handle"
                 value={newHandle}
                 onChange={(e) => setNewHandle(e.target.value)}
-                placeholder="username"
+                placeholder={newPlatform ? getPlaceholder(newPlatform) : 'username'}
               />
-            </div>
-
-            <div>
-              <Label htmlFor="url">URL</Label>
-              <Input
-                id="url"
-                value={newUrl}
-                onChange={(e) => setNewUrl(e.target.value)}
-                placeholder="https://..."
-              />
+              {newPlatform && newPlatform !== 'website' && newHandle && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  URL: {generateUrl(newPlatform, newHandle)}
+                </p>
+              )}
             </div>
 
             <div className="flex gap-2">
@@ -142,7 +182,7 @@ export default function SocialLinksManager({
                 type="button"
                 size="sm"
                 onClick={handleAdd}
-                disabled={!newPlatform || !newHandle || !newUrl || isLoading}
+                disabled={!newPlatform || !newHandle || isLoading}
               >
                 Add Link
               </Button>
@@ -154,7 +194,6 @@ export default function SocialLinksManager({
                   setShowAddForm(false);
                   setNewPlatform('');
                   setNewHandle('');
-                  setNewUrl('');
                 }}
               >
                 Cancel
