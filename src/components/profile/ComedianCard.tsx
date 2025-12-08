@@ -1,4 +1,4 @@
-import { Instagram, Youtube, Music2, Twitter, Globe, Award } from 'lucide-react';
+import { Instagram, Youtube, Music2, Twitter, Globe, Award, DollarSign } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,9 @@ interface ComedianCardProps {
   comedian: ComedianProfile;
   variant?: 'default' | 'compact';
 }
+
+// Order of display for social links
+const PLATFORM_ORDER = ['instagram', 'tiktok', 'youtube', 'twitter', 'venmo', 'website'];
 
 export default function ComedianCard({ comedian, variant = 'default' }: ComedianCardProps) {
   const stageName = comedian.stage_name || comedian.username || 'Comedian';
@@ -19,13 +22,22 @@ export default function ComedianCard({ comedian, variant = 'default' }: Comedian
       case 'youtube': return <Youtube className="h-4 w-4" />;
       case 'tiktok': return <Music2 className="h-4 w-4" />;
       case 'twitter': return <Twitter className="h-4 w-4" />;
+      case 'venmo': return <DollarSign className="h-4 w-4" />;
       case 'website': return <Globe className="h-4 w-4" />;
       default: return <Globe className="h-4 w-4" />;
     }
   };
 
   const primaryLink = comedian.social_links?.find(link => link.is_primary);
-  const displayLinks = comedian.social_links?.slice(0, 3) || [];
+  
+  // Sort links by platform order and limit to 5
+  const sortedLinks = [...(comedian.social_links || [])]
+    .sort((a, b) => {
+      const aIndex = PLATFORM_ORDER.indexOf(a.platform);
+      const bIndex = PLATFORM_ORDER.indexOf(b.platform);
+      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+    })
+    .slice(0, 5);
 
   if (variant === 'compact') {
     return (
@@ -84,16 +96,20 @@ export default function ComedianCard({ comedian, variant = 'default' }: Comedian
             <p className="text-sm text-muted-foreground line-clamp-3">{comedian.bio}</p>
           )}
 
-          {displayLinks.length > 0 && (
+          {sortedLinks.length > 0 && (
             <div className="flex gap-3 pt-2">
-              {displayLinks.map((link) => (
+              {sortedLinks.map((link) => (
                 <a
                   key={link.platform}
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                  title={`@${link.handle}`}
+                  className={`transition-colors ${
+                    link.platform === 'venmo' 
+                      ? 'text-green-600 hover:text-green-700' 
+                      : 'text-muted-foreground hover:text-primary'
+                  }`}
+                  title={link.platform === 'venmo' ? 'Tip Me!' : `@${link.handle}`}
                 >
                   {getSocialIcon(link.platform)}
                 </a>
