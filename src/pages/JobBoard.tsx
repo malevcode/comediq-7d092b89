@@ -22,6 +22,14 @@ const JobBoard = () => {
 
   const { data: postings, isLoading } = useOpenPostings(filters);
 
+  const handlePostGig = () => {
+    if (user) {
+      navigate("/job-board/create");
+    } else {
+      navigate("/auth?redirect=/job-board/create");
+    }
+  };
+
   // Client-side search filtering
   const filteredPostings = useMemo(() => {
     if (!postings) return [];
@@ -49,10 +57,6 @@ const JobBoard = () => {
     navigate(`/job-board/${id}`);
   };
 
-  const handleCreatePosting = () => {
-    navigate("/job-board/create");
-  };
-
   return (
     <>
       <SEO
@@ -63,7 +67,22 @@ const JobBoard = () => {
       <div className="min-h-screen bg-background pb-20">
         <PageHeader title="Job Board" subtitle="Find comedy gigs and crew work" />
 
-        <div className="pt-24 px-4 max-w-7xl mx-auto">
+        <div className="pt-24 px-4 max-w-7xl mx-auto pb-24">
+          {/* Prominent CTA Card */}
+          <div className="mb-6 p-6 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold text-foreground mb-1">🎤 Have a show coming up?</h2>
+                <p className="text-muted-foreground text-sm">
+                  Need barkers, comedians, or crew? Post your gig and find the right people.
+                </p>
+              </div>
+              <Button onClick={handlePostGig} size="lg" className="shrink-0">
+                <Plus className="h-4 w-4 mr-2" />
+                Post a Gig
+              </Button>
+            </div>
+          </div>
           {/* Search and Create Button */}
           <div className="mb-6 flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
@@ -94,12 +113,10 @@ const JobBoard = () => {
               </SheetContent>
             </Sheet>
 
-            {user && (
-              <Button onClick={handleCreatePosting} className="shrink-0">
-                <Plus className="h-4 w-4 mr-2" />
-                Post a Gig
-              </Button>
-            )}
+            <Button onClick={handlePostGig} className="shrink-0">
+              <Plus className="h-4 w-4 mr-2" />
+              Post a Gig
+            </Button>
           </div>
 
           <div className="flex gap-6">
@@ -140,12 +157,10 @@ const JobBoard = () => {
                     <p className="text-lg font-medium">No job postings yet</p>
                     <p className="text-sm">Be the first to post an opportunity!</p>
                   </div>
-                  {user && (
-                    <Button onClick={handleCreatePosting} className="mt-4">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Post a Gig
-                    </Button>
-                  )}
+                  <Button onClick={handlePostGig} className="mt-4">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Post a Gig
+                  </Button>
                 </div>
               )}
 
@@ -181,6 +196,15 @@ const JobBoard = () => {
             </main>
           </div>
         </div>
+
+        {/* Mobile Floating Action Button */}
+        <Button
+          onClick={handlePostGig}
+          className="fixed bottom-24 right-4 sm:hidden h-14 w-14 rounded-full shadow-lg z-50"
+          size="icon"
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
       </div>
     </>
   );
