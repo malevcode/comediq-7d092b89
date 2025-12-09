@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useOpenPostings, useUserJobRole } from "@/hooks/useJobBoard";
+import { useOpenPostings } from "@/hooks/useJobBoard";
 import { useAuth } from "@/contexts/AuthContext";
 import type { PostingFilters as FilterType } from "@/types/jobBoard";
 import SEO from "@/components/SEO";
@@ -21,9 +21,6 @@ const JobBoard = () => {
   const [showFiltersSheet, setShowFiltersSheet] = useState(false);
 
   const { data: postings, isLoading } = useOpenPostings(filters);
-  const { data: userRole } = useUserJobRole(user?.id);
-
-  const canCreatePosting = user && userRole && (userRole.role === "producer" || userRole.role === "both");
 
   // Client-side search filtering
   const filteredPostings = useMemo(() => {
@@ -53,7 +50,7 @@ const JobBoard = () => {
   };
 
   const handleCreatePosting = () => {
-    navigate("/producer-dashboard");
+    navigate("/job-board/create");
   };
 
   return (
@@ -97,10 +94,10 @@ const JobBoard = () => {
               </SheetContent>
             </Sheet>
 
-            {canCreatePosting && (
+            {user && (
               <Button onClick={handleCreatePosting} className="shrink-0">
                 <Plus className="h-4 w-4 mr-2" />
-                Create Posting
+                Post a Gig
               </Button>
             )}
           </div>
@@ -143,10 +140,10 @@ const JobBoard = () => {
                     <p className="text-lg font-medium">No job postings yet</p>
                     <p className="text-sm">Be the first to post an opportunity!</p>
                   </div>
-                  {canCreatePosting && (
+                  {user && (
                     <Button onClick={handleCreatePosting} className="mt-4">
                       <Plus className="h-4 w-4 mr-2" />
-                      Create First Posting
+                      Post a Gig
                     </Button>
                   )}
                 </div>
