@@ -113,7 +113,7 @@ const SiteFooter = () => {
               By providing your phone number and opting in to SMS notifications, you consent to receive text messages from Comediq related to: open mic verification confirmations, lineup spot notifications, show reminders and updates, and job board application status.
             </p>
             <p className="text-xs text-gray-400 mt-2">
-              <strong className="text-gray-300">Message Frequency:</strong> Varies based on your activity. Typically 1-5 messages per week.
+              <strong className="text-gray-300">Message Frequency:</strong> Typically 1-5 messages per month, usually just a monthly update.
             </p>
             <p className="text-xs text-gray-400 mt-2">
               <strong className="text-gray-300">Message & Data Rates May Apply.</strong> Reply STOP to unsubscribe at any time. Reply HELP for assistance.
