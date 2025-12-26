@@ -191,6 +191,13 @@ export type Database = {
             foreignKeyName: "mic_hosts_mic_id_fkey"
             columns: ["mic_id"]
             isOneToOne: false
+            referencedRelation: "open_mics_display"
+            referencedColumns: ["unique_identifier"]
+          },
+          {
+            foreignKeyName: "mic_hosts_mic_id_fkey"
+            columns: ["mic_id"]
+            isOneToOne: false
             referencedRelation: "open_mics_historical"
             referencedColumns: ["unique_identifier"]
           },
@@ -259,6 +266,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "mic_hosts"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mic_signup_events_mic_id_fkey"
+            columns: ["mic_id"]
+            isOneToOne: false
+            referencedRelation: "open_mics_display"
+            referencedColumns: ["unique_identifier"]
           },
           {
             foreignKeyName: "mic_signup_events_mic_id_fkey"
@@ -512,6 +526,13 @@ export type Database = {
           schedule_type?: Database["public"]["Enums"]["schedule_type"] | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profile_open_mics_open_mic_id_fkey"
+            columns: ["open_mic_id"]
+            isOneToOne: false
+            referencedRelation: "open_mics_display"
+            referencedColumns: ["unique_identifier"]
+          },
           {
             foreignKeyName: "profile_open_mics_open_mic_id_fkey"
             columns: ["open_mic_id"]
@@ -1035,8 +1056,93 @@ export type Database = {
         }
         Relationships: []
       }
+      open_mics_display: {
+        Row: {
+          active: boolean | null
+          borough: string | null
+          changes_updates: string | null
+          city: string | null
+          cost: string | null
+          day: string | null
+          end_time_display: string | null
+          hosts_organizers: string | null
+          last_verified: string | null
+          last_verified_display: string | null
+          latest_end_time: string | null
+          location: string | null
+          neighborhood: string | null
+          open_mic: string | null
+          other_rules: string | null
+          sign_up_instructions: string | null
+          signup_enabled: boolean | null
+          sms_response: string | null
+          stage_time: string | null
+          start_time: string | null
+          start_time_display: string | null
+          unique_identifier: string | null
+          venue_name: string | null
+          venue_type: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          borough?: string | null
+          changes_updates?: string | null
+          city?: string | null
+          cost?: string | null
+          day?: string | null
+          end_time_display?: never
+          hosts_organizers?: string | null
+          last_verified?: string | null
+          last_verified_display?: never
+          latest_end_time?: string | null
+          location?: string | null
+          neighborhood?: string | null
+          open_mic?: string | null
+          other_rules?: string | null
+          sign_up_instructions?: string | null
+          signup_enabled?: boolean | null
+          sms_response?: string | null
+          stage_time?: string | null
+          start_time?: string | null
+          start_time_display?: never
+          unique_identifier?: string | null
+          venue_name?: string | null
+          venue_type?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          borough?: string | null
+          changes_updates?: string | null
+          city?: string | null
+          cost?: string | null
+          day?: string | null
+          end_time_display?: never
+          hosts_organizers?: string | null
+          last_verified?: string | null
+          last_verified_display?: never
+          latest_end_time?: string | null
+          location?: string | null
+          neighborhood?: string | null
+          open_mic?: string | null
+          other_rules?: string | null
+          sign_up_instructions?: string | null
+          signup_enabled?: boolean | null
+          sms_response?: string | null
+          stage_time?: string | null
+          start_time?: string | null
+          start_time_display?: never
+          unique_identifier?: string | null
+          venue_name?: string | null
+          venue_type?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      get_or_create_system_host: {
+        Args: { mic_id_param: string }
+        Returns: string
+      }
       is_producer: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
