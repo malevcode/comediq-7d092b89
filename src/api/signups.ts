@@ -5,6 +5,85 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
+// Helper to get the next occurrence of a day
+function getNextOccurrence(dayName: string): Date {
+  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const today = new Date();
+  const currentDay = today.getDay();
+  const targetDay = daysOfWeek.indexOf(dayName);
+  
+  if (targetDay === -1) {
+    // Default to next week if day not found
+    const nextDate = new Date(today);
+    nextDate.setDate(today.getDate() + 7);
+    return nextDate;
+  }
+  
+  let daysUntil = targetDay - currentDay;
+  if (daysUntil <= 0) {
+    daysUntil += 7;
+  }
+  
+  const nextDate = new Date(today);
+  nextDate.setDate(today.getDate() + daysUntil);
+  return nextDate;
+}
+
+// Get or create the next signup event for a mic
+export async function getOrCreateNextEvent(micId: string, micDay: string, micStartTime?: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('Must be authenticated');
+
+  // First, check if there's already an active event for this mic in the future
+  const today = new Date().toISOString().split('T')[0];
+  
+  const { data: existingEvents, error: fetchError } = await supabase
+    .from('mic_signup_events')
+    .select('*')
+    .eq('mic_id', micId)
+    .eq('is_active', true)
+    .gte('event_date', today)
+    .order('event_date', { ascending: true })
+    .limit(1);
+
+  if (fetchError) throw fetchError;
+
+  // If there's already an event, return it
+  if (existingEvents && existingEvents.length > 0) {
+    return existingEvents[0];
+  }
+
+  // No event exists, create one using the security definer function
+  const { data: hostId, error: hostError } = await supabase
+    .rpc('get_or_create_system_host', { mic_id_param: micId });
+
+  if (hostError) throw hostError;
+
+  // Calculate the next occurrence date
+  const nextDate = getNextOccurrence(micDay);
+  const eventDate = nextDate.toISOString().split('T')[0];
+
+  // Create the new event
+  const { data: newEvent, error: createError } = await supabase
+    .from('mic_signup_events')
+    .insert({
+      mic_id: micId,
+      host_id: hostId,
+      event_date: eventDate,
+      event_time: micStartTime || null,
+      total_spots: 15,
+      spots_remaining: 15,
+      signup_mode: 'first_come' as const,
+      is_active: true,
+    })
+    .select()
+    .single();
+
+  if (createError) throw createError;
+  return newEvent;
+}
+
 // Claim to be a host for a mic
 export async function claimHostStatus(micId: string) {
   const { data: { user } } = await supabase.auth.getUser();

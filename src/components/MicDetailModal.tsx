@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { X, Calendar, Clock, MapPin, User, DollarSign, Timer, Plus, Share, Heart, ThumbsDown, LogIn, ChevronDown } from "lucide-react";
+import { X, Calendar, Clock, MapPin, User, DollarSign, Timer, Plus, Share, Heart, ThumbsDown, LogIn, ChevronDown, UserCheck } from "lucide-react";
 import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMicRatings, useUserLikedMics } from "@/hooks/useMicRatings";
@@ -333,6 +333,21 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
                 </div>
               </div>
             )}
+
+            {/* Host Claim CTA */}
+            <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-transparent border border-primary/20 rounded-lg p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-medium text-gray-900">Are you the host?</p>
+                  <p className="text-sm text-gray-600">Claim this mic to manage signups and keep info updated</p>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <Link to={`/host-dashboard?claim=${mic.uniqueIdentifier}`}>
+                    Claim Mic
+                  </Link>
+                </Button>
+              </div>
+            </div>
           </div>
 
           {/* Additional Actions - Collapsible */}

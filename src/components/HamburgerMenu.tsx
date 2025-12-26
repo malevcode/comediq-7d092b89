@@ -23,7 +23,8 @@ const HamburgerMenu = () => {
     { path: "/open-mics", icon: Search, label: "Find Mics" },
     { path: "/job-board", icon: Briefcase, label: "Job Board" },
     { path: "/shows", icon: Calendar, label: "Show Scheduler" },
-    { path: "/track-sets", icon: TrendingUp, label: "Progress Tracker" }
+    { path: "/track-sets", icon: TrendingUp, label: "Progress Tracker" },
+    ...(user ? [{ path: "/host-dashboard", icon: MicVocal, label: "Host Dashboard" }] : [])
   ];
 
   const isPerformActive = performSubItems.some(item => location.pathname === item.path);
