@@ -6,7 +6,7 @@ import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase } from 'lucide-react';
+import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
 import { OpenMic } from '@/types/openMic';
@@ -92,6 +92,26 @@ const Profile = () => {
         
         <div className="max-w-7xl mx-auto px-4 pt-28 pb-6">
           <Tabs defaultValue="profile" className="space-y-6">
+            {/* Wrapped Banner */}
+            <Card className="bg-gradient-to-r from-orange-500 via-pink-500 to-cyan-500 border-0 mb-4">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3 text-white">
+                  <Sparkles className="h-6 w-6" />
+                  <div>
+                    <p className="font-bold">Your 2025 Wrapped is ready!</p>
+                    <p className="text-sm text-white/80">See your comedy year in review</p>
+                  </div>
+                </div>
+                <Button 
+                  onClick={() => navigate('/wrapped')} 
+                  variant="secondary"
+                  className="bg-white text-orange-600 hover:bg-white/90 font-bold"
+                >
+                  View Wrapped
+                </Button>
+              </CardContent>
+            </Card>
+
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="profile">My Profile</TabsTrigger>
               <TabsTrigger value="work">Work History</TabsTrigger>

@@ -32,6 +32,7 @@ import HostDashboard from "./pages/HostDashboard";
 import MicSignup from "./pages/MicSignup";
 import JobBoard from "./pages/JobBoard";
 import CreatePosting from "./pages/CreatePosting";
+import Wrapped from "./pages/Wrapped";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -79,6 +80,7 @@ const App = () => (
             <Route path="/mic/:slug/signup" element={<MicSignup />} />
             <Route path="/job-board" element={<JobBoard />} />
             <Route path="/job-board/create" element={<CreatePosting />} />
+            <Route path="/wrapped" element={<Wrapped />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
