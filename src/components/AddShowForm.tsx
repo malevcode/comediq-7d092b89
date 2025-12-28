@@ -14,6 +14,7 @@ interface AddShowFormProps {
     time: string;
     borough: string;
     notes?: string;
+    stage_time_minutes?: number;
   }) => void;
   onCancel: () => void;
   initialData?: {
@@ -25,6 +26,7 @@ interface AddShowFormProps {
     notes?: string;
     neighborhood?: string;
     status?: 'upcoming' | 'cancelled' | 'completed';
+    stage_time_minutes?: number;
   };
 }
 
@@ -49,6 +51,7 @@ const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
     notes: initialData?.notes || '',
     neighborhood: initialData?.neighborhood || '',
     status: (initialData?.status as 'upcoming' | 'cancelled' | 'completed') || 'upcoming',
+    stage_time_minutes: initialData?.stage_time_minutes || 5,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -68,12 +71,13 @@ const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
     onSubmit({
       ...formData,
       date: dateTimeISO,
+      stage_time_minutes: formData.stage_time_minutes,
     });
   };
 
   return (
     <div className="fixed inset-0 z-[100] bg-black bg-opacity-50 flex items-center justify-center p-4 !p-0 !m-0">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
@@ -149,6 +153,23 @@ const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
                 />
               </div>
             </div>
+
+            <div>
+              <Label htmlFor="stage_time">Stage Time (minutes)</Label>
+              <Input
+                id="stage_time"
+                type="number"
+                min="1"
+                max="120"
+                value={formData.stage_time_minutes}
+                onChange={(e) => setFormData({ ...formData, stage_time_minutes: parseInt(e.target.value) || 5 })}
+                placeholder="5"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                How many minutes of stage time? (Default: 5 min)
+              </p>
+            </div>
+
             <div>
               <Label htmlFor="notes">Notes (Optional)</Label>
               <Textarea
@@ -172,4 +193,4 @@ const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
   );
 };
 
-export default AddShowForm; 
+export default AddShowForm;

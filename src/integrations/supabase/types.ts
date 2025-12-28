@@ -460,6 +460,7 @@ export type Database = {
           notes: string | null
           profile_id: string | null
           schedule_type: Database["public"]["Enums"]["schedule_type"]
+          stage_time_minutes: number | null
           title: string | null
           venue: string | null
         }
@@ -472,6 +473,7 @@ export type Database = {
           notes?: string | null
           profile_id?: string | null
           schedule_type?: Database["public"]["Enums"]["schedule_type"]
+          stage_time_minutes?: number | null
           title?: string | null
           venue?: string | null
         }
@@ -484,6 +486,7 @@ export type Database = {
           notes?: string | null
           profile_id?: string | null
           schedule_type?: Database["public"]["Enums"]["schedule_type"]
+          stage_time_minutes?: number | null
           title?: string | null
           venue?: string | null
         }
@@ -500,6 +503,7 @@ export type Database = {
       profile_open_mics: {
         Row: {
           created_at: string
+          custom_stage_time: number | null
           id: string
           last_modified: string | null
           notes: string | null
@@ -509,6 +513,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          custom_stage_time?: number | null
           id?: string
           last_modified?: string | null
           notes?: string | null
@@ -518,6 +523,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          custom_stage_time?: number | null
           id?: string
           last_modified?: string | null
           notes?: string | null
