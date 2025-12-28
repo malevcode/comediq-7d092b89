@@ -15,7 +15,6 @@ import {
   Building2, 
   MapPin, 
   Calendar, 
-  Sparkles, 
   ChevronRight, 
   ChevronLeft,
   Share2,
@@ -25,16 +24,6 @@ import {
 import { cn } from '@/lib/utils';
 
 const YEAR = 2025;
-
-const gradients = [
-  'from-orange-500 via-pink-500 to-purple-600',
-  'from-cyan-500 via-blue-500 to-purple-600',
-  'from-pink-500 via-rose-500 to-orange-500',
-  'from-emerald-500 via-teal-500 to-cyan-500',
-  'from-violet-500 via-purple-500 to-pink-500',
-  'from-amber-500 via-orange-500 to-red-500',
-  'from-indigo-500 via-purple-500 to-pink-500',
-];
 
 const Wrapped = () => {
   const { user, loading: authLoading } = useAuth();
@@ -84,22 +73,52 @@ const Wrapped = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentSlide, isAnimating]);
 
+  // Floating microphone background component
+  const FloatingMics = () => (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(8)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute text-comediq-cream/10 animate-float"
+          style={{
+            left: `${10 + (i * 12)}%`,
+            top: `${20 + (i % 3) * 25}%`,
+            animationDelay: `${i * 0.8}s`,
+            fontSize: `${40 + (i % 3) * 20}px`,
+          }}
+        >
+          🎤
+        </div>
+      ))}
+    </div>
+  );
+
   // Not logged in
   if (!authLoading && !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-500 via-pink-500 to-cyan-500 flex flex-col items-center justify-center p-6 text-white">
+      <div className="min-h-screen bg-gradient-to-br from-comediq-blue-dark via-comediq-blue to-comediq-blue-light flex flex-col items-center justify-center p-6 relative overflow-hidden">
         <SEO title="Comediq Wrapped 2025" description="See your comedy year in review" noindex />
-        <Sparkles className="h-16 w-16 mb-6 animate-pulse" />
-        <h1 className="text-4xl font-black mb-4 text-center">COMEDIQ WRAPPED</h1>
-        <p className="text-xl text-white/90 mb-8 text-center">Sign in to see your {YEAR} comedy journey</p>
-        <Button 
-          onClick={() => navigate('/auth')} 
-          size="lg" 
-          className="bg-white text-orange-600 hover:bg-white/90 font-bold"
-        >
-          <LogIn className="mr-2 h-5 w-5" />
-          Sign In
-        </Button>
+        <FloatingMics />
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="text-6xl mb-6 animate-float">🎤</div>
+          <h1 className="font-fredoka text-5xl font-bold text-comediq-cream text-center mb-4 tracking-tight">
+            COMEDIQ
+          </h1>
+          <p className="font-fredoka text-2xl text-comediq-cream/80 mb-8 text-center">
+            WRAPPED {YEAR}
+          </p>
+          <p className="font-nunito text-lg text-comediq-cream/70 mb-8 text-center">
+            Sign in to see your comedy journey
+          </p>
+          <Button 
+            onClick={() => navigate('/auth')} 
+            size="lg" 
+            className="bg-comediq-cream text-comediq-blue hover:bg-comediq-cream/90 font-fredoka font-bold text-lg px-8"
+          >
+            <LogIn className="mr-2 h-5 w-5" />
+            Sign In
+          </Button>
+        </div>
       </div>
     );
   }
@@ -107,10 +126,13 @@ const Wrapped = () => {
   // Loading
   if (authLoading || statsLoading || !stats) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-500 via-pink-500 to-cyan-500 flex flex-col items-center justify-center p-6 text-white">
+      <div className="min-h-screen bg-gradient-to-br from-comediq-blue-dark via-comediq-blue to-comediq-blue-light flex flex-col items-center justify-center p-6 relative overflow-hidden">
         <SEO title="Comediq Wrapped 2025" description="See your comedy year in review" noindex />
-        <Sparkles className="h-16 w-16 mb-6 animate-pulse" />
-        <h1 className="text-2xl font-bold">Loading your year...</h1>
+        <FloatingMics />
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="text-6xl mb-6 animate-pulse">🎤</div>
+          <h1 className="font-fredoka text-2xl font-bold text-comediq-cream">Loading your year...</h1>
+        </div>
       </div>
     );
   }
@@ -118,20 +140,25 @@ const Wrapped = () => {
   // No data
   if (stats.totalMics === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-500 via-pink-500 to-cyan-500 flex flex-col items-center justify-center p-6 text-white">
+      <div className="min-h-screen bg-gradient-to-br from-comediq-blue-dark via-comediq-blue to-comediq-blue-light flex flex-col items-center justify-center p-6 relative overflow-hidden">
         <SEO title="Comediq Wrapped 2025" description="See your comedy year in review" noindex />
-        <Mic className="h-16 w-16 mb-6 opacity-50" />
-        <h1 className="text-3xl font-black mb-4 text-center">NO MICS YET?</h1>
-        <p className="text-lg text-white/90 mb-8 text-center max-w-md">
-          You haven't tracked any open mics in {YEAR} yet. Start tracking your mics to get your wrapped!
-        </p>
-        <Button 
-          onClick={() => navigate('/open-mics')} 
-          size="lg" 
-          className="bg-white text-orange-600 hover:bg-white/90 font-bold"
-        >
-          Find Open Mics
-        </Button>
+        <FloatingMics />
+        <div className="relative z-10 flex flex-col items-center">
+          <Mic className="h-16 w-16 text-comediq-cream/50 mb-6" />
+          <h1 className="font-fredoka text-4xl font-bold text-comediq-cream mb-4 text-center">
+            NO MICS YET?
+          </h1>
+          <p className="font-nunito text-lg text-comediq-cream/80 mb-8 text-center max-w-md">
+            You haven't tracked any open mics in {YEAR} yet. Start tracking your mics to get your wrapped!
+          </p>
+          <Button 
+            onClick={() => navigate('/open-mics')} 
+            size="lg" 
+            className="bg-comediq-cream text-comediq-blue hover:bg-comediq-cream/90 font-fredoka font-bold"
+          >
+            Find Open Mics
+          </Button>
+        </div>
       </div>
     );
   }
@@ -144,109 +171,132 @@ const Wrapped = () => {
       // Welcome slide
       case 0:
         return (
-          <WrappedSlide gradient={gradients[0]}>
-            <Sparkles className="h-20 w-20 text-white mb-8 animate-pulse" />
-            <h1 className="text-5xl md:text-7xl font-black text-white text-center mb-4">
-              YOUR {YEAR}
-            </h1>
-            <p className="text-2xl md:text-3xl text-white/90 font-medium text-center mb-8">
-              Comedy Journey
-            </p>
-            <p className="text-white/70 text-center">Tap to continue →</p>
+          <WrappedSlide slideIndex={0}>
+            <div className="flex flex-col items-center animate-slide-up">
+              <div className="text-8xl mb-8 animate-float">🎤</div>
+              <p className="font-nunito text-lg text-comediq-cream/60 tracking-widest mb-2">EST. 2025</p>
+              <h1 className="font-fredoka text-6xl md:text-8xl font-bold text-comediq-cream text-center mb-2 tracking-tight">
+                COMEDIQ
+              </h1>
+              <p className="font-fredoka text-3xl md:text-4xl text-comediq-cream/90 font-medium text-center mb-8">
+                WRAPPED {YEAR}
+              </p>
+              <div className="mt-8 flex items-center gap-2 text-comediq-cream/60 font-nunito">
+                <span>Tap to continue</span>
+                <ChevronRight className="h-5 w-5 animate-pulse" />
+              </div>
+            </div>
           </WrappedSlide>
         );
 
       // Total mics
       case 1:
         return (
-          <WrappedSlide gradient={gradients[1]}>
-            <Mic className="h-20 w-20 text-white mb-8" />
-            <p className="text-xl text-white/80 mb-4">This year you hit</p>
-            <div className="text-8xl md:text-9xl font-black text-white mb-4">
-              <AnimatedCounter value={stats.totalMics} />
+          <WrappedSlide slideIndex={1}>
+            <div className="flex flex-col items-center animate-slide-up">
+              <div className="bg-comediq-cream/20 p-6 rounded-full mb-8 animate-pulse-glow">
+                <Mic className="h-16 w-16 text-comediq-cream" />
+              </div>
+              <p className="font-nunito text-xl text-comediq-cream/80 mb-4">This year you hit</p>
+              <div className="font-fredoka text-9xl md:text-[12rem] font-bold text-comediq-cream mb-4 leading-none animate-count-up">
+                <AnimatedCounter value={stats.totalMics} />
+              </div>
+              <p className="font-fredoka text-3xl text-comediq-cream font-bold">
+                OPEN {stats.totalMics === 1 ? 'MIC' : 'MICS'}
+              </p>
+              {stats.totalMics >= 50 && (
+                <div className="mt-8 bg-comediq-cream/20 px-6 py-3 rounded-full">
+                  <p className="font-fredoka text-xl text-comediq-cream">You're a grinder! 🔥</p>
+                </div>
+              )}
             </div>
-            <p className="text-3xl text-white font-bold">
-              OPEN {stats.totalMics === 1 ? 'MIC' : 'MICS'}
-            </p>
-            {stats.totalMics >= 50 && (
-              <p className="mt-6 text-xl text-white/80">You're a grinder! 🔥</p>
-            )}
-            {stats.totalMics >= 100 && (
-              <p className="mt-2 text-lg text-white/70">Top 1% of comedians!</p>
-            )}
           </WrappedSlide>
         );
 
       // Stage time
       case 2:
         return (
-          <WrappedSlide gradient={gradients[2]}>
-            <Clock className="h-20 w-20 text-white mb-8" />
-            <p className="text-xl text-white/80 mb-4">You spent</p>
-            <div className="flex items-baseline gap-4 mb-4">
-              {hours > 0 && (
-                <>
-                  <span className="text-8xl md:text-9xl font-black text-white">
-                    <AnimatedCounter value={hours} />
-                  </span>
-                  <span className="text-3xl text-white/80">hours</span>
-                </>
-              )}
-              <span className="text-8xl md:text-9xl font-black text-white">
-                <AnimatedCounter value={minutes} />
-              </span>
-              <span className="text-3xl text-white/80">min</span>
+          <WrappedSlide slideIndex={2}>
+            <div className="flex flex-col items-center animate-slide-up">
+              <div className="bg-comediq-cream/20 p-6 rounded-full mb-8 animate-pulse-glow">
+                <Clock className="h-16 w-16 text-comediq-cream" />
+              </div>
+              <p className="font-nunito text-xl text-comediq-cream/80 mb-6">You spent</p>
+              <div className="flex items-baseline gap-4 mb-6">
+                {hours > 0 && (
+                  <>
+                    <span className="font-fredoka text-8xl md:text-9xl font-bold text-comediq-cream leading-none">
+                      <AnimatedCounter value={hours} />
+                    </span>
+                    <span className="font-nunito text-2xl text-comediq-cream/80">hours</span>
+                  </>
+                )}
+                <span className="font-fredoka text-8xl md:text-9xl font-bold text-comediq-cream leading-none">
+                  <AnimatedCounter value={minutes} />
+                </span>
+                <span className="font-nunito text-2xl text-comediq-cream/80">min</span>
+              </div>
+              <p className="font-fredoka text-3xl text-comediq-cream font-bold">ON STAGE</p>
+              <p className="mt-8 font-nunito text-lg text-comediq-cream/60">
+                That's about {stats.totalMics * 5} jokes told!
+              </p>
             </div>
-            <p className="text-3xl text-white font-bold">ON STAGE</p>
-            <p className="mt-6 text-lg text-white/70">
-              That's {stats.totalMics * 5} jokes told! (assuming 1 per minute)
-            </p>
           </WrappedSlide>
         );
 
       // Top venue
       case 3:
         return (
-          <WrappedSlide gradient={gradients[3]}>
-            <Building2 className="h-20 w-20 text-white mb-8" />
-            <p className="text-xl text-white/80 mb-4">Your favorite spot was</p>
-            <h2 className="text-4xl md:text-5xl font-black text-white text-center mb-4 px-4">
-              {stats.topVenue?.name || 'N/A'}
-            </h2>
-            {stats.topVenue && (
-              <p className="text-2xl text-white/90">
-                You went there <span className="font-bold">{stats.topVenue.count}</span> times!
+          <WrappedSlide slideIndex={3}>
+            <div className="flex flex-col items-center animate-slide-up">
+              <div className="bg-comediq-cream/20 p-6 rounded-full mb-8 animate-pulse-glow">
+                <Building2 className="h-16 w-16 text-comediq-cream" />
+              </div>
+              <p className="font-nunito text-xl text-comediq-cream/80 mb-6">Your favorite spot was</p>
+              <h2 className="font-fredoka text-4xl md:text-5xl font-bold text-comediq-cream text-center mb-6 px-4 leading-tight">
+                {stats.topVenue?.name || 'N/A'}
+              </h2>
+              {stats.topVenue && (
+                <div className="bg-comediq-cream/20 px-8 py-4 rounded-2xl">
+                  <p className="font-fredoka text-2xl text-comediq-cream">
+                    <span className="font-bold">{stats.topVenue.count}</span> visits!
+                  </p>
+                </div>
+              )}
+              <p className="mt-10 font-nunito text-lg text-comediq-cream/60">
+                Across {stats.uniqueVenues} unique venues
               </p>
-            )}
-            <p className="mt-8 text-lg text-white/70">
-              Across {stats.uniqueVenues} unique venues
-            </p>
+            </div>
           </WrappedSlide>
         );
 
       // Favorite day
       case 4:
         return (
-          <WrappedSlide gradient={gradients[4]}>
-            <Calendar className="h-20 w-20 text-white mb-8" />
-            <p className="text-xl text-white/80 mb-4">Your mic day is</p>
-            <h2 className="text-6xl md:text-7xl font-black text-white text-center mb-4">
-              {stats.favoriteDay?.toUpperCase() || 'EVERY DAY'}
-            </h2>
-            <div className="flex flex-wrap justify-center gap-2 mt-8 max-w-sm">
-              {stats.daysBreakdown.map(({ day, count }) => (
-                <div
-                  key={day}
-                  className={cn(
-                    'px-3 py-1 rounded-full text-sm font-medium',
-                    day === stats.favoriteDay
-                      ? 'bg-white text-purple-600'
-                      : 'bg-white/20 text-white'
-                  )}
-                >
-                  {day.slice(0, 3)}: {count}
-                </div>
-              ))}
+          <WrappedSlide slideIndex={4}>
+            <div className="flex flex-col items-center animate-slide-up">
+              <div className="bg-comediq-cream/20 p-6 rounded-full mb-8 animate-pulse-glow">
+                <Calendar className="h-16 w-16 text-comediq-cream" />
+              </div>
+              <p className="font-nunito text-xl text-comediq-cream/80 mb-6">Your mic day is</p>
+              <h2 className="font-fredoka text-5xl md:text-7xl font-bold text-comediq-cream text-center mb-8">
+                {stats.favoriteDay?.toUpperCase() || 'EVERY DAY'}
+              </h2>
+              <div className="flex flex-wrap justify-center gap-3 max-w-sm">
+                {stats.daysBreakdown.map(({ day, count }) => (
+                  <div
+                    key={day}
+                    className={cn(
+                      'px-4 py-2 rounded-full font-fredoka font-medium transition-all',
+                      day === stats.favoriteDay
+                        ? 'bg-comediq-cream text-comediq-blue scale-110'
+                        : 'bg-comediq-cream/20 text-comediq-cream'
+                    )}
+                  >
+                    {day.slice(0, 3)}: {count}
+                  </div>
+                ))}
+              </div>
             </div>
           </WrappedSlide>
         );
@@ -254,70 +304,75 @@ const Wrapped = () => {
       // Boroughs explored
       case 5:
         return (
-          <WrappedSlide gradient={gradients[5]}>
-            <MapPin className="h-20 w-20 text-white mb-8" />
-            <p className="text-xl text-white/80 mb-4">You conquered</p>
-            <div className="text-8xl md:text-9xl font-black text-white mb-4">
-              <AnimatedCounter value={stats.uniqueBoroughs.length} />
+          <WrappedSlide slideIndex={5}>
+            <div className="flex flex-col items-center animate-slide-up">
+              <div className="bg-comediq-cream/20 p-6 rounded-full mb-8 animate-pulse-glow">
+                <MapPin className="h-16 w-16 text-comediq-cream" />
+              </div>
+              <p className="font-nunito text-xl text-comediq-cream/80 mb-4">You conquered</p>
+              <div className="font-fredoka text-9xl md:text-[10rem] font-bold text-comediq-cream mb-4 leading-none">
+                <AnimatedCounter value={stats.uniqueBoroughs.length} />
+              </div>
+              <p className="font-fredoka text-3xl text-comediq-cream font-bold mb-8">
+                {stats.uniqueBoroughs.length === 1 ? 'BOROUGH' : 'BOROUGHS'}
+              </p>
+              <div className="flex flex-wrap justify-center gap-3">
+                {stats.uniqueBoroughs.map(borough => (
+                  <span
+                    key={borough}
+                    className="bg-comediq-cream/20 px-5 py-2 rounded-full font-fredoka text-comediq-cream font-medium"
+                  >
+                    {borough}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-8 font-nunito text-lg text-comediq-cream/60">
+                {stats.uniqueNeighborhoods.length} neighborhoods explored
+              </p>
             </div>
-            <p className="text-3xl text-white font-bold mb-8">
-              {stats.uniqueBoroughs.length === 1 ? 'BOROUGH' : 'BOROUGHS'}
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              {stats.uniqueBoroughs.map(borough => (
-                <span
-                  key={borough}
-                  className="bg-white/20 px-4 py-2 rounded-full text-white font-medium"
-                >
-                  {borough}
-                </span>
-              ))}
-            </div>
-            <p className="mt-6 text-lg text-white/70">
-              {stats.uniqueNeighborhoods.length} neighborhoods explored
-            </p>
           </WrappedSlide>
         );
 
       // Summary card
       case 6:
         return (
-          <WrappedSlide gradient={gradients[6]} className="py-12">
-            <h2 className="text-3xl font-black text-white mb-8 text-center">
-              YOUR {YEAR} WRAPPED
-            </h2>
-            <WrappedSummaryCard 
-              stats={stats} 
-              stageName={profile?.stage_name || profile?.username}
-              year={YEAR}
-            />
-            <div className="flex flex-col sm:flex-row gap-4 mt-8">
-              <Button
-                onClick={() => {
-                  // TODO: Implement share functionality
-                  if (navigator.share) {
-                    navigator.share({
-                      title: 'My Comediq Wrapped 2025',
-                      text: `I hit ${stats.totalMics} open mics in ${YEAR}! Check out your comedy wrapped on Comediq.`,
-                      url: window.location.href,
-                    });
-                  }
-                }}
-                size="lg"
-                className="bg-white text-purple-600 hover:bg-white/90 font-bold"
-              >
-                <Share2 className="mr-2 h-5 w-5" />
-                Share
-              </Button>
-              <Button
-                onClick={() => navigate('/profile')}
-                size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white/20"
-              >
-                <Home className="mr-2 h-5 w-5" />
-                Back to Profile
-              </Button>
+          <WrappedSlide slideIndex={6} className="py-8">
+            <div className="flex flex-col items-center animate-slide-up">
+              <h2 className="font-fredoka text-3xl font-bold text-comediq-cream mb-8 text-center">
+                YOUR {YEAR} WRAPPED
+              </h2>
+              <WrappedSummaryCard 
+                stats={stats} 
+                stageName={profile?.stage_name || profile?.username}
+                year={YEAR}
+              />
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <Button
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: 'My Comediq Wrapped 2025',
+                        text: `I hit ${stats.totalMics} open mics in ${YEAR}! Check out your comedy wrapped on Comediq.`,
+                        url: window.location.href,
+                      });
+                    }
+                  }}
+                  size="lg"
+                  className="bg-comediq-cream text-comediq-blue hover:bg-comediq-cream/90 font-fredoka font-bold"
+                >
+                  <Share2 className="mr-2 h-5 w-5" />
+                  Share
+                </Button>
+                <Button
+                  onClick={() => navigate('/profile')}
+                  size="lg"
+                  variant="outline"
+                  className="border-comediq-cream text-comediq-cream hover:bg-comediq-cream/20 font-fredoka"
+                >
+                  <Home className="mr-2 h-5 w-5" />
+                  Back to Profile
+                </Button>
+              </div>
             </div>
           </WrappedSlide>
         );
@@ -335,9 +390,8 @@ const Wrapped = () => {
         noindex 
       />
       <div 
-        className="min-h-screen bg-black relative overflow-hidden"
+        className="min-h-screen bg-comediq-blue-dark relative overflow-hidden"
         onClick={(e) => {
-          // Tap to advance (but not on buttons)
           if ((e.target as HTMLElement).tagName !== 'BUTTON') {
             nextSlide();
           }
@@ -349,7 +403,7 @@ const Wrapped = () => {
         </div>
 
         {/* Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/50 to-transparent pb-6 pt-12">
+        <div className="fixed bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-comediq-blue-dark/90 to-transparent pb-6 pt-12">
           <ProgressDots 
             total={totalSlides} 
             current={currentSlide} 
@@ -362,7 +416,7 @@ const Wrapped = () => {
               disabled={currentSlide === 0}
               variant="ghost"
               size="icon"
-              className="text-white hover:bg-white/20 disabled:opacity-30"
+              className="text-comediq-cream hover:bg-comediq-cream/20 disabled:opacity-30"
             >
               <ChevronLeft className="h-8 w-8" />
             </Button>
@@ -371,7 +425,7 @@ const Wrapped = () => {
               disabled={currentSlide === totalSlides - 1}
               variant="ghost"
               size="icon"
-              className="text-white hover:bg-white/20 disabled:opacity-30"
+              className="text-comediq-cream hover:bg-comediq-cream/20 disabled:opacity-30"
             >
               <ChevronRight className="h-8 w-8" />
             </Button>

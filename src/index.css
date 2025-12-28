@@ -52,6 +52,12 @@
 
     --color-papaya: 32 94% 55%;
     --color-sky: 192 72% 64%;
+
+    /* Comediq Brand Colors */
+    --comediq-blue: 213 73% 40%;
+    --comediq-blue-light: 213 60% 55%;
+    --comediq-blue-dark: 213 80% 25%;
+    --comediq-cream: 40 33% 94%;
   }
 
   .dark {
