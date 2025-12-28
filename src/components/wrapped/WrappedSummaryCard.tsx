@@ -17,78 +17,87 @@ const WrappedSummaryCard = ({ stats, stageName, year = 2025 }: WrappedSummaryCar
   return (
     <div 
       id="wrapped-summary-card"
-      className="w-full max-w-sm mx-auto bg-gradient-to-br from-orange-500 via-pink-500 to-cyan-500 rounded-3xl p-6 text-white shadow-2xl"
+      className="w-full max-w-sm mx-auto bg-gradient-to-br from-comediq-blue via-comediq-blue-dark to-[hsl(250,50%,25%)] rounded-3xl p-6 text-comediq-cream shadow-2xl border border-comediq-cream/10"
     >
       {/* Header */}
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-black tracking-tight">COMEDIQ</h2>
-        <p className="text-white/80 text-sm font-medium">WRAPPED {year}</p>
+        <p className="text-comediq-cream/50 text-xs tracking-widest font-nunito mb-1">EST. 2025</p>
+        <h2 className="font-fredoka text-3xl font-bold tracking-tight">COMEDIQ</h2>
+        <p className="text-comediq-cream/80 text-sm font-fredoka font-medium">WRAPPED {year}</p>
       </div>
 
       {/* Name */}
       {stageName && (
         <div className="text-center mb-6">
-          <p className="text-xl font-bold">{stageName}</p>
+          <p className="font-fredoka text-xl font-bold">{stageName}</p>
         </div>
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center">
-          <Mic className="h-6 w-6 mx-auto mb-2" />
-          <p className="text-3xl font-black">{stats.totalMics}</p>
-          <p className="text-xs text-white/80">Open Mics</p>
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="bg-comediq-cream/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-comediq-cream/10">
+          <div className="bg-comediq-cream/20 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
+            <Mic className="h-5 w-5" />
+          </div>
+          <p className="font-fredoka text-3xl font-bold">{stats.totalMics}</p>
+          <p className="text-xs text-comediq-cream/70 font-nunito">Open Mics</p>
         </div>
 
-        <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center">
-          <Clock className="h-6 w-6 mx-auto mb-2" />
-          <p className="text-3xl font-black">{timeDisplay}</p>
-          <p className="text-xs text-white/80">Stage Time</p>
+        <div className="bg-comediq-cream/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-comediq-cream/10">
+          <div className="bg-comediq-cream/20 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
+            <Clock className="h-5 w-5" />
+          </div>
+          <p className="font-fredoka text-3xl font-bold">{timeDisplay}</p>
+          <p className="text-xs text-comediq-cream/70 font-nunito">Stage Time</p>
         </div>
 
-        <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center">
-          <Building2 className="h-6 w-6 mx-auto mb-2" />
-          <p className="text-3xl font-black">{stats.uniqueVenues}</p>
-          <p className="text-xs text-white/80">Venues</p>
+        <div className="bg-comediq-cream/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-comediq-cream/10">
+          <div className="bg-comediq-cream/20 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
+            <Building2 className="h-5 w-5" />
+          </div>
+          <p className="font-fredoka text-3xl font-bold">{stats.uniqueVenues}</p>
+          <p className="text-xs text-comediq-cream/70 font-nunito">Venues</p>
         </div>
 
-        <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center">
-          <MapPin className="h-6 w-6 mx-auto mb-2" />
-          <p className="text-3xl font-black">{stats.uniqueBoroughs.length}</p>
-          <p className="text-xs text-white/80">Boroughs</p>
+        <div className="bg-comediq-cream/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-comediq-cream/10">
+          <div className="bg-comediq-cream/20 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
+            <MapPin className="h-5 w-5" />
+          </div>
+          <p className="font-fredoka text-3xl font-bold">{stats.uniqueBoroughs.length}</p>
+          <p className="text-xs text-comediq-cream/70 font-nunito">Boroughs</p>
         </div>
       </div>
 
       {/* Highlights */}
       <div className="space-y-3">
         {stats.topVenue && (
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 flex items-center gap-3">
-            <div className="bg-white/20 rounded-full p-2">
+          <div className="bg-comediq-cream/10 backdrop-blur-sm rounded-xl p-3 flex items-center gap-3 border border-comediq-cream/10">
+            <div className="bg-comediq-cream/20 rounded-full p-2">
               <Heart className="h-4 w-4" />
             </div>
-            <div>
-              <p className="text-xs text-white/70">Top Venue</p>
-              <p className="font-bold text-sm truncate">{stats.topVenue.name}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-comediq-cream/60 font-nunito">Top Venue</p>
+              <p className="font-fredoka font-bold text-sm truncate">{stats.topVenue.name}</p>
             </div>
           </div>
         )}
 
         {stats.favoriteDay && (
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 flex items-center gap-3">
-            <div className="bg-white/20 rounded-full p-2">
+          <div className="bg-comediq-cream/10 backdrop-blur-sm rounded-xl p-3 flex items-center gap-3 border border-comediq-cream/10">
+            <div className="bg-comediq-cream/20 rounded-full p-2">
               <Calendar className="h-4 w-4" />
             </div>
             <div>
-              <p className="text-xs text-white/70">Favorite Day</p>
-              <p className="font-bold text-sm">{stats.favoriteDay}</p>
+              <p className="text-xs text-comediq-cream/60 font-nunito">Favorite Day</p>
+              <p className="font-fredoka font-bold text-sm">{stats.favoriteDay}</p>
             </div>
           </div>
         )}
       </div>
 
       {/* Footer */}
-      <div className="mt-6 pt-4 border-t border-white/20 text-center">
-        <p className="text-xs text-white/60">comediq.us</p>
+      <div className="mt-6 pt-4 border-t border-comediq-cream/20 text-center">
+        <p className="text-xs text-comediq-cream/50 font-nunito tracking-wide">comediq.us</p>
       </div>
     </div>
   );

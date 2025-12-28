@@ -16,8 +16,8 @@ const ProgressDots = ({ total, current, onDotClick }: ProgressDotsProps) => {
           className={cn(
             'h-2 rounded-full transition-all duration-300',
             index === current 
-              ? 'w-8 bg-white' 
-              : 'w-2 bg-white/40 hover:bg-white/60',
+              ? 'w-8 bg-comediq-cream' 
+              : 'w-2 bg-comediq-cream/40 hover:bg-comediq-cream/60',
             onDotClick && 'cursor-pointer'
           )}
           aria-label={`Go to slide ${index + 1}`}
