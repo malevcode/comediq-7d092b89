@@ -6,7 +6,8 @@ import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles, Calendar, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
 import { OpenMic } from '@/types/openMic';
@@ -16,6 +17,10 @@ import SocialLinksManager from '@/components/profile/SocialLinksManager';
 import ComedianCard from '@/components/profile/ComedianCard';
 import WorkHistorySection from '@/components/profile/WorkHistorySection';
 import ProfileCompleteness from '@/components/profile/ProfileCompleteness';
+import { useUserSignups } from '@/hooks/useUserSignups';
+import { cancelSignup } from '@/api/signups';
+import { useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
 import { 
   useComedianProfile, 
   useUpdateProfile, 
@@ -114,7 +119,7 @@ const Profile = () => {
 
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="profile">My Profile</TabsTrigger>
-              <TabsTrigger value="work">Work History</TabsTrigger>
+              <TabsTrigger value="work">Gigs</TabsTrigger>
               <TabsTrigger value="liked">Liked Mics</TabsTrigger>
               <TabsTrigger value="signups">Signups</TabsTrigger>
             </TabsList>
@@ -251,16 +256,7 @@ const Profile = () => {
 
             {/* My Signups Tab */}
             <TabsContent value="signups">
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-600 mb-2">No upcoming signups</h3>
-                  <p className="text-gray-500 mb-4">Sign up for open mics to see them here</p>
-                  <Button onClick={() => navigate('/mic-signup')} className="bg-orange-500 hover:bg-orange-600">
-                    Browse Signup Events
-                  </Button>
-                </CardContent>
-              </Card>
+              <SignupsTabContent userId={user.id} />
             </TabsContent>
           </Tabs>
         </div>
@@ -275,5 +271,124 @@ const Profile = () => {
     </>
   );
 };
+
+function SignupsTabContent({ userId }: { userId: string }) {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { data: signups, isLoading } = useUserSignups(userId);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+
+  const handleCancelSignup = async (signupId: string) => {
+    setCancellingId(signupId);
+    try {
+      await cancelSignup(signupId);
+      toast({ title: 'Signup cancelled' });
+      queryClient.invalidateQueries({ queryKey: ['userSignups'] });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <p>Loading signups...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const upcomingSignups = signups?.filter(s => s.event && new Date(s.event.event_date) >= new Date()) || [];
+  const pastSignups = signups?.filter(s => s.event && new Date(s.event.event_date) < new Date()) || [];
+
+  if (!signups || signups.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-600 mb-2">No signups yet</h3>
+          <p className="text-gray-500 mb-4">Sign up for open mics to see them here</p>
+          <Button onClick={() => navigate('/mic-signup')} className="bg-orange-500 hover:bg-orange-600">
+            Browse Signup Events
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {upcomingSignups.length > 0 && (
+        <div>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Upcoming Signups</h2>
+          <div className="space-y-3">
+            {upcomingSignups.map(signup => (
+              <Card key={signup.id}>
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-semibold">{signup.event?.mic?.open_mic || 'Unknown Mic'}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {signup.event?.mic?.venue_name} • {signup.event?.mic?.borough}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">
+                        {signup.event?.event_date ? new Date(signup.event.event_date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Unknown date'}
+                      </span>
+                      {signup.event?.event_time && (
+                        <span className="text-sm text-muted-foreground">at {signup.event.event_time}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Badge variant={signup.status === 'confirmed' ? 'default' : 'secondary'}>
+                      {signup.status === 'confirmed' ? 'Confirmed' : signup.status}
+                    </Badge>
+                    {signup.signup_order && (
+                      <span className="text-sm font-medium">#{signup.signup_order}</span>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleCancelSignup(signup.id)}
+                      disabled={cancellingId === signup.id}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {pastSignups.length > 0 && (
+        <div>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Past Signups</h2>
+          <div className="space-y-3">
+            {pastSignups.slice(0, 10).map(signup => (
+              <Card key={signup.id} className="opacity-70">
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold">{signup.event?.mic?.open_mic || 'Unknown Mic'}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {signup.event?.mic?.venue_name} • {signup.event?.event_date ? new Date(signup.event.event_date).toLocaleDateString() : 'Unknown date'}
+                    </p>
+                  </div>
+                  <Badge variant="outline">{signup.status}</Badge>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default Profile;

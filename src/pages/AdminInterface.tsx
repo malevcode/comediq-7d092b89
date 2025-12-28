@@ -25,6 +25,7 @@ import AdminRequestList from '@/components/admin/AdminRequestList';
 import AdminAllMicsList from '@/components/admin/AdminAllMicsList';
 import HamburgerMenu from '@/components/HamburgerMenu';
 import { MicAnalyticsDashboard } from '@/components/admin/MicAnalyticsDashboard';
+import { UserAnalyticsDashboard } from '@/components/admin/UserAnalyticsDashboard';
 import BulkImportInterface from '@/components/admin/BulkImportInterface';
 import PageHeader from '@/components/PageHeader';
 import { approveMicRequest, type MicFormData } from '@/api/admin';
@@ -191,9 +192,12 @@ const AdminInterface = () => {
 
       <div className="max-w-3xl mx-auto px-4 pt-28 pb-20">
         <Tabs defaultValue="analytics" className="w-full" onValueChange={setTab}>
-          <TabsList className="mb-8 w-full grid grid-cols-5 gap-1">
+          <TabsList className="mb-8 w-full grid grid-cols-6 gap-1">
             <TabsTrigger value="analytics" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
-              Analytics
+              Mics
+            </TabsTrigger>
+            <TabsTrigger value="users" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              Users
             </TabsTrigger>
             <TabsTrigger value="all" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               All Mics
@@ -205,19 +209,26 @@ const AdminInterface = () => {
               Reviewed
             </TabsTrigger>
             <TabsTrigger value="bulk-import" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
-              Bulk Import
+              Import
             </TabsTrigger>
           </TabsList>
-                      <TabsContent value="analytics">
-              <Card className="mb-6 shadow-lg rounded-2xl border-0">
-                <CardContent className="p-8 flex flex-col items-start">
-                  <MicAnalyticsDashboard mics={allMics} />
-                </CardContent>
-              </Card>
-            </TabsContent>
-            <TabsContent value="bulk-import">
-              <BulkImportInterface />
-            </TabsContent>
+          <TabsContent value="analytics">
+            <Card className="mb-6 shadow-lg rounded-2xl border-0">
+              <CardContent className="p-8 flex flex-col items-start">
+                <MicAnalyticsDashboard mics={allMics} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="users">
+            <Card className="mb-6 shadow-lg rounded-2xl border-0">
+              <CardContent className="p-8">
+                <UserAnalyticsDashboard />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="bulk-import">
+            <BulkImportInterface />
+          </TabsContent>
           <TabsContent value="all">
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
               <CardContent className="p-8 flex flex-col items-start">
