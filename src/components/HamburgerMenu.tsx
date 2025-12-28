@@ -21,7 +21,7 @@ const HamburgerMenu = () => {
 
   const performSubItems = [
     { path: "/open-mics", icon: Search, label: "Find Mics" },
-    { path: "/job-board", icon: Briefcase, label: "Job Board" },
+    { path: "/job-board", icon: Briefcase, label: "Find Gigs" },
     { path: "/shows", icon: Calendar, label: "Show Scheduler" },
     { path: "/track-sets", icon: TrendingUp, label: "Progress Tracker" },
     ...(user ? [{ path: "/host-dashboard", icon: MicVocal, label: "Host Dashboard" }] : [])

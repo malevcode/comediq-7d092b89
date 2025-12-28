@@ -25,6 +25,7 @@ interface ShowNote {
   borough: string;
   createdAt: string;
   type: 'mic' | 'show';
+  stageTimeMinutes?: number;
 }
 
 interface ShowNotepadProps {
@@ -431,6 +432,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
               created_at: date_now,
               last_modified: date_now,
               schedule_type: 'upcoming' as const,
+              stage_time_minutes: show.stage_time_minutes || 5,
             };
             const { error, data } = await supabase.from('profile_custom_shows').insert([customShow]).select();
             if (error) {
@@ -439,7 +441,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
                 description: error.message || 'Failed to add custom show.',
                 variant: 'destructive',
               });
-              return; // Only return here if there's an error
+              return;
             }
             toast({
               title: 'Show Added',
@@ -454,19 +456,20 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
                 id: data[0].id,
                 title: data[0].title || "",
                 venue: data[0].venue || "",
-                location: data[0].borough || "", // Use borough as location fallback
-                date: data[0].date, // use the ISO string directly
+                location: data[0].borough || "",
+                date: data[0].date,
                 time: localTime,
                 status: data[0].schedule_type as 'upcoming' | 'cancelled' | 'completed',
                 notes: data[0].notes || "",
-                audienceCount: "", // Not available in database, set to empty
-                rating: "", // Not available in database, set to empty
+                audienceCount: "",
+                rating: "",
                 borough: data[0].borough || "",
-                createdAt: data[0].created_at || "", // Use correct property name
+                createdAt: data[0].created_at || "",
                 type: "show",
+                stageTimeMinutes: data[0].stage_time_minutes || 5,
               });
             }
-            setModalOpen(false); // Always close modal after successful insert
+            setModalOpen(false);
           }}
           onCancel={() => setModalOpen(false)}
         />

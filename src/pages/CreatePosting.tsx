@@ -54,7 +54,7 @@ const CreatePosting = () => {
   return (
     <>
       <SEO
-        title="Create Job Posting - Comedy Job Board"
+        title="Create Gig Posting - Find Gigs"
         description="Post a comedy show opportunity. Find performers, crew, and talent for your show."
       />
       <div className="min-h-screen bg-background pb-20">
@@ -68,7 +68,7 @@ const CreatePosting = () => {
             className="mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Job Board
+            Back to Find Gigs
           </Button>
 
           <CreatePostingForm

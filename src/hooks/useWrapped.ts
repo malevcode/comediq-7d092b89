@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface WrappedStats {
   totalMics: number;
+  totalShows: number;
+  totalPerformances: number;
   uniqueVenues: number;
   uniqueBoroughs: string[];
   uniqueNeighborhoods: string[];
@@ -16,6 +18,7 @@ export interface WrappedStats {
 }
 
 const DAYS_ORDER = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const DEFAULT_STAGE_TIME = 5; // Default 5 minutes per performance
 
 export const useWrapped = (userId?: string, year: number = 2025) => {
   return useQuery({
@@ -23,10 +26,10 @@ export const useWrapped = (userId?: string, year: number = 2025) => {
     queryFn: async (): Promise<WrappedStats> => {
       if (!userId) throw new Error('User ID required');
 
-      // Fetch user's tracked mics from profile_open_mics
       const startOfYear = `${year}-01-01`;
       const endOfYear = `${year}-12-31`;
 
+      // Fetch user's tracked mics from profile_open_mics (including custom_stage_time)
       const { data: trackedMics, error: micsError } = await supabase
         .from('profile_open_mics')
         .select(`
@@ -34,13 +37,33 @@ export const useWrapped = (userId?: string, year: number = 2025) => {
           created_at,
           notes,
           open_mic_id,
-          schedule_type
+          schedule_type,
+          custom_stage_time
         `)
         .eq('profile_id', userId)
         .gte('created_at', startOfYear)
         .lte('created_at', endOfYear);
 
       if (micsError) throw micsError;
+
+      // Fetch user's custom shows from profile_custom_shows
+      const { data: customShows, error: showsError } = await supabase
+        .from('profile_custom_shows')
+        .select(`
+          id,
+          created_at,
+          title,
+          venue,
+          borough,
+          schedule_type,
+          stage_time_minutes
+        `)
+        .eq('profile_id', userId)
+        .in('schedule_type', ['completed', 'upcoming'])
+        .gte('created_at', startOfYear)
+        .lte('created_at', endOfYear);
+
+      if (showsError) throw showsError;
 
       // Get open mic details for the tracked mics
       const micIds = trackedMics?.map(m => m.open_mic_id).filter(Boolean) || [];
@@ -76,6 +99,7 @@ export const useWrapped = (userId?: string, year: number = 2025) => {
       let totalStageTime = 0;
       let firstDate: Date | null = null;
 
+      // Process open mics
       trackedMics?.forEach(tracked => {
         const mic = micDetailsMap.get(tracked.open_mic_id);
         if (!mic) return;
@@ -97,16 +121,43 @@ export const useWrapped = (userId?: string, year: number = 2025) => {
           dayCount[mic.day] = (dayCount[mic.day] || 0) + 1;
         }
 
-        // Stage time (parse from string like "5 min" or "5 minutes")
-        if (mic.stage_time) {
+        // Stage time - prioritize user's custom_stage_time, then mic's default, then DEFAULT_STAGE_TIME
+        if (tracked.custom_stage_time) {
+          totalStageTime += tracked.custom_stage_time;
+        } else if (mic.stage_time) {
           const match = mic.stage_time.match(/(\d+)/);
-          totalStageTime += match ? parseInt(match[1], 10) : 5; // default 5 min
+          totalStageTime += match ? parseInt(match[1], 10) : DEFAULT_STAGE_TIME;
         } else {
-          totalStageTime += 5; // default
+          totalStageTime += DEFAULT_STAGE_TIME;
         }
 
         // Month
         const createdAt = new Date(tracked.created_at);
+        const monthKey = createdAt.toLocaleString('default', { month: 'short' });
+        monthCount[monthKey] = (monthCount[monthKey] || 0) + 1;
+
+        // First date
+        if (!firstDate || createdAt < firstDate) {
+          firstDate = createdAt;
+        }
+      });
+
+      // Process custom shows
+      customShows?.forEach(show => {
+        // Venue
+        if (show.venue) {
+          venues.add(show.venue);
+          venueCount[show.venue] = (venueCount[show.venue] || 0) + 1;
+        }
+
+        // Borough
+        if (show.borough) boroughs.add(show.borough);
+
+        // Stage time - use stage_time_minutes or default
+        totalStageTime += show.stage_time_minutes || DEFAULT_STAGE_TIME;
+
+        // Month
+        const createdAt = new Date(show.created_at);
         const monthKey = createdAt.toLocaleString('default', { month: 'short' });
         monthCount[monthKey] = (monthCount[monthKey] || 0) + 1;
 
@@ -137,8 +188,13 @@ export const useWrapped = (userId?: string, year: number = 2025) => {
         count: dayCount[day] || 0
       }));
 
+      const totalMics = trackedMics?.length || 0;
+      const totalShows = customShows?.length || 0;
+
       return {
-        totalMics: trackedMics?.length || 0,
+        totalMics,
+        totalShows,
+        totalPerformances: totalMics + totalShows,
         uniqueVenues: venues.size,
         uniqueBoroughs: Array.from(boroughs),
         uniqueNeighborhoods: Array.from(neighborhoods),
