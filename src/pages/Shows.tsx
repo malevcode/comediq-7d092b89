@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, LogIn, Mic, Calendar, Clock, MapPin } from "lucide-react";
+import { Plus, LogIn, Mic, Calendar, Clock, MapPin, Upload } from "lucide-react";
 import ShowNotepad from "@/components/ShowNotepad";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
+import BulkImportModal from "@/components/shows/BulkImportModal";
 
 interface ShowNote {
   id: string;
@@ -114,9 +115,11 @@ function getNextOccurrence(day, time) {
 const Shows = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [refreshKey, setRefreshKey] = useState(0);
   const { shows: rawShows, loading } = useUserShows();
-  const { customShows, loading: customLoading } = useUserCustomShows();
+  const { customShows, loading: customLoading } = useUserCustomShows(refreshKey);
   const [allShowNotes, setAllShowNotes] = useState<ShowNote[]>([]);
+  const [showBulkImport, setShowBulkImport] = useState(false);
 
   // Calculate quick stats for the current year
   const quickStats = useMemo(() => {
@@ -246,7 +249,21 @@ const Shows = () => {
                 <Calendar className="w-4 h-4 mr-2" />
                 Find Gigs
               </Button>
+              <Button
+                onClick={() => setShowBulkImport(true)}
+                variant="outline"
+                className="flex-1 sm:flex-none border-orange-300 text-orange-600 hover:bg-orange-50"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Bulk Import
+              </Button>
             </div>
+
+            <BulkImportModal 
+              open={showBulkImport} 
+              onOpenChange={setShowBulkImport}
+              onImportComplete={() => setRefreshKey(k => k + 1)}
+            />
 
             {/* Quick Stats Bar */}
             <Card className="mb-6 bg-gradient-to-r from-orange-50 to-cyan-50 border-orange-200">
