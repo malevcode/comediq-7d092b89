@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles, Calendar, X } from 'lucide-react';
+import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles, Calendar, X, Upload } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
 import { OpenMic } from '@/types/openMic';
@@ -21,6 +21,7 @@ import { useUserSignups } from '@/hooks/useUserSignups';
 import { cancelSignup } from '@/api/signups';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import BulkImportModal from '@/components/shows/BulkImportModal';
 import { 
   useComedianProfile, 
   useUpdateProfile, 
@@ -36,6 +37,7 @@ const Profile = () => {
   const { data: openMics = [] } = useOpenMics('open_mics_historical');
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [showBulkImport, setShowBulkImport] = useState(false);
 
   const { data: profile, isLoading: profileLoading } = useComedianProfile(user?.id);
   const updateProfile = useUpdateProfile();
@@ -99,7 +101,7 @@ const Profile = () => {
           <Tabs defaultValue="profile" className="space-y-6">
             {/* Wrapped Banner */}
             <Card className="bg-gradient-to-r from-orange-500 via-pink-500 to-cyan-500 border-0 mb-4">
-              <CardContent className="p-4 flex items-center justify-between">
+              <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3 text-white">
                   <Sparkles className="h-6 w-6" />
                   <div>
@@ -107,15 +109,30 @@ const Profile = () => {
                     <p className="text-sm text-white/80">See your comedy year in review</p>
                   </div>
                 </div>
-                <Button 
-                  onClick={() => navigate('/wrapped')} 
-                  variant="secondary"
-                  className="bg-white text-orange-600 hover:bg-white/90 font-bold"
-                >
-                  View Wrapped
-                </Button>
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <Button 
+                    onClick={() => setShowBulkImport(true)}
+                    variant="outline"
+                    className="flex-1 sm:flex-none bg-transparent border-white/50 text-white hover:bg-white/20"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Import Sets
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/wrapped')} 
+                    variant="secondary"
+                    className="flex-1 sm:flex-none bg-white text-orange-600 hover:bg-white/90 font-bold"
+                  >
+                    View Wrapped
+                  </Button>
+                </div>
               </CardContent>
             </Card>
+
+            <BulkImportModal 
+              open={showBulkImport} 
+              onOpenChange={setShowBulkImport}
+            />
 
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="profile">My Profile</TabsTrigger>
