@@ -17,31 +17,33 @@ const WrappedSummaryCard = ({ stats, stageName, year = 2025 }: WrappedSummaryCar
   return (
     <div 
       id="wrapped-summary-card"
-      className="w-full max-w-[270px] mx-auto bg-gradient-to-br from-comediq-blue via-comediq-blue-dark to-[hsl(250,50%,25%)] rounded-3xl p-5 text-comediq-cream shadow-2xl border border-comediq-cream/10"
+      className="w-full max-w-[280px] mx-auto bg-gradient-to-br from-comediq-blue via-comediq-blue-dark to-[hsl(250,50%,25%)] rounded-3xl p-4 text-comediq-cream shadow-2xl border border-comediq-cream/10 flex flex-col overflow-hidden"
       style={{ aspectRatio: '9/16' }}
     >
       {/* Header */}
-      <div className="text-center mb-4">
-        <p className="text-comediq-cream/50 text-[10px] tracking-widest font-nunito mb-0.5">EST. 2025</p>
-        <h2 className="font-fredoka text-2xl font-bold tracking-tight">COMEDIQ</h2>
-        <p className="text-comediq-cream/80 text-xs font-fredoka font-medium">WRAPPED {year}</p>
+      <div className="text-center mb-3">
+        <p className="text-comediq-cream/50 text-[9px] tracking-widest font-nunito mb-0.5">EST. 2025</p>
+        <h2 className="font-fredoka text-xl font-bold tracking-tight">COMEDIQ</h2>
+        <p className="text-comediq-cream/80 text-[11px] font-fredoka font-medium">WRAPPED {year}</p>
       </div>
 
-      {/* Name */}
+      {/* Name with highlight */}
       {stageName && (
-        <div className="text-center mb-4">
-          <p className="font-fredoka text-lg font-bold">{stageName}</p>
+        <div className="text-center mb-3">
+          <span className="inline-block bg-comediq-cream/20 px-4 py-1 rounded-lg">
+            <p className="font-fredoka text-base font-bold">{stageName}</p>
+          </span>
         </div>
       )}
 
       {/* Main Stats - Large Feature */}
-      <div className="bg-comediq-cream/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-comediq-cream/10 mb-3">
-        <div className="bg-comediq-cream/20 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
-          <Sparkles className="h-6 w-6" />
+      <div className="bg-comediq-cream/10 backdrop-blur-sm rounded-xl p-3 text-center border border-comediq-cream/10 mb-2">
+        <div className="bg-comediq-cream/20 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-1.5">
+          <Sparkles className="h-5 w-5" />
         </div>
-        <p className="font-fredoka text-4xl font-bold">{stats.totalPerformances}</p>
-        <p className="text-xs text-comediq-cream/70 font-nunito">Total Performances</p>
-        <div className="flex justify-center gap-4 mt-2 text-xs text-comediq-cream/60">
+        <p className="font-fredoka text-3xl font-bold leading-none">{stats.totalPerformances}</p>
+        <p className="text-[10px] text-comediq-cream/70 font-nunito mt-0.5">Total Performances</p>
+        <div className="flex justify-center gap-3 mt-1.5 text-[10px] text-comediq-cream/60">
           <span>{stats.totalMics} mics</span>
           <span>•</span>
           <span>{stats.totalShows} shows</span>
@@ -49,44 +51,44 @@ const WrappedSummaryCard = ({ stats, stageName, year = 2025 }: WrappedSummaryCar
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-2 mb-3">
-        <div className="bg-comediq-cream/10 backdrop-blur-sm rounded-xl p-3 text-center border border-comediq-cream/10">
-          <div className="bg-comediq-cream/20 w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-1">
-            <Clock className="h-4 w-4" />
+      <div className="grid grid-cols-2 gap-1.5 mb-2">
+        <div className="bg-comediq-cream/10 backdrop-blur-sm rounded-lg p-2 text-center border border-comediq-cream/10">
+          <div className="bg-comediq-cream/20 w-6 h-6 rounded-full flex items-center justify-center mx-auto mb-0.5">
+            <Clock className="h-3 w-3" />
           </div>
-          <p className="font-fredoka text-xl font-bold">{timeDisplay}</p>
-          <p className="text-[10px] text-comediq-cream/70 font-nunito">Stage Time</p>
+          <p className="font-fredoka text-lg font-bold leading-none">{timeDisplay}</p>
+          <p className="text-[9px] text-comediq-cream/70 font-nunito mt-0.5">Stage Time</p>
         </div>
 
-        <div className="bg-comediq-cream/10 backdrop-blur-sm rounded-xl p-3 text-center border border-comediq-cream/10">
-          <div className="bg-comediq-cream/20 w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-1">
-            <Building2 className="h-4 w-4" />
+        <div className="bg-comediq-cream/10 backdrop-blur-sm rounded-lg p-2 text-center border border-comediq-cream/10">
+          <div className="bg-comediq-cream/20 w-6 h-6 rounded-full flex items-center justify-center mx-auto mb-0.5">
+            <Building2 className="h-3 w-3" />
           </div>
-          <p className="font-fredoka text-xl font-bold">{stats.uniqueVenues}</p>
-          <p className="text-[10px] text-comediq-cream/70 font-nunito">Venues</p>
+          <p className="font-fredoka text-lg font-bold leading-none">{stats.uniqueVenues}</p>
+          <p className="text-[9px] text-comediq-cream/70 font-nunito mt-0.5">Venues</p>
         </div>
       </div>
 
       {/* Top Venue */}
       {stats.topVenue && (
-        <div className="bg-comediq-cream/10 backdrop-blur-sm rounded-xl p-2.5 flex items-center gap-2 border border-comediq-cream/10 mb-3">
-          <div className="bg-comediq-cream/20 rounded-full p-1.5">
-            <Mic className="h-3 w-3" />
+        <div className="bg-comediq-cream/10 backdrop-blur-sm rounded-lg p-2 flex items-center gap-2 border border-comediq-cream/10 mb-2">
+          <div className="bg-comediq-cream/20 rounded-full p-1">
+            <Mic className="h-2.5 w-2.5" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] text-comediq-cream/60 font-nunito">Favorite Venue</p>
-            <p className="font-fredoka font-bold text-xs truncate">{stats.topVenue.name}</p>
+            <p className="text-[9px] text-comediq-cream/60 font-nunito leading-none">Favorite Venue</p>
+            <p className="font-fredoka font-bold text-[11px] truncate leading-tight">{stats.topVenue.name}</p>
           </div>
         </div>
       )}
 
       {/* Boroughs */}
       {stats.uniqueBoroughs.length > 0 && (
-        <div className="flex flex-wrap justify-center gap-1 mb-3">
-          {stats.uniqueBoroughs.slice(0, 5).map(borough => (
+        <div className="flex flex-wrap justify-center gap-1 mb-2">
+          {stats.uniqueBoroughs.slice(0, 4).map(borough => (
             <span
               key={borough}
-              className="bg-comediq-cream/20 px-2 py-0.5 rounded-full text-[10px] font-fredoka font-medium"
+              className="bg-comediq-cream/20 px-1.5 py-0.5 rounded-full text-[9px] font-fredoka font-medium"
             >
               {borough}
             </span>
@@ -94,9 +96,9 @@ const WrappedSummaryCard = ({ stats, stageName, year = 2025 }: WrappedSummaryCar
         </div>
       )}
 
-      {/* Footer */}
-      <div className="mt-auto pt-2 border-t border-comediq-cream/20 text-center">
-        <p className="text-[10px] text-comediq-cream/50 font-nunito tracking-wide">comediq.us</p>
+      {/* Footer - pushed to bottom */}
+      <div className="mt-auto pt-1.5 border-t border-comediq-cream/20 text-center">
+        <p className="text-[9px] text-comediq-cream/50 font-nunito tracking-wide">comediq.us</p>
       </div>
     </div>
   );

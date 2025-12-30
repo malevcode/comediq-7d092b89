@@ -294,9 +294,9 @@ const Wrapped = () => {
       // Slide 4: Shareable Summary Card (Instagram Story sized)
       case 4:
         return (
-          <WrappedSlide slideIndex={4} className="py-4">
-            <div className="flex flex-col items-center animate-slide-up">
-              <h2 className="font-fredoka text-2xl font-bold text-comediq-cream mb-6 text-center">
+          <WrappedSlide slideIndex={4} className="!py-2">
+            <div className="flex flex-col items-center animate-slide-up max-h-[calc(100vh-120px)]">
+              <h2 className="font-fredoka text-xl font-bold text-comediq-cream mb-3 text-center">
                 YOUR {YEAR} WRAPPED
               </h2>
               <WrappedSummaryCard 
@@ -304,7 +304,7 @@ const Wrapped = () => {
                 stageName={profile?.stage_name || profile?.username}
                 year={YEAR}
               />
-              <div className="flex flex-col sm:flex-row gap-4 mt-6">
+              <div className="flex gap-3 mt-4">
                 <Button
                   onClick={() => {
                     if (navigator.share) {
@@ -315,20 +315,20 @@ const Wrapped = () => {
                       });
                     }
                   }}
-                  size="lg"
-                  className="bg-comediq-cream text-comediq-blue hover:bg-comediq-cream/90 font-fredoka font-bold"
+                  size="sm"
+                  className="bg-comediq-cream text-comediq-blue hover:bg-comediq-cream/90 font-fredoka font-bold px-6"
                 >
-                  <Share2 className="mr-2 h-5 w-5" />
+                  <Share2 className="mr-2 h-4 w-4" />
                   Share
                 </Button>
                 <Button
                   onClick={() => navigate('/profile')}
-                  size="lg"
+                  size="sm"
                   variant="outline"
-                  className="border-comediq-cream text-comediq-cream hover:bg-comediq-cream/20 font-fredoka"
+                  className="border-comediq-cream text-comediq-cream hover:bg-comediq-cream/20 font-fredoka px-4"
                 >
-                  <Home className="mr-2 h-5 w-5" />
-                  Back to Profile
+                  <Home className="mr-2 h-4 w-4" />
+                  Home
                 </Button>
               </div>
             </div>
