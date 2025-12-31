@@ -3,7 +3,6 @@ project_id = "cotfweyhlglpjmgqxwqx"
 [functions.get-mapbox-token]
 enabled = true
 verify_jwt = true
-import_map = "./functions/get-mapbox-token/deno.json"
 entrypoint = "./functions/get-mapbox-token/index.ts"
 
 [functions.parse-notes]
