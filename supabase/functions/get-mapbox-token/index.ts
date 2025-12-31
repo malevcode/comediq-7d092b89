@@ -1,7 +1,10 @@
-/// <reference types="https://esm.sh/@supabase/functions-js/edge-runtime.d.ts" />
-
+// Deployed: 2025-01-01 - Mapbox token endpoint
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { corsHeaders } from "../_shared/cors.ts"
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
 
 serve(async (req) => {
   // Handle CORS preflight requests
