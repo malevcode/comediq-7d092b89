@@ -295,29 +295,38 @@ const Wrapped = () => {
       // Slide 4: Shareable Summary Card (Instagram Story sized - 1080x1920)
       case 4:
         return (
-          <WrappedSlide slideIndex={4} className="!py-2 !px-0">
-            <div className="flex flex-col items-center animate-slide-up">
-              <h2 className="font-fredoka text-xl font-bold text-comediq-cream mb-4 text-center px-4">
+          <WrappedSlide slideIndex={4} className="!py-4 !px-4">
+            <div className="flex flex-col items-center animate-slide-up w-full h-full">
+              <h2 className="font-fredoka text-2xl font-bold text-comediq-cream mb-4 text-center">
                 YOUR {YEAR} WRAPPED
               </h2>
-              {/* Scaled preview of 1080x1920 card */}
-              <div 
-                className="origin-top overflow-hidden rounded-xl shadow-2xl"
-                style={{ 
-                  transform: 'scale(0.18)',
-                  width: '1080px',
-                  height: '1920px',
-                  marginBottom: '-1580px' // Compensate for scale to prevent layout issues
-                }}
-              >
-                <WrappedShareCard 
-                  stats={stats} 
-                  stageName={profile?.stage_name || profile?.username}
-                  headshotUrl={profile?.headshot_url}
-                  year={YEAR}
-                />
+              {/* Scaled preview of 1080x1920 card - fits mobile screen */}
+              <div className="relative flex-1 flex items-center justify-center w-full max-w-[280px]">
+                <div 
+                  className="origin-center overflow-hidden rounded-2xl shadow-2xl border-4 border-white/20"
+                  style={{ 
+                    width: '280px',
+                    aspectRatio: '9/16',
+                  }}
+                >
+                  <div 
+                    style={{ 
+                      transform: 'scale(0.259)',
+                      transformOrigin: 'top left',
+                      width: '1080px',
+                      height: '1920px',
+                    }}
+                  >
+                    <WrappedShareCard 
+                      stats={stats} 
+                      stageName={profile?.stage_name || profile?.username}
+                      headshotUrl={profile?.headshot_url}
+                      year={YEAR}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="flex gap-3 mt-8">
+              <div className="flex gap-3 mt-6">
                 <Button
                   onClick={() => {
                     if (navigator.share) {
@@ -328,19 +337,19 @@ const Wrapped = () => {
                       });
                     }
                   }}
-                  size="sm"
-                  className="bg-comediq-cream text-comediq-blue hover:bg-comediq-cream/90 font-fredoka font-bold px-6"
+                  size="lg"
+                  className="bg-comediq-cream text-comediq-blue hover:bg-comediq-cream/90 font-fredoka font-bold px-8"
                 >
-                  <Share2 className="mr-2 h-4 w-4" />
+                  <Share2 className="mr-2 h-5 w-5" />
                   Share
                 </Button>
                 <Button
-                  onClick={() => navigate('/profile')}
-                  size="sm"
+                  onClick={() => navigate('/')}
+                  size="lg"
                   variant="outline"
-                  className="border-comediq-cream text-comediq-cream hover:bg-comediq-cream/20 font-fredoka px-4"
+                  className="border-comediq-cream text-comediq-cream hover:bg-comediq-cream/20 font-fredoka px-6"
                 >
-                  <Home className="mr-2 h-4 w-4" />
+                  <Home className="mr-2 h-5 w-5" />
                   Home
                 </Button>
               </div>
