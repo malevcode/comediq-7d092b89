@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Home, MicVocal, Eye, User, Book, Search, Calendar, TrendingUp, Menu, X, ChevronRight, Music, Briefcase } from "lucide-react";
+import { Home, MicVocal, Eye, User, Book, Search, Calendar, TrendingUp, Menu, X, ChevronRight, Music, Briefcase, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
@@ -24,7 +24,8 @@ const HamburgerMenu = () => {
     { path: "/job-board", icon: Briefcase, label: "Find Gigs" },
     { path: "/shows", icon: Calendar, label: "Show Scheduler" },
     { path: "/track-sets", icon: TrendingUp, label: "Progress Tracker" },
-    ...(user ? [{ path: "/host-dashboard", icon: MicVocal, label: "Host Dashboard" }] : [])
+    ...(user ? [{ path: "/host-dashboard", icon: MicVocal, label: "Host Dashboard" }] : []),
+    { path: "/2025-review", icon: Sparkles, label: "2025 Year in Review" }
   ];
 
   const isPerformActive = performSubItems.some(item => location.pathname === item.path);
