@@ -21,6 +21,9 @@ serve(async (req) => {
 
     console.log('Fetching platform stats...');
 
+    // Filter for NYC only (city = 'New York' or null, excluding other cities like LA)
+    const nycFilter = { column: 'city', value: 'New York' };
+    
     const [
       totalMicsResult,
       activeMicsResult,
@@ -34,17 +37,17 @@ serve(async (req) => {
       neighborhoodsResult,
       venuesResult
     ] = await Promise.all([
-      supabase.from('open_mics_historical').select('*', { count: 'exact', head: true }),
-      supabase.from('open_mics_historical').select('*', { count: 'exact', head: true }).eq('active', true),
-      supabase.from('open_mics_historical').select('borough').eq('active', true),
-      supabase.from('open_mics_historical').select('day').eq('active', true),
-      supabase.from('open_mics_historical').select('*', { count: 'exact', head: true }).eq('active', true).ilike('cost', '%free%'),
+      supabase.from('open_mics_historical').select('*', { count: 'exact', head: true }).or('city.eq.New York,city.is.null'),
+      supabase.from('open_mics_historical').select('*', { count: 'exact', head: true }).eq('active', true).or('city.eq.New York,city.is.null'),
+      supabase.from('open_mics_historical').select('borough').eq('active', true).or('city.eq.New York,city.is.null'),
+      supabase.from('open_mics_historical').select('day').eq('active', true).or('city.eq.New York,city.is.null'),
+      supabase.from('open_mics_historical').select('*', { count: 'exact', head: true }).eq('active', true).or('city.eq.New York,city.is.null').ilike('cost', '%free%'),
       supabase.from('profiles').select('*', { count: 'exact', head: true }),
       supabase.from('user_visits').select('*', { count: 'exact', head: true }),
       supabase.from('user_mic_ratings').select('*', { count: 'exact', head: true }),
       supabase.from('profile_open_mics').select('*', { count: 'exact', head: true }),
-      supabase.from('open_mics_historical').select('neighborhood').eq('active', true),
-      supabase.from('open_mics_historical').select('venue_name').eq('active', true)
+      supabase.from('open_mics_historical').select('neighborhood').eq('active', true).or('city.eq.New York,city.is.null'),
+      supabase.from('open_mics_historical').select('venue_name').eq('active', true).or('city.eq.New York,city.is.null')
     ]);
 
     const boroughCounts: Record<string, number> = {};
