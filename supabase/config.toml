@@ -10,3 +10,8 @@ entrypoint = "./functions/get-mapbox-token/index.ts"
 enabled = true
 verify_jwt = true
 entrypoint = "./functions/parse-notes/index.ts"
+
+[functions.get-platform-stats]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/get-platform-stats/index.ts"
