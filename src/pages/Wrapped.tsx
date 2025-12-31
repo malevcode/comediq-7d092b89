@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWrapped } from '@/hooks/useWrapped';
 import { useComedianProfile } from '@/hooks/useComedianProfile';
 import SEO from '@/components/SEO';
 import WrappedSlide from '@/components/wrapped/WrappedSlide';
-import WrappedSummaryCard from '@/components/wrapped/WrappedSummaryCard';
+import WrappedShareCard from '@/components/wrapped/WrappedShareCard';
 import AnimatedCounter from '@/components/wrapped/AnimatedCounter';
 import ProgressDots from '@/components/wrapped/ProgressDots';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,8 @@ import {
   Share2,
   Home,
   LogIn,
-  Sparkles
+  Sparkles,
+  Download
 } from 'lucide-react';
 
 const YEAR = 2025;
@@ -291,20 +292,32 @@ const Wrapped = () => {
           </WrappedSlide>
         );
 
-      // Slide 4: Shareable Summary Card (Instagram Story sized)
+      // Slide 4: Shareable Summary Card (Instagram Story sized - 1080x1920)
       case 4:
         return (
-          <WrappedSlide slideIndex={4} className="!py-2">
-            <div className="flex flex-col items-center animate-slide-up max-h-[calc(100vh-120px)]">
-              <h2 className="font-fredoka text-xl font-bold text-comediq-cream mb-3 text-center">
+          <WrappedSlide slideIndex={4} className="!py-2 !px-0">
+            <div className="flex flex-col items-center animate-slide-up">
+              <h2 className="font-fredoka text-xl font-bold text-comediq-cream mb-4 text-center px-4">
                 YOUR {YEAR} WRAPPED
               </h2>
-              <WrappedSummaryCard 
-                stats={stats} 
-                stageName={profile?.stage_name || profile?.username}
-                year={YEAR}
-              />
-              <div className="flex gap-3 mt-4">
+              {/* Scaled preview of 1080x1920 card */}
+              <div 
+                className="origin-top overflow-hidden rounded-xl shadow-2xl"
+                style={{ 
+                  transform: 'scale(0.18)',
+                  width: '1080px',
+                  height: '1920px',
+                  marginBottom: '-1580px' // Compensate for scale to prevent layout issues
+                }}
+              >
+                <WrappedShareCard 
+                  stats={stats} 
+                  stageName={profile?.stage_name || profile?.username}
+                  headshotUrl={profile?.headshot_url}
+                  year={YEAR}
+                />
+              </div>
+              <div className="flex gap-3 mt-8">
                 <Button
                   onClick={() => {
                     if (navigator.share) {
