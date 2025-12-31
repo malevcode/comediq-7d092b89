@@ -1,4 +1,4 @@
-// Deployed: 2025-01-01 - Mapbox token endpoint
+// Force redeploy: 2025-01-01-v2
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
