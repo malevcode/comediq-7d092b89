@@ -292,7 +292,7 @@ const Wrapped = () => {
           </WrappedSlide>
         );
 
-      // Slide 4: Shareable Summary Card (Instagram Story sized - 1080x1920)
+      // Slide 4: Shareable Summary Card - Mobile-first display
       case 4:
         return (
           <WrappedSlide slideIndex={4} className="!py-2 !px-2">
@@ -301,31 +301,18 @@ const Wrapped = () => {
                 YOUR {YEAR} WRAPPED
               </h2>
               
-              {/* Scaled preview container - maintains 9:16 aspect ratio */}
+              {/* Mobile-first preview - the card itself is responsive */}
               <div className="flex-1 flex items-center justify-center w-full py-2 min-h-0">
                 <div 
-                  className="relative overflow-hidden rounded-xl shadow-2xl border-2 border-white/30"
-                  style={{ 
-                    width: 'min(240px, 45vw)',
-                    aspectRatio: '9/16',
-                  }}
+                  className="w-full max-w-[280px] overflow-hidden rounded-xl shadow-2xl border-2 border-white/30"
+                  style={{ aspectRatio: '9/16' }}
                 >
-                  <div 
-                    className="absolute top-0 left-0"
-                    style={{ 
-                      transform: 'scale(0.222)',
-                      transformOrigin: 'top left',
-                      width: '1080px',
-                      height: '1920px',
-                    }}
-                  >
-                    <WrappedShareCard 
-                      stats={stats} 
-                      stageName={profile?.stage_name || profile?.username}
-                      headshotUrl={profile?.headshot_url}
-                      year={YEAR}
-                    />
-                  </div>
+                  <WrappedShareCard 
+                    stats={stats} 
+                    stageName={profile?.stage_name || profile?.username}
+                    headshotUrl={profile?.headshot_url}
+                    year={YEAR}
+                  />
                 </div>
               </div>
               
