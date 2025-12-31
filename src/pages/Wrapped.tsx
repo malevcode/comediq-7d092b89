@@ -295,23 +295,25 @@ const Wrapped = () => {
       // Slide 4: Shareable Summary Card (Instagram Story sized - 1080x1920)
       case 4:
         return (
-          <WrappedSlide slideIndex={4} className="!py-4 !px-4">
-            <div className="flex flex-col items-center animate-slide-up w-full h-full">
-              <h2 className="font-fredoka text-2xl font-bold text-comediq-cream mb-4 text-center">
+          <WrappedSlide slideIndex={4} className="!py-2 !px-2">
+            <div className="flex flex-col items-center animate-slide-up w-full h-full justify-between">
+              <h2 className="font-fredoka text-xl font-bold text-comediq-cream text-center flex-shrink-0">
                 YOUR {YEAR} WRAPPED
               </h2>
-              {/* Scaled preview of 1080x1920 card - fits mobile screen */}
-              <div className="relative flex-1 flex items-center justify-center w-full max-w-[280px]">
+              
+              {/* Scaled preview container - maintains 9:16 aspect ratio */}
+              <div className="flex-1 flex items-center justify-center w-full py-2 min-h-0">
                 <div 
-                  className="origin-center overflow-hidden rounded-2xl shadow-2xl border-4 border-white/20"
+                  className="relative overflow-hidden rounded-xl shadow-2xl border-2 border-white/30"
                   style={{ 
-                    width: '280px',
+                    width: 'min(240px, 45vw)',
                     aspectRatio: '9/16',
                   }}
                 >
                   <div 
+                    className="absolute top-0 left-0"
                     style={{ 
-                      transform: 'scale(0.259)',
+                      transform: 'scale(0.222)',
                       transformOrigin: 'top left',
                       width: '1080px',
                       height: '1920px',
@@ -326,7 +328,8 @@ const Wrapped = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex gap-3 mt-6">
+              
+              <div className="flex gap-3 flex-shrink-0 pb-2">
                 <Button
                   onClick={() => {
                     if (navigator.share) {
@@ -337,19 +340,19 @@ const Wrapped = () => {
                       });
                     }
                   }}
-                  size="lg"
-                  className="bg-comediq-cream text-comediq-blue hover:bg-comediq-cream/90 font-fredoka font-bold px-8"
+                  size="default"
+                  className="bg-comediq-cream text-comediq-blue hover:bg-comediq-cream/90 font-fredoka font-bold px-6"
                 >
-                  <Share2 className="mr-2 h-5 w-5" />
+                  <Share2 className="mr-2 h-4 w-4" />
                   Share
                 </Button>
                 <Button
                   onClick={() => navigate('/')}
-                  size="lg"
+                  size="default"
                   variant="outline"
-                  className="border-comediq-cream text-comediq-cream hover:bg-comediq-cream/20 font-fredoka px-6"
+                  className="border-comediq-cream text-comediq-cream hover:bg-comediq-cream/20 font-fredoka px-4"
                 >
-                  <Home className="mr-2 h-5 w-5" />
+                  <Home className="mr-2 h-4 w-4" />
                   Home
                 </Button>
               </div>
