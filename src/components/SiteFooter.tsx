@@ -101,6 +101,11 @@ const SiteFooter = () => {
                   Sign In
                 </Link>
               </li>
+              <li>
+                <Link to="/2025-review" className="text-gray-300 hover:text-orange-400 transition text-sm">
+                  2025 Year in Review
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
