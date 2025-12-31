@@ -22,104 +22,151 @@ const WrappedShareCard = ({
     <div 
       id="wrapped-share-card"
       className="relative bg-[#2a2a2a] text-white w-full h-full flex flex-col"
-      style={{ aspectRatio: '9/16' }}
+      style={{ 
+        aspectRatio: '9/16',
+        padding: '5%',
+        fontFamily: 'Fredoka, sans-serif'
+      }}
     >
-      {/* Header */}
-      <div className="pt-[5%] pl-[5%]">
-        <p className="font-fredoka text-[4vw] font-bold tracking-wide text-white/90 leading-tight">YOUR</p>
-        <p className="font-fredoka text-[8vw] font-bold tracking-tight leading-none">COMEDIQ</p>
-      </div>
-
-      {/* 2025 WRAPPED Title */}
-      <div className="mt-[4%] text-center">
+      {/* Top Section: Header + 2025 */}
+      <div className="flex justify-between items-start">
+        {/* YOUR COMEDIQ - left aligned */}
+        <div>
+          <p 
+            className="font-bold tracking-wide text-white/90 leading-none"
+            style={{ fontSize: 'clamp(12px, 4%, 20px)' }}
+          >
+            YOUR
+          </p>
+          <p 
+            className="font-bold tracking-tight leading-none"
+            style={{ fontSize: 'clamp(24px, 8%, 40px)' }}
+          >
+            COMEDIQ
+          </p>
+        </div>
+        
+        {/* 2025 - right aligned, outlined */}
         <p 
-          className="font-fredoka text-[14vw] font-black italic leading-none"
+          className="font-black italic leading-none"
           style={{ 
-            WebkitTextStroke: '0.4vw #6366f1',
+            fontSize: 'clamp(36px, 12%, 64px)',
+            WebkitTextStroke: '2px #6366f1',
             color: 'transparent',
             letterSpacing: '0.05em'
           }}
         >
           {year}
         </p>
-        <p className="font-fredoka text-[18vw] font-black leading-none -mt-[2%] tracking-tight">
+      </div>
+
+      {/* WRAPPED Title - full width, centered */}
+      <div className="text-center" style={{ marginTop: '2%' }}>
+        <p 
+          className="font-black leading-none tracking-tight"
+          style={{ fontSize: 'clamp(48px, 16%, 96px)' }}
+        >
           WRAPPED
         </p>
       </div>
 
-      {/* Two-column layout for stats */}
-      <div className="flex-1 flex mt-[6%] px-[5%]">
+      {/* Two-column layout for stats and map */}
+      <div className="flex flex-1" style={{ marginTop: '6%', gap: '4%' }}>
         {/* Left Column - Stats */}
-        <div className="flex-1 flex flex-col justify-start">
+        <div className="flex-1 flex flex-col justify-start" style={{ gap: '8%' }}>
           {/* Number of Mics */}
-          <div className="mb-[12%]">
-            <p className="font-fredoka text-[2.8vw] font-bold tracking-wider text-white/80 mb-[1%]">
+          <div>
+            <p 
+              className="font-bold tracking-wider text-white/80 leading-tight"
+              style={{ fontSize: 'clamp(8px, 2.5%, 14px)' }}
+            >
               NUMBER OF MICS DONE
             </p>
-            <p className="font-fredoka font-black leading-none text-[22vw] tracking-tight">
+            <p 
+              className="font-black leading-none tracking-tight"
+              style={{ fontSize: 'clamp(64px, 20%, 128px)' }}
+            >
               {stats.totalPerformances}
             </p>
           </div>
 
           {/* Total Minutes */}
-          <div className="mb-[12%]">
-            <p className="font-fredoka text-[2.8vw] font-bold tracking-wider text-white/80 mb-[1%]">
+          <div>
+            <p 
+              className="font-bold tracking-wider text-white/80 leading-tight"
+              style={{ fontSize: 'clamp(8px, 2.5%, 14px)' }}
+            >
               TOTAL MINUTES ON STAGE
             </p>
-            <p className="font-fredoka font-black leading-none text-[18vw] tracking-tight">
+            <p 
+              className="font-black leading-none tracking-tight"
+              style={{ fontSize: 'clamp(48px, 16%, 96px)' }}
+            >
               {stats.estimatedStageTime}
             </p>
           </div>
 
           {/* Unique Venues */}
           <div>
-            <p className="font-fredoka text-[2.8vw] font-bold tracking-wider text-white/80 mb-[1%]">
+            <p 
+              className="font-bold tracking-wider text-white/80 leading-tight"
+              style={{ fontSize: 'clamp(8px, 2.5%, 14px)' }}
+            >
               UNIQUE VENUES
             </p>
-            <p className="font-fredoka font-black leading-none text-[18vw] tracking-tight">
+            <p 
+              className="font-black leading-none tracking-tight"
+              style={{ fontSize: 'clamp(48px, 16%, 96px)' }}
+            >
               {stats.uniqueVenues}
             </p>
           </div>
         </div>
 
         {/* Right Column - Map */}
-        <div className="w-[42%] flex flex-col items-center pt-[2%]">
-          <p className="font-fredoka text-[2.8vw] font-bold tracking-wider text-white/80 mb-[4%] text-center">
+        <div className="flex flex-col items-center" style={{ width: '42%' }}>
+          <p 
+            className="font-bold tracking-wider text-white/80 text-center leading-tight"
+            style={{ fontSize: 'clamp(8px, 2.5%, 14px)', marginBottom: '4%' }}
+          >
             YOU PERFORMED IN...
           </p>
-          <div className="w-full aspect-square">
+          <div style={{ width: '100%', aspectRatio: '1' }}>
             <NYCBoroughMap 
               visitedBoroughs={stats.uniqueBoroughs} 
               className="w-full h-full"
             />
           </div>
-          <p className="font-fredoka text-[4.5vw] font-bold text-center mt-[4%] tracking-wide">
+          <p 
+            className="font-bold text-center tracking-wide"
+            style={{ fontSize: 'clamp(12px, 4%, 24px)', marginTop: '4%' }}
+          >
             {boroughText}
           </p>
-        </div>
-      </div>
-
-      {/* Bottom Section */}
-      <div className="px-[5%] pb-[5%]">
-        {/* Good Job */}
-        <div className="text-right mb-[3%]">
+          
+          {/* GOOD JOB - outlined text */}
           <p 
-            className="font-fredoka font-black tracking-tight text-[10vw] leading-none inline-block"
+            className="font-black tracking-tight leading-none"
             style={{ 
-              WebkitTextStroke: '0.3vw #ffffff',
-              color: 'transparent'
+              fontSize: 'clamp(24px, 8%, 48px)',
+              WebkitTextStroke: '1.5px #ffffff',
+              color: 'transparent',
+              marginTop: '8%'
             }}
           >
             GOOD JOB!
           </p>
         </div>
+      </div>
 
-        {/* Footer URL */}
-        <div className="text-right">
-          <p className="font-fredoka text-[3vw] font-bold tracking-wider text-white/60">
-            COMEDIQ.COM/WRAPPED
-          </p>
-        </div>
+      {/* Footer URL */}
+      <div className="text-right" style={{ marginTop: 'auto', paddingTop: '4%' }}>
+        <p 
+          className="font-bold tracking-wider text-white/60"
+          style={{ fontSize: 'clamp(10px, 3%, 16px)' }}
+        >
+          COMEDIQ.COM/WRAPPED
+        </p>
       </div>
     </div>
   );
