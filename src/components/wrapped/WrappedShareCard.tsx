@@ -1,6 +1,5 @@
 import { WrappedStats } from '@/hooks/useWrapped';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import NYCBoroughMap from './NYCBoroughMap';
 
 interface WrappedShareCardProps {
   stats: WrappedStats;
@@ -20,12 +19,6 @@ const WrappedShareCard = ({
     current.count > max.count ? current : max, 
     { month: '', count: 0 }
   );
-
-  const boroughText = stats.uniqueBoroughs.length === 5 
-    ? 'ALL FIVE BOROUGHS!' 
-    : stats.uniqueBoroughs.length === 1 
-      ? stats.uniqueBoroughs[0].toUpperCase() + '!'
-      : `${stats.uniqueBoroughs.length} BOROUGHS!`;
 
   return (
     <div 
@@ -73,58 +66,42 @@ const WrappedShareCard = ({
         </p>
       </div>
 
-      {/* Left Column Stats */}
-      <div className="absolute left-[48px] top-[580px]">
+      {/* Stats - Centered */}
+      <div className="absolute left-[48px] right-[48px] top-[580px]">
         {/* Number of Mics */}
-        <div className="mb-[80px]">
-          <p className="font-fredoka text-[28px] font-bold tracking-wider text-white/80 mb-2">
+        <div className="mb-[100px] text-center">
+          <p className="font-fredoka text-[32px] font-bold tracking-wider text-white/80 mb-2">
             NUMBER OF MICS DONE
           </p>
-          <p className="font-fredoka font-black leading-none text-[220px] tracking-tight">
+          <p className="font-fredoka font-black leading-none text-[280px] tracking-tight">
             {stats.totalPerformances}
           </p>
         </div>
 
         {/* Total Minutes */}
-        <div className="mb-[80px]">
-          <p className="font-fredoka text-[28px] font-bold tracking-wider text-white/80 mb-2">
+        <div className="mb-[100px] text-center">
+          <p className="font-fredoka text-[32px] font-bold tracking-wider text-white/80 mb-2">
             TOTAL MINUTES ON STAGE
           </p>
-          <p className="font-fredoka font-black leading-none text-[200px] tracking-tight">
+          <p className="font-fredoka font-black leading-none text-[240px] tracking-tight">
             {stats.estimatedStageTime}
           </p>
         </div>
 
         {/* Unique Venues */}
-        <div>
-          <p className="font-fredoka text-[28px] font-bold tracking-wider text-white/80 mb-2">
+        <div className="text-center">
+          <p className="font-fredoka text-[32px] font-bold tracking-wider text-white/80 mb-2">
             UNIQUE VENUES
           </p>
-          <p className="font-fredoka font-black leading-none text-[200px] tracking-tight">
+          <p className="font-fredoka font-black leading-none text-[240px] tracking-tight">
             {stats.uniqueVenues}
           </p>
         </div>
       </div>
 
-      {/* Right Column - Borough Map */}
-      <div className="absolute right-[48px] top-[620px] w-[420px]">
-        <p className="font-fredoka text-[28px] font-bold tracking-wider text-white/80 mb-4">
-          YOU PERFORMED IN...
-        </p>
-        <div className="w-full h-[380px]">
-          <NYCBoroughMap 
-            visitedBoroughs={stats.uniqueBoroughs} 
-            className="w-full h-full"
-          />
-        </div>
-        <p className="font-fredoka text-[42px] font-bold text-center mt-4 tracking-wide">
-          {boroughText}
-        </p>
-      </div>
-
       {/* Busiest Month - if available */}
       {busiestMonth.count > 0 && (
-        <div className="absolute right-[48px] top-[1150px] text-right">
+        <div className="absolute left-[48px] bottom-[280px]">
           <p className="font-fredoka text-[28px] font-bold tracking-wider text-white/80 mb-2">
             BUSIEST MONTH
           </p>
