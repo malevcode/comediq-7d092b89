@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, MapPin, Calendar, Users, Heart, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MapPin, Calendar, Users, Heart, Sparkles, TrendingUp, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import WrappedSlide from '@/components/wrapped/WrappedSlide';
 import AnimatedCounter from '@/components/wrapped/AnimatedCounter';
@@ -9,7 +9,6 @@ import BoroughBreakdownChart from '@/components/year-review/BoroughBreakdownChar
 import BusiestDaysChart from '@/components/year-review/BusiestDaysChart';
 import { usePlatformStats } from '@/hooks/usePlatformStats';
 import SEO from '@/components/SEO';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const YearInReview = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -19,7 +18,6 @@ const YearInReview = () => {
   const totalSlides = 6;
 
   useEffect(() => {
-    // Trigger chart animations when slide changes
     setAnimateCharts(false);
     const timer = setTimeout(() => setAnimateCharts(true), 100);
     return () => clearTimeout(timer);
@@ -78,6 +76,7 @@ const YearInReview = () => {
   }
 
   const busiestDay = stats.dayStats[0];
+  const topBorough = stats.boroughStats[0];
 
   return (
     <>
@@ -110,56 +109,80 @@ const YearInReview = () => {
           </div>
         </WrappedSlide>
 
-        {/* Slide 1: Total Mics */}
+        {/* Slide 1: Platform Reach - Site Visits */}
         <WrappedSlide slideIndex={1} isActive={currentSlide === 1}>
           <div className="text-center space-y-6 animate-fade-in">
-            <MapPin className="w-16 h-16 text-comediq-cream/60 mx-auto mb-4" />
+            <TrendingUp className="w-16 h-16 text-yellow-300 mx-auto mb-4" />
             <p className="font-nunito text-xl text-comediq-cream/80">
-              We tracked
+              NYC comedians visited
             </p>
             <div className="font-fredoka text-8xl md:text-9xl text-comediq-cream font-bold">
-              <AnimatedCounter value={stats.totalMics} duration={2000} />
+              <AnimatedCounter value={stats.totalVisits} duration={2000} />
             </div>
             <p className="font-fredoka text-3xl text-yellow-300">
-              OPEN MICS
+              TIMES
             </p>
-            <p className="font-nunito text-comediq-cream/70">
-              across NYC this year
+            <p className="font-nunito text-comediq-cream/70 max-w-xs mx-auto">
+              to find their next stage in 2025
             </p>
-            <div className="flex justify-center gap-6 mt-8 text-sm text-comediq-cream/60">
-              <span className="flex items-center gap-2">
-                <span className="w-3 h-3 bg-green-400 rounded-full"></span>
-                {stats.activeMics} active
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="w-3 h-3 bg-gray-400 rounded-full"></span>
-                {stats.inactiveMics} inactive
-              </span>
-            </div>
           </div>
         </WrappedSlide>
 
-        {/* Slide 2: Borough Breakdown */}
+        {/* Slide 2: NYC Coverage */}
         <WrappedSlide slideIndex={2} isActive={currentSlide === 2}>
           <div className="text-center space-y-6 animate-fade-in">
+            <Building2 className="w-14 h-14 text-comediq-cream/60 mx-auto" />
             <p className="font-nunito text-lg text-comediq-cream/80">
-              Manhattan dominated with
+              We tracked every week
             </p>
             <div className="font-fredoka text-7xl md:text-8xl text-comediq-cream font-bold">
-              <AnimatedCounter value={stats.boroughStats[0]?.count || 0} duration={1500} />
+              <AnimatedCounter value={stats.activeMics} duration={1500} />
             </div>
-            <p className="font-fredoka text-2xl text-yellow-300 mb-8">
-              MICS
+            <p className="font-fredoka text-2xl text-yellow-300 mb-4">
+              OPEN MIC EVENTS
+            </p>
+            <div className="grid grid-cols-2 gap-4 mt-6 max-w-xs mx-auto">
+              <div className="bg-white/10 rounded-xl p-4">
+                <div className="font-fredoka text-4xl text-comediq-cream">
+                  {stats.venues}
+                </div>
+                <p className="text-sm text-comediq-cream/60 mt-1">venues</p>
+              </div>
+              <div className="bg-white/10 rounded-xl p-4">
+                <div className="font-fredoka text-4xl text-comediq-cream">
+                  {stats.neighborhoods}
+                </div>
+                <p className="text-sm text-comediq-cream/60 mt-1">neighborhoods</p>
+              </div>
+            </div>
+            <p className="font-nunito text-sm text-comediq-cream/50 mt-4">
+              {stats.freePercentage}% are FREE to perform
+            </p>
+          </div>
+        </WrappedSlide>
+
+        {/* Slide 3: Borough Breakdown */}
+        <WrappedSlide slideIndex={3} isActive={currentSlide === 3}>
+          <div className="text-center space-y-6 animate-fade-in">
+            <MapPin className="w-12 h-12 text-comediq-cream/60 mx-auto" />
+            <p className="font-nunito text-lg text-comediq-cream/80">
+              {topBorough?.borough} led with
+            </p>
+            <div className="font-fredoka text-7xl md:text-8xl text-yellow-300 font-bold">
+              <AnimatedCounter value={topBorough?.count || 0} duration={1500} />
+            </div>
+            <p className="font-fredoka text-2xl text-comediq-cream mb-6">
+              WEEKLY MICS
             </p>
             <BoroughBreakdownChart 
               boroughStats={stats.boroughStats} 
-              animate={animateCharts && currentSlide === 2}
+              animate={animateCharts && currentSlide === 3}
             />
           </div>
         </WrappedSlide>
 
-        {/* Slide 3: Busiest Days */}
-        <WrappedSlide slideIndex={3} isActive={currentSlide === 3}>
+        {/* Slide 4: Busiest Days */}
+        <WrappedSlide slideIndex={4} isActive={currentSlide === 4}>
           <div className="text-center space-y-6 animate-fade-in">
             <Calendar className="w-12 h-12 text-comediq-cream/60 mx-auto" />
             <p className="font-nunito text-lg text-comediq-cream/80">
@@ -169,19 +192,19 @@ const YearInReview = () => {
               <AnimatedCounter value={busiestDay?.count || 0} duration={1500} />
             </div>
             <p className="font-fredoka text-2xl text-comediq-cream mb-6">
-              WEEKLY MICS
+              MICS EVERY {busiestDay?.day?.toUpperCase()}
             </p>
             <BusiestDaysChart 
               dayStats={stats.dayStats} 
-              animate={animateCharts && currentSlide === 3}
+              animate={animateCharts && currentSlide === 4}
             />
           </div>
         </WrappedSlide>
 
-        {/* Slide 4: Community Stats */}
-        <WrappedSlide slideIndex={4} isActive={currentSlide === 4}>
-          <div className="text-center space-y-8 animate-fade-in">
-            <Users className="w-16 h-16 text-comediq-cream/60 mx-auto" />
+        {/* Slide 5: Community & CTA */}
+        <WrappedSlide slideIndex={5} isActive={currentSlide === 5}>
+          <div className="text-center space-y-6 animate-fade-in">
+            <Users className="w-14 h-14 text-yellow-300 mx-auto" />
             <div className="font-fredoka text-7xl md:text-8xl text-comediq-cream font-bold">
               <AnimatedCounter value={stats.totalUsers} duration={2000} />
             </div>
@@ -189,58 +212,33 @@ const YearInReview = () => {
               COMEDIANS
             </p>
             <p className="font-nunito text-xl text-comediq-cream/80">
-              joined Comediq
+              joined Comediq in 2025
             </p>
-            <div className="grid grid-cols-2 gap-6 mt-8 max-w-xs mx-auto">
-              <div className="bg-white/10 rounded-xl p-4">
-                <div className="font-fredoka text-3xl text-comediq-cream">
-                  {stats.freeMics}
-                </div>
-                <p className="text-xs text-comediq-cream/60 mt-1">free mics</p>
-                <p className="text-xs text-yellow-300">({stats.freePercentage}%!)</p>
-              </div>
-              <div className="bg-white/10 rounded-xl p-4">
-                <div className="font-fredoka text-3xl text-comediq-cream">
-                  {stats.neighborhoods}
-                </div>
-                <p className="text-xs text-comediq-cream/60 mt-1">neighborhoods</p>
-              </div>
-            </div>
-          </div>
-        </WrappedSlide>
-
-        {/* Slide 5: Engagement & CTA */}
-        <WrappedSlide slideIndex={5} isActive={currentSlide === 5}>
-          <div className="text-center space-y-6 animate-fade-in">
-            <Sparkles className="w-12 h-12 text-yellow-300 mx-auto" />
-            <h2 className="font-fredoka text-3xl text-comediq-cream">
-              Community Love
-            </h2>
             
-            <div className="grid grid-cols-3 gap-4 mt-6">
-              <div className="bg-white/10 rounded-xl p-4">
+            <div className="grid grid-cols-3 gap-3 mt-6 max-w-sm mx-auto">
+              <div className="bg-white/10 rounded-xl p-3">
                 <div className="font-fredoka text-2xl text-comediq-cream">
-                  <AnimatedCounter value={stats.totalVisits} duration={1500} />
+                  {stats.savedMics}
                 </div>
-                <p className="text-xs text-comediq-cream/60 mt-1">visits</p>
+                <p className="text-xs text-comediq-cream/60 mt-1">mics saved</p>
               </div>
-              <div className="bg-white/10 rounded-xl p-4">
+              <div className="bg-white/10 rounded-xl p-3">
                 <div className="font-fredoka text-2xl text-comediq-cream">
-                  <AnimatedCounter value={stats.totalRatings} duration={1500} />
+                  {stats.totalRatings}
                 </div>
                 <p className="text-xs text-comediq-cream/60 mt-1">ratings</p>
               </div>
-              <div className="bg-white/10 rounded-xl p-4">
+              <div className="bg-white/10 rounded-xl p-3">
                 <div className="font-fredoka text-2xl text-comediq-cream">
-                  <AnimatedCounter value={stats.savedMics} duration={1500} />
+                  {stats.freeMics}
                 </div>
-                <p className="text-xs text-comediq-cream/60 mt-1">saved</p>
+                <p className="text-xs text-comediq-cream/60 mt-1">free mics</p>
               </div>
             </div>
 
-            <div className="mt-10 space-y-4">
+            <div className="mt-8 space-y-4">
               <p className="font-nunito text-comediq-cream/80">
-                Ready to find your next mic?
+                Ready to find your next stage?
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link to="/auth">
@@ -256,7 +254,7 @@ const YearInReview = () => {
               </div>
             </div>
 
-            <p className="text-comediq-cream/40 text-xs mt-8">
+            <p className="text-comediq-cream/40 text-xs mt-6">
               Made with ❤️ by comedians, for comedians
             </p>
           </div>
