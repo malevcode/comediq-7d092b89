@@ -131,32 +131,32 @@ const YearInReview = () => {
         {/* Slide 2: NYC Coverage */}
         <WrappedSlide slideIndex={2} isActive={currentSlide === 2}>
           <div className="text-center space-y-6 animate-fade-in">
-            <Building2 className="w-14 h-14 text-comediq-cream/60 mx-auto" />
+            <Building2 className="w-14 h-14 text-yellow-300 mx-auto" />
             <p className="font-nunito text-lg text-comediq-cream/80">
-              We tracked every week
+              We mapped comedy across
             </p>
-            <div className="font-fredoka text-7xl md:text-8xl text-comediq-cream font-bold">
-              <AnimatedCounter value={stats.activeMics} duration={1500} />
+            <div className="font-fredoka text-8xl md:text-9xl text-comediq-cream font-bold">
+              <AnimatedCounter value={stats.venues} duration={1500} />
             </div>
-            <p className="font-fredoka text-2xl text-yellow-300 mb-4">
-              OPEN MIC EVENTS
+            <p className="font-fredoka text-3xl text-yellow-300 mb-4">
+              VENUES
             </p>
             <div className="grid grid-cols-2 gap-4 mt-6 max-w-xs mx-auto">
-              <div className="bg-white/10 rounded-xl p-4">
-                <div className="font-fredoka text-4xl text-comediq-cream">
-                  {stats.venues}
-                </div>
-                <p className="text-sm text-comediq-cream/60 mt-1">venues</p>
-              </div>
               <div className="bg-white/10 rounded-xl p-4">
                 <div className="font-fredoka text-4xl text-comediq-cream">
                   {stats.neighborhoods}
                 </div>
                 <p className="text-sm text-comediq-cream/60 mt-1">neighborhoods</p>
               </div>
+              <div className="bg-white/10 rounded-xl p-4">
+                <div className="font-fredoka text-4xl text-comediq-cream">
+                  {stats.freePercentage}%
+                </div>
+                <p className="text-sm text-comediq-cream/60 mt-1">free mics</p>
+              </div>
             </div>
             <p className="font-nunito text-sm text-comediq-cream/50 mt-4">
-              {stats.freePercentage}% are FREE to perform
+              across all 5 boroughs
             </p>
           </div>
         </WrappedSlide>
