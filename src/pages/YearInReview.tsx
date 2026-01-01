@@ -77,6 +77,7 @@ const YearInReview = () => {
 
   const busiestDay = stats.dayStats[0];
   const topBorough = stats.boroughStats[0];
+  const weeklyMics = stats.dayStats.reduce((sum, day) => sum + day.count, 0);
 
   return (
     <>
@@ -133,30 +134,30 @@ const YearInReview = () => {
           <div className="text-center space-y-6 animate-fade-in">
             <Building2 className="w-14 h-14 text-yellow-300 mx-auto" />
             <p className="font-nunito text-lg text-comediq-cream/80">
-              We mapped comedy across
+              Every week we tracked
             </p>
             <div className="font-fredoka text-8xl md:text-9xl text-comediq-cream font-bold">
-              <AnimatedCounter value={stats.venues} duration={1500} />
+              <AnimatedCounter value={weeklyMics} duration={1500} />
             </div>
             <p className="font-fredoka text-3xl text-yellow-300 mb-4">
-              VENUES
+              OPEN MICS
             </p>
             <div className="grid grid-cols-2 gap-4 mt-6 max-w-xs mx-auto">
+              <div className="bg-white/10 rounded-xl p-4">
+                <div className="font-fredoka text-4xl text-comediq-cream">
+                  {stats.venues}
+                </div>
+                <p className="text-sm text-comediq-cream/60 mt-1">venues</p>
+              </div>
               <div className="bg-white/10 rounded-xl p-4">
                 <div className="font-fredoka text-4xl text-comediq-cream">
                   {stats.neighborhoods}
                 </div>
                 <p className="text-sm text-comediq-cream/60 mt-1">neighborhoods</p>
               </div>
-              <div className="bg-white/10 rounded-xl p-4">
-                <div className="font-fredoka text-4xl text-comediq-cream">
-                  {stats.freePercentage}%
-                </div>
-                <p className="text-sm text-comediq-cream/60 mt-1">free mics</p>
-              </div>
             </div>
             <p className="font-nunito text-sm text-comediq-cream/50 mt-4">
-              across all 5 boroughs
+              {stats.freePercentage}% are FREE to perform
             </p>
           </div>
         </WrappedSlide>
