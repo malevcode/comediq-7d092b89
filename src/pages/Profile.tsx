@@ -99,37 +99,7 @@ const Profile = () => {
         
         <div className="max-w-7xl mx-auto px-4 pt-28 pb-6">
           <Tabs defaultValue="profile" className="space-y-6">
-            {/* Wrapped Banner */}
-            <Card className="bg-gradient-to-r from-orange-500 via-pink-500 to-cyan-500 border-0 mb-4">
-              <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3 text-white">
-                  <Sparkles className="h-6 w-6" />
-                  <div>
-                    <p className="font-bold">Your 2025 Wrapped is ready!</p>
-                    <p className="text-sm text-white/80">See your comedy year in review</p>
-                  </div>
-                </div>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <Button 
-                    onClick={() => setShowBulkImport(true)}
-                    variant="outline"
-                    className="flex-1 sm:flex-none bg-transparent border-white/50 text-white hover:bg-white/20"
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    Import Sets
-                  </Button>
-                  <Button 
-                    onClick={() => navigate('/wrapped')} 
-                    variant="secondary"
-                    className="flex-1 sm:flex-none bg-white text-orange-600 hover:bg-white/90 font-bold"
-                  >
-                    View Wrapped
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <BulkImportModal 
+            <BulkImportModal
               open={showBulkImport} 
               onOpenChange={setShowBulkImport}
             />
