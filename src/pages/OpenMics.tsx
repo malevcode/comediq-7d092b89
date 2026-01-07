@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { Search, HelpCircle, LogIn, Sparkles } from "lucide-react";
+import { Search, HelpCircle, LogIn } from "lucide-react";
 import SEO from "@/components/SEO";
 import { generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Input } from "@/components/ui/input";
@@ -505,20 +505,7 @@ const OpenMics = () => {
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
         <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />
 
-      {/* 2025 Recap Banner */}
       <div className="max-w-7xl mx-auto px-4 pt-28 pb-0">
-        <Link to="/2025-review">
-          <Button 
-            variant="outline" 
-            className="w-full mb-4 bg-gradient-to-r from-orange-500 to-pink-500 text-white border-0 hover:from-orange-600 hover:to-pink-600 hover:text-white"
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            View Comediq 2025 Year in Review
-          </Button>
-        </Link>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 pt-0 pb-0">
         {/* Key/Legend */}
         {showKey && (
             <div className="block mb-3">
