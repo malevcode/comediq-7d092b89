@@ -315,7 +315,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             <span className="flex items-center gap-1 md:hidden">
               <CircleUser className="w-3 h-3 flex-shrink-0" />
               <span className="truncate">
-                {mic.instagramHandle && mic.instagramHandle.trim() ? mic.instagramHandle : "No host data"}
+                {mic.instagramHandle && mic.instagramHandle.trim() ? makeLinksClickable(mic.instagramHandle) : "No host data"}
               </span>
             </span>
           </span>
@@ -335,7 +335,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           <span className="hidden sm:hidden md:flex items-center gap-1">
             <CircleUser className="w-3 h-3 flex-shrink-0 text-gray-400" />
             <span className="truncate">
-              {mic.instagramHandle && mic.instagramHandle.trim() ? mic.instagramHandle : "No host data"}
+              {mic.instagramHandle && mic.instagramHandle.trim() ? makeLinksClickable(mic.instagramHandle) : "No host data"}
             </span>
           </span>
         </div>
