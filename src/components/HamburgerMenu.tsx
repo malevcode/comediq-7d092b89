@@ -1,20 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Home, MicVocal, Eye, User, Book, Search, Calendar, TrendingUp, Menu, X, ChevronRight, Music, Briefcase, Sparkles } from "lucide-react";
+import { Home, MicVocal, Eye, User, Book, Search, Calendar, TrendingUp, Menu, ChevronRight, Briefcase, Sparkles, Ticket, Star } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const HamburgerMenu = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signOut, isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
-    { path: "/consume", icon: Eye, label: "Laugh" },
-    // ...(user ? [{ path: "/playlists", icon: Music, label: "Playlists" }] : []),
     ...(user ? [{ path: "/profile", icon: User, label: "Profile" }] : []),
     ...(isAdmin ? [{ path: "/admintest", icon: Book, label: "Admin" }] : [])
   ];
@@ -28,8 +26,16 @@ const HamburgerMenu = () => {
     { path: "/2025-review", icon: Sparkles, label: "2025 Year in Review" }
   ];
 
+  const laughSubItems = [
+    { path: "/laugh", icon: Ticket, label: "Find Shows" },
+    { path: "/laugh?tab=my-reviews", icon: Star, label: "My Reviews" },
+  ];
+
   const isPerformActive = performSubItems.some(item => location.pathname === item.path);
+  const isLaughActive = location.pathname === '/laugh' || location.pathname === '/audience-shows';
+  
   const [expandedPerform, setExpandedPerform] = useState(isPerformActive);
+  const [expandedLaugh, setExpandedLaugh] = useState(isLaughActive);
 
   const handleNavClick = (path: string) => {
     setIsOpen(false);
@@ -109,7 +115,47 @@ const HamburgerMenu = () => {
               )}
             </div>
 
-            {/* Laugh and other items */}
+            {/* Laugh Section with Subitems */}
+            <div className="space-y-1">
+              <button
+                onClick={() => setExpandedLaugh(!expandedLaugh)}
+                className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors ${
+                  isLaughActive
+                    ? "text-orange-600 bg-orange-50"
+                    : "text-gray-600 hover:text-orange-600"
+                }`}
+              >
+                <div className="flex items-center">
+                  <Eye size={18} className="mr-3" />
+                  <span className="font-medium">Laugh</span>
+                </div>
+                <ChevronRight 
+                  size={16} 
+                  className={`transition-transform ${expandedLaugh ? 'rotate-90' : ''}`}
+                />
+              </button>
+              
+              {expandedLaugh && (
+                <div className="ml-6 space-y-1">
+                  {laughSubItems.map(({ path, icon: Icon, label }) => (
+                    <button
+                      key={path}
+                      onClick={() => handleNavClick(path)}
+                      className={`w-full flex items-center px-4 py-2 text-left rounded-md transition-colors text-sm ${
+                        location.pathname === path || (path.includes('?') && location.pathname === '/laugh')
+                          ? "text-orange-600 bg-orange-50"
+                          : "text-gray-600 hover:text-orange-600 hover:bg-orange-25"
+                      }`}
+                    >
+                      <Icon size={16} className="mr-3" />
+                      <span className="font-medium">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Profile and Admin items */}
             {navItems.slice(1).map(({ path, icon: Icon, label }) => (
               <button
                 key={path}
