@@ -1,9 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, Clock, Ticket, Star, ExternalLink } from "lucide-react";
+import { MapPin, Calendar, Clock, Ticket, Star, ExternalLink, Users } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { AudienceShow } from "@/api/audienceShows";
+import { RsvpButton } from "./RsvpButton";
+import { TicketPurchaseButton } from "./TicketPurchaseButton";
 
 interface AudienceShowCardProps {
   show: AudienceShow;
@@ -23,12 +25,18 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
     return `${hour12}:${minutes} ${ampm}`;
   };
 
-  const handleGetTickets = (e: React.MouseEvent) => {
+  const handleExternalTickets = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (show.ticket_url) {
-      window.open(show.ticket_url, '_blank', 'noopener,noreferrer');
+    const url = show.external_ticket_url || show.ticket_url;
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   };
+
+  // Determine which action buttons to show
+  const showPaidButton = show.is_paid && show.price_cents;
+  const showRsvpButton = show.allows_rsvp;
+  const hasExternalUrl = show.external_ticket_url || show.ticket_url;
 
   return (
     <Card 
@@ -66,11 +74,19 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
                 </div>
                 <p className="text-sm text-muted-foreground truncate">{show.venue_name}</p>
               </div>
-              {show.ticket_price && (
-                <Badge variant="outline" className="flex-shrink-0">
-                  {show.ticket_price}
-                </Badge>
-              )}
+              <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                {show.ticket_price && (
+                  <Badge variant="outline">
+                    {show.ticket_price}
+                  </Badge>
+                )}
+                {show.rsvp_count > 0 && (
+                  <Badge variant="secondary" className="text-xs">
+                    <Users className="w-3 h-3 mr-1" />
+                    {show.rsvp_count} RSVPs
+                  </Badge>
+                )}
+              </div>
             </div>
             
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
@@ -96,27 +112,48 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
               </p>
             )}
             
-            <div className="mt-3 flex gap-2">
-              {show.ticket_url && (
+            <div className="mt-3 flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
+              {showPaidButton && (
+                <TicketPurchaseButton 
+                  showId={show.id}
+                  priceCents={show.price_cents!}
+                  size="sm"
+                />
+              )}
+              
+              {showRsvpButton && (
+                <RsvpButton
+                  showId={show.id}
+                  showTitle={show.title}
+                  capacity={show.capacity}
+                  rsvpCount={show.rsvp_count}
+                  size="sm"
+                />
+              )}
+              
+              {hasExternalUrl && (
                 <Button 
                   size="sm" 
-                  onClick={handleGetTickets}
-                  className="bg-primary hover:bg-primary/90"
+                  variant="outline"
+                  onClick={handleExternalTickets}
                 >
-                  <Ticket className="w-4 h-4 mr-1" />
-                  Get Tickets
+                  <ExternalLink className="w-4 h-4 mr-1" />
+                  {show.external_ticket_url ? 'Eventbrite' : 'Get Tickets'}
                 </Button>
               )}
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClick();
-                }}
-              >
-                View Details
-              </Button>
+              
+              {!showPaidButton && !showRsvpButton && !hasExternalUrl && (
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClick();
+                  }}
+                >
+                  View Details
+                </Button>
+              )}
             </div>
           </div>
         </div>

@@ -17,17 +17,23 @@ export type Database = {
       audience_shows: {
         Row: {
           age_restriction: string | null
+          allows_rsvp: boolean | null
           borough: string | null
+          capacity: number | null
           created_at: string
           description: string | null
           doors_time: string | null
           expected_audience: number | null
+          external_ticket_url: string | null
           host_name: string | null
           id: string
           image_url: string | null
           instagram_handle: string | null
           is_featured: boolean | null
+          is_paid: boolean | null
           lineup: string | null
+          price_cents: number | null
+          rsvp_count: number | null
           show_date: string
           show_time: string
           show_type: string | null
@@ -43,17 +49,23 @@ export type Database = {
         }
         Insert: {
           age_restriction?: string | null
+          allows_rsvp?: boolean | null
           borough?: string | null
+          capacity?: number | null
           created_at?: string
           description?: string | null
           doors_time?: string | null
           expected_audience?: number | null
+          external_ticket_url?: string | null
           host_name?: string | null
           id?: string
           image_url?: string | null
           instagram_handle?: string | null
           is_featured?: boolean | null
+          is_paid?: boolean | null
           lineup?: string | null
+          price_cents?: number | null
+          rsvp_count?: number | null
           show_date: string
           show_time: string
           show_type?: string | null
@@ -69,17 +81,23 @@ export type Database = {
         }
         Update: {
           age_restriction?: string | null
+          allows_rsvp?: boolean | null
           borough?: string | null
+          capacity?: number | null
           created_at?: string
           description?: string | null
           doors_time?: string | null
           expected_audience?: number | null
+          external_ticket_url?: string | null
           host_name?: string | null
           id?: string
           image_url?: string | null
           instagram_handle?: string | null
           is_featured?: boolean | null
+          is_paid?: boolean | null
           lineup?: string | null
+          price_cents?: number | null
+          rsvp_count?: number | null
           show_date?: string
           show_time?: string
           show_type?: string | null
@@ -849,6 +867,94 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      show_rsvps: {
+        Row: {
+          created_at: string
+          id: string
+          party_size: number
+          show_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          party_size?: number
+          show_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          party_size?: number
+          show_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "show_rsvps_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "audience_shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_purchases: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          quantity: number
+          show_id: string
+          status: string
+          stripe_checkout_id: string | null
+          stripe_payment_id: string | null
+          total_cents: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          quantity?: number
+          show_id: string
+          status?: string
+          stripe_checkout_id?: string | null
+          stripe_payment_id?: string | null
+          total_cents: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          quantity?: number
+          show_id?: string
+          status?: string
+          stripe_checkout_id?: string | null
+          stripe_payment_id?: string | null
+          total_cents?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_purchases_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "audience_shows"
+            referencedColumns: ["id"]
           },
         ]
       }

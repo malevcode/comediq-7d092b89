@@ -29,6 +29,23 @@ export interface AudienceShow {
   verified: boolean;
   created_at: string;
   updated_at: string;
+  // Ticketing/RSVP fields
+  price_cents: number | null;
+  is_paid: boolean;
+  allows_rsvp: boolean;
+  external_ticket_url: string | null;
+  capacity: number | null;
+  rsvp_count: number;
+}
+
+export interface ShowRsvp {
+  id: string;
+  show_id: string;
+  user_id: string;
+  party_size: number;
+  status: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AudienceShowFilters {
@@ -125,7 +142,7 @@ export async function fetchFeaturedShows(): Promise<AudienceShow[]> {
 /**
  * Submits a new show (requires authentication)
  */
-export async function submitAudienceShow(show: Omit<AudienceShow, 'id' | 'created_at' | 'updated_at' | 'verified' | 'status'>) {
+export async function submitAudienceShow(show: Omit<AudienceShow, 'id' | 'created_at' | 'updated_at' | 'verified' | 'status' | 'price_cents' | 'is_paid' | 'allows_rsvp' | 'external_ticket_url' | 'capacity' | 'rsvp_count'>) {
   const { data, error } = await supabase
     .from('audience_shows')
     .insert({
@@ -141,4 +158,95 @@ export async function submitAudienceShow(show: Omit<AudienceShow, 'id' | 'create
   }
 
   return data;
+}
+
+/**
+ * RSVP for a free show
+ */
+export async function rsvpForShow(showId: string, partySize: number = 1): Promise<ShowRsvp> {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('Must be logged in to RSVP');
+  }
+
+  const { data, error } = await supabase
+    .from('show_rsvps')
+    .insert({
+      show_id: showId,
+      user_id: user.id,
+      party_size: partySize,
+      status: 'confirmed'
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data as ShowRsvp;
+}
+
+/**
+ * Cancel an RSVP
+ */
+export async function cancelRsvp(rsvpId: string): Promise<void> {
+  const { error } = await supabase
+    .from('show_rsvps')
+    .delete()
+    .eq('id', rsvpId);
+
+  if (error) {
+    throw error;
+  }
+}
+
+/**
+ * Get user's RSVP for a specific show
+ */
+export async function fetchUserRsvpForShow(showId: string): Promise<ShowRsvp | null> {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from('show_rsvps')
+    .select('*')
+    .eq('show_id', showId)
+    .eq('user_id', user.id)
+    .eq('status', 'confirmed')
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data as ShowRsvp | null;
+}
+
+/**
+ * Get all user's RSVPs
+ */
+export async function fetchUserRsvps(): Promise<ShowRsvp[]> {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from('show_rsvps')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('status', 'confirmed')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return (data || []) as ShowRsvp[];
 }
