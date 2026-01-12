@@ -36,6 +36,12 @@ export interface AudienceShow {
   external_ticket_url: string | null;
   capacity: number | null;
   rsvp_count: number;
+  // Recurring show fields
+  is_recurring: boolean;
+  recurrence_pattern: string | null;
+  recurrence_day: string | null;
+  parent_show_id: string | null;
+  is_active: boolean;
 }
 
 export interface ShowRsvp {
@@ -65,6 +71,8 @@ export async function fetchAudienceShows(filters?: AudienceShowFilters): Promise
     .select('*')
     .eq('verified', true)
     .eq('status', 'active')
+    .eq('is_active', true)
+    .eq('is_recurring', false) // Only show instances, not templates
     .gte('show_date', new Date().toISOString().split('T')[0])
     .order('show_date', { ascending: true })
     .order('show_time', { ascending: true });

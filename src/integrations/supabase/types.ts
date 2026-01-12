@@ -29,10 +29,15 @@ export type Database = {
           id: string
           image_url: string | null
           instagram_handle: string | null
+          is_active: boolean | null
           is_featured: boolean | null
           is_paid: boolean | null
+          is_recurring: boolean | null
           lineup: string | null
+          parent_show_id: string | null
           price_cents: number | null
+          recurrence_day: string | null
+          recurrence_pattern: string | null
           rsvp_count: number | null
           show_date: string
           show_time: string
@@ -61,10 +66,15 @@ export type Database = {
           id?: string
           image_url?: string | null
           instagram_handle?: string | null
+          is_active?: boolean | null
           is_featured?: boolean | null
           is_paid?: boolean | null
+          is_recurring?: boolean | null
           lineup?: string | null
+          parent_show_id?: string | null
           price_cents?: number | null
+          recurrence_day?: string | null
+          recurrence_pattern?: string | null
           rsvp_count?: number | null
           show_date: string
           show_time: string
@@ -93,10 +103,15 @@ export type Database = {
           id?: string
           image_url?: string | null
           instagram_handle?: string | null
+          is_active?: boolean | null
           is_featured?: boolean | null
           is_paid?: boolean | null
+          is_recurring?: boolean | null
           lineup?: string | null
+          parent_show_id?: string | null
           price_cents?: number | null
+          recurrence_day?: string | null
+          recurrence_pattern?: string | null
           rsvp_count?: number | null
           show_date?: string
           show_time?: string
@@ -111,7 +126,15 @@ export type Database = {
           venue_name?: string
           verified?: boolean | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "audience_shows_parent_show_id_fkey"
+            columns: ["parent_show_id"]
+            isOneToOne: false
+            referencedRelation: "audience_shows"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       comedian_social_links: {
         Row: {
