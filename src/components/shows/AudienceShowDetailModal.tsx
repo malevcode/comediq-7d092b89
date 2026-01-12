@@ -21,6 +21,8 @@ import {
 import { format, parseISO } from "date-fns";
 import { AudienceShow } from "@/api/audienceShows";
 import { makeLinksClickable } from "@/utils/makeLinksClickable";
+import { RsvpButton } from "./RsvpButton";
+import { TicketPurchaseButton } from "./TicketPurchaseButton";
 
 interface AudienceShowDetailModalProps {
   show: AudienceShow | null;
@@ -42,18 +44,24 @@ export function AudienceShowDetailModal({ show, isOpen, onClose }: AudienceShowD
     return `${hour12}:${minutes} ${ampm}`;
   };
 
-  const handleGetTickets = () => {
-    if (show.ticket_url) {
-      window.open(show.ticket_url, '_blank', 'noopener,noreferrer');
-    }
-  };
-
   const handleOpenMaps = () => {
     if (show.venue_address) {
       const encoded = encodeURIComponent(show.venue_address);
       window.open(`https://www.google.com/maps/search/?api=1&query=${encoded}`, '_blank');
     }
   };
+
+  const handleExternalTickets = () => {
+    const url = show.external_ticket_url || show.ticket_url;
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  // Determine which action buttons to show
+  const showPaidButton = show.is_paid && show.price_cents;
+  const showRsvpButton = show.allows_rsvp;
+  const hasExternalUrl = show.external_ticket_url || show.ticket_url;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -124,20 +132,50 @@ export function AudienceShowDetailModal({ show, isOpen, onClose }: AudienceShowD
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Ticket className="w-5 h-5 text-primary" />
-            <span className="font-medium">{show.ticket_price || 'Price TBA'}</span>
+            <span className="font-medium">{show.ticket_price || 'Free'}</span>
           </div>
-          {show.age_restriction && (
-            <Badge variant="secondary">{show.age_restriction}</Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {show.rsvp_count > 0 && (
+              <Badge variant="secondary">
+                <Users className="w-3 h-3 mr-1" />
+                {show.rsvp_count} RSVPs
+              </Badge>
+            )}
+            {show.age_restriction && (
+              <Badge variant="secondary">{show.age_restriction}</Badge>
+            )}
+          </div>
         </div>
 
-        {show.ticket_url && (
-          <Button onClick={handleGetTickets} className="w-full" size="lg">
-            <Ticket className="w-4 h-4 mr-2" />
-            Get Tickets
-            <ExternalLink className="w-4 h-4 ml-2" />
-          </Button>
-        )}
+        {/* Action Buttons */}
+        <div className="space-y-2">
+          {showPaidButton && (
+            <TicketPurchaseButton 
+              showId={show.id}
+              priceCents={show.price_cents!}
+              size="lg"
+              className="w-full"
+            />
+          )}
+          
+          {showRsvpButton && (
+            <RsvpButton
+              showId={show.id}
+              showTitle={show.title}
+              capacity={show.capacity}
+              rsvpCount={show.rsvp_count}
+              size="lg"
+              className="w-full"
+            />
+          )}
+          
+          {hasExternalUrl && (
+            <Button onClick={handleExternalTickets} variant="outline" className="w-full" size="lg">
+              <ExternalLink className="w-4 h-4 mr-2" />
+              {show.external_ticket_url ? 'View on Eventbrite' : 'Get Tickets'}
+            </Button>
+          )}
+        </div>
 
         <Separator />
 
