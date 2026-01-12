@@ -10,7 +10,8 @@ import OpenMics from "./pages/OpenMics";
 import TrackSets from "./pages/TrackSets";
 import Shows from "./pages/Shows";
 import Perform from "./pages/Perform";
-import Consume from "./pages/Consume";
+import Laugh from "./pages/Laugh";
+import { LaughTabProvider } from "@/contexts/LaughTabContext";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -60,7 +61,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/perform" element={<TabProvider><Perform /></TabProvider>} />
-            <Route path="/consume" element={<Consume />} />
+            <Route path="/laugh" element={<LaughTabProvider><Laugh /></LaughTabProvider>} />
             <Route path="/open-mics" element={<OpenMics />} />
             <Route path="/track-sets" element={<ProgressTrackerPage />} />
             <Route path="/shows" element={<TabProvider><Shows /></TabProvider>} />

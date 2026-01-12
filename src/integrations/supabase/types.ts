@@ -14,6 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
+      audience_shows: {
+        Row: {
+          age_restriction: string | null
+          borough: string | null
+          created_at: string
+          description: string | null
+          doors_time: string | null
+          expected_audience: number | null
+          host_name: string | null
+          id: string
+          image_url: string | null
+          instagram_handle: string | null
+          is_featured: boolean | null
+          lineup: string | null
+          show_date: string
+          show_time: string
+          show_type: string | null
+          status: string | null
+          submitted_by: string | null
+          ticket_price: string | null
+          ticket_url: string | null
+          title: string
+          updated_at: string
+          venue_address: string | null
+          venue_name: string
+          verified: boolean | null
+        }
+        Insert: {
+          age_restriction?: string | null
+          borough?: string | null
+          created_at?: string
+          description?: string | null
+          doors_time?: string | null
+          expected_audience?: number | null
+          host_name?: string | null
+          id?: string
+          image_url?: string | null
+          instagram_handle?: string | null
+          is_featured?: boolean | null
+          lineup?: string | null
+          show_date: string
+          show_time: string
+          show_type?: string | null
+          status?: string | null
+          submitted_by?: string | null
+          ticket_price?: string | null
+          ticket_url?: string | null
+          title: string
+          updated_at?: string
+          venue_address?: string | null
+          venue_name: string
+          verified?: boolean | null
+        }
+        Update: {
+          age_restriction?: string | null
+          borough?: string | null
+          created_at?: string
+          description?: string | null
+          doors_time?: string | null
+          expected_audience?: number | null
+          host_name?: string | null
+          id?: string
+          image_url?: string | null
+          instagram_handle?: string | null
+          is_featured?: boolean | null
+          lineup?: string | null
+          show_date?: string
+          show_time?: string
+          show_type?: string | null
+          status?: string | null
+          submitted_by?: string | null
+          ticket_price?: string | null
+          ticket_url?: string | null
+          title?: string
+          updated_at?: string
+          venue_address?: string | null
+          venue_name?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       comedian_social_links: {
         Row: {
           created_at: string | null

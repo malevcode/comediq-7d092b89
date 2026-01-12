@@ -1,8 +1,6 @@
-
 import { Link, useLocation } from "react-router-dom";
-import { Home, Plus, Eye, User, Book } from "lucide-react";
+import { Home, Eye, User, Book, MicVocal } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { MicVocal } from "lucide-react";
 
 const BottomNavigation = () => {
   const location = useLocation();
@@ -10,8 +8,8 @@ const BottomNavigation = () => {
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
-    { path: "/open-mics", icon: MicVocal, label: "Peform" },
-    { path: "/consume", icon: Eye, label: "Laugh" },
+    { path: "/open-mics", icon: MicVocal, label: "Perform" },
+    { path: "/laugh", icon: Eye, label: "Laugh" },
     ...(user ? [{ path: "/profile", icon: User, label: "Profile" }] : []),
     ...(isAdmin ? [{ path: "/admintest", icon: Book, label: "Admin" }] : [])
   ];
@@ -25,11 +23,19 @@ const BottomNavigation = () => {
             let isActive = location.pathname === path;
             
             // Special handling for Perform section - highlight when on any perform-related route
-            if (path === "/perform") {
-              isActive = location.pathname === "/perform" || 
-                        location.pathname === "/open-mics" || 
+            if (path === "/open-mics") {
+              isActive = location.pathname === "/open-mics" || 
                         location.pathname === "/track-sets" || 
-                        location.pathname === "/shows";
+                        location.pathname === "/shows" ||
+                        location.pathname === "/job-board" ||
+                        location.pathname === "/host-dashboard" ||
+                        location.pathname.startsWith("/mic/");
+            }
+            
+            // Special handling for Laugh section
+            if (path === "/laugh") {
+              isActive = location.pathname === "/laugh" || 
+                        location.pathname === "/audience-shows";
             }
             
             return (
