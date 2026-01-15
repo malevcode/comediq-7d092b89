@@ -268,17 +268,7 @@ const Shows = () => {
             {/* Quick Stats Bar */}
             <Card className="mb-6 bg-gradient-to-r from-orange-50 to-cyan-50 border-orange-200">
               <CardContent className="py-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-700 text-sm">Your {new Date().getFullYear()} Stats</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate('/wrapped')}
-                    className="text-xs text-orange-600 hover:text-orange-700"
-                  >
-                    View Wrapped →
-                  </Button>
-                </div>
+                <h3 className="font-semibold text-gray-700 text-sm mb-3">Your {new Date().getFullYear()} Stats</h3>
                 <div className="grid grid-cols-3 gap-4 mt-3">
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1.5">
