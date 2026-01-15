@@ -24,20 +24,21 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
     <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md border-b border-gray-200 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
-          <div className="flex items-center">
+          <div className="flex items-center justify-center h-12">
             <div className="mr-2 flex items-center">
               <HamburgerMenu />
             </div>
-            <button 
-              onClick={() => navigate('/')}
-              className="flex-shrink-0 mr-3"
-            >
-              <img src="/comediq_white.png" alt="Comediq" className="h-10 w-auto object-contain" />
-            </button>
-            <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{title || "Comediq"}</h1>
+            <div className="flex items-center mr-2">
+              <button 
+                onClick={() => navigate('/')}
+              >
+                <img src="/comediq_white.png" alt="Comediq" className="h-12" />
+              </button>
+            </div>
+            <div className="min-w-md">
+              <h1 className="text-2xl font-bold text-gray-900">{title || "Comediq"}</h1>
               {subtitle && (
-                <p className="text-xs text-gray-600 truncate">{subtitle}</p>
+                <p className="text-xs text-gray-600">{subtitle}</p>
               )}
             </div>
           </div>
