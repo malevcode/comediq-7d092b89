@@ -33,9 +33,8 @@ import HostDashboard from "./pages/HostDashboard";
 import MicSignup from "./pages/MicSignup";
 import JobBoard from "./pages/JobBoard";
 import CreatePosting from "./pages/CreatePosting";
-import Wrapped from "./pages/Wrapped";
-import YearInReview from "./pages/YearInReview";
 import AdvertiseWithUs from "./pages/AdvertiseWithUs";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -83,9 +82,8 @@ const App = () => (
             <Route path="/mic/:slug/signup" element={<MicSignup />} />
             <Route path="/job-board" element={<JobBoard />} />
             <Route path="/job-board/create" element={<CreatePosting />} />
-            <Route path="/wrapped" element={<Wrapped />} />
-            <Route path="/2025-review" element={<YearInReview />} />
             <Route path="/advertise" element={<AdvertiseWithUs />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
