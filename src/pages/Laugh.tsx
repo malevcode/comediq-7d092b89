@@ -47,7 +47,7 @@ export default function Laugh() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 pb-24">
       <PageHeader 
-        title="Find Comedy Shows" 
+        title="Shows" 
         subtitle="Discover live comedy happening near you"
       />
       
