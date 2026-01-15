@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3 } from "lucide-react";
+import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3, Megaphone } from "lucide-react";
 import { QuickNotes } from "./home/QuickNotes";
 import Header from "./Header";
 
@@ -245,14 +245,16 @@ export default function Home() {
                     </Link>
                   </Button>
 
-                  <Button asChild
-                    variant="outline"
-                    className="w-full justify-start border-red-200 text-red-700 hover:bg-red-50 bg-transparent"
-                    size="sm"
-                  >
+                  <Button asChild variant="outline" className="w-full justify-start border-red-200 text-red-700 hover:bg-red-50 bg-transparent" size="sm">
                     <Link to="/track-sets">
                       <Mic2 className="mr-2 h-4 w-4" />
                       Log Performance
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full justify-start border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent" size="sm">
+                    <Link to="/advertise">
+                      <Megaphone className="mr-2 h-4 w-4" />
+                      Advertise With Us
                     </Link>
                   </Button>
                 </CardContent>
