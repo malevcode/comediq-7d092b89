@@ -4,8 +4,7 @@ import OpenMics from "./OpenMics";
 import Shows from "./Shows";
 import { useLocation, Link } from 'react-router-dom';
 import { useTabContext } from "@/contexts/TabContext";
-import { Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Megaphone } from "lucide-react";
 
 const Perform = () => {
   const location = useLocation();
@@ -66,6 +65,15 @@ const Perform = () => {
               <TabsTrigger value="find-mics">Find Mics</TabsTrigger>
               <TabsTrigger value="show-scheduler">Show Scheduler</TabsTrigger>
             </TabsList>
+            <div className="text-center mt-2">
+              <Link 
+                to="/advertise" 
+                className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                <Megaphone className="h-3.5 w-3.5 mr-1" />
+                Want to promote your mic? Advertise with us
+              </Link>
+            </div>
           </div>
         </div>
 

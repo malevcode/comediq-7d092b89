@@ -35,6 +35,7 @@ import JobBoard from "./pages/JobBoard";
 import CreatePosting from "./pages/CreatePosting";
 import Wrapped from "./pages/Wrapped";
 import YearInReview from "./pages/YearInReview";
+import AdvertiseWithUs from "./pages/AdvertiseWithUs";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -84,6 +85,7 @@ const App = () => (
             <Route path="/job-board/create" element={<CreatePosting />} />
             <Route path="/wrapped" element={<Wrapped />} />
             <Route path="/2025-review" element={<YearInReview />} />
+            <Route path="/advertise" element={<AdvertiseWithUs />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
