@@ -1,17 +1,30 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAudienceShows } from "@/hooks/useAudienceShows";
 import { AudienceShowCard } from "@/components/shows/AudienceShowCard";
 import { AudienceShowFilters } from "@/components/shows/AudienceShowFilters";
 import { AudienceShowDetailModal } from "@/components/shows/AudienceShowDetailModal";
 import { AudienceShow } from "@/api/audienceShows";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Ticket, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Ticket, Calendar, Plus } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AudienceShows() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [borough, setBorough] = useState("all");
   const [showType, setShowType] = useState("all");
   const [selectedShow, setSelectedShow] = useState<AudienceShow | null>(null);
+
+  const handleAddShow = () => {
+    if (!user) {
+      navigate('/auth?redirect=/add-show');
+    } else {
+      navigate('/add-show');
+    }
+  };
 
   const filters = useMemo(() => ({
     borough: borough !== 'all' ? borough : undefined,
@@ -79,6 +92,15 @@ export default function AudienceShows() {
         isOpen={!!selectedShow}
         onClose={() => setSelectedShow(null)}
       />
+
+      {/* Floating Add Show Button */}
+      <Button
+        onClick={handleAddShow}
+        className="fixed bottom-20 right-4 h-12 w-12 rounded-full shadow-lg z-40"
+        size="icon"
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
     </div>
   );
 }

@@ -35,6 +35,7 @@ import JobBoard from "./pages/JobBoard";
 import CreatePosting from "./pages/CreatePosting";
 import AdvertiseWithUs from "./pages/AdvertiseWithUs";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import AddShow from "./pages/AddShow";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -84,6 +85,7 @@ const App = () => (
             <Route path="/job-board/create" element={<CreatePosting />} />
             <Route path="/advertise" element={<AdvertiseWithUs />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/add-show" element={<AddShow />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
