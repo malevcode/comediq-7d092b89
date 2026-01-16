@@ -89,35 +89,24 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
               </div>
             </div>
             
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5" />
+                <Calendar className="w-3 h-3" />
                 {formattedDate}
               </span>
               <span className="flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" />
+                <Clock className="w-3 h-3" />
                 {formatTime(show.show_time)}
               </span>
-              {show.borough && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5" />
-                  {show.borough}
-                </span>
-              )}
             </div>
             
-            {show.lineup && (
-              <p className="mt-2 text-sm text-muted-foreground line-clamp-1">
-                {show.lineup}
-              </p>
-            )}
-            
-            <div className="mt-3 flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
+            <div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
               {showPaidButton && (
                 <TicketPurchaseButton 
                   showId={show.id}
                   priceCents={show.price_cents!}
                   size="sm"
+                  className="text-xs h-7 px-2"
                 />
               )}
               
@@ -128,6 +117,7 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
                   capacity={show.capacity}
                   rsvpCount={show.rsvp_count}
                   size="sm"
+                  className="text-xs h-7 px-2"
                 />
               )}
               
@@ -136,9 +126,10 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
                   size="sm" 
                   variant="outline"
                   onClick={handleExternalTickets}
+                  className="text-xs h-7 px-2"
                 >
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  {show.external_ticket_url ? 'Eventbrite' : 'Get Tickets'}
+                  <ExternalLink className="w-3 h-3 mr-1" />
+                  Eventbrite
                 </Button>
               )}
               
@@ -150,6 +141,7 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
                     e.stopPropagation();
                     onClick();
                   }}
+                  className="text-xs h-7 px-2"
                 >
                   View Details
                 </Button>
