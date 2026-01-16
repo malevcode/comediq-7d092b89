@@ -893,6 +893,50 @@ export type Database = {
           },
         ]
       }
+      show_reviews: {
+        Row: {
+          attended_date: string
+          created_at: string
+          favorite_comedian: string | null
+          id: string
+          rating: number
+          review_text: string | null
+          show_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attended_date: string
+          created_at?: string
+          favorite_comedian?: string | null
+          id?: string
+          rating: number
+          review_text?: string | null
+          show_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attended_date?: string
+          created_at?: string
+          favorite_comedian?: string | null
+          id?: string
+          rating?: number
+          review_text?: string | null
+          show_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "show_reviews_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "audience_shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       show_rsvps: {
         Row: {
           created_at: string

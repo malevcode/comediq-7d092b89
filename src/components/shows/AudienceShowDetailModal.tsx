@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,13 +17,17 @@ import {
   Users, 
   ExternalLink,
   Instagram,
-  DoorOpen
+  DoorOpen,
+  MessageSquare
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { AudienceShow } from "@/api/audienceShows";
 import { makeLinksClickable } from "@/utils/makeLinksClickable";
 import { RsvpButton } from "./RsvpButton";
 import { TicketPurchaseButton } from "./TicketPurchaseButton";
+import { ShowReviewForm } from "./ShowReviewForm";
+import { useUserReviewForShow, useSubmitReview, useUpdateReview } from "@/hooks/useShowReviews";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AudienceShowDetailModalProps {
   show: AudienceShow | null;
@@ -31,6 +36,13 @@ interface AudienceShowDetailModalProps {
 }
 
 export function AudienceShowDetailModal({ show, isOpen, onClose }: AudienceShowDetailModalProps) {
+  const { user } = useAuth();
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  
+  const { data: existingReview } = useUserReviewForShow(show?.id);
+  const submitReview = useSubmitReview();
+  const updateReview = useUpdateReview();
+
   if (!show) return null;
 
   const showDate = parseISO(show.show_date);
@@ -55,6 +67,25 @@ export function AudienceShowDetailModal({ show, isOpen, onClose }: AudienceShowD
     const url = show.external_ticket_url || show.ticket_url;
     if (url) {
       window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const handleReviewSubmit = (data: {
+    rating: number;
+    review_text?: string;
+    favorite_comedian?: string;
+    attended_date: string;
+  }) => {
+    if (existingReview) {
+      updateReview.mutate(
+        { reviewId: existingReview.id, updates: { ...data, show_id: show.id } },
+        { onSuccess: () => setShowReviewForm(false) }
+      );
+    } else {
+      submitReview.mutate(
+        { ...data, show_id: show.id },
+        { onSuccess: () => setShowReviewForm(false) }
+      );
     }
   };
 
@@ -175,7 +206,37 @@ export function AudienceShowDetailModal({ show, isOpen, onClose }: AudienceShowD
               {show.external_ticket_url ? 'View on Eventbrite' : 'Get Tickets'}
             </Button>
           )}
+
+          {/* Write Review Button */}
+          {user && (
+            <Button 
+              onClick={() => setShowReviewForm(true)} 
+              variant="secondary" 
+              className="w-full" 
+              size="lg"
+            >
+              <MessageSquare className="w-4 h-4 mr-2" />
+              {existingReview ? 'Edit Review' : 'Write Review'}
+            </Button>
+          )}
         </div>
+
+        {/* Review Form Modal */}
+        <ShowReviewForm
+          isOpen={showReviewForm}
+          onClose={() => setShowReviewForm(false)}
+          onSubmit={handleReviewSubmit}
+          isSubmitting={submitReview.isPending || updateReview.isPending}
+          showTitle={show.title}
+          showDate={show.show_date}
+          initialData={existingReview ? {
+            rating: existingReview.rating,
+            review_text: existingReview.review_text,
+            favorite_comedian: existingReview.favorite_comedian,
+            attended_date: existingReview.attended_date,
+          } : undefined}
+          isEditing={!!existingReview}
+        />
 
         <Separator />
 
