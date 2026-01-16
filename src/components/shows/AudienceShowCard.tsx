@@ -100,13 +100,13 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
               </span>
             </div>
             
-            <div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+            <div className="mt-2 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
               {showPaidButton && (
                 <TicketPurchaseButton 
                   showId={show.id}
                   priceCents={show.price_cents!}
                   size="sm"
-                  className="text-xs h-7 px-2"
+                  className="text-[10px] h-6 px-1.5"
                 />
               )}
               
@@ -117,7 +117,7 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
                   capacity={show.capacity}
                   rsvpCount={show.rsvp_count}
                   size="sm"
-                  className="text-xs h-7 px-2"
+                  className="text-[10px] h-6 px-1.5"
                 />
               )}
               
@@ -126,9 +126,9 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
                   size="sm" 
                   variant="outline"
                   onClick={handleExternalTickets}
-                  className="text-xs h-7 px-2"
+                  className="text-[10px] h-6 px-1.5"
                 >
-                  <ExternalLink className="w-3 h-3 mr-1" />
+                  <ExternalLink className="w-2.5 h-2.5 mr-0.5" />
                   Eventbrite
                 </Button>
               )}
