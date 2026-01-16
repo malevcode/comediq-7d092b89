@@ -39,8 +39,8 @@ export function AudienceShowFilters({
   onShowTypeChange,
 }: AudienceShowFiltersProps) {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 mb-6">
-      <div className="relative flex-1">
+    <div className="space-y-3 mb-6">
+      <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
         <Input
           placeholder="Search shows, venues, comedians..."
@@ -50,31 +50,33 @@ export function AudienceShowFilters({
         />
       </div>
       
-      <Select value={borough} onValueChange={onBoroughChange}>
-        <SelectTrigger className="w-full sm:w-[160px] bg-background">
-          <SelectValue placeholder="Borough" />
-        </SelectTrigger>
-        <SelectContent className="bg-background border">
-          {boroughs.map((b) => (
-            <SelectItem key={b.value} value={b.value}>
-              {b.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      
-      <Select value={showType} onValueChange={onShowTypeChange}>
-        <SelectTrigger className="w-full sm:w-[160px] bg-background">
-          <SelectValue placeholder="Show Type" />
-        </SelectTrigger>
-        <SelectContent className="bg-background border">
-          {showTypes.map((t) => (
-            <SelectItem key={t.value} value={t.value}>
-              {t.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="flex gap-2">
+        <Select value={borough} onValueChange={onBoroughChange}>
+          <SelectTrigger className="flex-1 bg-background">
+            <SelectValue placeholder="Borough" />
+          </SelectTrigger>
+          <SelectContent className="bg-background border z-50">
+            {boroughs.map((b) => (
+              <SelectItem key={b.value} value={b.value}>
+                {b.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        
+        <Select value={showType} onValueChange={onShowTypeChange}>
+          <SelectTrigger className="flex-1 bg-background">
+            <SelectValue placeholder="Show Type" />
+          </SelectTrigger>
+          <SelectContent className="bg-background border z-50">
+            {showTypes.map((t) => (
+              <SelectItem key={t.value} value={t.value}>
+                {t.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }
