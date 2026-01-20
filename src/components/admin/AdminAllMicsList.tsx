@@ -1,361 +1,246 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Download, Trash2, Power, PowerOff, Filter } from 'lucide-react';
-import AdminMicEditModal from './AdminMicEditModal';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/components/ui/use-toast';
-import { useMicFilters, MicFilters } from './hooks/useMicFilters';
-import { useBulkOperations } from './hooks/useBulkOperations';
-import { MicFiltersPanel } from './MicFiltersPanel';
-import { MicListItem } from './MicListItem';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Search, Save, X, Loader2, Check } from 'lucide-react';
+import { updateMic } from '@/api/openMics';
+import { toast } from '@/hooks/use-toast';
+import type { OpenMicDisplay } from '@/api/openMics';
 
-const PAGE_SIZE = 100;
-const OPEN_MIC_FIELDS = [
-  'Open Mic', 'Day', 'Start Time', 'Latest End Time', 'Venue Name', 'Borough', 'Neighborhood', 'Location', 'Venue type', 'Cost', 'Stage time', 'Sign-Up Instructions', 'Host(s) / Organizer', 'Changes/updates', 'Last verified', 'Other Rules', 'Help other comics! Leave reviews', 'Formerly verified'
-];
-const EMPTY_MIC = Object.fromEntries(OPEN_MIC_FIELDS.map(f => [f, '']));
+interface EditingCell {
+  micId: string;
+  field: string;
+  value: string;
+}
 
-const AdminAllMicsList = () => {
-  const [mics, setMics] = useState<any[]>([]);
+export default function AdminAllMicsList() {
+  const [allMics, setAllMics] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const [selectedMic, setSelectedMic] = useState<any | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [isAdding, setIsAdding] = useState(false);
-  const [activeTab, setActiveTab] = useState('active');
-  const [showFilters, setShowFilters] = useState(false);
-  
-  // Filter and sort state
-  const [filters, setFilters] = useState<MicFilters>({
-    borough: 'all',
-    day: 'all',
-    cost: 'all',
-    verifiedFrom: null,
-    verifiedTo: null,
-  });
-  const [sortBy, setSortBy] = useState('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  
-  const { user } = useAuth();
-  const adminName = user?.user_metadata?.username || user?.email || 'Admin';
-
-  // Use custom hooks
-  const filteredMics = useMicFilters(mics, search, activeTab, filters, sortBy, sortOrder);
-  const {
-    selectedMics,
-    setSelectedMics,
-    bulkLoading,
-    handleSelectMic,
-    handleSelectAll,
-    handleBulkToggleStatus,
-    handleBulkDelete,
-    handleBulkExport,
-  } = useBulkOperations(mics, setMics);
-
-  // Reset visible count when switching tabs
-  useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
-  }, [activeTab]);
-
-  // Reset selected mics when switching tabs
-  useEffect(() => {
-    setSelectedMics(new Set());
-  }, [activeTab, setSelectedMics]);
-
-  // Reset filters when switching tabs
-  useEffect(() => {
-    setFilters({
-      borough: 'all',
-      day: 'all',
-      cost: 'all',
-      verifiedFrom: null,
-      verifiedTo: null,
-    });
-  }, [activeTab]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
+  const [savingMicId, setSavingMicId] = useState<string | null>(null);
+  const [savedMicId, setSavedMicId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchMics = async () => {
-      setLoading(true);
-      const { data, error } = await supabase.from('open_mics_historical').select('*');
-      if (!error && data) setMics(data);
-      setLoading(false);
-    };
-    fetchMics();
+    fetchAllMics();
   }, []);
 
-  const handleEdit = (mic: any) => {
-    setSelectedMic(mic);
-    setIsAdding(false);
-    setModalOpen(true);
-  };
-
-  const handleAdd = () => {
-    setSelectedMic({ ...EMPTY_MIC });
-    setIsAdding(true);
-    setModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setModalOpen(false);
-    setSelectedMic(null);
-    setIsAdding(false);
-  };
-
-  const handleSave = async (updated: any) => {
-    // Always regenerate unique_identifier from form data
-    const day = updated['Day']?.trim() || '';
-    const startTime = updated['Start Time']?.trim() || '';
-    const changes = updated['Changes/updates']?.trim().replace(/\s+/g, '') || '';
-    const venue = updated['Venue Name']?.trim() || '';
-    const unique_identifier = `${day}_${startTime}_${changes}_${venue}`;
-    const insertData = { ...updated, unique_identifier };
-
-    // Check for duplicate unique_identifier (exclude current mic if editing)
-    const { data: dupes, error: dupeError } = await supabase
+  const fetchAllMics = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
       .from('open_mics_historical')
-      .select('unique_identifier')
-      .eq('unique_identifier', unique_identifier);
-    if (dupeError) {
-      toast({ title: 'Error', description: dupeError.message, variant: 'destructive' });
-      return;
-    }
-    if (
-      (isAdding && dupes && dupes.length > 0) ||
-      (!isAdding && dupes && dupes.length > 0 && unique_identifier !== selectedMic.unique_identifier)
-    ) {
-      toast({ title: 'Duplicate', description: 'A mic with this unique identifier already exists.', variant: 'destructive' });
-      return;
-    }
+      .select('*')
+      .order('venue_name', { ascending: true });
 
-    if (isAdding) {
-      // Insert into historical table with active: true for new mics
-      const insertDataWithActive = { ...insertData, active: true };
-      const { error } = await supabase.from('open_mics_historical').insert([insertDataWithActive]);
-      if (error) {
-        toast({ title: 'Error', description: 'Failed to add mic: ' + error.message, variant: 'destructive' });
-      } else {
-        setMics(mics => [{ ...insertDataWithActive }, ...mics]);
-        toast({ title: 'Mic added', description: 'New mic has been added.' });
-        handleModalClose();
-      }
+    if (error) {
+      console.error('Error fetching all mics:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch mics from database',
+        variant: 'destructive',
+      });
     } else {
-      // Update existing mic
-      const { error } = await supabase
-        .from('open_mics_historical')
-        .update({ ...insertData })
-        .eq('unique_identifier', selectedMic.unique_identifier);
-      if (error) {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
-      } else {
-        setMics(mics => mics.map(m => m.unique_identifier === selectedMic.unique_identifier ? insertData : m));
-        toast({ title: 'Mic updated', description: 'Mic information saved.' });
-        handleModalClose();
-      }
+      console.log('Fetched mics:', data?.length);
+      setAllMics(data || []);
+    }
+    setLoading(false);
+  };
+
+  // Fuzzy search
+  const filteredMics = allMics.filter(mic => {
+    if (!searchTerm.trim()) return true;
+    
+    const term = searchTerm.toLowerCase();
+    return (
+      mic.open_mic?.toLowerCase().includes(term) ||
+      mic.venue_name?.toLowerCase().includes(term) ||
+      mic.neighborhood?.toLowerCase().includes(term) ||
+      mic.borough?.toLowerCase().includes(term) ||
+      mic.location?.toLowerCase().includes(term) ||
+      mic.day?.toLowerCase().includes(term)
+    );
+  });
+
+  const editableFields = [
+    { key: 'open_mic', label: 'Mic Name', displayKey: 'Open Mic' },
+    { key: 'venue_name', label: 'Venue', displayKey: 'Venue Name' },
+    { key: 'location', label: 'Address', displayKey: 'Location' },
+    { key: 'neighborhood', label: 'Neighborhood', displayKey: 'Neighborhood' },
+    { key: 'borough', label: 'Borough', displayKey: 'Borough' },
+    { key: 'day', label: 'Day', displayKey: 'Day' },
+    { key: 'start_time', label: 'Start Time', displayKey: 'Start Time' },
+    { key: 'latest_end_time', label: 'End Time', displayKey: 'Latest End Time' },
+    { key: 'cost', label: 'Cost', displayKey: 'Cost' },
+    { key: 'stage_time', label: 'Stage Time', displayKey: 'Stage time' },
+    { key: 'sign_up_instructions', label: 'Sign-Up', displayKey: 'Sign-Up Instructions' },
+    { key: 'hosts_organizers', label: 'Host', displayKey: 'Host(s) / Organizer' },
+  ];
+
+  const handleCellClick = (micId: string, displayKey: string, currentValue: string) => {
+    setEditingCell({ micId, field: displayKey, value: currentValue || '' });
+  };
+
+  const handleSave = async () => {
+    if (!editingCell) return;
+
+    setSavingMicId(editingCell.micId);
+    
+    try {
+      await updateMic(editingCell.micId, {
+        [editingCell.field]: editingCell.value
+      } as Partial<OpenMicDisplay>);
+      
+      toast({
+        title: 'Saved!',
+        description: `Updated ${editingCell.field}`,
+      });
+      
+      setSavedMicId(editingCell.micId);
+      setTimeout(() => setSavedMicId(null), 2000);
+      setEditingCell(null);
+      
+      // Refresh the data
+      fetchAllMics();
+      
+    } catch (error) {
+      console.error('Save error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save changes',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingMicId(null);
     }
   };
 
-  const resetFilters = () => {
-    setFilters({
-      borough: 'all',
-      day: 'all',
-      cost: 'all',
-      verifiedFrom: null,
-      verifiedTo: null,
-    });
-    setSortBy('name');
-    setSortOrder('asc');
-    setSearch('');
+  const handleCancel = () => {
+    setEditingCell(null);
   };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      handleCancel();
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="w-full flex justify-center py-10">
+        <Loader2 className="animate-spin w-8 h-8 text-orange-400" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">
-      <div className="mb-4 flex flex-col sm:flex-row gap-2 items-center">
+      {/* Search Bar */}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
-          placeholder="Search by mic, venue, or borough..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full sm:w-80"
+          placeholder="Search mics, venues, neighborhoods..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
         />
-        <Button 
-          variant="outline" 
-          onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2"
-        >
-          <Filter className="w-4 h-4" />
-          Filters
-        </Button>
-        <Button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold" onClick={handleAdd}>
-          + Add New Mic
-        </Button>
+        {searchTerm && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0"
+            onClick={() => setSearchTerm('')}
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        )}
       </div>
 
-      {/* Advanced Filters */}
-      <MicFiltersPanel
-        showFilters={showFilters}
-        filters={filters}
-        setFilters={setFilters}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
-        sortOrder={sortOrder}
-        setSortOrder={setSortOrder}
-        resetFilters={resetFilters}
-      />
+      {/* Results count */}
+      <div className="text-sm text-muted-foreground mb-4">
+        Showing {filteredMics.length} of {allMics.length} mics
+      </div>
 
-      {/* Bulk Operations Bar */}
-      {selectedMics.size > 0 && (
-        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex flex-col sm:flex-row gap-2 items-center justify-between">
-            <div className="text-sm text-blue-700 font-medium">
-              {selectedMics.size} mic{selectedMics.size === 1 ? '' : 's'} selected
-            </div>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkToggleStatus(true)}
-                disabled={bulkLoading}
-                className="text-green-700 border-green-300 hover:bg-green-50"
-              >
-                <Power className="w-4 h-4 mr-1" />
-                Activate
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkToggleStatus(false)}
-                disabled={bulkLoading}
-                className="text-orange-700 border-orange-300 hover:bg-orange-50"
-              >
-                <PowerOff className="w-4 h-4 mr-1" />
-                Deactivate
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleBulkExport}
-                disabled={bulkLoading}
-                className="text-blue-700 border-blue-300 hover:bg-blue-50"
-              >
-                <Download className="w-4 h-4 mr-1" />
-                Export
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleBulkDelete}
-                disabled={bulkLoading}
-                className="text-red-700 border-red-300 hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4 mr-1" />
-                Delete
-              </Button>
-            </div>
-          </div>
+      {/* Mics Table */}
+      <div className="space-y-4">
+        {filteredMics.map((mic) => (
+          <Card key={mic.unique_identifier} className={`relative ${savedMicId === mic.unique_identifier ? 'ring-2 ring-green-500' : ''}`}>
+            {savedMicId === mic.unique_identifier && (
+              <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1">
+                <Check className="w-4 h-4" />
+              </div>
+            )}
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {editableFields.map(({ key, label, displayKey }) => {
+                  const isEditing = editingCell?.micId === mic.unique_identifier && editingCell?.field === displayKey;
+                  const displayValue = mic[key] || '';
+
+                  return (
+                    <div key={key} className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground">
+                        {label}
+                      </label>
+                      {isEditing ? (
+                        <div className="flex gap-2">
+                          <Input
+                            value={editingCell.value}
+                            onChange={(e) => setEditingCell({ ...editingCell, value: e.target.value })}
+                            onKeyDown={handleKeyDown}
+                            autoFocus
+                            className="h-8"
+                          />
+                          <div className="flex gap-1">
+                            <Button
+                              size="sm"
+                              onClick={handleSave}
+                              disabled={savingMicId === mic.unique_identifier}
+                              className="h-8"
+                            >
+                              {savingMicId === mic.unique_identifier ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <>
+                                  <Save className="w-3 h-3 mr-1" />
+                                  Save
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={handleCancel}
+                              className="h-8"
+                            >
+                              <X className="w-3 h-3 mr-1" />
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => handleCellClick(mic.unique_identifier, displayKey, displayValue)}
+                          className="text-sm p-2 rounded border border-transparent hover:border-border hover:bg-muted/50 cursor-pointer min-h-[32px] transition-colors"
+                        >
+                          {displayValue || <span className="text-muted-foreground italic">empty</span>}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {filteredMics.length === 0 && (
+        <div className="text-center text-muted-foreground py-10">
+          {searchTerm ? `No mics found matching "${searchTerm}"` : 'No mics found in database'}
         </div>
       )}
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-4">
-          <TabsTrigger value="active">Active Mics</TabsTrigger>
-          <TabsTrigger value="inactive">Inactive Mics</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="active" className="mt-0">
-          {loading ? (
-            <div className="w-full flex justify-center py-10">
-              <Loader2 className="animate-spin w-8 h-8 text-orange-400" />
-            </div>
-          ) : filteredMics.length === 0 ? (
-            <div className="text-gray-500 text-center">No active mics found.</div>
-          ) : (
-            <>
-              {/* Select All */}
-              <div className="mb-3 flex items-center gap-2">
-                <Checkbox
-                  checked={selectedMics.size === filteredMics.length && filteredMics.length > 0}
-                  onCheckedChange={(checked) => handleSelectAll(checked as boolean, filteredMics)}
-                />
-                <span className="text-sm text-gray-600">
-                  Select all ({filteredMics.length} mics)
-                </span>
-              </div>
-              
-              <div className="space-y-4">
-                {filteredMics.slice(0, visibleCount).map(mic => (
-                  <MicListItem
-                    key={mic.unique_identifier}
-                    mic={mic}
-                    isSelected={selectedMics.has(mic.unique_identifier)}
-                    onSelect={(checked) => handleSelectMic(mic.unique_identifier, checked)}
-                    onEdit={() => handleEdit(mic)}
-                  />
-                ))}
-              </div>
-              {visibleCount < filteredMics.length && (
-                <div className="flex justify-center w-full mt-6">
-                  <Button onClick={() => setVisibleCount(v => v + PAGE_SIZE)} variant="outline" className="bg-orange-100 hover:bg-orange-200 text-orange-700">Show More</Button>
-                </div>
-              )}
-            </>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="inactive" className="mt-0">
-          {loading ? (
-            <div className="w-full flex justify-center py-10">
-              <Loader2 className="animate-spin w-8 h-8 text-orange-400" />
-            </div>
-          ) : filteredMics.length === 0 ? (
-            <div className="text-gray-500 text-center">No inactive mics found.</div>
-          ) : (
-            <>
-              {/* Select All */}
-              <div className="mb-3 flex items-center gap-2">
-                <Checkbox
-                  checked={selectedMics.size === filteredMics.length && filteredMics.length > 0}
-                  onCheckedChange={(checked) => handleSelectAll(checked as boolean, filteredMics)}
-                />
-                <span className="text-sm text-gray-600">
-                  Select all ({filteredMics.length} mics)
-                </span>
-              </div>
-              
-              <div className="space-y-4">
-                {filteredMics.slice(0, visibleCount).map(mic => (
-                  <MicListItem
-                    key={mic.unique_identifier}
-                    mic={mic}
-                    isSelected={selectedMics.has(mic.unique_identifier)}
-                    onSelect={(checked) => handleSelectMic(mic.unique_identifier, checked)}
-                    onEdit={() => handleEdit(mic)}
-                    isInactive={true}
-                  />
-                ))}
-              </div>
-              {visibleCount < filteredMics.length && (
-                <div className="flex justify-center w-full mt-6">
-                  <Button onClick={() => setVisibleCount(v => v + PAGE_SIZE)} variant="outline" className="bg-orange-100 hover:bg-orange-200 text-orange-700">Show More</Button>
-                </div>
-              )}
-            </>
-          )}
-        </TabsContent>
-      </Tabs>
-      
-      <AdminMicEditModal
-        open={modalOpen}
-        onClose={handleModalClose}
-        mic={selectedMic}
-        onSave={handleSave}
-        adminName={adminName}
-      />
     </div>
   );
-};
-
-export default AdminAllMicsList; 
+}
