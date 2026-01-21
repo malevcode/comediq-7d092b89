@@ -18,7 +18,9 @@ import {
   ExternalLink,
   Instagram,
   DoorOpen,
-  MessageSquare
+  MessageSquare,
+  Share2,
+  Check
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { AudienceShow } from "@/api/audienceShows";
@@ -28,6 +30,7 @@ import { TicketPurchaseButton } from "./TicketPurchaseButton";
 import { ShowReviewForm } from "./ShowReviewForm";
 import { useUserReviewForShow, useSubmitReview, useUpdateReview } from "@/hooks/useShowReviews";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
 interface AudienceShowDetailModalProps {
   show: AudienceShow | null;
@@ -38,12 +41,42 @@ interface AudienceShowDetailModalProps {
 export function AudienceShowDetailModal({ show, isOpen, onClose }: AudienceShowDetailModalProps) {
   const { user } = useAuth();
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [copied, setCopied] = useState(false);
   
   const { data: existingReview } = useUserReviewForShow(show?.id);
   const submitReview = useSubmitReview();
   const updateReview = useUpdateReview();
 
   if (!show) return null;
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/laugh?show=${show.id}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: show.title,
+          text: `Check out ${show.title} at ${show.venue_name}!`,
+          url: shareUrl,
+        });
+      } catch (err) {
+        // User cancelled or error - fall back to copy
+        copyToClipboard(shareUrl);
+      }
+    } else {
+      copyToClipboard(shareUrl);
+    }
+  };
+
+  const copyToClipboard = (url: string) => {
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    toast({
+      title: "Link copied!",
+      description: "Share this link with friends",
+    });
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const showDate = parseISO(show.show_date);
   const formattedDate = format(showDate, 'EEEE, MMMM d, yyyy');
@@ -98,14 +131,28 @@ export function AudienceShowDetailModal({ show, isOpen, onClose }: AudienceShowD
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-start gap-2">
-            <DialogTitle className="text-xl">{show.title}</DialogTitle>
-            {show.is_featured && (
-              <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                <Star className="w-3 h-3 mr-1" />
-                Featured
-              </Badge>
-            )}
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-start gap-2 flex-1">
+              <DialogTitle className="text-xl">{show.title}</DialogTitle>
+              {show.is_featured && (
+                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                  <Star className="w-3 h-3 mr-1" />
+                  Featured
+                </Badge>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleShare}
+              className="flex-shrink-0"
+            >
+              {copied ? (
+                <Check className="w-4 h-4 text-green-500" />
+              ) : (
+                <Share2 className="w-4 h-4" />
+              )}
+            </Button>
           </div>
         </DialogHeader>
 
