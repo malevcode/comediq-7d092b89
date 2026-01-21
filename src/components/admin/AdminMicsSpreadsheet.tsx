@@ -40,11 +40,11 @@ const COLUMN_CONFIG = [
 export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpreadsheetProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<Record<string, string>>({
-    hosts_organizers: '',
-    venue_name: '',
-    borough: '',
-    day: '',
-    active: '',
+    hosts_organizers: '__all__',
+    venue_name: '__all__',
+    borough: '__all__',
+    day: '__all__',
+    active: '__all__',
   });
   const [editingCell, setEditingCell] = useState<{ id: string; field: string; value: string } | null>(null);
   const [savingCellId, setSavingCellId] = useState<string | null>(null);
@@ -94,7 +94,7 @@ export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpread
 
       // Column filters
       for (const [key, value] of Object.entries(filters)) {
-        if (!value) continue;
+        if (!value || value === '__all__') continue;
         
         if (key === 'active') {
           const isActive = mic.active === true || mic.active === 1;
@@ -171,11 +171,11 @@ export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpread
   };
 
   const clearFilters = () => {
-    setFilters({ hosts_organizers: '', venue_name: '', borough: '', day: '', active: '' });
+    setFilters({ hosts_organizers: '__all__', venue_name: '__all__', borough: '__all__', day: '__all__', active: '__all__' });
     setSearchTerm('');
   };
 
-  const hasActiveFilters = searchTerm || Object.values(filters).some(v => v);
+  const hasActiveFilters = searchTerm || Object.values(filters).some(v => v && v !== '__all__');
 
   if (loading) {
     return (
@@ -204,7 +204,7 @@ export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpread
             <SelectValue placeholder="Host" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Hosts</SelectItem>
+            <SelectItem value="__all__">All Hosts</SelectItem>
             {filterOptions.hosts_organizers.map(host => (
               <SelectItem key={host} value={host} className="text-xs">{host}</SelectItem>
             ))}
@@ -216,7 +216,7 @@ export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpread
             <SelectValue placeholder="Venue" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Venues</SelectItem>
+            <SelectItem value="__all__">All Venues</SelectItem>
             {filterOptions.venue_name.map(venue => (
               <SelectItem key={venue} value={venue} className="text-xs">{venue}</SelectItem>
             ))}
@@ -228,7 +228,7 @@ export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpread
             <SelectValue placeholder="Borough" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Boroughs</SelectItem>
+            <SelectItem value="__all__">All Boroughs</SelectItem>
             {filterOptions.borough.map(borough => (
               <SelectItem key={borough} value={borough} className="text-xs">{borough}</SelectItem>
             ))}
@@ -240,7 +240,7 @@ export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpread
             <SelectValue placeholder="Day" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Days</SelectItem>
+            <SelectItem value="__all__">All Days</SelectItem>
             {filterOptions.day.map(day => (
               <SelectItem key={day} value={day} className="text-xs">{day}</SelectItem>
             ))}
@@ -252,7 +252,7 @@ export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpread
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All</SelectItem>
+            <SelectItem value="__all__">All</SelectItem>
             <SelectItem value="active">Active</SelectItem>
             <SelectItem value="inactive">Inactive</SelectItem>
           </SelectContent>
