@@ -146,30 +146,30 @@ export const useBulkOperations = (mics: any[], setMics: (mics: any[]) => void) =
     // Convert to CSV format
     const headers = [
       'Open Mic', 'Day', 'Start Time', 'Latest End Time', 'Venue Name', 'Borough', 
-      'Neighborhood', 'Location', 'Venue type', 'Cost', 'Stage time', 
-      'Sign-Up Instructions', 'Host(s) / Organizer', 'Changes/updates', 
-      'Last verified', 'Other Rules', 'Active'
+      'Neighborhood', 'Location', 'Venue Type', 'Cost', 'Stage Time', 
+      'Sign-Up Instructions', 'Host(s) / Organizer', 'Changes/Updates', 
+      'Last Verified', 'Other Rules', 'Active'
     ];
     
     const csvContent = [
       headers.join(','),
       ...micsToExport.map(mic => [
-        `"${mic['Open Mic'] || ''}"`,
-        `"${mic['Day'] || ''}"`,
-        `"${mic['Start Time'] || ''}"`,
-        `"${mic['Latest End Time'] || ''}"`,
-        `"${mic['Venue Name'] || ''}"`,
-        `"${mic['Borough'] || ''}"`,
-        `"${mic['Neighborhood'] || ''}"`,
-        `"${mic['Location'] || ''}"`,
-        `"${mic['Venue type'] || ''}"`,
-        `"${mic['Cost'] || ''}"`,
-        `"${mic['Stage time'] || ''}"`,
-        `"${mic['Sign-Up Instructions'] || ''}"`,
-        `"${mic['Host(s) / Organizer'] || ''}"`,
-        `"${mic['Changes/updates'] || ''}"`,
-        `"${mic['Last verified'] || ''}"`,
-        `"${mic['Other Rules'] || ''}"`,
+        `"${mic.open_mic || ''}"`,
+        `"${mic.day || ''}"`,
+        `"${mic.start_time || ''}"`,
+        `"${mic.latest_end_time || ''}"`,
+        `"${mic.venue_name || ''}"`,
+        `"${mic.borough || ''}"`,
+        `"${mic.neighborhood || ''}"`,
+        `"${mic.location || ''}"`,
+        `"${mic.venue_type || ''}"`,
+        `"${mic.cost || ''}"`,
+        `"${mic.stage_time || ''}"`,
+        `"${mic.sign_up_instructions || ''}"`,
+        `"${mic.hosts_organizers || ''}"`,
+        `"${mic.changes_updates || ''}"`,
+        `"${mic.last_verified || ''}"`,
+        `"${mic.other_rules || ''}"`,
         mic.active ? 'true' : 'false'
       ].join(','))
     ].join('\n');
