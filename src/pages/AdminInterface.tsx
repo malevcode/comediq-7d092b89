@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronDown, ChevronUp, LogIn } from 'lucide-react';
+import { ChevronDown, ChevronUp, LogIn, LayoutGrid, Table2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import {
   AlertDialog,
@@ -23,6 +23,7 @@ import { CheckCircle, XCircle, Clock, FileText, UserCheck, UserX, Loader2 } from
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdminRequestList from '@/components/admin/AdminRequestList';
 import AdminAllMicsList from '@/components/admin/AdminAllMicsList';
+import { AdminMicsSpreadsheet } from '@/components/admin/AdminMicsSpreadsheet';
 import HamburgerMenu from '@/components/HamburgerMenu';
 import { MicAnalyticsDashboard } from '@/components/admin/MicAnalyticsDashboard';
 import { UserAnalyticsDashboard } from '@/components/admin/UserAnalyticsDashboard';
@@ -69,6 +70,7 @@ const AdminInterface = () => {
   const [tab, setTab] = useState('analytics');
   const [visiblePending, setVisiblePending] = useState(10);
   const [visibleReviewed, setVisibleReviewed] = useState(10);
+  const [micsViewMode, setMicsViewMode] = useState<'cards' | 'spreadsheet'>('spreadsheet');
 
   useEffect(() => {
     setVisiblePending(10);
@@ -231,8 +233,38 @@ const AdminInterface = () => {
           </TabsContent>
           <TabsContent value="all">
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
-              <CardContent className="p-8 flex flex-col items-start">
-                <AdminAllMicsList />
+              <CardContent className="p-4 md:p-8">
+                {/* View Toggle */}
+                <div className="flex items-center gap-2 mb-4">
+                  <Button
+                    variant={micsViewMode === 'cards' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setMicsViewMode('cards')}
+                    className="h-8"
+                  >
+                    <LayoutGrid className="w-4 h-4 mr-1" />
+                    Cards
+                  </Button>
+                  <Button
+                    variant={micsViewMode === 'spreadsheet' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setMicsViewMode('spreadsheet')}
+                    className="h-8"
+                  >
+                    <Table2 className="w-4 h-4 mr-1" />
+                    Spreadsheet
+                  </Button>
+                </div>
+
+                {micsViewMode === 'cards' ? (
+                  <AdminAllMicsList />
+                ) : (
+                  <AdminMicsSpreadsheet
+                    mics={allMics}
+                    setMics={setAllMics}
+                    loading={loading}
+                  />
+                )}
               </CardContent>
             </Card>
           </TabsContent>
