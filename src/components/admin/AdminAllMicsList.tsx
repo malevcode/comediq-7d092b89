@@ -6,9 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Search, Save, X, Loader2, Check } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { updateMic } from '@/api/openMics';
 import { toast } from '@/hooks/use-toast';
-import type { OpenMicDisplay } from '@/api/openMics';
 
 interface EditingCell {
   micId: string;
@@ -98,17 +96,20 @@ export default function AdminAllMicsList() {
     { key: 'signup_enabled', label: 'Signups Enabled', displayKey: 'signup_enabled' },
   ];
 
-  const handleCellClick = (micId: string, displayKey: string, currentValue: string) => {
-    setEditingCell({ micId, field: displayKey, value: currentValue || '' });
+  const handleCellClick = (micId: string, dbKey: string, currentValue: string) => {
+    setEditingCell({ micId, field: dbKey, value: currentValue || '' });
   };
 
   const handleToggle = async (micId: string, field: string, currentValue: boolean) => {
     setTogglingField({ micId, field });
     
     try {
-      await updateMic(micId, {
-        [field]: !currentValue
-      } as Partial<OpenMicDisplay>);
+      const { error } = await supabase
+        .from('open_mics_historical')
+        .update({ [field]: !currentValue })
+        .eq('unique_identifier', micId);
+      
+      if (error) throw error;
       
       toast({
         title: 'Updated!',
@@ -140,9 +141,17 @@ export default function AdminAllMicsList() {
     setSavingMicId(editingCell.micId);
     
     try {
-      await updateMic(editingCell.micId, {
+      // Build update object with db column key directly
+      const dbUpdate: Record<string, any> = {
         [editingCell.field]: editingCell.value
-      } as Partial<OpenMicDisplay>);
+      };
+      
+      const { error } = await supabase
+        .from('open_mics_historical')
+        .update(dbUpdate)
+        .eq('unique_identifier', editingCell.micId);
+      
+      if (error) throw error;
       
       toast({
         title: 'Saved!',
@@ -151,10 +160,15 @@ export default function AdminAllMicsList() {
       
       setSavedMicId(editingCell.micId);
       setTimeout(() => setSavedMicId(null), 2000);
-      setEditingCell(null);
       
-      // Refresh the data
-      fetchAllMics();
+      // Optimistic update instead of full refetch
+      setAllMics(prev => prev.map(mic => 
+        mic.unique_identifier === editingCell.micId 
+          ? { ...mic, [editingCell.field]: editingCell.value }
+          : mic
+      ));
+      
+      setEditingCell(null);
       
     } catch (error) {
       console.error('Save error:', error);
@@ -258,8 +272,8 @@ export default function AdminAllMicsList() {
                 })}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {editableFields.map(({ key, label, displayKey }) => {
-                  const isEditing = editingCell?.micId === mic.unique_identifier && editingCell?.field === displayKey;
+                {editableFields.map(({ key, label }) => {
+                  const isEditing = editingCell?.micId === mic.unique_identifier && editingCell?.field === key;
                   const displayValue = mic[key] || '';
 
                   return (
@@ -305,7 +319,7 @@ export default function AdminAllMicsList() {
                         </div>
                       ) : (
                         <div
-                          onClick={() => handleCellClick(mic.unique_identifier, displayKey, displayValue)}
+                          onClick={() => handleCellClick(mic.unique_identifier, key, displayValue)}
                           className="text-sm p-2 rounded border border-transparent hover:border-border hover:bg-muted/50 cursor-pointer min-h-[32px] transition-colors"
                         >
                           {displayValue || <span className="text-muted-foreground italic">empty</span>}
