@@ -17,14 +17,15 @@ interface AdminMicsSpreadsheetProps {
 }
 
 const COLUMN_CONFIG = [
+  { key: 'day', label: 'Day', width: 'min-w-[80px]' },
+  { key: 'start_time', label: 'Start', width: 'min-w-[80px]' },
+  { key: 'active', label: 'Active', width: 'min-w-[70px]', isBoolean: true },
   { key: 'open_mic', label: 'Name', width: 'min-w-[180px]' },
   { key: 'venue_name', label: 'Venue', width: 'min-w-[150px]' },
   { key: 'location', label: 'Address', width: 'min-w-[200px]' },
   { key: 'neighborhood', label: 'Neighborhood', width: 'min-w-[120px]' },
   { key: 'borough', label: 'Borough', width: 'min-w-[100px]' },
   { key: 'city', label: 'City', width: 'min-w-[100px]' },
-  { key: 'day', label: 'Day', width: 'min-w-[80px]' },
-  { key: 'start_time', label: 'Start', width: 'min-w-[80px]' },
   { key: 'latest_end_time', label: 'End', width: 'min-w-[80px]' },
   { key: 'cost', label: 'Cost', width: 'min-w-[100px]' },
   { key: 'stage_time', label: 'Stage Time', width: 'min-w-[100px]' },
@@ -34,7 +35,6 @@ const COLUMN_CONFIG = [
   { key: 'changes_updates', label: 'Changes', width: 'min-w-[150px]' },
   { key: 'last_verified', label: 'Verified', width: 'min-w-[100px]' },
   { key: 'other_rules', label: 'Rules', width: 'min-w-[150px]' },
-  { key: 'active', label: 'Active', width: 'min-w-[70px]', isBoolean: true },
 ];
 
 export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpreadsheetProps) => {
