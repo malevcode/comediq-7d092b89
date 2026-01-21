@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Search, Save, X, Loader2, Check } from 'lucide-react';
+import { Search, X, Loader2, Check } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
@@ -182,15 +182,15 @@ export default function AdminAllMicsList() {
     }
   };
 
-  const handleCancel = () => {
-    setEditingCell(null);
+  const handleBlur = () => {
+    handleSave();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      handleSave();
+      (e.target as HTMLInputElement).blur();
     } else if (e.key === 'Escape') {
-      handleCancel();
+      setEditingCell(null);
     }
   };
 
@@ -282,40 +282,18 @@ export default function AdminAllMicsList() {
                         {label}
                       </label>
                       {isEditing ? (
-                        <div className="flex gap-2">
+                        <div className="relative">
                           <Input
                             value={editingCell.value}
                             onChange={(e) => setEditingCell({ ...editingCell, value: e.target.value })}
+                            onBlur={handleBlur}
                             onKeyDown={handleKeyDown}
                             autoFocus
-                            className="h-8"
+                            className="h-8 pr-8"
                           />
-                          <div className="flex gap-1">
-                            <Button
-                              size="sm"
-                              onClick={handleSave}
-                              disabled={savingMicId === mic.unique_identifier}
-                              className="h-8"
-                            >
-                              {savingMicId === mic.unique_identifier ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <>
-                                  <Save className="w-3 h-3 mr-1" />
-                                  Save
-                                </>
-                              )}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={handleCancel}
-                              className="h-8"
-                            >
-                              <X className="w-3 h-3 mr-1" />
-                              Cancel
-                            </Button>
-                          </div>
+                          {savingMicId === mic.unique_identifier && (
+                            <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-muted-foreground" />
+                          )}
                         </div>
                       ) : (
                         <div
