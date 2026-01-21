@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Search, Save, X, Loader2, Check } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import { updateMic } from '@/api/openMics';
 import { toast } from '@/hooks/use-toast';
 import type { OpenMicDisplay } from '@/api/openMics';
@@ -21,6 +23,7 @@ export default function AdminAllMicsList() {
   const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
   const [savingMicId, setSavingMicId] = useState<string | null>(null);
   const [savedMicId, setSavedMicId] = useState<string | null>(null);
+  const [togglingField, setTogglingField] = useState<{ micId: string; field: string } | null>(null);
 
   useEffect(() => {
     fetchAllMics();
@@ -47,21 +50,27 @@ export default function AdminAllMicsList() {
     setLoading(false);
   };
 
-  // Fuzzy search
+  // Fuzzy search - includes active status
   const filteredMics = allMics.filter(mic => {
     if (!searchTerm.trim()) return true;
     
     const term = searchTerm.toLowerCase();
+    const activeStatus = mic.active ? 'active' : 'inactive';
+    
     return (
       mic.open_mic?.toLowerCase().includes(term) ||
       mic.venue_name?.toLowerCase().includes(term) ||
       mic.neighborhood?.toLowerCase().includes(term) ||
       mic.borough?.toLowerCase().includes(term) ||
       mic.location?.toLowerCase().includes(term) ||
-      mic.day?.toLowerCase().includes(term)
+      mic.day?.toLowerCase().includes(term) ||
+      mic.city?.toLowerCase().includes(term) ||
+      mic.venue_type?.toLowerCase().includes(term) ||
+      activeStatus.includes(term)
     );
   });
 
+  // All text-editable fields from open_mics_historical
   const editableFields = [
     { key: 'open_mic', label: 'Mic Name', displayKey: 'Open Mic' },
     { key: 'venue_name', label: 'Venue', displayKey: 'Venue Name' },
@@ -75,10 +84,54 @@ export default function AdminAllMicsList() {
     { key: 'stage_time', label: 'Stage Time', displayKey: 'Stage time' },
     { key: 'sign_up_instructions', label: 'Sign-Up', displayKey: 'Sign-Up Instructions' },
     { key: 'hosts_organizers', label: 'Host', displayKey: 'Host(s) / Organizer' },
+    { key: 'venue_type', label: 'Venue Type', displayKey: 'Venue type' },
+    { key: 'changes_updates', label: 'Changes/Updates', displayKey: 'Changes/updates' },
+    { key: 'last_verified', label: 'Last Verified', displayKey: 'Last verified' },
+    { key: 'other_rules', label: 'Other Rules', displayKey: 'Other Rules' },
+    { key: 'city', label: 'City', displayKey: 'city' },
+    { key: 'sms_response', label: 'SMS Response', displayKey: 'sms_response' },
+  ];
+
+  // Boolean toggle fields
+  const booleanFields = [
+    { key: 'active', label: 'Active', displayKey: 'active' },
+    { key: 'signup_enabled', label: 'Signups Enabled', displayKey: 'signup_enabled' },
   ];
 
   const handleCellClick = (micId: string, displayKey: string, currentValue: string) => {
     setEditingCell({ micId, field: displayKey, value: currentValue || '' });
+  };
+
+  const handleToggle = async (micId: string, field: string, currentValue: boolean) => {
+    setTogglingField({ micId, field });
+    
+    try {
+      await updateMic(micId, {
+        [field]: !currentValue
+      } as Partial<OpenMicDisplay>);
+      
+      toast({
+        title: 'Updated!',
+        description: `${field} set to ${!currentValue ? 'ON' : 'OFF'}`,
+      });
+      
+      // Optimistic update
+      setAllMics(prev => prev.map(mic => 
+        mic.unique_identifier === micId 
+          ? { ...mic, [field]: !currentValue }
+          : mic
+      ));
+      
+    } catch (error) {
+      console.error('Toggle error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update',
+        variant: 'destructive',
+      });
+    } finally {
+      setTogglingField(null);
+    }
   };
 
   const handleSave = async () => {
@@ -166,13 +219,44 @@ export default function AdminAllMicsList() {
       {/* Mics Table */}
       <div className="space-y-4">
         {filteredMics.map((mic) => (
-          <Card key={mic.unique_identifier} className={`relative ${savedMicId === mic.unique_identifier ? 'ring-2 ring-green-500' : ''}`}>
+          <Card 
+            key={mic.unique_identifier} 
+            className={`relative transition-all ${
+              savedMicId === mic.unique_identifier ? 'ring-2 ring-green-500' : ''
+            } ${
+              !mic.active ? 'opacity-60 bg-muted/30' : ''
+            }`}
+          >
             {savedMicId === mic.unique_identifier && (
               <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1">
                 <Check className="w-4 h-4" />
               </div>
             )}
             <CardContent className="p-4">
+              {/* Status Toggles Header */}
+              <div className="flex items-center gap-4 mb-4 pb-3 border-b">
+                <div className="flex items-center gap-2">
+                  <Badge variant={mic.active ? "default" : "destructive"} className="text-xs">
+                    {mic.active ? 'ACTIVE' : 'INACTIVE'}
+                  </Badge>
+                </div>
+                {booleanFields.map(({ key, label }) => {
+                  const isToggling = togglingField?.micId === mic.unique_identifier && togglingField?.field === key;
+                  return (
+                    <div key={key} className="flex items-center gap-2">
+                      <Switch
+                        checked={mic[key] ?? false}
+                        onCheckedChange={() => handleToggle(mic.unique_identifier, key, mic[key] ?? false)}
+                        disabled={isToggling}
+                        className="data-[state=checked]:bg-green-600"
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        {isToggling ? <Loader2 className="w-3 h-3 animate-spin" /> : label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {editableFields.map(({ key, label, displayKey }) => {
                   const isEditing = editingCell?.micId === mic.unique_identifier && editingCell?.field === displayKey;
