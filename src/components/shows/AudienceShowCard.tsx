@@ -1,11 +1,13 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, Clock, Ticket, Star, ExternalLink, Users } from "lucide-react";
+import { Calendar, Clock, Ticket, Star, ExternalLink, Users, Share2, Check } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { AudienceShow } from "@/api/audienceShows";
 import { RsvpButton } from "./RsvpButton";
 import { TicketPurchaseButton } from "./TicketPurchaseButton";
+import { toast } from "@/hooks/use-toast";
 
 interface AudienceShowCardProps {
   show: AudienceShow;
@@ -13,6 +15,7 @@ interface AudienceShowCardProps {
 }
 
 export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
+  const [copied, setCopied] = useState(false);
   const showDate = parseISO(show.show_date);
   const formattedDate = format(showDate, 'EEE, MMM d');
   
@@ -31,6 +34,35 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
     if (url) {
       window.open(url, '_blank', 'noopener,noreferrer');
     }
+  };
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/laugh?show=${show.id}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: show.title,
+          text: `Check out ${show.title} at ${show.venue_name}!`,
+          url: shareUrl,
+        });
+      } catch (err) {
+        copyToClipboard(shareUrl);
+      }
+    } else {
+      copyToClipboard(shareUrl);
+    }
+  };
+
+  const copyToClipboard = (url: string) => {
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    toast({
+      title: "Link copied!",
+      description: "Share this show with friends",
+    });
+    setTimeout(() => setCopied(false), 2000);
   };
 
   // Determine which action buttons to show
@@ -132,6 +164,21 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
                   Eventbrite
                 </Button>
               )}
+              
+              {/* Share button - always visible */}
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={handleShare}
+                className="text-[10px] h-6 px-1.5"
+              >
+                {copied ? (
+                  <Check className="w-2.5 h-2.5 mr-0.5 text-green-500" />
+                ) : (
+                  <Share2 className="w-2.5 h-2.5 mr-0.5" />
+                )}
+                Share
+              </Button>
               
               {!showPaidButton && !showRsvpButton && !hasExternalUrl && (
                 <Button 
