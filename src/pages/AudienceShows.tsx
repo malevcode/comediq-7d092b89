@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAudienceShows } from "@/hooks/useAudienceShows";
 import { AudienceShowCard } from "@/components/shows/AudienceShowCard";
 import { AudienceShowFilters } from "@/components/shows/AudienceShowFilters";
@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function AudienceShows() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [borough, setBorough] = useState("all");
@@ -33,6 +34,29 @@ export default function AudienceShows() {
   }), [borough, showType, searchTerm]);
 
   const { data: shows, isLoading, error } = useAudienceShows(filters);
+
+  // Sync URL param with selected show
+  const showIdFromUrl = searchParams.get('show');
+  
+  useEffect(() => {
+    if (showIdFromUrl && shows && shows.length > 0 && !selectedShow) {
+      const showFromUrl = shows.find(s => s.id === showIdFromUrl);
+      if (showFromUrl) {
+        setSelectedShow(showFromUrl);
+      }
+    }
+  }, [showIdFromUrl, shows, selectedShow]);
+
+  const handleShowSelect = (show: AudienceShow) => {
+    setSelectedShow(show);
+    setSearchParams({ show: show.id });
+  };
+
+  const handleModalClose = () => {
+    setSelectedShow(null);
+    searchParams.delete('show');
+    setSearchParams(searchParams);
+  };
 
   if (error) {
     return (
@@ -65,7 +89,7 @@ export default function AudienceShows() {
             <AudienceShowCard
               key={show.id}
               show={show}
-              onClick={() => setSelectedShow(show)}
+              onClick={() => handleShowSelect(show)}
             />
           ))}
         </div>
@@ -90,7 +114,7 @@ export default function AudienceShows() {
       <AudienceShowDetailModal
         show={selectedShow}
         isOpen={!!selectedShow}
-        onClose={() => setSelectedShow(null)}
+        onClose={handleModalClose}
       />
 
       {/* Floating Add Show Button */}
