@@ -74,7 +74,7 @@ export function RsvpButton({
   if (isCheckingRsvp) {
     return (
       <Button variant={variant} size={size} disabled className={className}>
-        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
         Loading...
       </Button>
     );
@@ -90,9 +90,9 @@ export function RsvpButton({
         className={`border-green-500 text-green-600 hover:bg-green-50 ${className}`}
       >
         {cancelMutation.isPending ? (
-          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
         ) : (
-          <Check className="w-4 h-4 mr-2" />
+          <Check className="w-3 h-3 mr-1" />
         )}
         RSVP'd ({existingRsvp.party_size})
       </Button>
@@ -108,7 +108,6 @@ export function RsvpButton({
         disabled={isAtCapacity}
         className={className}
       >
-        <Users className="w-4 h-4 mr-2" />
         {isAtCapacity ? 'Full' : 'RSVP (Free)'}
       </Button>
 
