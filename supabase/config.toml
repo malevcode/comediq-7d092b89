@@ -11,3 +11,7 @@ verify_jwt = true
 [functions.get-platform-stats]
 enabled = true
 verify_jwt = false
+
+[functions.parse-mic-data]
+enabled = true
+verify_jwt = false
