@@ -165,7 +165,7 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
                 </Button>
               )}
               
-              {/* Share button - always visible */}
+              {/* Share button - icon only on mobile, full text on larger screens */}
               <Button 
                 size="sm" 
                 variant="outline"
@@ -173,11 +173,11 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
                 className="text-[10px] h-6 px-1.5"
               >
                 {copied ? (
-                  <Check className="w-2.5 h-2.5 mr-0.5 text-green-500" />
+                  <Check className="w-2.5 h-2.5 text-green-500" />
                 ) : (
-                  <Share2 className="w-2.5 h-2.5 mr-0.5" />
+                  <Share2 className="w-2.5 h-2.5" />
                 )}
-                Share
+                <span className="hidden sm:inline ml-0.5">Share</span>
               </Button>
               
               {!showPaidButton && !showRsvpButton && !hasExternalUrl && (
