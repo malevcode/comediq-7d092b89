@@ -453,6 +453,48 @@ export type Database = {
           },
         ]
       }
+      mic_verifications: {
+        Row: {
+          created_at: string
+          id: string
+          ip_hash: string | null
+          mic_unique_identifier: string
+          user_id: string | null
+          verified_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          mic_unique_identifier: string
+          user_id?: string | null
+          verified_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          mic_unique_identifier?: string
+          user_id?: string | null
+          verified_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_mic_verifications_mic"
+            columns: ["mic_unique_identifier"]
+            isOneToOne: false
+            referencedRelation: "open_mics_display"
+            referencedColumns: ["unique_identifier"]
+          },
+          {
+            foreignKeyName: "fk_mic_verifications_mic"
+            columns: ["mic_unique_identifier"]
+            isOneToOne: false
+            referencedRelation: "open_mics_historical"
+            referencedColumns: ["unique_identifier"]
+          },
+        ]
+      }
       open_mics_historical: {
         Row: {
           active: boolean | null
@@ -1308,6 +1350,29 @@ export type Database = {
       }
     }
     Views: {
+      mic_latest_verification: {
+        Row: {
+          mic_unique_identifier: string | null
+          user_id: string | null
+          verified_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_mic_verifications_mic"
+            columns: ["mic_unique_identifier"]
+            isOneToOne: false
+            referencedRelation: "open_mics_display"
+            referencedColumns: ["unique_identifier"]
+          },
+          {
+            foreignKeyName: "fk_mic_verifications_mic"
+            columns: ["mic_unique_identifier"]
+            isOneToOne: false
+            referencedRelation: "open_mics_historical"
+            referencedColumns: ["unique_identifier"]
+          },
+        ]
+      }
       mic_like_counts: {
         Row: {
           dislikes: number | null

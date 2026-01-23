@@ -1,4 +1,5 @@
-import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, CircleAlert, CircleCheckBig, ArrowUp, ChevronDown, ChevronUp, Heart, ExternalLink, Navigation } from "lucide-react";
+import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, ArrowUp, ChevronDown, ChevronUp, Heart, ExternalLink, Navigation } from "lucide-react";
+import { VerificationBadge } from "@/components/VerificationBadge";
 import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
 import { useMicRatings } from "@/hooks/useMicRatings";
@@ -244,17 +245,11 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             {mic.openMic}
             <ExternalLink className="w-3 h-3" />
           </a>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium
-            ${mic.lastVerified === "Unverified"
-              ? 'border border-red-200 bg-red-50 text-red-700'
-              : 'border border-green-200 bg-green-50 text-green-700'}`}>
-            <span className="flex items-center gap-1">
-              {mic.lastVerified === "Unverified"
-                ? <span className="flex items-center gap-1"><CircleAlert className="w-3 h-3" /> Unverified</span>
-                : <span className="flex items-center gap-1"><CircleCheckBig className="w-3 h-3" /> Verified {mic.lastVerified}</span>
-              }
-            </span>
-          </span>
+          <VerificationBadge 
+            micUniqueIdentifier={mic.uniqueIdentifier}
+            lastVerified={mic.lastVerified === "Unverified" ? undefined : mic.lastVerified}
+            size="sm"
+          />
           {/* Like Button to the right of mic name and status */}
           {user ? (
             <div className="ml-auto">
