@@ -283,6 +283,33 @@ export type Database = {
           },
         ]
       }
+      mic_comments: {
+        Row: {
+          comment_text: string
+          created_at: string
+          id: string
+          mic_unique_identifier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment_text: string
+          created_at?: string
+          id?: string
+          mic_unique_identifier: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment_text?: string
+          created_at?: string
+          id?: string
+          mic_unique_identifier?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mic_hosts: {
         Row: {
           created_at: string
@@ -331,6 +358,71 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      mic_playlist_items: {
+        Row: {
+          added_at: string
+          id: string
+          mic_unique_identifier: string
+          notes: string | null
+          order_index: number
+          playlist_id: string
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          mic_unique_identifier: string
+          notes?: string | null
+          order_index?: number
+          playlist_id: string
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          mic_unique_identifier?: string
+          notes?: string | null
+          order_index?: number
+          playlist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mic_playlist_items_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "mic_playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mic_playlists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       mic_signup_events: {
         Row: {
@@ -831,6 +923,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      saved_mics: {
+        Row: {
+          created_at: string
+          id: string
+          mic_unique_identifier: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mic_unique_identifier: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mic_unique_identifier?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       saved_shows: {
         Row: {
@@ -1350,6 +1463,13 @@ export type Database = {
       }
     }
     Views: {
+      mic_comment_counts: {
+        Row: {
+          comment_count: number | null
+          mic_unique_identifier: string | null
+        }
+        Relationships: []
+      }
       mic_latest_verification: {
         Row: {
           mic_unique_identifier: string | null
@@ -1378,6 +1498,13 @@ export type Database = {
           dislikes: number | null
           likes: number | null
           mic_unique_identifier: string | null
+        }
+        Relationships: []
+      }
+      mic_saved_counts: {
+        Row: {
+          mic_unique_identifier: string | null
+          saved_count: number | null
         }
         Relationships: []
       }

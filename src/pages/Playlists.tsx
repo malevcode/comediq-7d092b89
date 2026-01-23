@@ -1,6 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { useMicPlaylists } from "@/hooks/useMicPlaylists";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Plus, 
   Edit3, 
@@ -22,14 +23,11 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 
-interface Playlist {
+interface EditingPlaylist {
   id: string;
   name: string;
   description: string | null;
   is_public: boolean;
-  created_at: string;
-  updated_at: string;
-  item_count?: number;
 }
 
 interface PlaylistItem {
@@ -51,67 +49,46 @@ interface PlaylistItem {
 export default function Playlists() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [playlists, setPlaylists] = useState<Playlist[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  const { playlists, isLoading: loading, createPlaylist: createPlaylistMutation, updatePlaylist: updatePlaylistMutation, deletePlaylist: deletePlaylistMutation } = useMicPlaylists();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [editingPlaylist, setEditingPlaylist] = useState<Playlist | null>(null);
+  const [editingPlaylist, setEditingPlaylist] = useState<EditingPlaylist | null>(null);
   const [newPlaylist, setNewPlaylist] = useState({
     name: "",
     description: "",
     is_public: false
   });
 
-  useEffect(() => {
-    if (user) {
-      loadPlaylists();
-    }
-  }, [user]);
-
-  const loadPlaylists = async () => {
-    if (!user) return;
-    
-    setLoading(true);
-    try {
-      // TODO: Playlists feature needs database tables (user_playlists, playlist_items) to be created
-      // For now, just set empty array
-      setPlaylists([]);
-    } catch (error) {
-      console.error("Error loading playlists:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const createPlaylist = async () => {
     if (!user || !newPlaylist.name.trim()) return;
-
     try {
-      // TODO: Implement once database tables are created
-      console.log("Create playlist:", newPlaylist);
+      await createPlaylistMutation({ name: newPlaylist.name, description: newPlaylist.description, isPublic: newPlaylist.is_public });
+      setShowCreateDialog(false);
+      setNewPlaylist({ name: "", description: "", is_public: false });
+      toast({ title: "Playlist created!" });
     } catch (error) {
-      console.error("Error creating playlist:", error);
+      toast({ title: "Error", description: "Failed to create playlist", variant: "destructive" });
     }
   };
 
   const updatePlaylist = async () => {
     if (!editingPlaylist || !editingPlaylist.name.trim()) return;
-
     try {
-      // TODO: Implement once database tables are created
-      console.log("Update playlist:", editingPlaylist);
+      await updatePlaylistMutation({ playlistId: editingPlaylist.id, name: editingPlaylist.name, description: editingPlaylist.description || undefined, isPublic: editingPlaylist.is_public });
+      setEditingPlaylist(null);
+      toast({ title: "Playlist updated!" });
     } catch (error) {
-      console.error("Error updating playlist:", error);
+      toast({ title: "Error", description: "Failed to update playlist", variant: "destructive" });
     }
   };
 
   const deletePlaylist = async (playlistId: string) => {
     if (!confirm("Are you sure you want to delete this playlist?")) return;
-
     try {
-      // TODO: Implement once database tables are created
-      console.log("Delete playlist:", playlistId);
+      await deletePlaylistMutation(playlistId);
+      toast({ title: "Playlist deleted" });
     } catch (error) {
-      console.error("Error deleting playlist:", error);
+      toast({ title: "Error", description: "Failed to delete playlist", variant: "destructive" });
     }
   };
 
