@@ -1,18 +1,18 @@
-import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, ArrowUp, ChevronDown, ChevronUp, Heart, ExternalLink, Navigation } from "lucide-react";
+import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, ArrowUp, ChevronDown, ExternalLink, Navigation } from "lucide-react";
 import { VerificationBadge } from "@/components/VerificationBadge";
 import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
-import { useMicRatings } from "@/hooks/useMicRatings";
 import { useState, useEffect } from "react";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { DistanceService } from '@/services/distanceService';
-import { set } from "date-fns";
 import { makeLinksClickable } from '@/utils/makeLinksClickable';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
+import MicActionBar from '@/components/mic/MicActionBar';
+import MicCommentSection from '@/components/mic/MicCommentSection';
 
 // Helper function to get map URL based on device
 function getMapUrl(location: string, venueName: string) {
@@ -130,13 +130,12 @@ function getGoogleCalendarUrl(mic: OpenMic) {
 }
 
 function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void }) {
-  const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(mic.uniqueIdentifier);
   const [expanded, setExpanded] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   const { user } = useAuth();
   const { userLocation, locationLoading } = useUserLocation();
   const [distance, setDistance] = useState<string | null>(null);
   const [distanceLoading, setDistanceLoading] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   // Helper to get first line or summary
   const getSummary = (text: string) => {
@@ -180,55 +179,6 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
     calculateDistance();
   }, [userLocation, mic.location]);
 
-  function copyToClipboard() {
-    const status = document.getElementById('copy-status');
-    let hideTimer = null;
-
-    function showStatus(success: boolean) {
-      // update text and show
-      setCopied(success);
-      if (hideTimer) clearTimeout(hideTimer);
-      // hide after 1.8s
-      hideTimer = setTimeout(() => {
-        setCopied(false);
-      }, 1800);
-    }
-
-    function fallbackCopyTextToClipboard(text) {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.left = '-9999px';
-      document.body.appendChild(ta);
-      ta.select();
-      try {
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        return true;
-      } catch (err) {
-        document.body.removeChild(ta);
-        return false;
-      }
-    }
-
-    const url = window.location.href + `#${mic.id}`;
-
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url);
-        showStatus(true);
-        console.log("Navigator copy");
-      } else {
-        const ok = fallbackCopyTextToClipboard(url);
-        showStatus(ok);
-        console.log("Fall back copy no error");
-      }
-    } catch (err) {
-      const ok = fallbackCopyTextToClipboard(url);
-      showStatus(ok);
-      console.log("Fall back copy after error");
-    }
-  }
   
   return (
     <div className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-4 gap-2md:gap-6 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${getBoroughOutline(mic.borough)}`} id={mic.id}>
@@ -250,28 +200,6 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             lastVerified={mic.lastVerified === "Unverified" ? undefined : mic.lastVerified}
             size="sm"
           />
-          {/* Like Button to the right of mic name and status */}
-          {user ? (
-            <div className="ml-auto">
-              <Button
-                className={`flex items-center justify-center rounded-3xl px-2 text-sm transition-all
-                  ${userRating === 'like'
-                    ? 'bg-pink-50 hover:bg-pink-100 border-pink-300'
-                    : 'bg-white border-gray-300 hover:bg-gray-100'} text-gray-700`}
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  if (userRating === 'like') removeRating(mic.uniqueIdentifier);
-                  else rateMic({ micUniqueIdentifier: mic.uniqueIdentifier, rating: 'like' });
-                }}
-                disabled={isRating}
-                aria-label={userRating === 'like' ? 'Unlike' : 'Like'}
-              >
-                <Heart className={`w-4 h-4 ${userRating === 'like' ? 'fill-red-400 text-red-400' : ''}`} />
-                <span className="mr-1 text-sm text-gray-600">{ratingCounts?.likes || 0}</span>
-              </Button>
-            </div>
-          ) : null}
         </div>
         <div className="text-sm text-gray-500 mb-1">
           <span className="flex items-center gap-1">
@@ -441,52 +369,21 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           </div>
           )}
         </button>
-        
-      <div className="relative flex items-center space-x-3 justify-center">
 
-      <button
-        id="copy-share-btn"
-        type="button"
-        onClick={copyToClipboard}
-        aria-label="Copy shareable link"
-        className={`inline-flex items-center gap-2 px-4 py-2 ${copied ? "bg-green-600" : "bg-blue-600"} text-white rounded-md hover:${copied ? "bg-green-700" : "bg-blue-700"} transition`}
-      >
-        {copied == false ? 
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"></path>
-            <path d="M16 6l-4-4-4 4"></path>
-            <path d="M12 2v15"></path>
-          </svg>
-          :
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-5 w-5"
-            aria-hidden="true"
-          >
-            <rect x="9" y="2" width="6" height="4" rx="1" ry="1"></rect>
-            <path d="M9 2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-4"></path>
-            <path d="M9 14l2 2 4-4"></path>
-          </svg>}
-        <span className="text-sm font-medium">{copied == false ? "Share" : "Copied!"}</span>
-      </button>
-    </div>
+        {/* Social Action Bar */}
+        <MicActionBar
+          micUniqueIdentifier={mic.uniqueIdentifier}
+          micName={mic.openMic}
+          onCommentClick={() => setShowComments(!showComments)}
+          showCommentSection={showComments}
+        />
 
+        {/* Comments Section */}
+        <MicCommentSection
+          micUniqueIdentifier={mic.uniqueIdentifier}
+          isExpanded={showComments}
+          onClose={() => setShowComments(false)}
+        />
         </div>
       </div>
   );
