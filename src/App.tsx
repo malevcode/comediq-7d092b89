@@ -23,6 +23,7 @@ import Home from "./components/Home";
 import { TabProvider } from "@/contexts/TabContext";
 import AdminInterface from "./pages/AdminInterface";
 import Playlists from "./pages/Playlists";
+import PlaylistDetail from "./pages/PlaylistDetail";
 import MicDetailPage from "./pages/MicDetailPage";
 import MicsByBorough from "./pages/MicsByBorough";
 import MicsByNeighborhood from "./pages/MicsByNeighborhood";
@@ -70,6 +71,7 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/admintest" element={<AdminInterface />} /> 
             <Route path="/playlists" element={<Playlists />} />
+            <Route path="/playlists/:playlistId" element={<PlaylistDetail />} />
             <Route path="/home" element={<Home />} /* FOR TESTING, REMOVE LATER */ />
             
             {/* SEO-optimized routes */}

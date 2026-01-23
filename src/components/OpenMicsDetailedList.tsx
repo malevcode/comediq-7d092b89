@@ -268,22 +268,25 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
       </div>
       {/* Right: Value, Ratings, Button */}
       <div className="w-full md:flex-[1.2] flex flex-col justify-center">
-        <button
-          className="appearance-none cursor-pointer bg-blue-50 border border-blue-100 rounded-lg p-1.5 mb-2 relative w-full text-left flex flex-col hover:bg-blue-100 transition font-semibold text-xs text-blue-800 gap-1 outline-none"
-          aria-label={expanded ? 'Collapse details' : 'Expand details'}
-          onClick={() => setExpanded(e => !e)}
-          type="button"
-        >
-          <span className="flex items-center gap-1">
+        <div className="bg-blue-50 border border-blue-100 rounded-lg p-1.5 mb-2 relative w-full">
+          <div
+            className="cursor-pointer flex items-center gap-1 font-semibold text-xs text-blue-800"
+            onClick={() => setExpanded(e => !e)}
+            role="button"
+            tabIndex={0}
+            aria-expanded={expanded}
+            aria-label={expanded ? 'Collapse details' : 'Expand details'}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpanded(x => !x); }}
+          >
             <span>Additional Details</span>
             <ChevronDown
               className={`w-4 h-4 ml-auto transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
             />
-          </span>
+          </div>
           {expanded && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 mt-2">
               <div
-                className="break-words mt-1 font-normal select-text cursor-text flex flex-row"
+                className="break-words font-normal select-text cursor-text flex flex-row text-xs"
                 onClick={e => e.stopPropagation()}
               >
                 <span className="flex items-center gap-2 mr-1"><UserRoundCheck className="w-3 h-3" />Sign-Up Instructions:</span>
@@ -291,84 +294,84 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
                   {mic.signUpInstructions ? makeLinksClickable(mic.signUpInstructions) : 'N/A'}
                 </span>
               </div>
-              <div>
+              <div className="text-xs">
                 <a href={getMapUrl(mic.location, mic.venueName)} target="_blank" rel="noopener noreferrer" className="flex flex-row gap-2 items-center hover:underline font-normal">
                   <MapPin className="w-3 h-3" /> {mic.location}
                 </a>
               </div>
               <div className="flex flex-col gap-2">
-              {mic.signupEnabled && (
-                <Button
-                  size="sm"
-                  variant="default"
-                  className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
-                  asChild
-                >
-                  <Link to={linkManager.micSignup(mic)}>
-                    <UserRoundCheck className="w-4 h-4" />
-                    Sign Up for Spots
-                  </Link>
-                </Button>
-              )}
-              {user && (
+                {mic.signupEnabled && (
+                  <Button
+                    size="sm"
+                    variant="default"
+                    className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
+                    asChild
+                  >
+                    <Link to={linkManager.micSignup(mic)}>
+                      <UserRoundCheck className="w-4 h-4" />
+                      Sign Up for Spots
+                    </Link>
+                  </Button>
+                )}
+                {user && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex items-center justify-center gap-2"
+                    onClick={() => onAddToCalendar(mic)}
+                  >
+                    <Calendar className="w-4 h-4" />
+                    Add to Calendar
+                  </Button>
+                )}
+              </div>
+              <div className="flex flex-row gap-2 mt-2">
                 <Button
                   size="sm"
                   variant="outline"
-                  className="flex items-center justify-center gap-2"
-                  onClick={() => onAddToCalendar(mic)}
+                  className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100"
+                  asChild
                 >
-                  <Calendar className="w-4 h-4" />
-                  Add to Calendar
-                </Button>
-              )}
-            </div>
-            <div className="flex flex-row gap-2 mt-2">
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100"
-                asChild
-              >
-                <a
-                  href={getGoogleCalendarUrl(mic)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Add to Google Calendar"
-                  onClick={async () => {
-                    if (user) {
-                      try {
-                        await supabase
-                          .from('gcal_clicks')
-                          .insert({
-                            user_id: user.id,
-                            created_at: new Date().toISOString()
-                          });
-                      } catch (error) {
-                        console.error('Error logging Google Calendar click:', error);
+                  <a
+                    href={getGoogleCalendarUrl(mic)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Add to Google Calendar"
+                    onClick={async () => {
+                      if (user) {
+                        try {
+                          await supabase
+                            .from('gcal_clicks')
+                            .insert({
+                              user_id: user.id,
+                              created_at: new Date().toISOString()
+                            });
+                        } catch (error) {
+                          console.error('Error logging Google Calendar click:', error);
+                        }
                       }
-                    }
-                  }}
+                    }}
+                  >
+                    <span className="flex items-center gap-1">
+                      <span className="inline-block w-4 h-4 bg-white text-sky font-bold rounded-full flex items-center justify-center">G</span>
+                      <span className="text-sky">Google Calendar</span>
+                    </span>
+                  </a>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100"
+                  onClick={() => downloadICal(mic)}
+                  aria-label="Download iCal file"
                 >
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block w-4 h-4 bg-white text-sky font-bold rounded-full flex items-center justify-center">G</span>
-                    <span className="text-sky">Google Calendar</span>
-                  </span>
-                </a>
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100"
-                onClick={() => downloadICal(mic)}
-                aria-label="Download iCal file"
-              >
-                <Calendar className="text-orange-500 w-4 h-4" />
-                <span className="text-orange-500">Download iCal</span>
-              </Button>
+                  <Calendar className="text-orange-500 w-4 h-4" />
+                  <span className="text-orange-500">Download iCal</span>
+                </Button>
+              </div>
             </div>
-          </div>
           )}
-        </button>
+        </div>
 
         {/* Social Action Bar */}
         <MicActionBar

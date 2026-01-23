@@ -118,8 +118,9 @@ export default function Playlists() {
           <div className="flex items-center justify-between mb-6">
             <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
               <DialogTrigger asChild>
-                  {playlists.length !== 0 ? <Button className="bg-gradient-to-r from-[#0E4898] to-[#5DC8E2] text-white hover:from-[#0E4898]/90 hover:to-[#5DC8E2]/90">
-                  <Plus className="w-4 h-4 mr-2" /> Create Your First Playlist</Button> : ""}
+                <Button className="bg-gradient-to-r from-[#0E4898] to-[#5DC8E2] text-white hover:from-[#0E4898]/90 hover:to-[#5DC8E2]/90">
+                  <Plus className="w-4 h-4 mr-2" /> New Playlist
+                </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
