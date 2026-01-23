@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { X, Calendar, Clock, MapPin, User, DollarSign, Timer, Plus, Share, Heart, ThumbsDown, LogIn, ChevronDown, UserCheck } from "lucide-react";
+import { VerificationBadge } from "@/components/VerificationBadge";
 import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMicRatings, useUserLikedMics } from "@/hooks/useMicRatings";
@@ -202,9 +202,11 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
               <h2 className="text-2xl font-bold text-gray-900 mb-1">{mic.openMic}</h2>
               <p className="text-gray-600">{mic.venueName}</p>
               <div className="flex items-center gap-4 mt-2">
-                <Badge className={`${getStatusBadgeColor()} text-xs`}>
-                  {mic.lastVerified}
-                </Badge>
+                <VerificationBadge 
+                  micUniqueIdentifier={mic.uniqueIdentifier}
+                  lastVerified={mic.lastVerified === "Unverified" ? undefined : mic.lastVerified}
+                  size="sm"
+                />
                 <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 px-3 py-1 rounded-lg">
                   <div className="text-sm font-semibold text-gray-900">
                     {mic.day} • {mic.startTime} • {mic.stageTime} stage time

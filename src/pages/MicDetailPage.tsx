@@ -8,6 +8,7 @@ import { generateEventSchema, generateLocalBusinessSchema, generateBreadcrumbSch
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, DollarSign, MapPin, UserRoundCheck, Heart, ArrowLeft, ExternalLink, Navigation } from "lucide-react";
+import { VerificationBadge } from "@/components/VerificationBadge";
 import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
@@ -95,7 +96,13 @@ const MicDetailPage = () => {
 
           {/* Hero Section */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">{mic.openMic}</h1>
+            <div className="flex items-center gap-4 mb-2">
+              <h1 className="text-4xl font-bold">{mic.openMic}</h1>
+              <VerificationBadge 
+                micUniqueIdentifier={mic.uniqueIdentifier}
+                lastVerified={mic.lastVerified === "Unverified" ? undefined : mic.lastVerified}
+              />
+            </div>
             <p className="text-xl text-muted-foreground">at {mic.venueName}</p>
             
             {/* Quick Actions */}
