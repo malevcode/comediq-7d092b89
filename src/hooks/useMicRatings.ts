@@ -106,7 +106,7 @@ export const useMicRatings = (micUniqueIdentifier?: string) => {
 
   return {
     userRating,
-    ratingCounts,
+    ratingCounts: ratingCounts ?? { likes: 0, dislikes: 0 },
     rateMic: rateMicMutation.mutate,
     removeRating: removeRatingMutation.mutate,
     isRating: rateMicMutation.isPending || removeRatingMutation.isPending,
