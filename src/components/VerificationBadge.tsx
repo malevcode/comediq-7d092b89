@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Check, AlertCircle, Loader2 } from 'lucide-react';
+import { CheckCircle2, HelpCircle, Loader2 } from 'lucide-react';
 import { useMicVerification } from '@/hooks/useMicVerification';
+import { useLatestVerification } from '@/hooks/useLatestVerification';
 import { cn } from '@/lib/utils';
 
 interface VerificationBadgeProps {
@@ -10,11 +11,17 @@ interface VerificationBadgeProps {
   size?: 'sm' | 'md';
 }
 
-// Parse date string like "12/25/2025" or "1/22/2026" to Date
-const parseVerificationDate = (dateStr?: string): Date | null => {
+// Parse date string - handles both ISO format and MM/DD/YYYY
+const parseVerificationDate = (dateStr?: string | null): Date | null => {
   if (!dateStr) return null;
   
-  // Handle MM/DD/YYYY format
+  // Try ISO format first (from mic_verifications)
+  const isoDate = new Date(dateStr);
+  if (!isNaN(isoDate.getTime()) && dateStr.includes('-')) {
+    return isoDate;
+  }
+  
+  // Fall back to MM/DD/YYYY format (from open_mics_historical)
   const parts = dateStr.split('/');
   if (parts.length === 3) {
     const [month, day, year] = parts.map(Number);
@@ -25,7 +32,7 @@ const parseVerificationDate = (dateStr?: string): Date | null => {
 };
 
 // Check if verified within last 30 days
-const isRecentlyVerified = (dateStr?: string): boolean => {
+const isRecentlyVerified = (dateStr?: string | null): boolean => {
   const date = parseVerificationDate(dateStr);
   if (!date) return false;
   
@@ -36,7 +43,7 @@ const isRecentlyVerified = (dateStr?: string): boolean => {
 };
 
 // Format date for display
-const formatVerificationDate = (dateStr?: string): string => {
+const formatVerificationDate = (dateStr?: string | null): string => {
   const date = parseVerificationDate(dateStr);
   if (!date) return '';
   
@@ -49,11 +56,14 @@ export const VerificationBadge = ({
   className,
   size = 'md'
 }: VerificationBadgeProps) => {
-  const { verify, isVerifying, hasVerifiedToday, justVerified } = useMicVerification(micUniqueIdentifier);
+  const { verify, isVerifying, justVerified } = useMicVerification(micUniqueIdentifier);
+  const { latestVerification } = useLatestVerification(micUniqueIdentifier);
   const [isHovered, setIsHovered] = useState(false);
   
-  const isVerified = isRecentlyVerified(lastVerified);
-  const displayDate = formatVerificationDate(lastVerified);
+  // Use fetched latest verification, fall back to prop
+  const effectiveDate = latestVerification || lastVerified;
+  const isVerified = isRecentlyVerified(effectiveDate);
+  const displayDate = formatVerificationDate(effectiveDate);
   
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -67,6 +77,16 @@ export const VerificationBadge = ({
     ? 'text-xs px-2 py-0.5 gap-1' 
     : 'text-sm px-3 py-1 gap-1.5';
 
+  const iconSize = size === 'sm' ? 'h-3 w-3' : 'h-4 w-4';
+
+  // Determine text to display
+  const getText = () => {
+    if (justVerified) return 'Thanks!';
+    if (isVerified) return `Verified ${displayDate}`;
+    if (isHovered) return 'I was there';
+    return 'Needs verification';
+  };
+
   return (
     <button
       onClick={handleClick}
@@ -74,50 +94,48 @@ export const VerificationBadge = ({
       onMouseLeave={() => setIsHovered(false)}
       disabled={isVerifying}
       className={cn(
-        'inline-flex items-center rounded-full font-medium transition-all duration-200',
-        'border-2 cursor-pointer select-none',
-        'hover:scale-105 active:scale-95',
-        'focus:outline-none focus:ring-2 focus:ring-offset-2',
+        'inline-flex items-center rounded-full font-medium',
+        'border cursor-pointer select-none',
+        'transition-colors duration-200',
+        'focus:outline-none focus:ring-2 focus:ring-offset-1',
         sizeClasses,
-        // Verified state
-        isVerified ? [
-          'bg-green-50 dark:bg-green-950/30',
-          'border-green-500 dark:border-green-400',
-          'text-green-700 dark:text-green-300',
-          'hover:bg-green-100 dark:hover:bg-green-900/40',
-          'focus:ring-green-500',
+        // State-based styling
+        justVerified ? [
+          'bg-emerald-100 dark:bg-emerald-900/40',
+          'border-emerald-500 dark:border-emerald-400',
+          'text-emerald-800 dark:text-emerald-200',
+          'focus:ring-emerald-500',
+        ] : isVerified ? [
+          'bg-emerald-50 dark:bg-emerald-950/30',
+          'border-emerald-400 dark:border-emerald-500',
+          'text-emerald-700 dark:text-emerald-300',
+          'hover:bg-emerald-100 dark:hover:bg-emerald-900/40',
+          'focus:ring-emerald-500',
+        ] : isHovered ? [
+          'bg-amber-50 dark:bg-amber-950/30',
+          'border-amber-300 dark:border-amber-500',
+          'text-amber-700 dark:text-amber-300',
+          'focus:ring-amber-500',
         ] : [
-          'bg-red-50 dark:bg-red-950/30',
-          'border-red-400 dark:border-red-500',
-          'text-red-600 dark:text-red-400',
-          'hover:bg-red-100 dark:hover:bg-red-900/40',
-          'focus:ring-red-500',
+          'bg-gray-50 dark:bg-gray-800/50',
+          'border-gray-300 dark:border-gray-600',
+          'text-gray-600 dark:text-gray-400',
+          'hover:bg-gray-100 dark:hover:bg-gray-700/50',
+          'focus:ring-gray-400',
         ],
-        // Just verified animation
-        justVerified && 'animate-pulse ring-2 ring-green-400 ring-offset-2',
         className
       )}
-      title={isHovered ? (isVerified ? 'Click to re-verify this mic' : 'Click to verify this mic happened') : undefined}
+      title={isVerified ? 'Click to re-verify this mic' : 'Click to verify this mic happened'}
     >
       {isVerifying ? (
-        <Loader2 className={cn('animate-spin', size === 'sm' ? 'h-3 w-3' : 'h-4 w-4')} />
-      ) : justVerified ? (
-        <Check className={cn('text-green-600', size === 'sm' ? 'h-3 w-3' : 'h-4 w-4')} />
-      ) : isVerified ? (
-        <Check className={size === 'sm' ? 'h-3 w-3' : 'h-4 w-4'} />
+        <Loader2 className={cn('animate-spin', iconSize)} />
+      ) : isVerified || justVerified ? (
+        <CheckCircle2 className={iconSize} />
       ) : (
-        <AlertCircle className={size === 'sm' ? 'h-3 w-3' : 'h-4 w-4'} />
+        <HelpCircle className={iconSize} />
       )}
       
-      <span>
-        {justVerified ? (
-          'Verified! ✨'
-        ) : isVerified ? (
-          <>Verified: {displayDate}</>
-        ) : (
-          isHovered ? 'Click to verify' : 'Unverified'
-        )}
-      </span>
+      <span>{getText()}</span>
     </button>
   );
 };

@@ -48,7 +48,8 @@ export const useOpenMics = (tableName: 'open_mics_historical' = 'open_mics_histo
           lastVerified: row["last_verified"] || "",
           uniqueIdentifier: row["unique_identifier"] || "",
           city: row["city"] || "",
-          signupEnabled: row["signup_enabled"] || false
+          signupEnabled: row["signup_enabled"] || false,
+          otherRules: row["other_rules"] || ""
         };
         return mapped;
       });
