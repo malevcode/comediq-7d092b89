@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -6,6 +7,7 @@ const STORAGE_KEY_PREFIX = 'mic-verified-';
 
 export const useMicVerification = (micUniqueIdentifier?: string) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isVerifying, setIsVerifying] = useState(false);
   const [hasVerifiedToday, setHasVerifiedToday] = useState(false);
   const [justVerified, setJustVerified] = useState(false);
@@ -51,6 +53,11 @@ export const useMicVerification = (micUniqueIdentifier?: string) => {
         const today = new Date().toDateString();
         localStorage.setItem(`${STORAGE_KEY_PREFIX}${micUniqueIdentifier}`, today);
         setHasVerifiedToday(true);
+        
+        // Invalidate the latest verification query to refetch fresh data
+        queryClient.invalidateQueries({ 
+          queryKey: ['latestVerification', micUniqueIdentifier] 
+        });
         
         // Show success animation
         setJustVerified(true);

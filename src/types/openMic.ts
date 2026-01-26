@@ -19,4 +19,5 @@ export interface OpenMic {
   uniqueIdentifier: string;
   city: string;
   signupEnabled: boolean;
+  otherRules: string;
 }

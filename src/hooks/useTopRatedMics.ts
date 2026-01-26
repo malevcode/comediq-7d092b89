@@ -52,6 +52,7 @@ export const useTopRatedMics = () => {
           uniqueIdentifier: row.unique_identifier || "",
           city: row.city || "",
           signupEnabled: row.signup_enabled || false,
+          otherRules: row.other_rules || "",
           likeCount: likeCount?.likes || 0
         };
       }) || [];

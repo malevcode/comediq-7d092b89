@@ -1,4 +1,4 @@
-import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, ArrowUp, ChevronDown, ExternalLink, Navigation } from "lucide-react";
+import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, ArrowUp, ChevronDown, ExternalLink, Navigation, ClipboardList } from "lucide-react";
 import { VerificationBadge } from "@/components/VerificationBadge";
 import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
@@ -299,6 +299,19 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
                   <MapPin className="w-3 h-3" /> {mic.location}
                 </a>
               </div>
+              {mic.otherRules && (
+                <div className="text-xs mt-2 pt-2 border-t border-blue-200">
+                  <div className="flex items-start gap-2">
+                    <ClipboardList className="w-3 h-3 mt-0.5 text-blue-600 flex-shrink-0" />
+                    <div>
+                      <span className="font-medium text-blue-800">House Rules:</span>
+                      <p className="text-gray-600 mt-1 whitespace-pre-wrap">
+                        {mic.otherRules}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="flex flex-col gap-2">
                 {mic.signupEnabled && (
                   <Button
