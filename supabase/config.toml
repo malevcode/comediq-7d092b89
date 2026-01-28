@@ -4,6 +4,10 @@ project_id = "cotfweyhlglpjmgqxwqx"
 enabled = true
 verify_jwt = true
 
+[functions.verify-mic]
+enabled = true
+verify_jwt = false
+
 [functions.parse-notes]
 enabled = true
 verify_jwt = true
