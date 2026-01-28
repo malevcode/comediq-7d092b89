@@ -21,11 +21,20 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { mic_unique_identifier } = await req.json();
+    const { mic_unique_identifier, status = 'verified' } = await req.json();
 
     if (!mic_unique_identifier) {
       return new Response(
         JSON.stringify({ error: 'mic_unique_identifier is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate status
+    const validStatuses = ['verified', 'unverified', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid status. Must be: verified, unverified, or cancelled' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -78,16 +87,17 @@ Deno.serve(async (req) => {
       userId = user?.id || null;
     }
 
-    // Insert new verification
+    // Insert new verification with status
     const { data: newVerification, error: insertError } = await supabase
       .from('mic_verifications')
       .insert({
         mic_unique_identifier,
         user_id: userId,
         ip_hash: ipHash,
-        verified_at: new Date().toISOString()
+        verified_at: new Date().toISOString(),
+        status: status
       })
-      .select('verified_at')
+      .select('verified_at, status')
       .single();
 
     if (insertError) {
@@ -109,8 +119,9 @@ Deno.serve(async (req) => {
         success: true, 
         alreadyVerified: false,
         verifiedAt: newVerification.verified_at,
+        status: newVerification.status,
         totalVerifications: count || 1,
-        message: 'Thanks for verifying!' 
+        message: 'Status updated!' 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

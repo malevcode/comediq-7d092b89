@@ -551,6 +551,7 @@ export type Database = {
           id: string
           ip_hash: string | null
           mic_unique_identifier: string
+          status: string | null
           user_id: string | null
           verified_at: string
         }
@@ -559,6 +560,7 @@ export type Database = {
           id?: string
           ip_hash?: string | null
           mic_unique_identifier: string
+          status?: string | null
           user_id?: string | null
           verified_at?: string
         }
@@ -567,6 +569,7 @@ export type Database = {
           id?: string
           ip_hash?: string | null
           mic_unique_identifier?: string
+          status?: string | null
           user_id?: string | null
           verified_at?: string
         }
