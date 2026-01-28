@@ -1,5 +1,5 @@
 import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, ArrowUp, ChevronDown, ExternalLink, Navigation, ClipboardList } from "lucide-react";
-import { VerificationBadge } from "@/components/VerificationBadge";
+import MicStatusDropdown from "@/components/MicStatusDropdown";
 import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
 import { useState, useEffect } from "react";
@@ -181,10 +181,10 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
 
   
   return (
-    <div className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-4 gap-2md:gap-6 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${getBoroughOutline(mic.borough)}`} id={mic.id}>
+    <div className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-3 gap-1 md:gap-4 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${getBoroughOutline(mic.borough)}`} id={mic.id}>
       {/* Left: Name, Location, Date */}
       <div className="flex-1 min-w-0 mr-2">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <a 
             href={getMapUrl(mic.location, mic.venueName)}
             target="_blank"
@@ -195,10 +195,8 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             {mic.openMic}
             <ExternalLink className="w-3 h-3" />
           </a>
-          <VerificationBadge 
+          <MicStatusDropdown 
             micUniqueIdentifier={mic.uniqueIdentifier}
-            lastVerified={mic.lastVerified === "Unverified" ? undefined : mic.lastVerified}
-            size="sm"
           />
         </div>
         <div className="text-sm text-gray-500 mb-1">
@@ -268,7 +266,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
       </div>
       {/* Right: Value, Ratings, Button */}
       <div className="w-full md:flex-[1.2] flex flex-col justify-center">
-        <div className="bg-blue-50 border border-blue-100 rounded-lg p-1.5 mb-2 relative w-full">
+        <div className="bg-blue-50 border border-blue-100 rounded-lg p-1 mb-1 relative w-full">
           <div
             className="cursor-pointer flex items-center gap-1 font-semibold text-xs text-blue-800"
             onClick={() => setExpanded(e => !e)}

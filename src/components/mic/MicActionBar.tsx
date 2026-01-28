@@ -133,7 +133,7 @@ export default function MicActionBar({
 
   return (
     <div className={cn("relative", className)}>
-      <div className="flex items-center justify-between border-t border-gray-200 pt-3 mt-3">
+      <div className="flex items-center justify-between border-t border-gray-200 pt-2 mt-2">
         {/* Like Button */}
         <Button
           variant="ghost"
