@@ -1,181 +1,261 @@
 
-# Implementation Plan: Display Rules & Redesign Verification Badge
+# Implementation Plan: Status Dropdown, Saved Mics Page & Reduced Whitespace
 
 ## Overview
 This plan implements three features:
-1. **Display mic rules** from `other_rules` column under "Additional Details"
-2. **Redesign the verification badge** with a professional, trustworthy appearance  
-3. **Show the latest verification timestamp** fetched directly from `mic_verifications` table
+1. **Traffic light status dropdown** - Replace single-click verification with a red/yellow/green dropdown accessible to all users
+2. **Saved Mics page** - Create `/saved` route for users to view bookmarked mics
+3. **Reduce whitespace** - Tighten spacing on mic tiles
 
 ---
 
-## Part 1: Display Mic Rules
+## Part 1: Traffic Light Status Dropdown
 
-### Problem
-The `other_rules` column contains detailed venue rules (age requirements, phone policies, etc.) but is not being displayed. The data exists - sample rules include purchase minimums, age restrictions, phone/notes policies, and refund information.
+### Design
+Replace the current verification badge (click to verify) with a color-coded dropdown that lets anyone (logged in or not) indicate the mic's status.
 
-### Implementation
+| Color | Meaning | Display Text |
+|-------|---------|--------------|
+| 🟢 Green | Confirmed/Verified | "Happening" |
+| 🟡 Yellow | Uncertain/Unverified | "Unverified" |
+| 🔴 Red | Cancelled/Not happening | "Cancelled" |
 
-**File 1: `src/types/openMic.ts`**
-- Add `otherRules: string` to the `OpenMic` interface
+### User Experience
+- Current status shows as a colored pill with icon
+- Clicking opens a dropdown with all three options
+- Anyone can update the status (no login required)
+- Most recent status "wins" (uses `mic_verifications` table with a new `status` column)
 
-**File 2: `src/hooks/useOpenMics.ts`**  
-- Map `row["other_rules"]` to `otherRules` in the data transformation
+### Database Changes
+Need to add a `status` column to the `mic_verifications` table or create a new approach:
 
-**File 3: `src/components/OpenMicsDetailedList.tsx`**
-- Add a rules section in the expanded "Additional Details" area
-- Display with a `ClipboardList` icon and "House Rules:" label
-- Only show when `mic.otherRules` exists and is not empty
-- Use `whitespace-pre-wrap` for proper paragraph formatting
+**Option A**: Add `status` column to `mic_verifications`
+- Values: `'verified'`, `'unverified'`, `'cancelled'`
+- Query for the latest status by `verified_at DESC`
 
-### UI Placement
+**Option B**: Create new `mic_status` table (simpler, cleaner)
+- Columns: `id`, `mic_unique_identifier`, `status`, `updated_at`, `user_id` (nullable), `ip_hash`
+- Only store the latest status per mic
+
+For simplicity, I'll use Option A (extend existing table).
+
+### Component Redesign
+
+**Current**: `VerificationBadge.tsx` - Single button with click-to-verify
+
+**New**: `MicStatusDropdown.tsx` - Dropdown with three status options
+
 ```text
-Additional Details (expanded)
-├── Sign-Up Instructions: ...
-├── Address: ...
-├── 📋 House Rules: [Venue rules text]  ← NEW
-├── [Sign Up Button]
-└── [Calendar Buttons]
+┌──────────────────┐
+│ 🟢 Happening  ▼  │  ← Current status pill (clickable)
+└──────────────────┘
+        │
+        ▼
+┌──────────────────┐
+│ 🟢 Happening     │  ← Option 1
+│ 🟡 Unverified    │  ← Option 2
+│ 🔴 Cancelled     │  ← Option 3
+└──────────────────┘
+```
+
+### Files to Create/Modify
+
+| File | Action | Description |
+|------|--------|-------------|
+| `src/components/MicStatusDropdown.tsx` | Create | New dropdown component with traffic light colors |
+| `src/hooks/useMicStatus.ts` | Create | Hook to fetch/update mic status |
+| `src/hooks/useLatestVerification.ts` | Modify | Update to also return status field |
+| `src/components/OpenMicsDetailedList.tsx` | Modify | Replace `VerificationBadge` with `MicStatusDropdown` |
+| `supabase/functions/verify-mic/index.ts` | Modify | Accept `status` parameter |
+
+### Visual Design
+
+```tsx
+// Status configurations
+const STATUS_CONFIG = {
+  verified: {
+    label: 'Happening',
+    icon: CheckCircle2,
+    bgColor: 'bg-emerald-50',
+    borderColor: 'border-emerald-400',
+    textColor: 'text-emerald-700',
+    dotColor: 'bg-emerald-500'
+  },
+  unverified: {
+    label: 'Unverified',
+    icon: HelpCircle,
+    bgColor: 'bg-amber-50',
+    borderColor: 'border-amber-400',
+    textColor: 'text-amber-700',
+    dotColor: 'bg-amber-500'
+  },
+  cancelled: {
+    label: 'Cancelled',
+    icon: XCircle,
+    bgColor: 'bg-red-50',
+    borderColor: 'border-red-400',
+    textColor: 'text-red-700',
+    dotColor: 'bg-red-500'
+  }
+};
 ```
 
 ---
 
-## Part 2: Redesign Verification Badge
+## Part 2: Saved Mics Page
 
-### Current Problems
-- Red background/border feels alarming and "scammy"
-- `animate-pulse` on success feels cheap
-- `hover:scale-105` is jumpy
-- "Click to verify" text change on hover is inconsistent
-- Uses `AlertCircle` which has a warning/error connotation
+### Route
+`/saved` - Accessible to logged-in users only
 
-### New Design
-
-| State | Background | Border | Text | Icon |
-|-------|------------|--------|------|------|
-| Unverified | `bg-gray-50` | `border-gray-300` | `text-gray-600` | `HelpCircle` |
-| Unverified (hover) | `bg-amber-50` | `border-amber-300` | `text-amber-700` | `HelpCircle` |
-| Verified | `bg-emerald-50` | `border-emerald-400` | `text-emerald-700` | `CheckCircle2` |
-| Loading | gray tones | - | - | `Loader2` (subtle spin) |
-| Just verified | `bg-emerald-100` | `border-emerald-500` | `text-emerald-800` | `CheckCircle2` |
-
-### Animation Changes
-- **Remove**: `animate-pulse`, `hover:scale-105`, `active:scale-95`
-- **Add**: Smooth `transition-colors duration-200` for state changes
-- **Success**: Brief opacity transition, no pulsing
-
-### Text Changes
-| State | Text |
-|-------|------|
-| Unverified (default) | "Needs verification" |
-| Unverified (hover) | "I was there" |
-| Verified | "Verified 1.26.2026" |
-| Just verified | "Thanks!" |
-
----
-
-## Part 3: Show Latest Verification Timestamp
-
-### Problem
-After verification, the badge shows the old cached date. We need to fetch the newest timestamp directly from `mic_verifications` table.
+### Features
+- Display all bookmarked mics in a list view (same tile format as Open Mics page)
+- Show empty state if no saved mics
+- Redirect to auth if not logged in
+- Uses existing `useSavedMics` hook and `saved_mics` table
 
 ### Implementation
 
-**New File: `src/hooks/useLatestVerification.ts`**
-- Query `mic_verifications` table for the most recent `verified_at` for a given `mic_unique_identifier`
-- Order by `verified_at DESC` and limit to 1
-- Return the timestamp with a 5-minute stale time
-- Provide an `invalidate()` function to refresh after new verification
+**New File**: `src/pages/SavedMics.tsx`
 
-**File: `src/hooks/useMicVerification.ts`**
-- Import `useQueryClient` from `@tanstack/react-query`
-- After successful verification, invalidate the `['latestVerification', micUniqueIdentifier]` query
-
-**File: `src/components/VerificationBadge.tsx`**
-- Import and use `useLatestVerification` hook
-- Parse both ISO timestamps (from `mic_verifications`) and MM/DD/YYYY strings (fallback)
-- Prioritize the fetched latest verification over the `lastVerified` prop
-
-### Data Flow
-```text
-User clicks verify
-    ↓
-Edge function inserts into mic_verifications
-    ↓
-useMicVerification invalidates query cache
-    ↓
-useLatestVerification refetches from mic_verifications
-    ↓
-Badge displays the new timestamp
+Structure:
+```tsx
+// Layout
+<PageHeader title="Saved Mics" subtitle="Your bookmarked open mics" />
+<main>
+  {!user && <RedirectToAuth />}
+  {isLoading && <LoadingSpinner />}
+  {savedMics.length === 0 && <EmptyState />}
+  {savedMics.length > 0 && <MicsList />}
+</main>
 ```
+
+**Data Flow**:
+1. Fetch saved mics from `useSavedMics()` hook
+2. Get full mic data from `useOpenMics()` hook
+3. Filter open mics to only those matching saved `mic_unique_identifier`
+4. Render using `OpenMicDetailedCard` component
+
+### Files to Create/Modify
+
+| File | Action | Description |
+|------|--------|-------------|
+| `src/pages/SavedMics.tsx` | Create | New page component |
+| `src/App.tsx` | Modify | Add `/saved` route |
+| `src/components/HamburgerMenu.tsx` | Modify | Add "Saved Mics" navigation link |
 
 ---
 
-## Files Summary
+## Part 3: Reduce Whitespace on Tiles
 
-| File | Action | Changes |
-|------|--------|---------|
-| `src/types/openMic.ts` | Modify | Add `otherRules: string` |
-| `src/hooks/useOpenMics.ts` | Modify | Map `other_rules` → `otherRules` |
-| `src/components/OpenMicsDetailedList.tsx` | Modify | Add rules display section |
-| `src/hooks/useLatestVerification.ts` | Create | New hook to fetch latest verification |
-| `src/hooks/useMicVerification.ts` | Modify | Invalidate cache on success |
-| `src/components/VerificationBadge.tsx` | Modify | Complete redesign + use new hook |
+### Current Issues
+Looking at `OpenMicsDetailedList.tsx`, the card has:
+- `p-4` padding (16px)
+- `gap-2 md:gap-6` between sections
+- Various `mb-2`, `mt-2` margins
+
+### Proposed Changes
+
+| Element | Current | New |
+|---------|---------|-----|
+| Card padding | `p-4` | `p-3` |
+| Section gap | `gap-2 md:gap-6` | `gap-1 md:gap-4` |
+| Action bar top border | `pt-3 mt-3` | `pt-2 mt-2` |
+| Additional details box | `p-1.5` | `p-1` |
+| Margins between elements | Various `mb-2` | `mb-1` |
+
+### Files to Modify
+
+| File | Changes |
+|------|---------|
+| `src/components/OpenMicsDetailedList.tsx` | Reduce padding and margins |
+| `src/components/mic/MicActionBar.tsx` | Reduce top padding/margin |
 
 ---
 
 ## Technical Details
 
-### Date Parsing Logic
-The badge needs to handle two date formats:
-1. **ISO format** from `mic_verifications.verified_at`: `2026-01-26T21:26:12.175Z`
-2. **MM/DD/YYYY format** from `open_mics_historical.last_verified`: `01/26/2026`
+### Mic Status Hook (`useMicStatus.ts`)
 
 ```typescript
-const parseVerificationDate = (dateStr?: string | null): Date | null => {
-  if (!dateStr) return null;
-  
-  // Try ISO format first (from mic_verifications)
-  const isoDate = new Date(dateStr);
-  if (!isNaN(isoDate.getTime()) && dateStr.includes('-')) {
-    return isoDate;
-  }
-  
-  // Fall back to MM/DD/YYYY format
-  const parts = dateStr.split('/');
-  if (parts.length === 3) {
-    const [month, day, year] = parts.map(Number);
-    return new Date(year, month - 1, day);
-  }
-  
-  return null;
-};
+interface MicStatus {
+  status: 'verified' | 'unverified' | 'cancelled';
+  updatedAt: string;
+}
+
+function useMicStatus(micUniqueIdentifier: string) {
+  // Query for latest status
+  const query = useQuery({
+    queryKey: ['mic-status', micUniqueIdentifier],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('mic_verifications')
+        .select('status, verified_at')
+        .eq('mic_unique_identifier', micUniqueIdentifier)
+        .order('verified_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      return data ? { status: data.status, updatedAt: data.verified_at } : null;
+    }
+  });
+
+  // Mutation to update status
+  const updateStatus = useMutation({
+    mutationFn: async (newStatus: string) => {
+      // Call edge function (works for logged in or anonymous)
+      const response = await fetch('/functions/v1/verify-mic', {
+        method: 'POST',
+        body: JSON.stringify({ 
+          mic_unique_identifier: micUniqueIdentifier,
+          status: newStatus 
+        })
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['mic-status', micUniqueIdentifier]);
+    }
+  });
+
+  return { status: query.data, updateStatus };
+}
 ```
 
-### Rules Display Component Structure
-```tsx
-{mic.otherRules && (
-  <div className="text-xs mt-2 pt-2 border-t border-blue-200">
-    <div className="flex items-start gap-2">
-      <ClipboardList className="w-3 h-3 mt-0.5 text-blue-600 flex-shrink-0" />
-      <div>
-        <span className="font-medium text-blue-800">House Rules:</span>
-        <p className="text-gray-600 mt-1 whitespace-pre-wrap">
-          {mic.otherRules}
-        </p>
-      </div>
-    </div>
-  </div>
-)}
-```
+### Edge Function Update
+
+Modify `supabase/functions/verify-mic/index.ts` to:
+1. Accept optional `status` parameter (default: `'verified'`)
+2. Insert with the provided status value
 
 ---
 
 ## Implementation Order
 
-1. Update `OpenMic` type with `otherRules`
-2. Update `useOpenMics` hook to map the field
-3. Add rules display to `OpenMicsDetailedList`
-4. Create `useLatestVerification` hook
-5. Update `useMicVerification` to invalidate cache
-6. Redesign `VerificationBadge` with new styling and hook integration
+1. **Database**: Add `status` column to `mic_verifications` (or confirm it exists)
+2. **Edge function**: Update to accept `status` parameter
+3. **Hook**: Create `useMicStatus.ts` hook
+4. **Component**: Create `MicStatusDropdown.tsx` component
+5. **Integration**: Replace `VerificationBadge` with `MicStatusDropdown` in tiles
+6. **Saved page**: Create `SavedMics.tsx` page
+7. **Routing**: Add `/saved` route and navigation link
+8. **Whitespace**: Reduce padding/margins on tiles
+
+---
+
+## Summary of Changes
+
+### New Files
+| File | Purpose |
+|------|---------|
+| `src/components/MicStatusDropdown.tsx` | Traffic light status dropdown |
+| `src/hooks/useMicStatus.ts` | Fetch and update mic status |
+| `src/pages/SavedMics.tsx` | Saved mics page |
+
+### Modified Files
+| File | Changes |
+|------|---------|
+| `src/App.tsx` | Add `/saved` route |
+| `src/components/HamburgerMenu.tsx` | Add Saved Mics nav link |
+| `src/components/OpenMicsDetailedList.tsx` | Use new dropdown, reduce whitespace |
+| `src/components/mic/MicActionBar.tsx` | Reduce spacing |
+| `supabase/functions/verify-mic/index.ts` | Accept status parameter |
