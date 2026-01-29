@@ -240,7 +240,7 @@ export function AudienceShowDetailModal({ show, isOpen, onClose }: AudienceShowD
             <RsvpButton
               showId={show.id}
               showTitle={show.title}
-              capacity={show.capacity}
+              capacity={show.expected_audience}
               rsvpCount={show.rsvp_count}
               size="lg"
               className="w-full"

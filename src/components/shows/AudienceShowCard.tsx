@@ -146,7 +146,7 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
                 <RsvpButton
                   showId={show.id}
                   showTitle={show.title}
-                  capacity={show.capacity}
+                  capacity={show.expected_audience}
                   rsvpCount={show.rsvp_count}
                   size="sm"
                   className="text-[10px] h-6 px-1.5"

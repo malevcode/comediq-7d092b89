@@ -19,7 +19,6 @@ export type Database = {
           age_restriction: string | null
           allows_rsvp: boolean | null
           borough: string | null
-          capacity: number | null
           created_at: string
           description: string | null
           doors_time: string | null
@@ -56,7 +55,6 @@ export type Database = {
           age_restriction?: string | null
           allows_rsvp?: boolean | null
           borough?: string | null
-          capacity?: number | null
           created_at?: string
           description?: string | null
           doors_time?: string | null
@@ -93,7 +91,6 @@ export type Database = {
           age_restriction?: string | null
           allows_rsvp?: boolean | null
           borough?: string | null
-          capacity?: number | null
           created_at?: string
           description?: string | null
           doors_time?: string | null
