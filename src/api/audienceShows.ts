@@ -68,12 +68,7 @@ export interface AudienceShowFilters {
 export async function fetchAudienceShows(filters?: AudienceShowFilters): Promise<AudienceShow[]> {
   let query = supabase
     .from('audience_shows')
-    .select('*')
-    .eq('verified', true)
-    .eq('status', 'active')
-    .eq('is_active', true)
-    .eq('is_recurring', false) // Only show instances, not templates
-    .gte('show_date', new Date().toISOString().split('T')[0])
+    .select('*')  
     .order('show_date', { ascending: true })
     .order('show_time', { ascending: true });
 
