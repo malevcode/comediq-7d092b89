@@ -70,7 +70,6 @@ export async function fetchAudienceShows(filters?: AudienceShowFilters): Promise
     .from('audience_shows')
     .select('*')
     .eq('verified', true)
-    .eq('status', 'active')
     .eq('is_active', true)
     .eq('is_recurring', false) // Only show instances, not templates
     .gte('show_date', new Date().toISOString().split('T')[0])
