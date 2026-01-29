@@ -22,14 +22,20 @@ export interface AudienceShow {
   host_name: string | null;
   instagram_handle: string | null;
   image_url: string | null;
+  expected_audience: number | null;
   age_restriction: string | null;
   is_featured: boolean;
+  status: string;
   verified: boolean;
   created_at: string;
   updated_at: string;
   // Ticketing/RSVP fields
+  price_cents: number | null;
+  is_paid: boolean;
   allows_rsvp: boolean;
   external_ticket_url: string | null;
+  capacity: number | null;
+  rsvp_count: number;
   // Recurring show fields
   is_recurring: boolean;
   recurrence_pattern: string | null;
@@ -43,6 +49,7 @@ export interface ShowRsvp {
   show_id: string;
   user_id: string;
   party_size: number;
+  status: string;
   created_at: string;
   updated_at: string;
 }
@@ -63,6 +70,7 @@ export async function fetchAudienceShows(filters?: AudienceShowFilters): Promise
     .from('audience_shows')
     .select('*')
     .eq('verified', true)
+    .eq('status', 'active')
     .eq('is_active', true)
     .eq('is_recurring', false) // Only show instances, not templates
     .gte('show_date', new Date().toISOString().split('T')[0])
@@ -126,6 +134,7 @@ export async function fetchFeaturedShows(): Promise<AudienceShow[]> {
     .from('audience_shows')
     .select('*')
     .eq('verified', true)
+    .eq('status', 'active')
     .eq('is_featured', true)
     .gte('show_date', new Date().toISOString().split('T')[0])
     .order('show_date', { ascending: true })
