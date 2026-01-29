@@ -34,7 +34,6 @@ export interface AudienceShow {
   is_paid: boolean;
   allows_rsvp: boolean;
   external_ticket_url: string | null;
-  capacity: number | null;
   rsvp_count: number;
   // Recurring show fields
   is_recurring: boolean;
