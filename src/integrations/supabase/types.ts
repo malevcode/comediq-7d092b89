@@ -19,11 +19,9 @@ export type Database = {
           age_restriction: string | null
           allows_rsvp: boolean | null
           borough: string | null
-          capacity: number | null
           created_at: string
           description: string | null
           doors_time: string | null
-          expected_audience: number | null
           external_ticket_url: string | null
           host_name: string | null
           id: string
@@ -31,14 +29,11 @@ export type Database = {
           instagram_handle: string | null
           is_active: boolean | null
           is_featured: boolean | null
-          is_paid: boolean | null
           is_recurring: boolean | null
           lineup: string | null
           parent_show_id: string | null
-          price_cents: number | null
           recurrence_day: string | null
           recurrence_pattern: string | null
-          rsvp_count: number | null
           show_date: string
           show_time: string
           show_type: string | null
@@ -55,11 +50,9 @@ export type Database = {
           age_restriction?: string | null
           allows_rsvp?: boolean | null
           borough?: string | null
-          capacity?: number | null
           created_at?: string
           description?: string | null
           doors_time?: string | null
-          expected_audience?: number | null
           external_ticket_url?: string | null
           host_name?: string | null
           id?: string
@@ -67,14 +60,11 @@ export type Database = {
           instagram_handle?: string | null
           is_active?: boolean | null
           is_featured?: boolean | null
-          is_paid?: boolean | null
           is_recurring?: boolean | null
           lineup?: string | null
           parent_show_id?: string | null
-          price_cents?: number | null
           recurrence_day?: string | null
           recurrence_pattern?: string | null
-          rsvp_count?: number | null
           show_date: string
           show_time: string
           show_type?: string | null
@@ -91,11 +81,9 @@ export type Database = {
           age_restriction?: string | null
           allows_rsvp?: boolean | null
           borough?: string | null
-          capacity?: number | null
           created_at?: string
           description?: string | null
           doors_time?: string | null
-          expected_audience?: number | null
           external_ticket_url?: string | null
           host_name?: string | null
           id?: string
@@ -103,14 +91,11 @@ export type Database = {
           instagram_handle?: string | null
           is_active?: boolean | null
           is_featured?: boolean | null
-          is_paid?: boolean | null
           is_recurring?: boolean | null
           lineup?: string | null
           parent_show_id?: string | null
-          price_cents?: number | null
           recurrence_day?: string | null
           recurrence_pattern?: string | null
-          rsvp_count?: number | null
           show_date?: string
           show_time?: string
           show_type?: string | null
