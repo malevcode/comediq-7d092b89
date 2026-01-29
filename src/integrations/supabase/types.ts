@@ -42,7 +42,6 @@ export type Database = {
           show_date: string
           show_time: string
           show_type: string | null
-          status: string | null
           submitted_by: string | null
           ticket_price: string | null
           ticket_url: string | null
@@ -79,7 +78,6 @@ export type Database = {
           show_date: string
           show_time: string
           show_type?: string | null
-          status?: string | null
           submitted_by?: string | null
           ticket_price?: string | null
           ticket_url?: string | null
@@ -116,7 +114,6 @@ export type Database = {
           show_date?: string
           show_time?: string
           show_type?: string | null
-          status?: string | null
           submitted_by?: string | null
           ticket_price?: string | null
           ticket_url?: string | null
