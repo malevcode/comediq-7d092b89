@@ -215,8 +215,8 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
   return (
     <div className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-2.5 gap-0.5 md:gap-3 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${getBoroughOutline(mic.borough)}`} id={mic.id}>
       {/* Left: Name, Location, Date */}
-      <div className="flex-1 min-w-0 mr-1">
-        <div className="flex items-center gap-1.5 flex-wrap">
+      <div className="flex-1 min-w-0 mr-1 text-center md:text-left">
+        <div className="flex items-center gap-1.5 flex-wrap justify-center md:justify-start">
           <a 
             href={getMapUrl(mic.location, mic.venueName)}
             target="_blank"
@@ -224,7 +224,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             className="font-semibold text-sm text-gray-900 w-auto inline-block hover:text-blue-600 hover:bg-blue-50 hover:rounded px-0.5 cursor-pointer transition-all duration-200 flex items-center gap-1"
             title={mic.openMic}
           >
-            {truncateMicName(mic.openMic)}
+            {mic.openMic}
             <ExternalLink className="w-3 h-3" />
           </a>
           <MicStatusDropdown 
@@ -275,7 +275,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
       </div>
       {/* Mid: Time, Cost, Stage Time */}
       <div className="flex-1 flex flex-col justify-center min-w-0 gap-x-3 text-xs text-gray-700 mb-0.5 mr-1">
-        <div className="flex flex-row gap-x-4 sm:gap-2 sm:items-center md:grid md:grid-cols-2 text-xs text-gray-700">
+        <div className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center md:justify-evenly md:grid md:grid-cols-2 text-xs text-gray-700">
           <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />{formatTimeRange(mic.startTime, mic.latestEndTime)}</span>
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />

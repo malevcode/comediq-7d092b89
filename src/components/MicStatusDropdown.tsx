@@ -93,7 +93,7 @@ export default function MicStatusDropdown({
         onClick={() => setIsOpen(!isOpen)}
         disabled={isLoading || isUpdating}
         className={cn(
-          "flex items-center gap-1.5 px-2 py-1 rounded-full border text-xs font-medium transition-colors duration-200",
+          "flex items-center gap-1 px-1.5 py-0.5 rounded-full border text-xs font-medium transition-colors duration-200",
           currentConfig.bgColor,
           currentConfig.borderColor,
           currentConfig.textColor,
@@ -103,7 +103,6 @@ export default function MicStatusDropdown({
       >
         <span className={cn("w-2 h-2 rounded-full", currentConfig.dotColor)} />
         <Icon className="w-3 h-3" />
-        <span>{currentConfig.label}</span>
         {dateDisplay && <span className="text-[10px] opacity-70">{dateDisplay}</span>}
         <ChevronDown className={cn(
           "w-3 h-3 transition-transform duration-200",
