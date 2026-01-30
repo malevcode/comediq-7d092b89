@@ -1,84 +1,178 @@
 
 
-# Fix: Deploy Edge Function `get-mapbox-token`
+# UI Refinements: Full Mic Names, Compact Status Badge, and Centered Layout
 
-## Problem
-The `get-mapbox-token` edge function is failing to deploy with an internal server error. This is likely caused by:
+## Overview
+Three changes to improve mic tile layout:
+1. **Show full mic names** - Remove the 15-character truncation (the `...` looks unprofessional)
+2. **Compact status badge** - When collapsed, show only the color dot + icon + date (no text label); show full labels only when dropdown is open
+3. **Center content** - Evenly distribute and center all elements instead of left-aligned layout
 
-1. **Outdated syntax** - Using old `serve()` import from `https://deno.land/std@0.168.0/http/server.ts` instead of the modern `Deno.serve()` API
-2. **Extra configuration files** - The function has `deno.json` and `.npmrc` files that other working functions don't have, which can cause lockfile/compatibility issues
-3. **Missing config entry** - The `verify-mic` function is missing from `config.toml` (but works - should add for consistency)
+---
 
-## Solution
+## Part 1: Remove Mic Name Truncation
 
-### Changes to Make
-
-**1. Update `supabase/functions/get-mapbox-token/index.ts`**
-- Replace `serve()` import with `Deno.serve()` (matches working `verify-mic` function)
-- Use `null` response for OPTIONS (not `'ok'` string)
-- Simplify the code structure
-
-**2. Delete extra files in the function folder**
-- Remove `supabase/functions/get-mapbox-token/deno.json`
-- Remove `supabase/functions/get-mapbox-token/.npmrc`
-
-**3. Update `supabase/config.toml`**
-- Add missing `verify-mic` function entry for consistency
-
-### Updated Code for `index.ts`
-
-```typescript
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-Deno.serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  try {
-    // Get the Mapbox token from environment
-    const token = Deno.env.get('MAPBOX_TOKEN') || Deno.env.get('VITE_MAPBOX_TOKEN');
-    
-    if (!token) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'Mapbox token not found',
-          message: 'Please set MAPBOX_TOKEN in Supabase Edge Function secrets'
-        }),
-        { 
-          status: 404,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    return new Response(
-      JSON.stringify({ token }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  } catch (error) {
-    console.error('Error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to retrieve token' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
-});
+### Current Behavior
+```text
+*biweekly* LGBTQ… (truncated with ellipsis)
 ```
 
-### Files Summary
+### New Behavior
+```text
+*biweekly* LGBTQ Oh Craft! Beer mic (full name displayed)
+```
 
-| File | Action |
-|------|--------|
-| `supabase/functions/get-mapbox-token/index.ts` | Rewrite with `Deno.serve()` |
-| `supabase/functions/get-mapbox-token/deno.json` | Delete |
-| `supabase/functions/get-mapbox-token/.npmrc` | Delete |
-| `supabase/config.toml` | Add `verify-mic` entry |
+### Change
+Remove the `truncateMicName()` call in `OpenMicsDetailedList.tsx` line 227.
 
-### Why This Should Work
-The `verify-mic` function uses the exact same pattern (`Deno.serve()`) and deploys successfully. The old `serve()` import from `deno.land/std` is deprecated and can cause deployment issues with the edge runtime.
+---
+
+## Part 2: Compact Status Badge
+
+### Current Collapsed State
+```text
+┌────────────────────────────────┐
+│ 🟢 ✓ Happening 1.28.2026 ▼    │
+└────────────────────────────────┘
+```
+
+### New Collapsed State (much smaller)
+```text
+┌─────────────────┐
+│ 🟢 ✓ 1.28.2026 ▼│
+└─────────────────┘
+```
+- Only show: colored dot + icon + date (if verified) + chevron
+- No text label ("Happening", "Unverified", "Cancelled")
+
+### Dropdown Open (unchanged - still shows full labels)
+```text
+┌────────────────────┐
+│ 🟢 ✓ Happening    │
+│ 🟡 ? Unverified   │
+│ 🔴 ✗ Cancelled    │
+└────────────────────┘
+```
+
+### Changes to `MicStatusDropdown.tsx`
+- Remove `<span>{currentConfig.label}</span>` from the main button (line 106)
+- Keep the label in the dropdown options (line 134)
+- Reduce padding from `px-2 py-1` to `px-1.5 py-0.5` for a more compact pill
+
+---
+
+## Part 3: Centered Layout
+
+### Current Layout (Left-Aligned)
+```text
+┌─────────────────────────────────────────┐
+│ Mic Name 🟢                             │
+│ 📍 Venue, Neighborhood                  │
+│ 📅 Weekly - Monday                       │
+│─────────────────────────────────────────│
+│ 🕐 5-7 PM   🕐 5 min   💲 Free          │
+│─────────────────────────────────────────│
+│ [Additional Details]                     │
+│─────────────────────────────────────────│
+│ ❤️  💬  🔖  📋  ✈️                      │ ← left-aligned buttons
+└─────────────────────────────────────────┘
+```
+
+### New Layout (Centered and Even Distribution)
+```text
+┌─────────────────────────────────────────┐
+│          Mic Name 🟢                     │
+│    📍 Venue, Neighborhood               │
+│       📅 Weekly - Monday                │
+│─────────────────────────────────────────│
+│   🕐 5-7 PM  │  🕐 5 min  │  💲 Free    │ ← evenly distributed
+│─────────────────────────────────────────│
+│          [Additional Details]            │
+│─────────────────────────────────────────│
+│    ❤️    💬    🔖    📋    ✈️           │ ← centered buttons
+└─────────────────────────────────────────┘
+```
+
+### Changes to `OpenMicsDetailedList.tsx`
+- Add `text-center` or `items-center justify-center` to content sections
+- Use `justify-evenly` on the metadata row (time, cost, stage time)
+- Center the mic name and status dropdown row
+
+### Changes to `MicActionBar.tsx`
+- Change `justify-between` to `justify-evenly` for the action buttons
+
+---
+
+## File Changes Summary
+
+| File | Changes |
+|------|---------|
+| `src/components/OpenMicsDetailedList.tsx` | Remove truncation, center layout |
+| `src/components/MicStatusDropdown.tsx` | Hide label on collapsed state, reduce padding |
+| `src/components/mic/MicActionBar.tsx` | Center action buttons with even distribution |
+
+---
+
+## Technical Details
+
+### MicStatusDropdown.tsx - Key Changes
+
+**Button (collapsed state):**
+```tsx
+// Before
+<span>{currentConfig.label}</span>
+{dateDisplay && <span className="text-[10px] opacity-70">{dateDisplay}</span>}
+
+// After - only show date, no label
+{dateDisplay && <span className="text-[10px] opacity-70">{dateDisplay}</span>}
+```
+
+**Compact padding:**
+```tsx
+// Before
+"px-2 py-1"
+
+// After
+"px-1.5 py-0.5"
+```
+
+### OpenMicsDetailedList.tsx - Key Changes
+
+**Mic name (no truncation):**
+```tsx
+// Before
+{truncateMicName(mic.openMic)}
+
+// After
+{mic.openMic}
+```
+
+**Centered header row:**
+```tsx
+// Before
+<div className="flex items-center gap-1.5 flex-wrap">
+
+// After
+<div className="flex items-center gap-1.5 flex-wrap justify-center">
+```
+
+**Centered metadata:**
+```tsx
+// Before  
+<div className="flex flex-row gap-x-4 sm:gap-2 sm:items-center ...">
+
+// After
+<div className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center md:justify-evenly ...">
+```
+
+### MicActionBar.tsx - Key Changes
+
+**Even button distribution:**
+```tsx
+// Before
+<div className="flex items-center justify-between border-t ...">
+
+// After
+<div className="flex items-center justify-evenly border-t ...">
+```
 
