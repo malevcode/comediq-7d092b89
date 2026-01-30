@@ -232,7 +232,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           />
         </div>
         <div className="text-xs text-gray-500 mb-0.5">
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-1 justify-center md:justify-start">
             <MapPin className="w-3 h-3 flex-shrink-0" />
             <a 
               href={getMapUrl(mic.location, mic.venueName)}
@@ -255,8 +255,8 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
               </span>
             )}
           </span>
-          <span className="flex flex-row md:flex-col gap-1.5 md:gap-0">
-            <span className="flex items-center gap-1">
+          <span className="flex flex-row md:flex-col gap-1.5 md:gap-0 justify-center md:justify-start">
+            <span className="flex items-center gap-1 justify-center md:justify-start">
               <Calendar className="w-3 h-3 flex-shrink-0" />
               {mic.openMic?.toLowerCase().includes("biweekly")
                 ? "Biweekly - " + mic.day
@@ -264,7 +264,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
                   ? "Weekly - " + mic.day
                   : mic.day}
             </span>
-            <span className="flex items-center gap-1 md:hidden">
+            <span className="flex items-center gap-1 md:hidden justify-center">
               <CircleUser className="w-3 h-3 flex-shrink-0" />
               <span className="truncate text-xs">
                 {mic.instagramHandle && mic.instagramHandle.trim() ? makeLinksClickable(mic.instagramHandle) : "No host"}
