@@ -4,6 +4,7 @@ import { Navigate } from 'react-router-dom';
 import { ClaimMicForm } from '@/components/host/ClaimMicForm';
 import { CreateEventForm } from '@/components/host/CreateEventForm';
 import { ManageSignups } from '@/components/host/ManageSignups';
+import { MicCoverUpload } from '@/components/host/MicCoverUpload';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -114,6 +115,9 @@ function HostMicPanel({ hostId, micId, micName }: { hostId: string; micId: strin
           <CardDescription>Create and manage signup events</CardDescription>
         </CardHeader>
       </Card>
+
+      {/* Cover image customization */}
+      <MicCoverUpload micId={micId} />
 
       <CreateEventForm hostId={hostId} micId={micId} />
 
