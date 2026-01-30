@@ -594,6 +594,7 @@ export type Database = {
           changes_updates: string | null
           city: string | null
           cost: string | null
+          cover_image_url: string | null
           day: string | null
           hosts_organizers: string | null
           last_verified: string | null
@@ -617,6 +618,7 @@ export type Database = {
           changes_updates?: string | null
           city?: string | null
           cost?: string | null
+          cover_image_url?: string | null
           day?: string | null
           hosts_organizers?: string | null
           last_verified?: string | null
@@ -640,6 +642,7 @@ export type Database = {
           changes_updates?: string | null
           city?: string | null
           cost?: string | null
+          cover_image_url?: string | null
           day?: string | null
           hosts_organizers?: string | null
           last_verified?: string | null

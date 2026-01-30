@@ -20,4 +20,5 @@ export interface OpenMic {
   city: string;
   signupEnabled: boolean;
   otherRules: string;
+  coverImageUrl?: string;
 }
