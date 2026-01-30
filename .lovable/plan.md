@@ -1,178 +1,66 @@
 
 
-# UI Refinements: Full Mic Names, Compact Status Badge, and Centered Layout
+# Center Top Section of Mic Tiles
 
-## Overview
-Three changes to improve mic tile layout:
-1. **Show full mic names** - Remove the 15-character truncation (the `...` looks unprofessional)
-2. **Compact status badge** - When collapsed, show only the color dot + icon + date (no text label); show full labels only when dropdown is open
-3. **Center content** - Evenly distribute and center all elements instead of left-aligned layout
+## Problem
+The mic name row is centered, but the location/neighborhood and day rows are still left-aligned because they're missing `justify-center` on their flex containers.
 
----
-
-## Part 1: Remove Mic Name Truncation
-
-### Current Behavior
-```text
-*biweekly* LGBTQ… (truncated with ellipsis)
+## Current Layout
+```
+         Mic Name 🟢          <- centered ✓
+📍 Venue, Neighborhood        <- left-aligned ✗
+📅 Weekly - Monday            <- left-aligned ✗
 ```
 
-### New Behavior
-```text
-*biweekly* LGBTQ Oh Craft! Beer mic (full name displayed)
+## New Layout
+```
+         Mic Name 🟢          <- centered ✓
+   📍 Venue, Neighborhood     <- centered ✓
+      📅 Weekly - Monday      <- centered ✓
 ```
 
-### Change
-Remove the `truncateMicName()` call in `OpenMicsDetailedList.tsx` line 227.
+## Changes to `src/components/OpenMicsDetailedList.tsx`
 
----
-
-## Part 2: Compact Status Badge
-
-### Current Collapsed State
-```text
-┌────────────────────────────────┐
-│ 🟢 ✓ Happening 1.28.2026 ▼    │
-└────────────────────────────────┘
-```
-
-### New Collapsed State (much smaller)
-```text
-┌─────────────────┐
-│ 🟢 ✓ 1.28.2026 ▼│
-└─────────────────┘
-```
-- Only show: colored dot + icon + date (if verified) + chevron
-- No text label ("Happening", "Unverified", "Cancelled")
-
-### Dropdown Open (unchanged - still shows full labels)
-```text
-┌────────────────────┐
-│ 🟢 ✓ Happening    │
-│ 🟡 ? Unverified   │
-│ 🔴 ✗ Cancelled    │
-└────────────────────┘
-```
-
-### Changes to `MicStatusDropdown.tsx`
-- Remove `<span>{currentConfig.label}</span>` from the main button (line 106)
-- Keep the label in the dropdown options (line 134)
-- Reduce padding from `px-2 py-1` to `px-1.5 py-0.5` for a more compact pill
-
----
-
-## Part 3: Centered Layout
-
-### Current Layout (Left-Aligned)
-```text
-┌─────────────────────────────────────────┐
-│ Mic Name 🟢                             │
-│ 📍 Venue, Neighborhood                  │
-│ 📅 Weekly - Monday                       │
-│─────────────────────────────────────────│
-│ 🕐 5-7 PM   🕐 5 min   💲 Free          │
-│─────────────────────────────────────────│
-│ [Additional Details]                     │
-│─────────────────────────────────────────│
-│ ❤️  💬  🔖  📋  ✈️                      │ ← left-aligned buttons
-└─────────────────────────────────────────┘
-```
-
-### New Layout (Centered and Even Distribution)
-```text
-┌─────────────────────────────────────────┐
-│          Mic Name 🟢                     │
-│    📍 Venue, Neighborhood               │
-│       📅 Weekly - Monday                │
-│─────────────────────────────────────────│
-│   🕐 5-7 PM  │  🕐 5 min  │  💲 Free    │ ← evenly distributed
-│─────────────────────────────────────────│
-│          [Additional Details]            │
-│─────────────────────────────────────────│
-│    ❤️    💬    🔖    📋    ✈️           │ ← centered buttons
-└─────────────────────────────────────────┘
-```
-
-### Changes to `OpenMicsDetailedList.tsx`
-- Add `text-center` or `items-center justify-center` to content sections
-- Use `justify-evenly` on the metadata row (time, cost, stage time)
-- Center the mic name and status dropdown row
-
-### Changes to `MicActionBar.tsx`
-- Change `justify-between` to `justify-evenly` for the action buttons
-
----
-
-## File Changes Summary
-
-| File | Changes |
-|------|---------|
-| `src/components/OpenMicsDetailedList.tsx` | Remove truncation, center layout |
-| `src/components/MicStatusDropdown.tsx` | Hide label on collapsed state, reduce padding |
-| `src/components/mic/MicActionBar.tsx` | Center action buttons with even distribution |
-
----
-
-## Technical Details
-
-### MicStatusDropdown.tsx - Key Changes
-
-**Button (collapsed state):**
+### 1. Center the venue/neighborhood row (line 235)
 ```tsx
 // Before
-<span>{currentConfig.label}</span>
-{dateDisplay && <span className="text-[10px] opacity-70">{dateDisplay}</span>}
+<span className="flex items-center gap-1">
 
-// After - only show date, no label
-{dateDisplay && <span className="text-[10px] opacity-70">{dateDisplay}</span>}
+// After
+<span className="flex items-center gap-1 justify-center md:justify-start">
 ```
 
-**Compact padding:**
+### 2. Center the day row (line 258)
 ```tsx
 // Before
-"px-2 py-1"
+<span className="flex flex-row md:flex-col gap-1.5 md:gap-0">
 
 // After
-"px-1.5 py-0.5"
+<span className="flex flex-row md:flex-col gap-1.5 md:gap-0 justify-center md:justify-start">
 ```
 
-### OpenMicsDetailedList.tsx - Key Changes
-
-**Mic name (no truncation):**
+### 3. Center the calendar/host sub-rows (lines 259 and 267)
 ```tsx
-// Before
-{truncateMicName(mic.openMic)}
+// Before (line 259)
+<span className="flex items-center gap-1">
 
 // After
-{mic.openMic}
+<span className="flex items-center gap-1 justify-center md:justify-start">
 ```
 
-**Centered header row:**
 ```tsx
-// Before
-<div className="flex items-center gap-1.5 flex-wrap">
+// Before (line 267)  
+<span className="flex items-center gap-1 md:hidden">
 
 // After
-<div className="flex items-center gap-1.5 flex-wrap justify-center">
+<span className="flex items-center gap-1 md:hidden justify-center">
 ```
 
-**Centered metadata:**
-```tsx
-// Before  
-<div className="flex flex-row gap-x-4 sm:gap-2 sm:items-center ...">
+## Summary
+Add `justify-center md:justify-start` to the flex containers for:
+- Venue/neighborhood row
+- Day/schedule row
+- Host row (mobile only)
 
-// After
-<div className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center md:justify-evenly ...">
-```
-
-### MicActionBar.tsx - Key Changes
-
-**Even button distribution:**
-```tsx
-// Before
-<div className="flex items-center justify-between border-t ...">
-
-// After
-<div className="flex items-center justify-evenly border-t ...">
-```
+This ensures everything is centered on mobile while staying left-aligned on desktop (md and up).
 
