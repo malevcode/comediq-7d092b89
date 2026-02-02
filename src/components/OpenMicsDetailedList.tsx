@@ -233,7 +233,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             href={getMapUrl(mic.location, mic.venueName)}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-semibold text-sm text-gray-900 hover:text-blue-600 hover:bg-blue-50 hover:rounded px-0.5 cursor-pointer transition-all duration-200 flex items-center gap-1"
+            className="font-semibold text-base text-gray-900 hover:text-blue-600 hover:bg-blue-50 hover:rounded px-0.5 cursor-pointer transition-all duration-200 flex items-center gap-1"
             title={mic.openMic}
           >
             {mic.openMic}
