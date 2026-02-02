@@ -133,7 +133,7 @@ export default function MicActionBar({
 
   return (
     <div className={cn("relative", className)}>
-      <div className="flex items-center justify-evenly border-t border-gray-200 pt-1.5 mt-1">
+      <div className="flex items-center justify-evenly border-t border-gray-200 pt-1 mt-0.5">
         {/* Like Button */}
         <Button
           variant="ghost"
@@ -141,17 +141,17 @@ export default function MicActionBar({
           onClick={handleLike}
           disabled={isRating}
           className={cn(
-            "flex items-center gap-1.5 px-3 py-2 h-auto",
+            "flex items-center gap-1 px-2 py-1 h-auto",
             isLiked && "text-red-500"
           )}
         >
           <Heart 
             className={cn(
-              "w-5 h-5 transition-all",
+              "w-4 h-4 transition-all",
               isLiked && "fill-red-500 text-red-500"
             )} 
           />
-          {likeCount > 0 && <span className="text-sm font-medium">{likeCount}</span>}
+          {likeCount > 0 && <span className="text-xs font-medium">{likeCount}</span>}
         </Button>
 
         {/* Comment Button */}
@@ -159,10 +159,10 @@ export default function MicActionBar({
           variant="ghost"
           size="sm"
           onClick={onCommentClick}
-          className="flex items-center gap-1.5 px-3 py-2 h-auto"
+          className="flex items-center gap-1 px-2 py-1 h-auto"
         >
-          <MessageCircle className="w-5 h-5" />
-          {commentCount > 0 && <span className="text-sm font-medium">{commentCount}</span>}
+          <MessageCircle className="w-4 h-4" />
+          {commentCount > 0 && <span className="text-xs font-medium">{commentCount}</span>}
         </Button>
 
         {/* Save Button */}
@@ -172,13 +172,13 @@ export default function MicActionBar({
           onClick={handleSave}
           disabled={isToggling}
           className={cn(
-            "flex items-center gap-1.5 px-3 py-2 h-auto",
+            "flex items-center gap-1 px-2 py-1 h-auto",
             isSaved && "text-[#0E4898]"
           )}
         >
           <Bookmark 
             className={cn(
-              "w-5 h-5 transition-all",
+              "w-4 h-4 transition-all",
               isSaved && "fill-[#0E4898] text-[#0E4898]"
             )} 
           />
@@ -189,9 +189,9 @@ export default function MicActionBar({
           variant="ghost"
           size="sm"
           onClick={handleAddToPlaylist}
-          className="flex items-center gap-1.5 px-3 py-2 h-auto"
+          className="flex items-center gap-1 px-2 py-1 h-auto"
         >
-          <ListPlus className="w-5 h-5" />
+          <ListPlus className="w-4 h-4" />
         </Button>
 
         {/* Share Button */}
@@ -199,9 +199,9 @@ export default function MicActionBar({
           variant="ghost"
           size="sm"
           onClick={handleShare}
-          className="flex items-center gap-1.5 px-3 py-2 h-auto"
+          className="flex items-center gap-1 px-2 py-1 h-auto"
         >
-          <Send className="w-5 h-5" />
+          <Send className="w-4 h-4" />
         </Button>
       </div>
 
