@@ -292,7 +292,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
       {/* Mid: Time, Cost, Stage Time - Clickable to expand */}
       <div className="flex-1 flex flex-col justify-center min-w-0 gap-x-3 text-xs text-gray-700 mb-0.5 mr-1">
         <div 
-          className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center md:justify-evenly text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors"
+          className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors"
           onClick={() => setExpanded(e => !e)}
           role="button"
           tabIndex={0}
@@ -306,7 +306,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           </span>
           <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-gray-400 flex-shrink-0" />{mic.cost}</span>
           <ChevronDown
-            className={`w-4 h-4 text-blue-600 ml-auto transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+            className={`w-4 h-4 text-blue-600 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
           />
         </div>
         {/* Host info - only on desktop, stays outside clickable area */}
