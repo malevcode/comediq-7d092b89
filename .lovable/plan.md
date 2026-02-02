@@ -1,164 +1,232 @@
 
 
-# Inline "More" Toggle - Consolidate Additional Details
+# Add Playlists Tab to Perform Page - Spotify-Style Mic Collections
 
-## Current Layout (wastes a line)
-```text
-┌──────────────────────────────────────────────────────────┐
-│  5-6:30 PM    5 min    $8 + 1 drink min                  │
-├──────────────────────────────────────────────────────────┤
-│  ┌─────────────────────────────────────────────────────┐ │
-│  │  Additional Details                              ▼  │ │  ← separate row
-│  └─────────────────────────────────────────────────────┘ │
-└──────────────────────────────────────────────────────────┘
+## Overview
+Add a **"My Playlists"** tab to the Perform page that allows users to view, create, and manage their mic playlists with smart recommendations based on preferences like neighborhoods, price, time of day, and day of the week.
+
+---
+
+## Current State
+- Playlist database tables exist (`mic_playlists`, `mic_playlist_items`) and are functional
+- `useMicPlaylists` hook works correctly (tested: creates playlists and adds mics)
+- `PlaylistSelectorDropdown` component exists for adding mics to playlists
+- Standalone pages exist at `/playlists` and `/playlists/:playlistId`
+- The Perform page currently has 2 tabs: "Find Mics" and "Show Scheduler"
+
+## Proposed Changes
+
+### 1. Add "Playlists" Tab to Perform Page
+
+**File: `src/pages/Perform.tsx`**
+
+Add a third tab for "Playlists" to the existing tab structure:
+
+```
+Before:
+┌─────────────────┬───────────────────┐
+│   Find Mics     │  Show Scheduler   │
+└─────────────────┴───────────────────┘
+
+After:
+┌─────────────┬───────────────┬───────────────┐
+│  Find Mics  │   Playlists   │Show Scheduler │
+└─────────────┴───────────────┴───────────────┘
 ```
 
-## New Layout (saves a line)
-```text
-┌──────────────────────────────────────────────────────────┐
-│  5-6:30 PM    5 min    $8 + 1 drink min              ▼   │  ← entire row clickable
-├──────────────────────────────────────────────────────────┤
-│  (expanded content appears here when clicked)            │
-└──────────────────────────────────────────────────────────┘
+- Update `TabsList` to 3 columns
+- Add scroll position tracking for "playlists" tab
+- Import and render new `PlaylistsTab` component
+
+---
+
+### 2. Create New PlaylistsTab Component
+
+**File: `src/components/playlists/PlaylistsTab.tsx`** (new)
+
+A self-contained tab component with:
+
+**Section A: Quick Actions Header**
+- "Create New Playlist" button
+- Link to "Saved Mics" 
+- Playlist count summary
+
+**Section B: Smart Playlist Suggestions**
+Generate auto-recommended collections based on user's liked/saved mics:
+- "Free Mics Only" - filtered by cost = $0
+- "Tonight's Picks" - mics happening today sorted by time
+- "Your Neighborhood" - mics in user's most-visited boroughs
+- "Late Night Spots" - mics starting after 9 PM
+- "Quick Sets (5 min)" - beginner-friendly short stage times
+
+**Section C: User's Playlists Grid**
+- Display all user-created playlists in a card grid
+- Show mic count, last updated, public/private status
+- Quick actions: Edit, Delete, View
+
+**Section D: Empty State**
+For users with no playlists:
+- Friendly illustration
+- "Create Your First Playlist" CTA
+- Explanation of how playlists work
+
+---
+
+### 3. Create PlaylistCard Component
+
+**File: `src/components/playlists/PlaylistCard.tsx`** (new)
+
+A reusable card for displaying playlists with:
+- Gradient header with playlist name
+- Mic count badge
+- Public/private indicator
+- Preview of first 3 mics (day + venue name)
+- Open, Edit, Delete actions
+
+---
+
+### 4. Create SmartPlaylistCard Component
+
+**File: `src/components/playlists/SmartPlaylistCard.tsx`** (new)
+
+Auto-generated playlist recommendations:
+- Different visual style (lighter, suggestion-style)
+- "Quick Filter" label
+- Click to view filtered mics inline
+- No database storage needed (generated on-the-fly)
+
+---
+
+### 5. Inline Playlist View
+
+**File: `src/components/playlists/PlaylistMicList.tsx`** (new)
+
+When a playlist is opened from the tab:
+- Show playlist header with name/description
+- List mics using `OpenMicsDetailedList` component
+- "Back to Playlists" navigation
+- Inline editing of playlist name/description
+- Remove mic from playlist action
+
+---
+
+### 6. Create Playlist Modal Enhancement
+
+**File: `src/components/playlists/CreatePlaylistModal.tsx`** (new)
+
+Enhanced creation flow with:
+- Name and description fields
+- Public/private toggle with explanation
+- Optional: Set preferences for suggested mics:
+  - Preferred boroughs (multi-select)
+  - Price range slider
+  - Time of day preferences
+  - Day of week preferences
+
+---
+
+### 7. Update TabContext
+
+**File: `src/contexts/TabContext.tsx`**
+
+Add "playlists" as a valid tab option and update scroll position tracking.
+
+---
+
+## Visual Layout
+
+### Playlists Tab (Logged In)
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ┌─────────────────────┐  ┌────────────────────────────┐   │
+│  │ [+] New Playlist    │  │ View Saved Mics (12)  →   │   │
+│  └─────────────────────┘  └────────────────────────────┘   │
+├─────────────────────────────────────────────────────────────┤
+│  QUICK FILTERS                                              │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐  │
+│  │ Tonight  │ │  Free    │ │Late Night│ │ Your Area   │  │
+│  │  (8)     │ │  (24)    │ │  (15)    │ │   (12)      │  │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────────┘  │
+├─────────────────────────────────────────────────────────────┤
+│  YOUR PLAYLISTS (3)                                         │
+│  ┌─────────────────────┐ ┌─────────────────────┐           │
+│  │ Monday Rotation     │ │ Brooklyn Favs       │           │
+│  │ 🎤 5 mics          │ │ 🎤 8 mics           │           │
+│  │ Updated 2 days ago  │ │ Updated yesterday   │           │
+│  │ [Open] [✏️] [🗑️]   │ │ [Open] [✏️] [🗑️]    │           │
+│  └─────────────────────┘ └─────────────────────┘           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Playlists Tab (Not Logged In)
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     🎤                                      │
+│           Create Mic Playlists                              │
+│                                                             │
+│   Organize your favorite mics into custom collections.      │
+│   Share with friends or keep them private.                  │
+│                                                             │
+│           [Sign In to Get Started]                          │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Changes to `src/components/OpenMicsDetailedList.tsx`
+## File Changes Summary
 
-### 1. Make the metadata row clickable (lines 293-308)
-
-Convert the metadata container into a clickable row that toggles expansion:
-
-```tsx
-// Before (lines 292-308)
-<div className="flex-1 flex flex-col justify-center min-w-0 gap-x-3 text-xs text-gray-700 mb-0.5 mr-1">
-  <div className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center md:justify-evenly md:grid md:grid-cols-2 text-xs text-gray-700">
-    <span>...</span>
-    <span>...</span>
-    <span>...</span>
-    <span>...</span>
-  </div>
-</div>
-
-// After - add onClick, cursor-pointer, hover state, and chevron
-<div className="flex-1 flex flex-col justify-center min-w-0 gap-x-3 text-xs text-gray-700 mb-0.5 mr-1">
-  <div 
-    className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center md:justify-evenly text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors"
-    onClick={() => setExpanded(e => !e)}
-    role="button"
-    tabIndex={0}
-    aria-expanded={expanded}
-    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpanded(x => !x); }}
-  >
-    <span className="flex items-center gap-1">
-      <Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />
-      {formatTimeRange(mic.startTime, mic.latestEndTime)}
-    </span>
-    <span className="flex items-center gap-1">
-      <Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />
-      {formatStageTime(mic.stageTime)}
-    </span>
-    <span className="flex items-center gap-1">
-      <DollarSign className="w-3 h-3 text-gray-400 flex-shrink-0" />
-      {mic.cost}
-    </span>
-    {/* Blue chevron toggle */}
-    <ChevronDown
-      className={`w-4 h-4 text-blue-600 ml-auto transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
-    />
-  </div>
-  {/* Host info - only on desktop, stays outside clickable area */}
-  <span className="hidden md:flex items-center gap-1 mt-0.5">
-    <CircleUser className="w-3 h-3 flex-shrink-0 text-gray-400" />
-    <span className="truncate text-xs">
-      {mic.instagramHandle && mic.instagramHandle.trim() ? makeLinksClickable(mic.instagramHandle) : "No host"}
-    </span>
-  </span>
-</div>
-```
-
-### 2. Move expanded content outside the blue box (lines 309-427)
-
-Remove the blue box wrapper and render expanded content directly:
-
-```tsx
-// Before (lines 309-427)
-<div className="w-full md:flex-[1.2] flex flex-col justify-center gap-0.5">
-  <div className="bg-blue-50 border border-blue-100 rounded-md p-1 relative w-full">
-    <div className="cursor-pointer ...">
-      <span>Additional Details</span>
-      <ChevronDown ... />
-    </div>
-    {expanded && (
-      <div className="flex flex-col gap-1.5 mt-1.5">
-        {/* all the expanded content */}
-      </div>
-    )}
-  </div>
-  <MicActionBar ... />
-  <MicCommentSection ... />
-</div>
-
-// After - remove the blue box, just show expanded content
-<div className="w-full md:flex-[1.2] flex flex-col justify-center gap-0.5">
-  {expanded && (
-    <div className="bg-blue-50 border border-blue-100 rounded-md p-2 flex flex-col gap-1.5">
-      {/* Sign-up instructions */}
-      <div className="break-words font-normal select-text cursor-text flex flex-row text-xs">
-        <span className="flex items-center gap-2 mr-1">
-          <UserRoundCheck className="w-3 h-3" />Sign-Up Instructions:
-        </span>
-        <span className="flex">
-          {mic.signUpInstructions ? makeLinksClickable(mic.signUpInstructions) : 'N/A'}
-        </span>
-      </div>
-      {/* Address link */}
-      <div className="text-xs">
-        <a href={getMapUrl(mic.location, mic.venueName)} ...>
-          <MapPin className="w-3 h-3" /> {mic.location}
-        </a>
-      </div>
-      {/* House Rules */}
-      {mic.otherRules && (...)}
-      {/* Calendar buttons */}
-      {...}
-    </div>
-  )}
-  <MicActionBar ... />
-  <MicCommentSection ... />
-</div>
-```
+| File | Action | Description |
+|------|--------|-------------|
+| `src/pages/Perform.tsx` | Edit | Add third tab for Playlists |
+| `src/contexts/TabContext.tsx` | Edit | Add "playlists" scroll tracking |
+| `src/components/playlists/PlaylistsTab.tsx` | Create | Main tab content component |
+| `src/components/playlists/PlaylistCard.tsx` | Create | User playlist card component |
+| `src/components/playlists/SmartPlaylistCard.tsx` | Create | Quick filter suggestion card |
+| `src/components/playlists/PlaylistMicList.tsx` | Create | Inline playlist view with mics |
+| `src/components/playlists/CreatePlaylistModal.tsx` | Create | Enhanced playlist creation |
+| `src/components/playlists/index.ts` | Create | Barrel export file |
 
 ---
 
-## Visual Summary
+## Technical Details
 
-### Before (2 separate rows)
+### Smart Playlist Generation Logic
+
+Quick filters are computed from the full mic list:
+
+```typescript
+// Example: Tonight's picks
+const tonightMics = allMics.filter(mic => {
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+  return mic.day === today;
+});
+
+// Example: Free mics
+const freeMics = allMics.filter(mic => 
+  mic.cost.toLowerCase().includes('free')
+);
+
+// Example: Late night (after 9 PM)
+const lateNightMics = allMics.filter(mic => {
+  const hour = parseTimeToHour(mic.startTime);
+  return hour >= 21;
+});
+
+// Example: User's area (based on saved/liked mic boroughs)
+const userBoroughs = getMostCommonBoroughs(userLikedMics);
+const localMics = allMics.filter(mic => 
+  userBoroughs.includes(mic.borough)
+);
 ```
-[Time] [Duration] [Cost] [Host]     ← metadata row
-┌─────────────────────────────────┐
-│ Additional Details           ▼  │ ← separate clickable box
-└─────────────────────────────────┘
-```
 
-### After (1 unified row)
-```
-[Time] [Duration] [Cost]        ▼   ← entire row clickable, blue chevron
-                                    ← expanded content appears below
-```
+### Data Flow
+1. `useMicPlaylists` hook provides CRUD operations for playlists
+2. `useOpenMics` provides the full mic list for filtering
+3. `usePlaylistItems` fetches mics in a specific playlist
+4. Smart filters compute recommendations client-side (no extra DB calls)
 
----
-
-## Summary
-
-| Change | Description |
-|--------|-------------|
-| Make metadata row clickable | Add `onClick`, `cursor-pointer`, `hover:bg-blue-50` to time/duration/cost row |
-| Add blue chevron | Insert `ChevronDown` icon at end of metadata row (blue color) |
-| Remove "Additional Details" header | Delete the separate blue box header |
-| Move host info outside clickable area | Keep desktop host display but outside the click zone |
-| Preserve expanded content | Same content appears when clicked, now in a simpler container |
-
-**File to edit:** `src/components/OpenMicsDetailedList.tsx`
+### Authentication
+- Playlists require authentication
+- Unauthenticated users see a sign-in prompt
+- Quick filters (smart playlists) can work for everyone as they're just filters
 
