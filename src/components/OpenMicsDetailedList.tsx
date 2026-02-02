@@ -289,142 +289,137 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           </span>
         </div>
       </div>
-      {/* Mid: Time, Cost, Stage Time */}
+      {/* Mid: Time, Cost, Stage Time - Clickable to expand */}
       <div className="flex-1 flex flex-col justify-center min-w-0 gap-x-3 text-xs text-gray-700 mb-0.5 mr-1">
-        <div className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center md:justify-evenly md:grid md:grid-cols-2 text-xs text-gray-700">
+        <div 
+          className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center md:justify-evenly text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors"
+          onClick={() => setExpanded(e => !e)}
+          role="button"
+          tabIndex={0}
+          aria-expanded={expanded}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpanded(x => !x); }}
+        >
           <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />{formatTimeRange(mic.startTime, mic.latestEndTime)}</span>
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />
             {formatStageTime(mic.stageTime)}
           </span>
           <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-gray-400 flex-shrink-0" />{mic.cost}</span>
-          <span className="hidden sm:hidden md:flex items-center gap-1">
-            <CircleUser className="w-3 h-3 flex-shrink-0 text-gray-400" />
-            <span className="truncate text-xs">
-              {mic.instagramHandle && mic.instagramHandle.trim() ? makeLinksClickable(mic.instagramHandle) : "No host"}
-            </span>
-          </span>
+          <ChevronDown
+            className={`w-4 h-4 text-blue-600 ml-auto transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+          />
         </div>
+        {/* Host info - only on desktop, stays outside clickable area */}
+        <span className="hidden md:flex items-center gap-1 mt-0.5">
+          <CircleUser className="w-3 h-3 flex-shrink-0 text-gray-400" />
+          <span className="truncate text-xs">
+            {mic.instagramHandle && mic.instagramHandle.trim() ? makeLinksClickable(mic.instagramHandle) : "No host"}
+          </span>
+        </span>
       </div>
-      {/* Right: Additional Details & Actions */}
+      {/* Right: Expanded Details & Actions */}
       <div className="w-full md:flex-[1.2] flex flex-col justify-center gap-0.5">
-        <div className="bg-blue-50 border border-blue-100 rounded-md p-1 relative w-full">
-          <div
-            className="cursor-pointer flex items-center gap-1 font-semibold text-xs text-blue-800"
-            onClick={() => setExpanded(e => !e)}
-            role="button"
-            tabIndex={0}
-            aria-expanded={expanded}
-            aria-label={expanded ? 'Collapse details' : 'Expand details'}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpanded(x => !x); }}
-          >
-            <span>Additional Details</span>
-            <ChevronDown
-              className={`w-3.5 h-3.5 ml-auto transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
-            />
-          </div>
-          {expanded && (
-            <div className="flex flex-col gap-1.5 mt-1.5">
-              <div
-                className="break-words font-normal select-text cursor-text flex flex-row text-xs"
-                onClick={e => e.stopPropagation()}
-              >
-                <span className="flex items-center gap-2 mr-1"><UserRoundCheck className="w-3 h-3" />Sign-Up Instructions:</span>
-                <span className="flex">
-                  {mic.signUpInstructions ? makeLinksClickable(mic.signUpInstructions) : 'N/A'}
-                </span>
-              </div>
-              <div className="text-xs">
-                <a href={getMapUrl(mic.location, mic.venueName)} target="_blank" rel="noopener noreferrer" className="flex flex-row gap-2 items-center hover:underline font-normal">
-                  <MapPin className="w-3 h-3" /> {mic.location}
-                </a>
-              </div>
-              {mic.otherRules && (
-                <div className="text-xs mt-2 pt-2 border-t border-blue-200">
-                  <div className="flex items-start gap-2">
-                    <ClipboardList className="w-3 h-3 mt-0.5 text-blue-600 flex-shrink-0" />
-                    <div>
-                      <span className="font-medium text-blue-800">House Rules:</span>
-                      <p className="text-gray-600 mt-1 whitespace-pre-wrap">
-                        {mic.otherRules}
-                      </p>
-                    </div>
+        {expanded && (
+          <div className="bg-blue-50 border border-blue-100 rounded-md p-2 flex flex-col gap-1.5">
+            <div
+              className="break-words font-normal select-text cursor-text flex flex-row text-xs"
+              onClick={e => e.stopPropagation()}
+            >
+              <span className="flex items-center gap-2 mr-1"><UserRoundCheck className="w-3 h-3" />Sign-Up Instructions:</span>
+              <span className="flex">
+                {mic.signUpInstructions ? makeLinksClickable(mic.signUpInstructions) : 'N/A'}
+              </span>
+            </div>
+            <div className="text-xs">
+              <a href={getMapUrl(mic.location, mic.venueName)} target="_blank" rel="noopener noreferrer" className="flex flex-row gap-2 items-center hover:underline font-normal">
+                <MapPin className="w-3 h-3" /> {mic.location}
+              </a>
+            </div>
+            {mic.otherRules && (
+              <div className="text-xs mt-2 pt-2 border-t border-blue-200">
+                <div className="flex items-start gap-2">
+                  <ClipboardList className="w-3 h-3 mt-0.5 text-blue-600 flex-shrink-0" />
+                  <div>
+                    <span className="font-medium text-blue-800">House Rules:</span>
+                    <p className="text-gray-600 mt-1 whitespace-pre-wrap">
+                      {mic.otherRules}
+                    </p>
                   </div>
                 </div>
-              )}
-              <div className="flex flex-col gap-2">
-                {mic.signupEnabled && (
-                  <Button
-                    size="sm"
-                    variant="default"
-                    className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
-                    asChild
-                  >
-                    <Link to={linkManager.micSignup(mic)}>
-                      <UserRoundCheck className="w-4 h-4" />
-                      Sign Up for Spots
-                    </Link>
-                  </Button>
-                )}
-                {user && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex items-center justify-center gap-2"
-                    onClick={() => onAddToCalendar(mic)}
-                  >
-                    <Calendar className="w-4 h-4" />
-                    Add to Calendar
-                  </Button>
-                )}
               </div>
-              <div className="flex flex-row gap-2 mt-2">
+            )}
+            <div className="flex flex-col gap-2">
+              {mic.signupEnabled && (
                 <Button
                   size="sm"
-                  variant="outline"
-                  className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100"
+                  variant="default"
+                  className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
                   asChild
                 >
-                  <a
-                    href={getGoogleCalendarUrl(mic)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Add to Google Calendar"
-                    onClick={async () => {
-                      if (user) {
-                        try {
-                          await supabase
-                            .from('gcal_clicks')
-                            .insert({
-                              user_id: user.id,
-                              created_at: new Date().toISOString()
-                            });
-                        } catch (error) {
-                          console.error('Error logging Google Calendar click:', error);
-                        }
-                      }
-                    }}
-                  >
-                    <span className="flex items-center gap-1">
-                      <span className="inline-block w-4 h-4 bg-white text-sky font-bold rounded-full flex items-center justify-center">G</span>
-                      <span className="text-sky">Google Calendar</span>
-                    </span>
-                  </a>
+                  <Link to={linkManager.micSignup(mic)}>
+                    <UserRoundCheck className="w-4 h-4" />
+                    Sign Up for Spots
+                  </Link>
                 </Button>
+              )}
+              {user && (
                 <Button
                   size="sm"
                   variant="outline"
-                  className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100"
-                  onClick={() => downloadICal(mic)}
-                  aria-label="Download iCal file"
+                  className="flex items-center justify-center gap-2"
+                  onClick={() => onAddToCalendar(mic)}
                 >
-                  <Calendar className="text-orange-500 w-4 h-4" />
-                  <span className="text-orange-500">Download iCal</span>
+                  <Calendar className="w-4 h-4" />
+                  Add to Calendar
                 </Button>
-              </div>
+              )}
             </div>
-          )}
-        </div>
+            <div className="flex flex-row gap-2 mt-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100"
+                asChild
+              >
+                <a
+                  href={getGoogleCalendarUrl(mic)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Add to Google Calendar"
+                  onClick={async () => {
+                    if (user) {
+                      try {
+                        await supabase
+                          .from('gcal_clicks')
+                          .insert({
+                            user_id: user.id,
+                            created_at: new Date().toISOString()
+                          });
+                      } catch (error) {
+                        console.error('Error logging Google Calendar click:', error);
+                      }
+                    }
+                  }}
+                >
+                  <span className="flex items-center gap-1">
+                    <span className="inline-block w-4 h-4 bg-white text-sky font-bold rounded-full flex items-center justify-center">G</span>
+                    <span className="text-sky">Google Calendar</span>
+                  </span>
+                </a>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-100"
+                onClick={() => downloadICal(mic)}
+                aria-label="Download iCal file"
+              >
+                <Calendar className="text-orange-500 w-4 h-4" />
+                <span className="text-orange-500">Download iCal</span>
+              </Button>
+            </div>
+          </div>
+        )}
         {/* Social Action Bar - reduced top margin */}
         <MicActionBar
           micUniqueIdentifier={mic.uniqueIdentifier}
