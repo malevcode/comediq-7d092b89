@@ -290,7 +290,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
         </div>
       </div>
       {/* Mid: Time, Cost, Stage Time - Clickable to expand */}
-      <div className="flex-1 flex flex-col justify-center min-w-0 gap-x-3 text-xs text-gray-700 mb-0.5 mr-1">
+      <div className="flex-1 flex flex-col justify-center min-w-0 gap-x-3 text-xs text-gray-700 mb-0 mr-1">
         <div 
           className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors"
           onClick={() => setExpanded(e => !e)}
@@ -318,7 +318,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
         </span>
       </div>
       {/* Right: Expanded Details & Actions */}
-      <div className="w-full md:flex-[1.2] flex flex-col justify-center gap-0.5">
+      <div className="w-full md:flex-[1.2] flex flex-col justify-center gap-0">
         {expanded && (
           <div className="bg-blue-50 border border-blue-100 rounded-md p-2 flex flex-col gap-1.5">
             <div
