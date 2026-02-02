@@ -2,9 +2,10 @@ import { useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OpenMics from "./OpenMics";
 import Shows from "./Shows";
+import { PlaylistsTab } from "@/components/playlists";
 import { useLocation, Link } from 'react-router-dom';
 import { useTabContext } from "@/contexts/TabContext";
-import { Megaphone } from "lucide-react";
+import { Megaphone, ListMusic } from "lucide-react";
 
 const Perform = () => {
   const location = useLocation();
@@ -14,6 +15,7 @@ const Perform = () => {
   // Store scroll positions for each tab
   const scrollPositions = useRef({
     'find-mics': 0,
+    'playlists': 0,
     'show-scheduler': 0
   });
 
@@ -61,9 +63,13 @@ const Perform = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="sticky top-2 z-40">
           <div className="max-w-7xl mx-auto px-4">
-            <TabsList className="grid w-full grid-cols-2 mb-0">
+            <TabsList className="grid w-full grid-cols-3 mb-0">
               <TabsTrigger value="find-mics">Find Mics</TabsTrigger>
-              <TabsTrigger value="show-scheduler">Show Scheduler</TabsTrigger>
+              <TabsTrigger value="playlists" className="gap-1">
+                <ListMusic className="h-3.5 w-3.5" />
+                Playlists
+              </TabsTrigger>
+              <TabsTrigger value="show-scheduler">Shows</TabsTrigger>
             </TabsList>
             <div className="text-center mt-2">
               <Link 
@@ -79,6 +85,10 @@ const Perform = () => {
 
         <TabsContent value="find-mics" className="mt-0">
           <OpenMics />
+        </TabsContent>
+
+        <TabsContent value="playlists" className="mt-0">
+          <PlaylistsTab />
         </TabsContent>
 
         <TabsContent value="show-scheduler" className="mt-0">
