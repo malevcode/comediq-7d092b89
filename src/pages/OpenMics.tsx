@@ -334,7 +334,7 @@ const OpenMics = () => {
     return (
       <>
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm text-gray-600 max-w-full">
+          <p className="text-xs text-gray-500 max-w-full">
               <>
                 Showing{" "}
                 {currentViewMode === "list"
