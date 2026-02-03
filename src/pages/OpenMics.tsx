@@ -362,7 +362,7 @@ const OpenMics = () => {
                 onClick={() => setSelectedMic(mic)}
               >
                 <CardContent className="p-1.5 h-full flex flex-col justify-between">
-                  <h3 className="font-bold text-xs leading-tight text-gray-900 truncate">
+                  <h3 className="font-bold text-xs leading-tight text-gray-900 overflow-hidden whitespace-nowrap">
                     {truncateTitle(mic.openMic, 15)}
                   </h3>
                   <div className="flex justify-between items-center text-[10px] w-full">
