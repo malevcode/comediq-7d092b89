@@ -1,153 +1,241 @@
 
 
-# Compact Grid View - High-Density Mic Tiles
+# Add Mic Button with Comprehensive Mic Request Form
 
-## Goal
-Transform the grid view to display 16+ mic tiles per viewport (up from ~8) while keeping essential info visible at a glance.
+## Overview
+Add a "+" button next to the Filters button on the OpenMics page to allow users to request new mics. Create a new comprehensive form component that collects ALL fields needed for the `open_mics_historical` table.
 
 ---
 
-## Current State Analysis
+## Current State
 
-Looking at `src/pages/OpenMics.tsx` lines 354-375:
-
+**OpenMics page search/filters bar (lines 592-607):**
 ```tsx
-// Current grid
-<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1 ...">
-  <Card className="... w-full sm:w-24 h-24">  // 96px height
-    <CardContent className="p-2 ...">
-      <h3 className="... line-clamp-2">       // 2 lines for title
-        {mic.openMic}
-      </h3>
-      <div>{formatTime(mic.startTime)}</div>  // Separate row
-      <div className="flex justify-between">
-        <span>{formatCost(mic.cost)}</span>   // Another row
-        <span>{formatStageTime(...)}</span>
-      </div>
-    </CardContent>
-  </Card>
+<div className="flex flex-row gap-3 items-center">
+  <div className="flex-1 relative">
+    <Search ... />
+    <Input ... />
+  </div>
+  <div className="flex gap-2">
+    <MicFilters ... />
+  </div>
 </div>
 ```
 
----
+**Existing ShowForm** only collects: title, venue, date, time, borough, notes
 
-## Proposed Changes
-
-### 1. Reduce Card Size
-
-| Property | Before | After |
-|----------|--------|-------|
-| Card height | `h-24` (96px) | `h-16` (64px) |
-| Card width | `w-full sm:w-24` | `w-full` (flex with grid) |
-| Padding | `p-2` | `p-1.5` |
-| Gap between cards | `gap-1` | `gap-0.5` |
-
-### 2. Single-Line Title (15 char limit, no ellipsis)
-
-Add a helper function to truncate titles:
-
-```tsx
-const truncateTitle = (title: string, maxLen = 15) =>
-  title.length > maxLen ? title.slice(0, maxLen) : title;
-```
-
-Update title rendering:
-```tsx
-<h3 className="font-bold text-xs leading-tight text-gray-900 truncate">
-  {truncateTitle(mic.openMic, 15)}
-</h3>
-```
-
-### 3. Combine Metadata into Single Row
-
-Merge time, cost, and stage time into one evenly-distributed row:
-
-```tsx
-<div className="flex justify-between items-center text-xs w-full">
-  <span className="text-gray-800 font-semibold">{formatTime(mic.startTime)}</span>
-  <span className="text-green-700 font-bold">{formatCost(mic.cost)}</span>
-  <span className="text-orange-700 font-bold">{formatStageTime(mic.stageTime)}</span>
-</div>
-```
-
-### 4. Increase Grid Density
-
-Update grid columns for more tiles:
-
-```tsx
-<div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-0.5 ...">
-```
+**Required fields for `open_mics_historical`:**
+- `open_mic` (name) - required
+- `venue_name` - required
+- `borough` - required for NYC
+- `neighborhood`
+- `location` (address)
+- `day` (weekday) - required
+- `start_time` - required
+- `latest_end_time`
+- `cost`
+- `stage_time`
+- `sign_up_instructions` (free text)
+- `hosts_organizers` (host Instagram)
+- `venue_type` (comedy club, bar, etc.)
+- `changes_updates` (host contact for updates)
+- `other_rules`
+- `city` (default: New York)
+- Host phone number (optional - for contact)
 
 ---
 
-## Visual Comparison
+## Implementation Plan
 
-### Before (8 tiles visible)
-```
-┌─────────────────┐  ┌─────────────────┐
-│ Pear TS 5:30    │  │ Caravan of      │
-│ Open Mic        │  │ Dreams          │
-│ 5:30 PM         │  │ 6:00 PM         │
-│ $5           5  │  │ $1           5  │
-└─────────────────┘  └─────────────────┘
-```
+### 1. Create New AddMicRequestForm Component
 
-### After (16+ tiles visible)
-```
-┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐
-│ Pear TS 5:30   │ │ Caravan of Dre │ │ Grisly 6       │ │ Buddha 6       │
-│ 5:30 PM $5  5  │ │ 6 PM    $1   5 │ │ 6 PM   $5   5  │ │ 6 PM   $5   5  │
-└────────────┘ └────────────┘ └────────────┘ └────────────┘
-┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐
-│ Producer's Clu │ │ Phoenix Bar    │ │ QED Monday     │ │ Harlem Nights  │
-│ 6 PM   $5   5  │ │ 6 PM  Free  5  │ │ 6 PM   $5   5  │ │ 6 PM  Free  5  │
-└────────────┘ └────────────┘ └────────────┘ └────────────┘
+**New file: `src/components/host/AddMicRequestForm.tsx`**
+
+A comprehensive modal form with all required fields organized into logical sections:
+
+```tsx
+// Form sections:
+// 1. Basic Info: mic name, venue name, city
+// 2. Location: borough, neighborhood, address
+// 3. Schedule: day, start time, end time, stage time
+// 4. Details: cost, venue type, signup instructions
+// 5. Host Info: host name/instagram, phone (optional), updates contact
+// 6. Rules: other rules (free text)
 ```
 
----
+**Form fields:**
 
-## Implementation
+| Field | Type | Required | Placeholder/Options |
+|-------|------|----------|---------------------|
+| open_mic | Input | Yes | "e.g., Comedy Night at Joe's" |
+| venue_name | Input | Yes | "e.g., Joe's Bar" |
+| city | Select | Yes | New York (default), Los Angeles |
+| borough | Select | Conditional* | Manhattan, Brooklyn, Queens, Bronx, Staten Island |
+| neighborhood | Input | No | "e.g., East Village" |
+| location | Input | No | "123 Main St, New York, NY" |
+| day | Select | Yes | Monday-Sunday |
+| start_time | Time Input | Yes | "7:00 PM" |
+| latest_end_time | Time Input | No | "9:00 PM" |
+| stage_time | Input | No | "e.g., 5 minutes" |
+| cost | Input | No | "e.g., Free, $5, 1 drink min" |
+| venue_type | Select | No | Comedy Club, Bar, Restaurant, Coffee Shop, Other |
+| sign_up_instructions | Textarea | No | "How to sign up for this mic..." |
+| hosts_organizers | Input | No | "@instagram_handle" |
+| host_phone | Input | No | "(555) 123-4567" |
+| changes_updates | Input | No | "Contact for changes (Instagram)" |
+| other_rules | Textarea | No | "Any additional rules..." |
+
+*Borough required if city is NYC
+
+**Layout:**
+- Scrollable modal with max height
+- Form organized in 2-column grid where appropriate
+- Clear section headers
+- Submit button at bottom
+
+### 2. Update OpenMics Page
 
 **File: `src/pages/OpenMics.tsx`**
 
-1. Add truncation helper (near line 177):
+Add a "+" button next to the Filters button:
+
 ```tsx
-const truncateTitle = (title: string, maxLen = 15) =>
-  title.length > maxLen ? title.slice(0, maxLen) : title;
+// Line ~604-606 - Update the flex container
+<div className="flex gap-2">
+  <Button
+    onClick={() => setShowRequestModal(true)}
+    variant="outline"
+    size="sm"
+    className="flex items-center gap-1 px-3 py-4 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+  >
+    <Plus className="h-4 w-4" />
+  </Button>
+  <MicFilters ... />
+</div>
 ```
 
-2. Update grid container (line 354):
+Import changes:
 ```tsx
-<div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-0.5 max-h-[calc(100vh-320px)] overflow-y-auto">
+import { Search, HelpCircle, LogIn, Plus } from "lucide-react";
+import AddMicRequestForm from "@/components/host/AddMicRequestForm";
 ```
 
-3. Update Card component (lines 356-374):
+Replace the ShowForm modal with the new AddMicRequestForm:
 ```tsx
-<Card
-  key={index}
-  className={`cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-102 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-md w-full h-14`}
-  onClick={() => setSelectedMic(mic)}
->
-  <CardContent className="p-1.5 h-full flex flex-col justify-between">
-    <h3 className="font-bold text-xs leading-tight text-gray-900 truncate">
-      {truncateTitle(mic.openMic, 15)}
-    </h3>
-    <div className="flex justify-between items-center text-[10px] w-full">
-      <span className="text-gray-800 font-semibold">{formatTime(mic.startTime)}</span>
-      <span className="text-green-700 font-bold">{formatCost(mic.cost)}</span>
-      <span className="text-orange-700 font-bold">{formatStageTime(mic.stageTime)}</span>
-    </div>
-  </CardContent>
-</Card>
+{showRequestModal && (
+  <AddMicRequestForm 
+    onSubmit={handleRequestMic} 
+    onCancel={() => setShowRequestModal(false)} 
+  />
+)}
 ```
+
+### 3. Update handleRequestMic Function
+
+**File: `src/pages/OpenMics.tsx`**
+
+Expand the submit handler to include all new fields:
+
+```tsx
+const handleRequestMic = async (formData: MicRequestData) => {
+  try {
+    const insertObj = {
+      show_title: formData.open_mic,
+      venue_name: formData.venue_name,
+      borough: formData.borough,
+      date: formData.day, // Store weekday
+      time: formData.start_time,
+      // Additional fields stored in a notes/metadata field or 
+      // requires expanding open_mics_requests table
+      created_at: new Date().toISOString(),
+      user_id: user?.id || null,
+    };
+    // ... rest of submission logic
+  }
+};
+```
+
+### 4. Remove Bottom "Request a Mic" Card
+
+Since the + button is now prominently placed at the top, remove or hide the bottom card (lines 652-661) to reduce redundancy.
 
 ---
 
-## Summary of Changes
+## Technical Details
 
-| File | Changes |
-|------|---------|
-| `src/pages/OpenMics.tsx` | Add `truncateTitle` helper, reduce card height to `h-14`, merge metadata to single row, increase grid columns |
+### Database Consideration
 
-**Result**: 16+ tiles visible per page with time/cost/stage time on one row, titles truncated to 15 chars
+The `open_mics_requests` table currently only has:
+- unique_identifier, show_title, date, time, venue_name, borough, user_id, created_at, reviewed, status
+
+**Option A**: Store extra fields as JSON in a new column
+**Option B**: Add migration to expand the table with all fields
+**Option C**: Store essential fields now, let admins fill in details after approval
+
+Recommend **Option C** for simplicity - collect essential fields and have admins complete the rest during review.
+
+### Form Validation
+
+- Mic name, venue name, day, start time: Required
+- Borough: Required if city = "New York"
+- Phone: Optional, validate format if provided
+- Times: Validate format (12h or 24h)
+
+---
+
+## Files to Change
+
+| File | Action |
+|------|--------|
+| `src/components/host/AddMicRequestForm.tsx` | Create new comprehensive form component |
+| `src/pages/OpenMics.tsx` | Add + button, import new form, update submit handler |
+| `src/components/ShowForm.tsx` | No changes (can keep for other uses) |
+
+---
+
+## Visual Layout
+
+### Header Bar (After)
+```
+┌─────────────────────────────────────────────────────────────┐
+│ [🔍 Search venues, neighborhoods...              ] [+] [⚙️] │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### New Form Modal
+```
+┌─────────────────────────────────────────────────────────┐
+│ Request New Mic                                    [X]  │
+├─────────────────────────────────────────────────────────┤
+│ ─ Basic Info ─                                          │
+│ Mic Name *        [                              ]      │
+│ Venue Name *      [                              ]      │
+│ City *            [New York          ▼]                 │
+│                                                         │
+│ ─ Location ─                                            │
+│ Borough *         [Select...         ▼]                 │
+│ Neighborhood      [                              ]      │
+│ Address           [                              ]      │
+│                                                         │
+│ ─ Schedule ─                                            │
+│ Day *       [Monday ▼]   Start Time * [7:00 PM]        │
+│ End Time    [9:00 PM]    Stage Time   [5 min  ]        │
+│                                                         │
+│ ─ Details ─                                             │
+│ Cost              [Free / $5 / 1 drink min]            │
+│ Venue Type        [Bar               ▼]                 │
+│ Sign-up Instructions                                    │
+│ [                                                  ]    │
+│                                                         │
+│ ─ Host Info ─                                           │
+│ Host Instagram    [@handle           ]                  │
+│ Phone (optional)  [(555) 123-4567    ]                  │
+│ Updates Contact   [@handle           ]                  │
+│                                                         │
+│ ─ Rules ─                                               │
+│ [Other rules or notes...                           ]    │
+│                                                         │
+│                           [Submit Mic Request]          │
+└─────────────────────────────────────────────────────────┘
+```
 
