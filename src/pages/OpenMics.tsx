@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { Search, HelpCircle, LogIn } from "lucide-react";
+import { Search, HelpCircle, LogIn, Plus } from "lucide-react";
 import SEO from "@/components/SEO";
 import { generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ import MicDetailModal from "@/components/MicDetailModal";
 import { OpenMicsMapRefactored as OpenMicsMap } from "@/components/map";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import ViewToggle from "@/components/ViewToggle";
-import ShowForm from "@/components/ShowForm";
+import AddMicRequestForm, { MicRequestFormData } from "@/components/host/AddMicRequestForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilters";
@@ -419,17 +419,16 @@ const OpenMics = () => {
     setSelectedMic(mic);
   }, []);
 
-  const handleRequestMic = async (formData: any) => {
-    const { anonymous } = formData;
+  const handleRequestMic = async (formData: MicRequestFormData) => {
     try {
       const insertObj = {
-        show_title: formData["title"],
-        venue_name: formData["venue"],
-        borough: formData["borough"],
-        date: formData["date"],
-        time: formData["time"],
+        show_title: formData.open_mic,
+        venue_name: formData.venue_name,
+        borough: formData.borough || null,
+        date: formData.day,
+        time: formData.start_time,
         created_at: new Date().toISOString(),
-        ...(anonymous ? {} : { user_id: user?.id || null }),
+        user_id: user?.id || null,
       };
       const { error } = await (supabase as SupabaseClient).from("open_mics_requests").insert([insertObj]);
       if (error) {
@@ -602,6 +601,14 @@ const OpenMics = () => {
             </div>
 
             <div className="flex gap-2">
+              <Button
+                onClick={() => setShowRequestModal(true)}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1 px-3 py-2 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
               <MicFilters filters={filters} onFiltersChange={setFilters} maxCost={maxCost} boroughs={boroughs} cities={cities}/>
             </div>
           </div>
@@ -648,19 +655,7 @@ const OpenMics = () => {
         <MicDetailModal mic={selectedMic} onClose={() => setSelectedMic(null)} onAddToSchedule={handleAddToSchedule} />
       )}
 
-      {/* Request a mic */}
-      <div className="max-w-sm mx-auto mt-6 mb-8 text-center">
-        <Card>
-          <CardContent className="py-8">
-            <p className="text-lg font-semibold mb-2">Don't see a mic here?</p>
-            <p className="mb-4 text-gray-600">Request it to be added!</p>
-            <Button className="bg-orange-500 hover:bg-orange-600" onClick={() => setShowRequestModal(true)}>
-              Request a Mic
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-      {showRequestModal && <ShowForm onSubmit={handleRequestMic} onCancel={() => setShowRequestModal(false)} />}
+      {showRequestModal && <AddMicRequestForm onSubmit={handleRequestMic} onCancel={() => setShowRequestModal(false)} />}
       </div>
     </>
   );
