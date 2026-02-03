@@ -354,7 +354,7 @@ const OpenMics = () => {
         </div>
 
         {currentViewMode === "grid" ? (
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-0.5 max-h-[calc(100vh-320px)] overflow-y-auto">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-0.5 max-h-[calc(100vh-320px)] overflow-y-auto">
             {micsToShow.map((mic, index) => (
               <Card
                 key={index}
