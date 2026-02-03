@@ -180,6 +180,9 @@ const OpenMics = () => {
     return stageTime.replace(/\s*(minutes?|mins?)\s*/gi, "").trim().substring(0, 3);
   };
 
+  const truncateTitle = (title: string, maxLen = 15) =>
+    title.length > maxLen ? title.slice(0, maxLen) : title;
+
   const getVerificationBackgroundColor = (lastVerified: string) => {
     const verification = lastVerified?.toLowerCase() || "";
     // if (verification.includes("tediously verified") || verification.includes("tedious")) {
@@ -351,23 +354,21 @@ const OpenMics = () => {
         </div>
 
         {currentViewMode === "grid" ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1 max-h-[calc(100vh-320px)] overflow-y-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-0.5 max-h-[calc(100vh-320px)] overflow-y-auto">
             {micsToShow.map((mic, index) => (
               <Card
                 key={index}
-                className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-lg w-full sm:w-24 h-24`}
+                className={`cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-102 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-md w-full h-14`}
                 onClick={() => setSelectedMic(mic)}
               >
-                <CardContent className="p-2 h-full flex flex-col justify-between">
-                  <div className="flex flex-col h-full justify-between">
-                    <h3 className="font-bold text-sm leading-tight text-gray-900 line-clamp-2 flex-none">
-                      {mic.openMic}
-                    </h3>
-                    <div className="text-sm text-gray-800 font-semibold flex-none">{formatTime(mic.startTime)}</div>
-                    <div className="flex justify-between items-center text-sm flex-none">
-                      <span className="text-green-700 font-bold truncate mr-1">{formatCost(mic.cost)}</span>
-                      <span className="text-orange-700 font-bold flex-shrink-0">{formatStageTime(mic.stageTime)}</span>
-                    </div>
+                <CardContent className="p-1.5 h-full flex flex-col justify-between">
+                  <h3 className="font-bold text-xs leading-tight text-gray-900 truncate">
+                    {truncateTitle(mic.openMic, 15)}
+                  </h3>
+                  <div className="flex justify-between items-center text-[10px] w-full">
+                    <span className="text-gray-800 font-semibold">{formatTime(mic.startTime)}</span>
+                    <span className="text-green-700 font-bold">{formatCost(mic.cost)}</span>
+                    <span className="text-orange-700 font-bold">{formatStageTime(mic.stageTime)}</span>
                   </div>
                 </CardContent>
               </Card>
