@@ -38,8 +38,18 @@ const OpenMics = () => {
   const { user, signOut } = useAuth();
   const { data: likedMics = [] } = useUserLikedMics();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const hasScrolled = useRef(false);
+
+  // Auto-open Add Mic modal when ?addMic=true is in URL (from marquee banner link)
+  useEffect(() => {
+    if (searchParams.get('addMic') === 'true') {
+      setShowRequestModal(true);
+      // Clean up the URL param
+      searchParams.delete('addMic');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island", "Inland Empire"];
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
