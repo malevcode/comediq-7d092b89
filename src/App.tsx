@@ -38,6 +38,7 @@ import AdvertiseWithUs from "./pages/AdvertiseWithUs";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AddShow from "./pages/AddShow";
 import SavedMics from "./pages/SavedMics";
+import DevView from "./pages/DevView";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -90,6 +91,7 @@ const App = () => (
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/add-show" element={<AddShow />} />
             <Route path="/saved" element={<SavedMics />} />
+            <Route path="/dev-view" element={<TabProvider><DevView /></TabProvider>} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

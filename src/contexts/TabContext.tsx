@@ -9,6 +9,7 @@ const TabContext = createContext<TabContextType | undefined>(undefined);
 
 export const TabProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeTab, setActiveTab] = useState("find-mics");
+  // Scroll positions tracked: find-mics, playlists, show-scheduler, dev-view
   return (
     <TabContext.Provider value={{ activeTab, setActiveTab }}>
       {children}

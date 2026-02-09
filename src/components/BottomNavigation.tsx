@@ -29,6 +29,7 @@ const BottomNavigation = () => {
                         location.pathname === "/shows" ||
                         location.pathname === "/job-board" ||
                         location.pathname === "/host-dashboard" ||
+                        location.pathname === "/dev-view" ||
                         location.pathname.startsWith("/mic/");
             }
             
