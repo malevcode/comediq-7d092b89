@@ -1,129 +1,141 @@
 
 
-# Fix "Add Mic" Button -- Connect Form to Supabase
+# Dev View -- Spreadsheet/Excel View for Open Mics
 
-## Problem Diagnosis
+## Overview
+Create a new "Dev View" page accessible from the Perform tab that displays all open mic data in a Google Sheets-style spreadsheet. This gives users the same familiar tabular experience they currently get from the open source Google Sheet, but with up-to-date Supabase data. Logged-in users can edit cells inline (auto-save on blur). Sensitive columns (phone numbers, user info, sms_response) are excluded.
 
-The + button opens the form correctly, but submissions **fail silently** due to three issues:
+## Why This Matters
+Hundreds of users still check the original Google Sheet because it offers:
+- A dense, scrollable spreadsheet view of all mic data
+- Offline-friendly (static, cacheable data)
+- Editable cells for community corrections
 
-### Issue 1: Missing Columns in `open_mics_requests` Table
-The form collects 17 fields, but the `open_mics_requests` table only has 10 columns:
-
-| Table Has | Form Sends (Missing from Table) |
-|-----------|-------------------------------|
-| unique_identifier, show_title, date, time, venue_name, borough, user_id, created_at, reviewed, status | neighborhood, location, venue_type, cost, stage_time, sign_up_instructions, hosts_organizers, changes_updates, other_rules, city, host_phone |
-
-### Issue 2: Data Type Mismatch
-- `date` column is type `DATE` but code inserts a weekday string like `"Monday"` -- this causes a type error
-- `time` column is type `TIME` but code inserts strings like `"7:00 PM"` -- may also fail
-
-### Issue 3: Auth-Only Insert Policy
-The RLS policy only allows **authenticated** users to insert. Non-logged-in users clicking + will get a silent failure.
+This page replicates all of that with live Supabase data.
 
 ---
 
-## Solution
+## What Gets Built
 
-### Step 1: Database Migration -- Expand `open_mics_requests` Table
+### 1. New Page: `src/pages/DevView.tsx`
 
-Add all the missing columns and fix column types so the request table can store everything the form collects:
+A full-page spreadsheet component that:
 
-```sql
--- Add missing columns to match the form fields
-ALTER TABLE open_mics_requests
-  ADD COLUMN IF NOT EXISTS neighborhood text,
-  ADD COLUMN IF NOT EXISTS location text,
-  ADD COLUMN IF NOT EXISTS venue_type text,
-  ADD COLUMN IF NOT EXISTS cost text,
-  ADD COLUMN IF NOT EXISTS stage_time text,
-  ADD COLUMN IF NOT EXISTS sign_up_instructions text,
-  ADD COLUMN IF NOT EXISTS hosts_organizers text,
-  ADD COLUMN IF NOT EXISTS changes_updates text,
-  ADD COLUMN IF NOT EXISTS other_rules text,
-  ADD COLUMN IF NOT EXISTS city text DEFAULT 'New York',
-  ADD COLUMN IF NOT EXISTS host_phone text,
-  ADD COLUMN IF NOT EXISTS latest_end_time text,
-  ADD COLUMN IF NOT EXISTS open_mic text;
+- Fetches all active mics from `open_mics_historical` using the existing `useOpenMics` hook (already cached for 10 min, works offline if previously loaded)
+- Displays every shareable column in a horizontal-scrolling table
+- Logged-in users can click any cell to edit it inline (auto-saves on blur, like the admin spreadsheet)
+- Non-logged-in users see a read-only view
+- Column filters for Day, Borough, City
+- Search bar for quick text filtering
+- Dense rows (compact styling similar to AdminMicsSpreadsheet)
 
--- Fix type mismatches: change date to text (stores weekday name)
--- and time to text (stores free-form time string)
-ALTER TABLE open_mics_requests
-  ALTER COLUMN date TYPE text USING date::text,
-  ALTER COLUMN time TYPE text USING time::text;
+**Columns displayed (in order):**
 
--- Allow anonymous users to submit mic requests too
-CREATE POLICY "Allow anonymous inserts"
-  ON open_mics_requests FOR INSERT
-  TO anon
-  WITH CHECK (true);
+| Column | DB Field | Editable |
+|--------|----------|----------|
+| Day | day | Yes (logged in) |
+| Start Time | start_time | Yes |
+| End Time | latest_end_time | Yes |
+| Name | open_mic | Yes |
+| Venue | venue_name | Yes |
+| Borough | borough | Yes |
+| Neighborhood | neighborhood | Yes |
+| Address | location | Yes |
+| City | city | Yes |
+| Venue Type | venue_type | Yes |
+| Cost | cost | Yes |
+| Stage Time | stage_time | Yes |
+| Sign-Up Instructions | sign_up_instructions | Yes |
+| Host(s) | hosts_organizers | Yes |
+| Instagram/Updates | changes_updates | Yes |
+| Other Rules | other_rules | Yes |
+| Last Verified | last_verified | Yes |
+
+**Excluded columns** (sensitive/admin-only):
+- `sms_response` -- internal admin field
+- `host_phone` -- PII
+- `signup_enabled` -- admin-managed
+- `active` -- admin-managed
+- `cover_image_url` -- not useful in spreadsheet
+
+### 2. New Tab in Perform Page
+
+Add a 4th tab to `src/pages/Perform.tsx`:
+
+```
+[ Find Mics ] [ Playlists ] [ Shows ] [ Dev View ]
 ```
 
-### Step 2: Update `handleRequestMic` in `src/pages/OpenMics.tsx`
+The "Dev View" tab will use a spreadsheet icon (`Sheet` or `Table2` from lucide-react) and link to the new component.
 
-Map ALL form fields to the correct database columns:
+### 3. Route Registration
 
-```tsx
-const handleRequestMic = async (formData: MicRequestFormData) => {
-  try {
-    const insertObj = {
-      show_title: formData.open_mic,
-      open_mic: formData.open_mic,
-      venue_name: formData.venue_name,
-      borough: formData.borough || null,
-      neighborhood: formData.neighborhood || null,
-      location: formData.location || null,
-      date: formData.day,           // weekday name stored as text now
-      time: formData.start_time,    // free-form time string
-      latest_end_time: formData.latest_end_time || null,
-      stage_time: formData.stage_time || null,
-      cost: formData.cost || null,
-      venue_type: formData.venue_type || null,
-      sign_up_instructions: formData.sign_up_instructions || null,
-      hosts_organizers: formData.hosts_organizers || null,
-      host_phone: formData.host_phone || null,
-      changes_updates: formData.changes_updates || null,
-      other_rules: formData.other_rules || null,
-      city: formData.city || 'New York',
-      user_id: user?.id || null,
-    };
-
-    const { error } = await (supabase as SupabaseClient)
-      .from("open_mics_requests")
-      .insert([insertObj]);
-
-    if (error) {
-      console.error('Insert error:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to submit. Please try again.",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Request submitted!",
-        description: "Thank you! We will review your mic suggestion soon.",
-      });
-      setShowRequestModal(false);
-    }
-  } catch (e) {
-    console.error('Unexpected error:', e);
-    toast({
-      title: "Error",
-      description: "An unexpected error occurred.",
-      variant: "destructive",
-    });
-  }
-};
-```
+Add `/dev-view` route in `src/App.tsx` and update `BottomNavigation.tsx` to keep the Perform tab highlighted when on `/dev-view`.
 
 ---
 
-## Files to Change
+## Technical Approach
+
+### Data Source
+Reuses the existing `useOpenMics()` hook which:
+- Fetches from `open_mics_historical`
+- Filters to active mics only
+- Has 10-minute stale time (works offline from cache)
+- Returns `OpenMic[]` mapped interface
+
+For the spreadsheet, we also need raw DB column names for editing. We'll fetch data directly from Supabase in this component (similar to `AdminMicsSpreadsheet`) to avoid the mapping layer.
+
+### Inline Editing (Logged-In Users Only)
+- Click a cell to enter edit mode (shows an Input)
+- On blur or Enter: auto-save to `open_mics_historical` via Supabase
+- On Escape: cancel edit
+- Visual feedback: brief green ring on successful save
+- Uses the existing RLS policy: "Verified hosts can update their mic info" for hosts, and regular authenticated users will get a permission error (gracefully handled with a toast)
+
+**RLS consideration**: Currently only admins and verified hosts can UPDATE `open_mics_historical`. For community editing, we need to add an RLS policy allowing authenticated users to update non-sensitive columns. This will be done via a database migration.
+
+### New RLS Policy
+Add an UPDATE policy for authenticated users on `open_mics_historical` that allows editing the public-facing columns only. This keeps admin-only fields (active, signup_enabled, sms_response) locked down.
+
+---
+
+## Files to Create/Modify
 
 | File | Action |
 |------|--------|
-| Database migration | Add 13 missing columns, fix date/time types, add anon insert policy |
-| `src/pages/OpenMics.tsx` | Update `handleRequestMic` to send all form fields to the database |
+| `src/pages/DevView.tsx` | **Create** -- New spreadsheet page component |
+| `src/pages/Perform.tsx` | **Modify** -- Add 4th "Dev View" tab, update grid-cols-3 to grid-cols-4 |
+| `src/contexts/TabContext.tsx` | **Modify** -- Add 'dev-view' to scroll positions |
+| `src/App.tsx` | **Modify** -- Add `/dev-view` route |
+| `src/components/BottomNavigation.tsx` | **Modify** -- Add `/dev-view` to Perform active check |
+| Database migration | **Create** -- Add RLS policy for authenticated user updates on safe columns |
 
-No changes needed to `AddMicRequestForm.tsx` -- the form already collects all the right fields.
+---
+
+## Database Migration
+
+```sql
+-- Allow authenticated users to update public-facing columns
+-- This enables community editing like the original Google Sheet
+CREATE POLICY "Authenticated users can update public mic info"
+  ON open_mics_historical
+  FOR UPDATE
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+```
+
+Note: Since Postgres RLS policies cannot restrict which columns are updated at the policy level, the application code will enforce which columns are editable. The existing admin-only fields (active, signup_enabled) will simply not be rendered as editable in the Dev View UI.
+
+---
+
+## Key Design Decisions
+
+1. **Separate from Admin Spreadsheet**: The Admin spreadsheet has bulk operations (delete, activate/deactivate, export) and shows all columns including sensitive ones. Dev View is a public-facing, simplified version.
+
+2. **Offline-friendly**: Data is cached via React Query with a 10-minute stale time. Once loaded, the spreadsheet remains viewable even if the connection drops.
+
+3. **No bulk operations**: Unlike the admin view, no checkboxes, no bulk delete/export. Just simple cell-by-cell editing.
+
+4. **Dense styling**: Compact rows (~24px height) to maximize visible data, matching the Google Sheets feel.
 
