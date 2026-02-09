@@ -17,6 +17,7 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import BottomNavigation from "./components/BottomNavigation";
 import ScrollToTop from "./components/ScrollToTop";
+import MarqueeBanner from "./components/MarqueeBanner";
 import SiteFooter from "./components/SiteFooter";
 import ProgressTrackerPage from "./pages/ProgressTracker";
 import Home from "./components/Home";
@@ -62,6 +63,8 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
           <ScrollToTop />
+          <MarqueeBanner />
+          <div className="pt-6">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/perform" element={<TabProvider><Perform /></TabProvider>} />
@@ -96,6 +99,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </div>
           <SiteFooter />
           <BottomNavigation />
         </BrowserRouter>
