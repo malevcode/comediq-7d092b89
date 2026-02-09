@@ -1,185 +1,120 @@
 
 
-# Add Mic Button with Comprehensive Mic Request Form
+# Fix "Add Mic" Button -- Connect Form to Supabase
 
-## Overview
-Add a "+" button next to the Filters button on the OpenMics page to allow users to request new mics. Create a new comprehensive form component that collects ALL fields needed for the `open_mics_historical` table.
+## Problem Diagnosis
 
----
+The + button opens the form correctly, but submissions **fail silently** due to three issues:
 
-## Current State
+### Issue 1: Missing Columns in `open_mics_requests` Table
+The form collects 17 fields, but the `open_mics_requests` table only has 10 columns:
 
-**OpenMics page search/filters bar (lines 592-607):**
-```tsx
-<div className="flex flex-row gap-3 items-center">
-  <div className="flex-1 relative">
-    <Search ... />
-    <Input ... />
-  </div>
-  <div className="flex gap-2">
-    <MicFilters ... />
-  </div>
-</div>
-```
+| Table Has | Form Sends (Missing from Table) |
+|-----------|-------------------------------|
+| unique_identifier, show_title, date, time, venue_name, borough, user_id, created_at, reviewed, status | neighborhood, location, venue_type, cost, stage_time, sign_up_instructions, hosts_organizers, changes_updates, other_rules, city, host_phone |
 
-**Existing ShowForm** only collects: title, venue, date, time, borough, notes
+### Issue 2: Data Type Mismatch
+- `date` column is type `DATE` but code inserts a weekday string like `"Monday"` -- this causes a type error
+- `time` column is type `TIME` but code inserts strings like `"7:00 PM"` -- may also fail
 
-**Required fields for `open_mics_historical`:**
-- `open_mic` (name) - required
-- `venue_name` - required
-- `borough` - required for NYC
-- `neighborhood`
-- `location` (address)
-- `day` (weekday) - required
-- `start_time` - required
-- `latest_end_time`
-- `cost`
-- `stage_time`
-- `sign_up_instructions` (free text)
-- `hosts_organizers` (host Instagram)
-- `venue_type` (comedy club, bar, etc.)
-- `changes_updates` (host contact for updates)
-- `other_rules`
-- `city` (default: New York)
-- Host phone number (optional - for contact)
+### Issue 3: Auth-Only Insert Policy
+The RLS policy only allows **authenticated** users to insert. Non-logged-in users clicking + will get a silent failure.
 
 ---
 
-## Implementation Plan
+## Solution
 
-### 1. Create New AddMicRequestForm Component
+### Step 1: Database Migration -- Expand `open_mics_requests` Table
 
-**New file: `src/components/host/AddMicRequestForm.tsx`**
+Add all the missing columns and fix column types so the request table can store everything the form collects:
 
-A comprehensive modal form with all required fields organized into logical sections:
+```sql
+-- Add missing columns to match the form fields
+ALTER TABLE open_mics_requests
+  ADD COLUMN IF NOT EXISTS neighborhood text,
+  ADD COLUMN IF NOT EXISTS location text,
+  ADD COLUMN IF NOT EXISTS venue_type text,
+  ADD COLUMN IF NOT EXISTS cost text,
+  ADD COLUMN IF NOT EXISTS stage_time text,
+  ADD COLUMN IF NOT EXISTS sign_up_instructions text,
+  ADD COLUMN IF NOT EXISTS hosts_organizers text,
+  ADD COLUMN IF NOT EXISTS changes_updates text,
+  ADD COLUMN IF NOT EXISTS other_rules text,
+  ADD COLUMN IF NOT EXISTS city text DEFAULT 'New York',
+  ADD COLUMN IF NOT EXISTS host_phone text,
+  ADD COLUMN IF NOT EXISTS latest_end_time text,
+  ADD COLUMN IF NOT EXISTS open_mic text;
 
-```tsx
-// Form sections:
-// 1. Basic Info: mic name, venue name, city
-// 2. Location: borough, neighborhood, address
-// 3. Schedule: day, start time, end time, stage time
-// 4. Details: cost, venue type, signup instructions
-// 5. Host Info: host name/instagram, phone (optional), updates contact
-// 6. Rules: other rules (free text)
+-- Fix type mismatches: change date to text (stores weekday name)
+-- and time to text (stores free-form time string)
+ALTER TABLE open_mics_requests
+  ALTER COLUMN date TYPE text USING date::text,
+  ALTER COLUMN time TYPE text USING time::text;
+
+-- Allow anonymous users to submit mic requests too
+CREATE POLICY "Allow anonymous inserts"
+  ON open_mics_requests FOR INSERT
+  TO anon
+  WITH CHECK (true);
 ```
 
-**Form fields:**
+### Step 2: Update `handleRequestMic` in `src/pages/OpenMics.tsx`
 
-| Field | Type | Required | Placeholder/Options |
-|-------|------|----------|---------------------|
-| open_mic | Input | Yes | "e.g., Comedy Night at Joe's" |
-| venue_name | Input | Yes | "e.g., Joe's Bar" |
-| city | Select | Yes | New York (default), Los Angeles |
-| borough | Select | Conditional* | Manhattan, Brooklyn, Queens, Bronx, Staten Island |
-| neighborhood | Input | No | "e.g., East Village" |
-| location | Input | No | "123 Main St, New York, NY" |
-| day | Select | Yes | Monday-Sunday |
-| start_time | Time Input | Yes | "7:00 PM" |
-| latest_end_time | Time Input | No | "9:00 PM" |
-| stage_time | Input | No | "e.g., 5 minutes" |
-| cost | Input | No | "e.g., Free, $5, 1 drink min" |
-| venue_type | Select | No | Comedy Club, Bar, Restaurant, Coffee Shop, Other |
-| sign_up_instructions | Textarea | No | "How to sign up for this mic..." |
-| hosts_organizers | Input | No | "@instagram_handle" |
-| host_phone | Input | No | "(555) 123-4567" |
-| changes_updates | Input | No | "Contact for changes (Instagram)" |
-| other_rules | Textarea | No | "Any additional rules..." |
-
-*Borough required if city is NYC
-
-**Layout:**
-- Scrollable modal with max height
-- Form organized in 2-column grid where appropriate
-- Clear section headers
-- Submit button at bottom
-
-### 2. Update OpenMics Page
-
-**File: `src/pages/OpenMics.tsx`**
-
-Add a "+" button next to the Filters button:
+Map ALL form fields to the correct database columns:
 
 ```tsx
-// Line ~604-606 - Update the flex container
-<div className="flex gap-2">
-  <Button
-    onClick={() => setShowRequestModal(true)}
-    variant="outline"
-    size="sm"
-    className="flex items-center gap-1 px-3 py-4 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
-  >
-    <Plus className="h-4 w-4" />
-  </Button>
-  <MicFilters ... />
-</div>
-```
-
-Import changes:
-```tsx
-import { Search, HelpCircle, LogIn, Plus } from "lucide-react";
-import AddMicRequestForm from "@/components/host/AddMicRequestForm";
-```
-
-Replace the ShowForm modal with the new AddMicRequestForm:
-```tsx
-{showRequestModal && (
-  <AddMicRequestForm 
-    onSubmit={handleRequestMic} 
-    onCancel={() => setShowRequestModal(false)} 
-  />
-)}
-```
-
-### 3. Update handleRequestMic Function
-
-**File: `src/pages/OpenMics.tsx`**
-
-Expand the submit handler to include all new fields:
-
-```tsx
-const handleRequestMic = async (formData: MicRequestData) => {
+const handleRequestMic = async (formData: MicRequestFormData) => {
   try {
     const insertObj = {
       show_title: formData.open_mic,
+      open_mic: formData.open_mic,
       venue_name: formData.venue_name,
-      borough: formData.borough,
-      date: formData.day, // Store weekday
-      time: formData.start_time,
-      // Additional fields stored in a notes/metadata field or 
-      // requires expanding open_mics_requests table
-      created_at: new Date().toISOString(),
+      borough: formData.borough || null,
+      neighborhood: formData.neighborhood || null,
+      location: formData.location || null,
+      date: formData.day,           // weekday name stored as text now
+      time: formData.start_time,    // free-form time string
+      latest_end_time: formData.latest_end_time || null,
+      stage_time: formData.stage_time || null,
+      cost: formData.cost || null,
+      venue_type: formData.venue_type || null,
+      sign_up_instructions: formData.sign_up_instructions || null,
+      hosts_organizers: formData.hosts_organizers || null,
+      host_phone: formData.host_phone || null,
+      changes_updates: formData.changes_updates || null,
+      other_rules: formData.other_rules || null,
+      city: formData.city || 'New York',
       user_id: user?.id || null,
     };
-    // ... rest of submission logic
+
+    const { error } = await (supabase as SupabaseClient)
+      .from("open_mics_requests")
+      .insert([insertObj]);
+
+    if (error) {
+      console.error('Insert error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit. Please try again.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Request submitted!",
+        description: "Thank you! We will review your mic suggestion soon.",
+      });
+      setShowRequestModal(false);
+    }
+  } catch (e) {
+    console.error('Unexpected error:', e);
+    toast({
+      title: "Error",
+      description: "An unexpected error occurred.",
+      variant: "destructive",
+    });
   }
 };
 ```
-
-### 4. Remove Bottom "Request a Mic" Card
-
-Since the + button is now prominently placed at the top, remove or hide the bottom card (lines 652-661) to reduce redundancy.
-
----
-
-## Technical Details
-
-### Database Consideration
-
-The `open_mics_requests` table currently only has:
-- unique_identifier, show_title, date, time, venue_name, borough, user_id, created_at, reviewed, status
-
-**Option A**: Store extra fields as JSON in a new column
-**Option B**: Add migration to expand the table with all fields
-**Option C**: Store essential fields now, let admins fill in details after approval
-
-Recommend **Option C** for simplicity - collect essential fields and have admins complete the rest during review.
-
-### Form Validation
-
-- Mic name, venue name, day, start time: Required
-- Borough: Required if city = "New York"
-- Phone: Optional, validate format if provided
-- Times: Validate format (12h or 24h)
 
 ---
 
@@ -187,55 +122,8 @@ Recommend **Option C** for simplicity - collect essential fields and have admins
 
 | File | Action |
 |------|--------|
-| `src/components/host/AddMicRequestForm.tsx` | Create new comprehensive form component |
-| `src/pages/OpenMics.tsx` | Add + button, import new form, update submit handler |
-| `src/components/ShowForm.tsx` | No changes (can keep for other uses) |
+| Database migration | Add 13 missing columns, fix date/time types, add anon insert policy |
+| `src/pages/OpenMics.tsx` | Update `handleRequestMic` to send all form fields to the database |
 
----
-
-## Visual Layout
-
-### Header Bar (After)
-```
-┌─────────────────────────────────────────────────────────────┐
-│ [🔍 Search venues, neighborhoods...              ] [+] [⚙️] │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### New Form Modal
-```
-┌─────────────────────────────────────────────────────────┐
-│ Request New Mic                                    [X]  │
-├─────────────────────────────────────────────────────────┤
-│ ─ Basic Info ─                                          │
-│ Mic Name *        [                              ]      │
-│ Venue Name *      [                              ]      │
-│ City *            [New York          ▼]                 │
-│                                                         │
-│ ─ Location ─                                            │
-│ Borough *         [Select...         ▼]                 │
-│ Neighborhood      [                              ]      │
-│ Address           [                              ]      │
-│                                                         │
-│ ─ Schedule ─                                            │
-│ Day *       [Monday ▼]   Start Time * [7:00 PM]        │
-│ End Time    [9:00 PM]    Stage Time   [5 min  ]        │
-│                                                         │
-│ ─ Details ─                                             │
-│ Cost              [Free / $5 / 1 drink min]            │
-│ Venue Type        [Bar               ▼]                 │
-│ Sign-up Instructions                                    │
-│ [                                                  ]    │
-│                                                         │
-│ ─ Host Info ─                                           │
-│ Host Instagram    [@handle           ]                  │
-│ Phone (optional)  [(555) 123-4567    ]                  │
-│ Updates Contact   [@handle           ]                  │
-│                                                         │
-│ ─ Rules ─                                               │
-│ [Other rules or notes...                           ]    │
-│                                                         │
-│                           [Submit Mic Request]          │
-└─────────────────────────────────────────────────────────┘
-```
+No changes needed to `AddMicRequestForm.tsx` -- the form already collects all the right fields.
 
