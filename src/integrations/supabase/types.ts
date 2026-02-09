@@ -665,39 +665,78 @@ export type Database = {
       open_mics_requests: {
         Row: {
           borough: string | null
+          changes_updates: string | null
+          city: string | null
+          cost: string | null
           created_at: string | null
           date: string | null
+          host_phone: string | null
+          hosts_organizers: string | null
+          latest_end_time: string | null
+          location: string | null
+          neighborhood: string | null
+          open_mic: string | null
+          other_rules: string | null
           reviewed: boolean
           show_title: string | null
+          sign_up_instructions: string | null
+          stage_time: string | null
           status: string | null
           time: string | null
           unique_identifier: string
           user_id: string | null
           venue_name: string | null
+          venue_type: string | null
         }
         Insert: {
           borough?: string | null
+          changes_updates?: string | null
+          city?: string | null
+          cost?: string | null
           created_at?: string | null
           date?: string | null
+          host_phone?: string | null
+          hosts_organizers?: string | null
+          latest_end_time?: string | null
+          location?: string | null
+          neighborhood?: string | null
+          open_mic?: string | null
+          other_rules?: string | null
           reviewed?: boolean
           show_title?: string | null
+          sign_up_instructions?: string | null
+          stage_time?: string | null
           status?: string | null
           time?: string | null
           unique_identifier?: string
           user_id?: string | null
           venue_name?: string | null
+          venue_type?: string | null
         }
         Update: {
           borough?: string | null
+          changes_updates?: string | null
+          city?: string | null
+          cost?: string | null
           created_at?: string | null
           date?: string | null
+          host_phone?: string | null
+          hosts_organizers?: string | null
+          latest_end_time?: string | null
+          location?: string | null
+          neighborhood?: string | null
+          open_mic?: string | null
+          other_rules?: string | null
           reviewed?: boolean
           show_title?: string | null
+          sign_up_instructions?: string | null
+          stage_time?: string | null
           status?: string | null
           time?: string | null
           unique_identifier?: string
           user_id?: string | null
           venue_name?: string | null
+          venue_type?: string | null
         }
         Relationships: [
           {

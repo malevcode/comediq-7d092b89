@@ -423,28 +423,46 @@ const OpenMics = () => {
     try {
       const insertObj = {
         show_title: formData.open_mic,
+        open_mic: formData.open_mic,
         venue_name: formData.venue_name,
         borough: formData.borough || null,
+        neighborhood: formData.neighborhood || null,
+        location: formData.location || null,
         date: formData.day,
         time: formData.start_time,
-        created_at: new Date().toISOString(),
+        latest_end_time: formData.latest_end_time || null,
+        stage_time: formData.stage_time || null,
+        cost: formData.cost || null,
+        venue_type: formData.venue_type || null,
+        sign_up_instructions: formData.sign_up_instructions || null,
+        hosts_organizers: formData.hosts_organizers || null,
+        host_phone: formData.host_phone || null,
+        changes_updates: formData.changes_updates || null,
+        other_rules: formData.other_rules || null,
+        city: formData.city || 'New York',
         user_id: user?.id || null,
       };
-      const { error } = await (supabase as SupabaseClient).from("open_mics_requests").insert([insertObj]);
+
+      const { error } = await (supabase as SupabaseClient)
+        .from("open_mics_requests")
+        .insert([insertObj]);
+
       if (error) {
+        console.error('Insert error:', error);
         toast({
           title: "Error",
-          description: "Failed to submit your request. Please try again.",
+          description: error.message || "Failed to submit. Please try again.",
           variant: "destructive",
         });
       } else {
         toast({
           title: "Request submitted!",
-          description: "Thank you for your suggestion. We will review it soon.",
+          description: "Thank you! We will review your mic suggestion soon.",
         });
         setShowRequestModal(false);
       }
     } catch (e) {
+      console.error('Unexpected error:', e);
       toast({
         title: "Error",
         description: "An unexpected error occurred.",
