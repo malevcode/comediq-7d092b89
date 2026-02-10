@@ -21,7 +21,7 @@ const bottomAds: AdBox[] = [
 
 const AdItem = ({ ad }: { ad: AdBox }) => {
   const className =
-    "inline-flex items-center px-4 py-0.5 mx-3 rounded-full bg-white/20 text-white text-xs font-semibold tracking-wide hover:bg-white/30 transition-colors whitespace-nowrap";
+    "inline-flex items-center px-4 py-0.5 mx-3 rounded-full bg-[#1a5fb4]/20 text-[#8b7355] text-xs font-semibold tracking-wide hover:bg-[#1a5fb4]/30 transition-colors whitespace-nowrap";
 
   if (ad.external) {
     return (
@@ -56,14 +56,14 @@ const MarqueeBanner = () => {
   return (
     <>
       {/* Top banner - fixed just below the PageHeader (~80px) */}
-      <div className="fixed top-[80px] left-0 right-0 z-[45] h-7 bg-comediq-blue overflow-hidden flex items-center">
+      <div className="fixed top-[80px] left-0 right-0 z-[45] h-7 bg-[#f5f0e6] border-b border-[#d4c4a8] overflow-hidden flex items-center">
         <div className="animate-marquee whitespace-nowrap flex items-center">
           {renderAdStrip(topAds, 10)}
         </div>
       </div>
 
       {/* Bottom banner - fixed at very bottom of viewport */}
-      <div className="fixed bottom-0 left-0 right-0 z-[60] h-7 bg-comediq-blue overflow-hidden flex items-center">
+      <div className="fixed bottom-0 left-0 right-0 z-[60] h-7 bg-[#f5f0e6] border-t border-[#d4c4a8] overflow-hidden flex items-center">
         <div className="animate-marquee whitespace-nowrap flex items-center">
           {renderAdStrip(bottomAds, 8)}
         </div>
