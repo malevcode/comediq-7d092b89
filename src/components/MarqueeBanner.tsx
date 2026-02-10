@@ -56,7 +56,7 @@ const MarqueeBanner = () => {
   return (
     <>
       {/* Top banner - fixed just below the PageHeader (~80px) */}
-      <div className="fixed top-20 left-0 right-0 z-[45] h-7 bg-comediq-blue overflow-hidden flex items-center">
+      <div className="fixed top-[80px] left-0 right-0 z-[45] h-7 bg-comediq-blue overflow-hidden flex items-center">
         <div className="animate-marquee whitespace-nowrap flex items-center">
           {renderAdStrip(topAds, 10)}
         </div>
@@ -64,7 +64,7 @@ const MarqueeBanner = () => {
 
       {/* Bottom banner - fixed at very bottom of viewport */}
       <div className="fixed bottom-0 left-0 right-0 z-[60] h-7 bg-comediq-blue overflow-hidden flex items-center">
-        <div className="animate-marquee-reverse whitespace-nowrap flex items-center">
+        <div className="animate-marquee whitespace-nowrap flex items-center">
           {renderAdStrip(bottomAds, 8)}
         </div>
       </div>
