@@ -21,7 +21,7 @@ const bottomAds: AdBox[] = [
 
 const AdItem = ({ ad }: { ad: AdBox }) => {
   const className =
-    "inline-flex items-center px-4 py-0.5 mx-3 rounded-full bg-[#1a5fb4]/20 text-[#8b7355] text-xs font-semibold tracking-wide hover:bg-[#1a5fb4]/30 transition-colors whitespace-nowrap";
+    "inline-flex items-center px-4 py-0.5 mx-3 rounded-full bg-[#1a5fb4]/20 text-[#1a5fb4] text-xs font-semibold tracking-wide hover:bg-[#1a5fb4]/30 transition-colors whitespace-nowrap";
 
   if (ad.external) {
     return (
