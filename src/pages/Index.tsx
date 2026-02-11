@@ -91,7 +91,7 @@ const Index = () => {
                       ))}
                     </div>
                     <div className="text-center mt-8">
-                      <Link to="/open-mics" className="text-orange-600 hover:underline text-lg font-medium">
+                      <Link to="/open-mics" className="text-[#1a5fb4] hover:underline text-lg font-medium">
                         View all open mics →
                       </Link>
                     </div>

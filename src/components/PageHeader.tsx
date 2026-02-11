@@ -69,7 +69,7 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
             ) : (
               <Button 
                 onClick={handleSignUp}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full"
+                className="bg-[#1a5fb4] hover:bg-[#164d94] text-white px-6 py-2 rounded-full"
               >
                 Sign In
               </Button>
@@ -94,7 +94,7 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
             ) : (
               <Button 
                 onClick={handleSignUp}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full"
+                className="bg-[#1a5fb4] hover:bg-[#164d94] text-white px-6 py-2 rounded-full"
               >
                 Sign In
               </Button>
