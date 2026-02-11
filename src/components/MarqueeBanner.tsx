@@ -56,7 +56,7 @@ const MarqueeBanner = () => {
   return (
     <>
       {/* Top banner - fixed just below the PageHeader (~80px) */}
-      <div className="fixed top-[80px] left-0 right-0 z-[45] h-7 bg-[#f5f0e6] border-b border-[#d4c4a8] overflow-x-auto overflow-y-hidden flex items-center scrollbar-hide touch-pan-x">
+      <div className="fixed top-[80px] sm:top-[96px] left-0 right-0 z-[45] h-7 bg-[#f5f0e6] border-b border-[#d4c4a8] overflow-x-auto overflow-y-hidden flex items-center scrollbar-hide touch-pan-x">
         <div className="animate-marquee whitespace-nowrap flex items-center hover:[animation-play-state:paused]">
           {renderAdStrip(topAds, 10)}
         </div>
