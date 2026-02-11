@@ -51,7 +51,7 @@ export default function Laugh() {
         subtitle="Discover live comedy happening near you"
       />
       
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="max-w-4xl mx-auto px-4 pt-32 sm:pt-36 pb-6">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="find-shows" className="flex items-center gap-2">
