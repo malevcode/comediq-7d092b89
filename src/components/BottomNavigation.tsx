@@ -15,7 +15,7 @@ const BottomNavigation = () => {
   ];
 
   return (
-    <nav className="fixed bottom-6 left-0 right-0 bg-white border-t border-gray-200 z-50">
+    <nav className="fixed bottom-7 left-0 right-0 bg-white border-t border-gray-200 z-50">
       <div className="max-w-md mx-auto">
         <div className="flex justify-around py-2">
           {navItems.map(({ path, icon: Icon, label }) => {
