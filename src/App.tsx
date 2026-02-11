@@ -64,7 +64,7 @@ const App = () => (
           <BrowserRouter>
           <ScrollToTop />
           <MarqueeBanner />
-          <div className="pt-7 pb-14">
+          <div className="pb-8">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/perform" element={<TabProvider><Perform /></TabProvider>} />
