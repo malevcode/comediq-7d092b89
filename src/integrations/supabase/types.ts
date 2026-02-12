@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_clicks: {
+        Row: {
+          ad_id: string
+          clicked_at: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          ad_id: string
+          clicked_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          ad_id?: string
+          clicked_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_clicks_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "banner_ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audience_shows: {
         Row: {
           age_restriction: string | null
@@ -132,6 +161,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      banner_ads: {
+        Row: {
+          amount_paid: number | null
+          client_name: string | null
+          created_at: string | null
+          end_date: string | null
+          external: boolean | null
+          href: string
+          icon_url: string | null
+          id: string
+          is_active: boolean | null
+          label: string
+          payment_method: string | null
+          position: string | null
+          sort_order: number | null
+          start_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount_paid?: number | null
+          client_name?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          external?: boolean | null
+          href: string
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          label: string
+          payment_method?: string | null
+          position?: string | null
+          sort_order?: number | null
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount_paid?: number | null
+          client_name?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          external?: boolean | null
+          href?: string
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          label?: string
+          payment_method?: string | null
+          position?: string | null
+          sort_order?: number | null
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       comedian_social_links: {
         Row: {
@@ -1505,6 +1588,21 @@ export type Database = {
       }
     }
     Views: {
+      ad_click_counts: {
+        Row: {
+          ad_id: string | null
+          click_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_clicks_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "banner_ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mic_comment_counts: {
         Row: {
           comment_count: number | null

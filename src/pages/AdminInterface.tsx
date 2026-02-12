@@ -29,6 +29,7 @@ import { MicAnalyticsDashboard } from '@/components/admin/MicAnalyticsDashboard'
 import { UserAnalyticsDashboard } from '@/components/admin/UserAnalyticsDashboard';
 import BulkImportInterface from '@/components/admin/BulkImportInterface';
 import { SmartImportInterface } from '@/components/admin/SmartImportInterface';
+import { AdminBannerAdsManager } from '@/components/admin/AdminBannerAdsManager';
 import PageHeader from '@/components/PageHeader';
 import { approveMicRequest, type MicFormData } from '@/api/admin';
 
@@ -195,7 +196,7 @@ const AdminInterface = () => {
 
       <div className="max-w-3xl mx-auto px-4 pt-28 pb-20">
         <Tabs defaultValue="analytics" className="w-full" onValueChange={setTab}>
-          <TabsList className="mb-8 w-full grid grid-cols-7 gap-1">
+          <TabsList className="mb-8 w-full grid grid-cols-8 gap-1">
             <TabsTrigger value="analytics" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               Mics
             </TabsTrigger>
@@ -210,6 +211,9 @@ const AdminInterface = () => {
             </TabsTrigger>
             <TabsTrigger value="reviewed" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               Reviewed
+            </TabsTrigger>
+            <TabsTrigger value="ads" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              Ads
             </TabsTrigger>
             <TabsTrigger value="smart-import" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               Smart
@@ -231,6 +235,9 @@ const AdminInterface = () => {
                 <UserAnalyticsDashboard />
               </CardContent>
             </Card>
+          </TabsContent>
+          <TabsContent value="ads">
+            <AdminBannerAdsManager />
           </TabsContent>
           <TabsContent value="smart-import">
             <SmartImportInterface />
