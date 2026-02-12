@@ -1,26 +1,44 @@
 
-# Fix: Ad Icon Overflowing the Pill Boundary
 
-## Problem
-The Likeable Podcast icon (16x16px via `w-4 h-4`) is taller than the pill's content area. The pill uses `py-0.5` (2px top/bottom padding) with `text-xs` line height, so the 16px icon pokes out above and below.
+# Make Ad Pills Larger and More Visible (TrustMRR Style)
 
-## Solution
-Two small tweaks in `src/components/MarqueeBanner.tsx`:
+## What Changes
 
-1. **Shrink the icon** from `w-4 h-4` (16px) to `w-3.5 h-3.5` (14px) so it better fits the text line height
-2. **Add `flex-shrink-0`** to the icon so it doesn't get squished in the flex layout
+Update the ad pill styling in `src/components/MarqueeBanner.tsx` to match the reference:
 
-This keeps the icon visible and proportional without changing the overall pill size or spacing.
+**Current** -> **New**:
+- Icon: `w-3.5 h-3.5` (14px) -> `w-5 h-5` (20px)
+- Text: `text-xs` -> `text-sm`
+- Padding: `px-4 py-0.5` -> `px-5 py-1.5`
+- Gap: `gap-1.5` -> `gap-2`
+- Border: none -> subtle `border border-[#1a5fb4]/15`
+- Icon shape: keep `rounded-full` but remove cropping with `rounded-md` for square logos
+
+Also increase the banner height from `h-7` to `h-10` on both top and bottom banners to accommodate the larger pills, and adjust the top offset and bottom nav positioning accordingly.
 
 ## Technical Details
 
-**File**: `src/components/MarqueeBanner.tsx`, line 24
+**File**: `src/components/MarqueeBanner.tsx`
 
-Change the icon class from:
-```
-w-4 h-4 rounded-full object-cover
-```
-to:
-```
-w-3.5 h-3.5 rounded-full object-cover flex-shrink-0
-```
+1. Update `className` in `AdItem` from:
+   ```
+   px-4 py-0.5 mx-3 text-xs gap-1.5
+   ```
+   to:
+   ```
+   px-5 py-1.5 mx-3 text-sm gap-2 border border-[#1a5fb4]/15
+   ```
+
+2. Update icon classes from:
+   ```
+   w-3.5 h-3.5 rounded-full
+   ```
+   to:
+   ```
+   w-5 h-5 rounded-md
+   ```
+
+3. Update both banner container divs from `h-7` to `h-10`
+
+4. Update the top banner's `top-[80px]` positioning -- this stays the same but downstream components referencing the banner height may need the offset bumped from `107px` to `120px` (will check and update as needed)
+
