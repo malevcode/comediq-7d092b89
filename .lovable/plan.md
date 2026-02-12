@@ -1,141 +1,123 @@
 
 
-# Dev View -- Spreadsheet/Excel View for Open Mics
+# Full-Featured Banner Ads Management System
 
 ## Overview
-Create a new "Dev View" page accessible from the Perform tab that displays all open mic data in a Google Sheets-style spreadsheet. This gives users the same familiar tabular experience they currently get from the open source Google Sheet, but with up-to-date Supabase data. Logged-in users can edit cells inline (auto-save on blur). Sensitive columns (phone numbers, user info, sms_response) are excluded.
+Transform the hardcoded marquee banner into a complete ad management platform with client billing, scheduling, click tracking, image support, and auto-activation/deactivation -- all manageable from the Admin Dashboard.
 
-## Why This Matters
-Hundreds of users still check the original Google Sheet because it offers:
-- A dense, scrollable spreadsheet view of all mic data
-- Offline-friendly (static, cacheable data)
-- Editable cells for community corrections
+## What You'll Get
 
-This page replicates all of that with live Supabase data.
+**For the Banner Display:**
+- Each ad pill can now show a small icon/image next to the label text
+- Ads are served from the database with automatic start/end date enforcement
+- Every click on an ad is tracked in a dedicated analytics table
+
+**For the Admin Dashboard:**
+- A new **"Ads"** tab showing all banner ads in a management table
+- Full CRUD: create, edit, delete ads
+- Fields for: label, link, icon image, position (top/bottom), client name, amount paid, payment method, start date, end date, active status
+- Click-through stats displayed per ad (total clicks)
+- Ads auto-deactivate when their end date passes and auto-activate when their start date arrives
+
+**First Ad - Likeable Podcast:**
+- Label: "Likeable Podcast"
+- Icon: The uploaded thumbs-up logo (copied to `public/images/likeable-podcast.png`)
+- Link: `https://youtube.com/playlist?list=PLnHfEX5rBprYo7ASx3JK__PLnJCTvNFnx&si=lNB63gdc50CmuJJz`
+- Position: top banner
+- Client: Likeable Podcast
+- Amount paid: $140
+- Payment method: Venmo
+- Duration: 1 month (Feb 12 - Mar 12, 2026)
 
 ---
 
-## What Gets Built
+## Technical Details
 
-### 1. New Page: `src/pages/DevView.tsx`
+### 1. Database: `banner_ads` table
 
-A full-page spreadsheet component that:
-
-- Fetches all active mics from `open_mics_historical` using the existing `useOpenMics` hook (already cached for 10 min, works offline if previously loaded)
-- Displays every shareable column in a horizontal-scrolling table
-- Logged-in users can click any cell to edit it inline (auto-saves on blur, like the admin spreadsheet)
-- Non-logged-in users see a read-only view
-- Column filters for Day, Borough, City
-- Search bar for quick text filtering
-- Dense rows (compact styling similar to AdminMicsSpreadsheet)
-
-**Columns displayed (in order):**
-
-| Column | DB Field | Editable |
-|--------|----------|----------|
-| Day | day | Yes (logged in) |
-| Start Time | start_time | Yes |
-| End Time | latest_end_time | Yes |
-| Name | open_mic | Yes |
-| Venue | venue_name | Yes |
-| Borough | borough | Yes |
-| Neighborhood | neighborhood | Yes |
-| Address | location | Yes |
-| City | city | Yes |
-| Venue Type | venue_type | Yes |
-| Cost | cost | Yes |
-| Stage Time | stage_time | Yes |
-| Sign-Up Instructions | sign_up_instructions | Yes |
-| Host(s) | hosts_organizers | Yes |
-| Instagram/Updates | changes_updates | Yes |
-| Other Rules | other_rules | Yes |
-| Last Verified | last_verified | Yes |
-
-**Excluded columns** (sensitive/admin-only):
-- `sms_response` -- internal admin field
-- `host_phone` -- PII
-- `signup_enabled` -- admin-managed
-- `active` -- admin-managed
-- `cover_image_url` -- not useful in spreadsheet
-
-### 2. New Tab in Perform Page
-
-Add a 4th tab to `src/pages/Perform.tsx`:
-
-```
-[ Find Mics ] [ Playlists ] [ Shows ] [ Dev View ]
+```text
+banner_ads
+-----------
+id              uuid (PK, default gen_random_uuid())
+label           text NOT NULL
+href            text NOT NULL
+external        boolean DEFAULT true
+position        text ('top' or 'bottom')
+sort_order      integer DEFAULT 0
+is_active       boolean DEFAULT true
+icon_url        text (nullable, URL to small image)
+client_name     text (nullable)
+amount_paid     numeric (nullable, e.g. 140.00)
+payment_method  text (nullable, e.g. 'venmo', 'stripe', 'cash')
+start_date      date (nullable, ad goes live on this date)
+end_date        date (nullable, ad deactivates after this date)
+created_at      timestamptz DEFAULT now()
+updated_at      timestamptz DEFAULT now()
 ```
 
-The "Dev View" tab will use a spreadsheet icon (`Sheet` or `Table2` from lucide-react) and link to the new component.
+RLS policies:
+- SELECT for everyone (anon + authenticated) so the marquee can load ads
+- INSERT/UPDATE/DELETE restricted to admins (via profiles.isadmin check)
 
-### 3. Route Registration
+Seed data: The current 7 hardcoded ads plus the new Likeable Podcast ad (8 total).
 
-Add `/dev-view` route in `src/App.tsx` and update `BottomNavigation.tsx` to keep the Perform tab highlighted when on `/dev-view`.
+### 2. Database: `ad_clicks` table (click tracking)
 
----
-
-## Technical Approach
-
-### Data Source
-Reuses the existing `useOpenMics()` hook which:
-- Fetches from `open_mics_historical`
-- Filters to active mics only
-- Has 10-minute stale time (works offline from cache)
-- Returns `OpenMic[]` mapped interface
-
-For the spreadsheet, we also need raw DB column names for editing. We'll fetch data directly from Supabase in this component (similar to `AdminMicsSpreadsheet`) to avoid the mapping layer.
-
-### Inline Editing (Logged-In Users Only)
-- Click a cell to enter edit mode (shows an Input)
-- On blur or Enter: auto-save to `open_mics_historical` via Supabase
-- On Escape: cancel edit
-- Visual feedback: brief green ring on successful save
-- Uses the existing RLS policy: "Verified hosts can update their mic info" for hosts, and regular authenticated users will get a permission error (gracefully handled with a toast)
-
-**RLS consideration**: Currently only admins and verified hosts can UPDATE `open_mics_historical`. For community editing, we need to add an RLS policy allowing authenticated users to update non-sensitive columns. This will be done via a database migration.
-
-### New RLS Policy
-Add an UPDATE policy for authenticated users on `open_mics_historical` that allows editing the public-facing columns only. This keeps admin-only fields (active, signup_enabled, sms_response) locked down.
-
----
-
-## Files to Create/Modify
-
-| File | Action |
-|------|--------|
-| `src/pages/DevView.tsx` | **Create** -- New spreadsheet page component |
-| `src/pages/Perform.tsx` | **Modify** -- Add 4th "Dev View" tab, update grid-cols-3 to grid-cols-4 |
-| `src/contexts/TabContext.tsx` | **Modify** -- Add 'dev-view' to scroll positions |
-| `src/App.tsx` | **Modify** -- Add `/dev-view` route |
-| `src/components/BottomNavigation.tsx` | **Modify** -- Add `/dev-view` to Perform active check |
-| Database migration | **Create** -- Add RLS policy for authenticated user updates on safe columns |
-
----
-
-## Database Migration
-
-```sql
--- Allow authenticated users to update public-facing columns
--- This enables community editing like the original Google Sheet
-CREATE POLICY "Authenticated users can update public mic info"
-  ON open_mics_historical
-  FOR UPDATE
-  TO authenticated
-  USING (true)
-  WITH CHECK (true);
+```text
+ad_clicks
+---------
+id          uuid (PK, default gen_random_uuid())
+ad_id       uuid (FK -> banner_ads.id ON DELETE CASCADE)
+clicked_at  timestamptz DEFAULT now()
+user_id     uuid (nullable, for logged-in users)
 ```
 
-Note: Since Postgres RLS policies cannot restrict which columns are updated at the policy level, the application code will enforce which columns are editable. The existing admin-only fields (active, signup_enabled) will simply not be rendered as editable in the Dev View UI.
+RLS policies:
+- INSERT for everyone (anon can click ads)
+- SELECT restricted to admins
 
----
+A database view `ad_click_counts` will aggregate clicks per ad for easy admin display.
 
-## Key Design Decisions
+### 3. Copy Likeable Podcast image
 
-1. **Separate from Admin Spreadsheet**: The Admin spreadsheet has bulk operations (delete, activate/deactivate, export) and shows all columns including sensitive ones. Dev View is a public-facing, simplified version.
+Copy `user-uploads://image-35.png` to `public/images/likeable-podcast.png` for use as the ad icon.
 
-2. **Offline-friendly**: Data is cached via React Query with a 10-minute stale time. Once loaded, the spreadsheet remains viewable even if the connection drops.
+### 4. New hook: `src/hooks/useBannerAds.ts`
 
-3. **No bulk operations**: Unlike the admin view, no checkboxes, no bulk delete/export. Just simple cell-by-cell editing.
+- Fetches active ads from `banner_ads` where `is_active = true` AND `start_date <= today` AND (`end_date IS NULL` OR `end_date >= today`)
+- Splits into `topAds` and `bottomAds`
+- Falls back to current hardcoded ads on error
+- Stale time of 5 minutes
 
-4. **Dense styling**: Compact rows (~24px height) to maximize visible data, matching the Google Sheets feel.
+### 5. Update `src/components/MarqueeBanner.tsx`
+
+- Use `useBannerAds` hook instead of hardcoded arrays
+- Update `AdItem` component to:
+  - Show an optional small round icon image (16x16px) next to the label
+  - Record a click to `ad_clicks` table on every click (fire-and-forget insert)
+- Keep hardcoded arrays as fallback
+
+### 6. New component: `src/components/admin/AdminBannerAdsManager.tsx`
+
+A full management UI with:
+- Table listing all ads (active and inactive) with columns: icon preview, label, client, position, paid amount, start/end dates, clicks, active status
+- Inline edit mode (matching existing admin auto-save-on-blur pattern)
+- "Add Ad" button with a form for all fields
+- Delete button with confirmation
+- Click count pulled from `ad_click_counts` view
+- Visual indicators: green dot for active, red for expired/inactive
+
+### 7. Update `src/pages/AdminInterface.tsx`
+
+- Add 8th tab: **"Ads"**
+- Change grid from `grid-cols-7` to `grid-cols-8`
+- Import and render `AdminBannerAdsManager`
+
+### Files Changed
+- **Copy**: `user-uploads://image-35.png` -> `public/images/likeable-podcast.png`
+- **New**: `supabase/migrations/[timestamp].sql` (banner_ads + ad_clicks tables, RLS, seed data)
+- **New**: `src/hooks/useBannerAds.ts`
+- **New**: `src/components/admin/AdminBannerAdsManager.tsx`
+- **Edit**: `src/components/MarqueeBanner.tsx` (dynamic ads + click tracking + icon support)
+- **Edit**: `src/pages/AdminInterface.tsx` (add Ads tab)
 
