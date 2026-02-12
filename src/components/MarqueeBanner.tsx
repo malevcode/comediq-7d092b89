@@ -12,7 +12,7 @@ interface AdBox {
 
 const AdItem = ({ ad, userId }: { ad: AdBox; userId?: string }) => {
   const className =
-    "inline-flex items-center gap-2 px-5 py-1.5 mx-3 rounded-full bg-[#1a5fb4]/20 text-[#1a5fb4] text-sm font-semibold tracking-wide hover:bg-[#1a5fb4]/30 transition-colors whitespace-nowrap border border-[#1a5fb4]/15";
+    "inline-flex items-center gap-1.5 px-4 py-0.5 mx-3 rounded-full bg-[#1a5fb4]/20 text-[#1a5fb4] text-xs font-semibold tracking-wide hover:bg-[#1a5fb4]/30 transition-colors whitespace-nowrap";
 
   const handleClick = () => {
     if (ad.id) {
@@ -21,7 +21,7 @@ const AdItem = ({ ad, userId }: { ad: AdBox; userId?: string }) => {
   };
 
   const icon = ad.icon_url ? (
-    <img src={ad.icon_url} alt="" className="w-5 h-5 rounded-md object-cover flex-shrink-0" />
+    <img src={ad.icon_url} alt="" className="w-3.5 h-3.5 rounded-full object-cover flex-shrink-0" />
   ) : null;
 
   if (ad.external) {
@@ -61,13 +61,13 @@ const MarqueeBanner = () => {
 
   return (
     <>
-      <div className="fixed top-[80px] left-0 right-0 z-[45] h-10 bg-[#f5f0e6] border-b border-[#d4c4a8] overflow-x-auto overflow-y-hidden flex items-center scrollbar-hide touch-pan-x">
+      <div className="fixed top-[80px] left-0 right-0 z-[45] h-7 bg-[#f5f0e6] border-b border-[#d4c4a8] overflow-x-auto overflow-y-hidden flex items-center scrollbar-hide touch-pan-x">
         <div className="animate-marquee whitespace-nowrap flex items-center hover:[animation-play-state:paused]">
           {renderAdStrip(topAds as AdBox[], 10, user?.id)}
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-[60] h-10 bg-[#f5f0e6] border-t border-[#d4c4a8] overflow-x-auto overflow-y-hidden flex items-center scrollbar-hide touch-pan-x">
+      <div className="fixed bottom-0 left-0 right-0 z-[60] h-7 bg-[#f5f0e6] border-t border-[#d4c4a8] overflow-x-auto overflow-y-hidden flex items-center scrollbar-hide touch-pan-x">
         <div className="animate-marquee whitespace-nowrap flex items-center hover:[animation-play-state:paused]">
           {renderAdStrip(bottomAds as AdBox[], 8, user?.id)}
         </div>
