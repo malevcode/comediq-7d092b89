@@ -43,29 +43,27 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
             </div>
           </div>
           {/* Desktop auth section */}
-          <div className="hidden sm:flex flex-col items-end gap-2">
+          <div className="hidden sm:flex items-center gap-3">
             {user ? (
-              <>
-                <span className="text-xs text-gray-600">
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-gray-600 whitespace-nowrap">
                   Welcome back
                   {user.user_metadata?.username
                     ? ` ${user.user_metadata.username}!`
                     : '!'}
                 </span>
-                <div className="flex justify-end w-full">
-                  <Button
-                    onClick={async () => {
-                      await signOut();
-                      navigate('/');
-                    }}
-                    size="sm"
-                    variant="outline"
-                    className="mt-1 text-xs px-2 py-1"
-                  >
-                    Sign Out
-                  </Button>
-                </div>
-              </>
+                <Button
+                  onClick={async () => {
+                    await signOut();
+                    navigate('/');
+                  }}
+                  size="sm"
+                  variant="outline"
+                  className="text-xs px-2 py-1"
+                >
+                  Sign Out
+                </Button>
+              </div>
             ) : (
               <Button 
                 onClick={handleSignUp}
