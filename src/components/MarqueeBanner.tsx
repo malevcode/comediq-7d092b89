@@ -21,7 +21,7 @@ const AdItem = ({ ad, userId }: { ad: AdBox; userId?: string }) => {
   };
 
   const icon = ad.icon_url ? (
-    <img src={ad.icon_url} alt="" className="w-4 h-4 rounded-full object-cover" />
+    <img src={ad.icon_url} alt="" className="w-3.5 h-3.5 rounded-full object-cover flex-shrink-0" />
   ) : null;
 
   if (ad.external) {
