@@ -1,27 +1,28 @@
 import { Link } from "react-router-dom";
+import { useBannerAds, recordAdClick, type BannerAd } from "@/hooks/useBannerAds";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AdBox {
+  id?: string;
   label: string;
   href: string;
   external?: boolean;
+  icon_url?: string | null;
 }
 
-const topAds: AdBox[] = [
-  { label: "#MeThree", href: "https://metoomvmt.org/", external: true },
-  { label: "Comediq Supports Safe Funny Spaces", href: "/" },
-  { label: "Advertise!", href: "https://docs.google.com/forms/d/e/1FAIpQLSe58Za3tfgyuUFNoVxQb_qAe3PPfVrnm4gciw_cklp-HPkKQg/viewform?usp=publish-editor", external: true },
-];
-
-const bottomAds: AdBox[] = [
-  { label: "Add A Mic", href: "/open-mics?addMic=true" },
-  { label: "Add Your Show", href: "https://forms.gle/6acD4UbmJyY45tzz9", external: true },
-  { label: "Feedback", href: "https://docs.google.com/forms/d/e/1FAIpQLSeDk4FdZGDD1APBNCUzV1IhaylLiHSAnlmhUaUz503umv457A/viewform?usp=dialog", external: true },
-  { label: "Advertise!", href: "https://docs.google.com/forms/d/e/1FAIpQLSe58Za3tfgyuUFNoVxQb_qAe3PPfVrnm4gciw_cklp-HPkKQg/viewform?usp=publish-editor", external: true },
-];
-
-const AdItem = ({ ad }: { ad: AdBox }) => {
+const AdItem = ({ ad, userId }: { ad: AdBox; userId?: string }) => {
   const className =
-    "inline-flex items-center px-4 py-0.5 mx-3 rounded-full bg-[#1a5fb4]/20 text-[#1a5fb4] text-xs font-semibold tracking-wide hover:bg-[#1a5fb4]/30 transition-colors whitespace-nowrap";
+    "inline-flex items-center gap-1.5 px-4 py-0.5 mx-3 rounded-full bg-[#1a5fb4]/20 text-[#1a5fb4] text-xs font-semibold tracking-wide hover:bg-[#1a5fb4]/30 transition-colors whitespace-nowrap";
+
+  const handleClick = () => {
+    if (ad.id) {
+      recordAdClick(ad.id, userId);
+    }
+  };
+
+  const icon = ad.icon_url ? (
+    <img src={ad.icon_url} alt="" className="w-4 h-4 rounded-full object-cover" />
+  ) : null;
 
   if (ad.external) {
     return (
@@ -30,42 +31,45 @@ const AdItem = ({ ad }: { ad: AdBox }) => {
         target="_blank"
         rel="noopener noreferrer"
         className={className}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); handleClick(); }}
       >
+        {icon}
         {ad.label}
       </a>
     );
   }
 
   return (
-    <Link to={ad.href} className={className}>
+    <Link to={ad.href} className={className} onClick={handleClick}>
+      {icon}
       {ad.label}
     </Link>
   );
 };
 
-const renderAdStrip = (ads: AdBox[], repeatCount: number) => {
+const renderAdStrip = (ads: AdBox[], repeatCount: number, userId?: string) => {
   const items: AdBox[] = [];
   for (let i = 0; i < repeatCount; i++) {
     items.push(...ads);
   }
-  return items.map((ad, idx) => <AdItem key={`${ad.label}-${idx}`} ad={ad} />);
+  return items.map((ad, idx) => <AdItem key={`${ad.label}-${idx}`} ad={ad} userId={userId} />);
 };
 
 const MarqueeBanner = () => {
+  const { topAds, bottomAds } = useBannerAds();
+  const { user } = useAuth();
+
   return (
     <>
-      {/* Top banner - fixed just below the PageHeader (~80px) */}
       <div className="fixed top-[80px] left-0 right-0 z-[45] h-7 bg-[#f5f0e6] border-b border-[#d4c4a8] overflow-x-auto overflow-y-hidden flex items-center scrollbar-hide touch-pan-x">
         <div className="animate-marquee whitespace-nowrap flex items-center hover:[animation-play-state:paused]">
-          {renderAdStrip(topAds, 10)}
+          {renderAdStrip(topAds as AdBox[], 10, user?.id)}
         </div>
       </div>
 
-      {/* Bottom banner - fixed at very bottom of viewport */}
       <div className="fixed bottom-0 left-0 right-0 z-[60] h-7 bg-[#f5f0e6] border-t border-[#d4c4a8] overflow-x-auto overflow-y-hidden flex items-center scrollbar-hide touch-pan-x">
         <div className="animate-marquee whitespace-nowrap flex items-center hover:[animation-play-state:paused]">
-          {renderAdStrip(bottomAds, 8)}
+          {renderAdStrip(bottomAds as AdBox[], 8, user?.id)}
         </div>
       </div>
     </>
