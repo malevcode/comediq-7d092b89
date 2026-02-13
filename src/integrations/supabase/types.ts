@@ -43,6 +43,133 @@ export type Database = {
           },
         ]
       }
+      ad_contact_notes: {
+        Row: {
+          contact_id: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          note: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          note: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          note?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_contact_notes_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "ad_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_contacts: {
+        Row: {
+          borough: string | null
+          business_name: string
+          business_type: string | null
+          contact_name: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          instagram: string | null
+          notes: string | null
+          phone: string | null
+          status: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          borough?: string | null
+          business_name: string
+          business_type?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          instagram?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          borough?: string | null
+          business_name?: string
+          business_type?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          instagram?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      ad_outreach: {
+        Row: {
+          contact_id: string
+          created_at: string | null
+          created_by: string | null
+          follow_up_date: string | null
+          id: string
+          method: string | null
+          notes: string | null
+          outcome: string | null
+          outreach_date: string | null
+          subject: string | null
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string | null
+          created_by?: string | null
+          follow_up_date?: string | null
+          id?: string
+          method?: string | null
+          notes?: string | null
+          outcome?: string | null
+          outreach_date?: string | null
+          subject?: string | null
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          follow_up_date?: string | null
+          id?: string
+          method?: string | null
+          notes?: string | null
+          outcome?: string | null
+          outreach_date?: string | null
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_outreach_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "ad_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audience_shows: {
         Row: {
           age_restriction: string | null
@@ -166,6 +293,7 @@ export type Database = {
         Row: {
           amount_paid: number | null
           client_name: string | null
+          contact_id: string | null
           created_at: string | null
           end_date: string | null
           external: boolean | null
@@ -183,6 +311,7 @@ export type Database = {
         Insert: {
           amount_paid?: number | null
           client_name?: string | null
+          contact_id?: string | null
           created_at?: string | null
           end_date?: string | null
           external?: boolean | null
@@ -200,6 +329,7 @@ export type Database = {
         Update: {
           amount_paid?: number | null
           client_name?: string | null
+          contact_id?: string | null
           created_at?: string | null
           end_date?: string | null
           external?: boolean | null
@@ -214,7 +344,15 @@ export type Database = {
           start_date?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "banner_ads_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "ad_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       comedian_social_links: {
         Row: {
@@ -1602,6 +1740,14 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ad_revenue_summary: {
+        Row: {
+          active_ads_count: number | null
+          total_clicks: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
       }
       mic_comment_counts: {
         Row: {
