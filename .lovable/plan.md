@@ -1,105 +1,99 @@
 
 
-# Ads Manager Expansion: CRM, Outreach, and Advertiser Management
+# Home Screen Revamp + Landing Page Rebrand
 
-## Overview
-Expand the existing Ads tab in the Admin Dashboard into a full-featured advertising management platform with CRM capabilities, outreach tracking, and advertiser/business management -- all within the existing admin interface.
+## Part 1: Logged-In Home Screen
 
-## What You'll Get
+### Problems
+- "Total Stage Time" and "Day Streak" cards use amber/orange/red gradients that clash with the Comediq blue brand
+- Quick Actions buttons use orange/red/blue borders inconsistently
+- Upcoming mics cards use orange accents
+- The Header component uses an orange gradient for the welcome text
+- Background uses `from-[#f8f0e1]` (warm cream) which doesn't match the blue brand
+- QuickNotes and Quick Actions card headers use `from-[#0E4898] to-[#5DC8E2]` which is close but the teal endpoint is off-brand
+- Most of the content (stage time, quick actions) isn't that useful day-to-day -- the **mic likes, saved mics, and streak** are what people actually engage with
 
-### 1. Advertisers CRM
-A contacts database for managing all advertisers, comedy clubs, and comedy businesses:
-- **Contact cards** with: business name, contact person, email, phone, Instagram, website, type (comedy club, podcast, school, brand, other), borough/location
-- **Status pipeline**: Lead -> Contacted -> Negotiating -> Active Client -> Churned
-- **Notes/activity log** per contact: timestamped notes for tracking conversations, meetings, follow-ups
-- **Quick filters** by status, type, and search by name
+### Changes
 
-### 2. Outreach Tracker
-Track sales outreach efforts tied to each advertiser contact:
-- **Outreach log entries**: date, method (email, DM, in-person, call), subject/message summary, outcome (no reply, interested, declined, deal closed)
-- **Follow-up reminders**: mark a contact as "needs follow-up" with a target date; see overdue follow-ups highlighted
-- **Outreach stats**: total outreach attempts, response rate, conversion rate displayed as summary cards
+**Retheming to Comediq Blue (`#1a5fb4`)**:
+- Background: change from warm cream gradient to `from-blue-50/50 to-white` (subtle cool tone)
+- Header welcome text: change orange gradient to solid `text-[#1a5fb4]`; level badge uses `text-[#1a5fb4]` instead of `text-orange-600`
+- Stat cards: replace amber/red gradients with Comediq blue variations:
+  - Day Streak card: `border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/10` with blue icon background
+  - Stage Time card: same blue family, lighter variant
+- Card headers: standardize to `bg-[#1a5fb4]` (solid) instead of the teal gradient
+- Quick Action buttons: all use `border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50`
+- Upcoming mic items: blue accent borders/icons instead of orange
 
-### 3. Enhanced Ads Manager
-Upgrade the existing banner ads tab with sub-navigation:
-- **Sub-tabs**: "Active Ads" | "All Ads" | "Advertisers" | "Outreach"
-- **Revenue dashboard cards** at the top: total revenue, active ads count, total clicks, avg CTR
-- **Link ads to advertisers**: each banner ad can be associated with an advertiser contact from the CRM
-- **Invoice/payment history** on each advertiser card showing all their ads and total spend
+**Content Restructure** -- replace underused widgets with useful ones:
+- **Keep**: Day Streak (people like it), Quick Notes
+- **Replace "Total Stage Time"** with a **"Liked Mics" card** showing count of mics the user has liked, linking to their saved/liked mics
+- **Add**: A **"Saved Mics" quick-glance card** showing count of bookmarked mics with a link to `/saved`
+- **Simplify Quick Actions**: Remove "Advertise With Us" (not a comedian action), keep "Find Open Mics" and "Log Performance", add "Saved Mics"
+
+**BottomNavigation**: Change active tab color from `text-orange-500` to `text-[#1a5fb4]`
+
+**SiteFooter**: Change hover link color from `hover:text-orange-400` to `hover:text-[#1a5fb4]`
+
+---
+
+## Part 2: Landing Page Rebrand (Non-Logged-In)
+
+### Problems
+- Hero section is sparse -- just a title, one paragraph, and a mascot image
+- FeatureCard uses `from-orange-50 to-red-50` gradient (off-brand)
+- Pricing section uses orange everywhere (orange badges, orange buttons, orange gradients)
+- WaitlistForm section uses `from-orange-50 to-red-50` and orange submit button
+- No social proof, no stats, no urgency
+- The "AI disclaimer" paragraph in the hero is confusing for first-time visitors
+
+### Changes
+
+**Hero Section** (`Hero.tsx`):
+- Replace background with `bg-gradient-to-br from-[#1a5fb4]/5 via-white to-blue-50`
+- Add a bold tagline: "NYC's Open Mic Platform" above the main heading
+- Rewrite subtitle to be punchier: "Find open mics. Track your sets. Grow your career."
+- Add platform stats below the CTA button (e.g., "500+ open mics tracked" -- pulled from the existing `usePlatformStats` hook if available, or hardcoded)
+- Move the AI disclaimer to a smaller note below the fold
+- Keep mascot image but add a subtle blue glow/shadow behind it
+
+**Features Section** (`Features.tsx` + `FeatureCard.tsx`):
+- Retheme cards: `from-blue-50 to-[#1a5fb4]/5` instead of orange/red
+- Card hover shadow uses blue tint
+- Section heading stays the same
+
+**Pricing Section** (`Pricing.tsx`):
+- Replace orange gradient with `from-blue-50 to-[#1a5fb4]/10`
+- Badge: `bg-[#1a5fb4]` instead of `bg-orange-500`
+- CTA button: `bg-[#1a5fb4] hover:bg-[#164d94]` instead of orange
+
+**Waitlist Section** (`WaitlistForm.tsx`):
+- Background: `from-blue-50 via-white to-[#1a5fb4]/5`
+- Submit button: `bg-[#1a5fb4] hover:bg-[#164d94]`
 
 ---
 
 ## Technical Details
 
-### Database: New Tables
+### Files to Edit
 
-**`ad_contacts`** -- CRM for advertisers and comedy businesses:
-```text
-id              uuid PK
-business_name   text NOT NULL
-contact_name    text
-email           text
-phone           text
-instagram       text
-website         text
-business_type   text (comedy_club, podcast, school, brand, venue, other)
-borough         text
-status          text (lead, contacted, negotiating, active, churned) DEFAULT 'lead'
-notes           text
-created_at      timestamptz DEFAULT now()
-updated_at      timestamptz DEFAULT now()
-```
+| File | Changes |
+|------|---------|
+| `src/components/Home.tsx` | Retheme all cards/gradients to Comediq blue; replace stage time with liked mics count; restructure stat grid |
+| `src/components/Header.tsx` | Welcome text from orange gradient to `text-[#1a5fb4]`; level badge blue |
+| `src/components/home/QuickNotes.tsx` | Card header gradient to solid `bg-[#1a5fb4]` |
+| `src/components/Hero.tsx` | Blue-tinted background; add tagline; add stats bar; tighten copy |
+| `src/components/Features.tsx` | No changes needed (just passes props) |
+| `src/components/FeatureCard.tsx` | Retheme from orange/red to blue gradient |
+| `src/components/Pricing.tsx` | Replace all orange with Comediq blue |
+| `src/components/WaitlistForm.tsx` | Replace orange background/button with blue |
+| `src/components/BottomNavigation.tsx` | Active color from `text-orange-500` to `text-[#1a5fb4]` |
+| `src/components/SiteFooter.tsx` | Hover color from `hover:text-orange-400` to `hover:text-[#1a5fb4]` |
 
-**`ad_contact_notes`** -- Activity log per contact:
-```text
-id              uuid PK
-contact_id      uuid FK -> ad_contacts.id ON DELETE CASCADE
-note            text NOT NULL
-created_by      uuid (nullable, admin user id)
-created_at      timestamptz DEFAULT now()
-```
+### Hooks needed
+- Use existing `useSavedMics` to get saved mic count for the home screen card
+- Use existing `useMicRatings` or a simple Supabase count query for liked mics count
 
-**`ad_outreach`** -- Outreach log:
-```text
-id              uuid PK
-contact_id      uuid FK -> ad_contacts.id ON DELETE CASCADE
-outreach_date   date DEFAULT CURRENT_DATE
-method          text (email, dm, in_person, call, other)
-subject         text
-outcome         text (no_reply, interested, declined, closed) DEFAULT 'no_reply'
-follow_up_date  date (nullable)
-notes           text
-created_by      uuid (nullable)
-created_at      timestamptz DEFAULT now()
-```
-
-**Schema change to `banner_ads`**: Add `contact_id uuid` column (nullable FK to `ad_contacts.id`) to link ads to advertiser contacts.
-
-RLS policies: All tables admin-only for full CRUD (via `user_admin` check). Read-only not needed since these are internal management tables.
-
-### New Files
-
-- **`src/components/admin/ads/AdsManagerTabs.tsx`** -- Sub-tab container replacing the current flat `AdminBannerAdsManager`. Renders 4 sub-tabs: Active Ads, All Ads, Advertisers, Outreach
-- **`src/components/admin/ads/AdsDashboardCards.tsx`** -- Summary cards showing total revenue, active ads, total clicks, conversion rate
-- **`src/components/admin/ads/AdvertisersList.tsx`** -- CRM list with filters, search, status badges, and inline add/edit
-- **`src/components/admin/ads/AdvertiserDetail.tsx`** -- Expandable detail view for a single contact showing notes, outreach history, and linked ads
-- **`src/components/admin/ads/OutreachLog.tsx`** -- Outreach entries list with filters by method/outcome, follow-up date highlighting
-- **`src/components/admin/ads/AddContactModal.tsx`** -- Modal form for adding/editing an advertiser contact
-- **`src/components/admin/ads/AddOutreachModal.tsx`** -- Modal form for logging an outreach attempt
-- **`src/hooks/useAdContacts.ts`** -- React Query hooks for CRUD on `ad_contacts`, `ad_contact_notes`, and `ad_outreach`
-
-### Edited Files
-
-- **`src/components/admin/AdminBannerAdsManager.tsx`** -- Refactored: wrap existing ad list content into the new sub-tab structure; add advertiser linking dropdown to ad edit form
-- **`src/pages/AdminInterface.tsx`** -- No structural changes needed (already renders `AdminBannerAdsManager` in the Ads tab)
-- **`src/hooks/useBannerAds.ts`** -- Add `contact_id` to the `BannerAd` interface
-
-### Migration File
-A single migration with:
-1. Create `ad_contacts` table with trigger for `updated_at`
-2. Create `ad_contact_notes` table
-3. Create `ad_outreach` table
-4. Add `contact_id` column to `banner_ads`
-5. RLS policies (admin-only) for all three new tables
-6. Database view `ad_revenue_summary` aggregating total revenue, active ads count
+### No database changes required
+All data already exists -- we're just surfacing it differently on the home screen.
 
