@@ -182,7 +182,7 @@ export default function Home() {
   //console.log('Final streak:', streak);
 
   return (
-    <div className="pt-20 flex-col bg-gradient-to-br from-blue-50/50 to-white">
+    <div className="pt-28 flex-col bg-gradient-to-br from-blue-50/50 to-white">
       <main className="max-w-7xl mx-auto px-8 py-10">
         <div>
           <Header className="mb-8" />
