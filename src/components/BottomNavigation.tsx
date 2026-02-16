@@ -45,7 +45,7 @@ const BottomNavigation = () => {
                 to={path}
                 className={`flex flex-col items-center p-2 ${
                   isActive
-                    ? "text-orange-500"
+                    ? "text-[#1a5fb4]"
                     : "text-gray-400"
                 }`}
               >

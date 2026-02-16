@@ -17,7 +17,7 @@ const SiteFooter = () => {
                 <li key={day}>
                   <Link 
                     to={linkManager.openMicsFilteredByDay(day)} 
-                    className="text-gray-300 hover:text-orange-400 transition text-sm"
+                    className="text-gray-300 hover:text-[#1a5fb4] transition text-sm"
                   >
                     {day} Mics
                   </Link>
@@ -34,7 +34,7 @@ const SiteFooter = () => {
                 <li key={borough}>
                   <Link 
                     to={linkManager.openMicsFilteredByBorough(borough)} 
-                    className="text-gray-300 hover:text-orange-400 transition text-sm"
+                    className="text-gray-300 hover:text-[#1a5fb4] transition text-sm"
                   >
                     {borough} Open Mics
                   </Link>
@@ -50,7 +50,7 @@ const SiteFooter = () => {
               <li>
                 <Link 
                   to={linkManager.freeMics()} 
-                  className="text-gray-300 hover:text-orange-400 transition text-sm"
+                   className="text-gray-300 hover:text-[#1a5fb4] transition text-sm"
                 >
                   Free Open Mics
                 </Link>
@@ -58,7 +58,7 @@ const SiteFooter = () => {
               <li>
                 <Link 
                   to={linkManager.beginnerMics()} 
-                  className="text-gray-300 hover:text-orange-400 transition text-sm"
+                   className="text-gray-300 hover:text-[#1a5fb4] transition text-sm"
                 >
                   Beginner Mics
                 </Link>
@@ -66,7 +66,7 @@ const SiteFooter = () => {
               <li>
                 <Link 
                   to={linkManager.openMicsFilteredByBorough('Manhattan')} 
-                  className="text-gray-300 hover:text-orange-400 transition text-sm"
+                   className="text-gray-300 hover:text-[#1a5fb4] transition text-sm"
                 >
                   Manhattan Mics
                 </Link>
@@ -74,7 +74,7 @@ const SiteFooter = () => {
               <li>
                 <Link 
                   to={linkManager.openMicsFilteredByBorough('Brooklyn')} 
-                  className="text-gray-300 hover:text-orange-400 transition text-sm"
+                   className="text-gray-300 hover:text-[#1a5fb4] transition text-sm"
                 >
                   Brooklyn Mics
               </Link>
@@ -87,22 +87,22 @@ const SiteFooter = () => {
             <h3 className="font-bold mb-4 text-lg">Comediq</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-gray-300 hover:text-orange-400 transition text-sm">
+                <Link to="/" className="text-gray-300 hover:text-[#1a5fb4] transition text-sm">
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/open-mics" className="text-gray-300 hover:text-orange-400 transition text-sm">
+                <Link to="/open-mics" className="text-gray-300 hover:text-[#1a5fb4] transition text-sm">
                   All Open Mics
                 </Link>
               </li>
               <li>
-                <Link to="/auth" className="text-gray-300 hover:text-orange-400 transition text-sm">
+                <Link to="/auth" className="text-gray-300 hover:text-[#1a5fb4] transition text-sm">
                   Sign In
                 </Link>
               </li>
               <li>
-                <Link to="/privacy" className="text-gray-300 hover:text-orange-400 transition text-sm">
+                <Link to="/privacy" className="text-gray-300 hover:text-[#1a5fb4] transition text-sm">
                   Privacy Policy & Terms
                 </Link>
               </li>
