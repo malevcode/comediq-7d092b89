@@ -21,8 +21,8 @@ const Pricing = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-8 border-2 border-orange-200">
-            <div className="inline-block bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
+          <div className="bg-gradient-to-br from-blue-50 to-[#1a5fb4]/10 rounded-2xl p-8 border-2 border-[#1a5fb4]/20">
+            <div className="inline-block bg-[#1a5fb4] text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
               Free Plan
             </div>
             <h3 className="text-3xl font-bold text-gray-900 mb-4">$0/month</h3>
@@ -43,7 +43,7 @@ const Pricing = () => {
             </ul>
             <Button 
               onClick={handleSignUp}
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full"
+              className="w-full bg-[#1a5fb4] hover:bg-[#164d94] text-white px-8 py-3 rounded-full"
             >
               Get Started Free
             </Button>

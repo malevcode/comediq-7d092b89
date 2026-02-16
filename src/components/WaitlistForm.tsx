@@ -83,7 +83,7 @@ const WaitlistForm = () => {
   };
 
   return (
-    <section id="waitlist" className="py-20 bg-gradient-to-br from-orange-50 via-white to-red-50">
+    <section id="waitlist" className="py-20 bg-gradient-to-br from-blue-50 via-white to-[#1a5fb4]/5">
       <div className="max-w-3xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
@@ -199,7 +199,7 @@ const WaitlistForm = () => {
           <Button 
             type="submit" 
             disabled={isSubmitting}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 text-lg rounded-full transition-all duration-300 transform hover:scale-105"
+            className="w-full bg-[#1a5fb4] hover:bg-[#164d94] text-white py-4 text-lg rounded-full transition-all duration-300 transform hover:scale-105"
           >
             {isSubmitting ? "Joining..." : "Join the Comedy Revolution"}
           </Button>

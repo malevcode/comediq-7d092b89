@@ -61,12 +61,12 @@ export default function Header({ className = "", showEmail = true, showLevel = t
     <div className={`bg-white/80 backdrop-blur rounded-xl p-6 shadow-sm ${className}`}>
       <div className="flex items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-[#1a5fb4]">
             Welcome back, {displayName}!
           </h1>
           {showEmail && showLevel && (
             <p className="text-gray-600 text-lg">
-              {user?.email} • <span className="text-orange-600 font-medium">{level}</span>
+              {user?.email} • <span className="text-[#1a5fb4] font-medium">{level}</span>
             </p>
           )}
           {showEmail && !showLevel && (
@@ -74,7 +74,7 @@ export default function Header({ className = "", showEmail = true, showLevel = t
           )}
           {!showEmail && showLevel && (
             <p className="text-gray-600 text-lg">
-              <span className="text-orange-600 font-medium">{level}</span>
+              <span className="text-[#1a5fb4] font-medium">{level}</span>
             </p>
           )}
         </div>

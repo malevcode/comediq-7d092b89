@@ -5,9 +5,11 @@ import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3, Megaphone } from "lucide-react";
+import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3, Heart, Bookmark } from "lucide-react";
 import { QuickNotes } from "./home/QuickNotes";
 import Header from "./Header";
+import { useSavedMics } from "@/hooks/useSavedMics";
+import { useUserLikedMics } from "@/hooks/useMicRatings";
 
 
 
@@ -99,6 +101,8 @@ export default function Home() {
   const { shows: upcomingMics, loading: showsLoading } = useUserShows(user?.id);
   const { completedShows, loading: completedLoading } = useUserCompletedShows(user?.id);
   const { visits, loading: visitsLoading, refetch } = useUserVisits(user?.id, visitInserted);
+  const { savedMics } = useSavedMics();
+  const { data: likedMics = [] } = useUserLikedMics();
   const navigate = useNavigate();
 
 
@@ -178,47 +182,55 @@ export default function Home() {
   //console.log('Final streak:', streak);
 
   return (
-    <div className="pt-20 flex-col bg-gradient-to-br from-[#f8f0e1] to-white">
+    <div className="pt-20 flex-col bg-gradient-to-br from-blue-50/50 to-white">
       <main className="max-w-7xl mx-auto px-8 py-10">
         <div>
-          {/* Welcome Section */}
           <Header className="mb-8" />
 
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Column - Stats and Notepad */}
             <div className="flex-1 space-y-6">
               {/* Quick Stats Bar */}
-              <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
-                <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-100">
+              <div className="grid grid-cols-3 gap-4">
+                <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/10">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-lg">
-                        <Clock className="h-5 w-5 text-white" />
+                      <div className="p-2 bg-[#1a5fb4] rounded-lg">
+                        <TrendingUp className="h-5 w-5 text-white" />
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-amber-800">
-                          {completedLoading
-                            ? "--"
-                            : hours > 0
-                              ? `${hours} hr ${minutes} mins`
-                              : `${minutes} mins`}
+                        <div className="text-2xl font-bold text-[#1a5fb4]">{visitsLoading ? "--" : streak}</div>
+                        <div className="text-xs text-[#1a5fb4]/70 font-medium">
+                          Day Streak {streak > 4 ? '🔥' : ''}
                         </div>
-                        <div className="text-xs text-amber-600 font-medium">Total Stage Time</div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="border-orange-200 bg-gradient-to-br from-red-50 to-orange-100">
+                <Link to="/saved">
+                  <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer h-full">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-[#1a5fb4]/80 rounded-lg">
+                          <Bookmark className="h-5 w-5 text-white" />
+                        </div>
+                        <div>
+                          <div className="text-2xl font-bold text-[#1a5fb4]">{savedMics.length}</div>
+                          <div className="text-xs text-[#1a5fb4]/70 font-medium">Saved Mics</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+                <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg">
-                        <TrendingUp className="h-5 w-5 text-white" />
+                      <div className="p-2 bg-[#1a5fb4]/60 rounded-lg">
+                        <Heart className="h-5 w-5 text-white" />
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-red-800">{visitsLoading ? "--" : streak}</div>
-                        <div className="text-xs text-red-600 font-medium">
-                          Day Streak {streak > 4 ? '🔥' : ''}
-                        </div>
+                        <div className="text-2xl font-bold text-[#1a5fb4]">{likedMics.length}</div>
+                        <div className="text-xs text-[#1a5fb4]/70 font-medium">Liked Mics</div>
                       </div>
                     </div>
                   </CardContent>
@@ -231,38 +243,35 @@ export default function Home() {
 
             {/* Right Column - Quick Actions and Next Open Mics */}
             <div className="lg:w-1/3 space-y-6">
-              {/* Quick Actions */}
-              <Card className="border-blue-200 bg-white/80 backdrop-blur">
-                <CardHeader className="bg-gradient-to-r from-[#0E4898] to-[#5DC8E2] rounded-t-lg">
+              <Card className="border-[#1a5fb4]/20 bg-white/80 backdrop-blur">
+                <CardHeader className="bg-[#1a5fb4] rounded-t-lg">
                   <CardTitle className="text-lg text-white">⚡ Quick Actions</CardTitle>
                   <CardDescription className="text-white/80">Common tasks</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2 pt-6">
-                  <Button asChild variant="outline" className="w-full justify-start border-orange-200 text-orange-700 hover:bg-orange-50 bg-transparent" size="sm">
+                  <Button asChild variant="outline" className="w-full justify-start border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50 bg-transparent" size="sm">
                     <Link to="/open-mics">
                       <MapPin className="mr-2 h-4 w-4" />
                       Find Open Mics
                     </Link>
                   </Button>
-
-                  <Button asChild variant="outline" className="w-full justify-start border-red-200 text-red-700 hover:bg-red-50 bg-transparent" size="sm">
+                  <Button asChild variant="outline" className="w-full justify-start border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50 bg-transparent" size="sm">
                     <Link to="/track-sets">
                       <Mic2 className="mr-2 h-4 w-4" />
                       Log Performance
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" className="w-full justify-start border-blue-200 text-blue-700 hover:bg-blue-50 bg-transparent" size="sm">
-                    <Link to="/advertise">
-                      <Megaphone className="mr-2 h-4 w-4" />
-                      Advertise With Us
+                  <Button asChild variant="outline" className="w-full justify-start border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50 bg-transparent" size="sm">
+                    <Link to="/saved">
+                      <Bookmark className="mr-2 h-4 w-4" />
+                      Saved Mics
                     </Link>
                   </Button>
                 </CardContent>
               </Card>
 
-              {/* Next Open Mics */}
-              <Card className="border-blue-200 bg-white/80 backdrop-blur">
-                <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-[#0E4898] to-[#5DC8E2] rounded-t-lg">
+              <Card className="border-[#1a5fb4]/20 bg-white/80 backdrop-blur">
+                <CardHeader className="flex flex-row items-center justify-between bg-[#1a5fb4] rounded-t-lg">
                   <div>
                     <CardTitle className="text-lg text-white">🎭 Next Open Mics</CardTitle>
                     <CardDescription className="text-white/80">
@@ -279,7 +288,7 @@ export default function Home() {
                     upcomingMics.map((mic) => (
                       <div
                         key={mic.id}
-                        className="flex items-center justify-between p-4 rounded-lg border border-orange-100 bg-gradient-to-r from-orange-25 to-amber-25 hover:from-orange-50 hover:to-amber-50 transition-colors"
+                        className="flex items-center justify-between p-4 rounded-lg border border-[#1a5fb4]/10 bg-gradient-to-r from-blue-50/50 to-white hover:from-blue-50 hover:to-blue-50/50 transition-colors"
                       >
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
@@ -287,13 +296,13 @@ export default function Home() {
                           </div>
                           <div className="flex items-center gap-4 mt-1 text-xs text-gray-600">
                             <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3 text-orange-500" />
+                              <Calendar className="h-3 w-3 text-[#1a5fb4]" />
                               <span>
                                 {mic.open_mics["Day"]} at {mic.open_mics["Start Time"]}
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3 text-orange-500" />
+                              <MapPin className="h-3 w-3 text-[#1a5fb4]" />
                               <span>{mic.open_mics["Neighborhood"]}, {mic.open_mics["Borough"]}</span>
                             </div>
                           </div>
@@ -301,7 +310,7 @@ export default function Home() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-orange-600 hover:bg-orange-100"
+                          className="text-[#1a5fb4] hover:bg-blue-50"
                           onClick={() => navigate('/perform?tab=show-scheduler')}
                         >
                           <ArrowRight className="h-4 w-4" />

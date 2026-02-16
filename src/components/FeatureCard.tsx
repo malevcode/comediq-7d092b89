@@ -10,7 +10,7 @@ interface FeatureCardProps {
 
 const FeatureCard = ({ emoji, title, description, mascotImage, link }: FeatureCardProps) => {
   const content = (
-    <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-8 text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer h-full">
+    <div className="bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 rounded-2xl p-8 text-center hover:shadow-lg hover:shadow-[#1a5fb4]/10 transition-all duration-300 transform hover:scale-105 cursor-pointer h-full">
       {mascotImage && (
         <div className="flex justify-center mb-4">
           <img 
