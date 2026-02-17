@@ -110,9 +110,30 @@ const SiteFooter = () => {
           </div>
         </div>
         
+        {/* Origin Story */}
+        <div className="mt-8 pt-6 border-t border-gray-700">
+          <p className="text-xs text-gray-400 mb-2">
+            Started as a Google Sheet tracking all of NYC's open mics, still publicly editable here
+          </p>
+          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400 mb-2">
+            <a
+              href="https://docs.google.com/spreadsheets/d/1wROLFgLrbgP1aP_b9VIJn0QzbGzmifT9r7CV15Lw7Mw/edit?usp=drivesdk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#1a5fb4] transition-colors underline"
+            >
+              View Open Mics Data
+            </a>
+            <span>•</span>
+            <span>Made by @malevcomedy</span>
+          </div>
+          <p className="text-[10px] text-gray-500 leading-relaxed mb-4">
+            ComediQ is not an AI comedy writer. Your comedy comes from your unique experience and performance personality.
+          </p>
+        </div>
         
         {/* Copyright */}
-        <div className="mt-8 pt-6 border-t border-gray-700">
+        <div className="pt-4 border-t border-gray-700">
           <p className="text-xs text-gray-400">
             © {new Date().getFullYear()} Comediq. All rights reserved.
           </p>
