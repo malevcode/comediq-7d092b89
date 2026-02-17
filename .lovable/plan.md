@@ -1,61 +1,43 @@
 
 
-# Landing Page Polish: Mobile-First Layout Fixes
+# Landing Page Consolidation: Side-by-Side Sections
 
 ## Changes
 
-### 1. Hero Section -- Compact Side-by-Side Layout
+### 1. Hero Section -- Center the tagline
 **File: `src/components/Hero.tsx`**
 
-- On mobile, put mascot image (smaller, ~w-28) on the right and text+CTAs on the left in a single row using `grid grid-cols-[1fr_auto]` so both are visible without stacking
-- On desktop (lg), keep the current 2-column layout but tighten spacing
-- Remove the entire "footer with links" block (Google Sheet link, @malevcomedy, AI disclaimer) -- this moves to the site footer
-- Reduce bottom padding from `pb-16` to `pb-8`
+- Change `text-left` to `text-center` on the text container
+- Center the CTA buttons with `items-center` instead of `items-start`
+- Keep the mascot on the right in the grid, but center all text content
+- Bump up font sizes: subtitle from `text-sm sm:text-lg lg:text-2xl` to `text-base sm:text-xl lg:text-3xl`; "Comediq" heading stays large
 
-### 2. Move Origin Story to Site Footer
-**File: `src/components/SiteFooter.tsx`**
+### 2. Merge "Built for Comedians" + "Built for Comedy Fans" into one side-by-side section
+**File: New combined section replacing Features + ForAudiences**
 
-- Add a new section above the copyright block containing:
-  - "Started as a Google Sheet tracking all of NYC's open mics, still publicly editable here"
-  - Link to "View Open Mics Data"
-  - "Made by @malevcomedy"
-  - "ComediQ is not an AI comedy writer..." disclaimer
-- Styled as small gray text, matching existing footer aesthetics
+Instead of two full-width sections stacked vertically, create a single section with a 2-column layout:
+- **Left column**: "Built for Comedians" heading (text-xl) + compact list of 6 comedian features (emoji + title + one-liner, no mascot images to save space)
+- **Right column**: "Built for Comedy Fans" heading (text-xl) + compact list of 5 audience features (icon + title + one-liner)
+- On mobile: stacks vertically but each column is much more compact than current
+- Section heading sizes reduced from `text-4xl md:text-5xl` to `text-2xl md:text-3xl`
+- Remove the large LaughPass pitch card from this section (it lives in Pricing below)
 
-### 3. Remove "5 NYC Boroughs" from Social Proof Bar
-**File: `src/pages/Index.tsx`**
+**Files: `src/components/Features.tsx`** -- rewrite to contain both columns
+**File: `src/components/landing/ForAudiences.tsx`** -- remove (no longer imported)
+**File: `src/pages/Index.tsx`** -- remove ForAudiences import, keep only Features
 
-- Remove the third stat ("5 / NYC boroughs") and its divider from the social proof bar
-- Keep only "1,250+ comedians visit weekly" and "500+ open mics tracked"
-- Reduce padding from `py-4` to `py-3`
+### 3. Compact Pricing -- side-by-side on mobile too
+**File: `src/components/Pricing.tsx`**
 
-### 4. Popular Open Mics -- Compact Grid
-**File: `src/pages/Index.tsx`**
+- Change grid from `grid-cols-1 md:grid-cols-2` to `grid-cols-2` (always side-by-side)
+- Reduce card padding from `p-8` to `p-4 sm:p-6`
+- Reduce heading from `text-4xl md:text-5xl` to `text-2xl md:text-3xl`
+- Reduce price text from `text-3xl` to `text-xl sm:text-2xl`
+- Shrink feature list text and spacing
+- Reduce section heading `mb-8` to `mb-4`
 
-- Change from `md:grid-cols-3` with large cards to a tighter layout:
-  - Mobile: 2 columns, small cards
-  - Desktop: 5 columns in a single row
-- Show top 5 instead of 6
-- Shrink card padding from `p-6` to `p-3`
-- Reduce text sizes: title to `text-sm font-bold`, venue to `text-xs`
-- Cut section padding from `py-16` to `py-10`
-- Remove the subtitle paragraph "Check out these comedian favorites"
-
-### 5. Waitlist Form -- Condensed Rows
-**File: `src/components/WaitlistForm.tsx`**
-
-- Row 1: Name + Email (2 columns on all screens)
-- Row 2: Phone + Instagram (2 columns on all screens)
-- Row 3: Years in comedy + Open mics/month + $ spent/month (3 columns, same as current bottom row)
-- Reduce section padding from `py-20` to `py-12`
-- Reduce heading margin from `mb-12` to `mb-6`
-- Reduce form padding from `p-8` to `p-5`
-- Tighten form `space-y-6` to `space-y-4`
-
-### 6. Tighten Whitespace in Other Sections
-- **Features** (`src/components/Features.tsx`): Reduce `py-20` to `py-12`, heading `mb-12` to `mb-8`
-- **ForAudiences** (`src/components/landing/ForAudiences.tsx`): Reduce `py-20` to `py-12`, heading `mb-12` to `mb-8`
-- **Pricing** (`src/components/Pricing.tsx`): Reduce `py-20` to `py-12`, heading `mb-12` to `mb-8`
+### 4. FeatureCard no longer needed as separate component
+The merged section will use inline compact list items instead of the card component. FeatureCard.tsx stays in the codebase (other pages may use it) but Features.tsx will no longer import it.
 
 ---
 
@@ -65,12 +47,10 @@
 
 | File | Changes |
 |------|---------|
-| `src/components/Hero.tsx` | Side-by-side layout on mobile (mascot right, text left); remove origin story block; reduce padding |
-| `src/components/SiteFooter.tsx` | Add origin story, Google Sheet link, @malevcomedy, and AI disclaimer above the copyright |
-| `src/pages/Index.tsx` | Remove "5 boroughs" stat; compact Popular Mics to 2-col mobile / 5-col desktop with smaller cards; show 5 mics |
-| `src/components/WaitlistForm.tsx` | Condense to 3 rows (Name+Email, Phone+IG, Comedy questions); reduce all padding/margins |
-| `src/components/Features.tsx` | Reduce section padding |
-| `src/components/landing/ForAudiences.tsx` | Reduce section padding |
-| `src/components/Pricing.tsx` | Reduce section padding |
+| `src/components/Hero.tsx` | Center tagline text and CTAs; bump subtitle font size |
+| `src/components/Features.tsx` | Rewrite as 2-column "Comedians vs Fans" section with compact feature lists; smaller headings |
+| `src/components/Pricing.tsx` | Always 2-col grid; reduce padding, font sizes, and spacing |
+| `src/pages/Index.tsx` | Remove ForAudiences import and usage |
 
 ### No new files or database changes needed.
+
