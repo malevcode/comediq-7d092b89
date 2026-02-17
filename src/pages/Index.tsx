@@ -54,21 +54,16 @@ const Index = () => {
               <Hero />
 
               {/* Social Proof Bar */}
-              <div className="bg-[#1a5fb4] py-4">
-                <div className="max-w-6xl mx-auto px-4 flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-white">
+              <div className="bg-[#1a5fb4] py-3">
+                <div className="max-w-6xl mx-auto px-4 flex items-center justify-center gap-6 sm:gap-12 text-white">
                   <div className="text-center">
                     <div className="text-2xl sm:text-3xl font-bold">1,250+</div>
                     <div className="text-xs sm:text-sm text-blue-200">comedians visit weekly</div>
                   </div>
-                  <div className="w-px h-8 bg-white/30 hidden sm:block" />
+                  <div className="w-px h-8 bg-white/30" />
                   <div className="text-center">
                     <div className="text-2xl sm:text-3xl font-bold">500+</div>
                     <div className="text-xs sm:text-sm text-blue-200">open mics tracked</div>
-                  </div>
-                  <div className="w-px h-8 bg-white/30 hidden sm:block" />
-                  <div className="text-center">
-                    <div className="text-2xl sm:text-3xl font-bold">5</div>
-                    <div className="text-xs sm:text-sm text-blue-200">NYC boroughs</div>
                   </div>
                 </div>
               </div>
@@ -78,31 +73,28 @@ const Index = () => {
 
               {/* Popular Mics Section */}
               {topMics && topMics.length > 0 && (
-                <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
+                <section className="py-10 bg-gradient-to-b from-gray-50 to-white">
                   <div className="container mx-auto px-4">
-                    <h2 className="text-3xl font-bold mb-4 text-center">Most Popular Open Mics</h2>
-                    <p className="text-center text-muted-foreground mb-8">
-                      Check out these comedian favorites
-                    </p>
-                    <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-                      {topMics.slice(0, 6).map(mic => (
+                    <h2 className="text-2xl font-bold mb-4 text-center">Most Popular Open Mics</h2>
+                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 max-w-5xl mx-auto">
+                      {topMics.slice(0, 5).map(mic => (
                         <Link to={linkManager.micDetail(mic)} key={mic.uniqueIdentifier}>
-                          <Card className="hover:shadow-lg transition h-full">
-                            <CardContent className="p-6">
-                              <h3 className="font-bold text-xl mb-2">{mic.openMic}</h3>
-                              <p className="text-muted-foreground mb-4">{mic.venueName}</p>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                                <span>{mic.likeCount} {mic.likeCount === 1 ? 'like' : 'likes'}</span>
+                          <Card className="hover:shadow-md transition h-full">
+                            <CardContent className="p-3">
+                              <h3 className="font-bold text-sm mb-1 truncate">{mic.openMic}</h3>
+                              <p className="text-xs text-muted-foreground truncate">{mic.venueName}</p>
+                              <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                                <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                                <span>{mic.likeCount}</span>
                               </div>
-                              <p className="text-sm mt-2">{mic.day} • {mic.cost}</p>
+                              <p className="text-xs mt-1">{mic.day} • {mic.cost}</p>
                             </CardContent>
                           </Card>
                         </Link>
                       ))}
                     </div>
-                    <div className="text-center mt-8">
-                      <Link to="/open-mics" className="text-[#1a5fb4] hover:underline text-lg font-medium">
+                    <div className="text-center mt-4">
+                      <Link to="/open-mics" className="text-[#1a5fb4] hover:underline text-sm font-medium">
                         View all open mics →
                       </Link>
                     </div>

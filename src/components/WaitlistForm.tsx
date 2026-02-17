@@ -51,17 +51,7 @@ const WaitlistForm = () => {
           title: "Welcome to the Comedy Revolution! 🎤",
           description: "You're now on the waitlist. We'll be in touch soon!",
         });
-
-        // Reset form
-        setFormData({
-          name: "",
-          email: "",
-          instagram: "",
-          phone: "",
-          yearsInComedy: "",
-          openMicsPerMonth: "",
-          monthlySpend: ""
-        });
+        setFormData({ name: "", email: "", instagram: "", phone: "", yearsInComedy: "", openMicsPerMonth: "", monthlySpend: "" });
       }
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -76,88 +66,53 @@ const WaitlistForm = () => {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
-    <section id="waitlist" className="py-20 bg-gradient-to-br from-blue-50 via-white to-[#1a5fb4]/5">
+    <section id="waitlist" className="py-12 bg-gradient-to-br from-blue-50 via-white to-[#1a5fb4]/5">
       <div className="max-w-3xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+        <div className="text-center mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
             Comedian Affiliate Application Form
           </h2>
-          <p className="text-xl text-gray-600">
-            Join our comedian affiliate program to be the first to access Comediq and help us spread the word to other comedians.
+          <p className="text-base text-gray-600">
+            Join our comedian affiliate program to be the first to access Comediq and help us spread the word.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 shadow-xl space-y-6">
-          {/* Name */}
-          <div>
-            <Label htmlFor="name" className="text-gray-700 font-medium">Name *</Label>
-            <Input
-              id="name"
-              type="text"
-              value={formData.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
-              placeholder="Enter your name"
-              required
-              className="mt-2"
-            />
-          </div>
-
-          {/* Email, Instagram, Phone - Same row on desktop */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-5 shadow-xl space-y-4">
+          {/* Row 1: Name + Email */}
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="email" className="text-gray-700 font-medium">Email *</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                placeholder="Enter your email"
-                required
-                className="mt-2"
-              />
+              <Label htmlFor="name" className="text-gray-700 font-medium text-sm">Name *</Label>
+              <Input id="name" type="text" value={formData.name} onChange={(e) => handleInputChange("name", e.target.value)} placeholder="Your name" required className="mt-1" />
             </div>
-
             <div>
-              <Label htmlFor="instagram" className="text-gray-700 font-medium">Instagram Handle</Label>
-              <Input
-                id="instagram"
-                type="text"
-                value={formData.instagram}
-                onChange={(e) => handleInputChange("instagram", e.target.value)}
-                placeholder="@yourhandle"
-                className="mt-2"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="phone" className="text-gray-700 font-medium">Phone</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
-                placeholder="(555) 123-4567"
-                className="mt-2"
-              />
+              <Label htmlFor="email" className="text-gray-700 font-medium text-sm">Email *</Label>
+              <Input id="email" type="email" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} placeholder="you@email.com" required className="mt-1" />
             </div>
           </div>
 
-          {/* Comedy Questions - Same row on desktop */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Row 2: Phone + Instagram */}
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="yearsInComedy" className="text-gray-700 font-medium">
-                Years in comedy *
-              </Label>
+              <Label htmlFor="phone" className="text-gray-700 font-medium text-sm">Phone</Label>
+              <Input id="phone" type="tel" value={formData.phone} onChange={(e) => handleInputChange("phone", e.target.value)} placeholder="(555) 123-4567" className="mt-1" />
+            </div>
+            <div>
+              <Label htmlFor="instagram" className="text-gray-700 font-medium text-sm">Instagram</Label>
+              <Input id="instagram" type="text" value={formData.instagram} onChange={(e) => handleInputChange("instagram", e.target.value)} placeholder="@handle" className="mt-1" />
+            </div>
+          </div>
+
+          {/* Row 3: Comedy questions */}
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <Label htmlFor="yearsInComedy" className="text-gray-700 font-medium text-sm">Years in comedy *</Label>
               <Select onValueChange={(value) => handleInputChange("yearsInComedy", value)} required>
-                <SelectTrigger className="mt-2">
-                  <SelectValue placeholder="Select experience" />
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="0-1">0-1 years</SelectItem>
@@ -168,39 +123,17 @@ const WaitlistForm = () => {
                 </SelectContent>
               </Select>
             </div>
-
             <div>
-              <Label htmlFor="openMics" className="text-gray-700 font-medium">Open mics/month</Label>
-              <Input
-                id="openMics"
-                type="number"
-                value={formData.openMicsPerMonth}
-                onChange={(e) => handleInputChange("openMicsPerMonth", e.target.value)}
-                placeholder="0"
-                min="0"
-                className="mt-2"
-              />
+              <Label htmlFor="openMics" className="text-gray-700 font-medium text-sm">Mics/month</Label>
+              <Input id="openMics" type="number" value={formData.openMicsPerMonth} onChange={(e) => handleInputChange("openMicsPerMonth", e.target.value)} placeholder="0" min="0" className="mt-1" />
             </div>
-
             <div>
-              <Label htmlFor="monthlySpend" className="text-gray-700 font-medium">$ spent/month</Label>
-              <Input
-                id="monthlySpend"
-                type="number"
-                value={formData.monthlySpend}
-                onChange={(e) => handleInputChange("monthlySpend", e.target.value)}
-                placeholder="0"
-                min="0"
-                className="mt-2"
-              />
+              <Label htmlFor="monthlySpend" className="text-gray-700 font-medium text-sm">$/month</Label>
+              <Input id="monthlySpend" type="number" value={formData.monthlySpend} onChange={(e) => handleInputChange("monthlySpend", e.target.value)} placeholder="0" min="0" className="mt-1" />
             </div>
           </div>
 
-          <Button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="w-full bg-[#1a5fb4] hover:bg-[#164d94] text-white py-4 text-lg rounded-full transition-all duration-300 transform hover:scale-105"
-          >
+          <Button type="submit" disabled={isSubmitting} className="w-full bg-[#1a5fb4] hover:bg-[#164d94] text-white py-3 text-base rounded-full transition-all duration-300 transform hover:scale-105">
             {isSubmitting ? "Joining..." : "Join the Comedy Revolution"}
           </Button>
         </form>
