@@ -45,7 +45,7 @@ const Index = () => {
         structuredData={structuredData}
       />
       <div className="min-h-screen pb-20 overflow-x-hidden">
-        <PageHeader title="Comediq" subtitle="Your comedy journey starts here" />
+        <PageHeader title="Comediq" subtitle="Comedy Starts Here" />
         <div className="pt-0">
           {loading ? null : user ? (
             <Home />
