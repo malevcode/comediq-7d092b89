@@ -12,11 +12,11 @@ const Features = () => {
   ];
 
   const audienceFeatures = [
-    { icon: <Ticket className="w-4 h-4 text-[#1a5fb4]" />, title: "Show Discovery", description: "Browse upcoming comedy shows across NYC." },
-    { icon: <Star className="w-4 h-4 text-[#1a5fb4]" />, title: "Show Reviews", description: "Rate and review shows like Letterboxd for comedy." },
-    { icon: <Heart className="w-4 h-4 text-[#1a5fb4]" />, title: "Comedian Tracking", description: "Build your favorites list of comedians seen live." },
-    { icon: <BookOpen className="w-4 h-4 text-[#1a5fb4]" />, title: "Post-Show Recall", description: "Show playbills with full lineups so you never forget." },
-    { icon: <Sparkles className="w-4 h-4 text-[#1a5fb4]" />, title: "Recommendations", description: "Personalized comedian recommendations.", comingSoon: true },
+    { icon: <Ticket className="w-3.5 h-3.5 text-[#1a5fb4]" />, title: "Show Discovery", description: "Browse upcoming comedy shows across NYC." },
+    { icon: <Star className="w-3.5 h-3.5 text-[#1a5fb4]" />, title: "Show Reviews", description: "Rate and review shows like Letterboxd for comedy." },
+    { icon: <Heart className="w-3.5 h-3.5 text-[#1a5fb4]" />, title: "Comedian Tracking", description: "Build your favorites list of comedians seen live." },
+    { icon: <BookOpen className="w-3.5 h-3.5 text-[#1a5fb4]" />, title: "Post-Show Recall", description: "Show playbills with full lineups so you never forget." },
+    { icon: <Sparkles className="w-3.5 h-3.5 text-[#1a5fb4]" />, title: "Recommendations", description: "Personalized comedian recommendations.", comingSoon: true },
   ];
 
   return (
@@ -24,22 +24,22 @@ const Features = () => {
       <div className="max-w-6xl mx-auto px-4">
         <div className="grid grid-cols-2 gap-4 md:gap-10">
           {/* Comedians Column */}
-          <div>
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">
+          <div className="min-w-0">
+            <h2 className="text-base md:text-xl font-bold text-gray-900 mb-4">
               🎤 Built for Comedians
             </h2>
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {comedianFeatures.map((f, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <span className="text-lg flex-shrink-0">{f.emoji}</span>
+                <div key={i} className="flex items-start gap-2">
+                  <span className="text-sm flex-shrink-0">{f.emoji}</span>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-semibold text-sm text-gray-900">{f.title}</h4>
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <h4 className="font-semibold text-xs sm:text-sm text-gray-900">{f.title}</h4>
                       {f.comingSoon && (
                         <Badge variant="secondary" className="text-[10px] bg-gray-200 text-gray-500 px-1.5 py-0">Soon</Badge>
                       )}
                     </div>
-                    <p className="text-xs text-gray-600">{f.description}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-600">{f.description}</p>
                   </div>
                 </div>
               ))}
@@ -47,24 +47,24 @@ const Features = () => {
           </div>
 
           {/* Audiences Column */}
-          <div>
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">
+          <div className="min-w-0">
+            <h2 className="text-base md:text-xl font-bold text-gray-900 mb-4">
               😂 Built for Comedy Fans
             </h2>
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {audienceFeatures.map((f, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-7 h-7 rounded-md bg-blue-50 flex items-center justify-center">
+                <div key={i} className="flex items-start gap-2">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-md bg-blue-50 flex items-center justify-center">
                     {f.icon}
                   </div>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-semibold text-sm text-gray-900">{f.title}</h4>
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <h4 className="font-semibold text-xs sm:text-sm text-gray-900">{f.title}</h4>
                       {f.comingSoon && (
                         <Badge variant="secondary" className="text-[10px] bg-gray-200 text-gray-500 px-1.5 py-0">Soon</Badge>
                       )}
                     </div>
-                    <p className="text-xs text-gray-600">{f.description}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-600">{f.description}</p>
                   </div>
                 </div>
               ))}
