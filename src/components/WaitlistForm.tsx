@@ -109,9 +109,9 @@ const WaitlistForm = () => {
           {/* Row 3: Comedy questions */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <Label htmlFor="yearsInComedy" className="text-gray-700 font-medium text-sm">Years in comedy *</Label>
+              <Label htmlFor="yearsInComedy" className="text-gray-700 font-medium text-xs sm:text-sm truncate">Years in comedy *</Label>
               <Select onValueChange={(value) => handleInputChange("yearsInComedy", value)} required>
-                <SelectTrigger className="mt-1">
+                <SelectTrigger className="mt-1 h-10">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
