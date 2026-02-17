@@ -13,7 +13,7 @@ const Hero = () => {
             <p className="text-xs sm:text-sm font-semibold text-[#1a5fb4] uppercase tracking-wide mb-1">
               NYC's Comedy Platform
             </p>
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold text-gray-900 mb-2 lg:mb-4">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 lg:mb-4">
               Comediq
             </h1>
             <p className="text-base sm:text-xl lg:text-3xl text-gray-700 mb-4 lg:mb-6 leading-relaxed">
