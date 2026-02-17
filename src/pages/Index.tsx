@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
-import ForAudiences from "@/components/landing/ForAudiences";
+
 import Pricing from "@/components/Pricing";
 import WaitlistForm from "@/components/WaitlistForm";
 import { useAuth } from "@/contexts/AuthContext";
@@ -69,7 +69,6 @@ const Index = () => {
               </div>
 
               <Features />
-              <ForAudiences />
 
               {/* Popular Mics Section */}
               {topMics && topMics.length > 0 && (
