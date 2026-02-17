@@ -16,7 +16,7 @@ const Pricing = () => {
           <p className="text-xl text-gray-600">Free tools for comedians. Affordable tickets for fans.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 max-w-4xl mx-auto">
           {/* Free Plan */}
           <div className="bg-gradient-to-br from-blue-50 to-[#1a5fb4]/10 rounded-2xl p-8 border-2 border-[#1a5fb4]/20">
             <div className="inline-block bg-[#1a5fb4] text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
