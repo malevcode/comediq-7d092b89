@@ -1,129 +1,76 @@
 
 
-# Landing Page Revamp: Two-Audience Strategy
+# Landing Page Polish: Mobile-First Layout Fixes
 
-## Problem
-1. The mascot's hat is clipped because the Hero section needs more top padding to clear the fixed header + marquee banner (needs `pt-28` or similar on the section itself)
-2. "NYC's Open Mic Platform" is too narrow -- Comediq serves both comedians AND audience members
-3. The landing page only speaks to comedians and ignores the Laugh tab audience entirely
-4. No mention of LaughPass, show discovery, or the audience experience
+## Changes
 
-## New Landing Page Structure
-
-The page will flow as a series of full-width sections, each with clear purpose:
-
-```text
-[Header + Marquee Banner]
-  |
-[Hero] -- "NYC's Comedy Platform" + dual CTA (Perform / Laugh)
-  |
-[Social Proof Bar] -- "1,250+ comedians weekly | 500+ open mics | 5 boroughs"
-  |
-[For Comedians Section] -- 2-column grid of performer tools
-  |
-[For Audiences Section] -- LaughPass pitch + show features
-  |
-[Popular Open Mics] -- existing top-rated mics carousel
-  |
-[Pricing] -- Free plan + LaughPass ($29/mo) side by side
-  |
-[Waitlist / Affiliate Form]
-```
-
-## Detailed Section Plans
-
-### 1. Hero Section Fix + Rewrite
+### 1. Hero Section -- Compact Side-by-Side Layout
 **File: `src/components/Hero.tsx`**
 
-- Add `pt-28` to the section to clear header + banner (fixes the hat clipping)
-- Change tagline from "NYC's Open Mic Platform" to **"NYC's Comedy Platform"**
-- Change subtitle to: **"Whether you're on stage or in the audience, Comediq is your home for live comedy."**
-- Replace single "Sign In" button with two CTAs side-by-side:
-  - "I Perform" (links to /auth or /perform) -- solid blue
-  - "I Watch" (links to /auth or /laugh) -- outlined blue
-- Keep mascot image, keep the blue glow
+- On mobile, put mascot image (smaller, ~w-28) on the right and text+CTAs on the left in a single row using `grid grid-cols-[1fr_auto]` so both are visible without stacking
+- On desktop (lg), keep the current 2-column layout but tighten spacing
+- Remove the entire "footer with links" block (Google Sheet link, @malevcomedy, AI disclaimer) -- this moves to the site footer
+- Reduce bottom padding from `pb-16` to `pb-8`
 
-### 2. Social Proof Bar (new)
-**Add to `src/pages/Index.tsx`** (inline, not a separate component)
+### 2. Move Origin Story to Site Footer
+**File: `src/components/SiteFooter.tsx`**
 
-A slim, high-contrast bar between Hero and Features showing:
-- "1,250+ comedians visit weekly"
-- "500+ open mics tracked"
-- "5 NYC boroughs"
+- Add a new section above the copyright block containing:
+  - "Started as a Google Sheet tracking all of NYC's open mics, still publicly editable here"
+  - Link to "View Open Mics Data"
+  - "Made by @malevcomedy"
+  - "ComediQ is not an AI comedy writer..." disclaimer
+- Styled as small gray text, matching existing footer aesthetics
 
-Styled as a horizontal strip with `bg-[#1a5fb4]` and white text.
-
-### 3. For Comedians Section (replaces current Features)
-**File: `src/components/Features.tsx`** -- restructure
-
-Section heading: **"Built for Comedians"**
-Subheading: "Everything you need from your first open mic to your first special."
-
-Show features in a clean 2-column layout (icon + title + 1-liner):
-- Open Mic Finder (live, linked)
-- Comedian Portfolio (live, linked)
-- Progress Tracker (live, linked)
-- Calendar and Booking Tools (coming soon badge)
-- Set Transcriptions and Bit Analysis (coming soon badge)
-- Parallel Thinking Detector (coming soon badge)
-
-Features that are live get a subtle "Try it" link. Coming soon features get a muted "Coming Soon" badge.
-
-### 4. For Audiences Section (new)
-**New component: `src/components/landing/ForAudiences.tsx`**
-
-Section heading: **"Built for Comedy Fans"**
-Subheading: "Discover shows, remember every set, and never miss a comedian you loved."
-
-Two-part layout:
-
-**Left/Top: LaughPass Pitch**
-- Bold card: "LaughPass -- $29/month"
-- "4 free comedy show tickets every month"
-- "That's less than $8 per show"
-- CTA: "Get LaughPass" (links to /auth)
-
-**Right/Bottom: Audience Feature List**
-- Show Discovery: Browse upcoming comedy shows across NYC
-- Show Reviews: Rate and review shows like Letterboxd for comedy
-- Comedian Tracking: Remember who made you laugh -- build your favorites list
-- Personalized Recommendations: We learn your taste and suggest comedians you'll love (coming soon badge)
-- Post-Show Recall: "What was that joke?" -- show playbills with full lineups and comedian details
-
-### 5. Popular Open Mics
-Keep existing section from Index.tsx, no changes needed.
-
-### 6. Pricing Section Update
-**File: `src/components/Pricing.tsx`**
-
-Show two cards side by side:
-- **Free Plan** (existing): Open Mic Finder, Portfolio, Booking Tools -- $0/month
-- **LaughPass** (new): 4 show tickets/month, show reviews, comedian tracking -- $29/month
-
-### 7. SEO Update
+### 3. Remove "5 NYC Boroughs" from Social Proof Bar
 **File: `src/pages/Index.tsx`**
 
-- Title: "Comediq -- NYC's Comedy Platform for Performers and Audiences"
-- Description: "Find open mics, track your sets, discover comedy shows, and get monthly tickets with LaughPass. 1,250+ comedians use Comediq every week."
+- Remove the third stat ("5 / NYC boroughs") and its divider from the social proof bar
+- Keep only "1,250+ comedians visit weekly" and "500+ open mics tracked"
+- Reduce padding from `py-4` to `py-3`
+
+### 4. Popular Open Mics -- Compact Grid
+**File: `src/pages/Index.tsx`**
+
+- Change from `md:grid-cols-3` with large cards to a tighter layout:
+  - Mobile: 2 columns, small cards
+  - Desktop: 5 columns in a single row
+- Show top 5 instead of 6
+- Shrink card padding from `p-6` to `p-3`
+- Reduce text sizes: title to `text-sm font-bold`, venue to `text-xs`
+- Cut section padding from `py-16` to `py-10`
+- Remove the subtitle paragraph "Check out these comedian favorites"
+
+### 5. Waitlist Form -- Condensed Rows
+**File: `src/components/WaitlistForm.tsx`**
+
+- Row 1: Name + Email (2 columns on all screens)
+- Row 2: Phone + Instagram (2 columns on all screens)
+- Row 3: Years in comedy + Open mics/month + $ spent/month (3 columns, same as current bottom row)
+- Reduce section padding from `py-20` to `py-12`
+- Reduce heading margin from `mb-12` to `mb-6`
+- Reduce form padding from `p-8` to `p-5`
+- Tighten form `space-y-6` to `space-y-4`
+
+### 6. Tighten Whitespace in Other Sections
+- **Features** (`src/components/Features.tsx`): Reduce `py-20` to `py-12`, heading `mb-12` to `mb-8`
+- **ForAudiences** (`src/components/landing/ForAudiences.tsx`): Reduce `py-20` to `py-12`, heading `mb-12` to `mb-8`
+- **Pricing** (`src/components/Pricing.tsx`): Reduce `py-20` to `py-12`, heading `mb-12` to `mb-8`
 
 ---
 
 ## Technical Details
 
-### Files to Create
-| File | Purpose |
-|------|---------|
-| `src/components/landing/ForAudiences.tsx` | New audience-focused section with LaughPass pitch |
-
 ### Files to Edit
+
 | File | Changes |
 |------|---------|
-| `src/components/Hero.tsx` | Add `pt-28` padding; change tagline to "NYC's Comedy Platform"; dual CTA buttons; new subtitle |
-| `src/components/Features.tsx` | Rename to "Built for Comedians"; add coming soon badges; 2-column layout |
-| `src/components/FeatureCard.tsx` | Add optional `comingSoon` prop for badge rendering |
-| `src/components/Pricing.tsx` | Add LaughPass card alongside free plan |
-| `src/pages/Index.tsx` | Add social proof bar; insert ForAudiences section; update SEO meta |
+| `src/components/Hero.tsx` | Side-by-side layout on mobile (mascot right, text left); remove origin story block; reduce padding |
+| `src/components/SiteFooter.tsx` | Add origin story, Google Sheet link, @malevcomedy, and AI disclaimer above the copyright |
+| `src/pages/Index.tsx` | Remove "5 boroughs" stat; compact Popular Mics to 2-col mobile / 5-col desktop with smaller cards; show 5 mics |
+| `src/components/WaitlistForm.tsx` | Condense to 3 rows (Name+Email, Phone+IG, Comedy questions); reduce all padding/margins |
+| `src/components/Features.tsx` | Reduce section padding |
+| `src/components/landing/ForAudiences.tsx` | Reduce section padding |
+| `src/components/Pricing.tsx` | Reduce section padding |
 
-### No database changes needed
-All content is static marketing copy.
-
+### No new files or database changes needed.
