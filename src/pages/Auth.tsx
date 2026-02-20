@@ -28,20 +28,28 @@ const Auth = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user) {
+    if (user && !showResetPassword) {
       navigate('/perform');
     }
-  }, [user, navigate]);
+  }, [user, navigate, showResetPassword]);
 
   // Detect recovery token in URL
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if (params.get('type') === 'recovery' && params.get('access_token')) {
+    const hash = location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    if (params.get('type') === 'recovery') {
       setShowResetPassword(true);
-    } else {
-      setShowResetPassword(false);
     }
-  }, [location.search]);
+  }, [location.hash]);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setShowResetPassword(true);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
