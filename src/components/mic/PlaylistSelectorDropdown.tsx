@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Check, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMicPlaylists } from "@/hooks/useMicPlaylists";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PlaylistSelectorDropdownProps {
   micUniqueIdentifier: string;
@@ -22,6 +23,22 @@ export default function PlaylistSelectorDropdown({
   const [showCreateNew, setShowCreateNew] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const [addedTo, setAddedTo] = useState<Set<string>>(new Set());
+
+  // Pre-check which playlists already contain this mic
+  useEffect(() => {
+    if (playlists.length === 0) return;
+    const playlistIds = playlists.map(p => p.id);
+    supabase
+      .from("mic_playlist_items")
+      .select("playlist_id")
+      .eq("mic_unique_identifier", micUniqueIdentifier)
+      .in("playlist_id", playlistIds)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setAddedTo(new Set(data.map(d => d.playlist_id)));
+        }
+      });
+  }, [playlists, micUniqueIdentifier]);
 
   const handleAddToPlaylist = async (playlistId: string, playlistName: string) => {
     try {

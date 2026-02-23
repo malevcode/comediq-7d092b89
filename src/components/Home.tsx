@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3, Heart, Bookmark } from "lucide-react";
+import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3, Heart, Bookmark, Music } from "lucide-react";
 import { QuickNotes } from "./home/QuickNotes";
 import Header from "./Header";
 import { useSavedMics } from "@/hooks/useSavedMics";
@@ -272,6 +272,12 @@ export default function Home() {
                     <Link to="/saved">
                       <Bookmark className="mr-2 h-4 w-4" />
                       Saved Mics
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full justify-start border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50 bg-transparent" size="sm">
+                    <Link to="/open-mics?tab=playlists">
+                      <Music className="mr-2 h-4 w-4" />
+                      My Playlists
                     </Link>
                   </Button>
                 </CardContent>

@@ -196,7 +196,7 @@ export function PlaylistsTab() {
           New Playlist
         </Button>
         <Button variant="outline" asChild className="gap-2">
-          <Link to="/saved-mics">
+          <Link to="/saved">
             <Bookmark className="h-4 w-4" />
             View Saved Mics
           </Link>
