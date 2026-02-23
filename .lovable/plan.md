@@ -1,31 +1,55 @@
 
 
-# Hero Layout: Mascot on Top + Header Subtitle Update
+# Mic Playlists Feature - Bug Report and Fix Plan
 
-## Changes
+## Bugs Found
 
-### 1. Flip Hero to mascot-on-top, vertical layout
-**File: `src/components/Hero.tsx`**
+### Bug 1: Broken "View Saved Mics" link (PlaylistsTab.tsx)
+The "View Saved Mics" button inside the Playlists tab links to `/saved-mics`, but the actual route is `/saved`. This means when users click it, they get a 404/Not Found page.
 
-- Replace the current side-by-side grid with a single centered column layout
-- Order: "NYC's Comedy Platform" label -> mascot image (centered, prominent) -> "Comediq" heading -> tagline -> CTA buttons
-- The mascot becomes the visual focal point, sized generously (w-40 sm:w-56 lg:w-72)
-- Text and CTAs sit below, centered, with large readable font sizes
-- Remove the side-by-side grid entirely
+**File:** `src/components/playlists/PlaylistsTab.tsx`, line 199
+**Current:** `<Link to="/saved-mics">`
+**Fix:** `<Link to="/saved">`
 
-### 2. Update header subtitle
-**File: `src/pages/Index.tsx`**
+### Bug 2: Playlists are buried and hard to find
+The playlist feature is hidden inside a "Playlists" sub-tab within the Perform page. Users must: navigate to Perform -> click "Playlists" tab -> then see the feature. There is no link from the bottom navigation, home dashboard, or profile page. Most users will never discover it.
 
-- Change `subtitle="Your comedy journey starts here"` to `subtitle="Comedy Starts Here"`
+**Fix:** Add a "Playlists" link from the Home dashboard or from the Saved Mics page so users naturally find it.
 
----
+### Bug 3: Two competing playlist systems confuse users
+There are TWO separate playlist pages:
+1. `/playlists` - A standalone page with its own create/edit/delete UI (Playlists.tsx)
+2. Playlists tab inside `/open-mics` (Perform.tsx -> PlaylistsTab) with a completely different UI
+
+Both use the same data but have different styling and navigation. Users who find one may never find the other, and the duplication is confusing.
+
+**Fix:** Remove the standalone `/playlists` page and consolidate into the tab experience, OR redirect `/playlists` to the Perform page's playlists tab.
+
+### Bug 4: No visual feedback on which mics are already in a playlist
+When a user opens the playlist selector dropdown from a mic card, there's no indication of which playlists already contain that mic. Users may try to add the same mic again and get a confusing duplicate error.
+
+**Fix:** Check existing playlist membership when the dropdown opens and show a checkmark for playlists that already contain the mic.
+
+## Proposed Changes
+
+| File | Change |
+|------|--------|
+| `src/components/playlists/PlaylistsTab.tsx` | Fix `/saved-mics` link to `/saved` |
+| `src/pages/Playlists.tsx` | Redirect to `/open-mics?tab=playlists` instead of rendering a duplicate UI |
+| `src/components/Home.tsx` | Add a "My Playlists" quick link on the dashboard so users can discover the feature |
+| `src/components/mic/PlaylistSelectorDropdown.tsx` | Query existing playlist items for the mic and pre-mark playlists that already contain it |
 
 ## Technical Details
 
-| File | Changes |
-|------|---------|
-| `src/components/Hero.tsx` | Replace grid layout with vertical stack: NYC label -> mascot -> heading -> tagline -> CTAs, all centered |
-| `src/pages/Index.tsx` | Change PageHeader subtitle to "Comedy Starts Here" |
+### Fix 1 - Broken link (1 line change)
+In `PlaylistsTab.tsx` line 199, change the Link `to` prop from `/saved-mics` to `/saved`.
 
-No new files or database changes needed.
+### Fix 2 - Consolidate duplicate playlist page
+In `Playlists.tsx`, replace the full page with a redirect: `navigate("/open-mics?tab=playlists")`. This eliminates the confusing duplicate and funnels users to the richer tab experience.
+
+### Fix 3 - Add dashboard discoverability
+In `Home.tsx`, add a small "My Playlists" card or link below the Saved/Liked row that navigates to `/open-mics?tab=playlists`.
+
+### Fix 4 - Show existing membership in dropdown
+In `PlaylistSelectorDropdown.tsx`, for each playlist, query `mic_playlist_items` to check if `micUniqueIdentifier` already exists. Pre-populate the `addedTo` set with those playlist IDs so checkmarks appear immediately and the add button is disabled for existing entries.
 
