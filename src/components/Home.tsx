@@ -191,50 +191,57 @@ export default function Home() {
             {/* Left Column - Stats and Notepad */}
             <div className="flex-1 space-y-6">
               {/* Quick Stats Bar */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-3">
+                {/* Day Streak - prominent full-width */}
                 <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/10">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-[#1a5fb4] rounded-lg">
                         <TrendingUp className="h-5 w-5 text-white" />
                       </div>
                       <div>
                         <div className="text-2xl font-bold text-[#1a5fb4]">{visitsLoading ? "--" : streak}</div>
-                        <div className="text-xs text-[#1a5fb4]/70 font-medium">
+                        <div className="text-xs text-[#1a5fb4]/70 font-medium whitespace-nowrap">
                           Day Streak {streak > 4 ? '🔥' : ''}
                         </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Link to="/saved">
-                  <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer h-full">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-[#1a5fb4]/80 rounded-lg">
-                          <Bookmark className="h-5 w-5 text-white" />
+
+                {/* Saved + Liked - 2-column row */}
+                <div className="grid grid-cols-2 gap-3">
+                  <Link to="/saved">
+                    <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer h-full">
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 bg-[#1a5fb4]/80 rounded-lg shrink-0">
+                            <Bookmark className="h-4 w-4 text-white" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xl font-bold text-[#1a5fb4]">{savedMics.length}</div>
+                            <div className="text-xs text-[#1a5fb4]/70 font-medium whitespace-nowrap">Saved Mics</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="text-2xl font-bold text-[#1a5fb4]">{savedMics.length}</div>
-                          <div className="text-xs text-[#1a5fb4]/70 font-medium">Saved Mics</div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                  <Link to="/liked">
+                    <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer h-full">
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 bg-[#1a5fb4]/60 rounded-lg shrink-0">
+                            <Heart className="h-4 w-4 text-white" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xl font-bold text-[#1a5fb4]">{likedMics.length}</div>
+                            <div className="text-xs text-[#1a5fb4]/70 font-medium whitespace-nowrap">Liked Mics</div>
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-                <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-[#1a5fb4]/60 rounded-lg">
-                        <Heart className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-[#1a5fb4]">{likedMics.length}</div>
-                        <div className="text-xs text-[#1a5fb4]/70 font-medium">Liked Mics</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </div>
               </div>
 
               {/* Quick Notes Section */}
