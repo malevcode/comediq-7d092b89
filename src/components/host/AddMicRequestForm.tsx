@@ -31,13 +31,14 @@ export interface MicRequestFormData {
 interface AddMicRequestFormProps {
   onSubmit: (data: MicRequestFormData) => void;
   onCancel: () => void;
+  isSubmitting?: boolean;
 }
 
 const boroughs = ['Manhattan', 'Brooklyn', 'Queens', 'Bronx', 'Staten Island'];
 const venueTypes = ['Comedy Club', 'Bar', 'Restaurant', 'Coffee Shop', 'Theater', 'Other'];
 const cities = ['New York', 'Los Angeles'];
 
-const AddMicRequestForm: React.FC<AddMicRequestFormProps> = ({ onSubmit, onCancel }) => {
+const AddMicRequestForm: React.FC<AddMicRequestFormProps> = ({ onSubmit, onCancel, isSubmitting = false }) => {
   const [formData, setFormData] = useState<MicRequestFormData>({
     open_mic: '',
     venue_name: '',
@@ -92,7 +93,8 @@ const AddMicRequestForm: React.FC<AddMicRequestFormProps> = ({ onSubmit, onCance
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
+    e.stopPropagation();
+    if (!isSubmitting && validate()) {
       onSubmit(formData);
     }
   };
@@ -342,8 +344,8 @@ const AddMicRequestForm: React.FC<AddMicRequestFormProps> = ({ onSubmit, onCance
 
           {/* Submit Button */}
           <div className="pt-2">
-            <Button type="submit" className="w-full bg-green-600 hover:bg-green-700">
-              Submit Mic Request
+            <Button type="submit" disabled={isSubmitting} className="w-full bg-green-600 hover:bg-green-700">
+              {isSubmitting ? "Submitting..." : "Submit Mic Request"}
             </Button>
           </div>
         </form>

@@ -21,7 +21,7 @@ import { toast } from "@/hooks/use-toast";
 import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilters";
 import PageHeader from "@/components/PageHeader";
 import HamburgerMenu from "@/components/HamburgerMenu";
-import { SupabaseClient } from "@supabase/supabase-js";
+
 
 
 
@@ -429,7 +429,10 @@ const OpenMics = () => {
     setSelectedMic(mic);
   }, []);
 
+  const [isSubmittingMic, setIsSubmittingMic] = useState(false);
+
   const handleRequestMic = async (formData: MicRequestFormData) => {
+    setIsSubmittingMic(true);
     try {
       const insertObj = {
         show_title: formData.open_mic,
@@ -453,7 +456,7 @@ const OpenMics = () => {
         user_id: user?.id || null,
       };
 
-      const { error } = await (supabase as SupabaseClient)
+      const { error } = await supabase
         .from("open_mics_requests")
         .insert([insertObj]);
 
@@ -478,6 +481,8 @@ const OpenMics = () => {
         description: "An unexpected error occurred.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmittingMic(false);
     }
   };
 
@@ -683,7 +688,7 @@ const OpenMics = () => {
         <MicDetailModal mic={selectedMic} onClose={() => setSelectedMic(null)} onAddToSchedule={handleAddToSchedule} />
       )}
 
-      {showRequestModal && <AddMicRequestForm onSubmit={handleRequestMic} onCancel={() => setShowRequestModal(false)} />}
+      {showRequestModal && <AddMicRequestForm onSubmit={handleRequestMic} onCancel={() => setShowRequestModal(false)} isSubmitting={isSubmittingMic} />}
       </div>
     </>
   );
