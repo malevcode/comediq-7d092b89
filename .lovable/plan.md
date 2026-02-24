@@ -1,55 +1,65 @@
 
 
-# Mic Playlists Feature - Bug Report and Fix Plan
+# Fix Plan: Share Text, Mic Submission, and Verification Lag
 
-## Bugs Found
+## 1. Share text says "ComiQ" instead of "Comediq"
 
-### Bug 1: Broken "View Saved Mics" link (PlaylistsTab.tsx)
-The "View Saved Mics" button inside the Playlists tab links to `/saved-mics`, but the actual route is `/saved`. This means when users click it, they get a 404/Not Found page.
+**File:** `src/components/mic/MicActionBar.tsx`, line 106
 
-**File:** `src/components/playlists/PlaylistsTab.tsx`, line 199
-**Current:** `<Link to="/saved-mics">`
-**Fix:** `<Link to="/saved">`
+Change `Check out ${micName} on ComiQ!` to `Check out ${micName} on Comediq!`
 
-### Bug 2: Playlists are buried and hard to find
-The playlist feature is hidden inside a "Playlists" sub-tab within the Perform page. Users must: navigate to Perform -> click "Playlists" tab -> then see the feature. There is no link from the bottom navigation, home dashboard, or profile page. Most users will never discover it.
+## 2. Mic submission button not working
 
-**Fix:** Add a "Playlists" link from the Home dashboard or from the Saved Mics page so users naturally find it.
+**File:** `src/components/host/AddMicRequestForm.tsx`
 
-### Bug 3: Two competing playlist systems confuse users
-There are TWO separate playlist pages:
-1. `/playlists` - A standalone page with its own create/edit/delete UI (Playlists.tsx)
-2. Playlists tab inside `/open-mics` (Perform.tsx -> PlaylistsTab) with a completely different UI
+The form renders inside a Radix Dialog, which can intercept form submission events. Additionally, there is no loading state on the submit button, so users get no feedback.
 
-Both use the same data but have different styling and navigation. Users who find one may never find the other, and the duplication is confusing.
+- Add `isSubmitting` state prop passed from parent
+- Add `e.stopPropagation()` in `handleSubmit` to prevent Dialog from swallowing the event
+- Disable submit button and show "Submitting..." text while in progress
 
-**Fix:** Remove the standalone `/playlists` page and consolidate into the tab experience, OR redirect `/playlists` to the Perform page's playlists tab.
+**File:** `src/pages/OpenMics.tsx`, lines 432-482
 
-### Bug 4: No visual feedback on which mics are already in a playlist
-When a user opens the playlist selector dropdown from a mic card, there's no indication of which playlists already contain that mic. Users may try to add the same mic again and get a confusing duplicate error.
+- Remove `as SupabaseClient` cast (hides type errors)
+- Add `isSubmitting` state to track submission progress
+- Pass it to the form component
 
-**Fix:** Check existing playlist membership when the dropdown opens and show a checkmark for playlists that already contain the mic.
+## 3. Verification lag (optimistic updates, keep dropdown)
 
-## Proposed Changes
+Keep the existing dropdown UI exactly as-is (no question text, just the three status options). Fix the 3-6 second lag by adding optimistic cache updates.
+
+**File:** `src/hooks/useMicStatus.ts`
+
+Add `onMutate` for optimistic update: immediately set the new status in the query cache before the network request completes. Add `onError` rollback if the request fails. This eliminates the perceived lag entirely.
+
+```
+onMutate: async (newStatus) => {
+  await queryClient.cancelQueries({ queryKey: ['mic-status', id] });
+  const previous = queryClient.getQueryData(['mic-status', id]);
+  queryClient.setQueryData(['mic-status', id], {
+    status: newStatus,
+    updatedAt: new Date().toISOString()
+  });
+  return { previous };
+},
+onError: (err, newStatus, context) => {
+  queryClient.setQueryData(['mic-status', id], context.previous);
+}
+```
+
+Also allow re-verifying with the same status (currently `handleStatusSelect` skips if `newStatus === status`). This lets users tap green again to refresh the date without going yellow first.
+
+**File:** `src/components/MicStatusDropdown.tsx`, line 81
+
+Remove the `if (newStatus !== status)` guard so users can re-confirm the same status (e.g., tap "Happening" again to update the date).
+
+## Summary of Changes
 
 | File | Change |
 |------|--------|
-| `src/components/playlists/PlaylistsTab.tsx` | Fix `/saved-mics` link to `/saved` |
-| `src/pages/Playlists.tsx` | Redirect to `/open-mics?tab=playlists` instead of rendering a duplicate UI |
-| `src/components/Home.tsx` | Add a "My Playlists" quick link on the dashboard so users can discover the feature |
-| `src/components/mic/PlaylistSelectorDropdown.tsx` | Query existing playlist items for the mic and pre-mark playlists that already contain it |
-
-## Technical Details
-
-### Fix 1 - Broken link (1 line change)
-In `PlaylistsTab.tsx` line 199, change the Link `to` prop from `/saved-mics` to `/saved`.
-
-### Fix 2 - Consolidate duplicate playlist page
-In `Playlists.tsx`, replace the full page with a redirect: `navigate("/open-mics?tab=playlists")`. This eliminates the confusing duplicate and funnels users to the richer tab experience.
-
-### Fix 3 - Add dashboard discoverability
-In `Home.tsx`, add a small "My Playlists" card or link below the Saved/Liked row that navigates to `/open-mics?tab=playlists`.
-
-### Fix 4 - Show existing membership in dropdown
-In `PlaylistSelectorDropdown.tsx`, for each playlist, query `mic_playlist_items` to check if `micUniqueIdentifier` already exists. Pre-populate the `addedTo` set with those playlist IDs so checkmarks appear immediately and the add button is disabled for existing entries.
+| `src/components/mic/MicActionBar.tsx` | Fix "ComiQ" → "Comediq" |
+| `src/components/host/AddMicRequestForm.tsx` | Add `isSubmitting` prop, `e.stopPropagation()`, disable button during submission |
+| `src/pages/OpenMics.tsx` | Add `isSubmitting` state, remove `as SupabaseClient` cast, pass loading state to form |
+| `src/hooks/useMicStatus.ts` | Add optimistic `onMutate`/`onError` to mutation for instant UI feedback |
+| `src/components/MicStatusDropdown.tsx` | Remove same-status guard so users can re-verify without resetting first |
 
