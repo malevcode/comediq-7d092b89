@@ -78,9 +78,7 @@ export default function MicStatusDropdown({
   }, []);
 
   const handleStatusSelect = (newStatus: MicStatusType) => {
-    if (newStatus !== status) {
-      updateStatus(newStatus);
-    }
+    updateStatus(newStatus);
     setIsOpen(false);
   };
 

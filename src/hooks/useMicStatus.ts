@@ -60,6 +60,20 @@ export const useMicStatus = (micUniqueIdentifier: string) => {
 
       return response.json();
     },
+    onMutate: async (newStatus: MicStatusType) => {
+      await queryClient.cancelQueries({ queryKey: ['mic-status', micUniqueIdentifier] });
+      const previous = queryClient.getQueryData<MicStatusData | null>(['mic-status', micUniqueIdentifier]);
+      queryClient.setQueryData(['mic-status', micUniqueIdentifier], {
+        status: newStatus,
+        updatedAt: new Date().toISOString(),
+      });
+      return { previous };
+    },
+    onError: (_err, _newStatus, context) => {
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(['mic-status', micUniqueIdentifier], context.previous);
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mic-status', micUniqueIdentifier] });
       queryClient.invalidateQueries({ queryKey: ['latestVerification', micUniqueIdentifier] });

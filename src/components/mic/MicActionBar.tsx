@@ -103,7 +103,7 @@ export default function MicActionBar({
       try {
         await navigator.share({
           title: micName,
-          text: `Check out ${micName} on ComiQ!`,
+          text: `Check out ${micName} on Comediq!`,
           url
         });
       } catch (err) {
