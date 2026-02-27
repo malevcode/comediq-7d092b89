@@ -49,7 +49,7 @@ export default function SavedMics() {
   return (
     <>
       <SEO 
-        title="Saved Mics | ComiQ"
+        title="Saved Mics | Comediq"
         description="View your bookmarked open mics in one place"
       />
       

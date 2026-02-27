@@ -42,7 +42,7 @@ export default function LikedMics() {
   return (
     <>
       <SEO
-        title="Liked Mics | ComiQ"
+        title="Liked Mics | Comediq"
         description="View your liked open mics in one place"
       />
 
