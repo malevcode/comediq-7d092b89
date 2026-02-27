@@ -1,65 +1,24 @@
 
 
-# Fix Plan: Share Text, Mic Submission, and Verification Lag
+## Fix: Share text and domain
 
-## 1. Share text says "ComiQ" instead of "Comediq"
+**Two problems:**
+1. The clipboard fallback (`copyToClipboard`) only copies the raw URL with no blurb — unlike `navigator.share` which includes the text. Most desktop browsers don't support `navigator.share`, so users get just the bare link.
+2. `window.location.origin` returns whatever domain the app is currently running on (preview = lovable.app). It should use the production domain `comediq.us`.
 
-**File:** `src/components/mic/MicActionBar.tsx`, line 106
+**Changes in `src/components/mic/MicActionBar.tsx`:**
 
-Change `Check out ${micName} on ComiQ!` to `Check out ${micName} on Comediq!`
+1. **Hardcode production domain** — Replace `window.location.origin` with `https://comediq.us` so share links always point to the real site regardless of environment.
 
-## 2. Mic submission button not working
+2. **Include blurb in clipboard copy** — Change `copyToClipboard` to copy `Check out ${micName} on Comediq! ${url}` instead of just the URL.
 
-**File:** `src/components/host/AddMicRequestForm.tsx`
+```tsx
+// Line 100: Use production domain
+const url = `https://comediq.us/mics/${encodeURIComponent(micName.toLowerCase().replace(/\s+/g, '-'))}`;
 
-The form renders inside a Radix Dialog, which can intercept form submission events. Additionally, there is no loading state on the submit button, so users get no feedback.
-
-- Add `isSubmitting` state prop passed from parent
-- Add `e.stopPropagation()` in `handleSubmit` to prevent Dialog from swallowing the event
-- Disable submit button and show "Submitting..." text while in progress
-
-**File:** `src/pages/OpenMics.tsx`, lines 432-482
-
-- Remove `as SupabaseClient` cast (hides type errors)
-- Add `isSubmitting` state to track submission progress
-- Pass it to the form component
-
-## 3. Verification lag (optimistic updates, keep dropdown)
-
-Keep the existing dropdown UI exactly as-is (no question text, just the three status options). Fix the 3-6 second lag by adding optimistic cache updates.
-
-**File:** `src/hooks/useMicStatus.ts`
-
-Add `onMutate` for optimistic update: immediately set the new status in the query cache before the network request completes. Add `onError` rollback if the request fails. This eliminates the perceived lag entirely.
-
-```
-onMutate: async (newStatus) => {
-  await queryClient.cancelQueries({ queryKey: ['mic-status', id] });
-  const previous = queryClient.getQueryData(['mic-status', id]);
-  queryClient.setQueryData(['mic-status', id], {
-    status: newStatus,
-    updatedAt: new Date().toISOString()
-  });
-  return { previous };
-},
-onError: (err, newStatus, context) => {
-  queryClient.setQueryData(['mic-status', id], context.previous);
-}
+// Line 120: Copy full message, not just URL
+await navigator.clipboard.writeText(`Check out ${micName} on Comediq! ${url}`);
 ```
 
-Also allow re-verifying with the same status (currently `handleStatusSelect` skips if `newStatus === status`). This lets users tap green again to refresh the date without going yellow first.
-
-**File:** `src/components/MicStatusDropdown.tsx`, line 81
-
-Remove the `if (newStatus !== status)` guard so users can re-confirm the same status (e.g., tap "Happening" again to update the date).
-
-## Summary of Changes
-
-| File | Change |
-|------|--------|
-| `src/components/mic/MicActionBar.tsx` | Fix "ComiQ" → "Comediq" |
-| `src/components/host/AddMicRequestForm.tsx` | Add `isSubmitting` prop, `e.stopPropagation()`, disable button during submission |
-| `src/pages/OpenMics.tsx` | Add `isSubmitting` state, remove `as SupabaseClient` cast, pass loading state to form |
-| `src/hooks/useMicStatus.ts` | Add optimistic `onMutate`/`onError` to mutation for instant UI feedback |
-| `src/components/MicStatusDropdown.tsx` | Remove same-status guard so users can re-verify without resetting first |
+Single file edit, two lines changed.
 
