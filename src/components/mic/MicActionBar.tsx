@@ -97,7 +97,7 @@ export default function MicActionBar({
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/mics/${encodeURIComponent(micName.toLowerCase().replace(/\s+/g, '-'))}`;
+    const url = `https://comediq.us/mics/${encodeURIComponent(micName.toLowerCase().replace(/\s+/g, '-'))}`;
     
     if (navigator.share) {
       try {
@@ -117,7 +117,7 @@ export default function MicActionBar({
 
   const copyToClipboard = async (url: string) => {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(`Check out ${micName} on Comediq! ${url}`);
       toast({
         title: "Link copied!",
         description: "Share link copied to clipboard"
