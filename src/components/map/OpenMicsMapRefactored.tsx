@@ -10,6 +10,7 @@ import { MapLegend } from './MapLegend';
 import { MapControls } from './MapControls';
 import { Info } from 'lucide-react';
 import { TokenInput } from './TokenInput';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface OpenMicsMapProps {
   mics: OpenMic[];
@@ -17,6 +18,7 @@ interface OpenMicsMapProps {
 }
 
 const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
+  const { user } = useAuth();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markerManager = useRef<MarkerManager | null>(null);
@@ -62,12 +64,13 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
     initializeToken();
   }, []);
 
-  // Get user location on mount - automatically request permission
+  // Get user location on mount - only for logged-in users
   useEffect(() => {
-    console.log('OpenMicsMap: User location effect running');
-    // Automatically request location when component mounts
-    recenterOnUserLocation();
-  }, []);
+    if (user) {
+      console.log('OpenMicsMap: User logged in, requesting location');
+      recenterOnUserLocation();
+    }
+  }, [user]);
 
   // Recenter map on user location
   const recenterOnUserLocation = useCallback(async () => {
