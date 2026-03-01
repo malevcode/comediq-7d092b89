@@ -170,6 +170,39 @@ export type Database = {
           },
         ]
       }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_name: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          page_path: string | null
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          page_path?: string | null
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          page_path?: string | null
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       audience_shows: {
         Row: {
           age_restriction: string | null
