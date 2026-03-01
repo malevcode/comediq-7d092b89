@@ -1,33 +1,34 @@
 
 
-## Fix: Consistent Logo and Clean Admin Header
+## Plan: Gate Location Behind Auth & Persist Permission
 
-### 1. PageHeader logo fix (`src/components/PageHeader.tsx`)
+### Problem
+Every visitor (including anonymous) gets hit with a browser "share your location?" prompt on page load. This is intrusive UX. Location should only be requested for logged-in users, and the grant should be remembered so they aren't re-prompted.
 
-The logo image is inside a flex container without `shrink-0`, so it compresses when the title text is long. Also the container uses `h-12` which constrains the logo.
+### Changes
 
-**Changes:**
-- Add `shrink-0` to the logo wrapper so it never compresses
-- Set a fixed width/height on the image (`h-10 w-auto`) for consistency
-- Add `shrink-0` to the hamburger menu wrapper too
+#### 1. `src/hooks/useUserLocation.ts` — Only request location for logged-in users
 
-### 2. Admin Dashboard header cleanup (`src/pages/AdminInterface.tsx`)
+- Import `useAuth` and check `user` before requesting location
+- If no user, skip the auto-request on mount entirely (return null location, no error)
+- Cache the last known location in `localStorage` keyed by user ID so we can restore it instantly on next visit without re-prompting (the browser remembers the grant, but this avoids the loading delay)
+- On mount with a logged-in user: first load cached coords from localStorage, then request fresh coords in background
 
-The admin page passes `title="Admin Dashboard"` and `subtitle="Manage open mic requests and content"` into PageHeader, making the fixed nav bar very cluttered on mobile. The header should just show "Comediq" (or nothing extra) like the landing page. Move the admin title/subtitle below the header as a page-level heading.
+#### 2. `src/components/OpenMicsDetailedList.tsx` — No behavior change needed
 
-**Changes:**
-- Remove `title` and `subtitle` props from `<PageHeader />` so it defaults to "Comediq"
-- Add an inline heading below the header (inside the `pt-28` content area) that says "Admin Dashboard" with the subtitle
+The `useUserLocation` hook already returns `null` for location when not available — the distance display simply won't show, which is correct for anonymous users.
 
-### 3. Tab bar overflow (`src/pages/AdminInterface.tsx`)
+#### 3. `src/components/map/OpenMicsMapRefactored.tsx` — Gate auto-location request
 
-The 8-column tab grid is overflowing on mobile (visible in screenshot). Switch to `flex flex-wrap` or horizontal scroll.
+- The map component has its own inline location request (`recenterOnUserLocation` called on mount). Import `useAuth` and only auto-request on mount if user is logged in.
+- Keep the manual "Recenter" button functional for logged-in users only. For anonymous users, hide or disable the recenter button.
 
-**Changes:**
-- Change `grid grid-cols-8` to `flex flex-wrap` on the TabsList so tabs wrap naturally on small screens
+### Summary
 
 | File | Change |
 |------|--------|
-| `src/components/PageHeader.tsx` | Add `shrink-0` to logo and menu wrappers |
-| `src/pages/AdminInterface.tsx` | Remove title/subtitle from PageHeader, add page heading, fix tab overflow |
+| `src/hooks/useUserLocation.ts` | Import `useAuth`, skip auto-request if no user, cache coords in localStorage per user ID |
+| `src/components/map/OpenMicsMapRefactored.tsx` | Import `useAuth`, only call `recenterOnUserLocation` on mount if logged in, disable recenter button for anonymous |
+
+Two files edited. Anonymous users never see the location prompt. Logged-in users get location cached so subsequent visits are instant.
 
