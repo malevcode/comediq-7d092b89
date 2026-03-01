@@ -1,24 +1,33 @@
 
 
-## Fix: Share text and domain
+## Fix: Consistent Logo and Clean Admin Header
 
-**Two problems:**
-1. The clipboard fallback (`copyToClipboard`) only copies the raw URL with no blurb — unlike `navigator.share` which includes the text. Most desktop browsers don't support `navigator.share`, so users get just the bare link.
-2. `window.location.origin` returns whatever domain the app is currently running on (preview = lovable.app). It should use the production domain `comediq.us`.
+### 1. PageHeader logo fix (`src/components/PageHeader.tsx`)
 
-**Changes in `src/components/mic/MicActionBar.tsx`:**
+The logo image is inside a flex container without `shrink-0`, so it compresses when the title text is long. Also the container uses `h-12` which constrains the logo.
 
-1. **Hardcode production domain** — Replace `window.location.origin` with `https://comediq.us` so share links always point to the real site regardless of environment.
+**Changes:**
+- Add `shrink-0` to the logo wrapper so it never compresses
+- Set a fixed width/height on the image (`h-10 w-auto`) for consistency
+- Add `shrink-0` to the hamburger menu wrapper too
 
-2. **Include blurb in clipboard copy** — Change `copyToClipboard` to copy `Check out ${micName} on Comediq! ${url}` instead of just the URL.
+### 2. Admin Dashboard header cleanup (`src/pages/AdminInterface.tsx`)
 
-```tsx
-// Line 100: Use production domain
-const url = `https://comediq.us/mics/${encodeURIComponent(micName.toLowerCase().replace(/\s+/g, '-'))}`;
+The admin page passes `title="Admin Dashboard"` and `subtitle="Manage open mic requests and content"` into PageHeader, making the fixed nav bar very cluttered on mobile. The header should just show "Comediq" (or nothing extra) like the landing page. Move the admin title/subtitle below the header as a page-level heading.
 
-// Line 120: Copy full message, not just URL
-await navigator.clipboard.writeText(`Check out ${micName} on Comediq! ${url}`);
-```
+**Changes:**
+- Remove `title` and `subtitle` props from `<PageHeader />` so it defaults to "Comediq"
+- Add an inline heading below the header (inside the `pt-28` content area) that says "Admin Dashboard" with the subtitle
 
-Single file edit, two lines changed.
+### 3. Tab bar overflow (`src/pages/AdminInterface.tsx`)
+
+The 8-column tab grid is overflowing on mobile (visible in screenshot). Switch to `flex flex-wrap` or horizontal scroll.
+
+**Changes:**
+- Change `grid grid-cols-8` to `flex flex-wrap` on the TabsList so tabs wrap naturally on small screens
+
+| File | Change |
+|------|--------|
+| `src/components/PageHeader.tsx` | Add `shrink-0` to logo and menu wrappers |
+| `src/pages/AdminInterface.tsx` | Remove title/subtitle from PageHeader, add page heading, fix tab overflow |
 
