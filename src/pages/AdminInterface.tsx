@@ -30,6 +30,7 @@ import { UserAnalyticsDashboard } from '@/components/admin/UserAnalyticsDashboar
 import BulkImportInterface from '@/components/admin/BulkImportInterface';
 import { SmartImportInterface } from '@/components/admin/SmartImportInterface';
 import { AdminBannerAdsManager } from '@/components/admin/AdminBannerAdsManager';
+import { SiteAnalyticsDashboard } from '@/components/admin/SiteAnalyticsDashboard';
 import PageHeader from '@/components/PageHeader';
 import { approveMicRequest, type MicFormData } from '@/api/admin';
 
@@ -219,6 +220,9 @@ const AdminInterface = () => {
             <TabsTrigger value="ads" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               Ads
             </TabsTrigger>
+            <TabsTrigger value="site-analytics" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              Site
+            </TabsTrigger>
             <TabsTrigger value="smart-import" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               Smart
             </TabsTrigger>
@@ -237,6 +241,13 @@ const AdminInterface = () => {
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
               <CardContent className="p-8">
                 <UserAnalyticsDashboard />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="site-analytics">
+            <Card className="mb-6 shadow-lg rounded-2xl border-0">
+              <CardContent className="p-8">
+                <SiteAnalyticsDashboard />
               </CardContent>
             </Card>
           </TabsContent>

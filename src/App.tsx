@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { HelmetProvider } from 'react-helmet-async';
 import Index from "./pages/Index";
 import OpenMics from "./pages/OpenMics";
@@ -63,6 +64,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+          <AnalyticsProvider>
           <ScrollToTop />
           <MarqueeBanner />
           <div className="pb-8">
@@ -104,6 +106,7 @@ const App = () => (
           </div>
           <SiteFooter />
           <BottomNavigation />
+          </AnalyticsProvider>
         </BrowserRouter>
         </TooltipProvider>
       </HelmetProvider>

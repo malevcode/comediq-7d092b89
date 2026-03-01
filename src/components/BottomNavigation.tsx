@@ -1,10 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import { Home, Eye, User, Book, MicVocal } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAnalytics } from "@/components/AnalyticsProvider";
 
 const BottomNavigation = () => {
   const location = useLocation();
   const { user, isAdmin } = useAuth();
+  const { trackClick } = useAnalytics();
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
@@ -43,6 +45,7 @@ const BottomNavigation = () => {
               <Link
                 key={path}
                 to={path}
+                onClick={() => trackClick(`nav_${label.toLowerCase()}`, { target: path })}
                 className={`flex flex-col items-center p-2 ${
                   isActive
                     ? "text-[#1a5fb4]"
