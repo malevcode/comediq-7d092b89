@@ -170,6 +170,48 @@ export type Database = {
           },
         ]
       }
+      admin_todos: {
+        Row: {
+          assigned_to: string | null
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string
@@ -230,6 +272,8 @@ export type Database = {
           show_date: string
           show_time: string
           show_type: string | null
+          source: string | null
+          source_event_id: string | null
           status: string | null
           submitted_by: string | null
           ticket_price: string | null
@@ -266,6 +310,8 @@ export type Database = {
           show_date: string
           show_time: string
           show_type?: string | null
+          source?: string | null
+          source_event_id?: string | null
           status?: string | null
           submitted_by?: string | null
           ticket_price?: string | null
@@ -302,6 +348,8 @@ export type Database = {
           show_date?: string
           show_time?: string
           show_type?: string | null
+          source?: string | null
+          source_event_id?: string | null
           status?: string | null
           submitted_by?: string | null
           ticket_price?: string | null
@@ -1617,6 +1665,45 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      venue_sources: {
+        Row: {
+          contact_email: string | null
+          contact_name: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          permission_status: string
+          source_key: string
+          updated_at: string
+          venue_name: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          permission_status?: string
+          source_key: string
+          updated_at?: string
+          venue_name: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          permission_status?: string
+          source_key?: string
+          updated_at?: string
+          venue_name?: string
+        }
+        Relationships: []
       }
       waitlist: {
         Row: {

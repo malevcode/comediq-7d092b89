@@ -31,6 +31,8 @@ import BulkImportInterface from '@/components/admin/BulkImportInterface';
 import { SmartImportInterface } from '@/components/admin/SmartImportInterface';
 import { AdminBannerAdsManager } from '@/components/admin/AdminBannerAdsManager';
 import { SiteAnalyticsDashboard } from '@/components/admin/SiteAnalyticsDashboard';
+import { AdminVenueSourcesManager } from '@/components/admin/AdminVenueSourcesManager';
+import { AdminTodoBoard } from '@/components/admin/AdminTodoBoard';
 import PageHeader from '@/components/PageHeader';
 import { approveMicRequest, type MicFormData } from '@/api/admin';
 
@@ -229,6 +231,12 @@ const AdminInterface = () => {
             <TabsTrigger value="bulk-import" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
               CSV
             </TabsTrigger>
+            <TabsTrigger value="venues" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              Venues
+            </TabsTrigger>
+            <TabsTrigger value="todos" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">
+              To-Dos
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="analytics">
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
@@ -374,6 +382,12 @@ const AdminInterface = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+          <TabsContent value="venues">
+            <AdminVenueSourcesManager />
+          </TabsContent>
+          <TabsContent value="todos">
+            <AdminTodoBoard />
           </TabsContent>
         </Tabs>
       </div>
