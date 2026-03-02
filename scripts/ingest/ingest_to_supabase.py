@@ -10,6 +10,7 @@ import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
+from pathlib import Path
 
 import requests
 
@@ -18,10 +19,14 @@ import requests
 # ------------------------
 TABLE = "audience_shows"
 
+HERE = Path(__file__).resolve()
+REPO_ROOT = HERE.parents[2]          # scripts/ingest/ -> scripts -> repo root
+SCRAPERS_DIR = REPO_ROOT / "scripts" / "scrapers"
+
 SOURCE_SCRIPTS = [
-    ("nycc", "NYCC_scraper.py", "nycc_calendar.json"),
-    ("grislypear", "grislypear_scraper.py", "grislypear_calendar.json"),
-    ("stmarks", "stmarksCC_scraper.py", "stmarks_calendar.json"),
+    ("nycc", str(SCRAPERS_DIR / "NYCC_scraper.py"), "nycc_calendar.json"),
+    ("grislypear", str(SCRAPERS_DIR / "grislypear_scraper.py"), "grislypear_calendar.json"),
+    ("stmarks", str(SCRAPERS_DIR / "stmarksCC_scraper.py"), "stmarks_calendar.json"),
 ]
 
 # Venue naming for your DB (edit to taste)
