@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles, Calendar, X, Upload } from 'lucide-react';
+import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles, Calendar, X, Upload, ListMusic } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
 import { OpenMic } from '@/types/openMic';
@@ -22,6 +22,8 @@ import { cancelSignup } from '@/api/signups';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import BulkImportModal from '@/components/shows/BulkImportModal';
+import { useMicPlaylists } from '@/hooks/useMicPlaylists';
+import { PlaylistsTab } from '@/components/playlists';
 import { 
   useComedianProfile, 
   useUpdateProfile, 
@@ -40,6 +42,7 @@ const Profile = () => {
   const [showBulkImport, setShowBulkImport] = useState(false);
 
   const { data: profile, isLoading: profileLoading } = useComedianProfile(user?.id);
+  const { playlists } = useMicPlaylists();
   const updateProfile = useUpdateProfile();
   const uploadHeadshot = useUploadHeadshot();
   const addSocialLink = useAddSocialLink();
@@ -104,10 +107,14 @@ const Profile = () => {
               onOpenChange={setShowBulkImport}
             />
 
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="profile">My Profile</TabsTrigger>
               <TabsTrigger value="work">Gigs</TabsTrigger>
               <TabsTrigger value="liked">Liked Mics</TabsTrigger>
+              <TabsTrigger value="playlists" className="gap-1">
+                <ListMusic className="h-3.5 w-3.5" />
+                Playlists{playlists.length > 0 && ` (${playlists.length})`}
+              </TabsTrigger>
               <TabsTrigger value="signups">Signups</TabsTrigger>
             </TabsList>
 
@@ -239,6 +246,11 @@ const Profile = () => {
                   ))}
                 </div>
               )}
+            </TabsContent>
+
+            {/* Playlists Tab */}
+            <TabsContent value="playlists">
+              <PlaylistsTab />
             </TabsContent>
 
             {/* My Signups Tab */}
