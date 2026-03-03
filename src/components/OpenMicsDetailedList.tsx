@@ -310,7 +310,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           />
         </div>
         {/* Host info - only on desktop, stays outside clickable area */}
-        <span className="hidden md:flex items-center gap-1 mt-0.5">
+        <span className="hidden md:flex items-center gap-1 mt-0.5 justify-center">
           <CircleUser className="w-3 h-3 flex-shrink-0 text-gray-400" />
           <span className="truncate text-xs">
             {mic.instagramHandle && mic.instagramHandle.trim() ? makeLinksClickable(mic.instagramHandle) : "No host"}
