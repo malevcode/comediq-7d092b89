@@ -49,8 +49,9 @@ function getTodayName(): string {
 
 export function PlaylistsTab() {
   const { user } = useAuth();
-  const { playlists, isLoading } = useMicPlaylists();
+  const { playlists, isLoading, createPlaylist } = useMicPlaylists();
   const { data: allMics = [] } = useOpenMics();
+  const { toast } = useToast();
   
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState<MicPlaylist | null>(null);
