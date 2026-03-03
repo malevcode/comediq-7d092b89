@@ -2,6 +2,12 @@ import { useState, useEffect } from "react";
 import { Plus, Check, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useMicPlaylists } from "@/hooks/useMicPlaylists";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -10,13 +16,15 @@ import { supabase } from "@/integrations/supabase/client";
 interface PlaylistSelectorDropdownProps {
   micUniqueIdentifier: string;
   micName: string;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export default function PlaylistSelectorDropdown({
   micUniqueIdentifier,
   micName,
-  onClose
+  open,
+  onOpenChange
 }: PlaylistSelectorDropdownProps) {
   const { toast } = useToast();
   const { playlists, createPlaylist, addToPlaylist, isCreating } = useMicPlaylists();
@@ -26,7 +34,7 @@ export default function PlaylistSelectorDropdown({
 
   // Pre-check which playlists already contain this mic
   useEffect(() => {
-    if (playlists.length === 0) return;
+    if (!open || playlists.length === 0) return;
     const playlistIds = playlists.map(p => p.id);
     supabase
       .from("mic_playlist_items")
@@ -38,7 +46,7 @@ export default function PlaylistSelectorDropdown({
           setAddedTo(new Set(data.map(d => d.playlist_id)));
         }
       });
-  }, [playlists, micUniqueIdentifier]);
+  }, [open, playlists, micUniqueIdentifier]);
 
   const handleAddToPlaylist = async (playlistId: string, playlistName: string) => {
     try {
@@ -77,7 +85,7 @@ export default function PlaylistSelectorDropdown({
       });
       setNewPlaylistName("");
       setShowCreateNew(false);
-      onClose();
+      onOpenChange(false);
     } catch (error) {
       toast({
         title: "Error",
@@ -87,94 +95,116 @@ export default function PlaylistSelectorDropdown({
     }
   };
 
+  const SUGGESTED_NAMES = ["Monday Night Lineup", "Free Mics Only", "Brooklyn Circuit", "Late Night Spots"];
+
   return (
-    <div 
-      className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="p-3 border-b border-gray-100">
-        <h4 className="font-semibold text-sm text-gray-900">Add to Playlist</h4>
-      </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-base">Add to Playlist</DialogTitle>
+        </DialogHeader>
 
-      <div className="max-h-48 overflow-y-auto">
-        {playlists.length === 0 && !showCreateNew ? (
-          <div className="p-4 text-center text-gray-500 text-sm">
-            <Music className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-            <p>No playlists yet</p>
-          </div>
-        ) : (
-          playlists.map((playlist) => (
-            <button
-              key={playlist.id}
-              onClick={() => handleAddToPlaylist(playlist.id, playlist.name)}
-              disabled={addedTo.has(playlist.id)}
-              className={cn(
-                "w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors text-left",
-                addedTo.has(playlist.id) && "bg-green-50"
-              )}
-            >
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm text-gray-900 truncate">{playlist.name}</p>
-                <p className="text-xs text-gray-500">{playlist.item_count || 0} mics</p>
+        <div className="max-h-60 overflow-y-auto -mx-6 px-6">
+          {playlists.length === 0 && !showCreateNew ? (
+            <div className="py-6 text-center">
+              <Music className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />
+              <p className="font-medium text-sm mb-1">No playlists yet</p>
+              <p className="text-xs text-muted-foreground mb-4">
+                Build your mic rotation — create a playlist to get started
+              </p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {SUGGESTED_NAMES.map(name => (
+                  <Button
+                    key={name}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs"
+                    onClick={async () => {
+                      try {
+                        const p = await createPlaylist({ name });
+                        await addToPlaylist({ playlistId: p.id, micUniqueIdentifier });
+                        toast({ title: "Created!", description: `${micName} added to "${name}"` });
+                        onOpenChange(false);
+                      } catch {
+                        toast({ title: "Error", variant: "destructive" });
+                      }
+                    }}
+                  >
+                    + {name}
+                  </Button>
+                ))}
               </div>
-              {addedTo.has(playlist.id) && (
-                <Check className="w-4 h-4 text-green-600 flex-shrink-0 ml-2" />
-              )}
-            </button>
-          ))
-        )}
-      </div>
-
-      {/* Create New Playlist Section */}
-      <div className="border-t border-gray-100">
-        {showCreateNew ? (
-          <div className="p-3">
-            <Input
-              value={newPlaylistName}
-              onChange={(e) => setNewPlaylistName(e.target.value)}
-              placeholder="Playlist name..."
-              maxLength={100}
-              className="mb-2 text-sm"
-              autoFocus
-            />
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setShowCreateNew(false);
-                  setNewPlaylistName("");
-                }}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                onClick={handleCreateAndAdd}
-                disabled={!newPlaylistName.trim() || isCreating}
-                className="flex-1 bg-gradient-to-r from-[#0E4898] to-[#5DC8E2] text-white"
-              >
-                Create & Add
-              </Button>
             </div>
-          </div>
-        ) : (
-          <button
-            onClick={() => setShowCreateNew(true)}
-            className="w-full flex items-center gap-2 px-4 py-3 text-[#0E4898] hover:bg-gray-50 transition-colors font-medium text-sm"
-          >
-            <Plus className="w-4 h-4" />
-            Create New Playlist
-          </button>
-        )}
-      </div>
+          ) : (
+            playlists.map((playlist) => (
+              <button
+                key={playlist.id}
+                onClick={() => handleAddToPlaylist(playlist.id, playlist.name)}
+                disabled={addedTo.has(playlist.id)}
+                className={cn(
+                  "w-full flex items-center justify-between px-2 py-3 hover:bg-muted/50 transition-colors text-left rounded-md",
+                  addedTo.has(playlist.id) && "bg-green-50 dark:bg-green-950/20"
+                )}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{playlist.name}</p>
+                  <p className="text-xs text-muted-foreground">{playlist.item_count || 0} mics</p>
+                </div>
+                {addedTo.has(playlist.id) && (
+                  <Check className="w-4 h-4 text-green-600 flex-shrink-0 ml-2" />
+                )}
+              </button>
+            ))
+          )}
+        </div>
 
-      {/* Close on outside click */}
-      <div 
-        className="fixed inset-0 -z-10" 
-        onClick={onClose}
-      />
-    </div>
+        {/* Create New Playlist Section */}
+        <div className="border-t pt-3">
+          {showCreateNew ? (
+            <div>
+              <Input
+                value={newPlaylistName}
+                onChange={(e) => setNewPlaylistName(e.target.value)}
+                placeholder="Playlist name..."
+                maxLength={100}
+                className="mb-2 text-sm"
+                autoFocus
+                onKeyDown={(e) => e.key === "Enter" && handleCreateAndAdd()}
+              />
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setShowCreateNew(false);
+                    setNewPlaylistName("");
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleCreateAndAdd}
+                  disabled={!newPlaylistName.trim() || isCreating}
+                  className="flex-1"
+                >
+                  Create & Add
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button
+              variant="ghost"
+              onClick={() => setShowCreateNew(true)}
+              className="w-full justify-start gap-2 text-sm"
+            >
+              <Plus className="w-4 h-4" />
+              Create New Playlist
+            </Button>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
