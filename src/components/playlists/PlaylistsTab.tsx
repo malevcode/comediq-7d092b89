@@ -57,6 +57,7 @@ export function PlaylistsTab() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState<MicPlaylist | null>(null);
   const [activeSmartFilter, setActiveSmartFilter] = useState<string | null>(null);
+  const [justCreatedPlaylist, setJustCreatedPlaylist] = useState<MicPlaylist | null>(null);
 
   // Smart playlist filters
   const smartFilters = useMemo(() => {
@@ -124,7 +125,12 @@ export function PlaylistsTab() {
       <div className="max-w-7xl mx-auto px-4 py-4">
         <PlaylistMicList 
           playlist={selectedPlaylist} 
-          onBack={() => setSelectedPlaylist(null)} 
+          onBack={() => {
+            setSelectedPlaylist(null);
+            setJustCreatedPlaylist(null);
+          }}
+          allMics={allMics}
+          showSuggestions={!!justCreatedPlaylist}
         />
       </div>
     );
@@ -248,8 +254,21 @@ export function PlaylistsTab() {
                   className="text-xs gap-1"
                   onClick={async () => {
                     try {
-                      await createPlaylist({ name });
+                      const newPlaylist = await createPlaylist({ name });
                       toast({ title: "Created!", description: `"${name}" playlist created` });
+                      // Navigate to the new playlist
+                      const pl: MicPlaylist = {
+                        id: newPlaylist.id,
+                        name: newPlaylist.name,
+                        description: newPlaylist.description,
+                        user_id: newPlaylist.user_id,
+                        is_public: newPlaylist.is_public,
+                        created_at: newPlaylist.created_at,
+                        updated_at: newPlaylist.updated_at,
+                        item_count: 0,
+                      };
+                      setSelectedPlaylist(pl);
+                      setJustCreatedPlaylist(pl);
                     } catch {
                       toast({ title: "Error", variant: "destructive" });
                     }
@@ -285,6 +304,21 @@ export function PlaylistsTab() {
       <CreatePlaylistModal 
         open={showCreateModal} 
         onOpenChange={setShowCreateModal}
+        onSuccess={(newPlaylist) => {
+          // Navigate to the newly created playlist
+          const pl: MicPlaylist = {
+            id: newPlaylist.id,
+            name: newPlaylist.name,
+            description: newPlaylist.description,
+            user_id: newPlaylist.user_id,
+            is_public: newPlaylist.is_public,
+            created_at: newPlaylist.created_at,
+            updated_at: newPlaylist.updated_at,
+            item_count: 0,
+          };
+          setSelectedPlaylist(pl);
+          setJustCreatedPlaylist(pl);
+        }}
       />
     </div>
   );

@@ -5,11 +5,12 @@ import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3, Heart, Bookmark, Music } from "lucide-react";
+import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3, Heart, Bookmark, Music, ListMusic } from "lucide-react";
 import { QuickNotes } from "./home/QuickNotes";
 import Header from "./Header";
 import { useSavedMics } from "@/hooks/useSavedMics";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
+import { useMicPlaylists } from "@/hooks/useMicPlaylists";
 
 
 
@@ -103,6 +104,7 @@ export default function Home() {
   const { visits, loading: visitsLoading, refetch } = useUserVisits(user?.id, visitInserted);
   const { savedMics } = useSavedMics();
   const { data: likedMics = [] } = useUserLikedMics();
+  const { playlists } = useMicPlaylists();
   const navigate = useNavigate();
 
 
@@ -242,6 +244,23 @@ export default function Home() {
                     </Card>
                   </Link>
                 </div>
+
+                {/* Playlists card */}
+                <Link to="/open-mics?tab=playlists">
+                  <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer">
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-[#1a5fb4]/70 rounded-lg shrink-0">
+                          <ListMusic className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xl font-bold text-[#1a5fb4]">{playlists.length}</div>
+                          <div className="text-xs text-[#1a5fb4]/70 font-medium whitespace-nowrap">Playlists</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               </div>
 
               {/* Quick Notes Section */}
