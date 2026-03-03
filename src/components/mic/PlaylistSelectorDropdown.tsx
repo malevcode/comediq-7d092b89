@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { useMicPlaylists } from "@/hooks/useMicPlaylists";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -27,6 +28,7 @@ export default function PlaylistSelectorDropdown({
   onOpenChange
 }: PlaylistSelectorDropdownProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { playlists, createPlaylist, addToPlaylist, isCreating } = useMicPlaylists();
   const [showCreateNew, setShowCreateNew] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");

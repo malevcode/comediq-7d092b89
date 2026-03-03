@@ -5,7 +5,7 @@ import { MicPlaylist, usePlaylistItems, useMicPlaylists } from "@/hooks/useMicPl
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { OpenMic } from "@/types/openMic";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
-import { ArrowLeft, Pencil, Check, X, Loader2, Trash2 } from "lucide-react";
+import { ArrowLeft, Pencil, Check, X, Loader2, Plus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 interface PlaylistMicListProps {
@@ -14,17 +14,24 @@ interface PlaylistMicListProps {
   /** For smart playlists - pass mics directly */
   mics?: OpenMic[];
   isSmartPlaylist?: boolean;
+  /** All mics for suggestions */
+  allMics?: OpenMic[];
+  /** Show suggested mics section (e.g. after creation) */
+  showSuggestions?: boolean;
 }
 
-export function PlaylistMicList({ playlist, onBack, mics: propMics, isSmartPlaylist }: PlaylistMicListProps) {
+export function PlaylistMicList({ playlist, onBack, mics: propMics, isSmartPlaylist, allMics: propAllMics, showSuggestions }: PlaylistMicListProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(playlist.name);
   const [editDescription, setEditDescription] = useState(playlist.description || "");
   const [visibleCount, setVisibleCount] = useState(50);
+  const [addedMicIds, setAddedMicIds] = useState<Set<string>>(new Set());
   
   const { items, isLoading: itemsLoading } = usePlaylistItems(playlist.id);
-  const { data: allMics = [], isLoading: micsLoading } = useOpenMics();
-  const { updatePlaylist, removeFromPlaylist, isUpdating } = useMicPlaylists();
+  const { data: fetchedMics = [], isLoading: micsLoading } = useOpenMics();
+  const { updatePlaylist, removeFromPlaylist, addToPlaylist, isUpdating } = useMicPlaylists();
+
+  const allMics = propAllMics || fetchedMics;
 
   // For regular playlists, filter mics by playlist items
   const playlistMics = useMemo(() => {
@@ -34,6 +41,49 @@ export function PlaylistMicList({ playlist, onBack, mics: propMics, isSmartPlayl
     const micIds = new Set(items.map(item => item.mic_unique_identifier));
     return allMics.filter(mic => micIds.has(mic.uniqueIdentifier));
   }, [items, allMics, propMics]);
+
+  // Suggested mics (not already in playlist)
+  const suggestedMics = useMemo(() => {
+    if (!showSuggestions || isSmartPlaylist) return [];
+    const existingIds = new Set([
+      ...items.map(item => item.mic_unique_identifier),
+      ...addedMicIds
+    ]);
+    
+    // Smart suggestions based on playlist name
+    const name = playlist.name.toLowerCase();
+    let filtered = allMics.filter(mic => !existingIds.has(mic.uniqueIdentifier));
+    
+    if (name.includes('monday')) filtered = filtered.filter(m => m.day === 'Monday');
+    else if (name.includes('tuesday')) filtered = filtered.filter(m => m.day === 'Tuesday');
+    else if (name.includes('wednesday')) filtered = filtered.filter(m => m.day === 'Wednesday');
+    else if (name.includes('thursday')) filtered = filtered.filter(m => m.day === 'Thursday');
+    else if (name.includes('friday')) filtered = filtered.filter(m => m.day === 'Friday');
+    else if (name.includes('saturday')) filtered = filtered.filter(m => m.day === 'Saturday');
+    else if (name.includes('sunday')) filtered = filtered.filter(m => m.day === 'Sunday');
+    
+    if (name.includes('free')) filtered = filtered.filter(m => {
+      const cost = m.cost?.toLowerCase() || '';
+      return cost.includes('free') || cost === '$0' || cost === '0';
+    });
+    
+    if (name.includes('brooklyn')) filtered = filtered.filter(m => m.borough === 'Brooklyn');
+    else if (name.includes('manhattan')) filtered = filtered.filter(m => m.borough === 'Manhattan');
+    else if (name.includes('queens')) filtered = filtered.filter(m => m.borough === 'Queens');
+    else if (name.includes('bronx')) filtered = filtered.filter(m => m.borough === 'Bronx');
+    
+    if (name.includes('late') || name.includes('night')) {
+      filtered = filtered.filter(m => {
+        const timeMatch = m.startTime?.match(/(\d+):?\d*\s*(pm|am)/i);
+        if (!timeMatch) return false;
+        let hour = parseInt(timeMatch[1]);
+        if (timeMatch[2].toLowerCase() === 'pm' && hour !== 12) hour += 12;
+        return hour >= 21;
+      });
+    }
+    
+    return filtered.slice(0, 10);
+  }, [showSuggestions, isSmartPlaylist, items, addedMicIds, allMics, playlist.name]);
 
   const handleSaveEdit = async () => {
     if (!editName.trim()) {
@@ -52,6 +102,20 @@ export function PlaylistMicList({ playlist, onBack, mics: propMics, isSmartPlayl
     } catch (error) {
       console.error("Failed to update playlist:", error);
       toast.error("Failed to update playlist");
+    }
+  };
+
+  const handleAddSuggestedMic = async (mic: OpenMic) => {
+    try {
+      await addToPlaylist({ playlistId: playlist.id, micUniqueIdentifier: mic.uniqueIdentifier });
+      setAddedMicIds(prev => new Set([...prev, mic.uniqueIdentifier]));
+      toast.success(`Added "${mic.openMic}" to playlist`);
+    } catch (error: any) {
+      if (error.message?.includes("duplicate")) {
+        toast.info("Already in playlist");
+      } else {
+        toast.error("Failed to add mic");
+      }
     }
   };
 
@@ -112,7 +176,7 @@ export function PlaylistMicList({ playlist, onBack, mics: propMics, isSmartPlayl
                 <p className="text-muted-foreground mt-1">{playlist.description}</p>
               )}
               <p className="text-sm text-muted-foreground mt-2">
-                {playlistMics.length} mic{playlistMics.length !== 1 ? 's' : ''}
+                {playlistMics.length + addedMicIds.size} mic{(playlistMics.length + addedMicIds.size) !== 1 ? 's' : ''}
               </p>
             </div>
             {!isSmartPlaylist && (
@@ -124,24 +188,66 @@ export function PlaylistMicList({ playlist, onBack, mics: propMics, isSmartPlayl
         )}
       </div>
 
-      {/* Mic List */}
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      {/* Suggested Mics Section */}
+      {showSuggestions && suggestedMics.length > 0 && (
+        <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg p-4 border border-primary/20">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <h3 className="font-semibold text-sm">Suggested Mics</h3>
+            <span className="text-xs text-muted-foreground">Based on "{playlist.name}"</span>
+          </div>
+          <div className="space-y-2">
+            {suggestedMics.map((mic) => (
+              <div key={mic.uniqueIdentifier} className="flex items-center justify-between bg-background rounded-md p-3 shadow-sm">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{mic.openMic}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {mic.day} · {mic.startTime} · {mic.borough}
+                    {mic.cost && ` · ${mic.cost}`}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="ml-2 gap-1 shrink-0"
+                  onClick={() => handleAddSuggestedMic(mic)}
+                >
+                  <Plus className="h-3 w-3" />
+                  Add
+                </Button>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            💡 You can also add mics from the "Find Mics" tab using the playlist button on any mic card.
+          </p>
         </div>
-      ) : playlistMics.length === 0 ? (
+      )}
+
+      {/* Empty state with guidance */}
+      {!isLoading && playlistMics.length === 0 && addedMicIds.size === 0 && !showSuggestions && (
         <div className="text-center py-12">
           <p className="text-muted-foreground">No mics in this playlist yet.</p>
           <p className="text-sm text-muted-foreground mt-1">
             Add mics from the "Find Mics" tab using the playlist button.
           </p>
         </div>
-      ) : (
-        <OpenMicsDetailedList 
-          mics={playlistMics}
-          visibleCount={visibleCount}
-          setVisibleCount={setVisibleCount}
-        />
+      )}
+
+      {/* Mic List */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : playlistMics.length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">PLAYLIST MICS</h3>
+          <OpenMicsDetailedList 
+            mics={playlistMics}
+            visibleCount={visibleCount}
+            setVisibleCount={setVisibleCount}
+          />
+        </div>
       )}
     </div>
   );

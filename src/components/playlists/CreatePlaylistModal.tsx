@@ -12,7 +12,7 @@ import { Loader2, Lock, Globe } from "lucide-react";
 interface CreatePlaylistModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
+  onSuccess?: (playlist: any) => void;
 }
 
 export function CreatePlaylistModal({ open, onOpenChange, onSuccess }: CreatePlaylistModalProps) {
@@ -35,7 +35,7 @@ export function CreatePlaylistModal({ open, onOpenChange, onSuccess }: CreatePla
     }
 
     try {
-      await createPlaylist({ 
+      const newPlaylist = await createPlaylist({ 
         name: name.trim(), 
         description: description.trim() || undefined,
         isPublic 
@@ -45,7 +45,7 @@ export function CreatePlaylistModal({ open, onOpenChange, onSuccess }: CreatePla
       setDescription("");
       setIsPublic(false);
       onOpenChange(false);
-      onSuccess?.();
+      onSuccess?.(newPlaylist);
     } catch (error) {
       console.error("Failed to create playlist:", error);
       toast.error("Failed to create playlist");
