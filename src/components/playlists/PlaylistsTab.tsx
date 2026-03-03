@@ -9,6 +9,7 @@ import { SmartPlaylistCard } from "./SmartPlaylistCard";
 import { CreatePlaylistModal } from "./CreatePlaylistModal";
 import { PlaylistMicList } from "./PlaylistMicList";
 import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Plus, 
   Bookmark, 
