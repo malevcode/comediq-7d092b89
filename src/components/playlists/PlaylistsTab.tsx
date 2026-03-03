@@ -233,13 +233,34 @@ export function PlaylistsTab() {
         ) : playlists.length === 0 ? (
           <div className="text-center py-12 bg-muted/30 rounded-lg">
             <Mic className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-            <h4 className="font-medium mb-1">No playlists yet</h4>
-            <p className="text-sm text-muted-foreground mb-4">
-              Create your first playlist to organize mics by night, borough, or style.
+            <h4 className="font-semibold text-base mb-1">Build your mic rotation</h4>
+            <p className="text-sm text-muted-foreground mb-5 max-w-sm mx-auto">
+              Group mics by night, borough, or vibe — just like a Spotify playlist, but for open mics.
             </p>
-            <Button onClick={() => setShowCreateModal(true)} variant="outline" size="sm">
+            <div className="flex flex-wrap gap-2 justify-center mb-4">
+              {["Monday Night Lineup", "Free Mics Only", "Brooklyn Circuit", "Late Night Spots"].map(name => (
+                <Button
+                  key={name}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs gap-1"
+                  onClick={async () => {
+                    try {
+                      await createPlaylist({ name });
+                      toast({ title: "Created!", description: `"${name}" playlist created` });
+                    } catch {
+                      toast({ title: "Error", variant: "destructive" });
+                    }
+                  }}
+                >
+                  <Plus className="h-3 w-3" />
+                  {name}
+                </Button>
+              ))}
+            </div>
+            <Button onClick={() => setShowCreateModal(true)} size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              Create Your First Playlist
+              Create Custom Playlist
             </Button>
           </div>
         ) : (
