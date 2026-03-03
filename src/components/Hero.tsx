@@ -11,12 +11,12 @@ const Hero = () => {
           NYC's Comedy Platform
         </p>
 
-        <div className="relative mb-4">
+        <div className="relative mb-2">
           <div className="absolute inset-0 bg-[#1a5fb4]/10 rounded-full blur-3xl scale-75" />
           <img
             src="/lovable-uploads/fc65b384-6c71-4c5e-9c70-52716864f5ad.png"
             alt="Comediq Mascot"
-            className="relative w-40 sm:w-56 lg:w-72 h-auto object-cover"
+            className="relative w-28 sm:w-36 lg:w-44 h-auto object-cover"
           />
         </div>
 
