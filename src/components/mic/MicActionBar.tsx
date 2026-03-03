@@ -111,8 +111,8 @@ export default function MicActionBar({
         </Button>
 
         <Button variant="ghost" size="sm" onClick={handleSave} disabled={isToggling}
-          className={cn("flex items-center gap-1 px-2 py-1 h-auto", isSaved && "text-primary")}>
-          <Bookmark className={cn("w-4 h-4 transition-all", isSaved && "fill-primary text-primary")} />
+          className={cn("flex items-center gap-1 px-2 py-1 h-auto", isSaved && "text-[hsl(var(--primary))]")}>
+          <Bookmark className={cn("w-4 h-4 transition-all", isSaved && "fill-[hsl(var(--primary))] text-[hsl(var(--primary))]")} />
         </Button>
 
         <Button variant="ghost" size="sm" onClick={handleAddToPlaylist} className="flex items-center gap-1 px-2 py-1 h-auto">

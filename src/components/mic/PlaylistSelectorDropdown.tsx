@@ -143,7 +143,7 @@ export default function PlaylistSelectorDropdown({
                 disabled={addedTo.has(playlist.id)}
                 className={cn(
                   "w-full flex items-center justify-between px-2 py-3 hover:bg-muted/50 transition-colors text-left rounded-md",
-                  addedTo.has(playlist.id) && "bg-green-50 dark:bg-green-950/20"
+                  addedTo.has(playlist.id) && "bg-accent"
                 )}
               >
                 <div className="flex-1 min-w-0">
