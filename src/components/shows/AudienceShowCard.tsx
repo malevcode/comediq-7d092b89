@@ -161,9 +161,24 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
                   className="text-[10px] h-6 px-1.5"
                 >
                   <ExternalLink className="w-2.5 h-2.5 mr-0.5" />
-                  Eventbrite
+                  <span className="hidden sm:inline">Tix</span>
                 </Button>
               )}
+              
+              <Button 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toast({
+                    title: "LaughPass",
+                    description: "Subscribe for $40/mo — 4 free weeknight tix + half off weekends. Coming soon!",
+                  });
+                }}
+                className="text-[10px] h-6 px-1.5 bg-foreground text-background hover:bg-foreground/90"
+              >
+                <Ticket className="w-2.5 h-2.5 mr-0.5" />
+                <span className="hidden sm:inline">LaughPass</span>
+              </Button>
               
               {/* Share button - icon only on mobile, full text on larger screens */}
               <Button 
