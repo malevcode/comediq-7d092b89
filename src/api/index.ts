@@ -11,3 +11,4 @@ export * from './shows';
 export * from './auth';
 export * from './jobBoard';
 export * from './workHistory';
+export * from './growthOpportunities';
