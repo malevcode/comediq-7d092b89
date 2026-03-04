@@ -34,6 +34,42 @@ interface AddMicRequestFormProps {
   isSubmitting?: boolean;
 }
 
+/**
+ * Adds 90 minutes to a time string like "7:00 PM" or "19:00"
+ */
+function addMinutes(timeStr: string, minutes: number): string {
+  const cleaned = timeStr.trim();
+  let hours: number, mins: number;
+
+  // Try 12-hour format first (e.g. "7:00 PM")
+  const match12 = cleaned.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (match12) {
+    hours = parseInt(match12[1]);
+    mins = parseInt(match12[2]);
+    const isPM = match12[3].toUpperCase() === 'PM';
+    if (isPM && hours !== 12) hours += 12;
+    if (!isPM && hours === 12) hours = 0;
+  } else {
+    // Try 24-hour format (e.g. "19:00")
+    const match24 = cleaned.match(/^(\d{1,2}):(\d{2})$/);
+    if (match24) {
+      hours = parseInt(match24[1]);
+      mins = parseInt(match24[2]);
+    } else {
+      return '';
+    }
+  }
+
+  const totalMins = hours * 60 + mins + minutes;
+  const newHours = Math.floor(totalMins / 60) % 24;
+  const newMins = totalMins % 60;
+
+  // Return in 12-hour format
+  const period = newHours >= 12 ? 'PM' : 'AM';
+  const displayHour = newHours % 12 || 12;
+  return `${displayHour}:${newMins.toString().padStart(2, '0')} ${period}`;
+}
+
 const AddMicRequestForm: React.FC<AddMicRequestFormProps> = ({ onSubmit, onCancel, isSubmitting = false }) => {
   const [micName, setMicName] = useState('');
   const [venueQuery, setVenueQuery] = useState('');
@@ -61,6 +97,9 @@ const AddMicRequestForm: React.FC<AddMicRequestFormProps> = ({ onSubmit, onCance
     e.stopPropagation();
     if (isSubmitting || !validate()) return;
 
+    // Auto-calculate latest_end_time (+90 min from start)
+    const autoEndTime = addMinutes(startTime.trim(), 90);
+
     // Build full form data, auto-filling from venue selection
     const formData: MicRequestFormData = {
       open_mic: micName.trim(),
@@ -71,14 +110,13 @@ const AddMicRequestForm: React.FC<AddMicRequestFormProps> = ({ onSubmit, onCance
       location: venueLocation?.address || '',
       day,
       start_time: startTime.trim(),
-      latest_end_time: '',
+      latest_end_time: autoEndTime,
       stage_time: '',
       cost: cost.trim(),
-      venue_type: '',
+      venue_type: venueLocation?.venueType || '',
       sign_up_instructions: '',
       hosts_organizers: hostInstagram.trim(),
       host_phone: '',
-      // Auto-copy host instagram to changes_updates
       changes_updates: hostInstagram.trim(),
       other_rules: notes.trim(),
     };
