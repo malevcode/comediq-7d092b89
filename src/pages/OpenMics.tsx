@@ -454,6 +454,9 @@ const OpenMics = () => {
         other_rules: formData.other_rules || null,
         city: formData.city || 'New York',
         user_id: user?.id || null,
+        frequency: formData.frequency || 'weekly',
+        signup_method: formData.signup_method || 'in_person',
+        signup_url: formData.signup_url || null,
       };
 
       const { error } = await supabase
