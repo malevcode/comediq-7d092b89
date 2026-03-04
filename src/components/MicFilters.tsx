@@ -4,12 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
+import { MicStatus, MicFrequency, FREQUENCY_LABELS } from "@/types/openMic";
 
 export interface MicFilters {
   costRange: [number, number];
   timeOfDay: string[];
   borough: string;
   city: string;
+  frequency?: MicFrequency | 'all';
+  micStatus?: MicStatus | 'all';
 }
 
 interface MicFiltersProps {
@@ -20,22 +23,30 @@ interface MicFiltersProps {
   cities: string[];
 }
 
+const STATUS_OPTIONS: { value: MicStatus | 'all'; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'verified', label: 'Verified / Legacy' },
+  { value: 'trial', label: 'Trial (New)' },
+];
+
+const FREQUENCY_OPTIONS: { value: MicFrequency | 'all'; label: string }[] = [
+  { value: 'all', label: 'All' },
+  ...Object.entries(FREQUENCY_LABELS).map(([value, label]) => ({ value: value as MicFrequency, label })),
+];
+
 export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs, cities }: MicFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
-  // Close filters when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
         setShowFilters(false);
       }
     };
-
     if (showFilters) {
       document.addEventListener('mousedown', handleClickOutside);
     }
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -49,9 +60,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
 
   const formatCostValue = (value: number) => {
     if (value === 0) return "Free";
-    if (value <= 5) return `$${value}`;
     if (value <= 10) return `$${value}`;
-    // For drink values, we'll use a simple mapping
     if (value <= 15) return "1 drink";
     if (value <= 20) return "2 drinks";
     return `$${value}`;
@@ -61,11 +70,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
     const newTimeSlots = filters.timeOfDay.includes(timeSlotId)
       ? filters.timeOfDay.filter(id => id !== timeSlotId)
       : [...filters.timeOfDay, timeSlotId];
-    
-    onFiltersChange({
-      ...filters,
-      timeOfDay: newTimeSlots
-    });
+    onFiltersChange({ ...filters, timeOfDay: newTimeSlots });
   };
 
   const clearFilters = () => {
@@ -73,11 +78,13 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
       costRange: [0, maxCost],
       timeOfDay: [],
       borough: "All",
-      city: "New York"
+      city: "New York",
+      frequency: 'all',
+      micStatus: 'all',
     });
   };
 
-  const hasActiveFilters = filters.costRange[0] > 0 || filters.costRange[1] < maxCost || filters.timeOfDay.length > 0 || filters.borough !== "All";
+  const hasActiveFilters = filters.costRange[0] > 0 || filters.costRange[1] < maxCost || filters.timeOfDay.length > 0 || filters.borough !== "All" || (filters.frequency && filters.frequency !== 'all') || (filters.micStatus && filters.micStatus !== 'all');
 
   return (
     <div className="relative" ref={filterRef}>
@@ -102,13 +109,11 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
 
       {showFilters && (
         <>
-          {/* Mobile overlay backdrop */}
           <div 
             className="fixed inset-0 bg-black/50 z-50 md:hidden" 
             onClick={() => setShowFilters(false)}
           />
           
-          {/* Filter panel */}
           <div className={`
             fixed md:absolute 
             inset-0 md:inset-auto
@@ -120,21 +125,53 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
             <Card className="h-full md:h-auto md:shadow-lg border-0 md:border rounded-none md:rounded-lg">
               <CardContent className="p-6 h-full flex flex-col">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-semibold text-lg text-gray-900">Filter Open Mics</h3>
+                  <h3 className="font-semibold text-lg text-foreground">Filter Open Mics</h3>
                   <Button
                     onClick={() => setShowFilters(false)}
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    className="h-8 w-8 p-0"
                   >
                     <X className="h-5 w-5" />
                   </Button>
                 </div>
 
-                <div className="flex-1 space-y-8">
+                <div className="flex-1 space-y-8 overflow-y-auto">
+                  {/* Mic Status Filter */}
+                  <div>
+                    <label className="text-base font-medium mb-3 block text-foreground">Mic Status</label>
+                    <div className="flex flex-wrap gap-2">
+                      {STATUS_OPTIONS.map(opt => (
+                        <Button
+                          key={opt.value}
+                          onClick={() => onFiltersChange({ ...filters, micStatus: opt.value })}
+                          variant="outline"
+                          size="sm"
+                          className={`text-xs ${(filters.micStatus || 'all') === opt.value ? 'bg-cyan-50 border-cyan-300' : 'border-border'}`}
+                        >
+                          {opt.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Frequency Filter */}
+                  <div>
+                    <label className="text-base font-medium mb-3 block text-foreground">Frequency</label>
+                    <select
+                      value={filters.frequency || 'all'}
+                      onChange={(e) => onFiltersChange({ ...filters, frequency: e.target.value as MicFrequency | 'all' })}
+                      className="w-full px-3 py-2 text-sm border border-border rounded-md bg-background"
+                    >
+                      {FREQUENCY_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
                   {/* Cost Filter */}
                   <div>
-                    <label className="text-base font-medium mb-4 block text-gray-900">
+                    <label className="text-base font-medium mb-4 block text-foreground">
                       Cost Range: {formatCostValue(filters.costRange[0])} - {formatCostValue(filters.costRange[1])}
                     </label>
                     <div className="px-2">
@@ -144,15 +181,10 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                         max={maxCost}
                         min={0}
                         step={1}
-                        className="w-full [&_.range-slider]:h-2 [&_.range-slider]:rounded-full [&_.range-slider]:bg-orange-200 [&_.range-fill]:bg-orange-500 [&_.range-thumb]:h-6 [&_.range-thumb]:w-6 [&_.range-thumb]:bg-white [&_.range-thumb]:border-2 [&_.range-thumb]:border-orange-500 [&_.range-thumb]:shadow-lg"
-                        style={{
-                          "--slider-track-color": "rgb(254 215 170)",
-                          "--slider-range-color": "rgb(249 115 22)",
-                          "--slider-thumb-color": "white",
-                        } as unknown}
+                        className="w-full"
                       />
                     </div>
-                    <div className="flex justify-between text-sm text-gray-500 mt-3 px-2">
+                    <div className="flex justify-between text-sm text-muted-foreground mt-3 px-2">
                       <span>Free</span>
                       <span>{formatCostValue(maxCost)}</span>
                     </div>
@@ -160,11 +192,11 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
 
                   {/* Borough Filter */}
                   <div>
-                    <label className="text-base font-medium mb-4 block text-gray-900">Borough</label>
+                    <label className="text-base font-medium mb-4 block text-foreground">Borough</label>
                     <select
                       value={filters.borough}
                       onChange={(e) => onFiltersChange({ ...filters, borough: e.target.value })}
-                      className={`w-full px-3 py-2 text-sm border border-gray-300 rounded-md border-l-4 ${
+                      className={`w-full px-3 py-2 text-sm border border-border rounded-md border-l-4 ${
                         filters.borough === "Manhattan" ? "border-l-cyan-500" :
                         filters.borough === "Brooklyn" ? "border-l-amber-800" :
                         filters.borough === "Queens" ? "border-l-purple-600" :
@@ -174,36 +206,28 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                       }`}
                     >
                       {boroughs.map((borough) => (
-                        <option key={borough} value={borough}>
-                          {borough}
-                        </option>
+                        <option key={borough} value={borough}>{borough}</option>
                       ))}
                     </select>
                   </div>
 
                   {/* City Filter */}
                   <div>
-                    <label className="text-base font-medium mb-4 block text-gray-900">City</label>
+                    <label className="text-base font-medium mb-4 block text-foreground">City</label>
                     <select
                       value={filters.city}
                       onChange={(e) => onFiltersChange({ ...filters, city: e.target.value })}
-                      className={`w-full px-3 py-2 text-sm border border-gray-300 rounded-md border-l-4 ${
-                        filters.city === "New York" ? "border-l-cyan-500" :
-                        filters.city === "Los Angeles" ? "border-l-amber-800" :
-                        "border-l-gray-400"
-                      }`}
+                      className="w-full px-3 py-2 text-sm border border-border rounded-md bg-background"
                     >
                       {cities.map((city) => (
-                        <option key={city} value={city}>
-                          {city}
-                        </option>
+                        <option key={city} value={city}>{city}</option>
                       ))}
                     </select>
                   </div>
 
                   {/* Time of Day Filter */}
                   <div>
-                    <label className="text-base font-medium mb-4 block text-gray-900">Time of Day</label>
+                    <label className="text-base font-medium mb-4 block text-foreground">Time of Day</label>
                     <div className="space-y-3">
                       {timeSlots.map((slot) => (
                         <Button
@@ -214,7 +238,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                           className={`w-full justify-start text-sm py-3 h-auto relative ${
                             filters.timeOfDay.includes(slot.id)
                               ? 'bg-cyan-50 border-cyan-300 hover:bg-cyan-100'
-                              : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+                              : 'border-border hover:bg-muted'
                           }`}
                         >
                           {filters.timeOfDay.includes(slot.id) && (
@@ -224,45 +248,27 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                               </svg>
                             </div>
                           )}
-                            <span className={filters.timeOfDay.includes(slot.id) ? 'ml-8' : 'ml-0'}>
+                          <span className={filters.timeOfDay.includes(slot.id) ? 'ml-8' : 'ml-0'}>
                             {slot.label}
                           </span>
                         </Button>
                       ))}
                     </div>
                   </div>
-
-                  {/* Sort By Filter */}
-                  {/* <div>
-                    <label className="text-base font-medium mb-4 block text-gray-900">Sort By</label>
-                    <div className="space-y-3">
-                      <Button
-                        onClick={() => onFiltersChange({ ...filters, sortBy: 'upcoming' })}
-                        variant="outline"
-                        size="lg"
-                        className="w-full justify-start text-sm py-3 h-auto relative bg-cyan-50 border-cyan-300 hover:bg-cyan-100"
-                      >
-                        <span>
-                          Upcoming (Next)
-                        </span>
-                      </Button>
-                    </div>
-                  </div> */}
                 </div>
 
-                {/* Clear Filters */}
-                  {hasActiveFilters && (
-                    <div className="mt-8 pt-6 border-t border-gray-200">
+                {hasActiveFilters && (
+                  <div className="mt-8 pt-6 border-t border-border">
                     <Button
                       onClick={clearFilters}
                       variant="outline"
                       size="lg"
-                      className="w-full text-sm py-3 border-gray-300 text-gray-700 hover:bg-gray-50"
+                      className="w-full text-sm py-3"
                     >
                       Clear All Filters
                     </Button>
-                    </div>
-                  )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
