@@ -197,24 +197,25 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 rounded-t-2xl">
+        <div className="sticky top-0 bg-background border-b border-border px-6 py-4 rounded-t-2xl">
           <div className="flex justify-between items-start">
             <div className="flex-1 min-w-0">
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">{mic.openMic}</h2>
-              <p className="text-gray-600">{mic.venueName}</p>
-              <div className="flex items-center gap-4 mt-2">
+              <div className="flex items-center gap-1.5 mb-1">
+                <h2 className="text-2xl font-bold text-foreground">{mic.openMic}</h2>
+                <MicStatusBadge status={mic.status} legacyTag={mic.legacyTag} size="md" />
+              </div>
+              <p className="text-muted-foreground">{mic.venueName}</p>
+              <div className="flex items-center gap-3 mt-2 flex-wrap">
+                <div className="bg-muted/50 border border-border px-3 py-1 rounded-lg">
+                  <div className="text-sm font-semibold text-foreground">
+                    {mic.frequency !== 'weekly' ? `${FREQUENCY_LABELS[mic.frequency]} · ` : ''}{mic.day} • {mic.startTime} • {mic.stageTime} stage time
+                  </div>
+                </div>
                 <VerificationBadge 
                   micUniqueIdentifier={mic.uniqueIdentifier}
                   lastVerified={mic.lastVerified === "Unverified" ? undefined : mic.lastVerified}
                   size="sm"
                 />
-                <MicStatusBadge status={mic.status} legacyTag={mic.legacyTag} frequency={mic.frequency} showFrequency />
-                <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 px-3 py-1 rounded-lg">
-                  <div className="text-sm font-semibold text-foreground">
-                    {mic.day} • {mic.startTime} • {mic.stageTime} stage time
-                  </div>
-                  <div className="text-xs text-muted-foreground">{FREQUENCY_LABELS[mic.frequency] || 'Weekly'}</div>
-                </div>
               </div>
             </div>
             <Button onClick={onClose} variant="ghost" size="sm" className="rounded-full">

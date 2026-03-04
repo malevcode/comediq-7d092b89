@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { OpenMic } from "@/types/openMic";
+import { OpenMic, MicFrequency, FREQUENCY_LABELS } from "@/types/openMic";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
@@ -239,7 +239,34 @@ const OpenMics = () => {
     });
   };
 
-  // Filtered mics
+  // Calendar-aware: check if a mic's frequency matches a specific date
+  const micMatchesDate = (mic: OpenMic, date: Date): boolean => {
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    if (daysOfWeek[date.getDay()] !== mic.day) return false;
+    
+    const freq = mic.frequency || 'weekly';
+    if (freq === 'weekly') return true;
+    if (freq === 'one_off') return true; // one-offs show always on their day (admin manages active flag)
+    
+    if (freq === 'bi_weekly') return true; // can't determine week parity without anchor, show it
+    
+    // Monthly frequencies: check week-of-month
+    const dayOfMonth = date.getDate();
+    const weekOfMonth = Math.ceil(dayOfMonth / 7);
+    
+    // Last occurrence check
+    const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    const isLastOccurrence = (dayOfMonth + 7) > lastDayOfMonth;
+    
+    switch (freq) {
+      case '1st_of_month': return weekOfMonth === 1;
+      case '2nd_of_month': return weekOfMonth === 2;
+      case '3rd_of_month': return weekOfMonth === 3;
+      case '4th_of_month': return weekOfMonth === 4;
+      case 'last_of_month': return isLastOccurrence;
+      default: return true;
+    }
+  };
 
   // Helper function to get next occurrence (moved from OpenMicsDetailedList)
   const getNextOccurrence = (mic: OpenMic) => {
@@ -248,24 +275,19 @@ const OpenMics = () => {
     const currentDay = today.getDay();
     const targetDay = daysOfWeek.indexOf(mic.day);
     let daysUntil = targetDay - currentDay;
-    // Only add 7 if the day is in the past (not today)
     if (daysUntil < 0) {
       daysUntil += 7;
     }
     const nextDate = new Date(today);
     nextDate.setDate(today.getDate() + daysUntil);
     
-    // Parse the start time and set it on the nextDate
     const timeMatch = mic.startTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
     if (timeMatch) {
       let hours = parseInt(timeMatch[1]);
       const minutes = parseInt(timeMatch[2]);
       const period = timeMatch[3].toUpperCase();
-      
-      // Convert to 24-hour format
       if (period === 'PM' && hours !== 12) hours += 12;
       if (period === 'AM' && hours === 12) hours = 0;
-      
       nextDate.setHours(hours, minutes, 0, 0);
     }
     
@@ -276,15 +298,24 @@ const OpenMics = () => {
     let filtered = openMics;
 
     if (tabType === "next") {
+      // Calendar-aware: only show mics whose frequency matches upcoming dates
       filtered = openMics
         .filter((mic) => {
           const timeUntil = calculateTimeUntilMic(mic);
-          return timeUntil > 0 && timeUntil < Infinity;
+          if (timeUntil <= 0 || timeUntil >= Infinity) return false;
+          const nextOcc = getNextOccurrence(mic);
+          return micMatchesDate(mic, nextOcc);
         });
     } else if (tabType === "liked") {
       filtered = openMics.filter((mic) => likedMics.includes(mic.uniqueIdentifier));
     } else if (dayFilter) {
-      filtered = openMics.filter((mic) => mic.day === dayFilter);
+      // Day tab: also apply calendar-aware filtering for today/this week
+      filtered = openMics.filter((mic) => {
+        if (mic.day !== dayFilter) return false;
+        // Find the next occurrence on this day and check frequency
+        const nextOcc = getNextOccurrence(mic);
+        return micMatchesDate(mic, nextOcc);
+      });
     }
 
     // Apply search, borough, cost, and time filters
@@ -401,26 +432,35 @@ const OpenMics = () => {
         )}
 
         {micsToShow.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-gray-500">
+          <div className="text-center py-12">
+            <div className="text-4xl mb-3">🎤</div>
+            <p className="text-muted-foreground font-medium">
               {tabName === "liked"
-                ? "No liked open mics found."
-                : `No ${tabName === "next" ? "upcoming " : ""}open mics found${
-                    tabName !== "next" && tabName !== "liked" ? ` for ${tabName}` : ""
-                  }.`}
+                ? "No liked open mics yet"
+                : filters.frequency && filters.frequency !== 'all'
+                  ? `No ${FREQUENCY_LABELS[filters.frequency as MicFrequency] || ''} mics scheduled right now`
+                  : `No ${tabName === "next" ? "upcoming " : ""}open mics found${
+                      tabName !== "next" && tabName !== "liked" ? ` for ${tabName}` : ""
+                    }`}
             </p>
-            {tabName === "liked" ? (
-              <p className="text-gray-400 text-sm mt-1">Start liking mics to see them here!</p>
-            ) : (
-                              <Button
-                  onClick={() => {
-                    setSearchTerm("");
-                    setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", city: "New York", frequency: 'all', micStatus: 'all' });
-                  }}
-                  className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm"
-                >
-                  Clear Filters
-                </Button>
+            <p className="text-sm text-muted-foreground mt-1">
+              {tabName === "liked"
+                ? "Start liking mics to see them here!"
+                : filters.frequency && filters.frequency !== 'all'
+                  ? "Try checking the Weekly list or clearing your filters."
+                  : "Try adjusting your filters."}
+            </p>
+            {tabName !== "liked" && (
+              <Button
+                onClick={() => {
+                  setSearchTerm("");
+                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", city: "New York", frequency: 'all', micStatus: 'all' });
+                }}
+                variant="outline"
+                className="mt-4 text-sm"
+              >
+                Clear All Filters
+              </Button>
             )}
           </div>
         )}
