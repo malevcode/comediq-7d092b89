@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { X, Calendar, Clock, MapPin, User, DollarSign, Timer, Plus, Share, Heart, ThumbsDown, LogIn, ChevronDown, UserCheck } from "lucide-react";
 import { VerificationBadge } from "@/components/VerificationBadge";
-import { OpenMic } from "@/types/openMic";
+import { OpenMic, FREQUENCY_LABELS } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMicRatings, useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { makeLinksClickable } from '@/utils/makeLinksClickable';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
+import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
 
 interface MicDetailModalProps {
   mic: OpenMic;
@@ -207,11 +208,12 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
                   lastVerified={mic.lastVerified === "Unverified" ? undefined : mic.lastVerified}
                   size="sm"
                 />
+                <MicStatusBadge status={mic.status} legacyTag={mic.legacyTag} frequency={mic.frequency} showFrequency />
                 <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 px-3 py-1 rounded-lg">
-                  <div className="text-sm font-semibold text-gray-900">
+                  <div className="text-sm font-semibold text-foreground">
                     {mic.day} • {mic.startTime} • {mic.stageTime} stage time
                   </div>
-                  <div className="text-xs text-gray-600">Every week</div>
+                  <div className="text-xs text-muted-foreground">{FREQUENCY_LABELS[mic.frequency] || 'Weekly'}</div>
                 </div>
               </div>
             </div>

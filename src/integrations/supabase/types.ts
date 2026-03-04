@@ -968,22 +968,30 @@ export type Database = {
           city: string | null
           cost: string | null
           cover_image_url: string | null
+          creator_id: string | null
           day: string | null
+          frequency: Database["public"]["Enums"]["mic_frequency"] | null
           hosts_organizers: string | null
           last_verified: string | null
           latest_end_time: string | null
+          legacy_tag: string | null
           location: string | null
           neighborhood: string | null
           open_mic: string
           other_rules: string | null
           sign_up_instructions: string | null
           signup_enabled: boolean
+          signup_method: Database["public"]["Enums"]["signup_method"] | null
+          signup_url: string | null
           sms_response: string | null
           stage_time: string | null
           start_time: string | null
+          status: Database["public"]["Enums"]["mic_status"] | null
+          submission_date: string | null
           unique_identifier: string
           venue_name: string | null
           venue_type: string | null
+          verification_count: number | null
         }
         Insert: {
           active?: boolean | null
@@ -992,22 +1000,30 @@ export type Database = {
           city?: string | null
           cost?: string | null
           cover_image_url?: string | null
+          creator_id?: string | null
           day?: string | null
+          frequency?: Database["public"]["Enums"]["mic_frequency"] | null
           hosts_organizers?: string | null
           last_verified?: string | null
           latest_end_time?: string | null
+          legacy_tag?: string | null
           location?: string | null
           neighborhood?: string | null
           open_mic: string
           other_rules?: string | null
           sign_up_instructions?: string | null
           signup_enabled?: boolean
+          signup_method?: Database["public"]["Enums"]["signup_method"] | null
+          signup_url?: string | null
           sms_response?: string | null
           stage_time?: string | null
           start_time?: string | null
+          status?: Database["public"]["Enums"]["mic_status"] | null
+          submission_date?: string | null
           unique_identifier?: string
           venue_name?: string | null
           venue_type?: string | null
+          verification_count?: number | null
         }
         Update: {
           active?: boolean | null
@@ -1016,22 +1032,30 @@ export type Database = {
           city?: string | null
           cost?: string | null
           cover_image_url?: string | null
+          creator_id?: string | null
           day?: string | null
+          frequency?: Database["public"]["Enums"]["mic_frequency"] | null
           hosts_organizers?: string | null
           last_verified?: string | null
           latest_end_time?: string | null
+          legacy_tag?: string | null
           location?: string | null
           neighborhood?: string | null
           open_mic?: string
           other_rules?: string | null
           sign_up_instructions?: string | null
           signup_enabled?: boolean
+          signup_method?: Database["public"]["Enums"]["signup_method"] | null
+          signup_url?: string | null
           sms_response?: string | null
           stage_time?: string | null
           start_time?: string | null
+          status?: Database["public"]["Enums"]["mic_status"] | null
+          submission_date?: string | null
           unique_identifier?: string
           venue_name?: string | null
           venue_type?: string | null
+          verification_count?: number | null
         }
         Relationships: []
       }
@@ -1043,6 +1067,7 @@ export type Database = {
           cost: string | null
           created_at: string | null
           date: string | null
+          frequency: Database["public"]["Enums"]["mic_frequency"] | null
           host_phone: string | null
           hosts_organizers: string | null
           latest_end_time: string | null
@@ -1053,6 +1078,8 @@ export type Database = {
           reviewed: boolean
           show_title: string | null
           sign_up_instructions: string | null
+          signup_method: Database["public"]["Enums"]["signup_method"] | null
+          signup_url: string | null
           stage_time: string | null
           status: string | null
           time: string | null
@@ -1068,6 +1095,7 @@ export type Database = {
           cost?: string | null
           created_at?: string | null
           date?: string | null
+          frequency?: Database["public"]["Enums"]["mic_frequency"] | null
           host_phone?: string | null
           hosts_organizers?: string | null
           latest_end_time?: string | null
@@ -1078,6 +1106,8 @@ export type Database = {
           reviewed?: boolean
           show_title?: string | null
           sign_up_instructions?: string | null
+          signup_method?: Database["public"]["Enums"]["signup_method"] | null
+          signup_url?: string | null
           stage_time?: string | null
           status?: string | null
           time?: string | null
@@ -1093,6 +1123,7 @@ export type Database = {
           cost?: string | null
           created_at?: string | null
           date?: string | null
+          frequency?: Database["public"]["Enums"]["mic_frequency"] | null
           host_phone?: string | null
           hosts_organizers?: string | null
           latest_end_time?: string | null
@@ -1103,6 +1134,8 @@ export type Database = {
           reviewed?: boolean
           show_title?: string | null
           sign_up_instructions?: string | null
+          signup_method?: Database["public"]["Enums"]["signup_method"] | null
+          signup_url?: string | null
           stage_time?: string | null
           status?: string | null
           time?: string | null
@@ -2068,6 +2101,7 @@ export type Database = {
       }
     }
     Functions: {
+      expire_trial_mics: { Args: never; Returns: number }
       get_or_create_system_host: {
         Args: { mic_id_param: string }
         Returns: string
@@ -2093,11 +2127,22 @@ export type Database = {
         | "negotiable"
       experience_level: "beginner" | "intermediate" | "experienced" | "pro"
       job_board_role: "producer" | "talent" | "both"
+      mic_frequency:
+        | "weekly"
+        | "bi_weekly"
+        | "1st_of_month"
+        | "2nd_of_month"
+        | "3rd_of_month"
+        | "4th_of_month"
+        | "last_of_month"
+        | "one_off"
+      mic_status: "trial" | "verified" | "pending"
       posting_status: "open" | "filled" | "cancelled" | "draft"
       rating_type: "like" | "dislike"
       relation_type: "liked" | "upcoming" | "past"
       role_category: "performer" | "crew"
       schedule_type: "upcoming" | "completed" | "cancelled"
+      signup_method: "in_person" | "online" | "comediq_direct" | "other"
       signup_mode: "first_come" | "lottery" | "bucket"
       signup_status: "confirmed" | "waitlist" | "lottery_pending" | "cancelled"
     }
@@ -2247,11 +2292,23 @@ export const Constants = {
       ],
       experience_level: ["beginner", "intermediate", "experienced", "pro"],
       job_board_role: ["producer", "talent", "both"],
+      mic_frequency: [
+        "weekly",
+        "bi_weekly",
+        "1st_of_month",
+        "2nd_of_month",
+        "3rd_of_month",
+        "4th_of_month",
+        "last_of_month",
+        "one_off",
+      ],
+      mic_status: ["trial", "verified", "pending"],
       posting_status: ["open", "filled", "cancelled", "draft"],
       rating_type: ["like", "dislike"],
       relation_type: ["liked", "upcoming", "past"],
       role_category: ["performer", "crew"],
       schedule_type: ["upcoming", "completed", "cancelled"],
+      signup_method: ["in_person", "online", "comediq_direct", "other"],
       signup_mode: ["first_come", "lottery", "bucket"],
       signup_status: ["confirmed", "waitlist", "lottery_pending", "cancelled"],
     },

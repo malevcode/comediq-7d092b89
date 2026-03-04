@@ -13,6 +13,8 @@ import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
 import MicActionBar from '@/components/mic/MicActionBar';
 import MicCommentSection from '@/components/mic/MicCommentSection';
+import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
+import { FREQUENCY_LABELS } from '@/types/openMic';
 
 // Helper function to get map URL based on device
 function getMapUrl(location: string, venueName: string) {
@@ -240,8 +242,9 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             <ExternalLink className="w-3 h-3" />
           </a>
           
-          {/* Right-aligned status badge */}
-          <div className="flex-1 flex justify-end">
+          {/* Right-aligned status badges */}
+          <div className="flex-1 flex justify-end items-center gap-1">
+            <MicStatusBadge status={mic.status} legacyTag={mic.legacyTag} frequency={mic.frequency} showFrequency={mic.frequency !== 'weekly'} />
             <MicStatusDropdown 
               micUniqueIdentifier={mic.uniqueIdentifier}
             />
@@ -274,11 +277,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           <span className="flex flex-row md:flex-col gap-1.5 md:gap-0 justify-center md:justify-start">
             <span className="flex items-center gap-1 justify-center md:justify-start">
               <Calendar className="w-3 h-3 flex-shrink-0" />
-              {mic.openMic?.toLowerCase().includes("biweekly")
-                ? "Biweekly - " + mic.day
-                : mic.day !== "Daily"
-                  ? "Weekly - " + mic.day
-                  : mic.day}
+              {FREQUENCY_LABELS[mic.frequency] || 'Weekly'} - {mic.day}
             </span>
             <span className="flex items-center gap-1 md:hidden justify-center">
               <CircleUser className="w-3 h-3 flex-shrink-0" />
