@@ -17,7 +17,8 @@ const AdminRequestList = ({
   deleteId,
   setDeleteId,
   submitting,
-  deleting
+  deleting,
+  onMessageSubmitter
 }: any) => (
   <>
     <div className="space-y-6 w-full">
@@ -39,6 +40,7 @@ const AdminRequestList = ({
           submitting={submitting}
           deleting={deleting}
           isReviewing={reviewingId === req.unique_identifier}
+          onMessageSubmitter={onMessageSubmitter}
         />
       ))}
     </div>

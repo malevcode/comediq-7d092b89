@@ -10,6 +10,7 @@ export interface VenueLocation {
   borough: string;
   neighborhood: string;
   city: string;
+  venueType?: string;
 }
 
 interface VenueAutocompleteProps {
@@ -90,7 +91,7 @@ async function searchDatabase(query: string): Promise<SuggestionItem[]> {
   // Use ilike for fuzzy matching on venue_name and location
   const { data, error } = await supabase
     .from('open_mics_historical')
-    .select('venue_name, location, borough, neighborhood, city')
+    .select('venue_name, location, borough, neighborhood, city, venue_type')
     .or(`venue_name.ilike.%${q}%,location.ilike.%${q}%`)
     .eq('active', true)
     .limit(20);
@@ -118,6 +119,7 @@ async function searchDatabase(query: string): Promise<SuggestionItem[]> {
       borough: row.borough || '',
       neighborhood: row.neighborhood || '',
       city: row.city || 'New York',
+      venueType: row.venue_type || '',
     },
   }));
 }
