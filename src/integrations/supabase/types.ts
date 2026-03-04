@@ -499,6 +499,77 @@ export type Database = {
           },
         ]
       }
+      growth_opportunities: {
+        Row: {
+          borough: string | null
+          compensation: string | null
+          contact_id: string | null
+          contact_info: string | null
+          created_at: string
+          date: string | null
+          description: string | null
+          external_url: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          is_featured: boolean
+          submitted_by: string | null
+          time: string | null
+          title: string
+          type: string
+          updated_at: string
+          venue_name: string | null
+        }
+        Insert: {
+          borough?: string | null
+          compensation?: string | null
+          contact_id?: string | null
+          contact_info?: string | null
+          created_at?: string
+          date?: string | null
+          description?: string | null
+          external_url?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_featured?: boolean
+          submitted_by?: string | null
+          time?: string | null
+          title: string
+          type: string
+          updated_at?: string
+          venue_name?: string | null
+        }
+        Update: {
+          borough?: string | null
+          compensation?: string | null
+          contact_id?: string | null
+          contact_info?: string | null
+          created_at?: string
+          date?: string | null
+          description?: string | null
+          external_url?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_featured?: boolean
+          submitted_by?: string | null
+          time?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          venue_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_opportunities_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "ad_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_applications: {
         Row: {
           applicant_id: string
