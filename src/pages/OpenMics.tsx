@@ -77,7 +77,9 @@ const OpenMics = () => {
     costRange: [0, maxCost],
     timeOfDay: [],
     borough: "All",
-    city: "New York"
+    city: "New York",
+    frequency: 'all',
+    micStatus: 'all',
   });
 
   // Update cost range when maxCost changes
@@ -294,16 +296,20 @@ const OpenMics = () => {
 
       const matchesBorough = filters.borough === "All" || mic.borough === filters.borough;
 
-      // Cost filter
       const micCost = getCostValue(mic.cost);
       const matchesCost = micCost >= filters.costRange[0] && micCost <= filters.costRange[1];
 
-      // Time-of-day filter
       const matchesTime = matchesTimeOfDay(mic, filters.timeOfDay);
 
       const matchesCity = filters.city === "All" || mic.city === filters.city;
 
-      return matchesSearch && matchesBorough && matchesCost && matchesTime && matchesCity;
+      // New: Frequency filter
+      const matchesFrequency = !filters.frequency || filters.frequency === 'all' || mic.frequency === filters.frequency;
+
+      // New: Status filter
+      const matchesMicStatus = !filters.micStatus || filters.micStatus === 'all' || mic.status === filters.micStatus;
+
+      return matchesSearch && matchesBorough && matchesCost && matchesTime && matchesCity && matchesFrequency && matchesMicStatus;
     });
 
     // Sort by next occurrence (like OpenMicsDetailedList)
@@ -409,7 +415,7 @@ const OpenMics = () => {
                               <Button
                   onClick={() => {
                     setSearchTerm("");
-                    setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", city: "New York"});
+                    setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", city: "New York", frequency: 'all', micStatus: 'all' });
                   }}
                   className="mt-2 bg-orange-500 hover:bg-orange-600 text-sm"
                 >
