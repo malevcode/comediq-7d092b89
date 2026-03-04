@@ -1,45 +1,77 @@
 
 
-## Plan: Simplify the "Request New Mic" Form
+## Plan: Replace "Find Gigs" with "Growth Opportunities"
 
-### Problem
-The current `AddMicRequestForm` has 17 fields across 5 sections. Most users won't know (or need to provide) things like neighborhood, venue type, end time, stage time, or sign-up instructions. The admin can fill those in during review.
+### Concept
 
-### Approach
-Reduce the form to **6 core fields** + 1 optional, and use **Mapbox Geocoding** (already integrated in the project) to auto-fill location data from the venue name.
+Replace the underused Job Board with a simpler, more useful **Growth Opportunities** page. Three content sections:
 
-### New Form Fields
+1. **Barking Gigs** — Shows listing barking opportunities (reuses existing `show_postings` data filtered to barking roles, or simple cards)
+2. **Festivals & Events** — A curated list of comedy festivals sharing info (deadlines, submission links)
+3. **Sponsored: Schools & Training** — Paid ad slots for comedy schools and festivals advertising to comedians (ties into existing ad system via `banner_ads`)
 
-**Required (4):**
-1. **Mic Name** — text input (same as now)
-2. **Venue** — text input with Mapbox Places autocomplete. When a place is selected, auto-populate: address, borough, neighborhood, city
-3. **Day of Week** — day picker (same as now)
-4. **Start Time** — time input (same as now)
+### Database Changes
 
-**Optional (3):**
-5. **Cost** — text input (e.g., "Free", "$5", "1 drink min")
-6. **Host Instagram** — single field, auto-copied to `changes_updates` on submit
-7. **Notes** — textarea for anything else (sign-up instructions, rules, etc.)
+**New table: `growth_opportunities`**
+- `id` uuid PK
+- `type` text — `'barking'`, `'festival'`, `'school_ad'`
+- `title` text
+- `description` text
+- `venue_name` text (nullable)
+- `borough` text (nullable)
+- `date` date (nullable — for festivals/barking deadlines)
+- `time` text (nullable)
+- `compensation` text (nullable — e.g. "$20/hr", "Free show entry")
+- `contact_info` text (nullable — Instagram, email, phone)
+- `external_url` text (nullable)
+- `image_url` text (nullable)
+- `is_featured` boolean default false
+- `is_active` boolean default true
+- `submitted_by` uuid (nullable, references auth.users)
+- `contact_id` uuid (nullable, references ad_contacts for sponsored entries)
+- `created_at` timestamptz default now()
+- `updated_at` timestamptz default now()
 
-### Auto-fill from Mapbox
-When the user types a venue name, show a dropdown of Mapbox geocoding results (using the existing `GeocodingService` pattern and Mapbox token). On selection:
-- `location` = full address
-- `borough` = extracted from place context (Manhattan, Brooklyn, etc.)
-- `neighborhood` = extracted from Mapbox neighborhood context
-- `city` = extracted from place context
+RLS: Public read for active entries. Authenticated insert for own submissions. Admin full access.
 
-The user sees a small confirmation line like "📍 123 Main St, East Village, Manhattan" below the venue input. They never manually pick borough/neighborhood.
+### File Changes
 
-### Implementation
+| File | Change |
+|------|--------|
+| **New: `src/pages/GrowthOpportunities.tsx`** | Main page with 3 tabbed sections: Barking, Festivals, Schools & Training. Each shows cards. Submit button for barking/festival entries. |
+| **New: `src/components/growth/OpportunityCard.tsx`** | Card component for each opportunity type with appropriate icons and CTAs |
+| **New: `src/components/growth/SubmitOpportunityForm.tsx`** | Form for submitting barking gigs or festival info |
+| **New: `src/hooks/useGrowthOpportunities.ts`** | Hook to fetch/filter from `growth_opportunities` table |
+| **New: `src/api/growthOpportunities.ts`** | Supabase CRUD functions |
+| `src/App.tsx` | Replace `/job-board` route with `/growth`. Remove `CreatePosting` import if no longer needed. Keep `/job-board` as redirect to `/growth` for backwards compat. |
+| `src/components/HamburgerMenu.tsx` | Replace "Find Gigs" with "Growth" pointing to `/growth` |
+| `src/components/BottomNavigation.tsx` | Update active-path check from `job-board` to `growth` |
+| `src/pages/JobBoard.tsx` | Keep file but redirect to `/growth`, or remove entirely |
+| `src/api/index.ts` | Add `growthOpportunities` export |
 
-| Step | What | File |
-|------|------|------|
-| 1 | Rewrite `AddMicRequestForm.tsx` — 6 fields, Mapbox venue autocomplete, auto-fill location data | `src/components/host/AddMicRequestForm.tsx` |
-| 2 | Update `MicRequestFormData` interface — keep all fields but only require `open_mic`, `venue_name`, `day`, `start_time` | Same file |
-| 3 | Copy `hosts_organizers` value into `changes_updates` on submit so admin gets the contact info automatically | Same file |
+### UI Layout (Growth Opportunities Page)
 
-No database changes needed — the `open_mics_requests` table already accepts all fields as nullable. The submit handler in `OpenMics.tsx` stays the same.
+```text
+┌──────────────────────────────────┐
+│  Growth Opportunities            │
+│  Level up your comedy career     │
+├──────────────────────────────────┤
+│ [Barking] [Festivals] [Training] │ ← Tabs
+├──────────────────────────────────┤
+│  ┌─────────┐  ┌─────────┐       │
+│  │ Card    │  │ Card    │       │ ← Grid of opportunity cards
+│  │ Barking │  │ Barking │       │
+│  └─────────┘  └─────────┘       │
+│                                  │
+│  [+ Submit Opportunity]          │ ← Auth-gated submit button
+└──────────────────────────────────┘
+```
 
-### Technical Detail: Mapbox Venue Search
-Use Mapbox Geocoding API (already have the token via `getMapboxToken()` in `MapInitializer.ts`) with `types=poi,address` and debounced input. Extract borough from the `context` array in Mapbox results where `id` starts with `locality` or `place`. Map known NYC borough names. This keeps everything client-side with no new edge functions.
+- **Barking tab**: Shows needing barkers, with venue, date, pay info
+- **Festivals tab**: Comedy festivals with deadlines, submission links
+- **Training tab**: Sponsored cards from comedy schools (pulled from `growth_opportunities` where `type='school_ad'`, linked to `banner_ads`/`ad_contacts` system)
+
+### Sponsored Section Integration
+
+The "Training" tab pulls entries where `type='school_ad'` and `is_featured=true`. These are managed by admins through the existing ad contacts CRM, linking via `contact_id`. This gives comedy schools and festivals a dedicated, native-feeling ad placement targeted at comedians.
 
