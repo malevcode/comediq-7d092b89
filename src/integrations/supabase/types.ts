@@ -1154,6 +1154,41 @@ export type Database = {
           },
         ]
       }
+      points_ledger: {
+        Row: {
+          action_type: string
+          amount: number
+          created_at: string
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          amount: number
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          amount?: number
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "points_ledger_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       profile_custom_shows: {
         Row: {
           borough: string | null
@@ -1268,6 +1303,7 @@ export type Database = {
           id: string
           isadmin: boolean
           phone: string | null
+          points_balance: number
           stage_name: string | null
           updated_at: string | null
           user_id: string
@@ -1282,6 +1318,7 @@ export type Database = {
           id?: string
           isadmin?: boolean
           phone?: string | null
+          points_balance?: number
           stage_name?: string | null
           updated_at?: string | null
           user_id: string
@@ -1296,6 +1333,7 @@ export type Database = {
           id?: string
           isadmin?: boolean
           phone?: string | null
+          points_balance?: number
           stage_name?: string | null
           updated_at?: string | null
           user_id?: string
@@ -1303,6 +1341,59 @@ export type Database = {
           years_performing?: number | null
         }
         Relationships: []
+      }
+      recordings: {
+        Row: {
+          ai_summary: Json | null
+          created_at: string
+          file_url: string | null
+          id: string
+          lat_long: string | null
+          performance_metrics: Json | null
+          scheduled_cleanup_at: string | null
+          status: Database["public"]["Enums"]["recording_status"]
+          title: string
+          transcription: string | null
+          user_id: string
+          venue_name: string | null
+        }
+        Insert: {
+          ai_summary?: Json | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          lat_long?: string | null
+          performance_metrics?: Json | null
+          scheduled_cleanup_at?: string | null
+          status?: Database["public"]["Enums"]["recording_status"]
+          title: string
+          transcription?: string | null
+          user_id: string
+          venue_name?: string | null
+        }
+        Update: {
+          ai_summary?: Json | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          lat_long?: string | null
+          performance_metrics?: Json | null
+          scheduled_cleanup_at?: string | null
+          status?: Database["public"]["Enums"]["recording_status"]
+          title?: string
+          transcription?: string | null
+          user_id?: string
+          venue_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recordings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       role_openings: {
         Row: {
@@ -2139,6 +2230,7 @@ export type Database = {
       mic_status: "trial" | "verified" | "pending"
       posting_status: "open" | "filled" | "cancelled" | "draft"
       rating_type: "like" | "dislike"
+      recording_status: "video_active" | "processing" | "audio_archived"
       relation_type: "liked" | "upcoming" | "past"
       role_category: "performer" | "crew"
       schedule_type: "upcoming" | "completed" | "cancelled"
@@ -2305,6 +2397,7 @@ export const Constants = {
       mic_status: ["trial", "verified", "pending"],
       posting_status: ["open", "filled", "cancelled", "draft"],
       rating_type: ["like", "dislike"],
+      recording_status: ["video_active", "processing", "audio_archived"],
       relation_type: ["liked", "upcoming", "past"],
       role_category: ["performer", "crew"],
       schedule_type: ["upcoming", "completed", "cancelled"],
