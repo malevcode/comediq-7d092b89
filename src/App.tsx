@@ -34,8 +34,8 @@ import FreeMics from "./pages/FreeMics";
 import BeginnerMics from "./pages/BeginnerMics";
 import HostDashboard from "./pages/HostDashboard";
 import MicSignup from "./pages/MicSignup";
-import JobBoard from "./pages/JobBoard";
-import CreatePosting from "./pages/CreatePosting";
+import GrowthOpportunities from "./pages/GrowthOpportunities";
+import { Navigate } from "react-router-dom";
 import AdvertiseWithUs from "./pages/AdvertiseWithUs";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AddShow from "./pages/AddShow";
@@ -91,8 +91,9 @@ const App = () => (
             <Route path="/beginner-friendly" element={<BeginnerMics />} />
             <Route path="/host-dashboard" element={<HostDashboard />} />
             <Route path="/mic/:slug/signup" element={<MicSignup />} />
-            <Route path="/job-board" element={<JobBoard />} />
-            <Route path="/job-board/create" element={<CreatePosting />} />
+            <Route path="/growth" element={<GrowthOpportunities />} />
+            <Route path="/job-board" element={<Navigate to="/growth" replace />} />
+            <Route path="/job-board/create" element={<Navigate to="/growth" replace />} />
             <Route path="/advertise" element={<AdvertiseWithUs />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/add-show" element={<AddShow />} />

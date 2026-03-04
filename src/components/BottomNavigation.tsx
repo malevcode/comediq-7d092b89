@@ -29,7 +29,7 @@ const BottomNavigation = () => {
               isActive = location.pathname === "/open-mics" || 
                         location.pathname === "/track-sets" || 
                         location.pathname === "/shows" ||
-                        location.pathname === "/job-board" ||
+                        location.pathname === "/growth" ||
                         location.pathname === "/host-dashboard" ||
                         location.pathname === "/dev-view" ||
                         location.pathname.startsWith("/mic/");
