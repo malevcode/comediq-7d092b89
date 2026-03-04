@@ -230,27 +230,32 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           {/* Left spacer for balance */}
           <div className="flex-1" />
           
-          {/* Centered mic name */}
+          {/* Centered mic name with inline verified check */}
           <a 
             href={getMapUrl(mic.location, mic.venueName)}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-semibold text-base text-gray-900 hover:text-blue-600 hover:bg-blue-50 hover:rounded px-0.5 cursor-pointer transition-all duration-200 flex items-center gap-1"
+            className="font-semibold text-base text-foreground hover:text-blue-600 hover:bg-blue-50 hover:rounded px-0.5 cursor-pointer transition-all duration-200 flex items-center gap-1"
             title={mic.openMic}
           >
             {mic.openMic}
-            <ExternalLink className="w-3 h-3" />
+            <MicStatusBadge status={mic.status} legacyTag={mic.legacyTag} />
+            <ExternalLink className="w-3 h-3 text-muted-foreground" />
           </a>
           
-          {/* Right-aligned status badges */}
+          {/* Right-aligned traffic light + frequency pill */}
           <div className="flex-1 flex justify-end items-center gap-1">
-            <MicStatusBadge status={mic.status} legacyTag={mic.legacyTag} frequency={mic.frequency} showFrequency={mic.frequency !== 'weekly'} />
+            {mic.frequency && mic.frequency !== 'weekly' && (
+              <span className="inline-flex items-center rounded-full bg-muted/50 text-muted-foreground border border-border/50 font-medium text-[10px] px-1.5 py-0 whitespace-nowrap">
+                {FREQUENCY_LABELS[mic.frequency]}
+              </span>
+            )}
             <MicStatusDropdown 
               micUniqueIdentifier={mic.uniqueIdentifier}
             />
           </div>
         </div>
-        <div className="text-xs text-gray-500 mb-0.5">
+        <div className="text-xs text-muted-foreground mb-0.5">
           <span className="flex items-center gap-1 justify-center md:justify-start">
             <MapPin className="w-3 h-3 flex-shrink-0" />
             <a 
@@ -269,7 +274,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
               </span>
             )}
             {distanceLoading && (
-              <span className="flex items-center gap-1 ml-1 text-gray-400">
+              <span className="flex items-center gap-1 ml-1 text-muted-foreground">
                 <Navigation className="w-3 h-3 animate-pulse" />
               </span>
             )}
@@ -277,7 +282,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           <span className="flex flex-row md:flex-col gap-1.5 md:gap-0 justify-center md:justify-start">
             <span className="flex items-center gap-1 justify-center md:justify-start">
               <Calendar className="w-3 h-3 flex-shrink-0" />
-              {FREQUENCY_LABELS[mic.frequency] || 'Weekly'} - {mic.day}
+              {mic.frequency === 'weekly' ? '' : `${FREQUENCY_LABELS[mic.frequency]} · `}{mic.day}
             </span>
             <span className="flex items-center gap-1 md:hidden justify-center">
               <CircleUser className="w-3 h-3 flex-shrink-0" />

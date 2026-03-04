@@ -1,6 +1,5 @@
-import { Badge } from '@/components/ui/badge';
+import { CheckCircle2, Clock } from 'lucide-react';
 import { MicStatus, MicFrequency, FREQUENCY_LABELS } from '@/types/openMic';
-import { ShieldCheck, Clock, AlertTriangle } from 'lucide-react';
 
 interface MicStatusBadgeProps {
   status: MicStatus;
@@ -15,37 +14,27 @@ export function MicStatusBadge({ status, legacyTag, frequency, showFrequency = f
 
   return (
     <div className="flex items-center gap-1 flex-wrap">
-      {/* Status badge */}
+      {/* Status indicator */}
       {status === 'trial' && (
-        <Badge variant="outline" className={`border-amber-400 bg-amber-50 text-amber-700 ${isSmall ? 'text-[10px] px-1.5 py-0' : 'text-xs'}`}>
-          <Clock className={`${isSmall ? 'w-2.5 h-2.5' : 'w-3 h-3'} mr-0.5`} />
+        <span className={`inline-flex items-center gap-0.5 rounded-full bg-amber-100/60 text-amber-700 border border-amber-200/50 font-medium ${isSmall ? 'text-[10px] px-1.5 py-0' : 'text-xs px-2 py-0.5'}`}>
+          <Clock className={isSmall ? 'w-2.5 h-2.5' : 'w-3 h-3'} />
           Trial
-        </Badge>
+        </span>
       )}
       {status === 'verified' && legacyTag && (
-        <Badge variant="outline" className={`border-blue-300 bg-blue-50 text-blue-700 ${isSmall ? 'text-[10px] px-1.5 py-0' : 'text-xs'}`}>
-          <ShieldCheck className={`${isSmall ? 'w-2.5 h-2.5' : 'w-3 h-3'} mr-0.5`} />
-          {legacyTag}
-        </Badge>
+        <span className={`inline-flex items-center gap-0.5 rounded-full bg-muted/50 text-muted-foreground border border-border/50 font-medium ${isSmall ? 'text-[10px] px-1.5 py-0' : 'text-xs px-2 py-0.5'}`}>
+          Legacy
+        </span>
       )}
       {status === 'verified' && !legacyTag && (
-        <Badge variant="outline" className={`border-green-400 bg-green-50 text-green-700 ${isSmall ? 'text-[10px] px-1.5 py-0' : 'text-xs'}`}>
-          <ShieldCheck className={`${isSmall ? 'w-2.5 h-2.5' : 'w-3 h-3'} mr-0.5`} />
-          Verified
-        </Badge>
-      )}
-      {status === 'pending' && (
-        <Badge variant="outline" className={`border-red-300 bg-red-50 text-red-700 ${isSmall ? 'text-[10px] px-1.5 py-0' : 'text-xs'}`}>
-          <AlertTriangle className={`${isSmall ? 'w-2.5 h-2.5' : 'w-3 h-3'} mr-0.5`} />
-          Pending
-        </Badge>
+        <CheckCircle2 className={`text-emerald-500 ${isSmall ? 'w-3.5 h-3.5' : 'w-4 h-4'}`} />
       )}
 
-      {/* Frequency badge */}
+      {/* Frequency pill */}
       {showFrequency && frequency && frequency !== 'weekly' && (
-        <Badge variant="secondary" className={`${isSmall ? 'text-[10px] px-1.5 py-0' : 'text-xs'}`}>
+        <span className={`inline-flex items-center rounded-full bg-muted/50 text-muted-foreground border border-border/50 font-medium whitespace-nowrap ${isSmall ? 'text-[10px] px-1.5 py-0' : 'text-xs px-2 py-0.5'}`}>
           {FREQUENCY_LABELS[frequency]}
-        </Badge>
+        </span>
       )}
     </div>
   );
