@@ -1,7 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { OpenMic } from "@/types/openMic";
+import { OpenMic, MicStatus, MicFrequency, SignupMethod } from "@/types/openMic";
 
 export const useOpenMics = (tableName: 'open_mics_historical' = 'open_mics_historical') => {
   return useQuery({
@@ -27,8 +27,13 @@ export const useOpenMics = (tableName: 'open_mics_historical' = 'open_mics_histo
       const filteredData = data.filter((row: unknown) => row["active"] === true || row["active"] === 1);
       console.log("Filtered data count:", filteredData.length);
       
-      // Map the database columns to our OpenMic interface
-      const mappedData = filteredData.map((row: unknown) => {
+      // Also filter out pending mics from public view
+      const publicData = filteredData.filter((row: unknown) => {
+        const status = row["status"] as string | null;
+        return status !== 'pending'; // Show trial and verified, hide pending
+      });
+      
+      const mappedData = publicData.map((row: unknown) => {
         const mapped: OpenMic = {
           id: row["unique_identifier"],
           openMic: row["open_mic"] || "",
@@ -50,7 +55,16 @@ export const useOpenMics = (tableName: 'open_mics_historical' = 'open_mics_histo
           city: row["city"] || "",
           signupEnabled: row["signup_enabled"] || false,
           otherRules: row["other_rules"] || "",
-          coverImageUrl: row["cover_image_url"] || undefined
+          coverImageUrl: row["cover_image_url"] || undefined,
+          // New fields
+          status: (row["status"] as MicStatus) || 'verified',
+          frequency: (row["frequency"] as MicFrequency) || 'weekly',
+          verificationCount: row["verification_count"] || 0,
+          submissionDate: row["submission_date"] || undefined,
+          legacyTag: row["legacy_tag"] || undefined,
+          creatorId: row["creator_id"] || undefined,
+          signupMethod: (row["signup_method"] as SignupMethod) || undefined,
+          signupUrl: row["signup_url"] || undefined,
         };
         return mapped;
       });
@@ -58,10 +72,10 @@ export const useOpenMics = (tableName: 'open_mics_historical' = 'open_mics_histo
       console.log("Final mapped data count:", mappedData.length);
       return mappedData;
     },
-    staleTime: 10 * 60 * 1000, // 10 minutes - data is fresh for 10 minutes
-    gcTime: 30 * 60 * 1000, // 30 minutes - keep unused data in cache for 30 minutes
-    refetchOnWindowFocus: false, // Don't refetch when window regains focus
-    refetchOnMount: false, // Don't refetch when component mounts if data is fresh
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     retry: 1,
     retryDelay: 1000,
   });
