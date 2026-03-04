@@ -2101,6 +2101,7 @@ export type Database = {
       }
     }
     Functions: {
+      expire_trial_mics: { Args: never; Returns: number }
       get_or_create_system_host: {
         Args: { mic_id_param: string }
         Returns: string
