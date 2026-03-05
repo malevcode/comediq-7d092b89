@@ -19,3 +19,7 @@ verify_jwt = false
 [functions.parse-mic-data]
 enabled = true
 verify_jwt = false
+
+[functions.parse-mic-updates]
+enabled = true
+verify_jwt = true

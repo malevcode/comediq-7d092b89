@@ -20,6 +20,7 @@ import { AdminBannerAdsManager } from '@/components/admin/AdminBannerAdsManager'
 import { SiteAnalyticsDashboard } from '@/components/admin/SiteAnalyticsDashboard';
 import { AdminVenueSourcesManager } from '@/components/admin/AdminVenueSourcesManager';
 import { AdminTodoBoard } from '@/components/admin/AdminTodoBoard';
+import { SmartUpdateInterface } from '@/components/admin/SmartUpdateInterface';
 import PageHeader from '@/components/PageHeader';
 import { approveMicRequest, type MicFormData } from '@/api/admin';
 import {
@@ -307,6 +308,7 @@ const AdminInterface = () => {
             <TabsTrigger value="bulk-import" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">CSV</TabsTrigger>
             <TabsTrigger value="venues" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Venues</TabsTrigger>
             <TabsTrigger value="todos" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">To-Dos</TabsTrigger>
+            <TabsTrigger value="update" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Update</TabsTrigger>
           </TabsList>
           <TabsContent value="analytics">
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
@@ -441,6 +443,9 @@ const AdminInterface = () => {
           </TabsContent>
           <TabsContent value="todos">
             <AdminTodoBoard />
+          </TabsContent>
+          <TabsContent value="update">
+            <SmartUpdateInterface />
           </TabsContent>
         </Tabs>
       </div>
