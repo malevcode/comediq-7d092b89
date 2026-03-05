@@ -653,6 +653,51 @@ export type Database = {
           },
         ]
       }
+      mic_bookings: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          marked_by: string | null
+          signup_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          marked_by?: string | null
+          signup_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          marked_by?: string | null
+          signup_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mic_bookings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "mic_signup_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mic_bookings_signup_id_fkey"
+            columns: ["signup_id"]
+            isOneToOne: false
+            referencedRelation: "mic_signups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mic_comments: {
         Row: {
           comment_text: string
@@ -979,10 +1024,13 @@ export type Database = {
           neighborhood: string | null
           open_mic: string
           other_rules: string | null
+          price_per_slot: number | null
           sign_up_instructions: string | null
           signup_enabled: boolean
           signup_method: Database["public"]["Enums"]["signup_method"] | null
           signup_url: string | null
+          slot_duration_minutes: number
+          slots_enabled: boolean
           sms_response: string | null
           stage_time: string | null
           start_time: string | null
@@ -1011,10 +1059,13 @@ export type Database = {
           neighborhood?: string | null
           open_mic: string
           other_rules?: string | null
+          price_per_slot?: number | null
           sign_up_instructions?: string | null
           signup_enabled?: boolean
           signup_method?: Database["public"]["Enums"]["signup_method"] | null
           signup_url?: string | null
+          slot_duration_minutes?: number
+          slots_enabled?: boolean
           sms_response?: string | null
           stage_time?: string | null
           start_time?: string | null
@@ -1043,10 +1094,13 @@ export type Database = {
           neighborhood?: string | null
           open_mic?: string
           other_rules?: string | null
+          price_per_slot?: number | null
           sign_up_instructions?: string | null
           signup_enabled?: boolean
           signup_method?: Database["public"]["Enums"]["signup_method"] | null
           signup_url?: string | null
+          slot_duration_minutes?: number
+          slots_enabled?: boolean
           sms_response?: string | null
           stage_time?: string | null
           start_time?: string | null
