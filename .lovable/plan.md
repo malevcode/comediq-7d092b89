@@ -1,87 +1,45 @@
 
 
-## Plan: Build "Slots" Tab + "NEW" Section in Hamburger Menu
+## Plan: Simplify the "Request New Mic" Form
 
-### Overview
-Create a new "Slots" tab under Perform where comedians can list their mics/shows for signups, and other users can sign up for spots. Add a flashy "NEW" section to the hamburger menu highlighting this feature.
+### Problem
+The current `AddMicRequestForm` has 17 fields across 5 sections. Most users won't know (or need to provide) things like neighborhood, venue type, end time, stage time, or sign-up instructions. The admin can fill those in during review.
 
-### 1. New "Slots" Page (`src/pages/Slots.tsx`)
+### Approach
+Reduce the form to **6 core fields** + 1 optional, and use **Mapbox Geocoding** (already integrated in the project) to auto-fill location data from the venue name.
 
-A dedicated page with two views:
+### New Form Fields
 
-**Browse View (default):** Shows all active signup events as cards, each displaying:
-- Mic/show name, venue, date, time, borough
-- Spots remaining (progress bar)
-- "Sign Up" button (opens existing SignupButton dialog)
-- Filterable by day, borough
+**Required (4):**
+1. **Mic Name** — text input (same as now)
+2. **Venue** — text input with Mapbox Places autocomplete. When a place is selected, auto-populate: address, borough, neighborhood, city
+3. **Day of Week** — day picker (same as now)
+4. **Start Time** — time input (same as now)
 
-**Create View (for hosts/authenticated users):** A streamlined form to:
-- Select an existing mic from `open_mics_historical` (autocomplete)
-- OR manually enter a mic/show name + venue
-- Set date, time, total spots, signup mode (first come / lottery / bucket)
-- Optional notes
-- Submits to `mic_signup_events` via existing API
+**Optional (3):**
+5. **Cost** — text input (e.g., "Free", "$5", "1 drink min")
+6. **Host Instagram** — single field, auto-copied to `changes_updates` on submit
+7. **Notes** — textarea for anything else (sign-up instructions, rules, etc.)
 
-This reuses `SignupList`, `SignupButton`, and `CreateEventForm` components but wraps them in a more polished, browsable layout.
+### Auto-fill from Mapbox
+When the user types a venue name, show a dropdown of Mapbox geocoding results (using the existing `GeocodingService` pattern and Mapbox token). On selection:
+- `location` = full address
+- `borough` = extracted from place context (Manhattan, Brooklyn, etc.)
+- `neighborhood` = extracted from Mapbox neighborhood context
+- `city` = extracted from place context
 
-### 2. Add "Slots" Tab to Perform (`src/pages/Perform.tsx`)
+The user sees a small confirmation line like "📍 123 Main St, East Village, Manhattan" below the venue input. They never manually pick borough/neighborhood.
 
-- Add a 5th tab: "Slots" with a `TicketCheck` or `Users` icon
-- Update `TabsList` from `grid-cols-4` to `grid-cols-5`
-- Add scroll position tracking for the new tab
-- Render `<Slots />` inside the new `TabsContent`
+### Implementation
 
-### 3. Update TabContext (`src/contexts/TabContext.tsx`)
+| Step | What | File |
+|------|------|------|
+| 1 | Rewrite `AddMicRequestForm.tsx` — 6 fields, Mapbox venue autocomplete, auto-fill location data | `src/components/host/AddMicRequestForm.tsx` |
+| 2 | Update `MicRequestFormData` interface — keep all fields but only require `open_mic`, `venue_name`, `day`, `start_time` | Same file |
+| 3 | Copy `hosts_organizers` value into `changes_updates` on submit so admin gets the contact info automatically | Same file |
 
-- Default tab remains "find-mics", just add "slots" to the comment listing tracked tabs
+No database changes needed — the `open_mics_requests` table already accepts all fields as nullable. The submit handler in `OpenMics.tsx` stays the same.
 
-### 4. Flashy "NEW" Section in Hamburger Menu (`src/components/HamburgerMenu.tsx`)
-
-Add a new collapsible section between "Perform" and "Laugh" sections:
-
-```text
-┌─────────────────────────┐
-│  🔥 NEW                 │
-│  ├─ ✨ Slots        NEW │
-│  └─ (future items)      │
-└─────────────────────────┘
-```
-
-- Section header: gradient text or orange/amber highlight with a sparkle icon
-- "NEW" pill badge next to "Slots" item (animated pulse, amber/orange)
-- Links to `/open-mics?tab=slots`
-- Collapsible, default expanded
-
-### 5. Update Routes & Navigation
-
-- **App.tsx**: No new route needed — Slots lives inside the Perform tabs at `/open-mics?tab=slots`
-- **BottomNavigation.tsx**: Add `/open-mics` with `tab=slots` to the perform-active check (already covered)
-
-### 6. Slots Page UI Design
-
-The page will have:
-- A header with "Slots" title and a prominent "Open Your List" CTA button
-- A grid/list of active signup event cards with:
-  - Gradient accent border for events with spots remaining
-  - "FULL" overlay badge when no spots left
-  - Animated spot counter
-- Empty state: illustration + "No active slots — be the first to open one!"
-
-### Technical Details
-
-- **Data fetching**: New hook `useAllSignupEvents()` that queries `mic_signup_events` joined with `open_mics_historical` for all active future events (no mic_id filter)
-- **RLS**: Existing policies already allow `SELECT` on active events for anyone and `INSERT` for authenticated hosts
-- **Components reused**: `SignupButton`, `SignupList`, `CreateEventForm` (with minor prop adjustments)
-- **New components**: `src/pages/Slots.tsx`, updated `HamburgerMenu.tsx`
-
-### Files to Create/Edit
-
-| File | Action |
-|------|--------|
-| `src/pages/Slots.tsx` | Create — main Slots page |
-| `src/pages/Perform.tsx` | Edit — add 5th tab |
-| `src/components/HamburgerMenu.tsx` | Edit — add "NEW" section |
-| `src/components/BottomNavigation.tsx` | Edit — minor active-state update |
-| `src/hooks/useAllSignupEvents.ts` | Create — fetch all active events |
-| `src/api/signups.ts` | Edit — add `fetchAllActiveEvents()` |
+### Technical Detail: Mapbox Venue Search
+Use Mapbox Geocoding API (already have the token via `getMapboxToken()` in `MapInitializer.ts`) with `types=poi,address` and debounced input. Extract borough from the `context` array in Mapbox results where `id` starts with `locality` or `place`. Map known NYC borough names. This keeps everything client-side with no new edge functions.
 
