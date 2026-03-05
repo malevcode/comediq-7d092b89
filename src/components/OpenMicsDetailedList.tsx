@@ -239,7 +239,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
             title={mic.openMic}
           >
             {mic.openMic}
-            <MicStatusBadge status={mic.status} legacyTag={mic.legacyTag} />
+            <MicStatusBadge status={mic.status} />
             <ExternalLink className="w-3 h-3 text-muted-foreground" />
           </a>
           
@@ -325,6 +325,13 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
       <div className="w-full md:flex-[1.2] flex flex-col justify-center gap-0">
         {expanded && (
           <div className="bg-blue-50 border border-blue-100 rounded-md p-2 flex flex-col gap-1.5">
+            {mic.legacyTag && (
+              <div className="flex items-center gap-1 text-[10px]">
+                <span className="inline-flex items-center rounded-full bg-muted/50 text-muted-foreground border border-border/50 font-medium px-1.5 py-0">
+                  Pre-March 2026
+                </span>
+              </div>
+            )}
             <div
               className="break-words font-normal select-text cursor-text flex flex-row text-xs"
               onClick={e => e.stopPropagation()}
