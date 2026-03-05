@@ -75,6 +75,57 @@ export const formatTime = (timeStr: string): string => {
   return timeStr;
 };
 
+// Format time to short transit-style label (e.g., "6p", "8:30p")
+export const formatTimeShort = (timeStr: string): string => {
+  if (!timeStr) return '?';
+  const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (!match) return timeStr.length > 5 ? timeStr.substring(0, 5) : timeStr;
+  const hour = parseInt(match[1]);
+  const min = parseInt(match[2]);
+  const period = match[3].toLowerCase().charAt(0); // 'a' or 'p'
+  if (min === 0) return `${hour}${period}`;
+  return `${hour}:${match[2]}${period}`;
+};
+
+// Parse 12h time string into minutes since midnight
+export const parseTimeToMinutes = (timeStr: string): number | null => {
+  if (!timeStr) return null;
+  const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (!match) return null;
+  let hours = parseInt(match[1]);
+  const minutes = parseInt(match[2]);
+  const period = match[3].toUpperCase();
+  if (period === 'PM' && hours !== 12) hours += 12;
+  else if (period === 'AM' && hours === 12) hours = 0;
+  return hours * 60 + minutes;
+};
+
+// Determine if a mic is currently LIVE based on day + time
+export const getMicLiveStatus = (
+  micDay: string,
+  startTime: string,
+  endTime: string
+): 'live' | 'soon' | 'today' | 'other' => {
+  const now = new Date();
+  const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
+  if (micDay !== currentDay) return 'other';
+
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const startMin = parseTimeToMinutes(startTime);
+  if (startMin === null) return 'today';
+
+  // Default end time: 2 hours after start if not specified
+  let endMin = parseTimeToMinutes(endTime);
+  if (endMin === null) endMin = startMin + 120;
+  // Handle overnight mics (end < start)
+  if (endMin < startMin) endMin += 24 * 60;
+
+  if (currentMinutes >= startMin && currentMinutes <= endMin) return 'live';
+  if (startMin - currentMinutes > 0 && startMin - currentMinutes <= 30) return 'soon';
+  if (startMin > currentMinutes) return 'today';
+  return 'other'; // already ended
+};
+
 // Format cost for display
 export const formatCost = (cost: string): string => {
   if (cost.toLowerCase().includes('free')) return 'Free';
