@@ -18,7 +18,7 @@ const HamburgerMenu = () => {
   ];
 
   const newFeatureItems = [
-    { path: "/open-mics?tab=slots", icon: TicketCheck, label: "Slots", isNew: true },
+    { path: "/slots", icon: TicketCheck, label: "Slots", isNew: true },
   ];
 
   const performSubItems = [
