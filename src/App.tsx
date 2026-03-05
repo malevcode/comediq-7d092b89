@@ -100,6 +100,7 @@ const App = () => (
             <Route path="/saved" element={<SavedMics />} />
             <Route path="/liked" element={<LikedMics />} />
             <Route path="/dev-view" element={<TabProvider><DevView /></TabProvider>} />
+            <Route path="/slots" element={<Slots />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

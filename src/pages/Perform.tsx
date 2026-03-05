@@ -68,7 +68,7 @@ const Perform = () => {
                 <ListMusic className="h-3.5 w-3.5" />
                 Playlists
               </TabsTrigger>
-              <TabsTrigger value="slots" className="gap-1 relative">
+              <TabsTrigger value="slots" className="gap-1 relative" onClick={(e) => { e.preventDefault(); navigate('/slots'); }}>
                 <TicketCheck className="h-3.5 w-3.5" />
                 Slots
                 <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-[9px] font-bold px-1 rounded-full animate-pulse">

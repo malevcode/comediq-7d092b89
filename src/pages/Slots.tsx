@@ -14,16 +14,43 @@ import { SignupList } from '@/components/signup/SignupList';
 import { getOrCreateNextEvent } from '@/api/signups';
 import { createSlotEvent } from '@/api/slots';
 import { useToast } from '@/hooks/use-toast';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useOpenMics } from '@/hooks/useOpenMics';
-import { CalendarDays, MapPin, Clock, Users, Plus, Sparkles, TicketCheck } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { CalendarDays, MapPin, Clock, Users, Plus, Sparkles, TicketCheck, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
+import { Link } from 'react-router-dom';
+import { slugify } from '@/utils/slugify';
 
 const Slots = () => {
-  const { data: events, isLoading } = useAllSignupEvents();
+  const { data: events, isLoading: eventsLoading } = useAllSignupEvents();
   const { user } = useAuth();
   const [view, setView] = useState<'browse' | 'create'>('browse');
   const [expandedEventId, setExpandedEventId] = useState<string | null>(null);
+
+  // Fetch all slots_enabled mics for discovery
+  const { data: slotsMics, isLoading: micsLoading } = useQuery({
+    queryKey: ['slotEnabledMics'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('open_mics_historical')
+        .select('unique_identifier, open_mic, venue_name, borough, neighborhood, day, start_time, slot_duration_minutes, hosts_organizers')
+        .eq('slots_enabled', true)
+        .eq('active', true);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const isLoading = eventsLoading || micsLoading;
+
+  // IDs that already have active events
+  const eventMicIds = new Set((events || []).map((e: any) => e.mic_id));
+
+  // Mics with slots enabled but no active event yet
+  const discoveryMics = (slotsMics || []).filter(
+    (m) => !eventMicIds.has(m.unique_identifier)
+  );
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
@@ -57,12 +84,68 @@ const Slots = () => {
       {view === 'create' && user ? (
         <CreateSlotForm onSuccess={() => setView('browse')} />
       ) : (
-        <SlotsBrowseView
-          events={events || []}
-          isLoading={isLoading}
-          expandedEventId={expandedEventId}
-          onToggleExpand={(id) => setExpandedEventId(expandedEventId === id ? null : id)}
-        />
+        <>
+          {/* Discovery: Mics with Slots Enabled */}
+          {discoveryMics.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-amber-500" />
+                Mics with Slots Available
+              </h3>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {discoveryMics.map((mic) => {
+                  const venueSlug = `${slugify(mic.venue_name || '')}-${slugify(mic.neighborhood || '')}`;
+                  return (
+                    <Link
+                      key={mic.unique_identifier}
+                      to={`/mics/${venueSlug}`}
+                      className="block"
+                    >
+                      <Card className="h-full border-primary/20 hover:border-primary/50 hover:shadow-md transition-all group">
+                        <CardContent className="p-4 space-y-2">
+                          <div className="flex items-start justify-between">
+                            <h4 className="font-semibold text-sm leading-tight">
+                              {mic.open_mic}
+                            </h4>
+                            <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-0.5" />
+                          </div>
+                          <div className="space-y-1 text-xs text-muted-foreground">
+                            {mic.venue_name && (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="h-3 w-3" />
+                                {mic.venue_name}
+                              </span>
+                            )}
+                            <span className="flex items-center gap-1">
+                              <CalendarDays className="h-3 w-3" />
+                              {mic.day}s · {mic.start_time}
+                            </span>
+                            {mic.hosts_organizers && (
+                              <span className="text-xs">
+                                Host: {mic.hosts_organizers}
+                              </span>
+                            )}
+                          </div>
+                          <Badge variant="secondary" className="text-[10px]">
+                            {mic.slot_duration_minutes} min slots
+                          </Badge>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Active Events */}
+          <SlotsBrowseView
+            events={events || []}
+            isLoading={isLoading}
+            expandedEventId={expandedEventId}
+            onToggleExpand={(id) => setExpandedEventId(expandedEventId === id ? null : id)}
+          />
+        </>
       )}
     </div>
   );
@@ -94,8 +177,8 @@ function SlotsBrowseView({
     return (
       <div className="text-center py-16">
         <Sparkles className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-        <h3 className="text-lg font-semibold text-muted-foreground">No active slots</h3>
-        <p className="text-sm text-muted-foreground mt-1">Be the first to open a signup list!</p>
+        <h3 className="text-lg font-semibold text-muted-foreground">No active signup events yet</h3>
+        <p className="text-sm text-muted-foreground mt-1">Click a mic above to sign up, or open your own list!</p>
       </div>
     );
   }
@@ -117,7 +200,6 @@ function SlotsBrowseView({
                 : 'border-primary/20 hover:border-primary/40 hover:shadow-md'
             }`}
           >
-            {/* Gradient accent stripe */}
             {!isFull && (
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary" />
             )}
@@ -158,7 +240,6 @@ function SlotsBrowseView({
             </CardHeader>
 
             <CardContent className="space-y-3">
-              {/* Spots progress */}
               <div>
                 <div className="flex justify-between text-xs mb-1">
                   <span className="flex items-center gap-1 text-muted-foreground">
@@ -216,10 +297,9 @@ function CreateSlotForm({ onSuccess }: { onSuccess: () => void }) {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      // Use getOrCreateNextEvent to handle host creation
       const event = await getOrCreateNextEvent(
         selectedMicId,
-        '', // day not needed since we specify date
+        '',
         eventTime || undefined
       );
       return event;
@@ -227,6 +307,7 @@ function CreateSlotForm({ onSuccess }: { onSuccess: () => void }) {
     onSuccess: () => {
       toast({ title: 'Slot opened!', description: 'Your signup list is now live.' });
       queryClient.invalidateQueries({ queryKey: ['allSignupEvents'] });
+      queryClient.invalidateQueries({ queryKey: ['slotEnabledMics'] });
       onSuccess();
     },
     onError: (error: any) => {
@@ -235,8 +316,8 @@ function CreateSlotForm({ onSuccess }: { onSuccess: () => void }) {
   });
 
   const filteredMics = mics?.filter((m: any) =>
-    m.open_mic?.toLowerCase().includes(micSearch.toLowerCase()) ||
-    m.venue_name?.toLowerCase().includes(micSearch.toLowerCase())
+    m.openMic?.toLowerCase().includes(micSearch.toLowerCase()) ||
+    m.venueName?.toLowerCase().includes(micSearch.toLowerCase())
   ).slice(0, 10) || [];
 
   return (
@@ -259,7 +340,6 @@ function CreateSlotForm({ onSuccess }: { onSuccess: () => void }) {
           }}
           className="space-y-4"
         >
-          {/* Mic selector */}
           <div>
             <Label>Select Mic</Label>
             <Input
@@ -272,18 +352,18 @@ function CreateSlotForm({ onSuccess }: { onSuccess: () => void }) {
               <div className="border rounded-md max-h-48 overflow-y-auto">
                 {filteredMics.map((mic: any) => (
                   <button
-                    key={mic.unique_identifier}
+                    key={mic.uniqueIdentifier}
                     type="button"
                     onClick={() => {
-                      setSelectedMicId(mic.unique_identifier);
-                      setMicSearch(mic.open_mic);
+                      setSelectedMicId(mic.uniqueIdentifier);
+                      setMicSearch(mic.openMic);
                     }}
                     className={`w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors ${
-                      selectedMicId === mic.unique_identifier ? 'bg-accent font-medium' : ''
+                      selectedMicId === mic.uniqueIdentifier ? 'bg-accent font-medium' : ''
                     }`}
                   >
-                    <div className="font-medium">{mic.open_mic}</div>
-                    <div className="text-xs text-muted-foreground">{mic.venue_name} · {mic.borough}</div>
+                    <div className="font-medium">{mic.openMic}</div>
+                    <div className="text-xs text-muted-foreground">{mic.venueName} · {mic.borough}</div>
                   </button>
                 ))}
               </div>
