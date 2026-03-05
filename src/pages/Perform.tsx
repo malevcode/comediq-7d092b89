@@ -4,7 +4,7 @@ import OpenMics from "./OpenMics";
 import Shows from "./Shows";
 import Slots from "./Slots";
 import { PlaylistsTab } from "@/components/playlists";
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useTabContext } from "@/contexts/TabContext";
 import { Megaphone, ListMusic, Sheet, TicketCheck } from "lucide-react";
 import DevView from "./DevView";
