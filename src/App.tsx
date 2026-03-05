@@ -41,6 +41,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AddShow from "./pages/AddShow";
 import SavedMics from "./pages/SavedMics";
 import DevView from "./pages/DevView";
+import Slots from "./pages/Slots";
 import LikedMics from "./pages/LikedMics";
 
 const queryClient = new QueryClient({
