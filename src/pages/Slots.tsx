@@ -84,7 +84,7 @@ const Slots = () => {
         </div>
       </div>
 
-      <div className="px-4 py-6">
+      <div className="px-4 pt-4 pb-6">
 
       {view === 'create' && user ? (
         <CreateSlotForm onSuccess={() => setView('browse')} />
