@@ -10,6 +10,7 @@ import { Megaphone, ListMusic, Sheet, TicketCheck } from "lucide-react";
 import DevView from "./DevView";
 
 const Perform = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const { activeTab, setActiveTab } = useTabContext();
