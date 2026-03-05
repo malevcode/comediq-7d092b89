@@ -444,6 +444,9 @@ const AdminInterface = () => {
           <TabsContent value="todos">
             <AdminTodoBoard />
           </TabsContent>
+          <TabsContent value="update">
+            <SmartUpdateInterface />
+          </TabsContent>
         </Tabs>
       </div>
 
