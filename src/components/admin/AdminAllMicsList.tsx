@@ -88,6 +88,7 @@ export default function AdminAllMicsList() {
     { key: 'other_rules', label: 'Other Rules', displayKey: 'Other Rules' },
     { key: 'city', label: 'City', displayKey: 'city' },
     { key: 'sms_response', label: 'SMS Response', displayKey: 'sms_response' },
+    { key: 'legacy_tag', label: 'Legacy Tag', displayKey: 'legacy_tag' },
   ];
 
   // Boolean toggle fields
