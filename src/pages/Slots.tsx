@@ -53,33 +53,38 @@ const Slots = () => {
   );
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <TicketCheck className="h-6 w-6 text-primary" />
-            Slots
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Sign up for open mic spots or open your own list
-          </p>
+    <div className="max-w-4xl mx-auto">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-30 bg-background border-b border-border px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="min-w-0">
+            <h2 className="text-lg font-bold flex items-center gap-2">
+              <TicketCheck className="h-5 w-5 text-primary" />
+              Slots
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Sign up for open mic spots or open your own list
+            </p>
+          </div>
+          {user && (
+            <Button
+              onClick={() => setView(view === 'browse' ? 'create' : 'browse')}
+              variant={view === 'create' ? 'outline' : 'default'}
+              size="sm"
+              className="gap-1.5 shrink-0"
+            >
+              {view === 'create' ? 'Browse' : (
+                <>
+                  <Plus className="h-3.5 w-3.5" />
+                  Open List
+                </>
+              )}
+            </Button>
+          )}
         </div>
-        {user && (
-          <Button
-            onClick={() => setView(view === 'browse' ? 'create' : 'browse')}
-            variant={view === 'create' ? 'outline' : 'default'}
-            className="gap-2"
-          >
-            {view === 'create' ? 'Browse Slots' : (
-              <>
-                <Plus className="h-4 w-4" />
-                Open Your List
-              </>
-            )}
-          </Button>
-        )}
       </div>
+
+      <div className="px-4 py-6">
 
       {view === 'create' && user ? (
         <CreateSlotForm onSuccess={() => setView('browse')} />
