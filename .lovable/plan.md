@@ -1,45 +1,56 @@
 
 
-## Plan: Simplify the "Request New Mic" Form
+## Plan: Smart Data Organizer (AI-Powered Bulk Update Tool)
 
-### Problem
-The current `AddMicRequestForm` has 17 fields across 5 sections. Most users won't know (or need to provide) things like neighborhood, venue type, end time, stage time, or sign-up instructions. The admin can fill those in during review.
+### What It Does
+A new "Update" tab in the admin dashboard where you paste unstructured update messages (like the Buddha Room example), and AI parses them into actionable database updates — matching existing mics and showing a diff-style preview before committing.
 
-### Approach
-Reduce the form to **6 core fields** + 1 optional, and use **Mapbox Geocoding** (already integrated in the project) to auto-fill location data from the venue name.
+### Architecture
 
-### New Form Fields
+**1. New Edge Function: `parse-mic-updates`**
+- Takes raw text, sends it to Lovable AI (Gemini Flash) with a specialized prompt for *updates* (not new mics)
+- Uses tool calling to extract structured update operations:
+  - `action`: `update_time` | `update_cost` | `add_new` | `deactivate`
+  - `venue_name`, `day`, `old_start_time`, `new_start_time`, `cost`, `stage_time`, `open_mic` name, etc.
+- Returns an array of proposed changes
 
-**Required (4):**
-1. **Mic Name** — text input (same as now)
-2. **Venue** — text input with Mapbox Places autocomplete. When a place is selected, auto-populate: address, borough, neighborhood, city
-3. **Day of Week** — day picker (same as now)
-4. **Start Time** — time input (same as now)
+**2. New Component: `SmartUpdateInterface.tsx`**
+- **Input step**: Large textarea for pasting raw messages + "Parse Updates" button
+- **Preview step**: A table showing each proposed change with:
+  - Matched mic name + venue (auto-matched from `open_mics_historical` by venue + day + time)
+  - Change type badge (Time Change, New Mic, Cost Update)
+  - Before → After diff columns (e.g., `8:00 PM` → `7:30 PM`)
+  - Match confidence indicator (green = exact match found, yellow = fuzzy, red = no match / new mic)
+  - Checkbox per row to include/exclude
+- **Commit step**: Applies selected updates via Supabase update/insert calls
 
-**Optional (3):**
-5. **Cost** — text input (e.g., "Free", "$5", "1 drink min")
-6. **Host Instagram** — single field, auto-copied to `changes_updates` on submit
-7. **Notes** — textarea for anything else (sign-up instructions, rules, etc.)
+**3. Matching Logic (client-side)**
+- After AI returns parsed updates, the component fetches all mics and matches by `venue_name` (fuzzy) + `day` + `start_time`
+- Exact matches get auto-linked; ambiguous matches show a dropdown to pick the right mic
+- "Add new" actions route through the existing insert flow
 
-### Auto-fill from Mapbox
-When the user types a venue name, show a dropdown of Mapbox geocoding results (using the existing `GeocodingService` pattern and Mapbox token). On selection:
-- `location` = full address
-- `borough` = extracted from place context (Manhattan, Brooklyn, etc.)
-- `neighborhood` = extracted from Mapbox neighborhood context
-- `city` = extracted from place context
+**4. Admin Dashboard Integration**
+- Add a new "Update" tab trigger in the `TabsList` on `AdminInterface.tsx`
+- Render `<SmartUpdateInterface />` inside it
 
-The user sees a small confirmation line like "📍 123 Main St, East Village, Manhattan" below the venue input. They never manually pick borough/neighborhood.
+### Files to Create/Edit
 
-### Implementation
+| File | Action |
+|------|--------|
+| `supabase/functions/parse-mic-updates/index.ts` | Create — AI edge function for update parsing |
+| `supabase/config.toml` | Edit — register new function |
+| `src/components/admin/SmartUpdateInterface.tsx` | Create — main UI component |
+| `src/pages/AdminInterface.tsx` | Edit — add "Update" tab |
 
-| Step | What | File |
-|------|------|------|
-| 1 | Rewrite `AddMicRequestForm.tsx` — 6 fields, Mapbox venue autocomplete, auto-fill location data | `src/components/host/AddMicRequestForm.tsx` |
-| 2 | Update `MicRequestFormData` interface — keep all fields but only require `open_mic`, `venue_name`, `day`, `start_time` | Same file |
-| 3 | Copy `hosts_organizers` value into `changes_updates` on submit so admin gets the contact info automatically | Same file |
-
-No database changes needed — the `open_mics_requests` table already accepts all fields as nullable. The submit handler in `OpenMics.tsx` stays the same.
-
-### Technical Detail: Mapbox Venue Search
-Use Mapbox Geocoding API (already have the token via `getMapboxToken()` in `MapInitializer.ts`) with `types=poi,address` and debounced input. Extract borough from the `context` array in Mapbox results where `id` starts with `locality` or `place`. Map known NYC borough names. This keeps everything client-side with no new edge functions.
+### Edge Function Prompt Design
+The system prompt will instruct the AI to identify update *operations* rather than full mic records. For the Buddha Room example, it would return:
+```json
+[
+  { "action": "update_time", "venue_name": "The Buddha Room", "day": "Monday", "old_start_time": "4:00 PM", "new_start_time": "4:30 PM" },
+  { "action": "update_time", "venue_name": "The Buddha Room", "day": "Monday", "old_start_time": "8:00 PM", "new_start_time": "7:30 PM" },
+  { "action": "add_new", "venue_name": "The Buddha Room", "day": "Monday", "new_start_time": "9:00 PM", "stage_time": "6 minutes", "cost": "$5" },
+  { "action": "update_time", "venue_name": "The Buddha Room", "day": "Tuesday", "old_start_time": "8:00 PM", "new_start_time": "7:30 PM" },
+  { "action": "update_time", "venue_name": "The Buddha Room", "day": "Tuesday", "old_start_time": "10:00 PM", "new_start_time": "9:00 PM" }
+]
+```
 
