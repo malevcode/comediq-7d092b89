@@ -52,4 +52,7 @@ export interface OpenMic {
   creatorId?: string;
   signupMethod?: SignupMethod;
   signupUrl?: string;
+  slotsEnabled: boolean;
+  slotDurationMinutes: number;
+  pricePerSlot?: number;
 }

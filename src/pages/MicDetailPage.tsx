@@ -12,6 +12,7 @@ import { VerificationBadge } from "@/components/VerificationBadge";
 import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
+import { MicSlotsGrid } from "@/components/mic/MicSlotsGrid";
 
 function getMapUrl(location: string, venueName: string) {
   const searchQuery = encodeURIComponent(`${venueName}, ${location}`);
@@ -185,6 +186,17 @@ const MicDetailPage = () => {
                   <p className="whitespace-pre-wrap">{mic.signUpInstructions || 'Contact venue for details'}</p>
                 </CardContent>
               </Card>
+
+              {/* Comediq Slots! */}
+              {mic.slotsEnabled && (
+                <MicSlotsGrid
+                  micId={mic.uniqueIdentifier}
+                  micDay={mic.day}
+                  startTime={mic.startTime}
+                  slotDurationMinutes={mic.slotDurationMinutes}
+                  pricePerSlot={mic.pricePerSlot}
+                />
+              )}
 
               {/* Venue Details */}
               <Card>
