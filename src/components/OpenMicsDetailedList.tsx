@@ -225,7 +225,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
       } : undefined}
     >
       {/* Left: Name, Location, Date */}
-      <div className="flex-1 min-w-0 mr-1 text-center md:text-left">
+      <div className="flex-1 min-w-0 mr-1 text-center">
         <div className="flex items-center w-full">
           {/* Left spacer for balance */}
           <div className="flex-1" />
@@ -256,7 +256,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
           </div>
         </div>
         <div className="text-xs text-muted-foreground mb-0.5">
-          <span className="flex items-center gap-1 justify-center md:justify-start">
+          <span className="flex items-center gap-1 justify-center">
             <MapPin className="w-3 h-3 flex-shrink-0" />
             <a 
               href={getMapUrl(mic.location, mic.venueName)}
@@ -279,8 +279,8 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
               </span>
             )}
           </span>
-          <span className="flex flex-row md:flex-col gap-1.5 md:gap-0 justify-center md:justify-start">
-            <span className="flex items-center gap-1 justify-center md:justify-start">
+          <span className="flex flex-row md:flex-col gap-1.5 md:gap-0 justify-center">
+            <span className="flex items-center gap-1 justify-center">
               <Calendar className="w-3 h-3 flex-shrink-0" />
               {mic.frequency === 'weekly' ? '' : `${FREQUENCY_LABELS[mic.frequency]} · `}{mic.day}
             </span>

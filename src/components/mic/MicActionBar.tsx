@@ -98,7 +98,7 @@ export default function MicActionBar({
 
   return (
     <div className={cn("relative", className)}>
-      <div className="flex items-center justify-evenly border-t border-border pt-1 mt-0.5">
+      <div className="flex items-center justify-evenly pt-1 mt-0.5">
         <Button variant="ghost" size="sm" onClick={handleLike} disabled={isRating}
           className={cn("flex items-center gap-1 px-2 py-1 h-auto", isLiked && "text-red-500")}>
           <Heart className={cn("w-4 h-4 transition-all", isLiked && "fill-red-500 text-red-500")} />
