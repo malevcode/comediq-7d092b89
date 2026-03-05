@@ -3,7 +3,7 @@ import { OpenMic } from '@/types/openMic';
 import { formatTime, formatCost, formatStageTime, formatDistance, calculateDistance, getMicLiveStatus } from './MapUtils';
 import { X, MapPin, Clock, DollarSign, Mic, ChevronUp, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PlaylistSelectorDropdown } from '@/components/mic/PlaylistSelectorDropdown';
+import PlaylistSelectorDropdown from '@/components/mic/PlaylistSelectorDropdown';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface MapBottomSheetProps {
