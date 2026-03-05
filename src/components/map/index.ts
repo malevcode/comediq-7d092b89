@@ -14,6 +14,7 @@ export { TokenInput } from './TokenInput';
 
 // Utilities
 export * from './MapUtils';
+export { default as MapBottomSheet } from './MapBottomSheet';
 
 // Types
 export type { GeocodingProgress, ViewportBounds } from './GeocodingService';
