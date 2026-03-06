@@ -91,16 +91,11 @@ const GrowthOpportunities = () => {
         <PageHeader title="Growth" subtitle="Level up your comedy career" />
 
         <div className="pt-28 px-4 max-w-4xl mx-auto pb-24">
-          <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="mb-6 flex items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
               Training, barking gigs, and festivals for comedians.
             </p>
             <SubmitOpportunityForm />
-          </div>
-
-          {/* Prominent Add CTA */}
-          <div className="mb-6">
-            <SubmitOpportunityForm asButton />
           </div>
 
           <Tabs value={tab} onValueChange={setTab} className="w-full">
