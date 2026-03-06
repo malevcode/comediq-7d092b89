@@ -69,7 +69,6 @@ const GrowthOpportunities = () => {
     festivals: { title: "No festivals listed yet", sub: "Know about a comedy festival? Submit it!" },
   };
 
-  // Sort: featured first, then by date
   const sortedOpportunities = opportunities
     ? [...opportunities].sort((a, b) => {
         if (a.is_featured && !b.is_featured) return -1;
@@ -91,7 +90,7 @@ const GrowthOpportunities = () => {
       <div className="min-h-screen bg-background pb-20">
         <PageHeader title="Growth" subtitle="Level up your comedy career" />
 
-        <div className="pt-24 px-4 max-w-4xl mx-auto pb-24">
+        <div className="pt-28 px-4 max-w-4xl mx-auto pb-24">
           <div className="mb-6 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               Training, barking gigs, and festivals for comedians.

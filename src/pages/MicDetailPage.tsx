@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useMicRatings } from "@/hooks/useMicRatings";
 import { parseVenueSlug, slugify } from "@/utils/slugify";
@@ -7,7 +7,7 @@ import SEO from "@/components/SEO";
 import { generateEventSchema, generateLocalBusinessSchema, generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock, DollarSign, MapPin, UserRoundCheck, Heart, ArrowLeft, ExternalLink, Navigation, TicketCheck } from "lucide-react";
+import { Calendar, Clock, DollarSign, MapPin, UserRoundCheck, Heart, ExternalLink, Navigation, TicketCheck } from "lucide-react";
 import { VerificationBadge } from "@/components/VerificationBadge";
 import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,7 +28,6 @@ const MicDetailPage = () => {
   const { data: mics, isLoading } = useOpenMics();
   const { user } = useAuth();
 
-  // Find mic by matching slug
   const mic = mics?.find(m => {
     const micSlug = `${slugify(m.venueName)}-${slugify(m.neighborhood)}`;
     return micSlug === venueSlug;
@@ -36,7 +35,6 @@ const MicDetailPage = () => {
 
   const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(mic?.uniqueIdentifier || '');
 
-  // Find and score similar mics by relevance
   const similarMics = mic ? mics?.filter(m => {
     if (m.uniqueIdentifier === mic.uniqueIdentifier) return false;
     return m.borough === mic.borough || m.day === mic.day || m.cost === mic.cost || m.neighborhood === mic.neighborhood;
@@ -50,7 +48,6 @@ const MicDetailPage = () => {
       if (sameDay) score += 2;
     }
     if (m.cost === mic.cost) score += 1;
-    // Similar start time (within 1 hour)
     const parseTime = (t: string) => {
       const c = t.trim().toUpperCase();
       const m12 = c.match(/^(\d{1,2}):?(\d{2})?\s*(AM|PM)$/);
@@ -117,7 +114,7 @@ const MicDetailPage = () => {
       <div className="min-h-screen pb-20 pt-28">
         {/* Slots context header for slots-enabled mics */}
         {mic.slotsEnabled && (
-          <div className="sticky top-0 z-30 bg-background border-b border-border px-4 py-3">
+          <div className="sticky top-[80px] z-30 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3">
             <div className="container mx-auto flex items-center justify-between">
               <div className="flex items-center gap-2 min-w-0">
                 <TicketCheck className="h-5 w-5 text-primary shrink-0" />
@@ -136,12 +133,6 @@ const MicDetailPage = () => {
         )}
 
         <div className="container mx-auto px-4 py-8">
-          {/* Back Button */}
-          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-
           {/* Hero Section */}
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-2">
@@ -261,7 +252,7 @@ const MicDetailPage = () => {
                         href={getMapUrl(mic.location, mic.venueName)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline flex items-center gap-1"
+                        className="text-primary hover:underline flex items-center gap-1"
                       >
                         {mic.location}
                         <ExternalLink className="w-3 h-3" />
@@ -289,42 +280,28 @@ const MicDetailPage = () => {
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Browse Links */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Browse Similar</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <Link 
-                    to={linkManager.borough(mic.borough)}
-                    className="block text-blue-600 hover:underline"
-                  >
+                  <Link to={linkManager.borough(mic.borough)} className="block text-primary hover:underline">
                     All mics in {mic.borough} →
                   </Link>
-                  <Link 
-                    to={linkManager.neighborhood(mic.neighborhood)}
-                    className="block text-blue-600 hover:underline"
-                  >
+                  <Link to={linkManager.neighborhood(mic.neighborhood)} className="block text-primary hover:underline">
                     More {mic.neighborhood} mics →
                   </Link>
-                  <Link 
-                    to={linkManager.micsByDay(mic.day)}
-                    className="block text-blue-600 hover:underline"
-                  >
+                  <Link to={linkManager.micsByDay(mic.day)} className="block text-primary hover:underline">
                     All {mic.day} mics →
                   </Link>
                   {mic.cost === 'Free' && (
-                    <Link 
-                      to={linkManager.freeMics()}
-                      className="block text-blue-600 hover:underline"
-                    >
+                    <Link to={linkManager.freeMics()} className="block text-primary hover:underline">
                       All free mics →
                     </Link>
                   )}
                 </CardContent>
               </Card>
 
-              {/* Similar Mics */}
               {similarMics && similarMics.length > 0 && (
                 <Card>
                   <CardHeader>

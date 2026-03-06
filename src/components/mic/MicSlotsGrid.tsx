@@ -2,12 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { getOrCreateNextEvent, signUpForEvent, fetchEventSignups } from '@/api/signups';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { Clock, AlertTriangle, Zap, PartyPopper, Star } from 'lucide-react';
+import { Clock, AlertTriangle, Zap, PartyPopper, Star, User } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 
 interface MicSlotsGridProps {
@@ -27,7 +26,6 @@ interface SlotSignup {
 }
 
 function calculateProjectedTime(startTime: string, slotIndex: number, durationMinutes: number): string {
-  // Parse start time like "7:00 PM", "7:30PM", "19:00"
   const cleaned = startTime.trim().toUpperCase();
   let hours = 0;
   let minutes = 0;
@@ -93,31 +91,21 @@ export function MicSlotsGrid({ micId, micDay, startTime, slotDurationMinutes, pr
   }, [user, loadData]);
 
   const handleBookSlot = async (slotIndex: number) => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-
+    if (!user) { navigate('/auth'); return; }
     if (pricePerSlot && pricePerSlot > 0) {
       toast({ title: 'Paid Slots Coming Soon', description: `This slot costs $${pricePerSlot}. Stripe integration launching soon!` });
       return;
     }
-
     try {
       setBookingSlot(slotIndex);
       await signUpForEvent(event.id);
-      
-      // Show confetti
       setBookedSlot(slotIndex);
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
-
       toast({
         title: '🎉 You\'re in!',
         description: `Slot #${slotIndex + 1} booked — stage time at ${calculateProjectedTime(startTime, slotIndex, slotDurationMinutes)}`,
       });
-
-      // Reload data
       await loadData();
       queryClient.invalidateQueries({ queryKey: ['signupEvents'] });
     } catch (err: any) {
@@ -174,7 +162,7 @@ export function MicSlotsGrid({ micId, micDay, startTime, slotDurationMinutes, pr
       )}
 
       <Card className="border-primary/30 bg-gradient-to-br from-background to-primary/5">
-        <CardHeader>
+        <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-primary" />
@@ -188,23 +176,23 @@ export function MicSlotsGrid({ micId, micDay, startTime, slotDurationMinutes, pr
             {slotDurationMinutes} min per slot · One-click signup
           </p>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           {!user && (
-            <div className="text-center py-4 border border-dashed border-border rounded-lg">
-              <p className="text-muted-foreground mb-2">Log in to grab a slot</p>
+            <div className="text-center py-3 border border-dashed border-border rounded-lg">
+              <p className="text-muted-foreground text-sm mb-2">Log in to grab a slot</p>
               <Button onClick={() => navigate('/auth')} size="sm">Log In</Button>
             </div>
           )}
 
           {user && userAlreadySignedUp && (
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/10 border border-primary/20">
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-primary/10 border border-primary/20">
               <PartyPopper className="w-4 h-4 text-primary" />
               <p className="text-sm font-medium text-primary">You&apos;re signed up for this event!</p>
             </div>
           )}
 
-          {/* Slots Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+          {/* Departure Board – single-line list */}
+          <div className="border border-border rounded-lg overflow-hidden divide-y divide-border">
             {Array.from({ length: totalSlots }).map((_, i) => {
               const signup = signups[i];
               const isAvailable = !signup;
@@ -212,57 +200,54 @@ export function MicSlotsGrid({ micId, micDay, startTime, slotDurationMinutes, pr
               const isBooked = bookedSlot === i;
 
               return (
-                <button
+                <div
                   key={i}
-                  onClick={() => isAvailable && !userAlreadySignedUp && handleBookSlot(i)}
-                  disabled={!isAvailable || userAlreadySignedUp || bookingSlot !== null || !user}
-                  className={`
-                    relative p-3 rounded-lg border text-left transition-all duration-200
-                    ${isAvailable && user && !userAlreadySignedUp
-                      ? 'border-primary/40 bg-primary/5 hover:bg-primary/15 hover:border-primary hover:shadow-md cursor-pointer'
-                      : isAvailable
-                        ? 'border-border bg-muted/30'
-                        : 'border-destructive/30 bg-destructive/5'
-                    }
-                    ${isBooked ? 'ring-2 ring-primary animate-pulse' : ''}
-                    ${bookingSlot === i ? 'opacity-70' : ''}
-                  `}
+                  className={`flex items-center gap-3 px-3 py-2 text-sm transition-colors ${
+                    isBooked ? 'bg-primary/10' : isAvailable ? 'hover:bg-muted/50' : 'bg-muted/20'
+                  }`}
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-muted-foreground">#{i + 1}</span>
-                    {isAvailable ? (
-                      <span className="w-2 h-2 rounded-full bg-green-500" />
-                    ) : (
-                      <span className="w-2 h-2 rounded-full bg-destructive" />
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+                  {/* Time */}
+                  <span className="w-[72px] shrink-0 text-xs font-mono text-muted-foreground flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {projectedTime}
-                  </div>
-                  {signup ? (
-                    <div className="flex items-center gap-1.5">
-                      <Avatar className="w-5 h-5">
-                        <AvatarFallback className="text-[10px] bg-destructive/20 text-destructive-foreground">
-                          {(signup.profiles?.username || '?')[0].toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-xs font-medium truncate">
+                  </span>
+
+                  {/* Slot # */}
+                  <span className="w-8 shrink-0 text-xs font-bold text-muted-foreground">
+                    #{i + 1}
+                  </span>
+
+                  {/* Status indicator */}
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${isAvailable ? 'bg-green-500' : 'bg-destructive'}`} />
+
+                  {/* Name or Sign Up */}
+                  <div className="flex-1 min-w-0">
+                    {signup ? (
+                      <span className="text-sm font-medium truncate flex items-center gap-1.5">
+                        <User className="w-3 h-3 text-muted-foreground" />
                         {signup.profiles?.username || 'Comedian'}
                       </span>
-                    </div>
-                  ) : (
-                    <span className="text-xs font-medium text-primary">
-                      {bookingSlot === i ? 'Booking...' : 'Available'}
-                    </span>
-                  )}
-                </button>
+                    ) : (
+                      <button
+                        onClick={() => !userAlreadySignedUp && handleBookSlot(i)}
+                        disabled={userAlreadySignedUp || bookingSlot !== null || !user}
+                        className={`text-sm font-medium ${
+                          user && !userAlreadySignedUp
+                            ? 'text-primary hover:underline cursor-pointer'
+                            : 'text-muted-foreground'
+                        }`}
+                      >
+                        {bookingSlot === i ? 'Booking...' : 'Sign Up'}
+                      </button>
+                    )}
+                  </div>
+                </div>
               );
             })}
           </div>
 
           {/* No-show warning */}
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border">
+          <div className="flex items-start gap-2 p-2.5 rounded-lg bg-muted/50 border border-border">
             <AlertTriangle className="w-4 h-4 text-yellow-500 mt-0.5 shrink-0" />
             <div className="text-xs text-muted-foreground">
               <p>
