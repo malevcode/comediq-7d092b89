@@ -114,7 +114,7 @@ const MicDetailPage = () => {
       <div className="min-h-screen pb-20 pt-28">
         {/* Slots context header for slots-enabled mics */}
         {mic.slotsEnabled && (
-          <div className="sticky top-[80px] z-30 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3">
+          <div className="sticky top-[107px] z-[46] bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3">
             <div className="container mx-auto flex items-center justify-between">
               <div className="flex items-center gap-2 min-w-0">
                 <TicketCheck className="h-5 w-5 text-primary shrink-0" />
