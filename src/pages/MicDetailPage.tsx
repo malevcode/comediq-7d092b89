@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useMicRatings } from "@/hooks/useMicRatings";
 import { parseVenueSlug, slugify } from "@/utils/slugify";
@@ -7,7 +7,7 @@ import SEO from "@/components/SEO";
 import { generateEventSchema, generateLocalBusinessSchema, generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock, DollarSign, MapPin, UserRoundCheck, Heart, ArrowLeft, ExternalLink, Navigation } from "lucide-react";
+import { Calendar, Clock, DollarSign, MapPin, UserRoundCheck, Heart, ArrowLeft, ExternalLink, Navigation, TicketCheck } from "lucide-react";
 import { VerificationBadge } from "@/components/VerificationBadge";
 import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
