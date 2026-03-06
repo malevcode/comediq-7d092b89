@@ -89,16 +89,9 @@ const Slots = () => {
           </div>
 
           <div className="px-4 pt-4 pb-6">
-            {/* Host CTA */}
-            {!user ? (
-              <Link to="/auth" className="block mb-4">
-                <Button variant="outline" className="w-full gap-2 h-11 text-sm">
-                  <Plus className="h-4 w-4" />
-                  Log in to list your mic slots
-                </Button>
-              </Link>
-            ) : view === 'browse' && (
-              <Link to="/host-dashboard" className="block mb-4">
+            {/* Host CTA — always visible */}
+            {view === 'browse' && (
+              <Link to={user ? "/host-dashboard" : "/auth"} className="block mb-4">
                 <Button variant="outline" className="w-full gap-2 h-11 text-sm">
                   <Plus className="h-4 w-4" />
                   List My Mic Slots
