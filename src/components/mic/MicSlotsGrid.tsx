@@ -7,8 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getOrCreateNextEvent, signUpForEvent, fetchEventSignups } from '@/api/signups';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { Clock, AlertTriangle, Zap, PartyPopper } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Clock, AlertTriangle, Zap, PartyPopper, Star } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 
 interface MicSlotsGridProps {
   micId: string;
@@ -264,10 +264,18 @@ export function MicSlotsGrid({ micId, micDay, startTime, slotDurationMinutes, pr
           {/* No-show warning */}
           <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border">
             <AlertTriangle className="w-4 h-4 text-yellow-500 mt-0.5 shrink-0" />
-            <p className="text-xs text-muted-foreground">
-              No-shows result in a <span className="font-semibold text-destructive">-50 point</span> deduction.
-              Please cancel in advance if you can&apos;t make it.
-            </p>
+            <div className="text-xs text-muted-foreground">
+              <p>
+                No-shows result in a <span className="font-semibold text-destructive">-5 point</span> deduction.
+                Please cancel in advance if you can&apos;t make it.
+              </p>
+              {user && (
+                <Link to="/profile" className="inline-flex items-center gap-1 mt-1 text-primary hover:underline font-medium">
+                  <Star className="w-3 h-3" />
+                  View My Points
+                </Link>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

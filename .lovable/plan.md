@@ -1,51 +1,45 @@
 
 
-# Fix MicDetailPage: Spacing, Slots UX, Points, and Recommendations
+## Plan: Simplify the "Request New Mic" Form
 
-## Problems
-1. **Spacing**: Mic name gets clipped under the ad/marquee banner — page lacks `pt-28` used everywhere else
-2. **"How to Sign Up" section**: Redundant for slots-enabled mics — Comediq Slots IS the signup method
-3. **Quick Info whitespace**: Too much padding in the grid layout
-4. **Points deduction**: Should be -5, not -50
-5. **No "My Points" link**: Users can't see their points from the slots warning or profile
-6. **"You Might Also Like" sorting**: Currently random — should prioritize same day + same neighborhood + similar time
+### Problem
+The current `AddMicRequestForm` has 17 fields across 5 sections. Most users won't know (or need to provide) things like neighborhood, venue type, end time, stage time, or sign-up instructions. The admin can fill those in during review.
 
-## Changes
+### Approach
+Reduce the form to **6 core fields** + 1 optional, and use **Mapbox Geocoding** (already integrated in the project) to auto-fill location data from the venue name.
 
-### 1. `src/pages/MicDetailPage.tsx`
+### New Form Fields
 
-- Add `pt-28` to the main container to clear header + marquee
-- **Hide "How to Sign Up" card** when `mic.slotsEnabled === true` (the MicSlotsGrid replaces it)
-- **Move MicSlotsGrid above** the "How to Sign Up" / Venue Details section for prominence
-- **Reduce Quick Info whitespace**: Change `gap-4` → `gap-2` in the grid, reduce card padding
-- **Sort "You Might Also Like"**: Score each similar mic by relevance:
-  - +3 same day AND same neighborhood
-  - +2 same neighborhood only
-  - +2 same day only
-  - +1 same cost
-  - +1 similar start time (within 1 hour)
-  - Sort descending by score, take top 6
+**Required (4):**
+1. **Mic Name** — text input (same as now)
+2. **Venue** — text input with Mapbox Places autocomplete. When a place is selected, auto-populate: address, borough, neighborhood, city
+3. **Day of Week** — day picker (same as now)
+4. **Start Time** — time input (same as now)
 
-### 2. `src/components/mic/MicSlotsGrid.tsx`
+**Optional (3):**
+5. **Cost** — text input (e.g., "Free", "$5", "1 drink min")
+6. **Host Instagram** — single field, auto-copied to `changes_updates` on submit
+7. **Notes** — textarea for anything else (sign-up instructions, rules, etc.)
 
-- Change `-50 point` → `-5 point` in the no-show warning text
-- Add a "View My Points" link next to the warning that navigates to `/profile`
+### Auto-fill from Mapbox
+When the user types a venue name, show a dropdown of Mapbox geocoding results (using the existing `GeocodingService` pattern and Mapbox token). On selection:
+- `location` = full address
+- `borough` = extracted from place context (Manhattan, Brooklyn, etc.)
+- `neighborhood` = extracted from Mapbox neighborhood context
+- `city` = extracted from place context
 
-### 3. `src/pages/Profile.tsx`
+The user sees a small confirmation line like "📍 123 Main St, East Village, Manhattan" below the venue input. They never manually pick borough/neighborhood.
 
-- Add a points display card/badge showing `points_balance` from the user profile, so the "View My Points" link has a destination
+### Implementation
 
-### 4. Database migration
+| Step | What | File |
+|------|------|------|
+| 1 | Rewrite `AddMicRequestForm.tsx` — 6 fields, Mapbox venue autocomplete, auto-fill location data | `src/components/host/AddMicRequestForm.tsx` |
+| 2 | Update `MicRequestFormData` interface — keep all fields but only require `open_mic`, `venue_name`, `day`, `start_time` | Same file |
+| 3 | Copy `hosts_organizers` value into `changes_updates` on submit so admin gets the contact info automatically | Same file |
 
-- Update the no-show trigger to deduct 5 instead of 50
-- Update any reference in `points_ledger` amount from -50 to -5
+No database changes needed — the `open_mics_requests` table already accepts all fields as nullable. The submit handler in `OpenMics.tsx` stays the same.
 
-## Files
-
-| Action | File |
-|--------|------|
-| Edit | `src/pages/MicDetailPage.tsx` — spacing, hide signup card for slots mics, better recommendation sorting |
-| Edit | `src/components/mic/MicSlotsGrid.tsx` — change -50 to -5, add "View My Points" link |
-| Edit | `src/pages/Profile.tsx` — add points balance display |
-| Migration | Update trigger function to deduct 5 points instead of 50 |
+### Technical Detail: Mapbox Venue Search
+Use Mapbox Geocoding API (already have the token via `getMapboxToken()` in `MapInitializer.ts`) with `types=poi,address` and debounced input. Extract borough from the `context` array in Mapbox results where `id` starts with `locality` or `place`. Map known NYC borough names. This keeps everything client-side with no new edge functions.
 

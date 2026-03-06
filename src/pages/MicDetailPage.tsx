@@ -36,11 +36,38 @@ const MicDetailPage = () => {
 
   const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(mic?.uniqueIdentifier || '');
 
-  // Find similar mics (same borough, day, or cost)
-  const similarMics = mics?.filter(m => {
-    if (!mic || m.uniqueIdentifier === mic.uniqueIdentifier) return false;
-    return m.borough === mic.borough || m.day === mic.day || m.cost === mic.cost;
-  }).slice(0, 6);
+  // Find and score similar mics by relevance
+  const similarMics = mic ? mics?.filter(m => {
+    if (m.uniqueIdentifier === mic.uniqueIdentifier) return false;
+    return m.borough === mic.borough || m.day === mic.day || m.cost === mic.cost || m.neighborhood === mic.neighborhood;
+  }).map(m => {
+    let score = 0;
+    const sameDay = m.day === mic.day;
+    const sameNeighborhood = m.neighborhood === mic.neighborhood;
+    if (sameDay && sameNeighborhood) score += 3;
+    else {
+      if (sameNeighborhood) score += 2;
+      if (sameDay) score += 2;
+    }
+    if (m.cost === mic.cost) score += 1;
+    // Similar start time (within 1 hour)
+    const parseTime = (t: string) => {
+      const c = t.trim().toUpperCase();
+      const m12 = c.match(/^(\d{1,2}):?(\d{2})?\s*(AM|PM)$/);
+      if (m12) {
+        let h = parseInt(m12[1]);
+        const min = parseInt(m12[2] || '0');
+        if (m12[3] === 'PM' && h !== 12) h += 12;
+        if (m12[3] === 'AM' && h === 12) h = 0;
+        return h * 60 + min;
+      }
+      return null;
+    };
+    const t1 = parseTime(mic.startTime);
+    const t2 = parseTime(m.startTime);
+    if (t1 !== null && t2 !== null && Math.abs(t1 - t2) <= 60) score += 1;
+    return { mic: m, score };
+  }).sort((a, b) => b.score - a.score).slice(0, 6).map(s => s.mic) : [];
 
   if (isLoading) {
     return <div className="container mx-auto px-4 py-16">Loading...</div>;
@@ -87,7 +114,7 @@ const MicDetailPage = () => {
         structuredData={structuredData}
       />
 
-      <div className="min-h-screen pb-20">
+      <div className="min-h-screen pb-20 pt-28">
         <div className="container mx-auto px-4 py-8">
           {/* Back Button */}
           <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
@@ -138,7 +165,7 @@ const MicDetailPage = () => {
                 <CardHeader>
                   <CardTitle>Quick Info</CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-4">
+                <CardContent className="grid grid-cols-2 gap-2 py-3">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-5 h-5 text-muted-foreground" />
                     <div>
@@ -177,16 +204,6 @@ const MicDetailPage = () => {
                 </CardContent>
               </Card>
 
-              {/* Sign-Up Instructions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>How to Sign Up</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="whitespace-pre-wrap">{mic.signUpInstructions || 'Contact venue for details'}</p>
-                </CardContent>
-              </Card>
-
               {/* Comediq Slots! */}
               {mic.slotsEnabled && (
                 <MicSlotsGrid
@@ -196,6 +213,18 @@ const MicDetailPage = () => {
                   slotDurationMinutes={mic.slotDurationMinutes}
                   pricePerSlot={mic.pricePerSlot}
                 />
+              )}
+
+              {/* Sign-Up Instructions (only for non-slots mics) */}
+              {!mic.slotsEnabled && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>How to Sign Up</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="whitespace-pre-wrap">{mic.signUpInstructions || 'Contact venue for details'}</p>
+                  </CardContent>
+                </Card>
               )}
 
               {/* Venue Details */}
