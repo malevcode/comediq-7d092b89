@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useMicRatings } from "@/hooks/useMicRatings";
 import { parseVenueSlug, slugify } from "@/utils/slugify";
@@ -7,7 +7,7 @@ import SEO from "@/components/SEO";
 import { generateEventSchema, generateLocalBusinessSchema, generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock, DollarSign, MapPin, UserRoundCheck, Heart, ArrowLeft, ExternalLink, Navigation } from "lucide-react";
+import { Calendar, Clock, DollarSign, MapPin, UserRoundCheck, Heart, ArrowLeft, ExternalLink, Navigation, TicketCheck } from "lucide-react";
 import { VerificationBadge } from "@/components/VerificationBadge";
 import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
@@ -115,6 +115,26 @@ const MicDetailPage = () => {
       />
 
       <div className="min-h-screen pb-20 pt-28">
+        {/* Slots context header for slots-enabled mics */}
+        {mic.slotsEnabled && (
+          <div className="sticky top-0 z-30 bg-background border-b border-border px-4 py-3">
+            <div className="container mx-auto flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                <TicketCheck className="h-5 w-5 text-primary shrink-0" />
+                <div className="min-w-0">
+                  <h2 className="text-base font-bold leading-tight">Slots</h2>
+                  <p className="text-xs text-muted-foreground">Sign up for open mic spots or open your own list</p>
+                </div>
+              </div>
+              <Link to="/slots">
+                <Button variant="outline" size="sm" className="text-xs shrink-0">
+                  All Slots
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+
         <div className="container mx-auto px-4 py-8">
           {/* Back Button */}
           <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
