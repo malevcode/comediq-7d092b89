@@ -160,14 +160,15 @@ export class ClusterManager {
       },
     });
 
-    // Individual mic pins – dark pill markers
+    // Individual mic pins – neon pill markers
+    // Green glow = open mics, Orange glow = showcases (venueType)
     this.map.addLayer({
       id: UNCLUSTERED_LAYER,
       type: 'circle',
       source: SOURCE_ID,
       filter: ['!', ['has', 'point_count']],
       paint: {
-        'circle-color': '#111827',
+        'circle-color': '#0f1a2e',
         'circle-radius': [
           'match', ['get', 'liveStatus'],
           'live', 11,
@@ -182,7 +183,7 @@ export class ClusterManager {
           'today', '#f97316',
           [
             'match', ['get', 'status'],
-            'verified', '#818cf8',
+            'verified', '#1a5fb4',
             'trial', '#fbbf24',
             '#6b7280',
           ],
