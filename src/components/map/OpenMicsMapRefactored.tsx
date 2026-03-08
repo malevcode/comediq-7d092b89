@@ -180,9 +180,9 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
     try {
       map.current = initializeMap({
         container: mapContainer.current,
-        center: [-73.935242, 40.73061],
-        zoom: 10,
-        pitch: 45,
+        center: DEFAULT_CENTER,
+        zoom: DEFAULT_ZOOM,
+        pitch: 40,
         bearing: -10,
       });
 
