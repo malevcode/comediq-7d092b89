@@ -129,21 +129,21 @@ export class ClusterManager {
       },
     });
 
-    // Cluster circles – dark with neon border
+    // Cluster circles – Comediq Royal Blue with cream count
     this.map.addLayer({
       id: CLUSTER_LAYER,
       type: 'circle',
       source: SOURCE_ID,
       filter: ['has', 'point_count'],
       paint: {
-        'circle-color': '#111827',
+        'circle-color': '#1a5fb4',
         'circle-radius': ['step', ['get', 'point_count'], 20, 10, 26, 30, 32],
         'circle-stroke-width': 2,
-        'circle-stroke-color': '#22d3ee',
+        'circle-stroke-color': '#f5f0e6',
       },
     });
 
-    // Cluster count labels – neon cyan
+    // Cluster count labels – Comediq Cream
     this.map.addLayer({
       id: CLUSTER_COUNT_LAYER,
       type: 'symbol',
@@ -156,7 +156,7 @@ export class ClusterManager {
         'text-allow-overlap': true,
       },
       paint: {
-        'text-color': '#22d3ee',
+        'text-color': '#f5f0e6',
       },
     });
 
