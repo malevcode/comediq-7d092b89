@@ -41,7 +41,7 @@ export default function FloatingSearchBar({
             onClick={onAddMic}
             variant="outline"
             size="sm"
-            className="flex items-center gap-1 px-3 py-2 bg-green-50/80 border-green-300 text-green-700 hover:bg-green-100 rounded-xl"
+            className="flex items-center gap-1 px-3 py-2 rounded-xl"
           >
             <Plus className="h-4 w-4" />
           </Button>
