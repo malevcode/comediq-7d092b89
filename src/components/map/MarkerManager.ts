@@ -11,8 +11,8 @@ export interface MarkerData {
 }
 
 export class MarkerManager {
-  private map: mapboxgl.Map;
-  private markers: mapboxgl.Marker[] = [];
+  private map: maplibregl.Map;
+  private markers: maplibregl.Marker[] = [];
   private micData: OpenMic[] = [];
   private loadedMicIds: Set<string> = new Set();
   private userLocation: [number, number] | null = null;
