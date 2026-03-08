@@ -97,7 +97,6 @@ const MapBottomSheet: React.FC<MapBottomSheetProps> = ({
           )}
         </div>
 
-        {/* Actions */}
         <div className="flex gap-2">
           <Button
             size="sm"
@@ -106,9 +105,6 @@ const MapBottomSheet: React.FC<MapBottomSheetProps> = ({
           >
             View Details
           </Button>
-          {user && (
-            <PlaylistSelectorDropdown micId={mic.uniqueIdentifier} />
-          )}
         </div>
 
         {/* Expanded */}
