@@ -196,7 +196,7 @@ export class MarkerManager {
     console.log('User location marker added successfully:', coordinates);
   }
 
-  public getCurrentViewportBounds(): mapboxgl.LngLatBounds {
+  public getCurrentViewportBounds(): maplibregl.LngLatBounds {
     return this.map.getBounds();
   }
 
