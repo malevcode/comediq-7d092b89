@@ -44,7 +44,7 @@ function TransitRow({ mic, onSelect }: { mic: OpenMic; onSelect?: (mic: OpenMic)
 
   const handleVerify = (e: React.MouseEvent) => {
     e.stopPropagation();
-    verifyMic();
+    verify();
   };
 
   return (
