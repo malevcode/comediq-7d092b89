@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { Search, HelpCircle, LogIn, Plus } from "lucide-react";
+import { Search, HelpCircle, LogIn, Plus, Map, List } from "lucide-react";
 import SEO from "@/components/SEO";
 import { generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Input } from "@/components/ui/input";
@@ -28,8 +28,9 @@ const OpenMics = () => {
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [activeTab, setActiveTab] = useState("next");
   const [showKey, setShowKey] = useState(false);
-  // Legacy: viewMode state preserved for future revert. Map is now the only public view.
-  const [viewMode, setViewMode] = useState<"list" | "grid" | "map">("map");
+  const [viewMode, setViewMode] = useState<"list" | "map">(() => {
+    return (localStorage.getItem('comediq_view_pref') as "list" | "map") || "map";
+  });
   const [visibleCount, setVisibleCount] = useState(100);
   const [showRequestModal, setShowRequestModal] = useState(false);
 
@@ -323,6 +324,12 @@ const OpenMics = () => {
     ? `Discover comedy open mics in ${filters.borough}. Real-time schedules, venue details, and comedian reviews.`
     : "Find every comedy open mic in NYC. Real-time schedules, venue details, comedian reviews, and set tracking.";
 
+  const toggleViewMode = () => {
+    const next = viewMode === "map" ? "list" : "map";
+    setViewMode(next);
+    localStorage.setItem('comediq_view_pref', next);
+  };
+
   return (
     <>
       <SEO
@@ -332,40 +339,111 @@ const OpenMics = () => {
         structuredData={breadcrumbSchema}
       />
 
-      {/* ── Map-First Full-Screen Layout ─────────────────────────── */}
-      <div className="fixed inset-0 top-0 z-0">
-        <OpenMicsMap
-          key={`map-${mapMics.length}`}
-          mics={mapMics}
-          onMicSelect={handleMicSelect}
-        />
-      </div>
+      {viewMode === "map" ? (
+        <>
+          {/* ── Map-First Full-Screen Layout ─────────────────────────── */}
+          <div className="fixed inset-0 top-0 z-0">
+            <OpenMicsMap
+              key={`map-${mapMics.length}`}
+              mics={mapMics}
+              onMicSelect={handleMicSelect}
+            />
+          </div>
 
-      {/* ── Floating Search & Filters (glassmorphism) ────────────── */}
-      <div className="fixed top-[80px] left-0 right-0 z-[35]">
-        <FloatingSearchBar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          filters={filters}
-          onFiltersChange={setFilters}
-          maxCost={maxCost}
-          boroughs={boroughs}
-          cities={cities}
-          onAddMic={() => setShowRequestModal(true)}
-        />
-      </div>
+          {/* ── Floating Search & Filters (glassmorphism) ────────────── */}
+          <div className="fixed top-[80px] left-0 right-0 z-[35]">
+            <FloatingSearchBar
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              filters={filters}
+              onFiltersChange={setFilters}
+              maxCost={maxCost}
+              boroughs={boroughs}
+              cities={cities}
+              onAddMic={() => setShowRequestModal(true)}
+            />
+          </div>
 
-      {/* ── Transit Drawer (Bottom Sheet) ────────────────────────── */}
-      <div className="fixed inset-x-0 bottom-0 z-[10]">
-        <MicTransitDrawer
-          mics={mapMics}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          getFilteredMics={getFilteredMics}
-          likedMics={likedMics}
-          onMicSelect={handleMicSelect}
-        />
-      </div>
+          {/* ── View Toggle Button ───────────────────────────────────── */}
+          <button
+            onClick={toggleViewMode}
+            className="fixed top-[80px] right-4 z-[40] flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-comediq-cream text-comediq-blue text-xs font-semibold shadow-lg hover:bg-white transition-colors"
+          >
+            <List className="w-3.5 h-3.5" />
+            List
+          </button>
+
+          {/* ── Transit Drawer (Bottom Sheet) ────────────────────────── */}
+          <div className="fixed inset-x-0 bottom-0 z-[10]">
+            <MicTransitDrawer
+              mics={mapMics}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              getFilteredMics={getFilteredMics}
+              likedMics={likedMics}
+              onMicSelect={handleMicSelect}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          {/* ── List View ────────────────────────────────────────────── */}
+          <div className="min-h-screen bg-background pt-20 pb-24">
+            <div className="px-3">
+              {/* Search + Filters + Toggle */}
+              <div className="flex items-center gap-2 mb-3">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search mics, venues..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 py-2 text-sm"
+                  />
+                </div>
+                <Button
+                  onClick={() => setShowRequestModal(true)}
+                  variant="outline"
+                  size="sm"
+                  className="px-3"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+                <MicFilters
+                  filters={filters}
+                  onFiltersChange={setFilters}
+                  maxCost={maxCost}
+                  boroughs={boroughs}
+                  cities={cities}
+                />
+                <button
+                  onClick={toggleViewMode}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-comediq-blue text-comediq-cream text-xs font-semibold shadow hover:bg-comediq-blue-dark transition-colors"
+                >
+                  <Map className="w-3.5 h-3.5" />
+                  Map
+                </button>
+              </div>
+
+              {/* Day Tabs */}
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-3">
+                <TabsList className={`grid w-full ${user ? "grid-cols-9" : "grid-cols-8"} h-8 gap-0.5`}>
+                  <TabsTrigger value="next" className="text-[10px] py-0.5 px-1">Next</TabsTrigger>
+                  {user && <TabsTrigger value="liked" className="text-[10px] py-0.5 px-1">❤️</TabsTrigger>}
+                  {daysOfWeek.map((day) => (
+                    <TabsTrigger key={day} value={day} className={`text-[10px] py-0.5 px-1 ${day === currentDay ? "font-bold" : ""}`}>
+                      {day.slice(0, 3)}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+
+              {/* Detailed List */}
+              <OpenMicsDetailedList mics={mapMics} visibleCount={visibleCount} setVisibleCount={setVisibleCount} />
+            </div>
+          </div>
+        </>
+      )}
 
       {/* ── Modals ───────────────────────────────────────────────── */}
       {selectedMic && (
