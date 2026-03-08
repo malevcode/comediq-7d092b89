@@ -1,6 +1,9 @@
-import mapboxgl from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
 import { OpenMic } from '@/types/openMic';
 import { getVerificationColor, formatTime, formatCost, formatStageTime, calculateDistance, formatDistance } from './MapUtils';
+
+// Legacy MarkerManager - kept for reference, not actively used (ClusterManager is primary)
+// All mapboxgl references updated to maplibregl for compatibility
 
 export interface MarkerData {
   coordinates: [number, number];
