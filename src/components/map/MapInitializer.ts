@@ -54,7 +54,6 @@ export const initializeMap = (config: MapConfig): maplibregl.Map => {
     bearing,
     maxZoom: 18,
     minZoom: 6,
-    antialias: true,
   });
 
   map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'top-right');
