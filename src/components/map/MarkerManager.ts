@@ -17,7 +17,7 @@ export class MarkerManager {
   private loadedMicIds: Set<string> = new Set();
   private userLocation: [number, number] | null = null;
 
-  constructor(map: mapboxgl.Map) {
+  constructor(map: maplibregl.Map) {
     this.map = map;
   }
 
