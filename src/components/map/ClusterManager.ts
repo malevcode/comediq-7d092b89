@@ -103,8 +103,8 @@ export class ClusterManager {
       type: 'geojson',
       data: this.toGeoJSON([]),
       cluster: true,
-      clusterMaxZoom: 14,
-      clusterRadius: 50,
+      clusterMaxZoom: 11,
+      clusterRadius: 40,
     });
 
     this.map.addSource(ROUTE_SOURCE_ID, {
