@@ -397,7 +397,7 @@ const OpenMics = () => {
                   <Input
                     placeholder="Search mics, venues..."
                     value={searchTerm}
-                    onChange={(e) => onSearchChange(e.target.value)}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 py-2 text-sm"
                   />
                 </div>
