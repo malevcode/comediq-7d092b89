@@ -57,7 +57,7 @@ export class MarkerManager {
   }
 
   // Remove markers outside current viewport
-  public removeMarkersOutsideViewport(bounds: mapboxgl.LngLatBounds): void {
+  public removeMarkersOutsideViewport(bounds: maplibregl.LngLatBounds): void {
     this.markers = this.markers.filter(marker => {
       const markerLngLat = marker.getLngLat();
       const isInBounds = bounds.contains(markerLngLat);
