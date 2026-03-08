@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Megaphone, Trophy, GraduationCap, Search } from "lucide-react";
+import { Megaphone, Trophy, GraduationCap, Search, Crown } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OpportunityCard } from "@/components/growth/OpportunityCard";
 import { SubmitOpportunityForm } from "@/components/growth/SubmitOpportunityForm";
+import { LeaderboardTab } from "@/components/growth/LeaderboardTab";
 import { useGrowthOpportunities } from "@/hooks/useGrowthOpportunities";
 import SEO from "@/components/SEO";
 
