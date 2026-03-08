@@ -61,13 +61,13 @@ export const useMicVerification = (micUniqueIdentifier?: string) => {
         
         // Show success animation
         setJustVerified(true);
-        setTimeout(() => setJustVerified(false), 2000);
+        setTimeout(() => setJustVerified(false), 4000);
 
         toast({
-          title: result.alreadyVerified ? "Already verified!" : "Thanks for verifying!",
+          title: result.alreadyVerified ? "Already verified!" : "🎉 +2 Points!",
           description: result.alreadyVerified 
             ? "You already verified this mic today." 
-            : "Your confirmation helps the community.",
+            : "Verification recorded. Your points have been updated!",
         });
       } else {
         toast({
