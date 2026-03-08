@@ -21,48 +21,19 @@ const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Fri
 
 function CondensedMicRow({ mic, onSelect }: { mic: OpenMic; onSelect?: (mic: OpenMic) => void }) {
   const liveStatus = getMicLiveStatus(mic.day, mic.startTime, mic.latestEndTime);
-
-  const accentClass =
-    liveStatus === 'live' || liveStatus === 'soon'
-      ? 'border-l-green-400'
-      : liveStatus === 'today'
-      ? 'border-l-orange-400'
-      : 'border-l-comediq-blue-light';
+  const isLive = liveStatus === 'live' || liveStatus === 'soon';
 
   return (
     <div
-      className={`flex items-center justify-between py-2 px-3 border-l-2 ${accentClass} hover:bg-comediq-blue-dark/30 cursor-pointer transition-colors rounded-r-lg`}
+      className="flex items-center gap-2 py-1 px-2 hover:bg-comediq-blue-dark/30 cursor-pointer transition-colors"
       onClick={() => onSelect?.(mic)}
     >
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        {/* Time pill */}
-        <span className={`text-xs font-bold whitespace-nowrap ${
-          liveStatus === 'live' || liveStatus === 'soon' ? 'text-green-400' : 'text-comediq-cream'
-        }`}>
-          {liveStatus === 'live' ? 'LIVE' : liveStatus === 'soon' ? 'SOON' : formatTimeShort(mic.startTime)}
-        </span>
-
-        <span className="text-comediq-blue-light/40">|</span>
-
-        {/* Venue */}
-        <span className="text-sm text-comediq-cream truncate font-medium">{mic.venueName}</span>
-
-        <span className="text-comediq-blue-light/30 hidden sm:inline">|</span>
-
-        {/* Cost */}
-        <span className="text-xs text-gray-400 hidden sm:inline">{formatCost(mic.cost)}</span>
-      </div>
-
-      {/* Right side: stage time + verify */}
-      <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-        <span className="text-[10px] text-gray-400">{formatStageTime(mic.stageTime)}min</span>
-        <VerificationBadge
-          micUniqueIdentifier={mic.uniqueIdentifier}
-          lastVerified={mic.lastVerified}
-          size="sm"
-          className="!py-0 !px-1.5 !text-[10px] !gap-0.5"
-        />
-      </div>
+      <span className={`text-[11px] font-bold whitespace-nowrap w-10 text-right ${isLive ? 'text-green-400' : 'text-comediq-cream'}`}>
+        {liveStatus === 'live' ? 'LIVE' : liveStatus === 'soon' ? 'SOON' : formatTimeShort(mic.startTime)}
+      </span>
+      <span className="text-comediq-blue-light/30">|</span>
+      <span className="text-[12px] text-comediq-cream truncate flex-1">{mic.venueName}</span>
+      <span className="text-[10px] text-comediq-cream/40 whitespace-nowrap">{formatCost(mic.cost)}</span>
     </div>
   );
 }
