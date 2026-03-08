@@ -219,7 +219,12 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
   useEffect(() => {
     return () => {
       clusterManager.current?.destroy();
-      map.current?.remove();
+      try {
+        map.current?.remove();
+      } catch (e) {
+        // Map may already be partially destroyed
+      }
+      map.current = null;
     };
   }, []);
 
