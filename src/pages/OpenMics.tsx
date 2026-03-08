@@ -28,8 +28,9 @@ const OpenMics = () => {
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [activeTab, setActiveTab] = useState("next");
   const [showKey, setShowKey] = useState(false);
-  // Legacy: viewMode state preserved for future revert. Map is now the only public view.
-  const [viewMode, setViewMode] = useState<"list" | "grid" | "map">("map");
+  const [viewMode, setViewMode] = useState<"list" | "map">(() => {
+    return (localStorage.getItem('comediq_view_pref') as "list" | "map") || "map";
+  });
   const [visibleCount, setVisibleCount] = useState(100);
   const [showRequestModal, setShowRequestModal] = useState(false);
 
