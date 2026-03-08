@@ -3,8 +3,7 @@ import { ChevronUp, ChevronDown, Calendar } from "lucide-react";
 import { OpenMic } from "@/types/openMic";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
-import { formatTimeShort, formatCost, formatStageTime, getMicLiveStatus } from "./MapUtils";
-import { VerificationBadge } from "@/components/VerificationBadge";
+import { formatTimeShort, formatCost, getMicLiveStatus } from "./MapUtils";
 
 type DrawerState = "peek" | "full";
 
