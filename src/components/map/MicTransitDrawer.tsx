@@ -1,11 +1,10 @@
 import { useState, useRef, useMemo } from "react";
-import { ChevronUp, ChevronDown, Calendar, CheckCircle2 } from "lucide-react";
+import { ChevronUp, ChevronDown, Calendar } from "lucide-react";
 import { OpenMic } from "@/types/openMic";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
-import { formatTimeShort, formatCost, formatStageTime, calculateDistance, formatDistance, getMicLiveStatus } from "./MapUtils";
+import { formatTimeShort, formatCost, formatStageTime, getMicLiveStatus } from "./MapUtils";
 import { VerificationBadge } from "@/components/VerificationBadge";
-import { useUserLocation } from "@/hooks/useUserLocation";
 
 type DrawerState = "peek" | "full";
 
@@ -22,49 +21,41 @@ const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Fri
 
 function CondensedMicRow({ mic, onSelect }: { mic: OpenMic; onSelect?: (mic: OpenMic) => void }) {
   const liveStatus = getMicLiveStatus(mic.day, mic.startTime, mic.latestEndTime);
-  const { userLocation } = useUserLocation();
 
-  let distanceStr: string | null = null;
-  // Distance calculation would need geocoded coords; skip for list view
-
-  const glowColor =
+  const accentClass =
     liveStatus === 'live' || liveStatus === 'soon'
-      ? 'border-l-green-500'
+      ? 'border-l-green-400'
       : liveStatus === 'today'
-      ? 'border-l-orange-500'
-      : mic.status === 'verified'
-      ? 'border-l-indigo-400'
-      : mic.status === 'trial'
-      ? 'border-l-amber-400'
-      : 'border-l-slate-600';
+      ? 'border-l-orange-400'
+      : 'border-l-comediq-blue-light';
 
   return (
     <div
-      className={`flex items-center justify-between py-2 px-3 border-l-2 ${glowColor} hover:bg-slate-800/50 cursor-pointer transition-colors rounded-r-lg`}
+      className={`flex items-center justify-between py-2 px-3 border-l-2 ${accentClass} hover:bg-comediq-blue-dark/30 cursor-pointer transition-colors rounded-r-lg`}
       onClick={() => onSelect?.(mic)}
     >
       <div className="flex items-center gap-3 flex-1 min-w-0">
         {/* Time pill */}
         <span className={`text-xs font-bold whitespace-nowrap ${
-          liveStatus === 'live' || liveStatus === 'soon' ? 'text-green-400' : 'text-cyan-400'
+          liveStatus === 'live' || liveStatus === 'soon' ? 'text-green-400' : 'text-comediq-cream'
         }`}>
           {liveStatus === 'live' ? 'LIVE' : liveStatus === 'soon' ? 'SOON' : formatTimeShort(mic.startTime)}
         </span>
 
-        <span className="text-slate-500">|</span>
+        <span className="text-comediq-blue-light/40">|</span>
 
         {/* Venue */}
-        <span className="text-sm text-slate-200 truncate font-medium">{mic.venueName}</span>
+        <span className="text-sm text-comediq-cream truncate font-medium">{mic.venueName}</span>
 
-        <span className="text-slate-600 hidden sm:inline">|</span>
+        <span className="text-comediq-blue-light/30 hidden sm:inline">|</span>
 
         {/* Cost */}
-        <span className="text-xs text-slate-400 hidden sm:inline">{formatCost(mic.cost)}</span>
+        <span className="text-xs text-gray-400 hidden sm:inline">{formatCost(mic.cost)}</span>
       </div>
 
-      {/* Right side: verification + stage time */}
+      {/* Right side: stage time + verify */}
       <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-        <span className="text-[10px] text-slate-500">{formatStageTime(mic.stageTime)}min</span>
+        <span className="text-[10px] text-gray-400">{formatStageTime(mic.stageTime)}min</span>
         <VerificationBadge
           micUniqueIdentifier={mic.uniqueIdentifier}
           lastVerified={mic.lastVerified}
@@ -114,7 +105,7 @@ export default function MicTransitDrawer({
 
   return (
     <div
-      className={`absolute bottom-0 left-0 right-0 z-[10] bg-slate-900/95 backdrop-blur-xl rounded-t-3xl shadow-[0_-8px_30px_-10px_rgba(0,0,0,0.5)] border-t border-slate-700/50 transition-all duration-500 ease-out ${
+      className={`absolute bottom-0 left-0 right-0 z-[10] bg-comediq-blue backdrop-blur-xl rounded-t-3xl shadow-[0_-8px_30px_-10px_rgba(0,0,0,0.5)] border-t border-comediq-blue-light/20 transition-all duration-500 ease-out ${
         drawerState === "full" ? "h-[90vh]" : "h-[32vh]"
       }`}
       onTouchStart={handleTouchStart}
@@ -125,8 +116,8 @@ export default function MicTransitDrawer({
         className="flex flex-col items-center pt-2 pb-1 cursor-pointer select-none"
         onClick={toggleDrawer}
       >
-        <div className="w-12 h-1.5 rounded-full bg-slate-600 mb-1" />
-        <div className="flex items-center gap-1.5 text-xs text-slate-500">
+        <div className="w-12 h-1.5 rounded-full bg-comediq-cream/30 mb-1" />
+        <div className="flex items-center gap-1.5 text-xs text-comediq-cream/60">
           {drawerState === "peek" ? (
             <>
               <ChevronUp className="w-3 h-3" />
@@ -144,12 +135,12 @@ export default function MicTransitDrawer({
       {/* Day Tabs */}
       <div className="px-3 pb-1">
         <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-          <TabsList className={`grid w-full ${user ? "grid-cols-9" : "grid-cols-8"} h-8 gap-1 bg-slate-800/80`}>
-            <TabsTrigger value="next" className="text-[10px] py-0.5 px-1 text-slate-400 data-[state=active]:bg-cyan-600 data-[state=active]:text-white">
+          <TabsList className={`grid w-full ${user ? "grid-cols-9" : "grid-cols-8"} h-8 gap-1 bg-comediq-blue-dark/60`}>
+            <TabsTrigger value="next" className="text-[10px] py-0.5 px-1 text-comediq-cream/70 data-[state=active]:bg-comediq-cream data-[state=active]:text-comediq-blue">
               Next
             </TabsTrigger>
             {user && (
-              <TabsTrigger value="liked" className="text-[10px] py-0.5 px-1 text-slate-400 data-[state=active]:bg-cyan-600 data-[state=active]:text-white">
+              <TabsTrigger value="liked" className="text-[10px] py-0.5 px-1 text-comediq-cream/70 data-[state=active]:bg-comediq-cream data-[state=active]:text-comediq-blue">
                 ❤️
               </TabsTrigger>
             )}
@@ -157,7 +148,7 @@ export default function MicTransitDrawer({
               <TabsTrigger
                 key={day}
                 value={day}
-                className={`text-[10px] py-0.5 px-1 text-slate-400 data-[state=active]:bg-cyan-600 data-[state=active]:text-white ${
+                className={`text-[10px] py-0.5 px-1 text-comediq-cream/70 data-[state=active]:bg-comediq-cream data-[state=active]:text-comediq-blue ${
                   day === todayName ? "font-bold" : ""
                 }`}
               >
@@ -173,8 +164,8 @@ export default function MicTransitDrawer({
         {/* Header */}
         <div className="flex items-center justify-between py-2 px-1">
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-cyan-400" />
-            <h2 className="text-sm font-semibold text-slate-200">
+            <Calendar className="w-4 h-4 text-comediq-cream" />
+            <h2 className="text-sm font-semibold text-comediq-cream">
               {activeTab === "next"
                 ? "Up Next"
                 : activeTab === "liked"
@@ -182,7 +173,7 @@ export default function MicTransitDrawer({
                 : `${activeTab}'s Mics`}
             </h2>
           </div>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-comediq-cream/50">
             {filteredMics.length} mic{filteredMics.length !== 1 ? "s" : ""}
           </span>
         </div>
@@ -197,7 +188,7 @@ export default function MicTransitDrawer({
         ) : (
           <div className="text-center py-8">
             <div className="text-3xl mb-2">🎤</div>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-comediq-cream/50">
               {activeTab === "liked"
                 ? "No liked mics yet"
                 : "No mics found — try adjusting your filters"}
@@ -207,13 +198,13 @@ export default function MicTransitDrawer({
 
         {/* Tomorrow hint */}
         {drawerState === "peek" && activeTab !== "liked" && (
-          <div className="mt-2 pt-2 border-t border-slate-700/30">
+          <div className="mt-2 pt-2 border-t border-comediq-cream/10">
             <button
               onClick={() => {
                 onTabChange(tomorrowName);
                 setDrawerState("full");
               }}
-              className="text-xs text-slate-500 hover:text-cyan-400 transition-colors w-full text-left"
+              className="text-xs text-comediq-cream/40 hover:text-comediq-cream transition-colors w-full text-left"
             >
               <span className="font-medium">{tomorrowName}'s Mics →</span>
             </button>
