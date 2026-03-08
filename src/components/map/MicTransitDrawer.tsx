@@ -151,7 +151,7 @@ export default function MicTransitDrawer({
 
         {/* Condensed Mic Rows */}
         {filteredMics.length > 0 ? (
-          <div className="space-y-0.5">
+          <div>
             {filteredMics.map((mic) => (
               <CondensedMicRow key={mic.uniqueIdentifier} mic={mic} onSelect={onMicSelect} />
             ))}

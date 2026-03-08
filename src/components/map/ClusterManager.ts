@@ -160,24 +160,29 @@ export class ClusterManager {
       },
     });
 
-    // Individual mic pins – Royal Blue pills with status glow
+    // Individual mic pins – Cream pills with Royal Blue text
     this.map.addLayer({
       id: UNCLUSTERED_LAYER,
       type: 'circle',
       source: SOURCE_ID,
       filter: ['!', ['has', 'point_count']],
       paint: {
-        'circle-color': '#1a5fb4',
+        'circle-color': '#f5f0e6',
         'circle-radius': [
           'match', ['get', 'liveStatus'],
-          'live', 11,
-          'soon', 10,
-          9,
+          'live', 13,
+          'soon', 12,
+          11,
         ],
         'circle-stroke-width': [
-          'match', ['get', 'status'],
-          'verified', 2.5,
-          2,
+          'match', ['get', 'liveStatus'],
+          'live', 2.5,
+          'soon', 2.5,
+          [
+            'match', ['get', 'status'],
+            'verified', 2,
+            1.5,
+          ],
         ],
         'circle-stroke-color': [
           'match', ['get', 'liveStatus'],
@@ -188,13 +193,13 @@ export class ClusterManager {
             'match', ['get', 'status'],
             'verified', '#22c55e',
             'trial', '#fbbf24',
-            '#f5f0e6',
+            '#1a5fb4',
           ],
         ],
       },
     });
 
-    // Time label on each pin – Cream text
+    // Time label on each pin – Royal Blue text on Cream
     this.map.addLayer({
       id: UNCLUSTERED_LABEL_LAYER,
       type: 'symbol',
@@ -203,12 +208,7 @@ export class ClusterManager {
       layout: {
         'text-field': ['get', 'timeLabel'],
         'text-font': ['Open Sans Bold'],
-        'text-size': [
-          'match', ['get', 'liveStatus'],
-          'live', 9,
-          'soon', 9,
-          10,
-        ],
+        'text-size': 10,
         'text-offset': [0, 0],
         'text-allow-overlap': false,
         'icon-allow-overlap': false,
@@ -216,11 +216,11 @@ export class ClusterManager {
       paint: {
         'text-color': [
           'match', ['get', 'liveStatus'],
-          'live', '#4ade80',
-          'soon', '#4ade80',
-          '#f5f0e6',
+          'live', '#16a34a',
+          'soon', '#16a34a',
+          '#1a5fb4',
         ],
-        'text-halo-color': '#1a5fb4',
+        'text-halo-color': '#f5f0e6',
         'text-halo-width': 1,
       },
     });
