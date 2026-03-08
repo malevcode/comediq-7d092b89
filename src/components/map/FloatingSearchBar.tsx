@@ -45,6 +45,7 @@ export default function FloatingSearchBar({
           >
             <Plus className="h-4 w-4" />
           </Button>
+
           <MicFilters
             filters={filters}
             onFiltersChange={onFiltersChange}
