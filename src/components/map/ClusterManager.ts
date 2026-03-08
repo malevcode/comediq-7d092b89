@@ -317,8 +317,8 @@ export class ClusterManager {
           ? '#22c55e'
           : liveStatus === 'today'
           ? '#f97316'
-          : props.status === 'verified' ? '#818cf8'
-          : props.status === 'trial' ? '#fbbf24' : '#6b7280';
+          : props.status === 'verified' ? '#22c55e'
+          : props.status === 'trial' ? '#fbbf24' : '#f5f0e6';
 
         const el = document.createElement('div');
         el.className = 'spider-leg-pin';
