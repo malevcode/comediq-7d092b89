@@ -160,22 +160,25 @@ export class ClusterManager {
       },
     });
 
-    // Individual mic pins – neon pill markers
-    // Green glow = open mics, Orange glow = showcases (venueType)
+    // Individual mic pins – Royal Blue pills with status glow
     this.map.addLayer({
       id: UNCLUSTERED_LAYER,
       type: 'circle',
       source: SOURCE_ID,
       filter: ['!', ['has', 'point_count']],
       paint: {
-        'circle-color': '#0f1a2e',
+        'circle-color': '#1a5fb4',
         'circle-radius': [
           'match', ['get', 'liveStatus'],
           'live', 11,
           'soon', 10,
           9,
         ],
-        'circle-stroke-width': 2,
+        'circle-stroke-width': [
+          'match', ['get', 'status'],
+          'verified', 2.5,
+          2,
+        ],
         'circle-stroke-color': [
           'match', ['get', 'liveStatus'],
           'live', '#22c55e',
@@ -183,15 +186,15 @@ export class ClusterManager {
           'today', '#f97316',
           [
             'match', ['get', 'status'],
-            'verified', '#1a5fb4',
+            'verified', '#22c55e',
             'trial', '#fbbf24',
-            '#6b7280',
+            '#f5f0e6',
           ],
         ],
       },
     });
 
-    // Neon time label on each pin
+    // Time label on each pin – Cream text
     this.map.addLayer({
       id: UNCLUSTERED_LABEL_LAYER,
       type: 'symbol',
@@ -215,10 +218,9 @@ export class ClusterManager {
           'match', ['get', 'liveStatus'],
           'live', '#4ade80',
           'soon', '#4ade80',
-          'today', '#fb923c',
-          '#e2e8f0',
+          '#f5f0e6',
         ],
-        'text-halo-color': '#111827',
+        'text-halo-color': '#1a5fb4',
         'text-halo-width': 1,
       },
     });
