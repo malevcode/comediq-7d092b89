@@ -363,6 +363,7 @@ const OpenMics = () => {
           onTabChange={setActiveTab}
           getFilteredMics={getFilteredMics}
           likedMics={likedMics}
+          onMicSelect={handleMicSelect}
         />
       </div>
 
