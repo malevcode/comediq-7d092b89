@@ -39,7 +39,8 @@ const truncateVenue = (name: string, max = 22): string => {
 function TransitRow({ mic, onSelect }: { mic: OpenMic; onSelect?: (mic: OpenMic) => void }) {
   const liveStatus = getMicLiveStatus(mic.day, mic.startTime, mic.latestEndTime);
   const isLive = liveStatus === 'live' || liveStatus === 'soon';
-  const { verifyMic, isVerifying, canVerify } = useMicVerification(mic.uniqueIdentifier);
+  const { verify, isVerifying, hasVerifiedToday } = useMicVerification(mic.uniqueIdentifier);
+  const canVerify = !hasVerifiedToday;
 
   const handleVerify = (e: React.MouseEvent) => {
     e.stopPropagation();
