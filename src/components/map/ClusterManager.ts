@@ -1,6 +1,6 @@
-import mapboxgl from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
 import { OpenMic } from '@/types/openMic';
-import { formatTime, formatCost, formatStageTime, calculateDistance, formatDistance, formatTimeShort, getMicLiveStatus } from './MapUtils';
+import { formatTimeShort, getMicLiveStatus } from './MapUtils';
 
 export interface MicFeature {
   type: 'Feature';
@@ -21,8 +21,8 @@ export interface MicFeature {
     neighborhood: string;
     day: string;
     isFree: boolean;
-    timeLabel: string;  // short label for pin (e.g. "6p", "LIVE")
-    liveStatus: string; // 'live' | 'soon' | 'today' | 'other'
+    timeLabel: string;
+    liveStatus: string;
   };
 }
 
@@ -34,14 +34,13 @@ const UNCLUSTERED_LABEL_LAYER = 'unclustered-label';
 const ROUTE_SOURCE_ID = 'route-source';
 const ROUTE_LAYER = 'route-line';
 
-// Spider state
 interface SpiderLeg {
-  marker: mapboxgl.Marker;
+  marker: maplibregl.Marker;
   mic: OpenMic;
 }
 
 export class ClusterManager {
-  private map: mapboxgl.Map;
+  private map: maplibregl.Map;
   private micLookup: Map<string, OpenMic> = new Map();
   private coordsLookup: Map<string, [number, number]> = new Map();
   private userLocation: [number, number] | null = null;
@@ -49,7 +48,7 @@ export class ClusterManager {
   private spiderLegs: SpiderLeg[] = [];
   private layersAdded = false;
 
-  constructor(map: mapboxgl.Map) {
+  constructor(map: maplibregl.Map) {
     this.map = map;
   }
 
@@ -65,7 +64,6 @@ export class ClusterManager {
     return this.coordsLookup.get(micId) || null;
   }
 
-  // ── Convert mics to GeoJSON ──────────────────────────────────────
   private toGeoJSON(mics: MicFeature[]): GeoJSON.FeatureCollection {
     return { type: 'FeatureCollection', features: mics };
   }
@@ -98,11 +96,9 @@ export class ClusterManager {
     };
   }
 
-  // ── Setup source + layers (call once after style loads) ──────────
   public setupLayers() {
     if (this.layersAdded) return;
 
-    // Add empty source
     this.map.addSource(SOURCE_ID, {
       type: 'geojson',
       data: this.toGeoJSON([]),
@@ -111,19 +107,18 @@ export class ClusterManager {
       clusterRadius: 50,
     });
 
-    // Route line source
     this.map.addSource(ROUTE_SOURCE_ID, {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] },
     });
 
-    // ── Route dashed line ──────────────────────────────────────────
+    // Route dashed line
     this.map.addLayer({
       id: ROUTE_LAYER,
       type: 'line',
       source: ROUTE_SOURCE_ID,
       paint: {
-        'line-color': '#3b82f6',
+        'line-color': '#22d3ee',
         'line-width': 2.5,
         'line-dasharray': [3, 3],
         'line-opacity': 0.7,
@@ -134,26 +129,21 @@ export class ClusterManager {
       },
     });
 
-    // ── Cluster circles ────────────────────────────────────────────
+    // Cluster circles – dark with neon border
     this.map.addLayer({
       id: CLUSTER_LAYER,
       type: 'circle',
       source: SOURCE_ID,
       filter: ['has', 'point_count'],
       paint: {
-        'circle-color': [
-          'step', ['get', 'point_count'],
-          '#51bbd6', 10,
-          '#f1f075', 30,
-          '#f28cb1',
-        ],
-        'circle-radius': ['step', ['get', 'point_count'], 18, 10, 24, 30, 30],
+        'circle-color': '#111827',
+        'circle-radius': ['step', ['get', 'point_count'], 20, 10, 26, 30, 32],
         'circle-stroke-width': 2,
-        'circle-stroke-color': '#fff',
+        'circle-stroke-color': '#22d3ee',
       },
     });
 
-    // ── Cluster count labels ───────────────────────────────────────
+    // Cluster count labels – neon cyan
     this.map.addLayer({
       id: CLUSTER_COUNT_LAYER,
       type: 'symbol',
@@ -161,52 +151,46 @@ export class ClusterManager {
       filter: ['has', 'point_count'],
       layout: {
         'text-field': '{point_count_abbreviated}',
-        'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+        'text-font': ['Open Sans Bold'],
         'text-size': 13,
         'text-allow-overlap': true,
       },
       paint: {
-        'text-color': '#1a1a2e',
+        'text-color': '#22d3ee',
       },
     });
 
-    // ── Individual mic pins with transit-style coloring ─────────────
+    // Individual mic pins – dark pill markers
     this.map.addLayer({
       id: UNCLUSTERED_LAYER,
       type: 'circle',
       source: SOURCE_ID,
       filter: ['!', ['has', 'point_count']],
       paint: {
-        'circle-color': [
-          'match', ['get', 'liveStatus'],
-          'live',  '#22c55e',   // green – currently live
-          'soon',  '#22c55e',   // green – starting soon
-          'today', '#1a1a2e',   // black – upcoming today
-          /* default (other day) */
-          [
-            'match', ['get', 'status'],
-            'verified', '#6366f1', // indigo for verified
-            'trial',    '#f59e0b', // amber for trial
-            '#9ca3af',             // gray for legacy
-          ],
-        ],
+        'circle-color': '#111827',
         'circle-radius': [
           'match', ['get', 'liveStatus'],
-          'live', 10,
-          'soon', 9,
-          8,
+          'live', 11,
+          'soon', 10,
+          9,
         ],
         'circle-stroke-width': 2,
         'circle-stroke-color': [
           'match', ['get', 'liveStatus'],
-          'live', '#16a34a',
-          'soon', '#16a34a',
-          '#ffffff',
+          'live', '#22c55e',
+          'soon', '#22c55e',
+          'today', '#f97316',
+          [
+            'match', ['get', 'status'],
+            'verified', '#818cf8',
+            'trial', '#fbbf24',
+            '#6b7280',
+          ],
         ],
       },
     });
 
-    // ── Time label on each pin ─────────────────────────────────────
+    // Neon time label on each pin
     this.map.addLayer({
       id: UNCLUSTERED_LABEL_LAYER,
       type: 'symbol',
@@ -214,31 +198,31 @@ export class ClusterManager {
       filter: ['!', ['has', 'point_count']],
       layout: {
         'text-field': ['get', 'timeLabel'],
-        'text-font': ['DIN Offc Pro Bold', 'Arial Unicode MS Bold'],
+        'text-font': ['Open Sans Bold'],
         'text-size': [
           'match', ['get', 'liveStatus'],
-          'live', 8,
-          'soon', 8,
-          9,
+          'live', 9,
+          'soon', 9,
+          10,
         ],
-        'text-offset': [0, 1.8],
+        'text-offset': [0, 0],
         'text-allow-overlap': false,
         'icon-allow-overlap': false,
       },
       paint: {
         'text-color': [
           'match', ['get', 'liveStatus'],
-          'live', '#16a34a',
-          'soon', '#16a34a',
-          'today', '#1a1a2e',
-          '#374151',
+          'live', '#4ade80',
+          'soon', '#4ade80',
+          'today', '#fb923c',
+          '#e2e8f0',
         ],
-        'text-halo-color': '#ffffff',
-        'text-halo-width': 1.5,
+        'text-halo-color': '#111827',
+        'text-halo-width': 1,
       },
     });
 
-    // ── Event handlers ─────────────────────────────────────────────
+    // Event handlers
     this.map.on('click', CLUSTER_LAYER, (e) => this.handleClusterClick(e));
     this.map.on('click', UNCLUSTERED_LAYER, (e) => this.handlePinClick(e));
     this.map.on('mouseenter', UNCLUSTERED_LAYER, () => { this.map.getCanvas().style.cursor = 'pointer'; });
@@ -246,7 +230,6 @@ export class ClusterManager {
     this.map.on('mouseenter', CLUSTER_LAYER, () => { this.map.getCanvas().style.cursor = 'pointer'; });
     this.map.on('mouseleave', CLUSTER_LAYER, () => { this.map.getCanvas().style.cursor = ''; });
 
-    // Close spider on map click (not on pin/cluster)
     this.map.on('click', (e) => {
       const features = this.map.queryRenderedFeatures(e.point, { layers: [CLUSTER_LAYER, UNCLUSTERED_LAYER] });
       if (features.length === 0) {
@@ -257,23 +240,20 @@ export class ClusterManager {
     this.layersAdded = true;
   }
 
-  // ── Update data ──────────────────────────────────────────────────
   public updateData(features: MicFeature[], micLookup: Map<string, OpenMic>) {
     this.micLookup = micLookup;
-    // Build coords lookup
     this.coordsLookup.clear();
     for (const f of features) {
       this.coordsLookup.set(f.properties.id, f.geometry.coordinates as [number, number]);
     }
-    const source = this.map.getSource(SOURCE_ID) as mapboxgl.GeoJSONSource | undefined;
+    const source = this.map.getSource(SOURCE_ID) as maplibregl.GeoJSONSource | undefined;
     if (source) {
       source.setData(this.toGeoJSON(features));
     }
   }
 
-  // ── Route line ───────────────────────────────────────────────────
   public updateRouteLine(orderedCoords: [number, number][]) {
-    const source = this.map.getSource(ROUTE_SOURCE_ID) as mapboxgl.GeoJSONSource | undefined;
+    const source = this.map.getSource(ROUTE_SOURCE_ID) as maplibregl.GeoJSONSource | undefined;
     if (!source) return;
 
     if (orderedCoords.length < 2) {
@@ -285,26 +265,20 @@ export class ClusterManager {
       type: 'FeatureCollection',
       features: [{
         type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: orderedCoords,
-        },
+        geometry: { type: 'LineString', coordinates: orderedCoords },
         properties: {},
       }],
     });
   }
 
-  // ── Cluster click → zoom or spider ──────────────────────────────
-  private handleClusterClick(e: mapboxgl.MapLayerMouseEvent) {
+  private handleClusterClick(e: maplibregl.MapLayerMouseEvent) {
     const features = this.map.queryRenderedFeatures(e.point, { layers: [CLUSTER_LAYER] });
     if (!features.length) return;
 
     const clusterId = features[0].properties?.cluster_id;
-    const source = this.map.getSource(SOURCE_ID) as mapboxgl.GeoJSONSource;
+    const source = this.map.getSource(SOURCE_ID) as maplibregl.GeoJSONSource;
 
-    source.getClusterExpansionZoom(clusterId, (err, zoom) => {
-      if (err) return;
-
+    source.getClusterExpansionZoom(clusterId).then((zoom) => {
       const currentZoom = this.map.getZoom();
       if (zoom !== undefined && zoom !== null && (zoom <= currentZoom + 1 || currentZoom >= 14)) {
         this.spiderfy(clusterId, features[0] as any);
@@ -315,14 +289,13 @@ export class ClusterManager {
     });
   }
 
-  // ── Spiderfication ───────────────────────────────────────────────
   private spiderfy(clusterId: number, clusterFeature: any) {
     this.clearSpider();
-    const source = this.map.getSource(SOURCE_ID) as mapboxgl.GeoJSONSource;
+    const source = this.map.getSource(SOURCE_ID) as maplibregl.GeoJSONSource;
     const center = (clusterFeature.geometry as any).coordinates as [number, number];
 
-    source.getClusterLeaves(clusterId, 100, 0, (err, leaves) => {
-      if (err || !leaves) return;
+    source.getClusterLeaves(clusterId, 100, 0).then((leaves) => {
+      if (!leaves) return;
 
       const count = leaves.length;
       const angleStep = (2 * Math.PI) / count;
@@ -337,25 +310,25 @@ export class ClusterManager {
         if (!mic) return;
 
         const liveStatus = props.liveStatus || 'other';
-        const pinColor = liveStatus === 'live' || liveStatus === 'soon'
+        const borderColor = liveStatus === 'live' || liveStatus === 'soon'
           ? '#22c55e'
           : liveStatus === 'today'
-          ? '#1a1a2e'
-          : props.status === 'verified' ? '#6366f1'
-          : props.status === 'trial' ? '#f59e0b' : '#9ca3af';
+          ? '#f97316'
+          : props.status === 'verified' ? '#818cf8'
+          : props.status === 'trial' ? '#fbbf24' : '#6b7280';
 
         const el = document.createElement('div');
         el.className = 'spider-leg-pin';
         el.style.cssText = `
-          width: 16px; height: 16px; border-radius: 50%;
-          background: ${pinColor}; border: 2px solid #fff;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.3); cursor: pointer;
+          width: 18px; height: 18px; border-radius: 50%;
+          background: #111827; border: 2px solid ${borderColor};
+          box-shadow: 0 0 8px ${borderColor}40; cursor: pointer;
           transition: transform 0.15s;
         `;
         el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.3)'; });
         el.addEventListener('mouseleave', () => { el.style.transform = 'scale(1)'; });
 
-        const marker = new mapboxgl.Marker({ element: el })
+        const marker = new maplibregl.Marker({ element: el })
           .setLngLat([lng, lat])
           .addTo(this.map);
 
@@ -375,8 +348,7 @@ export class ClusterManager {
     this.spiderLegs = [];
   }
 
-  // ── Pin click → open bottom sheet ───────────────────────────────
-  private handlePinClick(e: mapboxgl.MapLayerMouseEvent) {
+  private handlePinClick(e: maplibregl.MapLayerMouseEvent) {
     if (!e.features?.length) return;
     const id = e.features[0].properties?.id;
     const mic = this.micLookup.get(id);
@@ -386,8 +358,7 @@ export class ClusterManager {
     }
   }
 
-  // ── User location marker ────────────────────────────────────────
-  private userMarker: mapboxgl.Marker | null = null;
+  private userMarker: maplibregl.Marker | null = null;
 
   public addUserLocationMarker(coords: [number, number]) {
     if (this.userMarker) this.userMarker.remove();
@@ -395,17 +366,15 @@ export class ClusterManager {
     const el = document.createElement('div');
     el.style.cssText = `
       width: 14px; height: 14px; border-radius: 50%;
-      background: #3b82f6; border: 3px solid #fff;
-      box-shadow: 0 0 0 3px rgba(59,130,246,0.3), 0 1px 4px rgba(0,0,0,0.3);
+      background: #3b82f6; border: 3px solid #1e293b;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.4), 0 0 12px rgba(59,130,246,0.3);
     `;
 
-    this.userMarker = new mapboxgl.Marker({ element: el })
+    this.userMarker = new maplibregl.Marker({ element: el })
       .setLngLat(coords)
-      .setPopup(new mapboxgl.Popup({ offset: 12 }).setHTML('<div style="font-size:12px;">You are here</div>'))
       .addTo(this.map);
   }
 
-  // ── Cleanup ──────────────────────────────────────────────────────
   public destroy() {
     this.clearSpider();
     if (this.userMarker) this.userMarker.remove();

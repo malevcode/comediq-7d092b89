@@ -1,6 +1,9 @@
-import mapboxgl from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
 import { OpenMic } from '@/types/openMic';
 import { getVerificationColor, formatTime, formatCost, formatStageTime, calculateDistance, formatDistance } from './MapUtils';
+
+// Legacy MarkerManager - kept for reference, not actively used (ClusterManager is primary)
+// All mapboxgl references updated to maplibregl for compatibility
 
 export interface MarkerData {
   coordinates: [number, number];
@@ -8,13 +11,13 @@ export interface MarkerData {
 }
 
 export class MarkerManager {
-  private map: mapboxgl.Map;
-  private markers: mapboxgl.Marker[] = [];
+  private map: maplibregl.Map;
+  private markers: maplibregl.Marker[] = [];
   private micData: OpenMic[] = [];
   private loadedMicIds: Set<string> = new Set();
   private userLocation: [number, number] | null = null;
 
-  constructor(map: mapboxgl.Map) {
+  constructor(map: maplibregl.Map) {
     this.map = map;
   }
 
@@ -54,7 +57,7 @@ export class MarkerManager {
   }
 
   // Remove markers outside current viewport
-  public removeMarkersOutsideViewport(bounds: mapboxgl.LngLatBounds): void {
+  public removeMarkersOutsideViewport(bounds: maplibregl.LngLatBounds): void {
     this.markers = this.markers.filter(marker => {
       const markerLngLat = marker.getLngLat();
       const isInBounds = bounds.contains(markerLngLat);
@@ -84,7 +87,7 @@ export class MarkerManager {
       distanceText = formatDistance(distanceMiles);
     }
 
-    const popup = new mapboxgl.Popup({
+    const popup = new maplibregl.Popup({
       offset: 25,
       closeButton: false,
       closeOnClick: false
@@ -101,7 +104,7 @@ export class MarkerManager {
         </div>
     `);
 
-    const marker = new mapboxgl.Marker({
+    const marker = new maplibregl.Marker({
       color: getVerificationColor(mic.lastVerified),
       scale: 0.8
     })
@@ -181,19 +184,19 @@ export class MarkerManager {
     });
     
     // Add new user location marker
-    const userMarker = new mapboxgl.Marker({
+    const userMarker = new maplibregl.Marker({
       color: '#ff4444',
       scale: 0.8
     })
       .setLngLat(coordinates)
-      .setPopup(new mapboxgl.Popup().setHTML('<div>You are here</div>'))
+      .setPopup(new maplibregl.Popup().setHTML('<div>You are here</div>'))
       .addTo(this.map);
     
     this.markers.push(userMarker);
     console.log('User location marker added successfully:', coordinates);
   }
 
-  public getCurrentViewportBounds(): mapboxgl.LngLatBounds {
+  public getCurrentViewportBounds(): maplibregl.LngLatBounds {
     return this.map.getBounds();
   }
 
