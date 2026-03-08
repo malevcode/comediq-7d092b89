@@ -184,12 +184,12 @@ export class MarkerManager {
     });
     
     // Add new user location marker
-    const userMarker = new mapboxgl.Marker({
+    const userMarker = new maplibregl.Marker({
       color: '#ff4444',
       scale: 0.8
     })
       .setLngLat(coordinates)
-      .setPopup(new mapboxgl.Popup().setHTML('<div>You are here</div>'))
+      .setPopup(new maplibregl.Popup().setHTML('<div>You are here</div>'))
       .addTo(this.map);
     
     this.markers.push(userMarker);
