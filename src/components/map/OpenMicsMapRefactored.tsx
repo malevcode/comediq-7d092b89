@@ -140,6 +140,11 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
       clusterManager.current!.updateData(features, lookup);
       setLoadedMicCount(features.length);
       updateRouteLine();
+
+      // After first load, fit bounds to closest 10 mics if we have user location
+      if (userLocation && features.length > 0) {
+        fitBoundsToClosestMics(userLocation);
+      }
     } catch (err) {
       console.error('Error loading mics:', err);
       setError('Failed to load mic locations');
@@ -147,7 +152,7 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
       setIsLoading(false);
       setGeocodingProgress(null);
     }
-  }, [mics]);
+  }, [mics, userLocation, fitBoundsToClosestMics]);
 
   const updateRouteLine = useCallback(() => {
     if (!clusterManager.current || !playlistMicIds || playlistMicIds.length < 2) {
