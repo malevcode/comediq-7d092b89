@@ -118,7 +118,7 @@ export class ClusterManager {
       type: 'line',
       source: ROUTE_SOURCE_ID,
       paint: {
-        'line-color': '#22d3ee',
+        'line-color': '#1a5fb4',
         'line-width': 2.5,
         'line-dasharray': [3, 3],
         'line-opacity': 0.7,
