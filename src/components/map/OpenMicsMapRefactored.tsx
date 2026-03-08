@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback, memo } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenMic } from '@/types/openMic';
-import { initializeMap } from './MapInitializer';
+import { initializeMap, DEFAULT_CENTER, DEFAULT_ZOOM } from './MapInitializer';
 import { GeocodingService, GeocodingProgress } from './GeocodingService';
 import { LocationService } from './LocationService';
 import { ClusterManager, MicFeature } from './ClusterManager';
