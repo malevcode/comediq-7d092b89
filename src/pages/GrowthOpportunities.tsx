@@ -100,7 +100,7 @@ const GrowthOpportunities = () => {
           </div>
 
           <Tabs value={tab} onValueChange={setTab} className="w-full">
-            <TabsList className="w-full grid grid-cols-3">
+            <TabsList className="w-full grid grid-cols-4">
               <TabsTrigger value="training" className="flex items-center gap-1.5">
                 <GraduationCap className="h-4 w-4" /> Training
               </TabsTrigger>
@@ -109,6 +109,9 @@ const GrowthOpportunities = () => {
               </TabsTrigger>
               <TabsTrigger value="festivals" className="flex items-center gap-1.5">
                 <Trophy className="h-4 w-4" /> Festivals
+              </TabsTrigger>
+              <TabsTrigger value="rankings" className="flex items-center gap-1.5">
+                <Crown className="h-4 w-4" /> Rankings
               </TabsTrigger>
             </TabsList>
 
