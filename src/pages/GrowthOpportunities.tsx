@@ -156,6 +156,10 @@ const GrowthOpportunities = () => {
                 )}
               </TabsContent>
             ))}
+
+            <TabsContent value="rankings">
+              <LeaderboardTab />
+            </TabsContent>
           </Tabs>
         </div>
       </div>
