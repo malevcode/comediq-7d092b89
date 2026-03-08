@@ -324,7 +324,7 @@ export class ClusterManager {
         el.className = 'spider-leg-pin';
         el.style.cssText = `
           width: 18px; height: 18px; border-radius: 50%;
-          background: #111827; border: 2px solid ${borderColor};
+          background: #1a5fb4; border: 2px solid ${borderColor};
           box-shadow: 0 0 8px ${borderColor}40; cursor: pointer;
           transition: transform 0.15s;
         `;
