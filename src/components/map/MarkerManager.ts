@@ -87,7 +87,7 @@ export class MarkerManager {
       distanceText = formatDistance(distanceMiles);
     }
 
-    const popup = new mapboxgl.Popup({
+    const popup = new maplibregl.Popup({
       offset: 25,
       closeButton: false,
       closeOnClick: false
