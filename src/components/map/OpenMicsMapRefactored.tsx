@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback, memo } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { OpenMic } from '@/types/openMic';
-import { initializeMap } from './MapInitializer';
+import { initializeMap, DEFAULT_CENTER, DEFAULT_ZOOM } from './MapInitializer';
 import { GeocodingService, GeocodingProgress } from './GeocodingService';
 import { LocationService } from './LocationService';
 import { ClusterManager, MicFeature } from './ClusterManager';
@@ -55,6 +55,32 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
     if (user) recenterOnUserLocation();
   }, [user]);
 
+  const fitBoundsToClosestMics = useCallback((userLoc: [number, number]) => {
+    if (!map.current || !clusterManager.current) return;
+    const allCoords: { coords: [number, number]; dist: number }[] = [];
+    for (const mic of mics) {
+      const coords = clusterManager.current.getCoordsForMic(mic.uniqueIdentifier);
+      if (!coords) continue;
+      const dx = coords[0] - userLoc[0];
+      const dy = coords[1] - userLoc[1];
+      allCoords.push({ coords, dist: dx * dx + dy * dy });
+    }
+    allCoords.sort((a, b) => a.dist - b.dist);
+    const closest = allCoords.slice(0, 10);
+    if (closest.length < 2) {
+      map.current.flyTo({ center: userLoc, zoom: 14, duration: 2000 });
+      return;
+    }
+    const points = [userLoc, ...closest.map(c => c.coords)];
+    const lngs = points.map(p => p[0]);
+    const lats = points.map(p => p[1]);
+    const bounds: [[number, number], [number, number]] = [
+      [Math.min(...lngs), Math.min(...lats)],
+      [Math.max(...lngs), Math.max(...lats)],
+    ];
+    map.current.fitBounds(bounds, { padding: { top: 60, bottom: 260, left: 40, right: 40 }, maxZoom: 15, duration: 2000 });
+  }, [mics]);
+
   const recenterOnUserLocation = useCallback(async () => {
     if (!LocationService.isLocationSupported()) return;
     setLocationLoading(true);
@@ -62,14 +88,19 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
       const location = await LocationService.getUserLocation();
       setUserLocation(location);
       if (map.current) {
-        map.current.flyTo({ center: location, zoom: 14, duration: 2000 });
+        // If we have mic data loaded, fit bounds to closest 10; otherwise just fly to user
+        if (clusterManager.current && mics.length > 0) {
+          fitBoundsToClosestMics(location);
+        } else {
+          map.current.flyTo({ center: location, zoom: 14, duration: 2000 });
+        }
       }
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLocationLoading(false);
     }
-  }, []);
+  }, [fitBoundsToClosestMics, mics]);
 
   const handlePinSelect = useCallback((mic: OpenMic, coords: [number, number] | null) => {
     setSheetMic(mic);
@@ -109,6 +140,11 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
       clusterManager.current!.updateData(features, lookup);
       setLoadedMicCount(features.length);
       updateRouteLine();
+
+      // After first load, fit bounds to closest 10 mics if we have user location
+      if (userLocation && features.length > 0) {
+        fitBoundsToClosestMics(userLocation);
+      }
     } catch (err) {
       console.error('Error loading mics:', err);
       setError('Failed to load mic locations');
@@ -116,7 +152,7 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
       setIsLoading(false);
       setGeocodingProgress(null);
     }
-  }, [mics]);
+  }, [mics, userLocation, fitBoundsToClosestMics]);
 
   const updateRouteLine = useCallback(() => {
     if (!clusterManager.current || !playlistMicIds || playlistMicIds.length < 2) {
@@ -149,9 +185,9 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
     try {
       map.current = initializeMap({
         container: mapContainer.current,
-        center: [-73.935242, 40.73061],
-        zoom: 10,
-        pitch: 45,
+        center: DEFAULT_CENTER,
+        zoom: DEFAULT_ZOOM,
+        pitch: 40,
         bearing: -10,
       });
 
