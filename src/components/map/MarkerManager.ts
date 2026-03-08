@@ -104,7 +104,7 @@ export class MarkerManager {
         </div>
     `);
 
-    const marker = new mapboxgl.Marker({
+    const marker = new maplibregl.Marker({
       color: getVerificationColor(mic.lastVerified),
       scale: 0.8
     })
