@@ -67,12 +67,7 @@ export const useMicVerification = (micUniqueIdentifier?: string) => {
           title: result.alreadyVerified ? "Already verified!" : "🎉 +2 Points!",
           description: result.alreadyVerified 
             ? "You already verified this mic today." 
-            : "Verification recorded. Add this to your Performance History?",
-          action: !result.alreadyVerified ? (
-            <a href="/perform" className="text-xs font-semibold text-primary underline whitespace-nowrap">
-              Add to History →
-            </a>
-          ) : undefined,
+            : "Verification recorded. Your points have been updated!",
         });
       } else {
         toast({
