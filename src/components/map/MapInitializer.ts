@@ -8,9 +8,8 @@ export interface MapConfig {
   bearing?: number;
 }
 
-// Stadia Maps Alidade Smooth Dark — premium vector tiles with transit detail
-const STADIA_API_KEY = import.meta.env.VITE_STADIA_API_KEY || 'YOUR_STADIA_API_KEY';
-const DARK_STYLE = `https://tiles.stadiamaps.com/styles/alidade_smooth_dark.json?api_key=${STADIA_API_KEY}`;
+// CARTO Dark Matter — free, no API key required, high-contrast dark transit tiles
+const DARK_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
 
 // Greenwich Village — heart of the NYC mic scene
 const DEFAULT_CENTER: [number, number] = [-74.0027, 40.7336];

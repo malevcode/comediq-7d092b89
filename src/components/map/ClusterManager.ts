@@ -118,7 +118,7 @@ export class ClusterManager {
       type: 'line',
       source: ROUTE_SOURCE_ID,
       paint: {
-        'line-color': '#22d3ee',
+        'line-color': '#1a5fb4',
         'line-width': 2.5,
         'line-dasharray': [3, 3],
         'line-opacity': 0.7,
@@ -129,21 +129,21 @@ export class ClusterManager {
       },
     });
 
-    // Cluster circles – dark with neon border
+    // Cluster circles – Comediq Royal Blue with cream count
     this.map.addLayer({
       id: CLUSTER_LAYER,
       type: 'circle',
       source: SOURCE_ID,
       filter: ['has', 'point_count'],
       paint: {
-        'circle-color': '#111827',
+        'circle-color': '#1a5fb4',
         'circle-radius': ['step', ['get', 'point_count'], 20, 10, 26, 30, 32],
         'circle-stroke-width': 2,
-        'circle-stroke-color': '#22d3ee',
+        'circle-stroke-color': '#f5f0e6',
       },
     });
 
-    // Cluster count labels – neon cyan
+    // Cluster count labels – Comediq Cream
     this.map.addLayer({
       id: CLUSTER_COUNT_LAYER,
       type: 'symbol',
@@ -156,26 +156,29 @@ export class ClusterManager {
         'text-allow-overlap': true,
       },
       paint: {
-        'text-color': '#22d3ee',
+        'text-color': '#f5f0e6',
       },
     });
 
-    // Individual mic pins – neon pill markers
-    // Green glow = open mics, Orange glow = showcases (venueType)
+    // Individual mic pins – Royal Blue pills with status glow
     this.map.addLayer({
       id: UNCLUSTERED_LAYER,
       type: 'circle',
       source: SOURCE_ID,
       filter: ['!', ['has', 'point_count']],
       paint: {
-        'circle-color': '#0f1a2e',
+        'circle-color': '#1a5fb4',
         'circle-radius': [
           'match', ['get', 'liveStatus'],
           'live', 11,
           'soon', 10,
           9,
         ],
-        'circle-stroke-width': 2,
+        'circle-stroke-width': [
+          'match', ['get', 'status'],
+          'verified', 2.5,
+          2,
+        ],
         'circle-stroke-color': [
           'match', ['get', 'liveStatus'],
           'live', '#22c55e',
@@ -183,15 +186,15 @@ export class ClusterManager {
           'today', '#f97316',
           [
             'match', ['get', 'status'],
-            'verified', '#1a5fb4',
+            'verified', '#22c55e',
             'trial', '#fbbf24',
-            '#6b7280',
+            '#f5f0e6',
           ],
         ],
       },
     });
 
-    // Neon time label on each pin
+    // Time label on each pin – Cream text
     this.map.addLayer({
       id: UNCLUSTERED_LABEL_LAYER,
       type: 'symbol',
@@ -215,10 +218,9 @@ export class ClusterManager {
           'match', ['get', 'liveStatus'],
           'live', '#4ade80',
           'soon', '#4ade80',
-          'today', '#fb923c',
-          '#e2e8f0',
+          '#f5f0e6',
         ],
-        'text-halo-color': '#111827',
+        'text-halo-color': '#1a5fb4',
         'text-halo-width': 1,
       },
     });
@@ -315,14 +317,14 @@ export class ClusterManager {
           ? '#22c55e'
           : liveStatus === 'today'
           ? '#f97316'
-          : props.status === 'verified' ? '#818cf8'
-          : props.status === 'trial' ? '#fbbf24' : '#6b7280';
+          : props.status === 'verified' ? '#22c55e'
+          : props.status === 'trial' ? '#fbbf24' : '#f5f0e6';
 
         const el = document.createElement('div');
         el.className = 'spider-leg-pin';
         el.style.cssText = `
           width: 18px; height: 18px; border-radius: 50%;
-          background: #111827; border: 2px solid ${borderColor};
+          background: #1a5fb4; border: 2px solid ${borderColor};
           box-shadow: 0 0 8px ${borderColor}40; cursor: pointer;
           transition: transform 0.15s;
         `;

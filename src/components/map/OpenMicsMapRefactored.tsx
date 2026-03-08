@@ -276,10 +276,10 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
           backgroundLoading={backgroundLoading}
         />
         {!mapLoaded && (
-          <div className="absolute inset-0 bg-[#111827] flex items-center justify-center">
+          <div className="absolute inset-0 bg-comediq-blue-dark flex items-center justify-center">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mx-auto mb-2" />
-              <div className="text-sm text-slate-400">Loading map...</div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-comediq-cream mx-auto mb-2" />
+              <div className="text-sm text-comediq-cream/60">Loading map...</div>
             </div>
           </div>
         )}
