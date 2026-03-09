@@ -1892,6 +1892,51 @@ export type Database = {
         }
         Relationships: []
       }
+      user_plans: {
+        Row: {
+          created_at: string
+          id: string
+          mic_unique_identifier: string
+          planned_date: string
+          status: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mic_unique_identifier: string
+          planned_date: string
+          status?: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mic_unique_identifier?: string
+          planned_date?: string
+          status?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_plans_mic_unique_identifier_fkey"
+            columns: ["mic_unique_identifier"]
+            isOneToOne: false
+            referencedRelation: "open_mics_display"
+            referencedColumns: ["unique_identifier"]
+          },
+          {
+            foreignKeyName: "user_plans_mic_unique_identifier_fkey"
+            columns: ["mic_unique_identifier"]
+            isOneToOne: false
+            referencedRelation: "open_mics_historical"
+            referencedColumns: ["unique_identifier"]
+          },
+        ]
+      }
       user_visits: {
         Row: {
           id: number

@@ -31,6 +31,7 @@ import {
   useAddSocialLink,
   useRemoveSocialLink 
 } from '@/hooks/useComedianProfile';
+import VerifyMyDay from '@/components/profile/VerifyMyDay';
 
 const Profile = () => {
   const { user, signOut, loading } = useAuth();
@@ -122,6 +123,8 @@ const Profile = () => {
             <TabsContent value="profile" className="space-y-6">
               {!isEditing ? (
                 <>
+                  <VerifyMyDay />
+                  
                   <ProfileCompleteness 
                     profile={profile} 
                     onEditClick={() => setIsEditing(true)} 

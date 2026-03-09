@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Search, HelpCircle, LogIn, Plus, Map, List } from "lucide-react";
+import { format } from "date-fns";
 import SEO from "@/components/SEO";
 import { generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import MicDetailModal from "@/components/MicDetailModal";
 import { OpenMicsMapRefactored as OpenMicsMap, MapLibreMap, MapLibreDrawer } from "@/components/map";
+import DateToggle from "@/components/map/DateToggle";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import ViewToggle from "@/components/ViewToggle";
 import AddMicRequestForm, { MicRequestFormData } from "@/components/host/AddMicRequestForm";
@@ -34,6 +36,11 @@ const OpenMics = () => {
   const [mapLibreVisibleMics, setMapLibreVisibleMics] = useState<OpenMic[]>([]);
   const [visibleCount, setVisibleCount] = useState(100);
   const [showRequestModal, setShowRequestModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
 
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
@@ -471,6 +478,42 @@ const OpenMics = () => {
 
   const handleViewModeChange = (mode: "list" | "grid" | "map") => setViewMode(mode);
 
+  // Filter mics for a specific date (used by map/maplibre views)
+  const getFilteredMicsForDate = (date: Date) => {
+    const daysOfWeekNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const dayName = daysOfWeekNames[date.getDay()];
+
+    let filtered = openMics.filter((mic) => {
+      if (mic.day !== dayName) return false;
+      return micMatchesDate(mic, date);
+    });
+
+    // Apply search, borough, cost, time, frequency, status filters
+    filtered = filtered.filter((mic) => {
+      const matchesSearch =
+        mic.openMic.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        mic.venueName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesBorough = filters.borough === "All" || mic.borough === filters.borough;
+      const micCost = getCostValue(mic.cost);
+      const matchesCost = micCost >= filters.costRange[0] && micCost <= filters.costRange[1];
+      const matchesTime = matchesTimeOfDay(mic, filters.timeOfDay);
+      const matchesCity = filters.city === "All" || mic.city === filters.city;
+      const matchesFrequency = !filters.frequency || filters.frequency === 'all' || mic.frequency === filters.frequency;
+      const matchesMicStatus = !filters.micStatus || filters.micStatus === 'all' || mic.status === filters.micStatus;
+      return matchesSearch && matchesBorough && matchesCost && matchesTime && matchesCity && matchesFrequency && matchesMicStatus;
+    });
+
+    // Sort by start time
+    filtered.sort((a, b) => {
+      const aMin = timeToMinutes(a.startTime);
+      const bMin = timeToMinutes(b.startTime);
+      return aMin - bMin;
+    });
+
+    return filtered;
+  };
+
   // Memoize the onMicSelect callback to prevent map re-renders
   const handleMicSelect = useCallback((mic: OpenMic) => {
     setSelectedMic(mic);
@@ -588,23 +631,28 @@ const OpenMics = () => {
       {viewMode === "maplibre" ? (
         <div className="min-h-screen bg-background pb-20 relative">
           <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />
-          {/* Switch to List toggle */}
+          {/* Date Toggle under header */}
+          <div className="fixed top-[80px] left-0 right-0 z-[42] flex justify-center py-1.5 bg-background/90 backdrop-blur border-b border-border/50">
+            <DateToggle selectedDate={selectedDate} onDateChange={setSelectedDate} />
+          </div>
+          {/* Floating Switch to List button - bottom right */}
           <button
             onClick={() => setViewMode("list")}
-            className="fixed top-24 right-4 z-40 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg text-xs font-medium text-foreground hover:bg-accent transition-colors"
+            className="fixed bottom-24 right-4 z-40 flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[hsl(213,73%,40%)] text-[hsl(40,33%,94%)] shadow-lg text-xs font-bold hover:bg-[hsl(213,73%,30%)] transition-colors"
           >
-            <List className="h-3.5 w-3.5" />
+            <List className="h-4 w-4" />
             List
           </button>
-          <div className="pt-[107px]">
+          <div className="pt-[120px]">
             <MapLibreMap
-              mics={getFilteredMics("next")}
+              mics={getFilteredMicsForDate(selectedDate)}
               onMicSelect={handleMicSelect}
               onVisibleMicsChange={setMapLibreVisibleMics}
             />
             <MapLibreDrawer
-              mics={mapLibreVisibleMics.length > 0 ? mapLibreVisibleMics : getFilteredMics("next")}
+              mics={mapLibreVisibleMics.length > 0 ? mapLibreVisibleMics : getFilteredMicsForDate(selectedDate)}
               onMicSelect={handleMicSelect}
+              selectedDate={selectedDate}
             />
           </div>
           {selectedMic && (
