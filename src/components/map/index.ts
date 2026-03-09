@@ -1,5 +1,7 @@
 // Main component
 export { default as OpenMicsMapRefactored } from './OpenMicsMapRefactored';
+export { default as MapLibreMap } from './MapLibreMap';
+export { default as MapLibreDrawer } from './MapLibreDrawer';
 
 // Services
 export { GeocodingService } from './GeocodingService';
