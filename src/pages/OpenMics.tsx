@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Search, HelpCircle, LogIn, Plus, Map, List } from "lucide-react";
+import { format } from "date-fns";
 import SEO from "@/components/SEO";
 import { generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Input } from "@/components/ui/input";
