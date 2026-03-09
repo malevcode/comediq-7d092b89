@@ -585,6 +585,33 @@ const OpenMics = () => {
         url="https://comediq.us/open-mics"
         structuredData={breadcrumbSchema}
       />
+      {viewMode === "maplibre" ? (
+        <div className="min-h-screen bg-background pb-20 relative">
+          <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />
+          {/* Switch to List toggle */}
+          <button
+            onClick={() => setViewMode("list")}
+            className="fixed top-24 right-4 z-40 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg text-xs font-medium text-foreground hover:bg-accent transition-colors"
+          >
+            <List className="h-3.5 w-3.5" />
+            List
+          </button>
+          <div className="pt-[107px]">
+            <MapLibreMap
+              mics={getFilteredMics("next")}
+              onMicSelect={handleMicSelect}
+              onVisibleMicsChange={setMapLibreVisibleMics}
+            />
+            <MapLibreDrawer
+              mics={mapLibreVisibleMics.length > 0 ? mapLibreVisibleMics : getFilteredMics("next")}
+              onMicSelect={handleMicSelect}
+            />
+          </div>
+          {selectedMic && (
+            <MicDetailModal mic={selectedMic} onClose={() => setSelectedMic(null)} onAddToSchedule={handleAddToSchedule} />
+          )}
+        </div>
+      ) : (
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
         <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />
 
