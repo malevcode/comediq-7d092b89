@@ -9,6 +9,7 @@ interface MapLibreMapProps {
   mics: OpenMic[];
   onMicSelect: (mic: OpenMic) => void;
   onVisibleMicsChange?: (mics: OpenMic[]) => void;
+  userLocation?: [number, number] | null;
 }
 
 const CARTO_DARK_MATTER = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';

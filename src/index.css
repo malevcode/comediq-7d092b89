@@ -150,7 +150,7 @@ html {
 /* MapLibre control offsets — clear header/banner overlap */
 .maplibregl-ctrl-top-left,
 .maplibregl-ctrl-top-right {
-  top: 12px !important;
+  top: 48px !important;
 }
 
 /* MapLibre pill markers */
