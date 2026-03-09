@@ -122,6 +122,8 @@ const Profile = () => {
             <TabsContent value="profile" className="space-y-6">
               {!isEditing ? (
                 <>
+                  <VerifyMyDay />
+                  
                   <ProfileCompleteness 
                     profile={profile} 
                     onEditClick={() => setIsEditing(true)} 
