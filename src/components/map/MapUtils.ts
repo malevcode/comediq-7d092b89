@@ -75,17 +75,16 @@ export const formatTime = (timeStr: string): string => {
   return timeStr;
 };
 
-// Format time to short label — PM assumed (comedy is nighttime), only show "a" for AM
+// Format time to short transit-style label (e.g., "6p", "8:30p")
 export const formatTimeShort = (timeStr: string): string => {
   if (!timeStr) return '?';
   const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
   if (!match) return timeStr.length > 5 ? timeStr.substring(0, 5) : timeStr;
   const hour = parseInt(match[1]);
   const min = parseInt(match[2]);
-  const isAM = match[3].toUpperCase() === 'AM';
-  const suffix = isAM ? 'a' : '';
-  if (min === 0) return `${hour}${suffix}`;
-  return `${hour}:${match[2]}${suffix}`;
+  const period = match[3].toLowerCase().charAt(0); // 'a' or 'p'
+  if (min === 0) return `${hour}${period}`;
+  return `${hour}:${match[2]}${period}`;
 };
 
 // Parse 12h time string into minutes since midnight

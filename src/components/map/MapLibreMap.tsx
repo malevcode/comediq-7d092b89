@@ -138,11 +138,11 @@ const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange, userLocation }: M
         isLive = sorted.some(m => getMicLiveStatus(m.day, m.startTime, m.latestEndTime) === 'live');
       }
 
-      // Create pin marker element (Comediq Q-style)
+      // Create pill marker element
       const el = document.createElement('div');
-      el.className = 'maplibre-mic-pin';
+      el.className = 'maplibre-mic-pill';
       if (isLive) {
-        el.classList.add('maplibre-mic-pin--live');
+        el.classList.add('maplibre-mic-pill--live');
       }
       el.textContent = label;
       el.addEventListener('click', () => {
