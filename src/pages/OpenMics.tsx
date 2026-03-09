@@ -46,6 +46,7 @@ const OpenMics = () => {
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
   const { data: likedMics = [] } = useUserLikedMics();
+  const { userLocation } = useUserLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const hasScrolled = useRef(false);
