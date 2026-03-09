@@ -4,11 +4,14 @@ import { formatTimeShort } from './MapUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { CheckCircle, GripHorizontal } from 'lucide-react';
+import { usePlanToHit } from '@/hooks/useUserPlans';
+import { CheckCircle, GripHorizontal, MapPin } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface MapLibreDrawerProps {
   mics: OpenMic[];
   onMicSelect: (mic: OpenMic) => void;
+  selectedDate: Date;
 }
 
 // Simple IP hash for verification dedup
@@ -26,11 +29,12 @@ const hashIP = async (): Promise<string> => {
   }
 };
 
-const MapLibreDrawer = ({ mics, onMicSelect }: MapLibreDrawerProps) => {
+const MapLibreDrawer = ({ mics, onMicSelect, selectedDate }: MapLibreDrawerProps) => {
   const { user } = useAuth();
   const [drawerHeight, setDrawerHeight] = useState(40); // vh
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const dragRef = useRef<{ startY: number; startHeight: number } | null>(null);
+  const planToHit = usePlanToHit();
 
   const handleDragStart = useCallback((e: React.TouchEvent | React.MouseEvent) => {
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
@@ -84,9 +88,20 @@ const MapLibreDrawer = ({ mics, onMicSelect }: MapLibreDrawerProps) => {
     }
   };
 
+  const handlePlanToHit = (mic: OpenMic) => {
+    if (!user) {
+      toast({ title: 'Log in to plan mics', description: 'Create an account to track your day.' });
+      return;
+    }
+    planToHit.mutate({
+      micId: mic.uniqueIdentifier,
+      plannedDate: format(selectedDate, 'yyyy-MM-dd'),
+    });
+  };
+
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 bg-background border-t border-border rounded-t-2xl shadow-2xl z-10 flex flex-col"
+      className="fixed bottom-0 left-0 right-0 bg-[hsl(40,33%,94%)] border-t-2 border-[hsl(213,73%,40%)] rounded-t-2xl shadow-2xl z-10 flex flex-col"
       style={{ height: `${drawerHeight}vh`, marginBottom: '72px' }}
     >
       {/* Drag handle */}
@@ -100,61 +115,79 @@ const MapLibreDrawer = ({ mics, onMicSelect }: MapLibreDrawerProps) => {
         onTouchMove={handleDragMove}
         onTouchEnd={handleDragEnd}
       >
-        <GripHorizontal className="h-5 w-5 text-muted-foreground" />
+        <GripHorizontal className="h-5 w-5 text-[hsl(213,73%,40%)]/60" />
       </div>
 
       {/* Header */}
-      <div className="px-3 pb-1 flex items-center justify-between text-xs text-muted-foreground border-b border-border">
+      <div className="px-3 pb-1 flex items-center justify-between text-xs font-semibold text-[hsl(213,73%,40%)] border-b border-[hsl(213,73%,40%)]/20">
         <span>{mics.length} mics</span>
-        <span>Transit View</span>
+        <span>Transit Schedule</span>
       </div>
 
-      {/* List */}
+      {/* List - single-line density */}
       <div className="flex-1 overflow-y-auto scrollbar-hide">
-        {mics.map((mic) => (
-          <div
-            key={mic.uniqueIdentifier}
-            className="flex items-center border-b border-border/50 hover:bg-accent/50 transition-colors cursor-pointer"
-            onClick={() => onMicSelect(mic)}
-          >
-            {/* Time */}
-            <div className="w-16 flex-shrink-0 text-center py-2 px-1">
-              <span className="text-xs font-bold text-foreground">
-                {formatTimeShort(mic.startTime)}
-              </span>
-            </div>
+        {mics.map((mic) => {
+          const isSlotsEnabled = mic.slotsEnabled;
 
-            {/* Divider */}
-            <div className="w-px h-6 bg-border flex-shrink-0" />
-
-            {/* Venue */}
-            <div className="flex-1 truncate py-2 px-2">
-              <span className="text-xs font-medium text-foreground">{mic.venueName || mic.openMic}</span>
-            </div>
-
-            {/* Divider */}
-            <div className="w-px h-6 bg-border flex-shrink-0" />
-
-            {/* Neighborhood */}
-            <div className="w-20 flex-shrink-0 text-center py-2 px-1">
-              <span className="text-[10px] text-muted-foreground truncate block">
-                {mic.neighborhood || mic.borough}
-              </span>
-            </div>
-
-            {/* Verify Button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleVerify(mic);
-              }}
-              disabled={verifyingId === mic.uniqueIdentifier}
-              className="flex-shrink-0 px-2 py-2 hover:bg-accent transition-colors disabled:opacity-50"
+          return (
+            <div
+              key={mic.uniqueIdentifier}
+              className="flex items-center border-b border-[hsl(213,73%,40%)]/10 hover:bg-[hsl(213,73%,40%)]/5 transition-colors cursor-pointer"
+              onClick={() => onMicSelect(mic)}
             >
-              <CheckCircle className={`h-4 w-4 ${verifyingId === mic.uniqueIdentifier ? 'animate-spin text-muted-foreground' : 'text-[hsl(var(--comediq-blue))]'}`} />
-            </button>
-          </div>
-        ))}
+              {/* Time */}
+              <div className="w-14 flex-shrink-0 text-center py-1.5 px-1">
+                <span className="text-xs font-bold text-[hsl(213,73%,40%)]">
+                  {formatTimeShort(mic.startTime)}
+                </span>
+              </div>
+
+              {/* Divider */}
+              <div className="w-px h-5 bg-[hsl(213,73%,40%)]/20 flex-shrink-0" />
+
+              {/* Venue */}
+              <div className="flex-1 truncate py-1.5 px-2">
+                <span className="text-xs font-medium text-[hsl(213,73%,40%)]">{mic.venueName || mic.openMic}</span>
+              </div>
+
+              {/* Divider */}
+              <div className="w-px h-5 bg-[hsl(213,73%,40%)]/20 flex-shrink-0" />
+
+              {/* Neighborhood */}
+              <div className="w-16 flex-shrink-0 text-center py-1.5 px-1">
+                <span className="text-[10px] text-[hsl(213,73%,40%)]/70 truncate block">
+                  {mic.neighborhood || mic.borough}
+                </span>
+              </div>
+
+              {/* Action Button: Plan to Hit or Verify */}
+              {isSlotsEnabled ? (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleVerify(mic);
+                  }}
+                  disabled={verifyingId === mic.uniqueIdentifier}
+                  className="flex-shrink-0 px-2 py-1.5 hover:bg-[hsl(213,73%,40%)]/10 transition-colors disabled:opacity-50"
+                >
+                  <CheckCircle className={`h-4 w-4 ${verifyingId === mic.uniqueIdentifier ? 'animate-spin text-muted-foreground' : 'text-[hsl(213,73%,40%)]'}`} />
+                </button>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePlanToHit(mic);
+                  }}
+                  disabled={planToHit.isPending}
+                  className="flex-shrink-0 px-2 py-1.5 hover:bg-[hsl(213,73%,40%)]/10 transition-colors disabled:opacity-50"
+                  title="Plan to Hit"
+                >
+                  <MapPin className={`h-4 w-4 text-[hsl(213,73%,40%)]`} />
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
