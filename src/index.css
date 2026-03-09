@@ -147,6 +147,12 @@ html {
   animation: confetti-fall 2s ease-out forwards;
 }
 
+/* MapLibre control offsets — clear header/banner overlap */
+.maplibregl-ctrl-top-left,
+.maplibregl-ctrl-top-right {
+  top: 12px !important;
+}
+
 /* MapLibre pill markers */
 .maplibre-mic-pill {
   background: hsl(213, 73%, 40%);
