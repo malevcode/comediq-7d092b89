@@ -53,13 +53,8 @@ export const useTopRatedMics = () => {
           city: row.city || "",
           signupEnabled: row.signup_enabled || false,
           otherRules: row.other_rules || "",
-          likeCount: likeCount?.likes || 0,
-          status: row.status || 'verified',
-          frequency: row.frequency || 'weekly',
-          verificationCount: row.verification_count || 0,
-          slotsEnabled: row.slots_enabled || false,
-          slotDurationMinutes: row.slot_duration_minutes || 5,
-        } as OpenMic & { likeCount: number };
+          likeCount: likeCount?.likes || 0
+        };
       }) || [];
 
       // Sort by like count

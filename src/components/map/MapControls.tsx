@@ -23,54 +23,68 @@ export const MapControls: React.FC<MapControlsProps> = ({
 }) => {
   return (
     <>
-      {/* Recenter button – dark theme */}
-      <div className="absolute top-2 left-2 z-10">
+      {/* Recenter button */}
+      <div className="absolute top-2 left-2">
         <button 
           onClick={onRecenter}
           disabled={locationLoading}
-          className="bg-slate-800/90 hover:bg-slate-700 disabled:bg-slate-800/50 text-cyan-400 px-3 py-2 rounded-lg shadow-lg text-sm font-medium transition-colors duration-200 backdrop-blur-sm border border-slate-700/50"
+          className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-3 py-2 rounded-lg shadow-lg text-sm font-medium transition-colors duration-200"
         >
-          {locationLoading ? 'Getting Location...' : '📍 Recenter'}
+          {locationLoading ? 'Getting Location...' : 'Recenter'}
         </button>
       </div>
       
-      {/* Geocoding progress */}
+      {/* Loading indicator */}
+      {isLoading && (
+        <div className="absolute top-4 left-4 bg-white p-2 rounded-lg shadow-lg">
+          <div className="text-xs text-gray-600">Loading area...</div>
+        </div>
+      )}
+      
+      {/* Geocoding progress indicator */}
       {geocodingProgress && (
-        <div className="absolute top-4 left-4 z-10 bg-slate-900/90 border border-cyan-500/30 p-3 rounded-lg shadow-lg max-w-xs backdrop-blur-sm">
-          <div className="text-xs text-cyan-400 font-medium mb-1">Loading mics...</div>
-          <div className="text-xs text-slate-400 mb-2">
-            {geocodingProgress.current} / {geocodingProgress.total}
+        <div className="absolute top-4 left-4 bg-blue-50 border border-blue-200 p-3 rounded-lg shadow-lg max-w-xs">
+          <div className="text-xs text-blue-800 font-medium mb-1">Loading mics in area...</div>
+          <div className="text-xs text-blue-600 mb-2">
+            {geocodingProgress.current} of {geocodingProgress.total} completed
           </div>
-          <div className="w-full bg-slate-700 rounded-full h-1.5">
+          <div className="w-full bg-blue-200 rounded-full h-1.5">
             <div 
-              className="bg-cyan-400 h-1.5 rounded-full transition-all duration-300"
+              className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
               style={{ width: `${(geocodingProgress.current / geocodingProgress.total) * 100}%` }}
-            />
+            ></div>
           </div>
         </div>
       )}
       
-      {/* Error */}
+      {/* Error indicator */}
       {error && (
-        <div className="absolute top-4 left-4 z-10 bg-red-950/90 border border-red-500/30 p-2 rounded-lg shadow-lg max-w-xs backdrop-blur-sm">
-          <div className="text-xs text-red-400">{error}</div>
+        <div className="absolute top-4 left-4 bg-red-100 border border-red-300 p-2 rounded-lg shadow-lg max-w-xs">
+          <div className="text-xs text-red-600">{error}</div>
           {onDismissError && (
-            <button onClick={onDismissError} className="text-xs text-red-500 underline mt-1">
+            <button 
+              onClick={onDismissError}
+              className="text-xs text-red-500 underline mt-1"
+            >
               Dismiss
             </button>
           )}
         </div>
       )}
 
-      {/* Mic count */}
-      {loadedMicCount !== undefined && loadedMicCount > 0 && (
-        <div className="absolute bottom-4 left-4 z-10 bg-slate-900/80 backdrop-blur-sm border border-slate-700/50 px-3 py-1.5 rounded-full">
-          <div className="text-xs text-slate-400 font-medium">
-            {loadedMicCount} mics
-            {backgroundLoading && <span className="text-cyan-400 ml-1">loading...</span>}
+      {/* Loaded mic count indicator */}
+      {loadedMicCount !== undefined && (
+        <div className="absolute bottom-4 left-4 bg-white p-2 rounded-lg shadow-lg">
+          <div className="text-xs text-gray-600">
+            {loadedMicCount} mics loaded
+            {backgroundLoading && (
+              <div className="text-xs text-blue-600 mt-1">
+                Loading more...
+              </div>
+            )}
           </div>
         </div>
       )}
     </>
   );
-};
+}; 

@@ -1,13 +1,16 @@
 import React, { useEffect, useRef, useState, useCallback, memo } from 'react';
-import maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import { OpenMic } from '@/types/openMic';
-import { initializeMap, DEFAULT_CENTER, DEFAULT_ZOOM } from './MapInitializer';
+import { getMapboxToken, MapboxGL } from './MapInitializer';
 import { GeocodingService, GeocodingProgress } from './GeocodingService';
 import { LocationService } from './LocationService';
 import { ClusterManager, MicFeature } from './ClusterManager';
+import { MapLegend } from './MapLegend';
 import { MapControls } from './MapControls';
 import MapBottomSheet from './MapBottomSheet';
+import { Info } from 'lucide-react';
+import { TokenInput } from './TokenInput';
 import { useAuth } from '@/contexts/AuthContext';
 import { parseTimeToMinutes } from './MapUtils';
 
@@ -20,10 +23,11 @@ interface OpenMicsMapProps {
 const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMapProps) => {
   const { user } = useAuth();
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<maplibregl.Map | null>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
   const clusterManager = useRef<ClusterManager | null>(null);
   const geocodingService = useRef<GeocodingService | null>(null);
 
+  const [mapboxToken, setMapboxToken] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [geocodingProgress, setGeocodingProgress] = useState<GeocodingProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -32,90 +36,68 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
   const [locationLoading, setLocationLoading] = useState(false);
   const [loadedMicCount, setLoadedMicCount] = useState(0);
   const [backgroundLoading, setBackgroundLoading] = useState(false);
+  const [inputToken, setInputToken] = useState('');
 
   // Bottom sheet state
   const [sheetMic, setSheetMic] = useState<OpenMic | null>(null);
   const [sheetMicCoords, setSheetMicCoords] = useState<[number, number] | null>(null);
 
-  // Initialize geocoding service (uses Mapbox geocoding API with env token)
+  // Initialize token
   useEffect(() => {
-    const envToken = import.meta.env.VITE_MAPBOX_TOKEN;
-    if (envToken) {
-      geocodingService.current = new GeocodingService(envToken);
-    } else {
-      const stored = localStorage.getItem('mapbox_token');
-      if (stored) {
-        geocodingService.current = new GeocodingService(stored);
+    const initializeToken = async () => {
+      const token = await getMapboxToken();
+      if (!token) {
+        setError('Mapbox token not found. Please set VITE_MAPBOX_TOKEN or enter it below.');
+        return;
       }
-    }
+      MapboxGL.accessToken = token;
+      setMapboxToken(token);
+      geocodingService.current = new GeocodingService(token);
+    };
+    initializeToken();
   }, []);
 
-  // Get user location
+  // Get user location for logged-in users
   useEffect(() => {
     if (user) recenterOnUserLocation();
   }, [user]);
 
-  const fitBoundsToClosestMics = useCallback((userLoc: [number, number]) => {
-    if (!map.current || !clusterManager.current) return;
-    const allCoords: { coords: [number, number]; dist: number }[] = [];
-    for (const mic of mics) {
-      const coords = clusterManager.current.getCoordsForMic(mic.uniqueIdentifier);
-      if (!coords) continue;
-      const dx = coords[0] - userLoc[0];
-      const dy = coords[1] - userLoc[1];
-      allCoords.push({ coords, dist: dx * dx + dy * dy });
-    }
-    allCoords.sort((a, b) => a.dist - b.dist);
-    const closest = allCoords.slice(0, 10);
-    if (closest.length < 2) {
-      map.current.flyTo({ center: userLoc, zoom: 14, duration: 2000 });
+  const recenterOnUserLocation = useCallback(async () => {
+    if (!LocationService.isLocationSupported()) {
+      setError('Geolocation is not supported by this browser.');
       return;
     }
-    const points = [userLoc, ...closest.map(c => c.coords)];
-    const lngs = points.map(p => p[0]);
-    const lats = points.map(p => p[1]);
-    const bounds: [[number, number], [number, number]] = [
-      [Math.min(...lngs), Math.min(...lats)],
-      [Math.max(...lngs), Math.max(...lats)],
-    ];
-    map.current.fitBounds(bounds, { padding: { top: 60, bottom: 260, left: 40, right: 40 }, maxZoom: 15, duration: 2000 });
-  }, [mics]);
-
-  const recenterOnUserLocation = useCallback(async () => {
-    if (!LocationService.isLocationSupported()) return;
     setLocationLoading(true);
     try {
       const location = await LocationService.getUserLocation();
       setUserLocation(location);
       if (map.current) {
-        // If we have mic data loaded, fit bounds to closest 10; otherwise just fly to user
-        if (clusterManager.current && mics.length > 0) {
-          fitBoundsToClosestMics(location);
-        } else {
-          map.current.flyTo({ center: location, zoom: 14, duration: 2000 });
-        }
+        map.current.flyTo({ center: location, zoom: 14, duration: 2000 });
       }
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLocationLoading(false);
     }
-  }, [fitBoundsToClosestMics, mics]);
+  }, []);
 
+  // Handle pin click → open bottom sheet instead of modal
   const handlePinSelect = useCallback((mic: OpenMic, coords: [number, number] | null) => {
     setSheetMic(mic);
     setSheetMicCoords(coords);
+    // Auto-pan to center the pin
     if (map.current && coords) {
       map.current.easeTo({ center: coords, duration: 500, offset: [0, -60] });
     }
   }, []);
 
+  // Handle "View Details" from bottom sheet → open full modal
   const handleViewDetails = useCallback((mic: OpenMic) => {
     setSheetMic(null);
     onMicSelect(mic);
   }, [onMicSelect]);
 
-  // Geocode and load mics
+  // ── Geocode all mics and push features into ClusterManager ──────
   const loadAllMics = useCallback(async () => {
     if (!geocodingService.current || !clusterManager.current) return;
 
@@ -139,12 +121,9 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
 
       clusterManager.current!.updateData(features, lookup);
       setLoadedMicCount(features.length);
-      updateRouteLine();
 
-      // After first load, fit bounds to closest 10 mics if we have user location
-      if (userLocation && features.length > 0) {
-        fitBoundsToClosestMics(userLocation);
-      }
+      // Draw route line if playlist mics are provided
+      updateRouteLine();
     } catch (err) {
       console.error('Error loading mics:', err);
       setError('Failed to load mic locations');
@@ -152,14 +131,16 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
       setIsLoading(false);
       setGeocodingProgress(null);
     }
-  }, [mics, userLocation, fitBoundsToClosestMics]);
+  }, [mics]);
 
+  // ── Update route line for playlist ──────────────────────────────
   const updateRouteLine = useCallback(() => {
     if (!clusterManager.current || !playlistMicIds || playlistMicIds.length < 2) {
       clusterManager.current?.updateRouteLine([]);
       return;
     }
 
+    // Collect coords for playlist mics, sort by start time
     const playlistMics = playlistMicIds
       .map(id => {
         const mic = mics.find(m => m.uniqueIdentifier === id);
@@ -169,6 +150,7 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
       })
       .filter(Boolean) as { mic: OpenMic; coords: [number, number] }[];
 
+    // Sort by start time
     playlistMics.sort((a, b) => {
       const aMin = parseTimeToMinutes(a.mic.startTime) ?? 0;
       const bMin = parseTimeToMinutes(b.mic.startTime) ?? 0;
@@ -178,25 +160,29 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
     clusterManager.current.updateRouteLine(playlistMics.map(p => p.coords));
   }, [playlistMicIds, mics]);
 
-  // Initialize map (MapLibre — no token needed)
-  const initMap = useCallback(() => {
-    if (!mapContainer.current || map.current) return;
+  // ── Initialize map ──────────────────────────────────────────────
+  const initializeMap = useCallback(() => {
+    if (!mapContainer.current || !mapboxToken || map.current) return;
 
     try {
-      map.current = initializeMap({
+      map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        center: DEFAULT_CENTER,
-        zoom: DEFAULT_ZOOM,
-        pitch: 40,
-        bearing: -10,
+        style: 'mapbox://styles/mapbox/light-v11',
+        center: [-73.935242, 40.730610],
+        zoom: 10,
+        accessToken: mapboxToken,
+        maxZoom: 18,
+        minZoom: 6,
       });
+
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
       clusterManager.current = new ClusterManager(map.current);
       clusterManager.current.setMicSelectCallback(handlePinSelect);
       clusterManager.current.setUserLocation(userLocation);
 
       map.current.on('error', (e) => {
-        console.warn('Map error:', e);
+        setError(`Map error: ${e.error?.message || 'Unknown'}`);
       });
 
       map.current.on('load', () => {
@@ -213,27 +199,33 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
     } catch (err) {
       setError(`Failed to initialize map: ${err instanceof Error ? err.message : 'Unknown'}`);
     }
-  }, [userLocation, handlePinSelect, loadAllMics]);
+  }, [mapboxToken, userLocation, handlePinSelect, loadAllMics]);
+
+  // Token submit
+  const handleTokenSubmit = useCallback(() => {
+    if (inputToken) {
+      localStorage.setItem('mapbox_token', inputToken);
+      MapboxGL.accessToken = inputToken;
+      setMapboxToken(inputToken);
+      setError(null);
+      geocodingService.current = new GeocodingService(inputToken);
+    }
+  }, [inputToken]);
 
   // Cleanup
   useEffect(() => {
     return () => {
       clusterManager.current?.destroy();
-      try {
-        map.current?.remove();
-      } catch (e) {
-        // Map may already be partially destroyed
-      }
-      map.current = null;
+      map.current?.remove();
     };
   }, []);
 
-  // Init map on mount
+  // Init map when token available
   useEffect(() => {
-    if (!map.current) initMap();
-  }, [initMap]);
+    if (mapboxToken && !map.current) initializeMap();
+  }, [mapboxToken, initializeMap]);
 
-  // Re-load mics when mics array changes
+  // Re-load mics when mics array changes (filters applied)
   useEffect(() => {
     if (mapLoaded && clusterManager.current) {
       loadAllMics();
@@ -267,36 +259,57 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, playlistMicIds }: OpenMicsMa
   }, [userLocation]);
 
   return (
-    <div className="w-full h-full">
-      <div className="relative w-full h-full">
-        <div ref={mapContainer} className="absolute inset-0" />
-        <MapControls
-          onRecenter={recenterOnUserLocation}
-          locationLoading={locationLoading}
-          isLoading={isLoading}
-          geocodingProgress={geocodingProgress}
-          error={error}
-          onDismissError={() => setError(null)}
-          loadedMicCount={loadedMicCount}
-          backgroundLoading={backgroundLoading}
-        />
-        {!mapLoaded && (
-          <div className="absolute inset-0 bg-comediq-blue-dark flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-comediq-cream mx-auto mb-2" />
-              <div className="text-sm text-comediq-cream/60">Loading map...</div>
-            </div>
+    <div className="w-full">
+      <div className="relative w-full h-[70vh] md:h-96 rounded-lg overflow-hidden border">
+        {/* Legend */}
+        <div className="absolute top-12 left-2 z-10 group">
+          <div className="flex items-center gap-1 mb-1 text-xs text-muted-foreground opacity-100">
+            <Info className="w-3 h-3" />
+            <span>Legend</span>
           </div>
-        )}
+          <div className="opacity-0 group-hover:opacity-80 transition-opacity duration-200">
+            <MapLegend />
+          </div>
+        </div>
 
-        {/* Bottom Sheet */}
-        <MapBottomSheet
-          mic={sheetMic}
-          userLocation={userLocation}
-          micCoords={sheetMicCoords}
-          onClose={() => setSheetMic(null)}
-          onViewDetails={handleViewDetails}
-        />
+        {!mapboxToken ? (
+          <TokenInput
+            token={inputToken}
+            onTokenChange={setInputToken}
+            onSubmit={handleTokenSubmit}
+          />
+        ) : (
+          <>
+            <div ref={mapContainer} className="absolute inset-0" />
+            <MapControls
+              onRecenter={recenterOnUserLocation}
+              locationLoading={locationLoading}
+              isLoading={isLoading}
+              geocodingProgress={geocodingProgress}
+              error={error}
+              onDismissError={() => setError(null)}
+              loadedMicCount={loadedMicCount}
+              backgroundLoading={backgroundLoading}
+            />
+            {!mapLoaded && mapboxToken && (
+              <div className="absolute inset-0 bg-muted flex items-center justify-center">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2" />
+                  <div className="text-sm text-muted-foreground">Loading map...</div>
+                </div>
+              </div>
+            )}
+
+            {/* Bottom Sheet */}
+            <MapBottomSheet
+              mic={sheetMic}
+              userLocation={userLocation}
+              micCoords={sheetMicCoords}
+              onClose={() => setSheetMic(null)}
+              onViewDetails={handleViewDetails}
+            />
+          </>
+        )}
       </div>
     </div>
   );

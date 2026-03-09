@@ -5,11 +5,12 @@ export { default as OpenMicsMapRefactored } from './OpenMicsMapRefactored';
 export { GeocodingService } from './GeocodingService';
 export { LocationService } from './LocationService';
 export { ClusterManager } from './ClusterManager';
-export { initializeMap, getMapboxToken } from './MapInitializer';
+export { initializeMap, getMapboxToken, MapboxGL } from './MapInitializer';
 
 // Components
 export { MapLegend } from './MapLegend';
 export { MapControls } from './MapControls';
+export { TokenInput } from './TokenInput';
 
 // Utilities
 export * from './MapUtils';

@@ -81,9 +81,9 @@ export const VerificationBadge = ({
 
   // Determine text to display
   const getText = () => {
-    if (justVerified) return 'Thanks! +2 pts';
+    if (justVerified) return 'Thanks!';
     if (isVerified) return `Verified ${displayDate}`;
-    if (isHovered) return 'I was there (+2 pts)';
+    if (isHovered) return 'I was there';
     return 'Needs verification';
   };
 

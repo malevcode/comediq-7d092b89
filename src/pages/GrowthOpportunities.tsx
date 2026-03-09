@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Megaphone, Trophy, GraduationCap, Search, Crown } from "lucide-react";
+import { Megaphone, Trophy, GraduationCap, Search } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OpportunityCard } from "@/components/growth/OpportunityCard";
 import { SubmitOpportunityForm } from "@/components/growth/SubmitOpportunityForm";
-import { LeaderboardTab } from "@/components/growth/LeaderboardTab";
 import { useGrowthOpportunities } from "@/hooks/useGrowthOpportunities";
 import SEO from "@/components/SEO";
 
@@ -100,7 +99,7 @@ const GrowthOpportunities = () => {
           </div>
 
           <Tabs value={tab} onValueChange={setTab} className="w-full">
-            <TabsList className="w-full grid grid-cols-4">
+            <TabsList className="w-full grid grid-cols-3">
               <TabsTrigger value="training" className="flex items-center gap-1.5">
                 <GraduationCap className="h-4 w-4" /> Training
               </TabsTrigger>
@@ -109,9 +108,6 @@ const GrowthOpportunities = () => {
               </TabsTrigger>
               <TabsTrigger value="festivals" className="flex items-center gap-1.5">
                 <Trophy className="h-4 w-4" /> Festivals
-              </TabsTrigger>
-              <TabsTrigger value="rankings" className="flex items-center gap-1.5">
-                <Crown className="h-4 w-4" /> Rankings
               </TabsTrigger>
             </TabsList>
 
@@ -156,10 +152,6 @@ const GrowthOpportunities = () => {
                 )}
               </TabsContent>
             ))}
-
-            <TabsContent value="rankings">
-              <LeaderboardTab />
-            </TabsContent>
           </Tabs>
         </div>
       </div>

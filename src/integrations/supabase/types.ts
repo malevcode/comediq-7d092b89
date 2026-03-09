@@ -1215,7 +1215,6 @@ export type Database = {
           created_at: string
           id: string
           metadata: Json | null
-          reason: string | null
           user_id: string
         }
         Insert: {
@@ -1224,7 +1223,6 @@ export type Database = {
           created_at?: string
           id?: string
           metadata?: Json | null
-          reason?: string | null
           user_id: string
         }
         Update: {
@@ -1233,7 +1231,6 @@ export type Database = {
           created_at?: string
           id?: string
           metadata?: Json | null
-          reason?: string | null
           user_id?: string
         }
         Relationships: [
@@ -2255,15 +2252,6 @@ export type Database = {
         Returns: string
       }
       is_producer: { Args: { _user_id: string }; Returns: boolean }
-      verify_mic_with_points: {
-        Args: {
-          ip_hash_param: string
-          mic_identifier: string
-          status_param?: string
-          user_id_param?: string
-        }
-        Returns: Json
-      }
     }
     Enums: {
       application_status:
