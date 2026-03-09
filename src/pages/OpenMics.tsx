@@ -478,6 +478,42 @@ const OpenMics = () => {
 
   const handleViewModeChange = (mode: "list" | "grid" | "map") => setViewMode(mode);
 
+  // Filter mics for a specific date (used by map/maplibre views)
+  const getFilteredMicsForDate = (date: Date) => {
+    const daysOfWeekNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const dayName = daysOfWeekNames[date.getDay()];
+
+    let filtered = openMics.filter((mic) => {
+      if (mic.day !== dayName) return false;
+      return micMatchesDate(mic, date);
+    });
+
+    // Apply search, borough, cost, time, frequency, status filters
+    filtered = filtered.filter((mic) => {
+      const matchesSearch =
+        mic.openMic.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        mic.venueName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesBorough = filters.borough === "All" || mic.borough === filters.borough;
+      const micCost = getCostValue(mic.cost);
+      const matchesCost = micCost >= filters.costRange[0] && micCost <= filters.costRange[1];
+      const matchesTime = matchesTimeOfDay(mic, filters.timeOfDay);
+      const matchesCity = filters.city === "All" || mic.city === filters.city;
+      const matchesFrequency = !filters.frequency || filters.frequency === 'all' || mic.frequency === filters.frequency;
+      const matchesMicStatus = !filters.micStatus || filters.micStatus === 'all' || mic.status === filters.micStatus;
+      return matchesSearch && matchesBorough && matchesCost && matchesTime && matchesCity && matchesFrequency && matchesMicStatus;
+    });
+
+    // Sort by start time
+    filtered.sort((a, b) => {
+      const aMin = timeToMinutes(a.startTime);
+      const bMin = timeToMinutes(b.startTime);
+      return aMin - bMin;
+    });
+
+    return filtered;
+  };
+
   // Memoize the onMicSelect callback to prevent map re-renders
   const handleMicSelect = useCallback((mic: OpenMic) => {
     setSelectedMic(mic);

@@ -31,6 +31,7 @@ import {
   useAddSocialLink,
   useRemoveSocialLink 
 } from '@/hooks/useComedianProfile';
+import VerifyMyDay from '@/components/profile/VerifyMyDay';
 
 const Profile = () => {
   const { user, signOut, loading } = useAuth();
