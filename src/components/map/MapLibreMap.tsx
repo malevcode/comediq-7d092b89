@@ -54,7 +54,7 @@ const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange }: MapLibreMapProp
       container: containerRef.current,
       style: CARTO_DARK_MATTER,
       center: NYC_CENTER,
-      zoom: 11,
+      zoom: 13, // Neighborhood view
       attributionControl: false,
     });
 
@@ -80,7 +80,7 @@ const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange }: MapLibreMapProp
     };
   }, []);
 
-  // Update markers when geocoded data changes
+  // Update markers when geocoded data changes - group by venue location
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -89,24 +89,62 @@ const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange }: MapLibreMapProp
     markersRef.current.forEach(m => m.remove());
     markersRef.current = [];
 
-    const visibleMics: OpenMic[] = [];
+    // Group mics by location (same coords = same venue)
+    const locationGroups = new Map<string, { coords: [number, number]; mics: OpenMic[] }>();
 
     geocodedMics.forEach((coords, micId) => {
       const mic = mics.find(m => m.uniqueIdentifier === micId);
       if (!mic) return;
+      
+      // Round coords to group same-venue mics
+      const locKey = `${coords[0].toFixed(5)},${coords[1].toFixed(5)}`;
+      if (!locationGroups.has(locKey)) {
+        locationGroups.set(locKey, { coords, mics: [] });
+      }
+      locationGroups.get(locKey)!.mics.push(mic);
+    });
 
-      visibleMics.push(mic);
-      const liveStatus = getMicLiveStatus(mic.day, mic.startTime, mic.latestEndTime);
-      const timeLabel = formatTimeShort(mic.startTime);
+    const visibleMics: OpenMic[] = [];
+
+    locationGroups.forEach(({ coords, mics: groupMics }) => {
+      visibleMics.push(...groupMics);
+
+      // Build combined label: "4:30/6" for multiple, "6p" for single
+      let label: string;
+      let isLive = false;
+
+      if (groupMics.length === 1) {
+        label = formatTimeShort(groupMics[0].startTime);
+        isLive = getMicLiveStatus(groupMics[0].day, groupMics[0].startTime, groupMics[0].latestEndTime) === 'live';
+      } else {
+        // Sort by start time, combine into compact label
+        const sorted = [...groupMics].sort((a, b) => {
+          const aMatch = a.startTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
+          const bMatch = b.startTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
+          if (!aMatch || !bMatch) return 0;
+          const aMin = (parseInt(aMatch[1]) + (aMatch[3].toUpperCase() === 'PM' && parseInt(aMatch[1]) !== 12 ? 12 : 0)) * 60 + parseInt(aMatch[2]);
+          const bMin = (parseInt(bMatch[1]) + (bMatch[3].toUpperCase() === 'PM' && parseInt(bMatch[1]) !== 12 ? 12 : 0)) * 60 + parseInt(bMatch[2]);
+          return aMin - bMin;
+        });
+        label = sorted.map(m => formatTimeShort(m.startTime)).join('/');
+        isLive = sorted.some(m => getMicLiveStatus(m.day, m.startTime, m.latestEndTime) === 'live');
+      }
 
       // Create pill marker element
       const el = document.createElement('div');
       el.className = 'maplibre-mic-pill';
-      if (liveStatus === 'live') {
+      if (isLive) {
         el.classList.add('maplibre-mic-pill--live');
       }
-      el.textContent = timeLabel;
-      el.addEventListener('click', () => onMicSelect(mic));
+      el.textContent = label;
+      el.addEventListener('click', () => {
+        if (groupMics.length === 1) {
+          onMicSelect(groupMics[0]);
+        } else {
+          // Select first mic, user can browse in drawer
+          onMicSelect(groupMics[0]);
+        }
+      });
 
       const marker = new maplibregl.Marker({ element: el })
         .setLngLat(coords)
