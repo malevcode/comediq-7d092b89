@@ -103,7 +103,7 @@ const App = () => (
             <Route path="/liked" element={<LikedMics />} />
             <Route path="/dev-view" element={<TabProvider><DevView /></TabProvider>} />
             <Route path="/slots" element={<Slots />} />
-            
+            <Route path="/open-mics-og" element={<OpenMicsOG />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
