@@ -711,6 +711,15 @@ const OpenMics = () => {
             </div>
 
             <div className="flex gap-2">
+              {/* Map View Toggle */}
+              <Button
+                onClick={() => setViewMode("maplibre")}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1 px-3 py-2"
+              >
+                <Map className="h-4 w-4" />
+              </Button>
               <Button
                 onClick={() => setShowRequestModal(true)}
                 variant="outline"
