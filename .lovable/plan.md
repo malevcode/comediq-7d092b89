@@ -1,45 +1,23 @@
 
 
-## Plan: Simplify the "Request New Mic" Form
+## Three Fixes for the Map View
 
-### Problem
-The current `AddMicRequestForm` has 17 fields across 5 sections. Most users won't know (or need to provide) things like neighborhood, venue type, end time, stage time, or sign-up instructions. The admin can fill those in during review.
+### 1. Increase control padding (top nav still hidden)
+Bump `.maplibregl-ctrl-top-left` / `.maplibregl-ctrl-top-right` from `12px` to `48px` in `src/index.css`. This gives enough clearance below the DateToggle and any banner overlap.
 
-### Approach
-Reduce the form to **6 core fields** + 1 optional, and use **Mapbox Geocoding** (already integrated in the project) to auto-fill location data from the venue name.
+### 2. Lower the default drawer height
+In `src/components/map/MapLibreDrawer.tsx`, change the initial `drawerHeight` state from `40` to `25` (vh). This gives ~15% more visible map area by default while still showing ~4-5 mic rows.
 
-### New Form Fields
+### 3. Center map on user's actual location
+The map currently hardcodes `[-73.935, 40.730]` (Dutch Kills, Astoria) as center. Fix:
 
-**Required (4):**
-1. **Mic Name** — text input (same as now)
-2. **Venue** — text input with Mapbox Places autocomplete. When a place is selected, auto-populate: address, borough, neighborhood, city
-3. **Day of Week** — day picker (same as now)
-4. **Start Time** — time input (same as now)
+- **`MapLibreMap.tsx`**: Accept an optional `userLocation` prop. After the map initializes, if `userLocation` is provided, call `map.setCenter(userLocation)`.
+- **`OpenMics.tsx`**: Import the existing `useUserLocation` hook and pass `userLocation` to `MapLibreMap`. The hook already handles caching, auth gating, and background refresh — no new logic needed.
+- Keep `NYC_CENTER` as the fallback for logged-out or denied-permission users.
 
-**Optional (3):**
-5. **Cost** — text input (e.g., "Free", "$5", "1 drink min")
-6. **Host Instagram** — single field, auto-copied to `changes_updates` on submit
-7. **Notes** — textarea for anything else (sign-up instructions, rules, etc.)
-
-### Auto-fill from Mapbox
-When the user types a venue name, show a dropdown of Mapbox geocoding results (using the existing `GeocodingService` pattern and Mapbox token). On selection:
-- `location` = full address
-- `borough` = extracted from place context (Manhattan, Brooklyn, etc.)
-- `neighborhood` = extracted from Mapbox neighborhood context
-- `city` = extracted from place context
-
-The user sees a small confirmation line like "📍 123 Main St, East Village, Manhattan" below the venue input. They never manually pick borough/neighborhood.
-
-### Implementation
-
-| Step | What | File |
-|------|------|------|
-| 1 | Rewrite `AddMicRequestForm.tsx` — 6 fields, Mapbox venue autocomplete, auto-fill location data | `src/components/host/AddMicRequestForm.tsx` |
-| 2 | Update `MicRequestFormData` interface — keep all fields but only require `open_mic`, `venue_name`, `day`, `start_time` | Same file |
-| 3 | Copy `hosts_organizers` value into `changes_updates` on submit so admin gets the contact info automatically | Same file |
-
-No database changes needed — the `open_mics_requests` table already accepts all fields as nullable. The submit handler in `OpenMics.tsx` stays the same.
-
-### Technical Detail: Mapbox Venue Search
-Use Mapbox Geocoding API (already have the token via `getMapboxToken()` in `MapInitializer.ts`) with `types=poi,address` and debounced input. Extract borough from the `context` array in Mapbox results where `id` starts with `locality` or `place`. Map known NYC borough names. This keeps everything client-side with no new edge functions.
+### Files to modify
+- `src/index.css` — bump control top offset to 48px
+- `src/components/map/MapLibreDrawer.tsx` — default height 40→25vh
+- `src/components/map/MapLibreMap.tsx` — add `userLocation` prop, fly to it on load
+- `src/pages/OpenMics.tsx` — wire `useUserLocation` into `MapLibreMap`
 
