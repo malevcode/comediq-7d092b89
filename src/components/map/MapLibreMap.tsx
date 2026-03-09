@@ -15,7 +15,7 @@ interface MapLibreMapProps {
 const CARTO_DARK_MATTER = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
 const NYC_CENTER: [number, number] = [-73.935, 40.730];
 
-const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange }: MapLibreMapProps) => {
+const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange, userLocation }: MapLibreMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
