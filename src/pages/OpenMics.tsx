@@ -776,6 +776,7 @@ const OpenMics = () => {
 
       {showRequestModal && <AddMicRequestForm onSubmit={handleRequestMic} onCancel={() => setShowRequestModal(false)} isSubmitting={isSubmittingMic} />}
       </div>
+      )}
     </>
   );
 };
