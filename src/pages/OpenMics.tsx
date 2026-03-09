@@ -36,6 +36,11 @@ const OpenMics = () => {
   const [mapLibreVisibleMics, setMapLibreVisibleMics] = useState<OpenMic[]>([]);
   const [visibleCount, setVisibleCount] = useState(100);
   const [showRequestModal, setShowRequestModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
 
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
