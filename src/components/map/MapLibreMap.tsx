@@ -54,7 +54,7 @@ const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange, userLocation }: M
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: CARTO_DARK_MATTER,
-      center: NYC_CENTER,
+      center: userLocation || NYC_CENTER,
       zoom: 13, // Neighborhood view
       attributionControl: false,
     });
