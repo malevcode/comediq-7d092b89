@@ -650,6 +650,7 @@ const OpenMics = () => {
               mics={getFilteredMicsForDate(selectedDate)}
               onMicSelect={handleMicSelect}
               onVisibleMicsChange={setMapLibreVisibleMics}
+              userLocation={userLocation}
             />
             <MapLibreDrawer
               mics={mapLibreVisibleMics.length > 0 ? mapLibreVisibleMics : getFilteredMicsForDate(selectedDate)}

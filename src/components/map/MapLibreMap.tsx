@@ -81,6 +81,13 @@ const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange, userLocation }: M
     };
   }, []);
 
+  // Fly to user location when it becomes available after init
+  useEffect(() => {
+    if (mapRef.current && userLocation) {
+      mapRef.current.flyTo({ center: userLocation, zoom: 13 });
+    }
+  }, [userLocation]);
+
   // Update markers when geocoded data changes - group by venue location
   useEffect(() => {
     const map = mapRef.current;
