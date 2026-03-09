@@ -9,12 +9,13 @@ interface MapLibreMapProps {
   mics: OpenMic[];
   onMicSelect: (mic: OpenMic) => void;
   onVisibleMicsChange?: (mics: OpenMic[]) => void;
+  userLocation?: [number, number] | null;
 }
 
 const CARTO_DARK_MATTER = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
 const NYC_CENTER: [number, number] = [-73.935, 40.730];
 
-const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange }: MapLibreMapProps) => {
+const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange, userLocation }: MapLibreMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
@@ -53,7 +54,7 @@ const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange }: MapLibreMapProp
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: CARTO_DARK_MATTER,
-      center: NYC_CENTER,
+      center: userLocation || NYC_CENTER,
       zoom: 13, // Neighborhood view
       attributionControl: false,
     });
@@ -79,6 +80,13 @@ const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange }: MapLibreMapProp
       mapRef.current = null;
     };
   }, []);
+
+  // Fly to user location when it becomes available after init
+  useEffect(() => {
+    if (mapRef.current && userLocation) {
+      mapRef.current.flyTo({ center: userLocation, zoom: 13 });
+    }
+  }, [userLocation]);
 
   // Update markers when geocoded data changes - group by venue location
   useEffect(() => {

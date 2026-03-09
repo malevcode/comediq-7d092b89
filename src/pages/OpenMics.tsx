@@ -14,6 +14,7 @@ import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import MicDetailModal from "@/components/MicDetailModal";
 import { OpenMicsMapRefactored as OpenMicsMap, MapLibreMap, MapLibreDrawer } from "@/components/map";
+import { useUserLocation } from "@/hooks/useUserLocation";
 import DateToggle from "@/components/map/DateToggle";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import ViewToggle from "@/components/ViewToggle";
@@ -45,6 +46,7 @@ const OpenMics = () => {
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
   const { data: likedMics = [] } = useUserLikedMics();
+  const { userLocation } = useUserLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const hasScrolled = useRef(false);
@@ -648,6 +650,7 @@ const OpenMics = () => {
               mics={getFilteredMicsForDate(selectedDate)}
               onMicSelect={handleMicSelect}
               onVisibleMicsChange={setMapLibreVisibleMics}
+              userLocation={userLocation}
             />
             <MapLibreDrawer
               mics={mapLibreVisibleMics.length > 0 ? mapLibreVisibleMics : getFilteredMicsForDate(selectedDate)}

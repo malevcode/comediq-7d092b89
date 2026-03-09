@@ -31,7 +31,7 @@ const hashIP = async (): Promise<string> => {
 
 const MapLibreDrawer = ({ mics, onMicSelect, selectedDate }: MapLibreDrawerProps) => {
   const { user } = useAuth();
-  const [drawerHeight, setDrawerHeight] = useState(40); // vh
+  const [drawerHeight, setDrawerHeight] = useState(25); // vh
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const dragRef = useRef<{ startY: number; startHeight: number } | null>(null);
   const planToHit = usePlanToHit();
