@@ -633,10 +633,7 @@ const OpenMics = () => {
       {viewMode === "maplibre" ? (
         <div className="min-h-screen bg-background pb-20 relative">
           <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />
-          {/* Date Toggle under header */}
-          <div className="fixed top-[80px] left-0 right-0 z-[42] flex justify-center py-1.5 bg-background/90 backdrop-blur border-b border-border/50">
-            <DateToggle selectedDate={selectedDate} onDateChange={setSelectedDate} />
-          </div>
+          {/* Date Toggle overlaid on map */}
           {/* Floating Switch to List button - bottom right */}
           <button
             onClick={() => setViewMode("list")}
@@ -645,7 +642,10 @@ const OpenMics = () => {
             <List className="h-4 w-4" />
             List
           </button>
-          <div className="pt-[120px]">
+          <div className="pt-[60px] relative">
+            <div className="absolute top-[68px] left-1/2 -translate-x-1/2 z-20">
+              <DateToggle selectedDate={selectedDate} onDateChange={setSelectedDate} />
+            </div>
             <MapLibreMap
               mics={getFilteredMicsForDate(selectedDate)}
               onMicSelect={handleMicSelect}

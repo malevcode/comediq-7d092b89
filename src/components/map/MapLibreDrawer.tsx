@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { OpenMic } from '@/types/openMic';
-import { formatTimeShort } from './MapUtils';
+import { formatTimeShort, parseTimeToMinutes } from './MapUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
@@ -126,7 +126,7 @@ const MapLibreDrawer = ({ mics, onMicSelect, selectedDate }: MapLibreDrawerProps
 
       {/* List - single-line density */}
       <div className="flex-1 overflow-y-auto scrollbar-hide">
-        {mics.map((mic) => {
+        {[...mics].sort((a, b) => (parseTimeToMinutes(a.startTime) ?? 0) - (parseTimeToMinutes(b.startTime) ?? 0)).map((mic) => {
           const isSlotsEnabled = mic.slotsEnabled;
 
           return (
@@ -145,9 +145,9 @@ const MapLibreDrawer = ({ mics, onMicSelect, selectedDate }: MapLibreDrawerProps
               {/* Divider */}
               <div className="w-px h-5 bg-[hsl(213,73%,40%)]/20 flex-shrink-0" />
 
-              {/* Venue */}
+              {/* Mic Name */}
               <div className="flex-1 truncate py-1.5 px-2">
-                <span className="text-xs font-medium text-[hsl(213,73%,40%)]">{mic.venueName || mic.openMic}</span>
+                <span className="text-xs font-medium text-[hsl(213,73%,40%)]">{mic.openMic}</span>
               </div>
 
               {/* Divider */}

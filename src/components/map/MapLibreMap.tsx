@@ -13,7 +13,7 @@ interface MapLibreMapProps {
 }
 
 const CARTO_DARK_MATTER = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
-const NYC_CENTER: [number, number] = [-73.935, 40.730];
+const NYC_CENTER: [number, number] = [-73.985, 40.748];
 
 const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange, userLocation }: MapLibreMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
