@@ -43,6 +43,7 @@ import SavedMics from "./pages/SavedMics";
 import DevView from "./pages/DevView";
 import Slots from "./pages/Slots";
 import LikedMics from "./pages/LikedMics";
+import OpenMicsOG from "./pages/OpenMicsOG";
 
 const queryClient = new QueryClient({
   defaultOptions: {
