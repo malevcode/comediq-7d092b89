@@ -642,7 +642,10 @@ const OpenMics = () => {
             <List className="h-4 w-4" />
             List
           </button>
-          <div className="pt-[120px]">
+          <div className="pt-[60px] relative">
+            <div className="absolute top-[68px] left-1/2 -translate-x-1/2 z-20">
+              <DateToggle selectedDate={selectedDate} onDateChange={setSelectedDate} />
+            </div>
             <MapLibreMap
               mics={getFilteredMicsForDate(selectedDate)}
               onMicSelect={handleMicSelect}
