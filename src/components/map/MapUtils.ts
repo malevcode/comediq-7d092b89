@@ -75,16 +75,18 @@ export const formatTime = (timeStr: string): string => {
   return timeStr;
 };
 
-// Format time to short transit-style label (e.g., "6p", "8:30p")
+// Format time to short transit-style label (e.g., "6", "8:30", "11a")
+// Omits 'p' for PM (assumed for comedy mics), shows 'a' for AM only
 export const formatTimeShort = (timeStr: string): string => {
   if (!timeStr) return '?';
   const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
   if (!match) return timeStr.length > 5 ? timeStr.substring(0, 5) : timeStr;
   const hour = parseInt(match[1]);
   const min = parseInt(match[2]);
-  const period = match[3].toLowerCase().charAt(0); // 'a' or 'p'
-  if (min === 0) return `${hour}${period}`;
-  return `${hour}:${match[2]}${period}`;
+  const period = match[3].toUpperCase();
+  const suffix = period === 'AM' ? 'a' : ''; // 'a' for AM, '' for PM
+  if (min === 0) return `${hour}${suffix}`;
+  return `${hour}:${match[2]}${suffix}`;
 };
 
 // Parse 12h time string into minutes since midnight
