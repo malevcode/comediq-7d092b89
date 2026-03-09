@@ -1,45 +1,40 @@
 
 
-## Plan: Simplify the "Request New Mic" Form
+## Plan: Comediq-Styled Map Markers & UI Cleanup
 
-### Problem
-The current `AddMicRequestForm` has 17 fields across 5 sections. Most users won't know (or need to provide) things like neighborhood, venue type, end time, stage time, or sign-up instructions. The admin can fill those in during review.
+### 1. Custom Comediq Pin Shape for Markers
+Replace the pill-style markers with a location pin shape resembling the Comediq Q logo (rounded top with pointed tail at bottom). The pin will contain the time text inside.
 
-### Approach
-Reduce the form to **6 core fields** + 1 optional, and use **Mapbox Geocoding** (already integrated in the project) to auto-fill location data from the venue name.
+**File: `src/index.css`**
+- Replace `.maplibre-mic-pill` styles with a new `.maplibre-mic-pin` class using CSS to create a teardrop/pin shape:
+  - Rounded rectangle top with `::after` pseudo-element for the pointed tail
+  - Comediq Blue background with cream text
+  - Same hover/live pulse animations
 
-### New Form Fields
+### 2. Time Format — Drop "p" Suffix
+Since comedy mics are nighttime events, PM is assumed. Only show "a" suffix for AM times.
 
-**Required (4):**
-1. **Mic Name** — text input (same as now)
-2. **Venue** — text input with Mapbox Places autocomplete. When a place is selected, auto-populate: address, borough, neighborhood, city
-3. **Day of Week** — day picker (same as now)
-4. **Start Time** — time input (same as now)
+**File: `src/components/map/MapUtils.ts`**
+- Update `formatTimeShort()` to:
+  - Return `6` instead of `6p` for PM times
+  - Return `11a` for AM times (keep the "a")
 
-**Optional (3):**
-5. **Cost** — text input (e.g., "Free", "$5", "1 drink min")
-6. **Host Instagram** — single field, auto-copied to `changes_updates` on submit
-7. **Notes** — textarea for anything else (sign-up instructions, rules, etc.)
+### 3. Remove "Transit Schedule" Text
+The drawer header shows "Transit Schedule" but that feature is a future milestone.
 
-### Auto-fill from Mapbox
-When the user types a venue name, show a dropdown of Mapbox geocoding results (using the existing `GeocodingService` pattern and Mapbox token). On selection:
-- `location` = full address
-- `borough` = extracted from place context (Manhattan, Brooklyn, etc.)
-- `neighborhood` = extracted from Mapbox neighborhood context
-- `city` = extracted from place context
+**File: `src/components/map/MapLibreDrawer.tsx`**
+- Remove the `<span>Transit Schedule</span>` from line 124
+- Keep just the mic count
 
-The user sees a small confirmation line like "📍 123 Main St, East Village, Manhattan" below the venue input. They never manually pick borough/neighborhood.
+### 4. Update Map Component
+**File: `src/components/map/MapLibreMap.tsx`**
+- Change marker element class from `maplibre-mic-pill` to `maplibre-mic-pin`
 
-### Implementation
-
-| Step | What | File |
-|------|------|------|
-| 1 | Rewrite `AddMicRequestForm.tsx` — 6 fields, Mapbox venue autocomplete, auto-fill location data | `src/components/host/AddMicRequestForm.tsx` |
-| 2 | Update `MicRequestFormData` interface — keep all fields but only require `open_mic`, `venue_name`, `day`, `start_time` | Same file |
-| 3 | Copy `hosts_organizers` value into `changes_updates` on submit so admin gets the contact info automatically | Same file |
-
-No database changes needed — the `open_mics_requests` table already accepts all fields as nullable. The submit handler in `OpenMics.tsx` stays the same.
-
-### Technical Detail: Mapbox Venue Search
-Use Mapbox Geocoding API (already have the token via `getMapboxToken()` in `MapInitializer.ts`) with `types=poi,address` and debounced input. Extract borough from the `context` array in Mapbox results where `id` starts with `locality` or `place`. Map known NYC borough names. This keeps everything client-side with no new edge functions.
+### Files to Modify
+| File | Change |
+|------|--------|
+| `src/index.css` | New `.maplibre-mic-pin` CSS for teardrop pin shape |
+| `src/components/map/MapUtils.ts` | `formatTimeShort()` — omit "p", keep "a" |
+| `src/components/map/MapLibreDrawer.tsx` | Remove "Transit Schedule" header text |
+| `src/components/map/MapLibreMap.tsx` | Use new pin class name |
 
