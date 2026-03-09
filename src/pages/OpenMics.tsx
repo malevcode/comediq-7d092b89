@@ -14,6 +14,7 @@ import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import MicDetailModal from "@/components/MicDetailModal";
 import { OpenMicsMapRefactored as OpenMicsMap, MapLibreMap, MapLibreDrawer } from "@/components/map";
+import DateToggle from "@/components/map/DateToggle";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import ViewToggle from "@/components/ViewToggle";
 import AddMicRequestForm, { MicRequestFormData } from "@/components/host/AddMicRequestForm";
