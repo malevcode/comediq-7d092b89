@@ -595,23 +595,28 @@ const OpenMics = () => {
       {viewMode === "maplibre" ? (
         <div className="min-h-screen bg-background pb-20 relative">
           <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />
-          {/* Switch to List toggle */}
+          {/* Date Toggle under header */}
+          <div className="fixed top-[80px] left-0 right-0 z-[42] flex justify-center py-1.5 bg-background/90 backdrop-blur border-b border-border/50">
+            <DateToggle selectedDate={selectedDate} onDateChange={setSelectedDate} />
+          </div>
+          {/* Floating Switch to List button - bottom right */}
           <button
             onClick={() => setViewMode("list")}
-            className="fixed top-24 right-4 z-40 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg text-xs font-medium text-foreground hover:bg-accent transition-colors"
+            className="fixed bottom-24 right-4 z-40 flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[hsl(213,73%,40%)] text-[hsl(40,33%,94%)] shadow-lg text-xs font-bold hover:bg-[hsl(213,73%,30%)] transition-colors"
           >
-            <List className="h-3.5 w-3.5" />
+            <List className="h-4 w-4" />
             List
           </button>
-          <div className="pt-[107px]">
+          <div className="pt-[120px]">
             <MapLibreMap
-              mics={getFilteredMics("next")}
+              mics={getFilteredMicsForDate(selectedDate)}
               onMicSelect={handleMicSelect}
               onVisibleMicsChange={setMapLibreVisibleMics}
             />
             <MapLibreDrawer
-              mics={mapLibreVisibleMics.length > 0 ? mapLibreVisibleMics : getFilteredMics("next")}
+              mics={mapLibreVisibleMics.length > 0 ? mapLibreVisibleMics : getFilteredMicsForDate(selectedDate)}
               onMicSelect={handleMicSelect}
+              selectedDate={selectedDate}
             />
           </div>
           {selectedMic && (
