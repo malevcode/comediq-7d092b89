@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { Search, HelpCircle, LogIn, Plus } from "lucide-react";
+import { Search, HelpCircle, LogIn, Plus, Map, List } from "lucide-react";
 import SEO from "@/components/SEO";
 import { generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import MicDetailModal from "@/components/MicDetailModal";
-import { OpenMicsMapRefactored as OpenMicsMap } from "@/components/map";
+import { OpenMicsMapRefactored as OpenMicsMap, MapLibreMap, MapLibreDrawer } from "@/components/map";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import ViewToggle from "@/components/ViewToggle";
 import AddMicRequestForm, { MicRequestFormData } from "@/components/host/AddMicRequestForm";
@@ -30,7 +30,8 @@ const OpenMics = () => {
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [activeTab, setActiveTab] = useState("next");
   const [showKey, setShowKey] = useState(false);
-  const [viewMode, setViewMode] = useState<"list" | "grid" | "map">("list");
+  const [viewMode, setViewMode] = useState<"list" | "grid" | "map" | "maplibre">("maplibre");
+  const [mapLibreVisibleMics, setMapLibreVisibleMics] = useState<OpenMic[]>([]);
   const [visibleCount, setVisibleCount] = useState(100);
   const [showRequestModal, setShowRequestModal] = useState(false);
 
@@ -584,6 +585,33 @@ const OpenMics = () => {
         url="https://comediq.us/open-mics"
         structuredData={breadcrumbSchema}
       />
+      {viewMode === "maplibre" ? (
+        <div className="min-h-screen bg-background pb-20 relative">
+          <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />
+          {/* Switch to List toggle */}
+          <button
+            onClick={() => setViewMode("list")}
+            className="fixed top-24 right-4 z-40 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg text-xs font-medium text-foreground hover:bg-accent transition-colors"
+          >
+            <List className="h-3.5 w-3.5" />
+            List
+          </button>
+          <div className="pt-[107px]">
+            <MapLibreMap
+              mics={getFilteredMics("next")}
+              onMicSelect={handleMicSelect}
+              onVisibleMicsChange={setMapLibreVisibleMics}
+            />
+            <MapLibreDrawer
+              mics={mapLibreVisibleMics.length > 0 ? mapLibreVisibleMics : getFilteredMics("next")}
+              onMicSelect={handleMicSelect}
+            />
+          </div>
+          {selectedMic && (
+            <MicDetailModal mic={selectedMic} onClose={() => setSelectedMic(null)} onAddToSchedule={handleAddToSchedule} />
+          )}
+        </div>
+      ) : (
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
         <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />
 
@@ -683,6 +711,15 @@ const OpenMics = () => {
             </div>
 
             <div className="flex gap-2">
+              {/* Map View Toggle */}
+              <Button
+                onClick={() => setViewMode("maplibre")}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1 px-3 py-2"
+              >
+                <Map className="h-4 w-4" />
+              </Button>
               <Button
                 onClick={() => setShowRequestModal(true)}
                 variant="outline"
@@ -739,6 +776,7 @@ const OpenMics = () => {
 
       {showRequestModal && <AddMicRequestForm onSubmit={handleRequestMic} onCancel={() => setShowRequestModal(false)} isSubmitting={isSubmittingMic} />}
       </div>
+      )}
     </>
   );
 };
