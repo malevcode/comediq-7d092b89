@@ -155,8 +155,9 @@ html {
 
 /* MapLibre pill markers */
 .maplibre-mic-pill {
-  background: hsl(213, 73%, 40%);
-  color: hsl(40, 33%, 94%);
+  position: relative;
+  background: hsl(var(--comediq-blue));
+  color: hsl(var(--comediq-cream));
   font-size: 11px;
   font-weight: 700;
   padding: 3px 8px;
@@ -165,13 +166,26 @@ html {
   white-space: nowrap;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   transition: transform 0.15s ease;
+  margin-bottom: 6px; /* space for the arrow */
+}
+.maplibre-mic-pill::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid hsl(var(--comediq-blue));
 }
 .maplibre-mic-pill:hover {
   transform: scale(1.15);
 }
 .maplibre-mic-pill--live {
   animation: mic-pulse 1.5s ease-in-out infinite;
-  box-shadow: 0 0 0 0 hsl(213, 73%, 40%);
+  box-shadow: 0 0 0 0 hsl(var(--comediq-blue));
 }
 @keyframes mic-pulse {
   0%, 100% { box-shadow: 0 0 0 0 hsla(213, 73%, 40%, 0.5); }
