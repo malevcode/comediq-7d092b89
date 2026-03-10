@@ -134,7 +134,8 @@ const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange, userLocation }: M
           const bMin = (parseInt(bMatch[1]) + (bMatch[3].toUpperCase() === 'PM' && parseInt(bMatch[1]) !== 12 ? 12 : 0)) * 60 + parseInt(bMatch[2]);
           return aMin - bMin;
         });
-        label = sorted.map(m => formatTimeShort(m.startTime)).join('/');
+        const times = sorted.map(m => formatTimeShort(m.startTime));
+        label = times.length <= 2 ? times.join('/') : `${times[0]} +${times.length - 1}`;
         isLive = sorted.some(m => getMicLiveStatus(m.day, m.startTime, m.latestEndTime) === 'live');
       }
 
