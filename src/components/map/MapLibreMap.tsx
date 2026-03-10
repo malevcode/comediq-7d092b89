@@ -25,7 +25,7 @@ const MapLibreMap = ({ mics, onMicSelect, onVisibleMicsChange, userLocation }: M
   useEffect(() => {
     const geocode = async () => {
       const results = new Map<string, [number, number]>();
-      const geocoder = new GeocodingService();
+      const geocoder = new GeocodingService('');
       
       for (const mic of mics) {
         if (!mic.location) continue;

@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Grid3x3, List, MapPin } from 'lucide-react';
 
 interface ViewToggleProps {
-  viewMode: 'list' | 'grid' | 'map';
-  onViewChange: (mode: 'list' | 'grid' | 'map') => void;
+  viewMode: 'list' | 'grid' | 'map' | 'maplibre';
+  onViewChange: (mode: 'list' | 'grid' | 'map' | 'maplibre') => void;
 }
 
 const ViewToggle = ({ viewMode, onViewChange }: ViewToggleProps) => {

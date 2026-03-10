@@ -124,7 +124,7 @@ const MapBottomSheet: React.FC<MapBottomSheetProps> = ({
             View Details
           </Button>
           {user && (
-            <PlaylistSelectorDropdown micId={mic.uniqueIdentifier} />
+            <PlaylistSelectorDropdown micUniqueIdentifier={mic.uniqueIdentifier} micName={mic.openMic} open={false} onOpenChange={() => {}} />
           )}
         </div>
 
