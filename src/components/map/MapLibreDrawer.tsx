@@ -139,11 +139,13 @@ const MapLibreDrawer = ({ mics, onMicSelect, selectedDate, selectedMicId }: MapL
       <div className="flex-1 overflow-y-auto scrollbar-hide">
         {[...mics].sort((a, b) => (parseTimeToMinutes(a.startTime) ?? 0) - (parseTimeToMinutes(b.startTime) ?? 0)).map((mic) => {
           const isSlotsEnabled = mic.slotsEnabled;
+          const isSelected = selectedMicId === mic.uniqueIdentifier;
 
           return (
             <div
               key={mic.uniqueIdentifier}
-              className="flex items-center border-b border-[hsl(213,73%,40%)]/10 hover:bg-[hsl(213,73%,40%)]/5 transition-colors cursor-pointer"
+              ref={(el) => { if (el) rowRefs.current.set(mic.uniqueIdentifier, el); }}
+              className={`flex items-center border-b border-[hsl(213,73%,40%)]/10 hover:bg-[hsl(213,73%,40%)]/5 transition-colors cursor-pointer ${isSelected ? 'bg-[hsl(213,73%,40%)]/15 ring-1 ring-[hsl(213,73%,40%)]/30' : ''}`}
               onClick={() => onMicSelect(mic)}
             >
               {/* Time */}
