@@ -123,7 +123,6 @@ const MapLibreDrawer = ({ mics, onMicSelect, selectedDate, selectedMicId }: MapL
       {/* Header */}
       <div className="px-3 pb-1 flex items-center justify-between text-xs font-semibold text-[hsl(213,73%,40%)] border-b border-[hsl(213,73%,40%)]/20">
         <span>{mics.length} mics</span>
-        <span>Transit Schedule</span>
       </div>
 
       {/* List - single-line density */}
