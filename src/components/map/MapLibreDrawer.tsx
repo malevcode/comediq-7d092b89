@@ -12,6 +12,7 @@ interface MapLibreDrawerProps {
   mics: OpenMic[];
   onMicSelect: (mic: OpenMic) => void;
   selectedDate: Date;
+  selectedMicId?: string | null;
 }
 
 // Simple IP hash for verification dedup
