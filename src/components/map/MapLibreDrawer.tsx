@@ -30,11 +30,12 @@ const hashIP = async (): Promise<string> => {
   }
 };
 
-const MapLibreDrawer = ({ mics, onMicSelect, selectedDate }: MapLibreDrawerProps) => {
+const MapLibreDrawer = ({ mics, onMicSelect, selectedDate, selectedMicId }: MapLibreDrawerProps) => {
   const { user } = useAuth();
   const [drawerHeight, setDrawerHeight] = useState(25); // vh
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const dragRef = useRef<{ startY: number; startHeight: number } | null>(null);
+  const rowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const planToHit = usePlanToHit();
 
   const handleDragStart = useCallback((e: React.TouchEvent | React.MouseEvent) => {
