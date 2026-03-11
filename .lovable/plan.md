@@ -1,45 +1,50 @@
 
 
-## Plan: Simplify the "Request New Mic" Form
+## Problems Identified
 
-### Problem
-The current `AddMicRequestForm` has 17 fields across 5 sections. Most users won't know (or need to provide) things like neighborhood, venue type, end time, stage time, or sign-up instructions. The admin can fill those in during review.
+1. **Cryptic grouped labels** ("4 +3", "5 +2") — users can't tell what venue or which mics these represent. Grouping mics by venue into one bubble was a bad UX call.
+2. **Markers drift on zoom** — the marker anchor defaults to center of the element, but the visual pointer (the `▽` arrow) is at the bottom. So when zooming, markers appear to shift away from their actual location.
+3. **Clicking a bubble doesn't connect to the drawer** — tapping a map bubble opens the detail modal but doesn't scroll to or highlight the mic in the drawer list below.
 
-### Approach
-Reduce the form to **6 core fields** + 1 optional, and use **Mapbox Geocoding** (already integrated in the project) to auto-fill location data from the venue name.
+## Plan
 
-### New Form Fields
+### 1. One bubble per mic (stop venue grouping)
+**File: `src/components/map/MapLibreMap.tsx`**
 
-**Required (4):**
-1. **Mic Name** — text input (same as now)
-2. **Venue** — text input with Mapbox Places autocomplete. When a place is selected, auto-populate: address, borough, neighborhood, city
-3. **Day of Week** — day picker (same as now)
-4. **Start Time** — time input (same as now)
+Remove the `locationGroups` grouping logic entirely. Instead, iterate over all geocoded mics individually. Each marker shows just the mic's time (e.g., `7`, `6:30`). This eliminates all confusing "+N" labels.
 
-**Optional (3):**
-5. **Cost** — text input (e.g., "Free", "$5", "1 drink min")
-6. **Host Instagram** — single field, auto-copied to `changes_updates` on submit
-7. **Notes** — textarea for anything else (sign-up instructions, rules, etc.)
+```
+// Before: group by venue, build combined labels
+// After: one marker per mic, label = formatTimeShort(mic.startTime)
+```
 
-### Auto-fill from Mapbox
-When the user types a venue name, show a dropdown of Mapbox geocoding results (using the existing `GeocodingService` pattern and Mapbox token). On selection:
-- `location` = full address
-- `borough` = extracted from place context (Manhattan, Brooklyn, etc.)
-- `neighborhood` = extracted from Mapbox neighborhood context
-- `city` = extracted from place context
+### 2. Fix marker anchor point
+**File: `src/components/map/MapLibreMap.tsx`**
 
-The user sees a small confirmation line like "📍 123 Main St, East Village, Manhattan" below the venue input. They never manually pick borough/neighborhood.
+Set the marker `anchor` to `'bottom'` so the tip of the arrow CSS pseudo-element sits exactly on the mic's coordinates. This prevents visual drift on zoom.
 
-### Implementation
+```typescript
+new maplibregl.Marker({ element: el, anchor: 'bottom' })
+```
 
-| Step | What | File |
-|------|------|------|
-| 1 | Rewrite `AddMicRequestForm.tsx` — 6 fields, Mapbox venue autocomplete, auto-fill location data | `src/components/host/AddMicRequestForm.tsx` |
-| 2 | Update `MicRequestFormData` interface — keep all fields but only require `open_mic`, `venue_name`, `day`, `start_time` | Same file |
-| 3 | Copy `hosts_organizers` value into `changes_updates` on submit so admin gets the contact info automatically | Same file |
+### 3. Connect map bubble tap → drawer highlight + scroll
+**Files: `src/components/map/MapLibreMap.tsx`, `src/components/map/MapLibreDrawer.tsx`, `src/pages/OpenMics.tsx`**
 
-No database changes needed — the `open_mics_requests` table already accepts all fields as nullable. The submit handler in `OpenMics.tsx` stays the same.
+- Add a `selectedMicId` prop to `MapLibreDrawer`
+- When a map bubble is clicked, pass that mic's ID to the drawer
+- In the drawer, auto-scroll to that mic's row and highlight it with a distinct background
+- The drawer row click still opens the detail modal as before
 
-### Technical Detail: Mapbox Venue Search
-Use Mapbox Geocoding API (already have the token via `getMapboxToken()` in `MapInitializer.ts`) with `types=poi,address` and debounced input. Extract borough from the `context` array in Mapbox results where `id` starts with `locality` or `place`. Map known NYC borough names. This keeps everything client-side with no new edge functions.
+### 4. Remove "Transit Schedule" text
+**File: `src/components/map/MapLibreDrawer.tsx`** (line 124)
+
+Remove the `<span>Transit Schedule</span>` — this feature isn't ready yet.
+
+### Files to modify
+
+| File | Change |
+|------|--------|
+| `src/components/map/MapLibreMap.tsx` | Remove venue grouping, one marker per mic, set `anchor: 'bottom'` |
+| `src/components/map/MapLibreDrawer.tsx` | Add `selectedMicId` prop, auto-scroll + highlight selected row, remove "Transit Schedule" |
+| `src/pages/OpenMics.tsx` | Track `selectedMicId` state, pass to drawer when map bubble tapped |
 
