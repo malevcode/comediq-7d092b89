@@ -101,6 +101,16 @@ const MapLibreDrawer = ({ mics, onMicSelect, selectedDate, selectedMicId }: MapL
     });
   };
 
+  // Auto-scroll to selected mic
+  useEffect(() => {
+    if (selectedMicId) {
+      const row = rowRefs.current.get(selectedMicId);
+      if (row) {
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [selectedMicId]);
+
   return (
     <div
       className="fixed bottom-0 left-0 right-0 bg-[hsl(40,33%,94%)] border-t-2 border-[hsl(213,73%,40%)] rounded-t-2xl shadow-2xl z-10 flex flex-col"
