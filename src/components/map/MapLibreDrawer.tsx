@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { OpenMic } from '@/types/openMic';
 import { formatTimeShort, parseTimeToMinutes } from './MapUtils';
 import { supabase } from '@/integrations/supabase/client';
