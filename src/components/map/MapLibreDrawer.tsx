@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { OpenMic } from '@/types/openMic';
 import { formatTimeShort, parseTimeToMinutes } from './MapUtils';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +12,7 @@ interface MapLibreDrawerProps {
   mics: OpenMic[];
   onMicSelect: (mic: OpenMic) => void;
   selectedDate: Date;
+  selectedMicId?: string | null;
 }
 
 // Simple IP hash for verification dedup
@@ -29,11 +30,12 @@ const hashIP = async (): Promise<string> => {
   }
 };
 
-const MapLibreDrawer = ({ mics, onMicSelect, selectedDate }: MapLibreDrawerProps) => {
+const MapLibreDrawer = ({ mics, onMicSelect, selectedDate, selectedMicId }: MapLibreDrawerProps) => {
   const { user } = useAuth();
   const [drawerHeight, setDrawerHeight] = useState(25); // vh
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const dragRef = useRef<{ startY: number; startHeight: number } | null>(null);
+  const rowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const planToHit = usePlanToHit();
 
   const handleDragStart = useCallback((e: React.TouchEvent | React.MouseEvent) => {
@@ -99,6 +101,16 @@ const MapLibreDrawer = ({ mics, onMicSelect, selectedDate }: MapLibreDrawerProps
     });
   };
 
+  // Auto-scroll to selected mic
+  useEffect(() => {
+    if (selectedMicId) {
+      const row = rowRefs.current.get(selectedMicId);
+      if (row) {
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [selectedMicId]);
+
   return (
     <div
       className="fixed bottom-0 left-0 right-0 bg-[hsl(40,33%,94%)] border-t-2 border-[hsl(213,73%,40%)] rounded-t-2xl shadow-2xl z-10 flex flex-col"
@@ -121,18 +133,19 @@ const MapLibreDrawer = ({ mics, onMicSelect, selectedDate }: MapLibreDrawerProps
       {/* Header */}
       <div className="px-3 pb-1 flex items-center justify-between text-xs font-semibold text-[hsl(213,73%,40%)] border-b border-[hsl(213,73%,40%)]/20">
         <span>{mics.length} mics</span>
-        <span>Transit Schedule</span>
       </div>
 
       {/* List - single-line density */}
       <div className="flex-1 overflow-y-auto scrollbar-hide">
         {[...mics].sort((a, b) => (parseTimeToMinutes(a.startTime) ?? 0) - (parseTimeToMinutes(b.startTime) ?? 0)).map((mic) => {
           const isSlotsEnabled = mic.slotsEnabled;
+          const isSelected = selectedMicId === mic.uniqueIdentifier;
 
           return (
             <div
               key={mic.uniqueIdentifier}
-              className="flex items-center border-b border-[hsl(213,73%,40%)]/10 hover:bg-[hsl(213,73%,40%)]/5 transition-colors cursor-pointer"
+              ref={(el) => { if (el) rowRefs.current.set(mic.uniqueIdentifier, el); }}
+              className={`flex items-center border-b border-[hsl(213,73%,40%)]/10 hover:bg-[hsl(213,73%,40%)]/5 transition-colors cursor-pointer ${isSelected ? 'bg-[hsl(213,73%,40%)]/15 ring-1 ring-[hsl(213,73%,40%)]/30' : ''}`}
               onClick={() => onMicSelect(mic)}
             >
               {/* Time */}

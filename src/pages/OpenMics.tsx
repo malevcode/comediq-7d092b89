@@ -517,8 +517,14 @@ const OpenMics = () => {
   };
 
   // Memoize the onMicSelect callback to prevent map re-renders
+  const [highlightedMicId, setHighlightedMicId] = useState<string | null>(null);
+
   const handleMicSelect = useCallback((mic: OpenMic) => {
     setSelectedMic(mic);
+  }, []);
+
+  const handleMapBubbleSelect = useCallback((mic: OpenMic) => {
+    setHighlightedMicId(mic.uniqueIdentifier);
   }, []);
 
   const [isSubmittingMic, setIsSubmittingMic] = useState(false);
@@ -648,7 +654,7 @@ const OpenMics = () => {
             </div>
             <MapLibreMap
               mics={getFilteredMicsForDate(selectedDate)}
-              onMicSelect={handleMicSelect}
+              onMicSelect={handleMapBubbleSelect}
               onVisibleMicsChange={setMapLibreVisibleMics}
               userLocation={userLocation}
             />
@@ -656,6 +662,7 @@ const OpenMics = () => {
               mics={mapLibreVisibleMics.length > 0 ? mapLibreVisibleMics : getFilteredMicsForDate(selectedDate)}
               onMicSelect={handleMicSelect}
               selectedDate={selectedDate}
+              selectedMicId={highlightedMicId}
             />
           </div>
           {selectedMic && (
