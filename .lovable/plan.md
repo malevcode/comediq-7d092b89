@@ -1,45 +1,63 @@
 
 
-## Plan: Simplify the "Request New Mic" Form
+## Fix Clicks/Ad Bug + Enrich Ad Click Analytics
 
 ### Problem
-The current `AddMicRequestForm` has 17 fields across 5 sections. Most users won't know (or need to provide) things like neighborhood, venue type, end time, stage time, or sign-up instructions. The admin can fill those in during review.
+1. **Clicks/Ad displays 1085.7** — the formula multiplies by 100 (leftover from a CTR percentage calc). Should just be `totalClicks / totalAds`.
+2. **No visibility into WHO clicked ads** — the `ad_clicks` table already stores `user_id`, but there's no UI to browse individual clicks, see which users are clicking, or view click timelines per ad.
 
-### Approach
-Reduce the form to **6 core fields** + 1 optional, and use **Mapbox Geocoding** (already integrated in the project) to auto-fill location data from the venue name.
+### Plan
 
-### New Form Fields
+#### 1. Fix the math bug
+**File: `src/components/admin/ads/AdsDashboardCards.tsx`** (line 20)
 
-**Required (4):**
-1. **Mic Name** — text input (same as now)
-2. **Venue** — text input with Mapbox Places autocomplete. When a place is selected, auto-populate: address, borough, neighborhood, city
-3. **Day of Week** — day picker (same as now)
-4. **Start Time** — time input (same as now)
+Remove `* 100` from the calculation so it shows the actual average clicks per ad.
 
-**Optional (3):**
-5. **Cost** — text input (e.g., "Free", "$5", "1 drink min")
-6. **Host Instagram** — single field, auto-copied to `changes_updates` on submit
-7. **Notes** — textarea for anything else (sign-up instructions, rules, etc.)
+#### 2. Create a new hook to fetch detailed ad clicks
+**File: `src/hooks/useBannerAds.ts`**
 
-### Auto-fill from Mapbox
-When the user types a venue name, show a dropdown of Mapbox geocoding results (using the existing `GeocodingService` pattern and Mapbox token). On selection:
-- `location` = full address
-- `borough` = extracted from place context (Manhattan, Brooklyn, etc.)
-- `neighborhood` = extracted from Mapbox neighborhood context
-- `city` = extracted from place context
+Add a `useAdClickDetails` hook that queries `ad_clicks` joined with `profiles` (username, headshot) so we can show who clicked and when. Query:
+```
+ad_clicks.select('id, ad_id, user_id, clicked_at, profiles(username, headshot_url)')
+```
 
-The user sees a small confirmation line like "📍 123 Main St, East Village, Manhattan" below the venue input. They never manually pick borough/neighborhood.
+#### 3. Build an Ad Click Log tab in admin
+**File: `src/components/admin/ads/AdClickLog.tsx`** (new)
 
-### Implementation
+A table/list showing recent ad clicks with:
+- Ad label (joined from banner_ads or passed via props)
+- User (username or "Anonymous" if null)
+- Timestamp (relative, e.g. "2h ago")
+- Filterable by ad and by date range
 
-| Step | What | File |
-|------|------|------|
-| 1 | Rewrite `AddMicRequestForm.tsx` — 6 fields, Mapbox venue autocomplete, auto-fill location data | `src/components/host/AddMicRequestForm.tsx` |
-| 2 | Update `MicRequestFormData` interface — keep all fields but only require `open_mic`, `venue_name`, `day`, `start_time` | Same file |
-| 3 | Copy `hosts_organizers` value into `changes_updates` on submit so admin gets the contact info automatically | Same file |
+#### 4. Add per-ad click detail drawer
+**File: `src/components/admin/ads/ActiveAdsList.tsx`** and **`AllAdsList.tsx`**
 
-No database changes needed — the `open_mics_requests` table already accepts all fields as nullable. The submit handler in `OpenMics.tsx` stays the same.
+When clicking the click count on an ad card, open a small expandable section or dialog showing:
+- Click timeline (last 30 days mini chart using recharts)
+- Top clickers (usernames with click counts)
+- Recent clicks list
 
-### Technical Detail: Mapbox Venue Search
-Use Mapbox Geocoding API (already have the token via `getMapboxToken()` in `MapInitializer.ts`) with `types=poi,address` and debounced input. Extract borough from the `context` array in Mapbox results where `id` starts with `locality` or `place`. Map known NYC borough names. This keeps everything client-side with no new edge functions.
+#### 5. Add "Click Log" tab to AdsManagerTabs
+**File: `src/components/admin/ads/AdsManagerTabs.tsx`**
+
+Add a 5th tab "Click Log" that renders `<AdClickLog />`, giving admins a chronological feed of all ad interactions.
+
+#### 6. Enhance dashboard cards
+**File: `src/components/admin/ads/AdsDashboardCards.tsx`**
+
+Add two more metrics:
+- **Unique Clickers** — count of distinct `user_id` values (non-null) from `ad_clicks`
+- **Today's Clicks** — clicks from today only
+
+### Files to modify
+
+| File | Change |
+|------|--------|
+| `src/components/admin/ads/AdsDashboardCards.tsx` | Fix `* 100` bug, add unique clickers + today's clicks cards |
+| `src/hooks/useBannerAds.ts` | Add `useAdClickDetails` hook with user profile joins |
+| `src/components/admin/ads/AdClickLog.tsx` | New — chronological click log with user info and filters |
+| `src/components/admin/ads/AdsManagerTabs.tsx` | Add "Click Log" tab |
+| `src/components/admin/ads/ActiveAdsList.tsx` | Expandable click details per ad |
+| `src/components/admin/ads/AllAdsList.tsx` | Expandable click details per ad |
 
