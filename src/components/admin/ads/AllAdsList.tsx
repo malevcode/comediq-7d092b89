@@ -202,10 +202,13 @@ export function AllAdsList() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <MousePointerClick className="w-3.5 h-3.5" />
-                        {clickMap[ad.id] ?? 0}
-                      </div>
+                      <Collapsible open={expandedClickId === ad.id} onOpenChange={open => setExpandedClickId(open ? ad.id : null)}>
+                        <CollapsibleTrigger className="flex items-center gap-1 text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+                          <MousePointerClick className="w-3.5 h-3.5" />
+                          {clickMap[ad.id] ?? 0}
+                          <ChevronDown className={`w-3 h-3 transition-transform ${expandedClickId === ad.id ? 'rotate-180' : ''}`} />
+                        </CollapsibleTrigger>
+                      </Collapsible>
                       <Button size="sm" variant="outline" onClick={() => { setEditingId(ad.id); setEditData({ ...ad, amount_paid: ad.amount_paid ?? '' }); }} className="h-7 text-xs">
                         Edit
                       </Button>
