@@ -92,6 +92,48 @@ export function useAdClickCounts() {
   });
 }
 
+export interface AdClickDetail {
+  id: string;
+  ad_id: string;
+  user_id: string | null;
+  clicked_at: string | null;
+  username: string | null;
+  headshot_url: string | null;
+  ad_label: string | null;
+}
+
+export function useAdClickDetails() {
+  return useQuery({
+    queryKey: ['ad-click-details'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('ad_clicks')
+        .select('id, ad_id, user_id, clicked_at')
+        .order('clicked_at', { ascending: false })
+        .limit(500);
+      if (error) throw error;
+
+      // Get unique user_ids to fetch profiles
+      const userIds = [...new Set((data ?? []).map(d => d.user_id).filter(Boolean))] as string[];
+      let profileMap: Record<string, { username: string | null; headshot_url: string | null }> = {};
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, username, headshot_url')
+          .in('user_id', userIds);
+        profileMap = Object.fromEntries((profiles ?? []).map(p => [p.user_id, { username: p.username, headshot_url: p.headshot_url }]));
+      }
+
+      return (data ?? []).map(click => ({
+        ...click,
+        username: click.user_id ? profileMap[click.user_id]?.username ?? null : null,
+        headshot_url: click.user_id ? profileMap[click.user_id]?.headshot_url ?? null : null,
+        ad_label: null, // will be enriched in the component
+      })) as AdClickDetail[];
+    },
+  });
+}
+
 export async function recordAdClick(adId: string, userId?: string) {
   await supabase.from('ad_clicks').insert({
     ad_id: adId,
