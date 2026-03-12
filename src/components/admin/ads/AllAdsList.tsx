@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAllBannerAds, useAdClickCounts, type BannerAd } from '@/hooks/useBannerAds';
+import { useAllBannerAds, useAdClickCounts, useAdClickDetails, type BannerAd } from '@/hooks/useBannerAds';
 import { useAdContacts } from '@/hooks/useAdContacts';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
@@ -7,15 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from '@/components/ui/use-toast';
-import { Plus, Trash2, ExternalLink, MousePointerClick, Loader2 } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, MousePointerClick, Loader2, ChevronDown, User } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import {
   AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader,
   AlertDialogFooter, AlertDialogTitle, AlertDialogDescription,
   AlertDialogAction, AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
-
 const EMPTY_AD = {
   label: '', href: '', external: true, position: 'top' as string,
   sort_order: 0, is_active: true, icon_url: '', client_name: '',
