@@ -28,6 +28,7 @@ const EMPTY_AD = {
 export function AllAdsList() {
   const { data: ads, isLoading } = useAllBannerAds();
   const { data: clickCounts } = useAdClickCounts();
+  const { data: clickDetails } = useAdClickDetails();
   const { data: contacts } = useAdContacts();
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -35,9 +36,10 @@ export function AllAdsList() {
   const [adding, setAdding] = useState(false);
   const [newAd, setNewAd] = useState({ ...EMPTY_AD });
   const [saving, setSaving] = useState(false);
+  const [expandedClickId, setExpandedClickId] = useState<string | null>(null);
 
   const clickMap = Object.fromEntries((clickCounts ?? []).map(c => [c.ad_id, c.click_count]));
-
+  const getAdClicks = (adId: string) => (clickDetails ?? []).filter(c => c.ad_id === adId);
   const isAdActive = (ad: BannerAd) => {
     if (!ad.is_active) return false;
     const today = new Date().toISOString().split('T')[0];
