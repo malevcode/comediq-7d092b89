@@ -232,6 +232,28 @@ export function AllAdsList() {
                     </div>
                   </div>
                 )}
+                {expandedClickId === ad.id && (
+                  <div className="mt-3 pt-3 border-t">
+                    <h4 className="text-xs font-semibold text-muted-foreground mb-2">Recent Clicks</h4>
+                    <div className="space-y-1 max-h-48 overflow-y-auto">
+                      {getAdClicks(ad.id).slice(0, 10).map(click => (
+                        <div key={click.id} className="flex items-center justify-between text-xs py-1">
+                          <div className="flex items-center gap-1.5">
+                            <Avatar className="w-5 h-5">
+                              {click.headshot_url && <AvatarImage src={click.headshot_url} />}
+                              <AvatarFallback className="text-[8px]"><User className="w-2.5 h-2.5" /></AvatarFallback>
+                            </Avatar>
+                            <span>{click.username || 'Anonymous'}</span>
+                          </div>
+                          <span className="text-muted-foreground">
+                            {click.clicked_at ? formatDistanceToNow(new Date(click.clicked_at), { addSuffix: true }) : '—'}
+                          </span>
+                        </div>
+                      ))}
+                      {getAdClicks(ad.id).length === 0 && <div className="text-xs text-muted-foreground">No clicks yet</div>}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           );
