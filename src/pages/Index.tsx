@@ -4,6 +4,7 @@ import PageHeader from "@/components/PageHeader";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
 
+import SponsorSection from "@/components/SponsorSection";
 import Pricing from "@/components/Pricing";
 import WaitlistForm from "@/components/WaitlistForm";
 import { useAuth } from "@/contexts/AuthContext";
@@ -101,6 +102,7 @@ const Index = () => {
                 </section>
               )}
 
+              <SponsorSection />
               <Pricing />
               <WaitlistForm />
             </>
