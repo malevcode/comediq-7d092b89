@@ -16,6 +16,8 @@ interface PageHeaderProps {
 const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { data: sponsors } = useSponsors();
+  const sponsor = sponsors?.[0];
 
   const handleSignUp = () => {
     navigate("/auth");
