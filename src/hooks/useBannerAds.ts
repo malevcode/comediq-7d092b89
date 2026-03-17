@@ -134,9 +134,10 @@ export function useAdClickDetails() {
   });
 }
 
-export async function recordAdClick(adId: string, userId?: string) {
+export async function recordAdClick(adId: string, userId?: string, placement: string = 'banner') {
   await supabase.from('ad_clicks').insert({
     ad_id: adId,
     user_id: userId || null,
+    placement,
   });
 }
