@@ -19,18 +19,21 @@ export type Database = {
           ad_id: string
           clicked_at: string | null
           id: string
+          placement: string | null
           user_id: string | null
         }
         Insert: {
           ad_id: string
           clicked_at?: string | null
           id?: string
+          placement?: string | null
           user_id?: string | null
         }
         Update: {
           ad_id?: string
           clicked_at?: string | null
           id?: string
+          placement?: string | null
           user_id?: string | null
         }
         Relationships: [
@@ -376,6 +379,8 @@ export type Database = {
           client_name: string | null
           contact_id: string | null
           created_at: string | null
+          cta_text: string | null
+          description: string | null
           end_date: string | null
           external: boolean | null
           href: string
@@ -394,6 +399,8 @@ export type Database = {
           client_name?: string | null
           contact_id?: string | null
           created_at?: string | null
+          cta_text?: string | null
+          description?: string | null
           end_date?: string | null
           external?: boolean | null
           href: string
@@ -412,6 +419,8 @@ export type Database = {
           client_name?: string | null
           contact_id?: string | null
           created_at?: string | null
+          cta_text?: string | null
+          description?: string | null
           end_date?: string | null
           external?: boolean | null
           href?: string
