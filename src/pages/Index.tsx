@@ -101,6 +101,7 @@ const Index = () => {
                 </section>
               )}
 
+              <SponsorSection />
               <Pricing />
               <WaitlistForm />
             </>
