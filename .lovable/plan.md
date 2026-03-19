@@ -1,33 +1,24 @@
 
 
-## Insert Likeable Podcast Sponsor
+## Fix: Add 'sponsor' to banner_ads position check constraint
 
-This is a data insertion task, not a code change. The sponsor infrastructure (SponsorSection, PageHeader placement, click tracking) is already built.
+The `banner_ads` table has a CHECK constraint that only allows `position` values of `'top'` or `'bottom'`. The sponsor feature requires `'sponsor'` as a valid position.
 
 ### Action
 
-Insert one row into `banner_ads` via the Supabase insert tool:
+Create a migration that drops the old constraint and adds an updated one:
 
-| Column | Value |
-|--------|-------|
-| `label` | `Likeable Podcast` |
-| `href` | `https://youtube.com/playlist?list=PLnHfEX5rBprYo7ASx3JK__PLnJCTvNFnx&si=lNB63gdc50CmuJJz` |
-| `icon_url` | `/images/likeable-podcast.png` |
-| `description` | `{SPONSOR_BLURB}` (placeholder — you'll replace with actual copy) |
-| `cta_text` | `Listen Now` |
-| `position` | `sponsor` |
-| `is_active` | `true` |
-| `external` | `true` |
-| `start_date` | `2026-04-01` |
-| `end_date` | `2026-05-01` |
-| `amount_paid` | `140` |
-| `client_name` | `Likeable Podcast` |
+```sql
+ALTER TABLE public.banner_ads DROP CONSTRAINT banner_ads_position_check;
+ALTER TABLE public.banner_ads ADD CONSTRAINT banner_ads_position_check
+  CHECK (position = ANY (ARRAY['top', 'bottom', 'sponsor']));
+```
 
-Once inserted, the sponsor will automatically appear in:
-1. **Header** — small logo/link via `PageHeader`
-2. **Landing page** — full `SponsorSection` with logo, blurb, and "Listen Now" CTA
+After the migration runs, re-run the INSERT in the Supabase SQL Editor to add the Likeable Podcast row.
 
-Both placements already track clicks to `ad_clicks` with the correct `placement` value.
+### Files
 
-**Note**: The `{SPONSOR_BLURB}` placeholder will show until you update the `description` with the real 3-5 sentence blurb from the advertiser.
+| File | Change |
+|------|--------|
+| New migration | Drop and recreate `banner_ads_position_check` to include `'sponsor'` |
 
