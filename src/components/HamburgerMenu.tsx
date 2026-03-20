@@ -18,15 +18,14 @@ const HamburgerMenu = () => {
   ];
 
   const newFeatureItems = [
-    { path: "/slots", icon: TicketCheck, label: "Slots!", isNew: true },
-    { path: "/growth", icon: TrendingUp, label: "Growth!", isNew: true },
+    { path: "/open-mics?tab=slots", icon: TicketCheck, label: "Slots", isNew: true },
   ];
 
   const performSubItems = [
     { path: "/open-mics", icon: Search, label: "Find Mics" },
     ...(user ? [{ path: "/saved", icon: Bookmark, label: "Saved Mics" }] : []),
     ...(user ? [{ path: "/open-mics?tab=playlists", icon: ListMusic, label: "My Playlists" }] : []),
-    { path: "/growth", icon: TrendingUp, label: "Growth" },
+    { path: "/growth", icon: Briefcase, label: "Growth" },
     { path: "/shows", icon: Calendar, label: "Show Scheduler" },
     { path: "/track-sets", icon: TrendingUp, label: "Progress Tracker" },
     ...(user ? [{ path: "/host-dashboard", icon: MicVocal, label: "Host Dashboard" }] : []),

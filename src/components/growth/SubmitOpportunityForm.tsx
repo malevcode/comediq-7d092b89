@@ -59,13 +59,7 @@ export function SubmitOpportunityForm() {
 
   const update = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
 
-  if (!user) {
-    return (
-      <Button onClick={() => window.location.href = '/auth'}>
-        <Plus className="h-4 w-4 mr-2" /> Submit Opportunity
-      </Button>
-    );
-  }
+  if (!user) return null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

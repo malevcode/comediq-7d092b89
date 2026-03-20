@@ -1,12 +1,10 @@
 // Main component
 export { default as OpenMicsMapRefactored } from './OpenMicsMapRefactored';
-export { default as MapLibreMap } from './MapLibreMap';
-export { default as MapLibreDrawer } from './MapLibreDrawer';
 
 // Services
 export { GeocodingService } from './GeocodingService';
 export { LocationService } from './LocationService';
-export { ClusterManager } from './ClusterManager';
+export { MarkerManager } from './MarkerManager';
 export { initializeMap, getMapboxToken, MapboxGL } from './MapInitializer';
 
 // Components
@@ -16,10 +14,9 @@ export { TokenInput } from './TokenInput';
 
 // Utilities
 export * from './MapUtils';
-export { default as MapBottomSheet } from './MapBottomSheet';
 
 // Types
 export type { GeocodingProgress, ViewportBounds } from './GeocodingService';
 export type { LocationError } from './LocationService';
-export type { MicFeature } from './ClusterManager';
-export type { MapConfig } from './MapInitializer';
+export type { MarkerData } from './MarkerManager';
+export type { MapConfig } from './MapInitializer'; 

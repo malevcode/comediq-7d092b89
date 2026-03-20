@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles, Calendar, X, Upload, ListMusic, Star } from 'lucide-react';
+import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles, Calendar, X, Upload, ListMusic } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
 import { OpenMic } from '@/types/openMic';
@@ -31,7 +31,6 @@ import {
   useAddSocialLink,
   useRemoveSocialLink 
 } from '@/hooks/useComedianProfile';
-import VerifyMyDay from '@/components/profile/VerifyMyDay';
 
 const Profile = () => {
   const { user, signOut, loading } = useAuth();
@@ -123,8 +122,6 @@ const Profile = () => {
             <TabsContent value="profile" className="space-y-6">
               {!isEditing ? (
                 <>
-                  <VerifyMyDay />
-                  
                   <ProfileCompleteness 
                     profile={profile} 
                     onEditClick={() => setIsEditing(true)} 
@@ -144,12 +141,7 @@ const Profile = () => {
                       <Card>
                         <CardContent className="p-6">
                           <h3 className="font-semibold mb-4">Profile Stats</h3>
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                            <div className="text-center">
-                              <Star className="h-6 w-6 text-primary mx-auto mb-1" />
-                              <p className="text-2xl font-bold">{profile.points_balance ?? 0}</p>
-                              <p className="text-xs text-muted-foreground">Points</p>
-                            </div>
+                          <div className="grid grid-cols-3 gap-4">
                             <div className="text-center">
                               <Heart className="h-6 w-6 text-red-500 mx-auto mb-1" />
                               <p className="text-2xl font-bold">{likedMics.length}</p>

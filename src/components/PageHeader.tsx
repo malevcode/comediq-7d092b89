@@ -4,7 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import { LogIn } from "lucide-react";
 import { ReactNode } from "react";
-import { useSponsors, recordSponsorClick } from "@/hooks/useSponsors";
 
 interface PageHeaderProps {
   title?: string;
@@ -16,8 +15,6 @@ interface PageHeaderProps {
 const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { data: sponsors } = useSponsors();
-  const sponsor = sponsors?.[0];
 
   const handleSignUp = () => {
     navigate("/auth");
@@ -47,20 +44,6 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
           </div>
           {/* Desktop auth section */}
           <div className="hidden sm:flex items-center gap-3">
-            {sponsor && (
-              <a
-                href={sponsor.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => recordSponsorClick(sponsor.id, 'header', user?.id)}
-                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-[#1a5fb4] transition-colors mr-2"
-              >
-                {sponsor.icon_url && (
-                  <img src={sponsor.icon_url} alt={sponsor.label} className="h-5 w-auto object-contain" />
-                )}
-                <span className="hidden lg:inline">{sponsor.label}</span>
-              </a>
-            )}
             {user ? (
               <div className="flex items-center gap-3">
                 <span className="text-xs text-gray-600 whitespace-nowrap">

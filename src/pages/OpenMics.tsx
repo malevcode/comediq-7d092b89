@@ -1,6 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { Search, HelpCircle, LogIn, Plus, Map, List } from "lucide-react";
-import { format } from "date-fns";
+import { Search, HelpCircle, LogIn, Plus } from "lucide-react";
 import SEO from "@/components/SEO";
 import { generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Input } from "@/components/ui/input";
@@ -13,9 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import MicDetailModal from "@/components/MicDetailModal";
-import { OpenMicsMapRefactored as OpenMicsMap, MapLibreMap, MapLibreDrawer } from "@/components/map";
-import { useUserLocation } from "@/hooks/useUserLocation";
-import DateToggle from "@/components/map/DateToggle";
+import { OpenMicsMapRefactored as OpenMicsMap } from "@/components/map";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import ViewToggle from "@/components/ViewToggle";
 import AddMicRequestForm, { MicRequestFormData } from "@/components/host/AddMicRequestForm";
@@ -33,20 +30,13 @@ const OpenMics = () => {
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [activeTab, setActiveTab] = useState("next");
   const [showKey, setShowKey] = useState(false);
-  const [viewMode, setViewMode] = useState<"list" | "grid" | "map" | "maplibre">("maplibre");
-  const [mapLibreVisibleMics, setMapLibreVisibleMics] = useState<OpenMic[]>([]);
+  const [viewMode, setViewMode] = useState<"list" | "grid" | "map">("list");
   const [visibleCount, setVisibleCount] = useState(100);
   const [showRequestModal, setShowRequestModal] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
-  });
 
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
   const { data: likedMics = [] } = useUserLikedMics();
-  const { userLocation } = useUserLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const hasScrolled = useRef(false);
@@ -480,51 +470,9 @@ const OpenMics = () => {
 
   const handleViewModeChange = (mode: "list" | "grid" | "map") => setViewMode(mode);
 
-  // Filter mics for a specific date (used by map/maplibre views)
-  const getFilteredMicsForDate = (date: Date) => {
-    const daysOfWeekNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const dayName = daysOfWeekNames[date.getDay()];
-
-    let filtered = openMics.filter((mic) => {
-      if (mic.day !== dayName) return false;
-      return micMatchesDate(mic, date);
-    });
-
-    // Apply search, borough, cost, time, frequency, status filters
-    filtered = filtered.filter((mic) => {
-      const matchesSearch =
-        mic.openMic.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        mic.venueName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesBorough = filters.borough === "All" || mic.borough === filters.borough;
-      const micCost = getCostValue(mic.cost);
-      const matchesCost = micCost >= filters.costRange[0] && micCost <= filters.costRange[1];
-      const matchesTime = matchesTimeOfDay(mic, filters.timeOfDay);
-      const matchesCity = filters.city === "All" || mic.city === filters.city;
-      const matchesFrequency = !filters.frequency || filters.frequency === 'all' || mic.frequency === filters.frequency;
-      const matchesMicStatus = !filters.micStatus || filters.micStatus === 'all' || mic.status === filters.micStatus;
-      return matchesSearch && matchesBorough && matchesCost && matchesTime && matchesCity && matchesFrequency && matchesMicStatus;
-    });
-
-    // Sort by start time
-    filtered.sort((a, b) => {
-      const aMin = timeToMinutes(a.startTime);
-      const bMin = timeToMinutes(b.startTime);
-      return aMin - bMin;
-    });
-
-    return filtered;
-  };
-
   // Memoize the onMicSelect callback to prevent map re-renders
-  const [highlightedMicId, setHighlightedMicId] = useState<string | null>(null);
-
   const handleMicSelect = useCallback((mic: OpenMic) => {
     setSelectedMic(mic);
-  }, []);
-
-  const handleMapBubbleSelect = useCallback((mic: OpenMic) => {
-    setHighlightedMicId(mic.uniqueIdentifier);
   }, []);
 
   const [isSubmittingMic, setIsSubmittingMic] = useState(false);
@@ -636,40 +584,6 @@ const OpenMics = () => {
         url="https://comediq.us/open-mics"
         structuredData={breadcrumbSchema}
       />
-      {viewMode === "maplibre" ? (
-        <div className="min-h-screen bg-background pb-20 relative">
-          <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />
-          {/* Date Toggle overlaid on map */}
-          {/* Floating Switch to List button - bottom right */}
-          <button
-            onClick={() => setViewMode("list")}
-            className="fixed bottom-24 right-4 z-40 flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[hsl(213,73%,40%)] text-[hsl(40,33%,94%)] shadow-lg text-xs font-bold hover:bg-[hsl(213,73%,30%)] transition-colors"
-          >
-            <List className="h-4 w-4" />
-            List
-          </button>
-          <div className="pt-[60px] relative">
-            <div className="absolute top-[68px] left-1/2 -translate-x-1/2 z-20">
-              <DateToggle selectedDate={selectedDate} onDateChange={setSelectedDate} />
-            </div>
-            <MapLibreMap
-              mics={getFilteredMicsForDate(selectedDate)}
-              onMicSelect={handleMapBubbleSelect}
-              onVisibleMicsChange={setMapLibreVisibleMics}
-              userLocation={userLocation}
-            />
-            <MapLibreDrawer
-              mics={mapLibreVisibleMics.length > 0 ? mapLibreVisibleMics : getFilteredMicsForDate(selectedDate)}
-              onMicSelect={handleMicSelect}
-              selectedDate={selectedDate}
-              selectedMicId={highlightedMicId}
-            />
-          </div>
-          {selectedMic && (
-            <MicDetailModal mic={selectedMic} onClose={() => setSelectedMic(null)} onAddToSchedule={handleAddToSchedule} />
-          )}
-        </div>
-      ) : (
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
         <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />
 
@@ -769,15 +683,6 @@ const OpenMics = () => {
             </div>
 
             <div className="flex gap-2">
-              {/* Map View Toggle */}
-              <Button
-                onClick={() => setViewMode("maplibre")}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-1 px-3 py-2"
-              >
-                <Map className="h-4 w-4" />
-              </Button>
               <Button
                 onClick={() => setShowRequestModal(true)}
                 variant="outline"
@@ -834,7 +739,6 @@ const OpenMics = () => {
 
       {showRequestModal && <AddMicRequestForm onSubmit={handleRequestMic} onCancel={() => setShowRequestModal(false)} isSubmitting={isSubmittingMic} />}
       </div>
-      )}
     </>
   );
 };

@@ -4,13 +4,12 @@ import OpenMics from "./OpenMics";
 import Shows from "./Shows";
 import Slots from "./Slots";
 import { PlaylistsTab } from "@/components/playlists";
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { useTabContext } from "@/contexts/TabContext";
 import { Megaphone, ListMusic, Sheet, TicketCheck } from "lucide-react";
 import DevView from "./DevView";
 
 const Perform = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const { activeTab, setActiveTab } = useTabContext();
@@ -69,7 +68,7 @@ const Perform = () => {
                 <ListMusic className="h-3.5 w-3.5" />
                 Playlists
               </TabsTrigger>
-              <TabsTrigger value="slots" className="gap-1 relative" onClick={(e) => { e.preventDefault(); navigate('/slots'); }}>
+              <TabsTrigger value="slots" className="gap-1 relative">
                 <TicketCheck className="h-3.5 w-3.5" />
                 Slots
                 <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-[9px] font-bold px-1 rounded-full animate-pulse">
