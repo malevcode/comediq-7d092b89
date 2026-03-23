@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3, Heart, Bookmark, Music, ListMusic } from "lucide-react";
+import { SponsorCard } from "./SponsorCard";
 import { QuickNotes } from "./home/QuickNotes";
 import Header from "./Header";
 import { useSavedMics } from "@/hooks/useSavedMics";
