@@ -1,15 +1,18 @@
-import React, { useEffect, useRef, useState, useCallback, memo } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import React, { useEffect, useState, useCallback, useMemo, memo, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import 'leaflet.markercluster';
 import { OpenMic } from '@/types/openMic';
-import { getMapboxToken, MapboxGL } from './MapInitializer';
 import { GeocodingService, GeocodingProgress, ViewportBounds } from './GeocodingService';
 import { LocationService } from './LocationService';
-import { MarkerManager, MarkerData } from './MarkerManager';
 import { MapLegend } from './MapLegend';
 import { MapControls } from './MapControls';
+import { getMapboxToken } from './MapInitializer';
+import { getVerificationColor, formatTime, formatCost, formatStageTime, calculateDistance, formatDistance } from './MapUtils';
 import { Info } from 'lucide-react';
-import { TokenInput } from './TokenInput';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface OpenMicsMapProps {
@@ -17,319 +20,241 @@ interface OpenMicsMapProps {
   onMicSelect: (mic: OpenMic) => void;
 }
 
-const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
-  const { user } = useAuth();
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const markerManager = useRef<MarkerManager | null>(null);
-  const geocodingService = useRef<GeocodingService | null>(null);
-  
-  const [mapboxToken, setMapboxToken] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [geocodingProgress, setGeocodingProgress] = useState<GeocodingProgress | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [locationLoading, setLocationLoading] = useState(false);
-  const [loadedMicCount, setLoadedMicCount] = useState(0);
-  const [backgroundLoading, setBackgroundLoading] = useState(false);
-  const [inputToken, setInputToken] = useState('');
+// Custom hook to create verification-colored marker icons
+const createMarkerIcon = (color: string) => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="24" height="36">
+    <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24C24 5.4 18.6 0 12 0z" fill="${color}" stroke="#1e293b" stroke-width="1.5"/>
+    <circle cx="12" cy="12" r="5" fill="#1e293b" opacity="0.6"/>
+  </svg>`;
+  return L.divIcon({
+    html: svg,
+    className: 'leaflet-marker-custom',
+    iconSize: [24, 36],
+    iconAnchor: [12, 36],
+    popupAnchor: [0, -36],
+  });
+};
 
-  // Component mount/unmount logging
+const userLocationIcon = L.divIcon({
+  html: `<div style="width:14px;height:14px;background:#3b82f6;border:3px solid white;border-radius:50%;box-shadow:0 0 8px rgba(59,130,246,0.6);"></div>`,
+  className: 'leaflet-marker-user',
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
+});
+
+// MarkerCluster component using leaflet.markercluster directly
+const MarkerClusterLayer: React.FC<{
+  markers: Array<{ coordinates: [number, number]; mic: OpenMic }>;
+  onMicSelect: (mic: OpenMic) => void;
+  userLocation: [number, number] | null;
+}> = ({ markers, onMicSelect, userLocation }) => {
+  const map = useMap();
+  const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null);
+
   useEffect(() => {
-    console.log('OpenMicsMap: Component mounted');
-    return () => {
-      console.log('OpenMicsMap: Component unmounting');
-    };
-  }, []);
-
-  // Initialize token on component mount
-  useEffect(() => {
-    console.log('OpenMicsMap: Token initialization effect running');
-    
-    const initializeToken = async () => {
-      const token = await getMapboxToken();
-      
-      if (!token) {
-        setError('Mapbox token not found. Please set VITE_MAPBOX_TOKEN in your environment variables or enter it below.');
-        return;
-      }
-      
-      // Set the global Mapbox token
-      MapboxGL.accessToken = token;
-      setMapboxToken(token);
-      geocodingService.current = new GeocodingService(token);
-    };
-    
-    initializeToken();
-  }, []);
-
-  // Get user location on mount - only for logged-in users
-  useEffect(() => {
-    if (user) {
-      console.log('OpenMicsMap: User logged in, requesting location');
-      recenterOnUserLocation();
-    }
-  }, [user]);
-
-  // Recenter map on user location
-  const recenterOnUserLocation = useCallback(async () => {
-    if (!LocationService.isLocationSupported()) {
-      console.log('Geolocation is not supported by this browser');
-      setError('Geolocation is not supported by this browser.');
-      return;
+    if (clusterGroupRef.current) {
+      map.removeLayer(clusterGroupRef.current);
     }
 
-    setLocationLoading(true);
-    
-    try {
-      const location = await LocationService.getUserLocation();
-      setUserLocation(location);
-      setLocationLoading(false);
-      
-      // Center map on user location with close zoom
-      if (map.current) {
-        console.log('Recentering map on user location:', location);
-        map.current.flyTo({
-          center: location,
-          zoom: 14, // Much closer zoom for user location
-          duration: 2000
+    const cluster = L.markerClusterGroup({
+      maxClusterRadius: 50,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      zoomToBoundsOnClick: true,
+      disableClusteringAtZoom: 16,
+      iconCreateFunction: (clusterObj) => {
+        const count = clusterObj.getChildCount();
+        let size = 'small';
+        let px = 36;
+        if (count >= 50) { size = 'large'; px = 48; }
+        else if (count >= 10) { size = 'medium'; px = 42; }
+        return L.divIcon({
+          html: `<div class="cluster-icon cluster-${size}"><span>${count}</span></div>`,
+          className: 'marker-cluster-custom',
+          iconSize: L.point(px, px),
         });
-      }
-    } catch (error: any) {
-      console.error('Error getting location:', error);
-      setLocationLoading(false);
-      setError(error.message);
-    }
-  }, []);
-
-  const initializeMap = useCallback(() => {
-    console.log('OpenMicsMap: initializeMap called with:', {
-      hasContainer: !!mapContainer.current,
-      hasToken: !!mapboxToken,
-      tokenLength: mapboxToken?.length,
-      MapboxGL: typeof MapboxGL,
-      MapConstructor: typeof MapboxGL?.Map,
-      existingMap: !!map.current
+      },
     });
 
-    if (!mapContainer.current || !mapboxToken) {
-      console.error('Map initialization failed:', {
-        hasContainer: !!mapContainer.current,
-        hasToken: !!mapboxToken,
-        tokenLength: mapboxToken?.length
-      });
-      return;
-    }
-    
-    // Don't reinitialize if map already exists
-    if (map.current) {
-      console.log('OpenMicsMap: Map already exists, skipping initialization');
-      return;
-    }
-    
-    try {
-      // Start with NYC center, but we'll zoom to user location once we get it
-      const mapCenter: [number, number] = [-73.935242, 40.730610]; // NYC center
-      console.log('Map initialization - starting with NYC center');
-      
-      // Create map directly using mapboxgl
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
-        center: mapCenter,
-        zoom: 10, // Start with a reasonable zoom level
-        accessToken: mapboxToken,
-        maxZoom: 18,
-        minZoom: 6
+    markers.forEach(({ coordinates, mic }) => {
+      const [lng, lat] = coordinates;
+      const color = getVerificationColor(mic.lastVerified);
+      const icon = createMarkerIcon(color);
+
+      let distanceText = '';
+      if (userLocation) {
+        const [userLng, userLat] = userLocation;
+        const distanceMiles = calculateDistance(userLat, userLng, lat, lng);
+        distanceText = formatDistance(distanceMiles);
+      }
+
+      const marker = L.marker([lat, lng], { icon });
+
+      marker.bindPopup(`
+        <div class="p-2 text-sm" style="min-width:180px">
+          <h3 class="font-bold text-base mb-1">${mic.openMic}</h3>
+          <p class="text-gray-400 mb-1">${mic.venueName}</p>
+          ${distanceText ? `<p class="text-blue-400 font-medium">📍 ${distanceText} away</p>` : ''}
+          <p>${formatTime(mic.startTime)} – ${formatTime(mic.latestEndTime)}</p>
+          <p>${formatCost(mic.cost)}</p>
+          <p>Stage time: ${formatStageTime(mic.stageTime)}</p>
+        </div>
+      `, { closeButton: false, className: 'dark-popup' });
+
+      marker.on('click', () => {
+        onMicSelect(mic);
       });
 
-      markerManager.current = new MarkerManager(map.current);
-      markerManager.current.setMicSelectCallback(onMicSelect);
-      markerManager.current.setUserLocation(userLocation);
+      cluster.addLayer(marker);
+    });
 
-      console.log('OpenMicsMap: Map instance created successfully:', map.current);
+    map.addLayer(cluster);
+    clusterGroupRef.current = cluster;
 
-      // Add navigation control
-      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    return () => {
+      if (clusterGroupRef.current) {
+        map.removeLayer(clusterGroupRef.current);
+      }
+    };
+  }, [markers, map, onMicSelect, userLocation]);
 
-      // Add error handling for map load
-      map.current.on('error', (e) => {
-        console.error('Map error event:', e);
-        setError(`Failed to load map: ${e.error?.message || 'Unknown error'}`);
-      });
-      
-      map.current.on('load', () => {
-        console.log('Map loaded successfully');
-        setError(null);
-        setMapLoaded(true);
-        
-        // Add user location marker if available
-        if (userLocation) {
-          console.log('User location available on map load, marker will be added by useEffect');
-        }
-      });
+  return null;
+};
 
-      map.current.on('styleimagemissing', (e) => {
-        console.warn('Style image missing:', e);
-      });
+// Component to handle viewport-based loading
+const ViewportLoader: React.FC<{
+  mics: OpenMic[];
+  geocodingService: GeocodingService;
+  onMarkersLoaded: (markers: Array<{ coordinates: [number, number]; mic: OpenMic }>) => void;
+  onLoadingChange: (loading: boolean) => void;
+  onProgressChange: (progress: GeocodingProgress | null) => void;
+  onError: (error: string | null) => void;
+  onCountChange: (count: number) => void;
+}> = ({ mics, geocodingService, onMarkersLoaded, onLoadingChange, onProgressChange, onError, onCountChange }) => {
+  const map = useMap();
+  const loadedRef = useRef(false);
 
-      // Add viewport change handlers for dynamic loading
-      map.current.on('moveend', handleViewportChange);
-      map.current.on('zoomend', handleViewportChange);
-      
-    } catch (error) {
-      console.error('Map initialization error:', error);
-      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
-      setError(`Failed to initialize map: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  }, [mapboxToken, userLocation, onMicSelect]);
-
-  // Handle viewport changes (pan/zoom)
-  const handleViewportChange = useCallback(async () => {
-    if (!map.current || !markerManager.current || !geocodingService.current) return;
-
-    console.log('Viewport changed, loading markers for new area...');
-    
-    const bounds = markerManager.current.getCurrentViewportBounds();
+  const loadMarkers = useCallback(async () => {
+    const bounds = map.getBounds();
     const viewportBounds: ViewportBounds = {
       north: bounds.getNorth(),
       south: bounds.getSouth(),
       east: bounds.getEast(),
-      west: bounds.getWest()
+      west: bounds.getWest(),
     };
 
-    setIsLoading(true);
-    setError(null);
+    onLoadingChange(true);
+    onError(null);
 
     try {
-      // Get mics in current viewport
-      const micsInViewport = await geocodingService.current.getMicsInViewport(
+      const micsInViewport = await geocodingService.getMicsInViewport(
         mics,
         viewportBounds,
-        setGeocodingProgress
+        onProgressChange
       );
-
-      // Load markers for current viewport
-      await markerManager.current.loadMarkersForViewport(micsInViewport);
-      
-      // Update loaded mic count
-      setLoadedMicCount(markerManager.current.getLoadedMicCount());
-
-      // Show background loading indicator if there might be more mics
-      const totalMicsInBounds = mics.filter(mic => {
-        if (!mic.location) return false;
-        const cachedCoords = geocodingService.current!.getCachedCoordinates(mic.location);
-        if (cachedCoords) {
-          const [lng, lat] = cachedCoords;
-          return lng >= viewportBounds.west && lng <= viewportBounds.east && 
-                 lat >= viewportBounds.south && lat <= viewportBounds.north;
-        }
-        return true; // Assume uncached mics might be in bounds
-      }).length;
-
-      if (totalMicsInBounds > micsInViewport.length) {
-        setBackgroundLoading(true);
-        // Hide background loading after a delay
-        setTimeout(() => setBackgroundLoading(false), 3000);
-      }
-
-    } catch (error) {
-      console.error('Error loading markers for viewport:', error);
-      setError('Failed to load markers for current area');
+      onMarkersLoaded(micsInViewport);
+      onCountChange(micsInViewport.length);
+    } catch (err) {
+      onError('Failed to load markers for current area');
     } finally {
-      setIsLoading(false);
-      setGeocodingProgress(null);
+      onLoadingChange(false);
+      onProgressChange(null);
     }
-  }, [mics]);
+  }, [mics, geocodingService, map, onMarkersLoaded, onLoadingChange, onProgressChange, onError, onCountChange]);
 
-  // Handle token input submission
-  const handleTokenSubmit = useCallback(() => {
-    if (inputToken) {
-      // Store token in localStorage for development
-      localStorage.setItem('mapbox_token', inputToken);
-      
-      // Set the global Mapbox token
-      MapboxGL.accessToken = inputToken;
-      setMapboxToken(inputToken);
-      setError(null);
-      geocodingService.current = new GeocodingService(inputToken);
-    }
-  }, [inputToken]);
-
-  // Handle token input change
-  const handleTokenChange = useCallback((token: string) => {
-    setInputToken(token);
-  }, []);
-
-  // Cleanup on unmount
+  // Load on initial mount
   useEffect(() => {
-    return () => {
-      if (markerManager.current) {
-        markerManager.current.clearAllMarkers();
+    if (!loadedRef.current) {
+      // Wait for map to be ready
+      const timer = setTimeout(() => {
+        loadMarkers();
+        loadedRef.current = true;
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [loadMarkers]);
+
+  // Load on viewport change
+  useMapEvents({
+    moveend: loadMarkers,
+    zoomend: loadMarkers,
+  });
+
+  return null;
+};
+
+// Recenter helper
+const RecenterMap: React.FC<{ center: [number, number] | null }> = ({ center }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (center) {
+      // Leaflet uses [lat, lng]
+      map.flyTo([center[1], center[0]], 14, { duration: 1.5 });
+    }
+  }, [center, map]);
+  return null;
+};
+
+const STADIA_DARK_URL = 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png';
+const STADIA_ATTRIBUTION = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://openstreetmap.org">OSM</a>';
+
+const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
+  const { user } = useAuth();
+  const geocodingService = useRef<GeocodingService | null>(null);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [geocodingProgress, setGeocodingProgress] = useState<GeocodingProgress | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [loadedMicCount, setLoadedMicCount] = useState(0);
+  const [markers, setMarkers] = useState<Array<{ coordinates: [number, number]; mic: OpenMic }>>([]);
+  const [serviceReady, setServiceReady] = useState(false);
+
+  // Initialize geocoding service (still needs Mapbox token for geocoding API)
+  useEffect(() => {
+    const init = async () => {
+      const token = await getMapboxToken();
+      if (token) {
+        geocodingService.current = new GeocodingService(token);
       }
-      if (map.current) {
-        map.current.remove();
-      }
+      setServiceReady(true);
     };
+    init();
   }, []);
 
+  // Get user location for logged-in users
   useEffect(() => {
-    console.log('useEffect for map initialization:', {
-      hasMapboxToken: !!mapboxToken,
-      hasMap: !!map.current,
-      tokenLength: mapboxToken?.length
-    });
-    
-    if (mapboxToken && !map.current) {
-      console.log('Calling initializeMap...');
-      initializeMap();
+    if (user && LocationService.isLocationSupported()) {
+      recenterOnUserLocation();
     }
-  }, [mapboxToken, initializeMap]);
+  }, [user]);
 
-  // Update user location marker when user location changes
-  useEffect(() => {
-    console.log('User location effect triggered:', { userLocation, hasMap: !!map.current, isStyleLoaded: map.current?.isStyleLoaded() });
-    
-    if (map.current && userLocation && markerManager.current) {
-      // Update the marker manager with user location for distance calculations
-      markerManager.current.setUserLocation(userLocation);
-      
-      // If map style isn't loaded yet, wait for it
-      if (!map.current.isStyleLoaded()) {
-        console.log('Map style not loaded, waiting for style to load before adding user marker...');
-        const checkStyleAndAddMarker = () => {
-          if (map.current?.isStyleLoaded()) {
-            console.log('Map style now loaded, adding user location marker...');
-            markerManager.current!.addUserLocationMarker(userLocation);
-          } else {
-            setTimeout(checkStyleAndAddMarker, 100);
-          }
-        };
-        checkStyleAndAddMarker();
-      } else {
-        console.log('Map style already loaded, adding user location marker immediately...');
-        markerManager.current.addUserLocationMarker(userLocation);
-      }
-    } else {
-      console.log('Cannot add user location marker:', { 
-        hasMap: !!map.current, 
-        hasUserLocation: !!userLocation, 
-        hasMarkerManager: !!markerManager.current,
-        isStyleLoaded: map.current?.isStyleLoaded() 
-      });
+  const recenterOnUserLocation = useCallback(async () => {
+    if (!LocationService.isLocationSupported()) {
+      setError('Geolocation is not supported by this browser.');
+      return;
     }
-  }, [userLocation]);
+    setLocationLoading(true);
+    try {
+      const location = await LocationService.getUserLocation();
+      setUserLocation(location);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLocationLoading(false);
+    }
+  }, []);
 
-
+  // NYC center: [lat, lng] for Leaflet
+  const defaultCenter: [number, number] = [40.730610, -73.935242];
 
   return (
     <div className="w-full">
-      {/* Map container */}
-      <div className="relative w-full h-96 rounded-lg overflow-hidden border">
+      <div className="relative w-full h-96 rounded-lg overflow-hidden border border-border">
         {/* Map legend */}
-        <div className="absolute top-12 left-2 z-10 group">
-          <div className="flex items-center gap-1 mb-1 text-xs text-gray-600 opacity-100">
+        <div className="absolute top-12 left-2 z-[1000] group">
+          <div className="flex items-center gap-1 mb-1 text-xs text-muted-foreground opacity-100">
             <Info className="w-3 h-3" />
             <span>Legend</span>
           </div>
@@ -337,66 +262,92 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
             <MapLegend />
           </div>
         </div>
-        {!mapboxToken ? (
-          // Show TokenInput when no token is available
-          <TokenInput
-            token={inputToken}
-            onTokenChange={handleTokenChange}
-            onSubmit={handleTokenSubmit}
+
+        <MapContainer
+          center={defaultCenter}
+          zoom={10}
+          maxZoom={18}
+          minZoom={6}
+          preferCanvas={true}
+          className="h-full w-full z-0"
+          zoomControl={false}
+          attributionControl={true}
+        >
+          <TileLayer
+            url={STADIA_DARK_URL}
+            attribution={STADIA_ATTRIBUTION}
           />
-        ) : (
-          <>
-            <div ref={mapContainer} className="absolute inset-0" />
-            
-            {/* Map controls */}
-            <MapControls
-              onRecenter={recenterOnUserLocation}
-              locationLoading={locationLoading}
-              isLoading={isLoading}
-              geocodingProgress={geocodingProgress}
-              error={error}
-              onDismissError={() => setError(null)}
-              loadedMicCount={loadedMicCount}
-              backgroundLoading={backgroundLoading}
+
+          {/* Zoom control in top-right */}
+          <ZoomControlTopRight />
+
+          {/* Recenter when user location changes */}
+          <RecenterMap center={userLocation} />
+
+          {/* Viewport-based marker loading */}
+          {serviceReady && geocodingService.current && (
+            <ViewportLoader
+              mics={mics}
+              geocodingService={geocodingService.current}
+              onMarkersLoaded={setMarkers}
+              onLoadingChange={setIsLoading}
+              onProgressChange={setGeocodingProgress}
+              onError={setError}
+              onCountChange={setLoadedMicCount}
             />
-            
-            {/* Map loading indicator */}
-            {!mapLoaded && mapboxToken && (
-              <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                  <div className="text-sm text-gray-600">Loading map...</div>
-                </div>
-              </div>
-            )}
-          </>
-        )}
+          )}
+
+          {/* Clustered markers */}
+          <MarkerClusterLayer
+            markers={markers}
+            onMicSelect={onMicSelect}
+            userLocation={userLocation}
+          />
+
+          {/* User location marker */}
+          {userLocation && (
+            <Marker
+              position={[userLocation[1], userLocation[0]]}
+              icon={userLocationIcon}
+            >
+              <Popup>You are here</Popup>
+            </Marker>
+          )}
+        </MapContainer>
+
+        {/* Map controls overlay */}
+        <MapControls
+          onRecenter={recenterOnUserLocation}
+          locationLoading={locationLoading}
+          isLoading={isLoading}
+          geocodingProgress={geocodingProgress}
+          error={error}
+          onDismissError={() => setError(null)}
+          loadedMicCount={loadedMicCount}
+          backgroundLoading={false}
+        />
       </div>
     </div>
   );
 };
 
-// Custom comparison function for memo
+// Small helper to place zoom control top-right
+const ZoomControlTopRight = () => {
+  const map = useMap();
+  useEffect(() => {
+    const zc = L.control.zoom({ position: 'topright' });
+    zc.addTo(map);
+    return () => { zc.remove(); };
+  }, [map]);
+  return null;
+};
+
 const arePropsEqual = (prevProps: OpenMicsMapProps, nextProps: OpenMicsMapProps) => {
-  // Only re-render if the mics array length or content has changed
-  if (prevProps.mics.length !== nextProps.mics.length) {
-    return false;
-  }
-  
-  // Check if any mic has changed by comparing unique identifiers and key properties
+  if (prevProps.mics.length !== nextProps.mics.length) return false;
   for (let i = 0; i < prevProps.mics.length; i++) {
-    const prevMic = prevProps.mics[i];
-    const nextMic = nextProps.mics[i];
-    
-    if (prevMic.uniqueIdentifier !== nextMic.uniqueIdentifier ||
-        prevMic.location !== nextMic.location ||
-        prevMic.openMic !== nextMic.openMic ||
-        prevMic.venueName !== nextMic.venueName) {
-      return false;
-    }
+    if (prevProps.mics[i].uniqueIdentifier !== nextProps.mics[i].uniqueIdentifier) return false;
   }
-  
   return true;
 };
 
-export default memo(OpenMicsMapRefactored, arePropsEqual); 
+export default memo(OpenMicsMapRefactored, arePropsEqual);
