@@ -16,6 +16,8 @@ export interface BannerAd {
   start_date: string | null;
   end_date: string | null;
   contact_id: string | null;
+  description: string | null;
+  cta_text: string | null;
   created_at: string;
   updated_at: string;
 }
