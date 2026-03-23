@@ -2047,6 +2047,54 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_top_mics: {
+        Row: {
+          borough: string | null
+          cost: string | null
+          created_at: string
+          day: string | null
+          id: string
+          like_count: number
+          mic_name: string
+          mic_unique_identifier: string
+          neighborhood: string | null
+          rank: number
+          start_time: string | null
+          venue_name: string | null
+          week_start: string
+        }
+        Insert: {
+          borough?: string | null
+          cost?: string | null
+          created_at?: string
+          day?: string | null
+          id?: string
+          like_count?: number
+          mic_name: string
+          mic_unique_identifier: string
+          neighborhood?: string | null
+          rank: number
+          start_time?: string | null
+          venue_name?: string | null
+          week_start?: string
+        }
+        Update: {
+          borough?: string | null
+          cost?: string | null
+          created_at?: string
+          day?: string | null
+          id?: string
+          like_count?: number
+          mic_name?: string
+          mic_unique_identifier?: string
+          neighborhood?: string | null
+          rank?: number
+          start_time?: string | null
+          venue_name?: string | null
+          week_start?: string
+        }
+        Relationships: []
+      }
       work_history: {
         Row: {
           application_id: string | null
