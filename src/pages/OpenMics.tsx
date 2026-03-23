@@ -21,6 +21,7 @@ import { toast } from "@/hooks/use-toast";
 import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilters";
 import PageHeader from "@/components/PageHeader";
 import HamburgerMenu from "@/components/HamburgerMenu";
+import OpenMicsLoadingScreen from "@/components/OpenMicsLoadingScreen";
 
 
 
