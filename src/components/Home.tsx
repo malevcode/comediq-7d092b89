@@ -353,6 +353,8 @@ export default function Home() {
                   )}
                 </CardContent>
               </Card>
+
+              <SponsorCard placement="home_dashboard" />
             </div>
           </div>
         </div>
