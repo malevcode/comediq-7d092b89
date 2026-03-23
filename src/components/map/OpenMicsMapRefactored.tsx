@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster';
+import './leaflet-dark.css';
 import { OpenMic } from '@/types/openMic';
 import { GeocodingService, GeocodingProgress, ViewportBounds } from './GeocodingService';
 import { LocationService } from './LocationService';
