@@ -92,9 +92,33 @@ export function useAdClickCounts() {
   });
 }
 
-export async function recordAdClick(adId: string, userId?: string) {
+export async function recordAdClick(adId: string, userId?: string, placement?: string) {
   await supabase.from('ad_clicks').insert({
     ad_id: adId,
     user_id: userId || null,
+    placement: placement || 'banner',
+  });
+}
+
+export function useSponsorAd() {
+  const today = new Date().toISOString().split('T')[0];
+
+  return useQuery({
+    queryKey: ['sponsor-ad', today],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('banner_ads')
+        .select('*')
+        .eq('position', 'sponsor')
+        .eq('is_active', true)
+        .or(`start_date.is.null,start_date.lte.${today}`)
+        .or(`end_date.is.null,end_date.gte.${today}`)
+        .order('sort_order')
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data as BannerAd | null;
+    },
+    staleTime: 5 * 60 * 1000,
   });
 }
