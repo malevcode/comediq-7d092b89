@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    include: ['mapbox-gl']
+    include: ['leaflet', 'leaflet.markercluster']
   },
   define: {
     global: 'globalThis',
