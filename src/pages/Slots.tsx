@@ -189,7 +189,7 @@ function SlotsBrowseView({
 
               {expandedEventId === event.id && (
                 <div className="pt-2 border-t">
-                  <SignupList eventId={event.id} />
+                  <SignupList eventId={event.id} totalSpots={event.total_spots} signupMode={event.signup_mode} />
                 </div>
               )}
             </CardContent>
