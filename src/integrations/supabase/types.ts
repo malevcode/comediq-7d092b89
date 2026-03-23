@@ -19,18 +19,21 @@ export type Database = {
           ad_id: string
           clicked_at: string | null
           id: string
+          placement: string | null
           user_id: string | null
         }
         Insert: {
           ad_id: string
           clicked_at?: string | null
           id?: string
+          placement?: string | null
           user_id?: string | null
         }
         Update: {
           ad_id?: string
           clicked_at?: string | null
           id?: string
+          placement?: string | null
           user_id?: string | null
         }
         Relationships: [
@@ -376,6 +379,8 @@ export type Database = {
           client_name: string | null
           contact_id: string | null
           created_at: string | null
+          cta_text: string | null
+          description: string | null
           end_date: string | null
           external: boolean | null
           href: string
@@ -394,6 +399,8 @@ export type Database = {
           client_name?: string | null
           contact_id?: string | null
           created_at?: string | null
+          cta_text?: string | null
+          description?: string | null
           end_date?: string | null
           external?: boolean | null
           href: string
@@ -412,6 +419,8 @@ export type Database = {
           client_name?: string | null
           contact_id?: string | null
           created_at?: string | null
+          cta_text?: string | null
+          description?: string | null
           end_date?: string | null
           external?: boolean | null
           href?: string
@@ -649,6 +658,51 @@ export type Database = {
             columns: ["application_id"]
             isOneToOne: false
             referencedRelation: "job_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mic_bookings: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          marked_by: string | null
+          signup_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          marked_by?: string | null
+          signup_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          marked_by?: string | null
+          signup_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mic_bookings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "mic_signup_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mic_bookings_signup_id_fkey"
+            columns: ["signup_id"]
+            isOneToOne: false
+            referencedRelation: "mic_signups"
             referencedColumns: ["id"]
           },
         ]
@@ -979,10 +1033,13 @@ export type Database = {
           neighborhood: string | null
           open_mic: string
           other_rules: string | null
+          price_per_slot: number | null
           sign_up_instructions: string | null
           signup_enabled: boolean
           signup_method: Database["public"]["Enums"]["signup_method"] | null
           signup_url: string | null
+          slot_duration_minutes: number
+          slots_enabled: boolean
           sms_response: string | null
           stage_time: string | null
           start_time: string | null
@@ -1011,10 +1068,13 @@ export type Database = {
           neighborhood?: string | null
           open_mic: string
           other_rules?: string | null
+          price_per_slot?: number | null
           sign_up_instructions?: string | null
           signup_enabled?: boolean
           signup_method?: Database["public"]["Enums"]["signup_method"] | null
           signup_url?: string | null
+          slot_duration_minutes?: number
+          slots_enabled?: boolean
           sms_response?: string | null
           stage_time?: string | null
           start_time?: string | null
@@ -1043,10 +1103,13 @@ export type Database = {
           neighborhood?: string | null
           open_mic?: string
           other_rules?: string | null
+          price_per_slot?: number | null
           sign_up_instructions?: string | null
           signup_enabled?: boolean
           signup_method?: Database["public"]["Enums"]["signup_method"] | null
           signup_url?: string | null
+          slot_duration_minutes?: number
+          slots_enabled?: boolean
           sms_response?: string | null
           stage_time?: string | null
           start_time?: string | null
@@ -1161,6 +1224,7 @@ export type Database = {
           created_at: string
           id: string
           metadata: Json | null
+          reason: string | null
           user_id: string
         }
         Insert: {
@@ -1169,6 +1233,7 @@ export type Database = {
           created_at?: string
           id?: string
           metadata?: Json | null
+          reason?: string | null
           user_id: string
         }
         Update: {
@@ -1177,6 +1242,7 @@ export type Database = {
           created_at?: string
           id?: string
           metadata?: Json | null
+          reason?: string | null
           user_id?: string
         }
         Relationships: [
@@ -1835,6 +1901,51 @@ export type Database = {
         }
         Relationships: []
       }
+      user_plans: {
+        Row: {
+          created_at: string
+          id: string
+          mic_unique_identifier: string
+          planned_date: string
+          status: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mic_unique_identifier: string
+          planned_date: string
+          status?: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mic_unique_identifier?: string
+          planned_date?: string
+          status?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_plans_mic_unique_identifier_fkey"
+            columns: ["mic_unique_identifier"]
+            isOneToOne: false
+            referencedRelation: "open_mics_display"
+            referencedColumns: ["unique_identifier"]
+          },
+          {
+            foreignKeyName: "user_plans_mic_unique_identifier_fkey"
+            columns: ["mic_unique_identifier"]
+            isOneToOne: false
+            referencedRelation: "open_mics_historical"
+            referencedColumns: ["unique_identifier"]
+          },
+        ]
+      }
       user_visits: {
         Row: {
           id: number
@@ -2198,6 +2309,15 @@ export type Database = {
         Returns: string
       }
       is_producer: { Args: { _user_id: string }; Returns: boolean }
+      verify_mic_with_points: {
+        Args: {
+          ip_hash_param: string
+          mic_identifier: string
+          status_param?: string
+          user_id_param?: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       application_status:

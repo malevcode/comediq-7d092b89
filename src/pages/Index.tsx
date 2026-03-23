@@ -5,6 +5,7 @@ import Hero from "@/components/Hero";
 import Features from "@/components/Features";
 
 import Pricing from "@/components/Pricing";
+import SponsorSection from "@/components/SponsorSection";
 import WaitlistForm from "@/components/WaitlistForm";
 import { useAuth } from "@/contexts/AuthContext";
 import Home from "@/components/Home";
@@ -101,6 +102,7 @@ const Index = () => {
                 </section>
               )}
 
+              <SponsorSection />
               <Pricing />
               <WaitlistForm />
             </>

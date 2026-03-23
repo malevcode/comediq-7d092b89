@@ -15,6 +15,7 @@ import MicActionBar from '@/components/mic/MicActionBar';
 import MicCommentSection from '@/components/mic/MicCommentSection';
 import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
 import { FREQUENCY_LABELS } from '@/types/openMic';
+import { SponsorCard } from '@/components/SponsorCard';
 
 // Helper function to get map URL based on device
 function getMapUrl(location: string, venueName: string) {
@@ -510,6 +511,7 @@ export default function OpenMicsDetailedList({
 
   return (
     <div className="flex flex-col gap-3">
+      <SponsorCard placement="mic_list" className="border-[#1a5fb4]/20 bg-gradient-to-r from-blue-50/50 to-white" />
       {validMics.slice(0, visibleCount).map((mic) => (
         <OpenMicDetailedCard key={mic.id} mic={mic} onAddToCalendar={handleAddToCalendar}/>
       ))}

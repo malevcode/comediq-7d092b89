@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import { LogIn } from "lucide-react";
 import { ReactNode } from "react";
+import { useSponsorAd, recordAdClick } from "@/hooks/useBannerAds";
 
 interface PageHeaderProps {
   title?: string;
@@ -15,6 +16,11 @@ interface PageHeaderProps {
 const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { data: sponsor } = useSponsorAd();
+
+  const handleSponsorClick = () => {
+    if (sponsor) recordAdClick(sponsor.id, user?.id, 'header');
+  };
 
   const handleSignUp = () => {
     navigate("/auth");
@@ -41,7 +47,21 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
                 <p className="text-xs text-gray-600">{subtitle}</p>
               )}
             </div>
-          </div>
+            </div>
+            {sponsor && (
+              <a
+                href={sponsor.href}
+                target={sponsor.external ? '_blank' : undefined}
+                rel={sponsor.external ? 'noopener noreferrer' : undefined}
+                onClick={handleSponsorClick}
+                className="hidden md:flex items-center gap-1.5 ml-3 px-2.5 py-1 rounded-full bg-muted hover:bg-accent transition-colors"
+              >
+                {sponsor.icon_url && (
+                  <img src={sponsor.icon_url} alt={sponsor.label} className="h-5 w-5 object-contain rounded" />
+                )}
+                <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{sponsor.label}</span>
+              </a>
+            )}
           {/* Desktop auth section */}
           <div className="hidden sm:flex items-center gap-3">
             {user ? (
