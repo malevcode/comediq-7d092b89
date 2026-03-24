@@ -11,72 +11,75 @@ export default function TopMics() {
   const { data: topMics = [], isLoading } = useWeeklyTopMics();
 
   return (
-    <div className="pt-28 px-4 max-w-2xl mx-auto pb-24">
-      <PageHeader
-        title="🔥 Top Mics This Week"
-        subtitle="The most liked open mics this week, updated every Monday."
-      />
+    <>
+      <PageHeader />
+      <div className="pt-28 px-4 max-w-2xl mx-auto pb-20">
+        <div className="mb-3">
+          <h1 className="text-lg font-bold text-foreground">🔥 Top Mics This Week</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">Most liked open mics, updated every Monday.</p>
+        </div>
 
-      <div className="mt-6 space-y-3">
-        {isLoading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
-          </div>
-        ) : topMics.length === 0 ? (
-          <p className="text-center text-muted-foreground py-12">
-            No rankings yet — check back after Monday!
-          </p>
-        ) : (
-          topMics.map((mic) => (
-            <Link
-              key={mic.id}
-              to={`/mics/${slugify(mic.venue_name || '')}-${slugify(mic.neighborhood || '')}`}
-              className="block"
-            >
-              <Card className="border-border bg-card hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-4 flex items-center gap-4">
-                  <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 text-primary font-bold text-base shrink-0">
-                    #{mic.rank}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-foreground truncate">
-                      {mic.mic_name}
-                    </h3>
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground mt-1">
-                      {mic.venue_name && (
-                        <span className="flex items-center gap-1 truncate">
-                          <MapPin className="h-3 w-3 shrink-0" />
-                          {mic.venue_name}
-                        </span>
-                      )}
-                      {mic.day && (
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3 shrink-0" />
-                          {mic.day}
-                        </span>
-                      )}
-                      {mic.start_time && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3 shrink-0" />
-                          {mic.start_time}
-                        </span>
-                      )}
+        <div className="space-y-2">
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            </div>
+          ) : topMics.length === 0 ? (
+            <p className="text-center text-muted-foreground py-12">
+              No rankings yet — check back after Monday!
+            </p>
+          ) : (
+            topMics.map((mic) => (
+              <Link
+                key={mic.id}
+                to={`/mics/${slugify(mic.venue_name || '')}-${slugify(mic.neighborhood || '')}`}
+                className="block"
+              >
+                <Card className="border-border bg-card hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-2.5 flex items-center gap-3">
+                    <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary font-bold text-sm shrink-0">
+                      #{mic.rank}
                     </div>
-                  </div>
-                  <Badge variant="secondary" className="shrink-0 gap-1">
-                    <ThumbsUp className="h-3 w-3" />
-                    {mic.like_count}
-                  </Badge>
-                </CardContent>
-              </Card>
-            </Link>
-          ))
-        )}
-      </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-sm text-foreground truncate">
+                        {mic.mic_name}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
+                        {mic.venue_name && (
+                          <span className="flex items-center gap-0.5 truncate">
+                            <MapPin className="h-3 w-3 shrink-0" />
+                            {mic.venue_name}
+                          </span>
+                        )}
+                        {mic.day && (
+                          <span className="flex items-center gap-0.5">
+                            <Calendar className="h-3 w-3 shrink-0" />
+                            {mic.day}
+                          </span>
+                        )}
+                        {mic.start_time && (
+                          <span className="flex items-center gap-0.5">
+                            <Clock className="h-3 w-3 shrink-0" />
+                            {mic.start_time}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <Badge variant="secondary" className="shrink-0 gap-1 text-xs">
+                      <ThumbsUp className="h-3 w-3" />
+                      {mic.like_count}
+                    </Badge>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))
+          )}
+        </div>
 
-      <div className="mt-6">
-        <SponsorCard placement="loading_screen" />
+        <div className="mt-3">
+          <SponsorCard placement="loading_screen" />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
