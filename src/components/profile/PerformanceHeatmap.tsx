@@ -4,7 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Flame } from 'lucide-react';
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function PerformanceHeatmap() {
@@ -17,7 +16,7 @@ export function PerformanceHeatmap() {
       const oneYearAgo = new Date();
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('user_mic_checkins')
         .select('checked_in_at')
         .eq('user_id', user.id)
@@ -34,7 +33,7 @@ export function PerformanceHeatmap() {
 
   // Build date -> count map
   const dateCounts: Record<string, number> = {};
-  checkins.forEach((c: any) => {
+  (checkins as any[]).forEach((c: any) => {
     const date = new Date(c.checked_in_at).toISOString().split('T')[0];
     dateCounts[date] = (dateCounts[date] || 0) + 1;
   });
@@ -54,7 +53,6 @@ export function PerformanceHeatmap() {
   let currentWeek: typeof days = [];
   days.forEach((day, i) => {
     if (i === 0 && day.dayOfWeek !== 0) {
-      // Pad first week
       for (let j = 0; j < day.dayOfWeek; j++) {
         currentWeek.push({ date: '', count: 0, dayOfWeek: j });
       }
@@ -90,7 +88,6 @@ export function PerformanceHeatmap() {
       <CardContent>
         <div className="overflow-x-auto">
           <div className="flex gap-[2px] min-w-[700px]">
-            {/* Day labels */}
             <div className="flex flex-col gap-[2px] mr-1">
               {DAYS.map((d, i) => (
                 <div key={i} className="h-[10px] text-[8px] text-muted-foreground leading-[10px] w-6">

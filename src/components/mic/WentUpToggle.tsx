@@ -21,13 +21,12 @@ export function WentUpToggle({ micId }: WentUpToggleProps) {
     queryKey: ['checkin', micId, today],
     queryFn: async () => {
       if (!user) return false;
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from('user_mic_checkins')
         .select('id')
         .eq('user_id', user.id)
         .eq('mic_id', micId)
-        .gte('checked_in_at', today + 'T00:00:00')
-        .lte('checked_in_at', today + 'T23:59:59')
+        .eq('checkin_date', today)
         .maybeSingle();
       return !!data;
     },
@@ -39,19 +38,16 @@ export function WentUpToggle({ micId }: WentUpToggleProps) {
       if (!user) throw new Error('Must be logged in');
 
       if (checkedIn) {
-        // Remove checkin for today
-        await supabase
+        await (supabase as any)
           .from('user_mic_checkins')
           .delete()
           .eq('user_id', user.id)
           .eq('mic_id', micId)
-          .gte('checked_in_at', today + 'T00:00:00')
-          .lte('checked_in_at', today + 'T23:59:59');
+          .eq('checkin_date', today);
       } else {
-        // Add checkin
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('user_mic_checkins')
-          .insert({ user_id: user.id, mic_id: micId });
+          .insert({ user_id: user.id, mic_id: micId, checkin_date: today });
         if (error) throw error;
       }
     },
