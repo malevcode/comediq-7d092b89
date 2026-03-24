@@ -481,7 +481,57 @@ const OpenMics = () => {
   const handleRequestMic = async (formData: MicRequestFormData) => {
     setIsSubmittingMic(true);
     try {
-      const insertObj = {
+      // Generate unique_identifier parts
+      const day = formData.day?.trim() || '';
+      const startTime = formData.start_time?.trim() || '';
+      const changes = formData.changes_updates?.trim().replace(/\s+/g, '') || '';
+      const venue = formData.venue_name?.trim() || '';
+
+      // Insert directly into open_mics_historical for instant visibility
+      const historicalObj = {
+        open_mic: formData.open_mic,
+        venue_name: formData.venue_name,
+        borough: formData.borough || null,
+        neighborhood: formData.neighborhood || null,
+        location: formData.location || null,
+        day: formData.day,
+        start_time: formData.start_time,
+        latest_end_time: formData.latest_end_time || null,
+        stage_time: formData.stage_time || null,
+        cost: formData.cost || 'Free',
+        venue_type: formData.venue_type || null,
+        sign_up_instructions: formData.sign_up_instructions || null,
+        hosts_organizers: formData.hosts_organizers || null,
+        changes_updates: formData.changes_updates || null,
+        other_rules: null,
+        city: formData.city || 'New York',
+        active: true,
+        status: 'trial' as const,
+        frequency: formData.frequency || 'weekly',
+        signup_method: formData.signup_method || 'in_person',
+        signup_url: formData.signup_url || null,
+        frequency_custom_text: formData.frequency_custom_text || null,
+        submission_date: new Date().toISOString(),
+        creator_id: user?.id || null,
+        verification_count: 0,
+      };
+
+      const { error: histError } = await supabase
+        .from("open_mics_historical")
+        .insert([historicalObj]);
+
+      if (histError) {
+        console.error('Insert error:', histError);
+        toast({
+          title: "Error",
+          description: histError.message || "Failed to add mic. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Also insert audit trail into requests table
+      const auditObj = {
         show_title: formData.open_mic,
         open_mic: formData.open_mic,
         venue_name: formData.venue_name,
@@ -496,34 +546,25 @@ const OpenMics = () => {
         venue_type: formData.venue_type || null,
         sign_up_instructions: formData.sign_up_instructions || null,
         hosts_organizers: formData.hosts_organizers || null,
-        host_phone: formData.host_phone || null,
         changes_updates: formData.changes_updates || null,
-        other_rules: formData.other_rules || null,
+        other_rules: null,
         city: formData.city || 'New York',
         user_id: user?.id || null,
         frequency: formData.frequency || 'weekly',
         signup_method: formData.signup_method || 'in_person',
         signup_url: formData.signup_url || null,
+        frequency_custom_text: formData.frequency_custom_text || null,
+        reviewed: true,
+        status: 'approved',
       };
 
-      const { error } = await supabase
-        .from("open_mics_requests")
-        .insert([insertObj]);
+      await supabase.from("open_mics_requests").insert([auditObj]);
 
-      if (error) {
-        console.error('Insert error:', error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to submit. Please try again.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Request submitted!",
-          description: "Thank you! We will review your mic suggestion soon.",
-        });
-        setShowRequestModal(false);
-      }
+      toast({
+        title: "Mic added! 🎤",
+        description: "It's now live on the site. Thanks for contributing!",
+      });
+      setShowRequestModal(false);
     } catch (e) {
       console.error('Unexpected error:', e);
       toast({

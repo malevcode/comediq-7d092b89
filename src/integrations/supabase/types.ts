@@ -1025,6 +1025,7 @@ export type Database = {
           creator_id: string | null
           day: string | null
           frequency: Database["public"]["Enums"]["mic_frequency"] | null
+          frequency_custom_text: string | null
           hosts_organizers: string | null
           last_verified: string | null
           latest_end_time: string | null
@@ -1060,6 +1061,7 @@ export type Database = {
           creator_id?: string | null
           day?: string | null
           frequency?: Database["public"]["Enums"]["mic_frequency"] | null
+          frequency_custom_text?: string | null
           hosts_organizers?: string | null
           last_verified?: string | null
           latest_end_time?: string | null
@@ -1095,6 +1097,7 @@ export type Database = {
           creator_id?: string | null
           day?: string | null
           frequency?: Database["public"]["Enums"]["mic_frequency"] | null
+          frequency_custom_text?: string | null
           hosts_organizers?: string | null
           last_verified?: string | null
           latest_end_time?: string | null
@@ -1131,6 +1134,7 @@ export type Database = {
           created_at: string | null
           date: string | null
           frequency: Database["public"]["Enums"]["mic_frequency"] | null
+          frequency_custom_text: string | null
           host_phone: string | null
           hosts_organizers: string | null
           latest_end_time: string | null
@@ -1159,6 +1163,7 @@ export type Database = {
           created_at?: string | null
           date?: string | null
           frequency?: Database["public"]["Enums"]["mic_frequency"] | null
+          frequency_custom_text?: string | null
           host_phone?: string | null
           hosts_organizers?: string | null
           latest_end_time?: string | null
@@ -1187,6 +1192,7 @@ export type Database = {
           created_at?: string | null
           date?: string | null
           frequency?: Database["public"]["Enums"]["mic_frequency"] | null
+          frequency_custom_text?: string | null
           host_phone?: string | null
           hosts_organizers?: string | null
           latest_end_time?: string | null
@@ -2395,6 +2401,7 @@ export type Database = {
         | "4th_of_month"
         | "last_of_month"
         | "one_off"
+        | "custom"
       mic_status: "trial" | "verified" | "pending"
       posting_status: "open" | "filled" | "cancelled" | "draft"
       rating_type: "like" | "dislike"
@@ -2402,7 +2409,7 @@ export type Database = {
       relation_type: "liked" | "upcoming" | "past"
       role_category: "performer" | "crew"
       schedule_type: "upcoming" | "completed" | "cancelled"
-      signup_method: "in_person" | "online" | "comediq_direct" | "other"
+      signup_method: "in_person" | "online" | "comediq_slots" | "other"
       signup_mode: "first_come" | "lottery" | "bucket"
       signup_status: "confirmed" | "waitlist" | "lottery_pending" | "cancelled"
     }
@@ -2561,6 +2568,7 @@ export const Constants = {
         "4th_of_month",
         "last_of_month",
         "one_off",
+        "custom",
       ],
       mic_status: ["trial", "verified", "pending"],
       posting_status: ["open", "filled", "cancelled", "draft"],
@@ -2569,7 +2577,7 @@ export const Constants = {
       relation_type: ["liked", "upcoming", "past"],
       role_category: ["performer", "crew"],
       schedule_type: ["upcoming", "completed", "cancelled"],
-      signup_method: ["in_person", "online", "comediq_direct", "other"],
+      signup_method: ["in_person", "online", "comediq_slots", "other"],
       signup_mode: ["first_come", "lottery", "bucket"],
       signup_status: ["confirmed", "waitlist", "lottery_pending", "cancelled"],
     },

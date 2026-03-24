@@ -21,6 +21,7 @@ import { SiteAnalyticsDashboard } from '@/components/admin/SiteAnalyticsDashboar
 import { AdminVenueSourcesManager } from '@/components/admin/AdminVenueSourcesManager';
 import { AdminTodoBoard } from '@/components/admin/AdminTodoBoard';
 import { SmartUpdateInterface } from '@/components/admin/SmartUpdateInterface';
+import { AdminContributionsPanel } from '@/components/admin/AdminContributionsPanel';
 import PageHeader from '@/components/PageHeader';
 import { approveMicRequest, type MicFormData } from '@/api/admin';
 import {
@@ -309,6 +310,7 @@ const AdminInterface = () => {
             <TabsTrigger value="venues" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Venues</TabsTrigger>
             <TabsTrigger value="todos" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">To-Dos</TabsTrigger>
             <TabsTrigger value="update" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Update</TabsTrigger>
+            <TabsTrigger value="contributions" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Contrib</TabsTrigger>
           </TabsList>
           <TabsContent value="analytics">
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
@@ -446,6 +448,13 @@ const AdminInterface = () => {
           </TabsContent>
           <TabsContent value="update">
             <SmartUpdateInterface />
+          </TabsContent>
+          <TabsContent value="contributions">
+            <Card className="mb-6 shadow-lg rounded-2xl border-0">
+              <CardContent className="p-8">
+                <AdminContributionsPanel />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
