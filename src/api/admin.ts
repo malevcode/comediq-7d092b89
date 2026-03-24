@@ -60,16 +60,11 @@ export async function fetchMicRequests() {
  * Approves a mic request and adds it to the historical table
  */
 export async function approveMicRequest(requestId: string, formData: MicFormData) {
-  // Generate unique_identifier
-  const day = formData['Day']?.trim() || '';
-  const startTime = formData['Start Time']?.trim() || '';
-  const changes = formData['Changes/updates']?.trim().replace(/\s+/g, '') || '';
-  const venue = formData['Venue Name']?.trim() || '';
-  const unique_identifier = `${day}_${startTime}_${changes}_${venue}`;
+  // Let the database generate unique_identifier via gen_random_uuid() default
 
   // Convert form data to database format
   const insertData = {
-    unique_identifier,
+    // unique_identifier omitted — DB generates UUID automatically
     active: true,
     open_mic: formData['Open Mic'] || '',
     day: formData['Day'] || '',
@@ -90,9 +85,11 @@ export async function approveMicRequest(requestId: string, formData: MicFormData
   };
 
   // Insert into historical table
-  const { error: historicalError } = await supabase
+  const { data: insertedData, error: historicalError } = await supabase
     .from('open_mics_historical')
-    .upsert([insertData], { onConflict: 'unique_identifier' });
+    .insert([insertData])
+    .select('unique_identifier')
+    .single();
 
   if (historicalError) {
     throw historicalError;
@@ -108,7 +105,7 @@ export async function approveMicRequest(requestId: string, formData: MicFormData
     throw updateError;
   }
 
-  return { unique_identifier };
+  return { unique_identifier: insertedData?.unique_identifier };
 }
 
 /**
