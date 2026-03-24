@@ -56,6 +56,8 @@ export const useTopRatedMics = () => {
           status: row.status || "trial",
           frequency: row.frequency || "weekly",
           verificationCount: row.verification_count || 0,
+          slotsEnabled: row.slots_enabled || false,
+          slotDurationMinutes: row.slot_duration_minutes || 5,
           likeCount: likeCount?.likes || 0
         };
       }) || [];
