@@ -43,6 +43,7 @@ import SavedMics from "./pages/SavedMics";
 import DevView from "./pages/DevView";
 import LikedMics from "./pages/LikedMics";
 import TopMics from "./pages/TopMics";
+import Slots from "./pages/Slots";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -102,6 +103,7 @@ const App = () => (
             <Route path="/liked" element={<LikedMics />} />
             <Route path="/top-mics" element={<TopMics />} />
             <Route path="/dev-view" element={<TabProvider><DevView /></TabProvider>} />
+            <Route path="/slots" element={<Slots />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
