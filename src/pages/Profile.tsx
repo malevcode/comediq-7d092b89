@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles, Calendar, X, Upload, ListMusic } from 'lucide-react';
+import { PerformanceHeatmap } from '@/components/profile/PerformanceHeatmap';
 import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
 import { OpenMic } from '@/types/openMic';
@@ -120,6 +121,7 @@ const Profile = () => {
 
             {/* My Profile Tab */}
             <TabsContent value="profile" className="space-y-6">
+              <PerformanceHeatmap />
               {!isEditing ? (
                 <>
                   <ProfileCompleteness 

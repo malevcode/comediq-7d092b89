@@ -8,6 +8,7 @@ import { generateEventSchema, generateLocalBusinessSchema, generateBreadcrumbSch
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, DollarSign, MapPin, UserRoundCheck, Heart, ArrowLeft, ExternalLink, Navigation } from "lucide-react";
+import { WentUpToggle } from "@/components/mic/WentUpToggle";
 import { VerificationBadge } from "@/components/VerificationBadge";
 import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
@@ -106,7 +107,8 @@ const MicDetailPage = () => {
             <p className="text-xl text-muted-foreground">at {mic.venueName}</p>
             
             {/* Quick Actions */}
-            <div className="flex gap-4 mt-4">
+            <div className="flex gap-4 mt-4 flex-wrap">
+              <WentUpToggle micId={mic.uniqueIdentifier} />
               {user && (
                 <Button
                   variant={userRating === 'like' ? 'default' : 'outline'}
