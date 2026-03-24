@@ -42,6 +42,7 @@ import AddShow from "./pages/AddShow";
 import SavedMics from "./pages/SavedMics";
 import DevView from "./pages/DevView";
 import LikedMics from "./pages/LikedMics";
+import TopMics from "./pages/TopMics";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -99,6 +100,7 @@ const App = () => (
             <Route path="/add-show" element={<AddShow />} />
             <Route path="/saved" element={<SavedMics />} />
             <Route path="/liked" element={<LikedMics />} />
+            <Route path="/top-mics" element={<TopMics />} />
             <Route path="/dev-view" element={<TabProvider><DevView /></TabProvider>} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -14,7 +14,7 @@ export default function TopMics() {
     <div className="pt-28 px-4 max-w-2xl mx-auto pb-24">
       <PageHeader
         title="🔥 Top Mics This Week"
-        description="The most liked open mics this week, updated every Monday."
+        subtitle="The most liked open mics this week, updated every Monday."
       />
 
       <div className="mt-6 space-y-3">
