@@ -13,7 +13,6 @@ function getNextOccurrence(dayName: string): Date {
   const targetDay = daysOfWeek.indexOf(dayName);
   
   if (targetDay === -1) {
-    // Default to next week if day not found
     const nextDate = new Date(today);
     nextDate.setDate(today.getDate() + 7);
     return nextDate;
@@ -35,7 +34,6 @@ export async function getOrCreateNextEvent(micId: string, micDay: string, micSta
   
   if (!user) throw new Error('Must be authenticated');
 
-  // First, check if there's already an active event for this mic in the future
   const today = new Date().toISOString().split('T')[0];
   
   const { data: existingEvents, error: fetchError } = await supabase
@@ -49,22 +47,18 @@ export async function getOrCreateNextEvent(micId: string, micDay: string, micSta
 
   if (fetchError) throw fetchError;
 
-  // If there's already an event, return it
   if (existingEvents && existingEvents.length > 0) {
     return existingEvents[0];
   }
 
-  // No event exists, create one using the security definer function
   const { data: hostId, error: hostError } = await supabase
     .rpc('get_or_create_system_host', { mic_id_param: micId });
 
   if (hostError) throw hostError;
 
-  // Calculate the next occurrence date
   const nextDate = getNextOccurrence(micDay);
   const eventDate = nextDate.toISOString().split('T')[0];
 
-  // Create the new event
   const { data: newEvent, error: createError } = await supabase
     .from('mic_signup_events')
     .insert({
@@ -156,7 +150,7 @@ export async function fetchSignupEvents(micId: string) {
   return data || [];
 }
 
-// Sign up for a spot
+// Sign up for a spot (authenticated)
 export async function signUpForEvent(eventId: string, notes?: string) {
   const { data: { user } } = await supabase.auth.getUser();
   
@@ -168,6 +162,31 @@ export async function signUpForEvent(eventId: string, notes?: string) {
       event_id: eventId,
       user_id: user.id,
       notes,
+      status: 'confirmed'
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// Sign up as a guest (unauthenticated)
+export async function guestSignUpForEvent(eventId: string, guestInfo: {
+  name: string;
+  email: string;
+  phone?: string;
+  notes?: string;
+}) {
+  const { data, error } = await supabase
+    .from('mic_signups')
+    .insert({
+      event_id: eventId,
+      user_id: null as any, // nullable now
+      guest_name: guestInfo.name,
+      guest_email: guestInfo.email,
+      guest_phone: guestInfo.phone || null,
+      notes: guestInfo.notes || null,
       status: 'confirmed'
     })
     .select()
