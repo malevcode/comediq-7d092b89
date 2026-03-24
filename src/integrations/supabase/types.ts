@@ -1862,6 +1862,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_mic_checkins: {
+        Row: {
+          checked_in_at: string
+          checkin_date: string
+          id: string
+          mic_id: string
+          user_id: string
+        }
+        Insert: {
+          checked_in_at?: string
+          checkin_date?: string
+          id?: string
+          mic_id: string
+          user_id: string
+        }
+        Update: {
+          checked_in_at?: string
+          checkin_date?: string
+          id?: string
+          mic_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_mic_ratings: {
         Row: {
           created_at: string

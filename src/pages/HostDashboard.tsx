@@ -3,7 +3,7 @@ import { useHostStatus } from '@/hooks/useHostStatus';
 import { Navigate } from 'react-router-dom';
 import { ClaimMicForm } from '@/components/host/ClaimMicForm';
 import { CreateEventForm } from '@/components/host/CreateEventForm';
-import { ManageSignups } from '@/components/host/ManageSignups';
+import { RunOfShow } from '@/components/host/RunOfShow';
 import { MicCoverUpload } from '@/components/host/MicCoverUpload';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -116,16 +116,14 @@ function HostMicPanel({ hostId, micId, micName }: { hostId: string; micId: strin
         </CardHeader>
       </Card>
 
-      {/* Cover image customization */}
       <MicCoverUpload micId={micId} />
-
       <CreateEventForm hostId={hostId} micId={micId} />
 
       {events && events.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-foreground">Active Events</h2>
+          <h2 className="text-2xl font-bold text-foreground">Run of Show</h2>
           {events.map(event => (
-            <ManageSignups 
+            <RunOfShow 
               key={event.id}
               eventId={event.id}
               eventDate={event.event_date}
