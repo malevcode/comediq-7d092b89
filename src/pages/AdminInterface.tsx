@@ -449,6 +449,13 @@ const AdminInterface = () => {
           <TabsContent value="update">
             <SmartUpdateInterface />
           </TabsContent>
+          <TabsContent value="contributions">
+            <Card className="mb-6 shadow-lg rounded-2xl border-0">
+              <CardContent className="p-8">
+                <AdminContributionsPanel />
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
 
