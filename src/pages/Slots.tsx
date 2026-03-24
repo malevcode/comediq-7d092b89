@@ -10,6 +10,7 @@ import { useOpenMics } from '@/hooks/useOpenMics';
 import { CalendarDays, MapPin, Clock, Users, Plus, Sparkles, TicketCheck, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { CreateSlotForm } from '@/components/slots/CreateSlotForm';
+import PageHeader from '@/components/PageHeader';
 
 const Slots = () => {
   const { data: events, isLoading } = useAllSignupEvents();
@@ -18,51 +19,66 @@ const Slots = () => {
   const [expandedEventId, setExpandedEventId] = useState<string | null>(null);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <TicketCheck className="h-6 w-6 text-primary" />
-            Slots
-          </h2>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Sign up for open mic spots or open your own list
-          </p>
+    <div className="min-h-screen pb-20">
+      <PageHeader title="Slots" subtitle="One-click mic signups" />
+
+      <div className="max-w-4xl mx-auto px-4 pt-28 pb-6 space-y-5">
+        {/* Header row */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <TicketCheck className="h-5 w-5 text-primary" />
+              Slots
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Sign up for open mic spots or open your own list
+            </p>
+          </div>
+          {user && (
+            <Button
+              onClick={() => setShowCreateForm(!showCreateForm)}
+              variant={showCreateForm ? 'outline' : 'default'}
+              size="sm"
+              className="gap-1.5"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Open List
+            </Button>
+          )}
         </div>
-      </div>
 
-      {/* CTA Button */}
-      {user && (
-        <Button
-          variant="outline"
-          className="w-full gap-2 border-dashed border-primary/40 text-primary hover:bg-primary/5"
-          onClick={() => setShowCreateForm(!showCreateForm)}
-        >
-          <Plus className="h-4 w-4" />
-          {showCreateForm ? 'Cancel' : '+ List My Mic Slots'}
-        </Button>
-      )}
+        {/* CTA Button */}
+        {user && (
+          <Button
+            variant="outline"
+            className="w-full gap-2 border-dashed border-border text-muted-foreground hover:text-foreground hover:bg-accent/50"
+            onClick={() => setShowCreateForm(!showCreateForm)}
+          >
+            <Plus className="h-4 w-4" />
+            List My Mic Slots
+          </Button>
+        )}
 
-      {/* Create Form (inline) */}
-      {showCreateForm && user && (
-        <CreateSlotForm onSuccess={() => setShowCreateForm(false)} />
-      )}
+        {/* Create Form (inline) */}
+        {showCreateForm && user && (
+          <CreateSlotForm onSuccess={() => setShowCreateForm(false)} />
+        )}
 
-      {/* Mics with Slots Available */}
-      <MicsWithSlotsSection />
+        {/* Mics with Slots Available */}
+        <MicsWithSlotsSection />
 
-      {/* Active Signup Events */}
-      <div>
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-          Active Signup Events
-        </h3>
-        <ActiveEventsSection
-          events={events || []}
-          isLoading={isLoading}
-          expandedEventId={expandedEventId}
-          onToggleExpand={(id) => setExpandedEventId(expandedEventId === id ? null : id)}
-        />
+        {/* Active Signup Events */}
+        <div>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Active Signup Events
+          </h3>
+          <ActiveEventsSection
+            events={events || []}
+            isLoading={isLoading}
+            expandedEventId={expandedEventId}
+            onToggleExpand={(id) => setExpandedEventId(expandedEventId === id ? null : id)}
+          />
+        </div>
       </div>
     </div>
   );
@@ -71,49 +87,42 @@ const Slots = () => {
 /* ─── Mics with Slots Available (horizontal scroll) ─── */
 function MicsWithSlotsSection() {
   const { data: mics } = useOpenMics();
-  const slotMics = mics?.filter((m: any) => m.slots_enabled) || [];
+  const slotMics = mics?.filter((m) => m.slotsEnabled) || [];
 
   if (slotMics.length === 0) return null;
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+        <Sparkles className="h-3.5 w-3.5" />
         Mics with Slots Available
       </h3>
-      <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x">
-        {slotMics.map((mic: any) => (
+      <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x scrollbar-hide">
+        {slotMics.map((mic) => (
           <div
-            key={mic.unique_identifier}
-            className="min-w-[220px] max-w-[260px] flex-shrink-0 snap-start rounded-lg border border-border bg-card p-3 space-y-2"
+            key={mic.uniqueIdentifier}
+            className="min-w-[200px] max-w-[240px] flex-shrink-0 snap-start rounded-lg border border-border bg-card p-3 space-y-2 hover:border-primary/30 transition-colors cursor-pointer"
           >
-            <div className="font-semibold text-sm truncate">{mic.open_mic}</div>
-            <div className="text-xs text-muted-foreground space-y-0.5">
-              {mic.venue_name && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3 flex-shrink-0" />
-                  <span className="truncate">{mic.venue_name}</span>
-                </div>
-              )}
+            <div className="flex items-center justify-between">
+              <div className="font-semibold text-sm truncate pr-2">{mic.openMic}</div>
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+            </div>
+            <div className="text-xs text-muted-foreground space-y-1">
               <div className="flex items-center gap-1">
-                <CalendarDays className="h-3 w-3 flex-shrink-0" />
-                <span>{mic.day}</span>
-                {mic.start_time && (
-                  <>
-                    <Clock className="h-3 w-3 ml-1 flex-shrink-0" />
-                    <span>{mic.start_time}</span>
-                  </>
-                )}
+                <MapPin className="h-3 w-3 flex-shrink-0 text-muted-foreground/60" />
+                <span className="truncate">{mic.venueName}</span>
               </div>
-              {mic.hosts_organizers && (
-                <div className="text-xs truncate">Host: {mic.hosts_organizers}</div>
+              <div className="flex items-center gap-1">
+                <CalendarDays className="h-3 w-3 flex-shrink-0 text-muted-foreground/60" />
+                <span>{mic.day}s · {mic.startTime}</span>
+              </div>
+              {mic.hosts && (
+                <div className="text-[11px] truncate">Host: {mic.hosts}</div>
               )}
             </div>
-            <div className="flex items-center justify-between pt-1">
-              <Badge variant="secondary" className="text-[10px]">
-                {mic.slot_duration_minutes || 5} min slots
-              </Badge>
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-            </div>
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+              {mic.slotDurationMinutes} min slots
+            </Badge>
           </div>
         ))}
       </div>
@@ -137,7 +146,7 @@ function ActiveEventsSection({
     return (
       <div className="grid gap-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-28 rounded-lg bg-muted animate-pulse" />
+          <div key={i} className="h-24 rounded-lg bg-muted animate-pulse" />
         ))}
       </div>
     );
@@ -145,10 +154,10 @@ function ActiveEventsSection({
 
   if (!events.length) {
     return (
-      <div className="text-center py-12">
-        <Sparkles className="h-10 w-10 mx-auto text-muted-foreground/40 mb-3" />
+      <div className="text-center py-16">
+        <Sparkles className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
         <h3 className="text-base font-semibold text-muted-foreground">No active signup events yet</h3>
-        <p className="text-xs text-muted-foreground mt-1">Be the first to open a signup list!</p>
+        <p className="text-xs text-muted-foreground mt-1">Click a mic above to sign up, or open your own list!</p>
       </div>
     );
   }
@@ -165,9 +174,7 @@ function ActiveEventsSection({
           <div
             key={event.id}
             className={`relative rounded-lg border bg-card p-4 transition-all ${
-              isFull
-                ? 'opacity-60 border-muted'
-                : 'border-primary/20 hover:border-primary/40'
+              isFull ? 'opacity-60 border-muted' : 'border-primary/20 hover:border-primary/40'
             }`}
           >
             {!isFull && (
@@ -181,9 +188,7 @@ function ActiveEventsSection({
             )}
 
             <div className="space-y-2">
-              <div className="font-semibold text-base">
-                {mic?.open_mic || 'Unnamed Mic'}
-              </div>
+              <div className="font-semibold text-sm">{mic?.open_mic || 'Unnamed Mic'}</div>
               <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                 {mic?.venue_name && (
                   <span className="flex items-center gap-1">
@@ -208,7 +213,6 @@ function ActiveEventsSection({
                 )}
               </div>
 
-              {/* Spots progress */}
               <div>
                 <div className="flex justify-between text-[11px] mb-1">
                   <span className="flex items-center gap-1 text-muted-foreground">
