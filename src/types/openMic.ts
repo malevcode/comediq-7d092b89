@@ -1,23 +1,24 @@
 
 export type MicStatus = 'trial' | 'verified' | 'pending';
-export type MicFrequency = 'weekly' | 'bi_weekly' | '1st_of_month' | '2nd_of_month' | '3rd_of_month' | '4th_of_month' | 'last_of_month' | 'one_off';
-export type SignupMethod = 'in_person' | 'online' | 'comediq_direct' | 'other';
+export type MicFrequency = 'weekly' | 'one_off' | 'bi_weekly' | '1st_of_month' | '2nd_of_month' | '3rd_of_month' | '4th_of_month' | 'last_of_month' | 'custom';
+export type SignupMethod = 'in_person' | 'online' | 'comediq_slots' | 'other';
 
 export const FREQUENCY_LABELS: Record<MicFrequency, string> = {
   weekly: 'Weekly',
+  one_off: 'One-Off',
   bi_weekly: 'Bi-Weekly',
   '1st_of_month': '1st of Month',
   '2nd_of_month': '2nd of Month',
   '3rd_of_month': '3rd of Month',
   '4th_of_month': '4th of Month',
   last_of_month: 'Last of Month',
-  one_off: 'One-Off',
+  custom: 'Custom',
 };
 
 export const SIGNUP_METHOD_LABELS: Record<SignupMethod, string> = {
   in_person: 'In-Person',
   online: 'Online',
-  comediq_direct: 'Comediq Direct',
+  comediq_slots: 'Comediq Slots!',
   other: 'Other',
 };
 
@@ -43,7 +44,6 @@ export interface OpenMic {
   signupEnabled: boolean;
   otherRules: string;
   coverImageUrl?: string;
-  // New fields
   status: MicStatus;
   frequency: MicFrequency;
   verificationCount: number;
@@ -52,4 +52,5 @@ export interface OpenMic {
   creatorId?: string;
   signupMethod?: SignupMethod;
   signupUrl?: string;
+  frequencyCustomText?: string;
 }
