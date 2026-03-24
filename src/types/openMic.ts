@@ -53,4 +53,6 @@ export interface OpenMic {
   signupMethod?: SignupMethod;
   signupUrl?: string;
   frequencyCustomText?: string;
+  slotsEnabled: boolean;
+  slotDurationMinutes: number;
 }

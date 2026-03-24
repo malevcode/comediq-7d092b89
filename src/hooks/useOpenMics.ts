@@ -66,6 +66,8 @@ export const useOpenMics = (tableName: 'open_mics_historical' = 'open_mics_histo
           signupMethod: (row["signup_method"] as SignupMethod) || undefined,
           signupUrl: row["signup_url"] || undefined,
           frequencyCustomText: row["frequency_custom_text"] || undefined,
+          slotsEnabled: row["slots_enabled"] || false,
+          slotDurationMinutes: row["slot_duration_minutes"] || 5,
         };
         return mapped;
       });
