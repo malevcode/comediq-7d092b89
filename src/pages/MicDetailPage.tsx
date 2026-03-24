@@ -86,7 +86,7 @@ const MicDetailPage = () => {
         structuredData={structuredData}
       />
 
-      <div className="min-h-screen pb-20">
+      <div className="min-h-screen pb-20 pt-28">
         <div className="container mx-auto px-4 py-8">
           {/* Back Button */}
           <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
