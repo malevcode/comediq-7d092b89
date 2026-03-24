@@ -30,7 +30,7 @@ export default function TopMics() {
           topMics.map((mic) => (
             <Link
               key={mic.id}
-              to={`/mics/${slugify(mic.mic_name)}`}
+              to={`/mics/${slugify(mic.venue_name || '')}-${slugify(mic.neighborhood || '')}`}
               className="block"
             >
               <Card className="border-border bg-card hover:shadow-md transition-shadow cursor-pointer">
