@@ -458,6 +458,13 @@ const AdminInterface = () => {
               </CardContent>
             </Card>
           </TabsContent>
+          <TabsContent value="growth">
+            <Card className="mb-6 shadow-lg rounded-2xl border-0">
+              <CardContent className="p-8">
+                <AdminGrowthManager />
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
 
