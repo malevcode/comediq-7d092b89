@@ -1,19 +1,31 @@
 import { useState } from "react";
-import { Megaphone, Trophy, GraduationCap, Search } from "lucide-react";
+import { Megaphone, Trophy, GraduationCap, Search, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { OpportunityCard } from "@/components/growth/OpportunityCard";
 import { SubmitOpportunityForm } from "@/components/growth/SubmitOpportunityForm";
-import { useGrowthOpportunities } from "@/hooks/useGrowthOpportunities";
+import { useGrowthOpportunities, useMyGrowthSubmissions } from "@/hooks/useGrowthOpportunities";
+import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
+import type { GrowthOpportunityStatus } from "@/api/growthOpportunities";
+
+const statusConfig: Record<GrowthOpportunityStatus, { label: string; icon: any; className: string }> = {
+  submitted: { label: 'Submitted', icon: Clock, className: 'bg-muted text-muted-foreground' },
+  in_review: { label: 'In Review', icon: AlertCircle, className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' },
+  approved: { label: 'Approved', icon: CheckCircle, className: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
+  rejected: { label: 'Rejected', icon: XCircle, className: 'bg-destructive/10 text-destructive' },
+};
 
 const GrowthOpportunities = () => {
   const [tab, setTab] = useState("barking");
+  const { user } = useAuth();
 
   const typeMap = { barking: 'barking' as const, festivals: 'festival' as const, training: 'school_ad' as const };
   const currentType = typeMap[tab as keyof typeof typeMap];
   const { data: opportunities, isLoading } = useGrowthOpportunities(currentType);
+  const { data: mySubmissions } = useMyGrowthSubmissions(user?.id);
 
   const emptyMessages = {
     barking: { title: "No barking gigs yet", sub: "Check back soon or post one yourself!" },
@@ -81,6 +93,31 @@ const GrowthOpportunities = () => {
               </TabsContent>
             ))}
           </Tabs>
+
+          {/* My Submissions */}
+          {user && mySubmissions && mySubmissions.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-sm font-semibold text-foreground mb-3">My Submissions</h3>
+              <div className="space-y-2">
+                {mySubmissions.map((sub) => {
+                  const config = statusConfig[(sub.status as GrowthOpportunityStatus) || 'submitted'];
+                  const Icon = config.icon;
+                  return (
+                    <div key={sub.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{sub.title}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{sub.type} · {new Date(sub.created_at).toLocaleDateString()}</p>
+                      </div>
+                      <Badge className={`${config.className} gap-1 shrink-0`}>
+                        <Icon className="h-3 w-3" />
+                        {config.label}
+                      </Badge>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>

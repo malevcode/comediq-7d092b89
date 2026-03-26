@@ -522,6 +522,7 @@ export type Database = {
           image_url: string | null
           is_active: boolean
           is_featured: boolean
+          status: string
           submitted_by: string | null
           time: string | null
           title: string
@@ -542,6 +543,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           is_featured?: boolean
+          status?: string
           submitted_by?: string | null
           time?: string | null
           title: string
@@ -562,6 +564,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           is_featured?: boolean
+          status?: string
           submitted_by?: string | null
           time?: string | null
           title?: string
