@@ -18,7 +18,7 @@ const HamburgerMenu = () => {
   ];
 
   const newFeatureItems = [
-    { path: "/slots", icon: TicketCheck, label: "Slots", isNew: true },
+    { path: "/growth", icon: Briefcase, label: "Growth", isNew: true },
   ];
 
   const performSubItems = [
@@ -27,8 +27,6 @@ const HamburgerMenu = () => {
     ...(user ? [{ path: "/saved", icon: Bookmark, label: "Saved Mics" }] : []),
     ...(user ? [{ path: "/open-mics?tab=playlists", icon: ListMusic, label: "My Playlists" }] : []),
     { path: "/growth", icon: Briefcase, label: "Growth" },
-    { path: "/shows", icon: Calendar, label: "Show Scheduler" },
-    { path: "/track-sets", icon: TrendingUp, label: "Progress Tracker" },
     ...(user ? [{ path: "/host-dashboard", icon: MicVocal, label: "Host Dashboard" }] : []),
   ];
 
