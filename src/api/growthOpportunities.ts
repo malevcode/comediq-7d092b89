@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export type GrowthOpportunityType = 'barking' | 'festival' | 'school_ad';
+export type GrowthOpportunityStatus = 'submitted' | 'in_review' | 'approved' | 'rejected';
 
 export interface GrowthOpportunity {
   id: string;
@@ -17,6 +18,7 @@ export interface GrowthOpportunity {
   image_url: string | null;
   is_featured: boolean;
   is_active: boolean;
+  status: GrowthOpportunityStatus;
   submitted_by: string | null;
   contact_id: string | null;
   created_at: string;
@@ -40,6 +42,27 @@ export async function fetchGrowthOpportunities(type?: GrowthOpportunityType) {
   return data as GrowthOpportunity[];
 }
 
+export async function fetchAllGrowthOpportunities() {
+  const { data, error } = await supabase
+    .from('growth_opportunities')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data as GrowthOpportunity[];
+}
+
+export async function fetchMySubmissions(userId: string) {
+  const { data, error } = await supabase
+    .from('growth_opportunities')
+    .select('*')
+    .eq('submitted_by', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data as GrowthOpportunity[];
+}
+
 export async function submitGrowthOpportunity(opportunity: {
   type: GrowthOpportunityType;
   title: string;
@@ -55,10 +78,31 @@ export async function submitGrowthOpportunity(opportunity: {
 }) {
   const { data, error } = await supabase
     .from('growth_opportunities')
-    .insert(opportunity)
+    .insert({ ...opportunity, status: 'submitted' })
     .select()
     .single();
 
   if (error) throw error;
   return data as GrowthOpportunity;
+}
+
+export async function updateGrowthOpportunity(id: string, updates: Partial<GrowthOpportunity>) {
+  const { data, error } = await supabase
+    .from('growth_opportunities')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as GrowthOpportunity;
+}
+
+export async function deleteGrowthOpportunity(id: string) {
+  const { error } = await supabase
+    .from('growth_opportunities')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
 }
