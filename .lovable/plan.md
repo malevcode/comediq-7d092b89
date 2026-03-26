@@ -1,101 +1,65 @@
 
 
-## Slots Page Overhaul + Host Run-of-Show + Performance Tracking + Waitlist Notifications
+## Growth Opportunities: Admin Management + User Submission Tracking
 
-This is a large feature set. I'll break it into 4 phases, with Phase 1 (Slots page redesign + functional signup) being the immediate implementation, and Phases 2-4 as follow-ups.
+### Overview
+Two features: (1) admin tab in the dashboard to manage all growth opportunities, and (2) a "My Submissions" section on the Growth page so users can see their submitted opportunities and their status.
 
----
+### Problem
+- Growth opportunities are not editable from the admin dashboard -- admins must go to Supabase directly
+- Users who submit opportunities have no visibility into whether their submission was reviewed or approved
+- The `growth_opportunities` table has `is_active` but no explicit review status field
 
-### Phase 1: Slots Page Redesign (matching screenshot) + Functional Signup
+### Database Migration
 
-**Goal**: Make `/slots` (and the Perform > Slots tab) match the reference screenshot -- clean header, "Mics with Slots Available" horizontal card row, "+ List My Mic Slots" CTA, and inline signup flow.
+Add a `status` column to `growth_opportunities` to track review workflow:
 
-**File: `src/pages/Slots.tsx`** -- Full rewrite:
-- **Header**: Keep `TicketCheck` icon + "Slots" title + subtitle. Move "+ Open List" button to the right of the header (already done, matches screenshot).
-- **"+ List My Mic Slots" CTA**: Full-width outlined button below header that toggles the create form inline (currently "Open Your List" -- rename to match screenshot).
-- **"Mics with Slots Available" section**: Replace the vertical card list with a horizontal scrolling row of compact cards showing mic name, venue, day/time, host, and slot duration badge. This matches the 3-card horizontal layout in the screenshot. Use `overflow-x-auto flex gap-3` with min-width cards.
-- **Active Signup Events section below**: Keep the existing vertical card list for events that have active signups, with the progress bar and signup button. If no events, show the "No active signup events yet" empty state (matches screenshot).
-- **Guest/anonymous signup**: Update `SignupButton` to support guest signups -- if user is not authenticated, show a dialog collecting Name, Email, Phone (per the Comediq Slots memory). Insert into `mic_signups` using a guest flow (or prompt sign-in). This requires a small schema addition.
+```sql
+ALTER TABLE growth_opportunities 
+  ADD COLUMN status text NOT NULL DEFAULT 'submitted';
+-- Values: 'submitted', 'in_review', 'approved', 'rejected'
+```
 
-**File: `src/components/signup/SignupButton.tsx`**:
-- Replace "Sign in to sign up" disabled button with a dialog that collects name/email/phone for guest signups.
-- For authenticated users, keep one-click signup flow.
+No new RLS needed -- existing policies cover admin full access and user select on active items. Update the user-facing query to also let users see their own submissions regardless of `is_active`.
 
-**Database migration**:
-- Add `guest_name`, `guest_email`, `guest_phone` nullable text columns to `mic_signups` table.
-- Update RLS: allow anon inserts to `mic_signups` (with `guest_email IS NOT NULL` check).
+### Changes
 
----
+**1. New component: `src/components/admin/AdminGrowthManager.tsx`**
+- Table/card list of ALL growth opportunities (active, inactive, all statuses)
+- Inline edit fields: title, description, type, venue, borough, date, time, compensation, contact_info, external_url, is_featured, is_active, status
+- Toggle `is_active` and `is_featured` with switches
+- Status dropdown (submitted → in_review → approved → rejected)
+- Delete button with confirmation
+- Auto-save on blur (same pattern as AdminAllMicsList)
 
-### Phase 2: Run of Show (Host Drag & Drop Lineup)
+**2. `src/pages/AdminInterface.tsx`**
+- Add "Growth" tab trigger after "Contrib"
+- Add `TabsContent value="growth"` rendering `AdminGrowthManager`
 
-**Goal**: Hosts can reorder signups into a lineup on the Host Dashboard.
+**3. `src/api/growthOpportunities.ts`**
+- Add `fetchAllGrowthOpportunities()` (no `is_active` filter, for admin)
+- Add `updateGrowthOpportunity(id, updates)` 
+- Add `deleteGrowthOpportunity(id)`
+- Add `fetchMySubmissions(userId)` -- returns user's own submissions with status
+- Update `submitGrowthOpportunity` to set `status: 'submitted'`
 
-**File: `src/components/host/RunOfShow.tsx`** (new):
-- Drag-and-drop list of confirmed signups for an event using `@dnd-kit/core` (already common in React).
-- Each item shows: order number, comedian name, notes, status badge.
-- "Save Order" button persists `signup_order` on each `mic_signups` row.
-- "Export CSV" button generates a downloadable lineup.
+**4. `src/hooks/useGrowthOpportunities.ts`**
+- Add `useAllGrowthOpportunities()` hook for admin
+- Add `useMyGrowthSubmissions()` hook for users
+- Add `useUpdateOpportunity()` and `useDeleteOpportunity()` mutations
 
-**File: `src/pages/HostDashboard.tsx`**:
-- Replace `ManageSignups` with `RunOfShow` component for each active event.
-- Add a tab or section toggle between "Signups" (raw list) and "Run of Show" (reorderable).
-
-**Database migration**:
-- `signup_order` column already exists on `mic_signups` -- just need to ensure hosts can update it (RLS already allows host updates).
-
----
-
-### Phase 3: "I Went Up" Performance Tracking
-
-**Goal**: Comedians can mark that they performed at a mic, building a personal heat map.
-
-**File: `src/components/mic/WentUpToggle.tsx`** (new):
-- Simple toggle button on mic detail and signup list: "I went up" checkmark.
-- On toggle, inserts into a `user_mic_checkins` table with `user_id`, `mic_id`, `checked_in_at`.
-
-**File: `src/components/profile/PerformanceHeatmap.tsx`** (new):
-- Calendar heat map (like GitHub contributions) showing which days/mics the user performed.
-- Data sourced from `user_mic_checkins`.
-
-**Database migration**:
-- Create `user_mic_checkins` table: `id uuid PK`, `user_id uuid NOT NULL`, `mic_id uuid NOT NULL`, `checked_in_at timestamptz DEFAULT now()`, unique constraint on `(user_id, mic_id, date(checked_in_at))`.
-- RLS: users can insert/select/delete their own rows.
-
----
-
-### Phase 4: Waitlist Automation (SMS/Browser Notifications)
-
-**Goal**: Notify comedians when they're 3 spots away from going up.
-
-**Implementation approach**:
-- **Browser notifications**: Use the Web Push API. When a comedian signs up, prompt for notification permission. Store push subscription in a `push_subscriptions` table.
-- **SMS notifications**: Requires Twilio integration via a Supabase Edge Function. When `signup_order` changes (host reorders lineup), the edge function checks if any comedian is now 3 spots away and sends an SMS.
-- **Edge Function: `notify-upcoming-spot`**: Triggered by a database webhook on `mic_signups` update. Checks position, sends notification.
-
-**Database migration**:
-- Create `push_subscriptions` table for browser push.
-- Add `phone_number` to profiles (or use `guest_phone` from signups).
-
----
-
-### Implementation Order
-
-Phase 1 is the immediate build. Phases 2-4 will be follow-up tasks. Phase 1 covers:
-
-1. **Migration**: Add guest columns to `mic_signups` + anon insert RLS
-2. **`src/pages/Slots.tsx`**: Rewrite with horizontal "Mics with Slots" cards + vertical events list
-3. **`src/components/signup/SignupButton.tsx`**: Add guest signup dialog
-4. **`src/components/signup/SignupList.tsx`**: Show guest names alongside authenticated usernames
+**5. `src/pages/GrowthOpportunities.tsx`**
+- Add a "My Submissions" section below the tabs (only visible to authenticated users who have submissions)
+- Shows a compact list of the user's submitted opportunities with status badges: Submitted (gray), In Review (yellow), Approved (green), Rejected (red)
+- Each card shows title, type, date submitted, and current status
 
 ### Files Modified
-- `src/pages/Slots.tsx` (major rewrite)
-- `src/components/signup/SignupButton.tsx` (guest flow)
-- `src/components/signup/SignupList.tsx` (display guest names)
-- Database migration (guest columns + RLS)
+- `src/api/growthOpportunities.ts` -- add admin CRUD + user submissions queries
+- `src/hooks/useGrowthOpportunities.ts` -- add new hooks
+- `src/pages/AdminInterface.tsx` -- add "Growth" tab
+- `src/pages/GrowthOpportunities.tsx` -- add "My Submissions" section
 
-### Files Created (Phase 2-4, later)
-- `src/components/host/RunOfShow.tsx`
-- `src/components/mic/WentUpToggle.tsx`
-- `src/components/profile/PerformanceHeatmap.tsx`
+### Files Created
+- `src/components/admin/AdminGrowthManager.tsx`
+- Database migration (add `status` column)
 
