@@ -81,7 +81,7 @@ const GrowthOpportunities = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Manhattan Comedy School has been turning nervous first-timers into actual comedians since 2007. They offer classes in stand-up, improv, and writing for every level. From &lsquo;I&rsquo;ve never touched a mic&rsquo; to &lsquo;I need to stop bombing.&rsquo; April is National Humor Month, which means there&rsquo;s literally no better excuse to finally sign up.
+                    Manhattan Comedy School has been turning nervous first-timers into actual comedians since 2000. They offer classes in stand-up, improv, and writing for every level. From &lsquo;I&rsquo;ve never touched a mic&rsquo; to &lsquo;I need to stop bombing.&rsquo; April is National Humor Month, which means there&rsquo;s literally no better excuse to finally sign up.
                   </p>
                   <div className="flex gap-2">
                     <Button variant="default" size="sm" className="flex-1" asChild>
