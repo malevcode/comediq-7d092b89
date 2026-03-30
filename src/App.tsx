@@ -45,6 +45,7 @@ import DevView from "./pages/DevView";
 import LikedMics from "./pages/LikedMics";
 import TopMics from "./pages/TopMics";
 import Slots from "./pages/Slots";
+import ShowsMap from "./pages/ShowsMap";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -104,6 +105,7 @@ const App = () => (
                     <Route path="/advertise" element={<AdvertiseWithUs />} />
                     <Route path="/privacy" element={<PrivacyPolicy />} />
                     <Route path="/add-show" element={<AddShow />} />
+                    <Route path="/shows/map" element={<ShowsMap />} />
                     <Route path="/saved" element={<SavedMics />} />
                     <Route path="/liked" element={<LikedMics />} />
                     <Route path="/top-mics" element={<TopMics />} />

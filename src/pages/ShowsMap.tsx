@@ -1,0 +1,69 @@
+import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Ticket } from 'lucide-react';
+import { useAudienceShows } from '@/hooks/useAudienceShows';
+import AudienceShowsMap from '@/components/map/AudienceShowsMap';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const ShowsMap = () => {
+  const navigate = useNavigate();
+
+  // Build date range: today → today + 5 days
+  const filters = useMemo(() => {
+    const today = new Date();
+    const end = new Date(today);
+    end.setDate(today.getDate() + 5);
+    return {
+      dateFrom: today.toISOString().split('T')[0],
+      dateTo: end.toISOString().split('T')[0],
+    };
+  }, []);
+
+  const { data: shows, isLoading, error } = useAudienceShows(filters);
+
+  return (
+    <div className="flex flex-col h-screen bg-background">
+      {/* Header */}
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-background z-10 flex-shrink-0">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
+        <div className="flex items-center gap-2">
+          <Ticket className="w-4 h-4 text-orange-500" />
+          <h1 className="font-semibold text-sm">Shows Map · Next 5 Days</h1>
+        </div>
+        {shows && (
+          <span className="ml-auto text-xs text-muted-foreground">
+            {shows.length} show{shows.length !== 1 ? 's' : ''}
+          </span>
+        )}
+      </div>
+
+      {/* Map area */}
+      <div className="flex-1 relative overflow-hidden">
+        {isLoading ? (
+          <div className="p-4 space-y-3">
+            <Skeleton className="h-full w-full rounded-none" style={{ minHeight: '400px' }} />
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-destructive text-sm">Failed to load shows. Please try again.</p>
+          </div>
+        ) : shows && shows.length > 0 ? (
+          <AudienceShowsMap shows={shows} />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full gap-3 text-muted-foreground">
+            <Ticket className="w-10 h-10 opacity-30" />
+            <p className="text-sm">No shows in the next 5 days.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ShowsMap;

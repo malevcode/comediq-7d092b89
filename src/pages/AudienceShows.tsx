@@ -7,7 +7,7 @@ import { AudienceShowDetailModal } from "@/components/shows/AudienceShowDetailMo
 import { AudienceShow } from "@/api/audienceShows";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Ticket, Calendar, Plus } from "lucide-react";
+import { Ticket, Calendar, Plus, Map } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function AudienceShows() {
@@ -68,6 +68,17 @@ export default function AudienceShows() {
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate('/shows/map')}
+          className="flex items-center gap-1.5 text-xs"
+        >
+          <Map className="w-3.5 h-3.5" />
+          Map View
+        </Button>
+      </div>
       <AudienceShowFilters
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}

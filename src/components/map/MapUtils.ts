@@ -108,4 +108,28 @@ export const getMarkerColor = (verified: string, tediouslyVerified: string): str
   if (tediouslyVerified === 'true') return '#fef3c7'; // yellow-100
   if (verified === 'true') return '#d1fae5'; // emerald-100
   return '#fee2e2'; // red-100
-}; 
+};
+
+// Get pin color by show type
+export const getShowTypeColor = (showType: string | null): string => {
+  const type = showType?.toLowerCase().trim() || '';
+  const colors: Record<string, string> = {
+    'standup':      '#f59e0b', // amber
+    'stand-up':     '#f59e0b',
+    'stand up':     '#f59e0b',
+    'improv':       '#22c55e', // green
+    'storytelling': '#a855f7', // purple
+    'sketch':       '#3b82f6', // blue
+    'variety':      '#06b6d4', // cyan
+  };
+  return colors[type] || '#6b7280'; // gray for other/unknown
+};
+
+export const SHOW_TYPE_COLORS: { label: string; color: string }[] = [
+  { label: 'Stand-up',     color: '#f59e0b' },
+  { label: 'Improv',       color: '#22c55e' },
+  { label: 'Storytelling', color: '#a855f7' },
+  { label: 'Sketch',       color: '#3b82f6' },
+  { label: 'Variety',      color: '#06b6d4' },
+  { label: 'Other',        color: '#6b7280' },
+]; 
