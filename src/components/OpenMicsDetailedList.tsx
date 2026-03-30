@@ -16,6 +16,7 @@ import MicCommentSection from '@/components/mic/MicCommentSection';
 import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
 import { FREQUENCY_LABELS } from '@/types/openMic';
 import { SponsorCard } from '@/components/SponsorCard';
+import ClaimMicButton from '@/components/host/ClaimMicButton';
 
 // Helper function to get map URL based on device
 function getMapUrl(location: string, venueName: string) {
