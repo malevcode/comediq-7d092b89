@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { HelmetProvider } from 'react-helmet-async';
+import { usePointsSync } from '@/hooks/usePoints';
 import Index from "./pages/Index";
 import OpenMics from "./pages/OpenMics";
 import TrackSets from "./pages/TrackSets";
@@ -122,6 +123,7 @@ const App = () => (
         </TooltipProvider>
       </HelmetProvider>
     </AuthProvider>
+    </PointsSyncWrapper>
   </QueryClientProvider>
 );
 
