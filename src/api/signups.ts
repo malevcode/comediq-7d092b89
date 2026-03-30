@@ -4,6 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { awardPoints } from '@/services/pointsService';
 
 // Helper to get the next occurrence of a day
 function getNextOccurrence(dayName: string): Date {
@@ -95,6 +96,10 @@ export async function claimHostStatus(micId: string) {
     .single();
 
   if (error) throw error;
+  
+  // Award points for claiming a mic
+  awardPoints('mic_claim', 'Claimed a mic listing', { mic_id: micId }).catch(console.error);
+  
   return data;
 }
 
@@ -168,6 +173,10 @@ export async function signUpForEvent(eventId: string, notes?: string) {
     .single();
 
   if (error) throw error;
+
+  // Award points for signing up
+  awardPoints('mic_signup', 'Signed up for a mic slot', { event_id: eventId }).catch(console.error);
+
   return data;
 }
 
