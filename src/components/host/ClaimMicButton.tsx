@@ -81,9 +81,9 @@ export default function ClaimMicButton({ micUniqueIdentifier, micName, venueName
   // Pending claim
   if (isPending) {
     return (
-      <Card className="border-amber-500/30 bg-amber-500/5">
+      <Card className="border-amber-500/30">
         <CardContent className="pt-4">
-          <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock className="w-4 h-4" />
             <span>Your host claim is pending verification</span>
           </div>
