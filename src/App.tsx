@@ -58,9 +58,15 @@ const queryClient = new QueryClient({
   },
 });
 
+function PointsSyncWrapper({ children }: { children: React.ReactNode }) {
+  usePointsSync();
+  return <>{children}</>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
+      <PointsSyncWrapper>
       <HelmetProvider>
         <TooltipProvider>
           <Toaster />
