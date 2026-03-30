@@ -387,6 +387,12 @@ function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCa
                 </Button>
               )}
             </div>
+            {/* Host Claim / Edit */}
+            <ClaimMicButton
+              micUniqueIdentifier={mic.uniqueIdentifier}
+              micName={mic.openMic}
+              venueName={mic.venueName}
+            />
             <div className="flex flex-row gap-2 mt-2">
               <Button
                 size="sm"
