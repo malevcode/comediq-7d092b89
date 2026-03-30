@@ -81,7 +81,7 @@ export default function ClaimMicButton({ micUniqueIdentifier, micName, venueName
   // Pending claim
   if (isPending) {
     return (
-      <Card className="border-amber-500/30">
+      <Card className="border-primary/30">
         <CardContent className="pt-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock className="w-4 h-4" />
