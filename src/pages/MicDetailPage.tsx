@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, DollarSign, MapPin, UserRoundCheck, Heart, ArrowLeft, ExternalLink, Navigation } from "lucide-react";
 import { WentUpToggle } from "@/components/mic/WentUpToggle";
 import { VerificationBadge } from "@/components/VerificationBadge";
+import ClaimMicButton from "@/components/host/ClaimMicButton";
 import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
