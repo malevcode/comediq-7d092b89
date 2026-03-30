@@ -9,6 +9,7 @@ import { useOpenMics } from '@/hooks/useOpenMics';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { Save, X, Loader2 } from 'lucide-react';
+import { awardPoints } from '@/services/pointsService';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const BOROUGHS = ['Manhattan', 'Brooklyn', 'Queens', 'Bronx', 'Staten Island'];
@@ -85,6 +86,9 @@ export default function HostMicEditForm({ micUniqueIdentifier, onClose }: HostMi
 
       toast({ title: 'Saved!', description: 'Mic details updated successfully.' });
       queryClient.invalidateQueries({ queryKey: ['openMics'] });
+      
+      // Award points for updating a listing (max once per week)
+      awardPoints('listing_update', 'Updated a mic listing', { mic_id: micUniqueIdentifier }).catch(console.error);
       onClose();
     } catch (err: any) {
       toast({ title: 'Error', description: err.message || 'Failed to save changes', variant: 'destructive' });

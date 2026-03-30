@@ -17,6 +17,7 @@ import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import SocialLinksManager from '@/components/profile/SocialLinksManager';
 import ComedianCard from '@/components/profile/ComedianCard';
 import WorkHistorySection from '@/components/profile/WorkHistorySection';
+import PointsDisplay from '@/components/profile/PointsDisplay';
 import ProfileCompleteness from '@/components/profile/ProfileCompleteness';
 import { useUserSignups } from '@/hooks/useUserSignups';
 import { cancelSignup } from '@/api/signups';
@@ -140,6 +141,7 @@ const Profile = () => {
                     <ComedianCard comedian={profile} />
                     
                     <div className="space-y-6">
+                      <PointsDisplay />
                       <Card>
                         <CardContent className="p-6">
                           <h3 className="font-semibold mb-4">Profile Stats</h3>
