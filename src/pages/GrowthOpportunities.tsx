@@ -21,7 +21,7 @@ const statusConfig: Record<GrowthOpportunityStatus, { label: string; icon: any; 
 };
 
 const GrowthOpportunities = () => {
-  const [tab, setTab] = useState("training");
+  const [tab, setTab] = useState("podcasts");
   const { user } = useAuth();
 
   const typeMap = { barking: 'barking' as const, festivals: 'festival' as const, training: 'school_ad' as const, podcasts: 'podcast' as const };
