@@ -1,4 +1,4 @@
-import { Calendar, MapPin, DollarSign, ExternalLink, Megaphone, Trophy, GraduationCap } from "lucide-react";
+import { Calendar, MapPin, DollarSign, ExternalLink, Megaphone, Trophy, GraduationCap, Headphones } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ const typeConfig = {
   barking: { icon: Megaphone, color: "bg-blue-100 text-blue-800", label: "Barking" },
   festival: { icon: Trophy, color: "bg-purple-100 text-purple-800", label: "Festival" },
   school_ad: { icon: GraduationCap, color: "bg-amber-100 text-amber-800", label: "Training" },
+  podcast: { icon: Headphones, color: "bg-green-100 text-green-800", label: "Podcast" },
 };
 
 interface OpportunityCardProps {
