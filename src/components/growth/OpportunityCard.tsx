@@ -35,7 +35,7 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
                 Featured
               </Badge>
             )}
-            <Badge className={`text-xs ${config.color}`}>{config.label}</Badge>
+            {opportunity.type !== "podcast" && <Badge className={`text-xs ${config.color}`}>{config.label}</Badge>}
           </div>
         </div>
       </CardHeader>
