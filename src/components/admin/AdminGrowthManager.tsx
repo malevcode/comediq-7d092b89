@@ -131,6 +131,10 @@ export default function AdminGrowthManager() {
             <CardContent className="p-4">
               {/* Header row */}
               <div className="flex items-center gap-3 mb-3 pb-3 border-b flex-wrap">
+                <span className="text-xs text-muted-foreground">
+                  Listed {new Date(opp.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </span>
+                <Badge variant="outline" className="text-xs">{opp.type}</Badge>
                 <Badge className={statusColors[(opp.status as GrowthOpportunityStatus) || 'submitted']}>
                   {(opp.status as string) || 'submitted'}
                 </Badge>
