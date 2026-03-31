@@ -59,13 +59,19 @@ export function SubmitOpportunityForm() {
 
   const update = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <Button onClick={() => window.location.href = '/auth'}>
+        <Plus className="h-4 w-4 mr-2" /> Add Your Listing
+      </Button>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Plus className="h-4 w-4 mr-2" /> Submit Opportunity
+          <Plus className="h-4 w-4 mr-2" /> Add Your Listing
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
@@ -78,8 +84,10 @@ export function SubmitOpportunityForm() {
             <Select value={form.type} onValueChange={(v) => update('type', v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
+                <SelectItem value="school_ad">Training / School</SelectItem>
                 <SelectItem value="barking">Barking Gig</SelectItem>
                 <SelectItem value="festival">Festival / Event</SelectItem>
+                <SelectItem value="podcast">Podcast</SelectItem>
               </SelectContent>
             </Select>
           </div>
