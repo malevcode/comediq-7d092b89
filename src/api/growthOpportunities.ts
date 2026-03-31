@@ -78,7 +78,7 @@ export async function submitGrowthOpportunity(opportunity: {
 }) {
   const { data, error } = await supabase
     .from('growth_opportunities')
-    .insert({ ...opportunity, status: 'submitted' })
+    .insert({ ...opportunity, status: 'approved', is_active: true })
     .select()
     .single();
 
