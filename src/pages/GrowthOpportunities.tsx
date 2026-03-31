@@ -124,7 +124,7 @@ const GrowthOpportunities = () => {
               )}
             </TabsContent>
 
-            {["barking", "festivals"].map((t) => (
+            {["barking", "festivals", "podcasts"].map((t) => (
               <TabsContent key={t} value={t}>
                 {isLoading && tab === t ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
