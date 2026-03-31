@@ -57,6 +57,9 @@ const GrowthOpportunities = () => {
 
           <Tabs value={tab} onValueChange={setTab} className="w-full">
             <TabsList className="w-full grid grid-cols-4">
+              <TabsTrigger value="podcasts" className="flex items-center gap-1 text-xs sm:text-sm">
+                <Podcast className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Podcasts
+              </TabsTrigger>
               <TabsTrigger value="training" className="flex items-center gap-1 text-xs sm:text-sm">
                 <GraduationCap className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Training
               </TabsTrigger>
@@ -65,9 +68,6 @@ const GrowthOpportunities = () => {
               </TabsTrigger>
               <TabsTrigger value="festivals" className="flex items-center gap-1 text-xs sm:text-sm">
                 <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Festivals
-              </TabsTrigger>
-              <TabsTrigger value="podcasts" className="flex items-center gap-1 text-xs sm:text-sm">
-                <Podcast className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Podcasts
               </TabsTrigger>
             </TabsList>
 
