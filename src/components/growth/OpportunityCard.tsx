@@ -41,7 +41,7 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
       </CardHeader>
       <CardContent className="space-y-2">
         {opportunity.description && (
-          <p className="text-sm text-muted-foreground line-clamp-4">{opportunity.description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-6">{opportunity.description}</p>
         )}
 
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
