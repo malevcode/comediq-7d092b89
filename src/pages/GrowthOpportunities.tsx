@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Megaphone, Trophy, GraduationCap, Search, Clock, CheckCircle, XCircle, AlertCircle, ExternalLink } from "lucide-react";
+import { Megaphone, Trophy, GraduationCap, Search, Clock, CheckCircle, XCircle, AlertCircle, ExternalLink, Podcast } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ const GrowthOpportunities = () => {
   const [tab, setTab] = useState("training");
   const { user } = useAuth();
 
-  const typeMap = { barking: 'barking' as const, festivals: 'festival' as const, training: 'school_ad' as const };
+  const typeMap = { barking: 'barking' as const, festivals: 'festival' as const, training: 'school_ad' as const, podcasts: 'podcast' as const };
   const currentType = typeMap[tab as keyof typeof typeMap];
   const { data: opportunities, isLoading } = useGrowthOpportunities(currentType);
   const { data: mySubmissions } = useMyGrowthSubmissions(user?.id);
@@ -33,6 +33,7 @@ const GrowthOpportunities = () => {
     barking: { title: "No barking gigs yet", sub: "Check back soon or post one yourself!" },
     festivals: { title: "No festivals listed yet", sub: "Know about a comedy festival? Submit it!" },
     training: { title: "No training opportunities yet", sub: "Comedy schools and coaches — advertise here!" },
+    podcasts: { title: "No podcasts listed yet", sub: "Know a great comedy podcast? Submit it!" },
   };
 
   return (
@@ -55,15 +56,18 @@ const GrowthOpportunities = () => {
           </div>
 
           <Tabs value={tab} onValueChange={setTab} className="w-full">
-            <TabsList className="w-full grid grid-cols-3">
-              <TabsTrigger value="training" className="flex items-center gap-1.5">
-                <GraduationCap className="h-4 w-4" /> Training
+            <TabsList className="w-full grid grid-cols-4">
+              <TabsTrigger value="training" className="flex items-center gap-1 text-xs sm:text-sm">
+                <GraduationCap className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Training
               </TabsTrigger>
-              <TabsTrigger value="barking" className="flex items-center gap-1.5">
-                <Megaphone className="h-4 w-4" /> Barking
+              <TabsTrigger value="barking" className="flex items-center gap-1 text-xs sm:text-sm">
+                <Megaphone className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Barking
               </TabsTrigger>
-              <TabsTrigger value="festivals" className="flex items-center gap-1.5">
-                <Trophy className="h-4 w-4" /> Festivals
+              <TabsTrigger value="festivals" className="flex items-center gap-1 text-xs sm:text-sm">
+                <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Festivals
+              </TabsTrigger>
+              <TabsTrigger value="podcasts" className="flex items-center gap-1 text-xs sm:text-sm">
+                <Podcast className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Podcasts
               </TabsTrigger>
             </TabsList>
 
@@ -120,7 +124,7 @@ const GrowthOpportunities = () => {
               )}
             </TabsContent>
 
-            {["barking", "festivals"].map((t) => (
+            {["barking", "festivals", "podcasts"].map((t) => (
               <TabsContent key={t} value={t}>
                 {isLoading && tab === t ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
