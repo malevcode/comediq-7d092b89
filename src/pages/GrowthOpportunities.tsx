@@ -24,7 +24,7 @@ const GrowthOpportunities = () => {
   const [tab, setTab] = useState("training");
   const { user } = useAuth();
 
-  const typeMap = { barking: 'barking' as const, festivals: 'festival' as const, training: 'school_ad' as const };
+  const typeMap = { barking: 'barking' as const, festivals: 'festival' as const, training: 'school_ad' as const, podcasts: 'podcast' as const };
   const currentType = typeMap[tab as keyof typeof typeMap];
   const { data: opportunities, isLoading } = useGrowthOpportunities(currentType);
   const { data: mySubmissions } = useMyGrowthSubmissions(user?.id);
