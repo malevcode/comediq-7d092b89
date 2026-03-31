@@ -84,8 +84,10 @@ export function SubmitOpportunityForm() {
             <Select value={form.type} onValueChange={(v) => update('type', v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
+                <SelectItem value="school_ad">Training / School</SelectItem>
                 <SelectItem value="barking">Barking Gig</SelectItem>
                 <SelectItem value="festival">Festival / Event</SelectItem>
+                <SelectItem value="podcast">Podcast</SelectItem>
               </SelectContent>
             </Select>
           </div>
