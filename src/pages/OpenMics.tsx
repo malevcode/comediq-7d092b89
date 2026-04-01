@@ -423,7 +423,7 @@ const OpenMics = () => {
             ))}
           </div>
         ) : currentViewMode === "list" ? (
-          <OpenMicsDetailedList mics={micsToShow} visibleCount={visibleCount} setVisibleCount={setVisibleCount} showAd={activeTab === "next"} />
+          <OpenMicsDetailedList mics={micsToShow} visibleCount={visibleCount} setVisibleCount={setVisibleCount} />
         ) : (
           <OpenMicsMap 
             key={`map-${micsToShow.map(m => m.uniqueIdentifier).join('-')}`}
