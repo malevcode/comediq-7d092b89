@@ -462,10 +462,12 @@ export default function OpenMicsDetailedList({
   mics,
   visibleCount,
   setVisibleCount,
+  showAd = true,
 }: {
   mics: OpenMic[];
   visibleCount: number;
   setVisibleCount: React.Dispatch<React.SetStateAction<number>>;
+  showAd?: boolean;
 }) {
   const validMics = mics.filter(Boolean);
   // Mics are already sorted by next occurrence from the parent component
