@@ -120,7 +120,8 @@ export function SubmitOpportunityForm() {
             <Textarea value={form.description} onChange={e => update('description', e.target.value)} placeholder={isPodcast ? "What's the podcast about?" : "Details about the opportunity..."} rows={3} />
           </div>
 
-          {isPodcast ? (
+          {/* Podcast-specific fields */}
+          {isPodcast && (
             <>
               <div>
                 <Label>Podcast Name</Label>
@@ -132,7 +133,7 @@ export function SubmitOpportunityForm() {
               </div>
               <div>
                 <Label>Episode Frequency</Label>
-                <Input value={form.episode_frequency} onChange={e => update('episode_frequency', e.target.value)} placeholder="e.g. Weekly, Biweekly" />
+                <Input value={form.episode_frequency} onChange={e => update('episode_frequency', e.target.value)} placeholder="e.g. Every Wednesday" />
               </div>
               <div>
                 <Label>Instagram Handle</Label>
@@ -143,50 +144,75 @@ export function SubmitOpportunityForm() {
                 <Input value={form.youtube_link} onChange={e => update('youtube_link', e.target.value)} placeholder="https://youtube.com/..." />
               </div>
             </>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>Venue</Label>
-                  <Input value={form.venue_name} onChange={e => update('venue_name', e.target.value)} placeholder="Venue name" />
-                </div>
-                <div>
-                  <Label>Borough</Label>
-                  <Select value={form.borough} onValueChange={(v) => update('borough', v)}>
-                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Manhattan">Manhattan</SelectItem>
-                      <SelectItem value="Brooklyn">Brooklyn</SelectItem>
-                      <SelectItem value="Queens">Queens</SelectItem>
-                      <SelectItem value="Bronx">Bronx</SelectItem>
-                      <SelectItem value="Staten Island">Staten Island</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>Date</Label>
-                  <Input type="date" value={form.date} onChange={e => update('date', e.target.value)} />
-                </div>
-                <div>
-                  <Label>Time</Label>
-                  <Input value={form.time} onChange={e => update('time', e.target.value)} placeholder="e.g. 7:00 PM" />
-                </div>
+          )}
+
+          {/* Venue & Borough — barking, school_ad, festival */}
+          {!isPodcast && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Venue</Label>
+                <Input value={form.venue_name} onChange={e => update('venue_name', e.target.value)} placeholder="Venue name" />
               </div>
               <div>
-                <Label>Compensation</Label>
-                <Input value={form.compensation} onChange={e => update('compensation', e.target.value)} placeholder="e.g. $20/hr, Free entry" />
+                <Label>Borough</Label>
+                <Select value={form.borough} onValueChange={(v) => update('borough', v)}>
+                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Manhattan">Manhattan</SelectItem>
+                    <SelectItem value="Brooklyn">Brooklyn</SelectItem>
+                    <SelectItem value="Queens">Queens</SelectItem>
+                    <SelectItem value="Bronx">Bronx</SelectItem>
+                    <SelectItem value="Staten Island">Staten Island</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div>
-                <Label>Contact Info</Label>
-                <Input value={form.contact_info} onChange={e => update('contact_info', e.target.value)} placeholder="Instagram, email, or phone" />
-              </div>
-              <div>
-                <Label>Link (optional)</Label>
-                <Input value={form.external_url} onChange={e => update('external_url', e.target.value)} placeholder="https://..." />
-              </div>
-            </>
+            </div>
+          )}
+
+          {/* Date — barking & festival */}
+          {(form.type === 'barking' || form.type === 'festival') && (
+            <div>
+              <Label>Date</Label>
+              <Input type="date" value={form.date} onChange={e => update('date', e.target.value)} />
+            </div>
+          )}
+
+          {/* Time — barking only */}
+          {form.type === 'barking' && (
+            <div>
+              <Label>Time</Label>
+              <Input value={form.time} onChange={e => update('time', e.target.value)} placeholder="e.g. 7:00 PM" />
+            </div>
+          )}
+
+          {/* Compensation — barking & festival */}
+          {(form.type === 'barking' || form.type === 'festival') && (
+            <div>
+              <Label>Compensation</Label>
+              <Input value={form.compensation} onChange={e => update('compensation', e.target.value)} placeholder="e.g. $20/hr, Free entry" />
+            </div>
+          )}
+
+          {/* Contact Info — barking & school_ad */}
+          {(form.type === 'barking' || form.type === 'school_ad') && (
+            <div>
+              <Label>Contact Info</Label>
+              <Input value={form.contact_info} onChange={e => update('contact_info', e.target.value)} placeholder="Instagram, email, or phone" />
+            </div>
+          )}
+
+          {/* Website / Link — school_ad, festival, barking */}
+          {(form.type === 'school_ad' || form.type === 'festival') && (
+            <div>
+              <Label>Website Link</Label>
+              <Input value={form.external_url} onChange={e => update('external_url', e.target.value)} placeholder="https://..." />
+            </div>
+          )}
+          {form.type === 'barking' && (
+            <div>
+              <Label>Link (optional)</Label>
+              <Input value={form.external_url} onChange={e => update('external_url', e.target.value)} placeholder="https://..." />
+            </div>
           )}
           <Button type="submit" className="w-full" disabled={submitMutation.isPending}>
             {submitMutation.isPending ? 'Submitting...' : 'Submit'}
