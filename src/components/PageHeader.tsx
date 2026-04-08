@@ -16,11 +16,6 @@ interface PageHeaderProps {
 const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { data: sponsor } = useSponsorAd();
-
-  const handleSponsorClick = () => {
-    if (sponsor) recordAdClick(sponsor.id, user?.id, 'header');
-  };
 
   const handleSignUp = () => {
     navigate("/auth");
