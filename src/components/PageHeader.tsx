@@ -43,20 +43,6 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
               )}
             </div>
             </div>
-            {sponsor && (
-              <a
-                href={sponsor.href}
-                target={sponsor.external ? '_blank' : undefined}
-                rel={sponsor.external ? 'noopener noreferrer' : undefined}
-                onClick={handleSponsorClick}
-                className="hidden md:flex items-center gap-1.5 ml-3 px-2.5 py-1 rounded-full bg-muted hover:bg-accent transition-colors"
-              >
-                {sponsor.icon_url && (
-                  <img src={sponsor.icon_url} alt={sponsor.label} className="h-5 w-5 object-contain rounded" />
-                )}
-                <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{sponsor.label}</span>
-              </a>
-            )}
           {/* Desktop auth section */}
           <div className="hidden sm:flex items-center gap-3">
             {user ? (
