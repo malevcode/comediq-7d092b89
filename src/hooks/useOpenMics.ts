@@ -1,16 +1,13 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic, MicStatus, MicFrequency, SignupMethod } from "@/types/openMic";
 
-export const useOpenMics = (tableName: 'open_mics_historical' = 'open_mics_historical') => {
+export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_historical") => {
   return useQuery({
     queryKey: ["openMics", tableName],
     queryFn: async (): Promise<OpenMic[]> => {
       console.log(`Fetching open mics from Supabase table: ${tableName}...`);
-      const { data, error } = await supabase
-        .from(tableName)
-        .select("*");
+      const { data, error } = await supabase.from(tableName).select("*").eq("active", true).neq("status", "pending");
 
       if (error) {
         console.error("Supabase error:", error);
@@ -24,16 +21,7 @@ export const useOpenMics = (tableName: 'open_mics_historical' = 'open_mics_histo
         return [];
       }
 
-      const filteredData = data.filter((row: unknown) => row["active"] === true || row["active"] === 1);
-      console.log("Filtered data count:", filteredData.length);
-      
-      // Also filter out pending mics from public view
-      const publicData = filteredData.filter((row: unknown) => {
-        const status = row["status"] as string | null;
-        return status !== 'pending'; // Show trial and verified, hide pending
-      });
-      
-      const mappedData = publicData.map((row: unknown) => {
+      const mappedData = data.map((row: unknown) => {
         const mapped: OpenMic = {
           id: row["unique_identifier"],
           openMic: row["open_mic"] || "",
@@ -57,8 +45,8 @@ export const useOpenMics = (tableName: 'open_mics_historical' = 'open_mics_histo
           otherRules: row["other_rules"] || "",
           coverImageUrl: row["cover_image_url"] || undefined,
           // New fields
-          status: (row["status"] as MicStatus) || 'verified',
-          frequency: (row["frequency"] as MicFrequency) || 'weekly',
+          status: (row["status"] as MicStatus) || "verified",
+          frequency: (row["frequency"] as MicFrequency) || "weekly",
           verificationCount: row["verification_count"] || 0,
           submissionDate: row["submission_date"] || undefined,
           legacyTag: row["legacy_tag"] || undefined,
