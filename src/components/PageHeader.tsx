@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import { LogIn } from "lucide-react";
 import { ReactNode } from "react";
-import { useSponsorAd, recordAdClick } from "@/hooks/useBannerAds";
+
 
 interface PageHeaderProps {
   title?: string;
