@@ -22,10 +22,10 @@ INSERT INTO public.open_mics_historical (
   last_verified
 ) VALUES
   (
-    'NY Comedy Club Open Mic',
+    'NY Comedy Club Open Mic (East Village)',
     'Monday',
     NULL,
-    'New York Comedy Club',
+    'New York Comedy Club - East Village',
     'Manhattan',
     'East Village',
     '85 E 4th St, New York, NY 10003',
@@ -41,10 +41,10 @@ INSERT INTO public.open_mics_historical (
     '2026-04-14'
   ),
   (
-    'NY Comedy Club Open Mic',
+    'NY Comedy Club Open Mic (East Village)',
     'Tuesday',
     NULL,
-    'New York Comedy Club',
+    'New York Comedy Club - East Village',
     'Manhattan',
     'East Village',
     '85 E 4th St, New York, NY 10003',
@@ -60,10 +60,10 @@ INSERT INTO public.open_mics_historical (
     '2026-04-14'
   ),
   (
-    'NY Comedy Club Open Mic',
+    'NY Comedy Club Open Mic (East Village)',
     'Wednesday',
     NULL,
-    'New York Comedy Club',
+    'New York Comedy Club - East Village',
     'Manhattan',
     'East Village',
     '85 E 4th St, New York, NY 10003',
@@ -79,10 +79,10 @@ INSERT INTO public.open_mics_historical (
     '2026-04-14'
   ),
   (
-    'NY Comedy Club Open Mic',
+    'NY Comedy Club Open Mic (East Village)',
     'Thursday',
     NULL,
-    'New York Comedy Club',
+    'New York Comedy Club - East Village',
     'Manhattan',
     'East Village',
     '85 E 4th St, New York, NY 10003',
@@ -98,10 +98,10 @@ INSERT INTO public.open_mics_historical (
     '2026-04-14'
   ),
   (
-    'NY Comedy Club Open Mic',
+    'NY Comedy Club Open Mic (East Village)',
     'Friday',
     NULL,
-    'New York Comedy Club',
+    'New York Comedy Club - East Village',
     'Manhattan',
     'East Village',
     '85 E 4th St, New York, NY 10003',
