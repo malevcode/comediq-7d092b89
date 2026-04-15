@@ -249,7 +249,18 @@ const OpenMics = () => {
     if (freq === 'weekly') return true;
     if (freq === 'one_off') return true; // one-offs show always on their day (admin manages active flag)
     
-    if (freq === 'bi_weekly') return true; // can't determine week parity without anchor, show it
+    if (freq === 'bi_weekly') {
+      // Use last_verified as the anchor (it should be a real occurrence date).
+      // If no anchor, show the mic rather than hide it.
+      if (!mic.lastVerified) return true;
+      const anchor = new Date(mic.lastVerified + 'T00:00:00');
+      const target = new Date(date);
+      target.setHours(0, 0, 0, 0);
+      anchor.setHours(0, 0, 0, 0);
+      const daysDiff = Math.round((target.getTime() - anchor.getTime()) / (24 * 60 * 60 * 1000));
+      const weeksDiff = Math.round(daysDiff / 7);
+      return Math.abs(weeksDiff) % 2 === 0;
+    }
     
     // Monthly frequencies: check week-of-month
     const dayOfMonth = date.getDate();
