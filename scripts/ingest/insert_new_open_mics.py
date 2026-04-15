@@ -207,10 +207,14 @@ def insert_mics(url: str, service_key: str) -> None:
         print("All records already exist — nothing to insert.")
         return
 
-    r = requests.post(endpoint, headers=headers, data=json.dumps(to_insert), timeout=60)
-    if r.status_code >= 400:
-        raise RuntimeError(f"Insert failed ({r.status_code}): {r.text}")
-    print(f"Inserted {len(to_insert)} records.")
+    inserted = 0
+    for mic in to_insert:
+        r = requests.post(endpoint, headers=headers, data=json.dumps(mic), timeout=60)
+        if r.status_code >= 400:
+            raise RuntimeError(f"Insert failed ({r.status_code}): {r.text}")
+        inserted += 1
+        print(f"  Inserted: {mic['open_mic']} / {mic['day']}")
+    print(f"Done. Inserted {inserted} records.")
 
 
 def main() -> None:
