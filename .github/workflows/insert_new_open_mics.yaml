@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - claude/add-open-mic-venues-59cTG
-    paths:
-      - scripts/ingest/insert_new_open_mics.py
   workflow_dispatch: {}
 
 jobs:

@@ -176,6 +176,18 @@ MICS = [
 ]
 
 
+def already_exists(url: str, service_key: str, open_mic: str, day: str) -> bool:
+    endpoint = f"{url.rstrip('/')}/rest/v1/{TABLE}"
+    headers = {
+        "apikey": service_key,
+        "Authorization": f"Bearer {service_key}",
+    }
+    params = {"open_mic": f"eq.{open_mic}", "day": f"eq.{day}", "select": "id", "limit": "1"}
+    r = requests.get(endpoint, headers=headers, params=params, timeout=30)
+    r.raise_for_status()
+    return len(r.json()) > 0
+
+
 def insert_mics(url: str, service_key: str) -> None:
     endpoint = f"{url.rstrip('/')}/rest/v1/{TABLE}"
     headers = {
@@ -184,9 +196,21 @@ def insert_mics(url: str, service_key: str) -> None:
         "Content-Type": "application/json",
         "Prefer": "return=minimal",
     }
-    r = requests.post(endpoint, headers=headers, data=json.dumps(MICS), timeout=60)
+    to_insert = []
+    for mic in MICS:
+        if already_exists(url, service_key, mic["open_mic"], mic["day"]):
+            print(f"  Skipping (already exists): {mic['open_mic']} / {mic['day']}")
+        else:
+            to_insert.append(mic)
+
+    if not to_insert:
+        print("All records already exist — nothing to insert.")
+        return
+
+    r = requests.post(endpoint, headers=headers, data=json.dumps(to_insert), timeout=60)
     if r.status_code >= 400:
         raise RuntimeError(f"Insert failed ({r.status_code}): {r.text}")
+    print(f"Inserted {len(to_insert)} records.")
 
 
 def main() -> None:
