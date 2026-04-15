@@ -172,6 +172,7 @@ MICS = [
         "venue_type": "Bar",
         "cost": "Free",
         "sign_up_instructions": "Sign up at the door",
+        "hosts_organizers": "Max Blake",
         "active": True,
         "signup_enabled": False,
         "status": "trial",
