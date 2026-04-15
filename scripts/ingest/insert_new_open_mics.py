@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-One-time insert: new open mic entries for NY Comedy Club East Village (Mon–Fri),
-The Pit (Friday), St. Marks Sunday Spanish Open Mic, and 3 Sheets Saloon (bi-weekly Wed).
+Fix/upsert open mic entries: correct 3 Sheets address, add city field to all records.
 
 Reads SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY from environment.
 """
@@ -9,7 +8,6 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 import requests
 
 TABLE = "open_mics_historical"
@@ -22,6 +20,7 @@ MICS = [
         "start_time": "5:00 PM",
         "venue_name": "New York Comedy Club - East Village",
         "borough": "Manhattan",
+        "city": "New York",
         "neighborhood": "East Village",
         "location": "85 E 4th St, New York, NY 10003",
         "venue_type": "Comedy Club",
@@ -41,6 +40,7 @@ MICS = [
         "start_time": "5:00 PM",
         "venue_name": "New York Comedy Club - East Village",
         "borough": "Manhattan",
+        "city": "New York",
         "neighborhood": "East Village",
         "location": "85 E 4th St, New York, NY 10003",
         "venue_type": "Comedy Club",
@@ -60,6 +60,7 @@ MICS = [
         "start_time": "5:00 PM",
         "venue_name": "New York Comedy Club - East Village",
         "borough": "Manhattan",
+        "city": "New York",
         "neighborhood": "East Village",
         "location": "85 E 4th St, New York, NY 10003",
         "venue_type": "Comedy Club",
@@ -79,6 +80,7 @@ MICS = [
         "start_time": "5:00 PM",
         "venue_name": "New York Comedy Club - East Village",
         "borough": "Manhattan",
+        "city": "New York",
         "neighborhood": "East Village",
         "location": "85 E 4th St, New York, NY 10003",
         "venue_type": "Comedy Club",
@@ -98,6 +100,7 @@ MICS = [
         "start_time": "5:00 PM",
         "venue_name": "New York Comedy Club - East Village",
         "borough": "Manhattan",
+        "city": "New York",
         "neighborhood": "East Village",
         "location": "85 E 4th St, New York, NY 10003",
         "venue_type": "Comedy Club",
@@ -118,7 +121,8 @@ MICS = [
         "start_time": "11:30 PM",
         "venue_name": "The Pit NYC",
         "borough": "Manhattan",
-        "neighborhood": "Midtown",
+        "city": "New York",
+        "neighborhood": "Gramercy",
         "location": "123 E 24th St, New York, NY 10010",
         "venue_type": "Comedy Club",
         "cost": "$5",
@@ -139,6 +143,7 @@ MICS = [
         "latest_end_time": "7:00 PM",
         "venue_name": "St. Marks Comedy Club",
         "borough": "Manhattan",
+        "city": "New York",
         "neighborhood": "East Village",
         "location": "12 St. Marks Place, New York, NY 10003",
         "venue_type": "Comedy Club",
@@ -154,15 +159,16 @@ MICS = [
         "signup_url": "https://www.stmarkscomedy.com/shows/cccd321c-df7e-47da-be35-2e3e6245e94b",
         "last_verified": "2026-04-14",
     },
-    # 3 Sheets Saloon — bi-weekly Wednesday
+    # 3 Sheets Saloon — bi-weekly Wednesday (corrected address & neighborhood)
     {
         "open_mic": "3 Sheets Open Mic Comedy Night",
         "day": "Wednesday",
         "start_time": "8:00 PM",
         "venue_name": "3 Sheets Saloon",
         "borough": "Manhattan",
-        "neighborhood": "East Village",
-        "location": "131 Avenue A, New York, NY 10009",
+        "city": "New York",
+        "neighborhood": "Greenwich Village",
+        "location": "134 W 3rd St, New York, NY 10012",
         "venue_type": "Bar",
         "cost": "Free",
         "sign_up_instructions": "Sign up at the door",
@@ -176,45 +182,48 @@ MICS = [
 ]
 
 
-def already_exists(url: str, service_key: str, open_mic: str, day: str) -> bool:
+def upsert_mic(url: str, service_key: str, mic: dict) -> str:
+    """Update if exists, insert if not. Returns 'updated' or 'inserted'."""
     endpoint = f"{url.rstrip('/')}/rest/v1/{TABLE}"
-    headers = {
+    headers_base = {
         "apikey": service_key,
         "Authorization": f"Bearer {service_key}",
     }
-    params = {"open_mic": f"eq.{open_mic}", "day": f"eq.{day}", "select": "unique_identifier", "limit": "1"}
-    r = requests.get(endpoint, headers=headers, params=params, timeout=30)
+
+    # Check if record exists
+    params = {
+        "open_mic": f"eq.{mic['open_mic']}",
+        "day": f"eq.{mic['day']}",
+        "select": "unique_identifier",
+        "limit": "1",
+    }
+    r = requests.get(endpoint, headers=headers_base, params=params, timeout=30)
     r.raise_for_status()
-    return len(r.json()) > 0
+    existing = r.json()
 
-
-def insert_mics(url: str, service_key: str) -> None:
-    endpoint = f"{url.rstrip('/')}/rest/v1/{TABLE}"
-    headers = {
-        "apikey": service_key,
-        "Authorization": f"Bearer {service_key}",
-        "Content-Type": "application/json",
-        "Prefer": "return=minimal",
-    }
-    to_insert = []
-    for mic in MICS:
-        if already_exists(url, service_key, mic["open_mic"], mic["day"]):
-            print(f"  Skipping (already exists): {mic['open_mic']} / {mic['day']}")
-        else:
-            to_insert.append(mic)
-
-    if not to_insert:
-        print("All records already exist — nothing to insert.")
-        return
-
-    inserted = 0
-    for mic in to_insert:
-        r = requests.post(endpoint, headers=headers, data=json.dumps(mic), timeout=60)
+    if existing:
+        uid = existing[0]["unique_identifier"]
+        # PATCH to update
+        r = requests.patch(
+            endpoint,
+            headers={**headers_base, "Content-Type": "application/json", "Prefer": "return=minimal"},
+            params={"unique_identifier": f"eq.{uid}"},
+            data=json.dumps(mic),
+            timeout=60,
+        )
+        if r.status_code >= 400:
+            raise RuntimeError(f"Update failed ({r.status_code}): {r.text}")
+        return "updated"
+    else:
+        r = requests.post(
+            endpoint,
+            headers={**headers_base, "Content-Type": "application/json", "Prefer": "return=minimal"},
+            data=json.dumps(mic),
+            timeout=60,
+        )
         if r.status_code >= 400:
             raise RuntimeError(f"Insert failed ({r.status_code}): {r.text}")
-        inserted += 1
-        print(f"  Inserted: {mic['open_mic']} / {mic['day']}")
-    print(f"Done. Inserted {inserted} records.")
+        return "inserted"
 
 
 def main() -> None:
@@ -223,8 +232,10 @@ def main() -> None:
     if not url or not key:
         raise SystemExit("Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars.")
 
-    print(f"Inserting {len(MICS)} open mic records...")
-    insert_mics(url, key)
+    print(f"Processing {len(MICS)} open mic records...")
+    for mic in MICS:
+        action = upsert_mic(url, key, mic)
+        print(f"  {action}: {mic['open_mic']} / {mic['day']}")
     print("Done.")
 
 
