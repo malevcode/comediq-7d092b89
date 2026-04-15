@@ -182,7 +182,7 @@ def already_exists(url: str, service_key: str, open_mic: str, day: str) -> bool:
         "apikey": service_key,
         "Authorization": f"Bearer {service_key}",
     }
-    params = {"open_mic": f"eq.{open_mic}", "day": f"eq.{day}", "select": "id", "limit": "1"}
+    params = {"open_mic": f"eq.{open_mic}", "day": f"eq.{day}", "select": "unique_identifier", "limit": "1"}
     r = requests.get(endpoint, headers=headers, params=params, timeout=30)
     r.raise_for_status()
     return len(r.json()) > 0
