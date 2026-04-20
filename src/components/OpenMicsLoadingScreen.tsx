@@ -1,5 +1,6 @@
 import { useWeeklyTopMics } from '@/hooks/useWeeklyTopMics';
 import { SponsorCard } from '@/components/SponsorCard';
+import { MicOfTheDayCard } from '@/components/MicOfTheDayCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ThumbsUp, MapPin, Clock, Calendar } from 'lucide-react';
@@ -69,9 +70,10 @@ export default function OpenMicsLoadingScreen() {
         </div>
       )}
 
-      {/* Sponsor placement */}
-      <div className="w-full max-w-md mt-6">
+      {/* Sponsor + Mic of the Day */}
+      <div className="w-full max-w-md mt-6 grid grid-cols-2 gap-2">
         <SponsorCard placement="loading_screen" />
+        <MicOfTheDayCard />
       </div>
     </div>
   );
