@@ -16,7 +16,9 @@ import MicCommentSection from '@/components/mic/MicCommentSection';
 import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
 import { FREQUENCY_LABELS } from '@/types/openMic';
 import { SponsorCard } from '@/components/SponsorCard';
+import { MicOfTheDayCard } from '@/components/MicOfTheDayCard';
 import ClaimMicButton from '@/components/host/ClaimMicButton';
+import ClaimMicOfDayButton from '@/components/host/ClaimMicOfDayButton';
 
 // Helper function to get map URL based on device
 function getMapUrl(location: string, venueName: string) {
@@ -171,8 +173,9 @@ function formatStageTime(stageTime: string): string {
   return formatted;
 }
 
-function OpenMicDetailedCard({ mic, onAddToCalendar }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void }) {
+function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRow, flash }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void; forceExpanded?: boolean; onRegisterRow?: (id: string, el: HTMLDivElement | null) => void; flash?: boolean }) {
   const [expanded, setExpanded] = useState(false);
+  useEffect(() => { if (forceExpanded) setExpanded(true); }, [forceExpanded]);
   const [showComments, setShowComments] = useState(false);
   const { user } = useAuth();
   const { userLocation, locationLoading } = useUserLocation();
