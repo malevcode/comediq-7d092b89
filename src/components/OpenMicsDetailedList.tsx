@@ -2,7 +2,7 @@ import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, ArrowU
 import MicStatusDropdown from "@/components/MicStatusDropdown";
 import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
