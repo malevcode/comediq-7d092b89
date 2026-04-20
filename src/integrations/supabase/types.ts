@@ -264,17 +264,24 @@ export type Database = {
           instagram_handle: string | null
           is_active: boolean | null
           is_featured: boolean | null
+          is_independently_produced: boolean | null
           is_paid: boolean | null
           is_recurring: boolean | null
           lineup: string | null
           parent_show_id: string | null
           price_cents: number | null
+          producer_ig_handle: string | null
           recurrence_day: string | null
           recurrence_pattern: string | null
           rsvp_count: number | null
           show_date: string
           show_time: string
           show_type: string | null
+          showtn_discount_code: string | null
+          showtn_discount_type: string | null
+          showtn_discount_value: number | null
+          showtn_eligible: boolean | null
+          showtn_offer_description: string | null
           source: string | null
           source_event_id: string | null
           status: string | null
@@ -302,17 +309,24 @@ export type Database = {
           instagram_handle?: string | null
           is_active?: boolean | null
           is_featured?: boolean | null
+          is_independently_produced?: boolean | null
           is_paid?: boolean | null
           is_recurring?: boolean | null
           lineup?: string | null
           parent_show_id?: string | null
           price_cents?: number | null
+          producer_ig_handle?: string | null
           recurrence_day?: string | null
           recurrence_pattern?: string | null
           rsvp_count?: number | null
           show_date: string
           show_time: string
           show_type?: string | null
+          showtn_discount_code?: string | null
+          showtn_discount_type?: string | null
+          showtn_discount_value?: number | null
+          showtn_eligible?: boolean | null
+          showtn_offer_description?: string | null
           source?: string | null
           source_event_id?: string | null
           status?: string | null
@@ -340,17 +354,24 @@ export type Database = {
           instagram_handle?: string | null
           is_active?: boolean | null
           is_featured?: boolean | null
+          is_independently_produced?: boolean | null
           is_paid?: boolean | null
           is_recurring?: boolean | null
           lineup?: string | null
           parent_show_id?: string | null
           price_cents?: number | null
+          producer_ig_handle?: string | null
           recurrence_day?: string | null
           recurrence_pattern?: string | null
           rsvp_count?: number | null
           show_date?: string
           show_time?: string
           show_type?: string | null
+          showtn_discount_code?: string | null
+          showtn_discount_type?: string | null
+          showtn_discount_value?: number | null
+          showtn_eligible?: boolean | null
+          showtn_offer_description?: string | null
           source?: string | null
           source_event_id?: string | null
           status?: string | null
@@ -785,6 +806,33 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      mic_of_the_day: {
+        Row: {
+          claim_date: string
+          claimed_at: string
+          claimed_by: string
+          created_at: string
+          id: string
+          mic_unique_identifier: string
+        }
+        Insert: {
+          claim_date?: string
+          claimed_at?: string
+          claimed_by: string
+          created_at?: string
+          id?: string
+          mic_unique_identifier: string
+        }
+        Update: {
+          claim_date?: string
+          claimed_at?: string
+          claimed_by?: string
+          created_at?: string
+          id?: string
+          mic_unique_identifier?: string
+        }
+        Relationships: []
       }
       mic_playlist_items: {
         Row: {
