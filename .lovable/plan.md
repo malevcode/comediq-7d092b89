@@ -1,26 +1,65 @@
 
+## Mic of the Day — Refined Plan
 
-## Diagnosis
-
-The dev server logs show repeated errors:
+### Layout (mobile-first)
+Side-by-side row above the mic list, each card ~50% width:
+```text
+┌──────────────┬──────────────┐
+│ [Ad] Likeable│ ⭐ Mic o' Day│
+│   Podcast ↗  │   Venue Name │
+└──────────────┴──────────────┘
 ```
-Pre-transform error: Failed to load url /node_modules/.vite/deps/lucide-react.js?v=bda78398
-```
+- Grid: `grid-cols-2 gap-2` — both cards same compact height as current SponsorCard (single line, ~1/2 standard card)
+- Mic of the Day card: gold left border, tiny "⭐ Mic of Day" badge (text-[9px]), mic name truncated, no extra metadata to keep it light
 
-This is a **stale Vite dependency cache** issue. When `.env` changed, the server restarted but the pre-bundled dependency cache (in `node_modules/.vite/deps`) has outdated file hashes. The browser is requesting files with old version strings that no longer exist.
+### Click behavior
+Tapping the Mic of the Day card:
+1. Scrolls to that mic's row in the list (using `scrollIntoView` on a ref keyed by `uniqueIdentifier`)
+2. Auto-expands the "Additional Details" dropdown for that card
+3. Briefly highlights the row (gold flash, ~1.5s) for visual confirmation
 
-## Fix
+Implementation: `OpenMicsDetailedList` already manages expanded state per mic. Add support for an `initialExpandedMicId` that:
+- Sets that mic as expanded on mount/when it changes
+- Scrolls its DOM node into view (smooth, block: 'center')
 
-**Clear the Vite cache and restart the dev server.** This requires:
+### Visibility everywhere
+Mic of the Day appears on:
+1. **Find Mics → Next tab** (paired with sponsor ad, side-by-side, per drawing)
+2. **OpenMicsLoadingScreen** (below the loading spinner, paired with the existing loading_screen sponsor in the same 2-col grid)
+3. Stays hidden on other day tabs (Sun/Mon/Tue/etc.) — same restriction as sponsor ad
 
-1. Delete `node_modules/.vite` directory to clear the stale pre-bundled dependency cache
-2. The dev server will automatically re-bundle dependencies on the next request
+### Database (one new table)
+`mic_of_the_day`:
+- `id` uuid PK
+- `mic_unique_identifier` uuid (the mic being featured)
+- `claimed_by` uuid (host user_id)
+- `claim_date` date — **UNIQUE** (race-safe first-come-first-served)
+- `claimed_at` timestamptz
+- `created_at` timestamptz
 
-This is a one-command fix — no code changes needed. Your actual code is fine.
+RLS:
+- SELECT: public
+- INSERT: authenticated verified hosts of that mic only (checked against `mic_hosts.is_verified = true`)
+- Admin full access
 
-## What this means
+### Claim flow
+- Verified hosts see "Claim Mic of the Day" button inside their mic's expanded details (next to existing ClaimMicButton)
+- Button disabled if today's slot already claimed (shows current holder's mic name)
+- Insert fails gracefully via unique constraint → toast "Already claimed for today"
+- Slot resets at midnight America/New_York
 
-- Your recent code changes (removing the sponsor from the header) did NOT break anything
-- This is purely a dev environment caching issue
-- The published site at comediq.lovable.app should be unaffected
+### Files
+**Create**
+- `supabase/migrations/<new>.sql` — table + RLS
+- `src/hooks/useMicOfTheDay.ts` — fetches today's mic + full OpenMic data
+- `src/components/MicOfTheDayCard.tsx` — compact card matching SponsorCard sizing, accepts onClick
+- `src/components/host/ClaimMicOfDayButton.tsx` — host-only claim button
 
+**Edit**
+- `src/components/OpenMicsDetailedList.tsx` — render 2-col grid (sponsor + mic of day) when `showMicOfDay` true; accept `initialExpandedMicId`; add row refs + scroll/expand/flash logic
+- `src/pages/OpenMics.tsx` — pass `showMicOfDay={activeTab === "next"}` and wire click handler to set expanded id
+- `src/components/OpenMicsLoadingScreen.tsx` — render the same 2-col grid (existing SponsorCard + MicOfTheDayCard)
+- `src/components/host/HostMicEditForm.tsx` (or wherever host actions live for a claimed mic) — mount ClaimMicOfDayButton
+
+### Open question
+None — proceeding with the layout exactly as drawn in attachment 1, loading screen pairing as in attachment 2, and tap-to-scroll-and-expand behavior.
