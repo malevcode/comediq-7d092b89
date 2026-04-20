@@ -221,7 +221,8 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
   
   return (
     <div 
-      className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-2.5 gap-0.5 md:gap-3 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${getBoroughOutline(mic.borough)}`} 
+      ref={(el) => onRegisterRow?.(mic.uniqueIdentifier, el)}
+      className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-2.5 gap-0.5 md:gap-3 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${getBoroughOutline(mic.borough)} ${flash ? 'ring-2 ring-yellow-400 ring-offset-2' : ''}`} 
       id={mic.id}
       style={mic.coverImageUrl ? {
         backgroundImage: `linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)), url(${mic.coverImageUrl})`,
@@ -396,6 +397,11 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
               micName={mic.openMic}
               venueName={mic.venueName}
             />
+            {/* Mic of the Day claim (only renders for verified hosts) */}
+            <ClaimMicOfDayButton
+              micUniqueIdentifier={mic.uniqueIdentifier}
+              micName={mic.openMic}
+            />
             <div className="flex flex-row gap-2 mt-2">
               <Button
                 size="sm"
@@ -466,15 +472,19 @@ export default function OpenMicsDetailedList({
   visibleCount,
   setVisibleCount,
   showSponsor = true,
+  showMicOfDay = false,
 }: {
   mics: OpenMic[];
   visibleCount: number;
   setVisibleCount: React.Dispatch<React.SetStateAction<number>>;
   showSponsor?: boolean;
+  showMicOfDay?: boolean;
 }) {
   const validMics = mics.filter(Boolean);
-  // Mics are already sorted by next occurrence from the parent component
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [forceExpandedId, setForceExpandedId] = useState<string | null>(null);
+  const [flashId, setFlashId] = useState<string | null>(null);
+  const rowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -484,14 +494,32 @@ export default function OpenMicsDetailedList({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const registerRow = (id: string, el: HTMLDivElement | null) => {
+    if (el) rowRefs.current.set(id, el);
+    else rowRefs.current.delete(id);
+  };
+
+  const handleSelectMicOfDay = (id: string) => {
+    setForceExpandedId(id);
+    // ensure the mic is within visibleCount window
+    const idx = validMics.findIndex((m) => m.uniqueIdentifier === id);
+    if (idx >= visibleCount) {
+      setVisibleCount(Math.max(visibleCount, idx + 10));
+    }
+    // give the DOM a tick to render expansion / new items
+    setTimeout(() => {
+      const el = rowRefs.current.get(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setFlashId(id);
+        setTimeout(() => setFlashId((cur) => (cur === id ? null : cur)), 1500);
+      }
+    }, 80);
+  };
+
   const handleAddToCalendar = async (mic: OpenMic) => {
     if (!user) return;
     try {
-      console.log({
-        profile_id: user.id,
-        open_mic_id: mic.uniqueIdentifier,
-        schedule_type: 'upcoming',
-      });
       const { error } = await supabase.from('profile_open_mics').insert([
         {
           profile_id: user.id,
@@ -500,32 +528,36 @@ export default function OpenMicsDetailedList({
         },
       ]);
       if (error) {
-        console.error('Supabase error:', error);
-        toast({
-          title: 'Error',
-          description: error.message || 'Failed to add to your schedule.',
-          variant: 'destructive',
-        });
+        toast({ title: 'Error', description: error.message || 'Failed to add to your schedule.', variant: 'destructive' });
       } else {
-        toast({
-          title: 'Added to Schedule',
-          description: 'This open mic has been added to your schedule.',
-        });
+        toast({ title: 'Added to Schedule', description: 'This open mic has been added to your schedule.' });
       }
     } catch (e) {
-      toast({
-        title: 'Error',
-        description: 'An unexpected error occurred.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'destructive' });
     }
   };
 
   return (
     <div className="flex flex-col gap-3">
-      {showSponsor && <SponsorCard placement="mic_list" className="border-[#1a5fb4]/20 bg-gradient-to-r from-blue-50/50 to-white" />}
+      {(showSponsor || showMicOfDay) && (
+        <div className="grid grid-cols-2 gap-2">
+          {showSponsor ? (
+            <SponsorCard placement="mic_list" className="border-[#1a5fb4]/20 bg-gradient-to-r from-blue-50/50 to-white" />
+          ) : <div />}
+          {showMicOfDay ? (
+            <MicOfTheDayCard onSelect={handleSelectMicOfDay} />
+          ) : <div />}
+        </div>
+      )}
       {validMics.slice(0, visibleCount).map((mic) => (
-        <OpenMicDetailedCard key={mic.id} mic={mic} onAddToCalendar={handleAddToCalendar}/>
+        <OpenMicDetailedCard
+          key={mic.id}
+          mic={mic}
+          onAddToCalendar={handleAddToCalendar}
+          forceExpanded={forceExpandedId === mic.uniqueIdentifier}
+          onRegisterRow={registerRow}
+          flash={flashId === mic.uniqueIdentifier}
+        />
       ))}
       {visibleCount < validMics.length && (
         <div className="flex justify-center">
