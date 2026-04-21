@@ -1330,6 +1330,7 @@ export type Database = {
           last_modified: string | null
           notes: string | null
           profile_id: string | null
+          rating: number | null
           schedule_type: Database["public"]["Enums"]["schedule_type"]
           stage_time_minutes: number | null
           title: string | null
@@ -1343,6 +1344,7 @@ export type Database = {
           last_modified?: string | null
           notes?: string | null
           profile_id?: string | null
+          rating?: number | null
           schedule_type?: Database["public"]["Enums"]["schedule_type"]
           stage_time_minutes?: number | null
           title?: string | null
@@ -1356,6 +1358,7 @@ export type Database = {
           last_modified?: string | null
           notes?: string | null
           profile_id?: string | null
+          rating?: number | null
           schedule_type?: Database["public"]["Enums"]["schedule_type"]
           stage_time_minutes?: number | null
           title?: string | null

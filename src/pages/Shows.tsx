@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import BulkImportModal from "@/components/shows/BulkImportModal";
+import QuickShowInput from "@/components/shows/QuickShowInput";
 
 interface ShowNote {
   id: string;
@@ -232,6 +233,9 @@ const Shows = () => {
       <div className="max-w-6xl mx-auto px-4 pt-28">
         {user ? (
           <>
+            {/* Quick Show Input */}
+            <QuickShowInput onSaved={() => setRefreshKey(k => k + 1)} />
+
             {/* Quick Actions */}
             <div className="mb-6 flex flex-col sm:flex-row gap-3">
               <Button
