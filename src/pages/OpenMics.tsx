@@ -718,6 +718,21 @@ const OpenMics = () => {
             </div>
 
             <div className="flex gap-2">
+              <div className="relative">
+                <select
+                  value={filters.city}
+                  onChange={(e) => setFilters({ ...filters, city: e.target.value })}
+                  className="appearance-none pl-3 pr-7 py-2 text-sm font-semibold rounded-md bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-2 border-cyan-600 shadow-md hover:shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
+                  aria-label="Select city"
+                >
+                  {cities.map((city) => (
+                    <option key={city} value={city} className="bg-white text-gray-900">{city}</option>
+                  ))}
+                </select>
+                <svg className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
               <Button
                 onClick={() => setShowRequestModal(true)}
                 variant="outline"
