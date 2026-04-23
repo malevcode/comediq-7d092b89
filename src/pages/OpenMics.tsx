@@ -745,7 +745,7 @@ const OpenMics = () => {
               >
                 <Plus className="h-4 w-4" />
               </Button>
-              <MicFilters filters={filters} onFiltersChange={setFilters} maxCost={maxCost} boroughs={boroughs} cities={cities}/>
+              <MicFilters filters={filters} onFiltersChange={setFilters} maxCost={maxCost} boroughs={boroughs} cities={cities.map(c => c.value)}/>
             </div>
           </div>
         </div>
