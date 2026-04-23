@@ -54,7 +54,7 @@ const OpenMics = () => {
 
   const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island", "Inland Empire"];
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const cities = ["All", "New York", "Los Angeles"];
+  const cities = ["All", "NY", "LA", "ATX"];
 
   // Calculate max cost from all open mics for filter slider
   const maxCost = useMemo(() => {
@@ -722,14 +722,14 @@ const OpenMics = () => {
                 <select
                   value={filters.city}
                   onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-                  className="appearance-none pl-3 pr-7 py-2 text-sm font-semibold rounded-md bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-2 border-cyan-600 shadow-md hover:shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
+                  className="appearance-none pl-2 pr-6 py-1.5 text-xs font-bold rounded-md bg-gradient-to-r from-cyan-500 to-blue-600 text-white border border-cyan-600 shadow-sm hover:shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all w-16"
                   aria-label="Select city"
                 >
                   {cities.map((city) => (
                     <option key={city} value={city} className="bg-white text-gray-900">{city}</option>
                   ))}
                 </select>
-                <svg className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
