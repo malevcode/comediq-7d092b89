@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { X, Calendar, Clock, MapPin, User, DollarSign, Timer, Plus, Share, Heart, ThumbsDown, LogIn, ChevronDown, UserCheck } from "lucide-react";
+import { X, Calendar, Clock, MapPin, User, DollarSign, Timer, Plus, Share, Heart, ThumbsDown, LogIn, ChevronDown, UserCheck, Pencil } from "lucide-react";
 import { VerificationBadge } from "@/components/VerificationBadge";
 import { OpenMic, FREQUENCY_LABELS } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,6 +13,8 @@ import { makeLinksClickable } from '@/utils/makeLinksClickable';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
 import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
+import SuggestEditForm from '@/components/host/SuggestEditForm';
+import { useState as useLocalState } from 'react';
 
 interface MicDetailModalProps {
   mic: OpenMic;
@@ -21,6 +23,7 @@ interface MicDetailModalProps {
 }
 
 const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) => {
+  const [showSuggestEdit, setShowSuggestEdit] = useLocalState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(mic.uniqueIdentifier);
@@ -353,7 +356,28 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
                 </Button>
               </div>
             </div>
+
+            {/* Suggest Edit CTA */}
+            <div className="flex items-center justify-between gap-4 border border-dashed border-gray-200 rounded-lg p-4">
+              <div>
+                <p className="font-medium text-gray-900 text-sm">Something wrong?</p>
+                <p className="text-xs text-gray-500">Help keep this listing accurate</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs text-muted-foreground hover:text-foreground gap-1.5 shrink-0"
+                onClick={() => setShowSuggestEdit(true)}
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                Suggest Edit
+              </Button>
+            </div>
           </div>
+
+          {showSuggestEdit && (
+            <SuggestEditForm mic={mic} onClose={() => setShowSuggestEdit(false)} />
+          )}
 
           {/* Additional Actions - Collapsible */}
           <Collapsible>

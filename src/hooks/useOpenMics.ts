@@ -2,22 +2,58 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic, MicStatus, MicFrequency, SignupMethod } from "@/types/openMic";
 
+const LS_CACHE_KEY = "comediq_mics_v1";
+const LS_CACHE_TTL = 2 * 60 * 60 * 1000; // 2 hours
+
+const SELECTED_COLUMNS = [
+  "unique_identifier", "open_mic", "day", "start_time", "latest_end_time",
+  "venue_name", "borough", "neighborhood", "location", "venue_type",
+  "cost", "stage_time", "sign_up_instructions", "hosts_organizers",
+  "changes_updates", "last_verified", "city", "signup_enabled", "other_rules",
+  "cover_image_url", "status", "frequency", "verification_count",
+  "submission_date", "legacy_tag", "creator_id", "signup_method",
+  "signup_url", "frequency_custom_text", "slots_enabled", "slot_duration_minutes",
+].join(",");
+
+function readLocalCache(): OpenMic[] | null {
+  try {
+    const raw = localStorage.getItem(LS_CACHE_KEY);
+    if (!raw) return null;
+    const { data, timestamp } = JSON.parse(raw);
+    if (Date.now() - timestamp > LS_CACHE_TTL) return null;
+    return data as OpenMic[];
+  } catch {
+    return null;
+  }
+}
+
+function writeLocalCache(data: OpenMic[]) {
+  try {
+    localStorage.setItem(LS_CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
+  } catch {
+    // localStorage quota exceeded — silently skip
+  }
+}
+
 export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_historical") => {
   return useQuery({
     queryKey: ["openMics", tableName],
     queryFn: async (): Promise<OpenMic[]> => {
-      console.log(`Fetching open mics from Supabase table: ${tableName}...`);
-      const { data, error } = await supabase.from(tableName).select("*").eq("active", true).neq("status", "pending");
+      const cached = readLocalCache();
+      if (cached) return cached;
+
+      const { data, error } = await supabase
+        .from(tableName)
+        .select(SELECTED_COLUMNS)
+        .eq("active", true)
+        .neq("status", "pending");
 
       if (error) {
         console.error("Supabase error:", error);
         throw error;
       }
 
-      console.log("Number of records fetched:", data?.length || 0);
-
       if (!data || data.length === 0) {
-        console.warn(`No data returned from ${tableName} table`);
         return [];
       }
 
@@ -60,11 +96,11 @@ export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_histo
         return mapped;
       });
 
-      console.log("Final mapped data count:", mappedData.length);
+      writeLocalCache(mappedData);
       return mappedData;
     },
-    staleTime: 10 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
+    staleTime: LS_CACHE_TTL,
+    gcTime: LS_CACHE_TTL * 2,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     retry: 1,

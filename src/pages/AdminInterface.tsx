@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronDown, ChevronUp, LogIn, LayoutGrid, Table2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, LogIn, LayoutGrid, Table2, Pencil, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { CheckCircle, XCircle, Clock, FileText, UserCheck, UserX, Loader2 } from 'lucide-react';
@@ -24,7 +24,7 @@ import { SmartUpdateInterface } from '@/components/admin/SmartUpdateInterface';
 import { AdminContributionsPanel } from '@/components/admin/AdminContributionsPanel';
 import AdminGrowthManager from '@/components/admin/AdminGrowthManager';
 import PageHeader from '@/components/PageHeader';
-import { approveMicRequest, type MicFormData } from '@/api/admin';
+import { approveMicRequest, applyMicEdit, type MicFormData } from '@/api/admin';
 import {
   Dialog,
   DialogContent,
@@ -147,8 +147,73 @@ const AdminInterface = () => {
     fetchData();
   }, [isAdmin]);
 
-  const pendingRequests = micRequests.filter((r: MicRequest) => !r.reviewed);
+  const pendingEditSuggestions = micRequests.filter((r: MicRequest) => !r.reviewed && r.status === 'edit_suggestion');
+  const pendingRequests = micRequests.filter((r: MicRequest) => !r.reviewed && r.status !== 'edit_suggestion');
   const reviewedRequests = micRequests.filter((r: MicRequest) => r.reviewed);
+
+  const [applyingEditId, setApplyingEditId] = useState<string | null>(null);
+  const [rejectingEditId, setRejectingEditId] = useState<string | null>(null);
+
+  const handleApplyEdit = async (req: MicRequest) => {
+    const targetMicId = req.host_phone;
+    if (!targetMicId) {
+      toast({ title: 'Error', description: 'Missing target mic ID on this edit suggestion.', variant: 'destructive' });
+      return;
+    }
+    setApplyingEditId(req.unique_identifier);
+    try {
+      const editFormData: MicFormData = {
+        'Open Mic': req.open_mic || req.show_title || '',
+        'Day': req.day || req.date || '',
+        'Start Time': req.start_time || req.time || '',
+        'Latest End Time': req.latest_end_time || '',
+        'Venue Name': req.venue_name || '',
+        'Borough': req.borough || '',
+        'Neighborhood': req.neighborhood || '',
+        'Location': req.location || '',
+        'Venue type': req.venue_type || '',
+        'Cost': req.cost || '',
+        'Stage time': req.stage_time || '',
+        'Sign-Up Instructions': req.sign_up_instructions || '',
+        'Host(s) / Organizer': req.hosts_organizers || '',
+        'Changes/updates': req.changes_updates || '',
+        'Other Rules': req.other_rules || '',
+        'Last verified': new Date().toLocaleDateString('en-US'),
+        'frequency': req.frequency || '',
+        'frequency_custom_text': req.frequency_custom_text || '',
+        'signup_method': req.signup_method || '',
+        'signup_url': req.signup_url || '',
+      };
+      await applyMicEdit(req.unique_identifier, targetMicId, editFormData);
+      toast({ title: 'Edit applied', description: 'The mic listing has been updated.' });
+      setMicRequests((prev: any[]) => prev.map((r: any) =>
+        r.unique_identifier === req.unique_identifier ? { ...r, reviewed: true, status: 'approved' } : r
+      ));
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Could not apply edit.', variant: 'destructive' });
+    } finally {
+      setApplyingEditId(null);
+    }
+  };
+
+  const handleRejectEdit = async (req: MicRequest) => {
+    setRejectingEditId(req.unique_identifier);
+    try {
+      const { error } = await supabase
+        .from('open_mics_requests')
+        .update({ reviewed: true, status: 'disapproved' })
+        .eq('unique_identifier', req.unique_identifier);
+      if (error) throw error;
+      setMicRequests((prev: any[]) => prev.map((r: any) =>
+        r.unique_identifier === req.unique_identifier ? { ...r, reviewed: true, status: 'disapproved' } : r
+      ));
+      toast({ title: 'Edit rejected' });
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Could not reject edit.', variant: 'destructive' });
+    } finally {
+      setRejectingEditId(null);
+    }
+  };
 
   /**
    * Smart autofill: when admin clicks Review, populate form from request data
@@ -364,11 +429,123 @@ const AdminInterface = () => {
             </Card>
           </TabsContent>
           <TabsContent value="pending">
+            {/* Edit Suggestions Section */}
+            {(loading || pendingEditSuggestions.length > 0) && (
+              <Card className="mb-6 shadow-lg rounded-2xl border-0">
+                <CardContent className="p-8 flex flex-col items-start w-full">
+                  <div className="flex items-center gap-3 mb-6">
+                    <Pencil className="w-6 h-6 text-blue-500" />
+                    <h2 className="text-xl font-bold text-foreground">Edit Suggestions</h2>
+                    <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-blue-500 rounded-full">
+                      {pendingEditSuggestions.length}
+                    </span>
+                    <span className="text-xs text-muted-foreground">from community corrections</span>
+                  </div>
+                  {loading ? (
+                    <div className="w-full flex justify-center py-10">
+                      <Loader2 className="animate-spin w-8 h-8 text-blue-400" />
+                    </div>
+                  ) : (
+                    <div className="w-full space-y-4">
+                      {pendingEditSuggestions.map((req: MicRequest) => {
+                        const currentMic = allMics.find((m: any) => m.unique_identifier === req.host_phone);
+                        const diffFields: { label: string; current: string; suggested: string }[] = [];
+
+                        const checks: [string, string, string][] = [
+                          ['Mic Name', currentMic?.open_mic, req.open_mic || req.show_title],
+                          ['Day', currentMic?.day, req.day || req.date],
+                          ['Start Time', currentMic?.start_time, req.start_time || req.time],
+                          ['Venue', currentMic?.venue_name, req.venue_name],
+                          ['Address', currentMic?.location, req.location],
+                          ['Borough', currentMic?.borough, req.borough],
+                          ['Neighborhood', currentMic?.neighborhood, req.neighborhood],
+                          ['Cost', currentMic?.cost, req.cost],
+                          ['Stage Time', currentMic?.stage_time, req.stage_time],
+                          ['Sign-Up', currentMic?.sign_up_instructions, req.sign_up_instructions],
+                          ['Host(s)', currentMic?.hosts_organizers, req.hosts_organizers],
+                          ['Instagram', currentMic?.changes_updates, req.changes_updates],
+                          ['Other Rules', currentMic?.other_rules, req.other_rules],
+                          ['Frequency', currentMic?.frequency, req.frequency],
+                          ['Signup Method', currentMic?.signup_method, req.signup_method],
+                          ['Signup URL', currentMic?.signup_url, req.signup_url],
+                        ];
+
+                        checks.forEach(([label, current, suggested]) => {
+                          const c = (current || '').toString().trim();
+                          const s = (suggested || '').toString().trim();
+                          if (s && c !== s) {
+                            diffFields.push({ label, current: c || '—', suggested: s });
+                          }
+                        });
+
+                        const isApplying = applyingEditId === req.unique_identifier;
+                        const isRejecting = rejectingEditId === req.unique_identifier;
+
+                        return (
+                          <div key={req.unique_identifier} className="border border-blue-100 rounded-xl p-4 bg-blue-50/40 w-full">
+                            <div className="flex items-start justify-between gap-3 mb-3">
+                              <div>
+                                <p className="font-semibold text-sm">{req.open_mic || req.show_title}</p>
+                                {currentMic ? (
+                                  <p className="text-xs text-muted-foreground">Editing: {currentMic.open_mic} @ {currentMic.venue_name}</p>
+                                ) : (
+                                  <p className="text-xs text-destructive">Target mic not found (ID: {req.host_phone?.slice(0, 8)}…)</p>
+                                )}
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                  {req.created_at ? new Date(req.created_at).toLocaleDateString() : ''}{req.user_id ? ` · user ${req.user_id.slice(0, 8)}` : ''}
+                                </p>
+                              </div>
+                              <div className="flex gap-2 shrink-0">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 text-xs border-destructive text-destructive hover:bg-destructive/10"
+                                  disabled={isApplying || isRejecting}
+                                  onClick={() => handleRejectEdit(req)}
+                                >
+                                  {isRejecting ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Reject'}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  className="h-7 text-xs bg-blue-600 hover:bg-blue-700"
+                                  disabled={isApplying || isRejecting || !currentMic}
+                                  onClick={() => handleApplyEdit(req)}
+                                >
+                                  {isApplying ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
+                                  Apply Edit
+                                </Button>
+                              </div>
+                            </div>
+
+                            {diffFields.length === 0 ? (
+                              <p className="text-xs text-muted-foreground italic">No changes detected vs current listing.</p>
+                            ) : (
+                              <div className="space-y-1.5">
+                                {diffFields.map(({ label, current, suggested }) => (
+                                  <div key={label} className="grid grid-cols-[80px_1fr_16px_1fr] items-start gap-1 text-xs">
+                                    <span className="text-muted-foreground font-medium truncate">{label}</span>
+                                    <span className="text-red-600 bg-red-50 px-1.5 py-0.5 rounded line-through truncate">{current}</span>
+                                    <ArrowRight className="w-3 h-3 text-muted-foreground mt-0.5 shrink-0" />
+                                    <span className="text-green-700 bg-green-50 px-1.5 py-0.5 rounded truncate">{suggested}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* New Mic Submissions */}
             <Card className="mb-8 shadow-lg rounded-2xl border-0">
               <CardContent className="p-8 flex flex-col items-start">
                 <div className="flex items-center gap-3 mb-6">
                   <Clock className="w-6 h-6 text-orange-400" />
-                  <h2 className="text-xl font-bold text-foreground">Pending Requests</h2>
+                  <h2 className="text-xl font-bold text-foreground">New Submissions</h2>
                   <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
                     {pendingRequests.length}
                   </span>
@@ -378,7 +555,7 @@ const AdminInterface = () => {
                     <Loader2 className="animate-spin w-8 h-8 text-orange-400" />
                   </div>
                 ) : pendingRequests.length === 0 ? (
-                  <div className="text-muted-foreground">No mic requests found.</div>
+                  <div className="text-muted-foreground">No new mic submissions.</div>
                 ) : (
                   <AdminRequestList
                     requests={pendingRequests}
