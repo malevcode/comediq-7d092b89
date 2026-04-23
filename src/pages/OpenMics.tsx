@@ -54,7 +54,11 @@ const OpenMics = () => {
 
   const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island", "Inland Empire"];
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const cities = ["All", "NY", "LA", "ATX"];
+  const cities: { label: string; value: string }[] = [
+    { label: "NY", value: "New York" },
+    { label: "LA", value: "Los Angeles" },
+    { label: "ATX", value: "Austin" },
+  ];
 
   // Calculate max cost from all open mics for filter slider
   const maxCost = useMemo(() => {
@@ -333,7 +337,7 @@ const OpenMics = () => {
 
       const matchesTime = matchesTimeOfDay(mic, filters.timeOfDay);
 
-      const matchesCity = filters.city === "All" || mic.city === filters.city;
+      const matchesCity = mic.city === filters.city;
 
       // New: Frequency filter
       const matchesFrequency = !filters.frequency || filters.frequency === 'all' || mic.frequency === filters.frequency;
@@ -722,11 +726,11 @@ const OpenMics = () => {
                 <select
                   value={filters.city}
                   onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-                  className="appearance-none pl-2 pr-6 py-1.5 text-xs font-bold rounded-md bg-gradient-to-r from-cyan-500 to-blue-600 text-white border border-cyan-600 shadow-sm hover:shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all w-16"
+                  className="appearance-none pl-1.5 pr-4 py-1 text-[11px] font-bold rounded-md bg-gradient-to-r from-cyan-500 to-blue-600 text-white border border-cyan-600 shadow-sm hover:shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all w-12"
                   aria-label="Select city"
                 >
                   {cities.map((city) => (
-                    <option key={city} value={city} className="bg-white text-gray-900">{city}</option>
+                    <option key={city.value} value={city.value} className="bg-white text-gray-900">{city.label}</option>
                   ))}
                 </select>
                 <svg className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
