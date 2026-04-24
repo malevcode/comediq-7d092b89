@@ -1,0 +1,1 @@
+DELETE FROM public.growth_opportunities WHERE id = '7cd84a73-d2f1-4ec5-b21c-5e41f95ebab1';
