@@ -71,38 +71,8 @@ const GrowthOpportunities = () => {
               </TabsTrigger>
             </TabsList>
 
-            {/* Sponsored MCS Card - Training tab only */}
             <TabsContent value="training">
-              <Card className="mt-4 border-primary/40 ring-1 ring-primary/20">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <GraduationCap className="h-5 w-5 text-primary" />
-                      <CardTitle className="text-base">Manhattan Comedy School</CardTitle>
-                    </div>
-                    <Badge className="bg-primary/10 text-primary text-xs">Sponsored Partner</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Manhattan Comedy School has been turning nervous first-timers into actual comedians since 2000. They offer classes in stand-up, improv, and writing for every level. From &lsquo;I&rsquo;ve never touched a mic&rsquo; to &lsquo;I need to stop bombing.&rsquo; April is National Humor Month, which means there&rsquo;s literally no better excuse to finally sign up.
-                  </p>
-                  <div className="flex gap-2">
-                    <Button variant="default" size="sm" className="flex-1" asChild>
-                      <a href="https://www.manhattancomedyschool.com" target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-3.5 w-3.5 mr-1" /> View Classes
-                      </a>
-                    </Button>
-                    <Button variant="outline" size="sm" className="flex-1" asChild>
-                      <a href="https://forms.gle/KnePM984BFWGhQF38" target="_blank" rel="noopener noreferrer">
-                        🎤 Free Class Monday
-                      </a>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Other training opportunities below */}
+              {/* Training opportunities */}
               {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                   {[...Array(4)].map((_, i) => (
