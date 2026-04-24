@@ -45,13 +45,13 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
         )}
 
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-          {opportunity.venue_name && (
+          {opportunity.type !== "podcast" && opportunity.venue_name && (
             <span className="flex items-center gap-1">
               <MapPin className="h-3 w-3" /> {opportunity.venue_name}
               {opportunity.borough && `, ${opportunity.borough}`}
             </span>
           )}
-          {opportunity.date && (
+          {opportunity.type !== "podcast" && opportunity.date && (
             <span className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />{" "}
               {new Date(opportunity.date + "T00:00:00").toLocaleDateString("en-US", {
@@ -62,14 +62,16 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
               {opportunity.time && ` at ${opportunity.time}`}
             </span>
           )}
-          {opportunity.compensation && (
+          {opportunity.type !== "podcast" && opportunity.compensation && (
             <span className="flex items-center gap-1">
               <DollarSign className="h-3 w-3" /> {opportunity.compensation}
             </span>
           )}
         </div>
 
-        {opportunity.contact_info && <p className="text-xs text-muted-foreground">📬 {opportunity.contact_info}</p>}
+        {opportunity.type !== "podcast" && opportunity.contact_info && (
+          <p className="text-xs text-muted-foreground">📬 {opportunity.contact_info}</p>
+        )}
 
         {opportunity.external_url && (
           <Button variant="outline" size="sm" className="w-full mt-2" asChild>
