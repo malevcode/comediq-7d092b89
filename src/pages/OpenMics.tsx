@@ -721,12 +721,12 @@ const OpenMics = () => {
               />
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               <div className="relative">
                 <select
                   value={filters.city}
                   onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-                  className="appearance-none pl-1.5 pr-4 py-1 text-[11px] font-bold rounded-md bg-gradient-to-r from-cyan-500 to-blue-600 text-white border border-cyan-600 shadow-sm hover:shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all w-12"
+                  className="appearance-none pl-2 pr-5 py-1 h-7 w-16 text-[11px] font-bold rounded-md bg-gradient-to-r from-cyan-500 to-blue-600 text-white border border-cyan-600 shadow-sm hover:shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
                   aria-label="Select city"
                 >
                   {cities.map((city) => (
@@ -741,7 +741,7 @@ const OpenMics = () => {
                 onClick={() => setShowRequestModal(true)}
                 variant="outline"
                 size="sm"
-                className="flex items-center gap-1 px-3 py-2 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+                className="flex items-center justify-center px-2 py-1 h-7 w-12 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
               >
                 <Plus className="h-4 w-4" />
               </Button>

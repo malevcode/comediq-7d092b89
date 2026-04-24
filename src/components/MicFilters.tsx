@@ -92,14 +92,13 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
         onClick={() => setShowFilters(!showFilters)}
         variant="outline"
         size="sm"
-        className={`flex items-center gap-2 text-sm px-4 py-4 relative transition-all ${
+        className={`flex items-center justify-center text-[11px] font-bold px-2 py-1 h-7 relative transition-all ${
           hasActiveFilters 
             ? 'bg-cyan-50 border-cyan-300 text-cyan-800 hover:bg-cyan-100' 
             : 'bg-cyan-50 border-cyan-200 text-cyan-700 hover:bg-cyan-100'
         }`}
       >
-        <Filter className="h-4 w-4" />
-        <span className="font-medium">Filters</span>
+        <span>Filter</span>
         {hasActiveFilters && (
           <Badge variant="destructive" className="absolute -top-1 -right-1 h-3 w-3 p-0 text-xs flex items-center justify-center">
             <span className="w-1 h-1 bg-white rounded-full"></span>
