@@ -18,11 +18,34 @@ interface MicActionBarProps {
   className?: string;
 }
 
-// Extracts the first http(s):// URL from a string
+// Extracts the first URL-like string from text. Supports:
+// - Full URLs: https://example.com, http://example.com
+// - www-prefixed: www.example.com
+// - Bare domains/paths: slotted.co/foo, example.com, sub.example.io/path
+// Returns a normalized https:// URL, or null if nothing valid is found.
 const extractFirstUrl = (text?: string): string | null => {
   if (!text) return null;
-  const match = text.match(/https?:\/\/[^\s)]+/i);
-  return match ? match[0] : null;
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+
+  const urlRegex =
+    /(https?:\/\/[^\s)]+)|(www\.[^\s)]+)|(\b[a-z0-9][-a-z0-9]*(?:\.[a-z0-9][-a-z0-9]*)+(?:\/[^\s)]*)?)/i;
+  const match = trimmed.match(urlRegex);
+  if (!match) return null;
+
+  let url = match[0].replace(/[.,;:!?)]+$/, ""); // strip trailing punctuation
+  if (!/^https?:\/\//i.test(url)) {
+    url = `https://${url}`;
+  }
+
+  // Sanity-check it parses as a URL with a dotted hostname
+  try {
+    const parsed = new URL(url);
+    if (!parsed.hostname.includes(".")) return null;
+    return parsed.toString();
+  } catch {
+    return null;
+  }
 };
 
 export default function MicActionBar({
