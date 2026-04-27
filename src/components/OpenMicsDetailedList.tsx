@@ -488,6 +488,7 @@ export default function OpenMicsDetailedList({
   const rowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const { user } = useAuth();
   const { toast } = useToast();
+  const { mic: micOfDay } = useMicOfTheDay();
 
   useEffect(() => {
     const onScroll = () => setShowScrollTop(window.scrollY > 400);
