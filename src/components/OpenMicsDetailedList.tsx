@@ -542,14 +542,13 @@ export default function OpenMicsDetailedList({
   return (
     <div className="flex flex-col gap-3">
       {(showSponsor || showMicOfDay) && (
-        <div className="grid grid-cols-2 gap-2">
-          {showSponsor ? (
-            <SponsorCard placement="mic_list" className="border-[#1a5fb4]/20 bg-gradient-to-r from-blue-50/50 to-white" />
-          ) : <div />}
-          {showMicOfDay ? (
-            <MicOfTheDayCard onSelect={handleSelectMicOfDay} />
-          ) : <div />}
-        </div>
+        showMicOfDay && micOfDay ? (
+          // Premium full-width MOTD takes the whole top slot
+          <MicOfTheDayCard variant="premium" onSelect={handleSelectMicOfDay} />
+        ) : showSponsor ? (
+          // Fallback to sponsor ad if no MOTD is set today
+          <SponsorCard placement="mic_list" className="border-[#1a5fb4]/20 bg-gradient-to-r from-blue-50/50 to-white" />
+        ) : null
       )}
       {validMics.slice(0, visibleCount).map((mic) => (
         <OpenMicDetailedCard
