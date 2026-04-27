@@ -17,6 +17,7 @@ import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
 import { FREQUENCY_LABELS } from '@/types/openMic';
 import { SponsorCard } from '@/components/SponsorCard';
 import { MicOfTheDayCard } from '@/components/MicOfTheDayCard';
+import { useMicOfTheDay } from '@/hooks/useMicOfTheDay';
 import ClaimMicButton from '@/components/host/ClaimMicButton';
 import ClaimMicOfDayButton from '@/components/host/ClaimMicOfDayButton';
 
@@ -487,6 +488,7 @@ export default function OpenMicsDetailedList({
   const rowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const { user } = useAuth();
   const { toast } = useToast();
+  const { mic: micOfDay } = useMicOfTheDay();
 
   useEffect(() => {
     const onScroll = () => setShowScrollTop(window.scrollY > 400);
@@ -540,14 +542,13 @@ export default function OpenMicsDetailedList({
   return (
     <div className="flex flex-col gap-3">
       {(showSponsor || showMicOfDay) && (
-        <div className="grid grid-cols-2 gap-2">
-          {showSponsor ? (
-            <SponsorCard placement="mic_list" className="border-[#1a5fb4]/20 bg-gradient-to-r from-blue-50/50 to-white" />
-          ) : <div />}
-          {showMicOfDay ? (
-            <MicOfTheDayCard onSelect={handleSelectMicOfDay} />
-          ) : <div />}
-        </div>
+        showMicOfDay && micOfDay ? (
+          // Premium full-width MOTD takes the whole top slot
+          <MicOfTheDayCard variant="premium" onSelect={handleSelectMicOfDay} />
+        ) : showSponsor ? (
+          // Fallback to sponsor ad if no MOTD is set today
+          <SponsorCard placement="mic_list" className="border-[#1a5fb4]/20 bg-gradient-to-r from-blue-50/50 to-white" />
+        ) : null
       )}
       {validMics.slice(0, visibleCount).map((mic) => (
         <OpenMicDetailedCard
