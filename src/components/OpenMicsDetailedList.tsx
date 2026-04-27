@@ -17,6 +17,7 @@ import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
 import { FREQUENCY_LABELS } from '@/types/openMic';
 import { SponsorCard } from '@/components/SponsorCard';
 import { MicOfTheDayCard } from '@/components/MicOfTheDayCard';
+import { useMicOfTheDay } from '@/hooks/useMicOfTheDay';
 import ClaimMicButton from '@/components/host/ClaimMicButton';
 import ClaimMicOfDayButton from '@/components/host/ClaimMicOfDayButton';
 
