@@ -452,8 +452,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
         <MicActionBar
           micUniqueIdentifier={mic.uniqueIdentifier}
           micName={mic.openMic}
-          onCommentClick={() => setShowComments(!showComments)}
-          showCommentSection={showComments}
+          venueAddress={mic.location ? `${mic.venueName}, ${mic.location}` : mic.venueName}
         />
 
         {/* Comments Section */}
