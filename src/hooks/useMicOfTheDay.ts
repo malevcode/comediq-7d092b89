@@ -19,33 +19,32 @@ export interface MicOfTheDayRow {
   claimed_by: string;
   claim_date: string;
   claimed_at: string;
+  is_admin_locked?: boolean;
 }
 
 export function useMicOfTheDay() {
   const { data: mics = [] } = useOpenMics();
   const today = getTodayNY();
 
+  // Resolve via priority chain: admin lock -> top vote -> weekly default -> auto-pick
   const query = useQuery({
-    queryKey: ['micOfTheDay', today],
+    queryKey: ['micOfTheDay', 'resolved', today],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('mic_of_the_day')
-        .select('*')
-        .eq('claim_date', today)
-        .maybeSingle();
+      const { data, error } = await supabase.rpc('resolve_motd_for', { target_date: today });
       if (error) throw error;
-      return data as MicOfTheDayRow | null;
+      return (data as string | null) || null;
     },
     staleTime: 5 * 60 * 1000,
   });
 
   const mic: OpenMic | null = query.data
-    ? mics.find((m) => m.uniqueIdentifier === query.data!.mic_unique_identifier) || null
+    ? mics.find((m) => m.uniqueIdentifier === query.data) || null
     : null;
 
   return { ...query, mic, claimDate: today };
 }
 
+// Legacy claim hook (kept for verified-host claim button)
 export function useClaimMicOfTheDay() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
