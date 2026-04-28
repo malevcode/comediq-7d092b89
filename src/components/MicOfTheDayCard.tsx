@@ -28,6 +28,8 @@ export function MicOfTheDayCard({
   onSelect,
 }: MicOfTheDayCardProps) {
   const { mic, isLoading } = useMicOfTheDay();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   if (isLoading || !mic) return null;
 
