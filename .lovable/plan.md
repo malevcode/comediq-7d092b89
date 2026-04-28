@@ -63,3 +63,26 @@ RLS:
 
 ### Open question
 None — proceeding with the layout exactly as drawn in attachment 1, loading screen pairing as in attachment 2, and tap-to-scroll-and-expand behavior.
+
+---
+
+## MOTD Phase 2 — Nomination, Voting, Admin Control
+
+Keep in mind:
+- **UI**: MOTD active and functional.
+- **Data**: Nomination/Voting loop live.
+- **Business**: Credit/Wallet system ready for the "Pro" membership launch.
+
+### Prompt
+I need to implement a 'Mic of the Day' (MOTD) nomination and voting system.
+
+Nomination UI: Add a 'Nominate for Mic of the Day' button on each mic listing card.
+
+Voting: Create a simple voting interface where users can upvote a nomination.
+
+Logic:
+- Create a database table motd_nominations to track submissions.
+- Create a cron job logic that runs at midnight to determine the winner based on vote counts.
+- If no votes exist, implement a fallback function that pulls the pre-set historical mic name for that specific day of the week (Sunday-Saturday).
+
+Admin Dashboard: Add an 'MOTD Control' section in the Admin view to manually select/lock a mic as the MOTD. This should override both nominations and defaults.
