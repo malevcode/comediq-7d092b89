@@ -36,51 +36,75 @@ export function MicOfTheDayCard({
   const label = mic.openMic || mic.venueName || 'Mic of the Day';
 
   if (variant === 'premium') {
-    const handleClick = () => onSelect?.(mic.uniqueIdentifier);
+    const handleClick = (e?: React.MouseEvent) => {
+      e?.stopPropagation();
+      onSelect?.(mic.uniqueIdentifier);
+    };
+
+    const handleNominate = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!user) {
+        navigate('/auth');
+        return;
+      }
+      // Scroll/expand the mic so the user can use the in-card Nominate button
+      onSelect?.(mic.uniqueIdentifier);
+    };
 
     const card = (
       <Card
-        className={`relative overflow-hidden border-2 border-yellow-400/70 bg-gradient-to-br from-yellow-50 via-amber-50 to-white shadow-[0_4px_20px_-4px_rgba(234,179,8,0.35)] hover:shadow-[0_6px_28px_-4px_rgba(234,179,8,0.5)] transition-all cursor-pointer ${className}`}
+        className={`relative overflow-hidden border border-yellow-300/60 border-l-4 border-l-yellow-500 bg-gradient-to-br from-yellow-50 via-amber-50 to-white shadow-sm hover:shadow-md transition-all cursor-pointer ${className}`}
       >
-        {/* Decorative gold accent stripe */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400" />
-        <CardContent className="p-3.5 sm:p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <Badge
-                variant="outline"
-                className="text-[10px] font-semibold text-yellow-800 border-yellow-500/60 bg-yellow-100/60 gap-1 mb-1.5"
-              >
-                <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                MIC OF THE DAY
-              </Badge>
-              <h3 className="text-base sm:text-lg font-bold text-foreground leading-tight truncate">
+        <CardContent className="p-3 sm:p-3.5">
+          {/* Row 1: Mic name • MOTD badge • Sign Up */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <h3 className="text-sm sm:text-base font-bold text-foreground leading-tight truncate">
                 {label}
               </h3>
-              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                {mic.venueName && mic.openMic !== mic.venueName && (
-                  <span className="flex items-center gap-1 min-w-0">
-                    <MapPin className="h-3 w-3 shrink-0" />
-                    <span className="truncate">{mic.venueName}</span>
-                  </span>
-                )}
-                {mic.day && (
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3 shrink-0" />
-                    {mic.day}
-                    {mic.startTime ? ` • ${mic.startTime}` : ''}
-                  </span>
-                )}
-              </div>
+              <Badge
+                variant="outline"
+                className="shrink-0 text-[9px] font-semibold text-yellow-800 border-yellow-500/60 bg-yellow-100/60 gap-0.5 px-1.5 py-0"
+              >
+                <Star className="h-2.5 w-2.5 fill-yellow-500 text-yellow-500" />
+                MIC OF THE DAY
+              </Badge>
             </div>
             <Button
               size="sm"
               onClick={handleClick}
-              className="shrink-0 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white font-semibold shadow-sm gap-1 h-8 px-3"
+              className="shrink-0 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white font-semibold shadow-sm gap-1 h-7 px-2.5 text-xs"
             >
               Sign Up
-              <ArrowRight className="h-3.5 w-3.5" />
+              <ArrowRight className="h-3 w-3" />
             </Button>
+          </div>
+
+          {/* Row 2: Location • Start time • Nominate link */}
+          <div className="mt-1 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-x-2 gap-y-0.5 min-w-0 flex-wrap">
+              {mic.venueName && mic.openMic !== mic.venueName && (
+                <span className="flex items-center gap-1 min-w-0">
+                  <MapPin className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{mic.venueName}</span>
+                </span>
+              )}
+              {mic.startTime && (
+                <span className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3 shrink-0" />
+                  {mic.startTime}
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleNominate}
+              className="shrink-0 inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 hover:text-amber-900 hover:underline"
+            >
+              <Trophy className="h-3 w-3" />
+              Nominate for tomorrow
+            </button>
           </div>
         </CardContent>
       </Card>
