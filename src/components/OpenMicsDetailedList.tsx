@@ -20,6 +20,7 @@ import { MicOfTheDayCard } from '@/components/MicOfTheDayCard';
 import { useMicOfTheDay } from '@/hooks/useMicOfTheDay';
 import ClaimMicButton from '@/components/host/ClaimMicButton';
 import ClaimMicOfDayButton from '@/components/host/ClaimMicOfDayButton';
+import NominateMotdButton from '@/components/motd/NominateMotdButton';
 
 // Helper function to get map URL based on device
 function getMapUrl(location: string, venueName: string) {
@@ -400,6 +401,11 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
             />
             {/* Mic of the Day claim (only renders for verified hosts) */}
             <ClaimMicOfDayButton
+              micUniqueIdentifier={mic.uniqueIdentifier}
+              micName={mic.openMic}
+            />
+            {/* Nominate for Mic of the Day (any signed-in user, 1/day) */}
+            <NominateMotdButton
               micUniqueIdentifier={mic.uniqueIdentifier}
               micName={mic.openMic}
             />

@@ -23,6 +23,7 @@ import { AdminTodoBoard } from '@/components/admin/AdminTodoBoard';
 import { SmartUpdateInterface } from '@/components/admin/SmartUpdateInterface';
 import { AdminContributionsPanel } from '@/components/admin/AdminContributionsPanel';
 import AdminGrowthManager from '@/components/admin/AdminGrowthManager';
+import AdminMotdControl from '@/components/admin/AdminMotdControl';
 import PageHeader from '@/components/PageHeader';
 import { approveMicRequest, type MicFormData } from '@/api/admin';
 import {
@@ -313,6 +314,7 @@ const AdminInterface = () => {
             <TabsTrigger value="update" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Update</TabsTrigger>
             <TabsTrigger value="contributions" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Contrib</TabsTrigger>
             <TabsTrigger value="growth" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Growth</TabsTrigger>
+            <TabsTrigger value="motd" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">MOTD</TabsTrigger>
           </TabsList>
           <TabsContent value="analytics">
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
@@ -462,6 +464,13 @@ const AdminInterface = () => {
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
               <CardContent className="p-8">
                 <AdminGrowthManager />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="motd">
+            <Card className="mb-6 shadow-lg rounded-2xl border-0">
+              <CardContent className="p-4 md:p-8">
+                <AdminMotdControl />
               </CardContent>
             </Card>
           </TabsContent>

@@ -814,6 +814,7 @@ export type Database = {
           claimed_by: string
           created_at: string
           id: string
+          is_admin_locked: boolean
           mic_unique_identifier: string
         }
         Insert: {
@@ -822,6 +823,7 @@ export type Database = {
           claimed_by: string
           created_at?: string
           id?: string
+          is_admin_locked?: boolean
           mic_unique_identifier: string
         }
         Update: {
@@ -830,6 +832,7 @@ export type Database = {
           claimed_by?: string
           created_at?: string
           id?: string
+          is_admin_locked?: boolean
           mic_unique_identifier?: string
         }
         Relationships: []
@@ -1073,6 +1076,93 @@ export type Database = {
             referencedColumns: ["unique_identifier"]
           },
         ]
+      }
+      motd_nomination_votes: {
+        Row: {
+          created_at: string
+          id: string
+          nomination_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nomination_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nomination_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "motd_nomination_votes_nomination_id_fkey"
+            columns: ["nomination_id"]
+            isOneToOne: false
+            referencedRelation: "motd_nomination_tallies"
+            referencedColumns: ["nomination_id"]
+          },
+          {
+            foreignKeyName: "motd_nomination_votes_nomination_id_fkey"
+            columns: ["nomination_id"]
+            isOneToOne: false
+            referencedRelation: "motd_nominations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      motd_nominations: {
+        Row: {
+          created_at: string
+          id: string
+          mic_unique_identifier: string
+          nominated_by: string
+          nomination_date: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mic_unique_identifier: string
+          nominated_by: string
+          nomination_date?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mic_unique_identifier?: string
+          nominated_by?: string
+          nomination_date?: string
+        }
+        Relationships: []
+      }
+      motd_weekly_defaults: {
+        Row: {
+          day_of_week: number
+          id: string
+          mic_unique_identifier: string
+          notes: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          day_of_week: number
+          id?: string
+          mic_unique_identifier: string
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          day_of_week?: number
+          id?: string
+          mic_unique_identifier?: string
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       open_mics_historical: {
         Row: {
@@ -2358,6 +2448,17 @@ export type Database = {
         }
         Relationships: []
       }
+      motd_nomination_tallies: {
+        Row: {
+          created_at: string | null
+          mic_unique_identifier: string | null
+          nominated_by: string | null
+          nomination_date: string | null
+          nomination_id: string | null
+          vote_count: number | null
+        }
+        Relationships: []
+      }
       open_mics_display: {
         Row: {
           active: boolean | null
@@ -2447,6 +2548,7 @@ export type Database = {
         Returns: string
       }
       is_producer: { Args: { _user_id: string }; Returns: boolean }
+      resolve_motd_for: { Args: { target_date: string }; Returns: string }
       verify_mic_with_points: {
         Args: {
           ip_hash_param: string
