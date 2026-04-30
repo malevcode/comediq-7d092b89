@@ -41,6 +41,9 @@ export interface AudienceShow {
   recurrence_day: string | null;
   parent_show_id: string | null;
   is_active: boolean;
+  // Source tracking - null means submitted directly through Comediq
+  source: string | null;
+  source_event_id: string | null;
 }
 
 export interface ShowRsvp {
@@ -62,17 +65,34 @@ export interface AudienceShowFilters {
 }
 
 /**
- * Fetches all verified active audience shows
+ * Fetches all verified active audience shows from affiliated/opted-in venues only.
+ * Shows with source=null are Comediq-native (submitted directly).
+ * Shows with a source must match a venue_sources entry with permission_status='approved'.
  */
 export async function fetchAudienceShows(filters?: AudienceShowFilters): Promise<AudienceShow[]> {
+  // Get source_keys for venues that have explicitly opted in
+  const { data: approvedSources } = await supabase
+    .from('venue_sources')
+    .select('source_key')
+    .eq('permission_status', 'approved')
+    .eq('is_active', true);
+
+  const approvedKeys = (approvedSources || []).map(s => s.source_key);
+
+  // Only show Comediq-native shows (source IS NULL) plus any approved partner venues
+  const sourceFilter = approvedKeys.length > 0
+    ? `source.is.null,source.in.(${approvedKeys.join(',')})`
+    : 'source.is.null';
+
   let query = supabase
     .from('audience_shows')
-    .select('*')  
+    .select('*')
     .eq('verified', true)
     .eq('status', 'active')
     .eq('is_active', true)
     .eq('is_recurring', false) // Only show instances, not templates
     .gte('show_date', new Date().toISOString().split('T')[0])
+    .or(sourceFilter)
     .order('show_date', { ascending: true })
     .order('show_time', { ascending: true });
 
@@ -126,9 +146,20 @@ export async function fetchAudienceShowById(id: string): Promise<AudienceShow | 
 }
 
 /**
- * Fetches featured shows
+ * Fetches featured shows from affiliated venues only
  */
 export async function fetchFeaturedShows(): Promise<AudienceShow[]> {
+  const { data: approvedSources } = await supabase
+    .from('venue_sources')
+    .select('source_key')
+    .eq('permission_status', 'approved')
+    .eq('is_active', true);
+
+  const approvedKeys = (approvedSources || []).map(s => s.source_key);
+  const sourceFilter = approvedKeys.length > 0
+    ? `source.is.null,source.in.(${approvedKeys.join(',')})`
+    : 'source.is.null';
+
   const { data, error } = await supabase
     .from('audience_shows')
     .select('*')
@@ -136,6 +167,7 @@ export async function fetchFeaturedShows(): Promise<AudienceShow[]> {
     .eq('status', 'active')
     .eq('is_featured', true)
     .gte('show_date', new Date().toISOString().split('T')[0])
+    .or(sourceFilter)
     .order('show_date', { ascending: true })
     .limit(5);
 
