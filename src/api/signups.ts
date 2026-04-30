@@ -107,7 +107,7 @@ export async function claimHostStatus(micId: string) {
 export async function checkHostStatus(userId: string) {
   const { data, error } = await supabase
     .from('mic_hosts')
-    .select('*, open_mics_historical(*)')
+    .select('*, open_mics_historical(open_mic, venue_name, unique_identifier)')
     .eq('user_id', userId);
 
   if (error) throw error;
@@ -238,7 +238,7 @@ export async function fetchUserSignups(userId: string) {
       *,
       mic_signup_events (
         *,
-        open_mics_historical (*)
+        open_mics_historical (open_mic, venue_name, borough, day, start_time, unique_identifier)
       )
     `)
     .eq('user_id', userId)

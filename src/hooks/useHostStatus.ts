@@ -9,5 +9,7 @@ export function useHostStatus() {
     queryKey: ['hostStatus', user?.id],
     queryFn: () => checkHostStatus(user!.id),
     enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 }

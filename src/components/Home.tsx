@@ -1,5 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -17,54 +18,41 @@ import { useMicPlaylists } from "@/hooks/useMicPlaylists";
 
 // Custom hook to fetch user's upcoming shows (from Shows.tsx)
 function useUserShows(userId) {
-  const [shows, setShows] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!userId) return;
-    setLoading(true);
-    supabase
-      .from("profile_open_mics")
-      .select(`*, open_mics:open_mic_id(*)`)
-      .eq("profile_id", userId)
-      .then(({ data, error }) => {
-        if (error) {
-          setShows([]);
-        } else {
-          // Only upcoming shows
-          setShows((data || []).filter(row => row.schedule_type === "upcoming" && row.open_mics));
-        }
-        setLoading(false);
-      });
-  }, [userId]);
-
-  return { shows, loading };
+  const { data, isLoading } = useQuery({
+    queryKey: ["userShows", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profile_open_mics")
+        .select(`*, open_mics:open_mic_id(*)`)
+        .eq("profile_id", userId);
+      if (error) return [];
+      return (data || []).filter(row => row.schedule_type === "upcoming" && row.open_mics);
+    },
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+  return { shows: data ?? [], loading: isLoading };
 }
 
 // Custom hook to fetch user's completed shows for stage time calculation
 function useUserCompletedShows(userId) {
-  const [completedShows, setCompletedShows] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!userId) return;
-    setLoading(true);
-    supabase
-      .from("profile_open_mics")
-      .select(`*, open_mics:open_mic_id(*)`)
-      .eq("profile_id", userId)
-      .eq("schedule_type", "completed")
-      .then(({ data, error }) => {
-        if (error) {
-          setCompletedShows([]);
-        } else {
-          setCompletedShows((data || []).filter(row => row.open_mics));
-        }
-        setLoading(false);
-      });
-  }, [userId]);
-
-  return { completedShows, loading };
+  const { data, isLoading } = useQuery({
+    queryKey: ["userCompletedShows", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profile_open_mics")
+        .select(`*, open_mics:open_mic_id(*)`)
+        .eq("profile_id", userId)
+        .eq("schedule_type", "completed");
+      if (error) return [];
+      return (data || []).filter(row => row.open_mics);
+    },
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+  return { completedShows: data ?? [], loading: isLoading };
 }
 
 // Custom hook to fetch user visits for streak calculation

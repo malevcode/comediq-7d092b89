@@ -1,29 +1,26 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Mic2 } from "lucide-react";
 
 // Custom hook to fetch user profile from Supabase
 function useUserProfile(userId) {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!userId) return;
-    setLoading(true);
-    supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", userId)
-      .single()
-      .then(({ data, error }) => {
-        setProfile(data || null);
-        setLoading(false);
-      });
-  }, [userId]);
-
-  return { profile, loading };
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ["userProfile", userId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("username, avatar_url, level")
+        .eq("user_id", userId)
+        .single();
+      return data ?? null;
+    },
+    enabled: !!userId,
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+  return { profile, loading: isLoading };
 }
 
 /**

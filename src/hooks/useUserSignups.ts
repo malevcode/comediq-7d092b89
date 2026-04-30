@@ -78,5 +78,7 @@ export function useUserSignups(userId?: string) {
       }));
     },
     enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 }
