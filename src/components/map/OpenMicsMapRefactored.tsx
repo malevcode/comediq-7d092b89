@@ -196,8 +196,8 @@ const RecenterMap: React.FC<{ center: [number, number] | null }> = ({ center }) 
   return null;
 };
 
-const STADIA_DARK_URL = 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png';
-const STADIA_ATTRIBUTION = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://openstreetmap.org">OSM</a>';
+const OSM_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
 const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
   const { user } = useAuth();
@@ -275,8 +275,8 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
           attributionControl={true}
         >
           <TileLayer
-            url={STADIA_DARK_URL}
-            attribution={STADIA_ATTRIBUTION}
+            url={OSM_TILE_URL}
+            attribution={OSM_ATTRIBUTION}
           />
 
           {/* Zoom control in top-right */}
