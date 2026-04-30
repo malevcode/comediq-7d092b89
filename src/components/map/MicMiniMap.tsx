@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -40,6 +40,18 @@ const pinIcon = L.divIcon({
   iconAnchor: [6, 6],
 });
 
+// Forces Leaflet to recalculate tile layout after the container is painted.
+// Without this, maps rendered inside collapsed-then-expanded sections see 0x0
+// and never draw tiles (only the first map on the page works otherwise).
+function InvalidateSize() {
+  const map = useMap();
+  useEffect(() => {
+    const t = setTimeout(() => map.invalidateSize(), 50);
+    return () => clearTimeout(t);
+  }, [map]);
+  return null;
+}
+
 interface MicMiniMapProps {
   location: string;
   venueName: string;
@@ -74,6 +86,7 @@ export function MicMiniMap({ location, venueName }: MicMiniMapProps) {
   return (
     <div className="h-36 rounded-md overflow-hidden border border-blue-200 mt-1">
       <MapContainer
+        key={`${coords[0]},${coords[1]}`}
         center={coords}
         zoom={15}
         className="h-full w-full"
@@ -85,6 +98,7 @@ export function MicMiniMap({ location, venueName }: MicMiniMapProps) {
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <Marker position={coords} icon={pinIcon} />
+        <InvalidateSize />
       </MapContainer>
     </div>
   );
