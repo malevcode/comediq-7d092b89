@@ -21,6 +21,7 @@ import { useMicOfTheDay } from '@/hooks/useMicOfTheDay';
 import ClaimMicButton from '@/components/host/ClaimMicButton';
 import ClaimMicOfDayButton from '@/components/host/ClaimMicOfDayButton';
 import NominateMotdButton from '@/components/motd/NominateMotdButton';
+import { MicMiniMap } from '@/components/map/MicMiniMap';
 
 // Helper function to get map URL based on device
 function getMapUrl(location: string, venueName: string) {
@@ -353,6 +354,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
               <a href={getMapUrl(mic.location, mic.venueName)} target="_blank" rel="noopener noreferrer" className="flex flex-row gap-2 items-center hover:underline font-normal">
                 <MapPin className="w-3 h-3" /> {mic.location}
               </a>
+              <MicMiniMap location={mic.location} venueName={mic.venueName} />
             </div>
             {mic.otherRules && (
               <div className="text-xs mt-2 pt-2 border-t border-blue-200">

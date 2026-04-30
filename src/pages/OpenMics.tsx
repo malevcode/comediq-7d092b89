@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Search, HelpCircle, LogIn, Plus } from "lucide-react";
 import SEO from "@/components/SEO";
 import { generateBreadcrumbSchema } from "@/utils/structuredData";
@@ -12,9 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import MicDetailModal from "@/components/MicDetailModal";
-import { OpenMicsMapRefactored as OpenMicsMap } from "@/components/map";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
-import ViewToggle from "@/components/ViewToggle";
 import AddMicRequestForm, { MicRequestFormData } from "@/components/host/AddMicRequestForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -31,7 +29,6 @@ const OpenMics = () => {
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [activeTab, setActiveTab] = useState("next");
   const [showKey, setShowKey] = useState(false);
-  const [viewMode, setViewMode] = useState<"list" | "grid" | "map">("list");
   const [visibleCount, setVisibleCount] = useState(100);
   const [showRequestModal, setShowRequestModal] = useState(false);
 
@@ -182,39 +179,6 @@ const OpenMics = () => {
     }
   };
 
-  const formatTime = (t: string) => t;
-
-  const formatCost = (cost: string) => {
-    if (cost.toLowerCase().includes("free")) return "Free";
-    const match = cost.match(/\$?(\d+)/);
-    if (match) return `$${match[1]}`;
-    return cost.length > 8 ? cost.substring(0, 8) + "..." : cost;
-  };
-
-  const formatStageTime = (stageTime: string) => {
-    const match = stageTime.match(/(\d+)/);
-    if (match) return match[1];
-    return stageTime.replace(/\s*(minutes?|mins?)\s*/gi, "").trim().substring(0, 3);
-  };
-
-  const truncateTitle = (title: string, maxLen = 15) =>
-    title.length > maxLen ? title.slice(0, maxLen) : title;
-
-  const getVerificationBackgroundColor = (lastVerified: string) => {
-    const verification = lastVerified?.toLowerCase() || "";
-    // if (verification.includes("tediously verified") || verification.includes("tedious")) {
-    //   return "bg-yellow-100";
-    // } else if (verification.includes("verified") || verification.includes("confirm")) {
-    //   return "bg-emerald-100";
-    // } else {
-    //   return "bg-red-100";
-    // }
-    if (verification.includes("unverified")) {
-      return "bg-red-100";
-    } else {
-      return "bg-emerald-100";
-    }
-  };
 
   const getCostValue = (costStr: string) => {
     const cost = costStr.toLowerCase();
@@ -369,72 +333,21 @@ const OpenMics = () => {
     return filtered;
   };
 
-  // Borough outline colors for left border only
-  const getBoroughOutline = (borough: string) => {
-    const cleanBorough = borough.trim();
-    const outlines = {
-      Manhattan: "border-l-4 border-l-cyan-500",
-      Brooklyn: "border-l-4 border-l-amber-800",
-      Queens: "border-l-4 border-l-purple-600",
-      Bronx: "border-l-4 border-l-orange-600",
-      "Staten Island": "border-l-4 border-l-gray-500",
-    };
-    return (outlines as unknown)[cleanBorough] || "border-l-4 border-l-gray-400";
-  };
-
   const renderMicContent = (filteredMics: OpenMic[], tabName: string) => {
-    const currentViewMode = viewMode;
     const micsToShow = filteredMics;
 
     return (
       <>
-        <div className="mb-4 flex items-center justify-between">
-          <p className="text-xs text-gray-500 max-w-full">
-              <>
-                Showing{" "}
-                {currentViewMode === "list"
-                  ? `${Math.min(visibleCount, micsToShow.length)} of ${micsToShow.length}`
-                  : micsToShow.length}
-                {tabName === "next" ? " upcoming" : tabName === "liked" ? " liked " : ""} open mic
-                {micsToShow.length !== 1 ? "s" : ""}
-                {tabName !== "next" && tabName !== "liked" ? ` on ${tabName}` : ""}
-              </>
+        <div className="mb-4">
+          <p className="text-xs text-gray-500">
+            Showing {Math.min(visibleCount, micsToShow.length)} of {micsToShow.length}
+            {tabName === "next" ? " upcoming" : tabName === "liked" ? " liked" : ""} open mic
+            {micsToShow.length !== 1 ? "s" : ""}
+            {tabName !== "next" && tabName !== "liked" ? ` on ${tabName}` : ""}
           </p>
-          <div className="flex-shrink-0">
-            <ViewToggle viewMode={currentViewMode} onViewChange={handleViewModeChange} />
-          </div>
         </div>
 
-        {currentViewMode === "grid" ? (
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-0.5 max-h-[calc(100vh-320px)] overflow-y-auto">
-            {micsToShow.map((mic, index) => (
-              <Card
-                key={index}
-                className={`cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-102 ${getBoroughOutline(mic.borough)} ${getVerificationBackgroundColor(mic.lastVerified)} rounded-md w-full h-14`}
-                onClick={() => setSelectedMic(mic)}
-              >
-                <CardContent className="p-1.5 h-full flex flex-col justify-between">
-                  <h3 className="font-bold text-xs leading-tight text-gray-900 overflow-hidden whitespace-nowrap">
-                    {truncateTitle(mic.openMic, 15)}
-                  </h3>
-                  <div className="flex justify-between items-center text-[10px] w-full">
-                    <span className="text-gray-800 font-semibold">{formatTime(mic.startTime)}</span>
-                    <span className="text-green-700 font-bold">{formatCost(mic.cost)}</span>
-                    <span className="text-orange-700 font-bold">{formatStageTime(mic.stageTime)}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : currentViewMode === "list" ? (
-          <OpenMicsDetailedList mics={micsToShow} visibleCount={visibleCount} setVisibleCount={setVisibleCount} showSponsor={activeTab === "next"} showMicOfDay={activeTab === "next"} />
-        ) : (
-          <OpenMicsMap 
-            key={`map-${micsToShow.map(m => m.uniqueIdentifier).join('-')}`}
-            mics={micsToShow} 
-            onMicSelect={handleMicSelect} 
-          />
-        )}
+        <OpenMicsDetailedList mics={micsToShow} visibleCount={visibleCount} setVisibleCount={setVisibleCount} showSponsor={activeTab === "next"} showMicOfDay={activeTab === "next"} />
 
         {micsToShow.length === 0 && (
           <div className="text-center py-12">
@@ -473,12 +386,6 @@ const OpenMics = () => {
     );
   };
 
-  const handleViewModeChange = (mode: "list" | "grid" | "map") => setViewMode(mode);
-
-  // Memoize the onMicSelect callback to prevent map re-renders
-  const handleMicSelect = useCallback((mic: OpenMic) => {
-    setSelectedMic(mic);
-  }, []);
 
   const [isSubmittingMic, setIsSubmittingMic] = useState(false);
 
