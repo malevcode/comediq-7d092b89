@@ -1,26 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { fetchActiveBannerAds, fetchAllBannerAds, recordAdClick as pbRecordAdClick } from '@/api/pb/bannerAds';
+import type { BannerAd } from '@/api/pb/bannerAds';
 
-export interface BannerAd {
-  id: string;
-  label: string;
-  href: string;
-  external: boolean;
-  position: string;
-  sort_order: number;
-  is_active: boolean;
-  icon_url: string | null;
-  client_name: string | null;
-  amount_paid: number | null;
-  payment_method: string | null;
-  start_date: string | null;
-  end_date: string | null;
-  contact_id: string | null;
-  description: string | null;
-  cta_text: string | null;
-  created_at: string;
-  updated_at: string;
-}
+export type { BannerAd };
 
 const fallbackTopAds = [
   { label: "#MeThree", href: "https://metoomvmt.org/", external: true },
@@ -40,17 +22,7 @@ export function useBannerAds() {
 
   const { data: ads, isLoading, error } = useQuery({
     queryKey: ['banner-ads', today],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('banner_ads')
-        .select('*')
-        .eq('is_active', true)
-        .or(`start_date.is.null,start_date.lte.${today}`)
-        .or(`end_date.is.null,end_date.gte.${today}`)
-        .order('sort_order');
-      if (error) throw error;
-      return data as BannerAd[];
-    },
+    queryFn: fetchActiveBannerAds,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -69,37 +41,19 @@ export function useBannerAds() {
 export function useAllBannerAds() {
   return useQuery({
     queryKey: ['banner-ads-all'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('banner_ads')
-        .select('*')
-        .order('position')
-        .order('sort_order');
-      if (error) throw error;
-      return data as BannerAd[];
-    },
+    queryFn: fetchAllBannerAds,
   });
 }
 
 export function useAdClickCounts() {
   return useQuery({
     queryKey: ['ad-click-counts'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('ad_click_counts')
-        .select('*');
-      if (error) throw error;
-      return data as { ad_id: string; click_count: number }[];
-    },
+    queryFn: async () => [] as { ad_id: string; click_count: number }[],
   });
 }
 
 export async function recordAdClick(adId: string, userId?: string, placement?: string) {
-  await supabase.from('ad_clicks').insert({
-    ad_id: adId,
-    user_id: userId || null,
-    placement: placement || 'banner',
-  });
+  await pbRecordAdClick(adId, userId, placement);
 }
 
 export function useSponsorAd() {
@@ -108,18 +62,8 @@ export function useSponsorAd() {
   return useQuery({
     queryKey: ['sponsor-ad', today],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('banner_ads')
-        .select('*')
-        .eq('position', 'sponsor')
-        .eq('is_active', true)
-        .or(`start_date.is.null,start_date.lte.${today}`)
-        .or(`end_date.is.null,end_date.gte.${today}`)
-        .order('sort_order')
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      return data as BannerAd | null;
+      const ads = await fetchActiveBannerAds();
+      return ads.find(a => a.position === 'sponsor') ?? null;
     },
     staleTime: 5 * 60 * 1000,
   });

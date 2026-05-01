@@ -1,13 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  fetchComedianProfile, 
-  updateUserProfile, 
+import {
+  fetchComedianProfile,
+  updateUserProfile,
   uploadHeadshot,
   addSocialLink,
   removeSocialLink,
   ComedianProfile,
   UserProfile
-} from '@/api/profiles';
+} from '@/api/pb/profiles';
 import { useToast } from '@/hooks/use-toast';
 
 export function useComedianProfile(userId: string | undefined) {

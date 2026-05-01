@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchSignupEvents, fetchEventSignups } from '@/api/signups';
+import { fetchSignupEvents, fetchEventSignups } from '@/api/pb/signups';
 
 export function useSignupEvents(micId: string) {
   return useQuery({

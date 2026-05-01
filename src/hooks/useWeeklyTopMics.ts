@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { pb } from '@/integrations/pocketbase/client';
 
 export interface WeeklyTopMic {
   id: string;
@@ -20,16 +20,13 @@ export function useWeeklyTopMics() {
   return useQuery({
     queryKey: ['weekly-top-mics'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('weekly_top_mics')
-        .select('*')
-        .order('rank')
-        .limit(5);
-
-      if (error) throw error;
-      return (data || []) as WeeklyTopMic[];
+      const data = await pb.collection('weekly_top_mics').getFullList({
+        sort: '+rank',
+        limit: 5,
+      } as any);
+      return data as unknown as WeeklyTopMic[];
     },
-    staleTime: 60 * 60 * 1000, // 1 hour
+    staleTime: 60 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
   });
 }

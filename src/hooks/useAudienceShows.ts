@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchAudienceShows, fetchFeaturedShows, AudienceShowFilters } from '@/api/audienceShows';
+import { fetchAudienceShows, fetchFeaturedShows, AudienceShowFilters } from '@/api/pb/audienceShows';
 
 export function useAudienceShows(filters?: AudienceShowFilters) {
   return useQuery({

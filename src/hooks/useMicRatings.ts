@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { fetchUserRating, fetchRatingCounts, rateMic, removeRating, fetchUserLikedMics } from '@/api/pb/ratings';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -8,99 +8,40 @@ export const useMicRatings = (micUniqueIdentifier?: string) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Get user's rating for a specific mic
   const { data: userRating } = useQuery({
     queryKey: ['micRating', micUniqueIdentifier, user?.id],
-    queryFn: async () => {
-      if (!user || !micUniqueIdentifier) return null;
-      
-      const { data, error } = await supabase
-        .from('user_mic_ratings')
-        .select('rating')
-        .eq('user_id', user.id)
-        .eq('mic_unique_identifier', micUniqueIdentifier)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data?.rating || null;
-    },
+    queryFn: () => fetchUserRating(user!.id, micUniqueIdentifier!),
     enabled: !!user && !!micUniqueIdentifier,
   });
 
-  // Get rating counts for a mic
   const { data: ratingCounts } = useQuery({
     queryKey: ['micRatingCounts', micUniqueIdentifier],
-    queryFn: async () => {
-      if (!micUniqueIdentifier) return { likes: 0, dislikes: 0 };
-      
-      const { data, error } = await supabase
-        .from('mic_like_counts') // new VIEW
-        .select('likes, dislikes')
-        .eq('mic_unique_identifier', micUniqueIdentifier)
-        .maybeSingle(); // get back one row or null
-      if (error) throw error;
-      return data ?? { likes: 0, dislikes: 0 };
-    },
+    queryFn: () => fetchRatingCounts(micUniqueIdentifier!),
     enabled: !!micUniqueIdentifier,
+    staleTime: 60 * 1000,
   });
 
-  // Rate a mic (like or dislike)
   const rateMicMutation = useMutation({
-    mutationFn: async ({ micUniqueIdentifier, rating }: { micUniqueIdentifier: string, rating: 'like' | 'dislike' }) => {
-      if (!user) throw new Error('User not authenticated');
-
-      const { data, error } = await supabase
-        .from('user_mic_ratings')
-        .upsert({
-          user_id: user.id,
-          mic_unique_identifier: micUniqueIdentifier,
-          rating: rating,
-        }, {
-          onConflict: 'user_id,mic_unique_identifier'
-        });
-
-      if (error) throw error;
-      return data;
-    },
+    mutationFn: ({ micUniqueIdentifier, rating }: { micUniqueIdentifier: string; rating: 'like' | 'dislike' }) =>
+      rateMic(user!.id, micUniqueIdentifier, rating),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['micRating', variables.micUniqueIdentifier] });
       queryClient.invalidateQueries({ queryKey: ['micRatingCounts', variables.micUniqueIdentifier] });
       queryClient.invalidateQueries({ queryKey: ['userLikedMics', user?.id] });
-      toast({
-        title: variables.rating === 'like' ? 'Liked!' : 'Disliked!',
-        description: `You ${variables.rating}d this open mic.`,
-      });
+      toast({ title: variables.rating === 'like' ? 'Liked!' : 'Disliked!' });
     },
-    onError: (error) => {
-      toast({
-        title: 'Error',
-        description: 'Failed to rate this mic. Please try again.',
-        variant: 'destructive',
-      });
+    onError: () => {
+      toast({ title: 'Error', description: 'Failed to rate this mic.', variant: 'destructive' });
     },
   });
 
-  // Remove rating
   const removeRatingMutation = useMutation({
-    mutationFn: async (micUniqueIdentifier: string) => {
-      if (!user) throw new Error('User not authenticated');
-
-      const { error } = await supabase
-        .from('user_mic_ratings')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('mic_unique_identifier', micUniqueIdentifier);
-
-      if (error) throw error;
-    },
+    mutationFn: (micUniqueIdentifier: string) => removeRating(user!.id, micUniqueIdentifier),
     onSuccess: (_, micUniqueIdentifier) => {
       queryClient.invalidateQueries({ queryKey: ['micRating', micUniqueIdentifier] });
       queryClient.invalidateQueries({ queryKey: ['micRatingCounts', micUniqueIdentifier] });
       queryClient.invalidateQueries({ queryKey: ['userLikedMics', user?.id] });
-      toast({
-        title: 'Rating removed',
-        description: 'Your rating has been removed.',
-      });
+      toast({ title: 'Rating removed' });
     },
   });
 
@@ -113,24 +54,11 @@ export const useMicRatings = (micUniqueIdentifier?: string) => {
   };
 };
 
-// Hook to get user's liked mics
 export const useUserLikedMics = () => {
   const { user } = useAuth();
-
   return useQuery({
     queryKey: ['userLikedMics', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      
-      const { data, error } = await supabase
-        .from('user_mic_ratings')
-        .select('mic_unique_identifier')
-        .eq('user_id', user.id)
-        .eq('rating', 'like');
-
-      if (error) throw error;
-      return data?.map(r => r.mic_unique_identifier) || [];
-    },
+    queryFn: () => fetchUserLikedMics(user!.id),
     enabled: !!user,
   });
 };

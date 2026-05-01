@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { pb } from '@/integrations/pocketbase/client';
 
 export interface WrappedStats {
   totalMics: number;
@@ -10,7 +10,7 @@ export interface WrappedStats {
   uniqueNeighborhoods: string[];
   favoriteDay: string | null;
   topVenue: { name: string; count: number } | null;
-  estimatedStageTime: number; // in minutes
+  estimatedStageTime: number;
   likedMicsCount: number;
   firstMicDate: string | null;
   monthlyBreakdown: { month: string; count: number }[];
@@ -18,7 +18,7 @@ export interface WrappedStats {
 }
 
 const DAYS_ORDER = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const DEFAULT_STAGE_TIME = 5; // Default 5 minutes per performance
+const DEFAULT_STAGE_TIME = 5;
 
 export const useWrapped = (userId?: string, year: number = 2025) => {
   return useQuery({
@@ -26,70 +26,34 @@ export const useWrapped = (userId?: string, year: number = 2025) => {
     queryFn: async (): Promise<WrappedStats> => {
       if (!userId) throw new Error('User ID required');
 
-      const startOfYear = `${year}-01-01`;
-      const endOfYear = `${year}-12-31`;
+      const startOfYear = `${year}-01-01 00:00:00`;
+      const endOfYear = `${year}-12-31 23:59:59`;
 
-      // Fetch user's tracked mics from profile_open_mics (including custom_stage_time)
-      const { data: trackedMics, error: micsError } = await supabase
-        .from('profile_open_mics')
-        .select(`
-          id,
-          created_at,
-          notes,
-          open_mic_id,
-          schedule_type,
-          custom_stage_time
-        `)
-        .eq('profile_id', userId)
-        .gte('created_at', startOfYear)
-        .lte('created_at', endOfYear);
+      const [trackedMics, customShows, likedMics] = await Promise.all([
+        pb.collection('profile_open_mics').getFullList({
+          filter: `(profile_id = "${userId}" || profile_id = "${userId}") && created >= "${startOfYear}" && created <= "${endOfYear}"`,
+          fields: 'id,created,notes,open_mic_id,schedule_type,custom_stage_time',
+        }),
+        pb.collection('profile_custom_shows').getFullList({
+          filter: `profile_id = "${userId}" && (schedule_type = "completed" || schedule_type = "upcoming") && created >= "${startOfYear}" && created <= "${endOfYear}"`,
+          fields: 'id,created,title,venue,borough,schedule_type,stage_time_minutes',
+        }),
+        pb.collection('user_mic_ratings').getFullList({
+          filter: `user_id = "${userId}" && rating = "like" && created >= "${startOfYear}" && created <= "${endOfYear}"`,
+          fields: 'id',
+        }),
+      ]);
 
-      if (micsError) throw micsError;
+      const micIds = [...new Set(trackedMics.map(m => m.open_mic_id as string).filter(Boolean))];
+      const micDetails = micIds.length > 0
+        ? await pb.collection('open_mics_historical').getFullList({
+            filter: micIds.map(id => `unique_identifier = "${id}"`).join(' || '),
+            fields: 'unique_identifier,open_mic,venue_name,borough,neighborhood,day,stage_time',
+          })
+        : [];
 
-      // Fetch user's custom shows from profile_custom_shows
-      const { data: customShows, error: showsError } = await supabase
-        .from('profile_custom_shows')
-        .select(`
-          id,
-          created_at,
-          title,
-          venue,
-          borough,
-          schedule_type,
-          stage_time_minutes
-        `)
-        .eq('profile_id', userId)
-        .in('schedule_type', ['completed', 'upcoming'])
-        .gte('created_at', startOfYear)
-        .lte('created_at', endOfYear);
+      const micDetailsMap = new Map(micDetails.map(m => [m.unique_identifier, m]));
 
-      if (showsError) throw showsError;
-
-      // Get open mic details for the tracked mics
-      const micIds = trackedMics?.map(m => m.open_mic_id).filter(Boolean) || [];
-      
-      const { data: micDetails, error: detailsError } = await supabase
-        .from('open_mics_historical')
-        .select('unique_identifier, open_mic, venue_name, borough, neighborhood, day, stage_time')
-        .in('unique_identifier', micIds);
-
-      if (detailsError) throw detailsError;
-
-      // Get liked mics count
-      const { data: likedMics, error: likedError } = await supabase
-        .from('user_mic_ratings')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('rating', 'like')
-        .gte('created_at', startOfYear)
-        .lte('created_at', endOfYear);
-
-      if (likedError) throw likedError;
-
-      // Build mic details map
-      const micDetailsMap = new Map(micDetails?.map(m => [m.unique_identifier, m]) || []);
-
-      // Calculate stats
       const venues = new Set<string>();
       const boroughs = new Set<string>();
       const neighborhoods = new Set<string>();
@@ -99,112 +63,67 @@ export const useWrapped = (userId?: string, year: number = 2025) => {
       let totalStageTime = 0;
       let firstDate: Date | null = null;
 
-      // Process open mics
-      trackedMics?.forEach(tracked => {
-        const mic = micDetailsMap.get(tracked.open_mic_id);
+      trackedMics.forEach(tracked => {
+        const mic = micDetailsMap.get(tracked.open_mic_id as string);
         if (!mic) return;
 
-        // Venue
         if (mic.venue_name) {
           venues.add(mic.venue_name);
           venueCount[mic.venue_name] = (venueCount[mic.venue_name] || 0) + 1;
         }
-
-        // Borough
         if (mic.borough) boroughs.add(mic.borough);
-
-        // Neighborhood
         if (mic.neighborhood) neighborhoods.add(mic.neighborhood);
+        if (mic.day) dayCount[mic.day] = (dayCount[mic.day] || 0) + 1;
 
-        // Day
-        if (mic.day) {
-          dayCount[mic.day] = (dayCount[mic.day] || 0) + 1;
-        }
-
-        // Stage time - prioritize user's custom_stage_time, then mic's default, then DEFAULT_STAGE_TIME
         if (tracked.custom_stage_time) {
           totalStageTime += tracked.custom_stage_time;
         } else if (mic.stage_time) {
-          const match = mic.stage_time.match(/(\d+)/);
+          const match = (mic.stage_time as string).match(/(\d+)/);
           totalStageTime += match ? parseInt(match[1], 10) : DEFAULT_STAGE_TIME;
         } else {
           totalStageTime += DEFAULT_STAGE_TIME;
         }
 
-        // Month
-        const createdAt = new Date(tracked.created_at);
+        const createdAt = new Date(tracked.created);
         const monthKey = createdAt.toLocaleString('default', { month: 'short' });
         monthCount[monthKey] = (monthCount[monthKey] || 0) + 1;
-
-        // First date
-        if (!firstDate || createdAt < firstDate) {
-          firstDate = createdAt;
-        }
+        if (!firstDate || createdAt < firstDate) firstDate = createdAt;
       });
 
-      // Process custom shows
-      customShows?.forEach(show => {
-        // Venue
+      customShows.forEach(show => {
         if (show.venue) {
           venues.add(show.venue);
           venueCount[show.venue] = (venueCount[show.venue] || 0) + 1;
         }
-
-        // Borough
         if (show.borough) boroughs.add(show.borough);
+        totalStageTime += (show.stage_time_minutes as number) || DEFAULT_STAGE_TIME;
 
-        // Stage time - use stage_time_minutes or default
-        totalStageTime += show.stage_time_minutes || DEFAULT_STAGE_TIME;
-
-        // Month
-        const createdAt = new Date(show.created_at);
+        const createdAt = new Date(show.created);
         const monthKey = createdAt.toLocaleString('default', { month: 'short' });
         monthCount[monthKey] = (monthCount[monthKey] || 0) + 1;
-
-        // First date
-        if (!firstDate || createdAt < firstDate) {
-          firstDate = createdAt;
-        }
+        if (!firstDate || createdAt < firstDate) firstDate = createdAt;
       });
 
-      // Find top venue
       const topVenueEntry = Object.entries(venueCount).sort((a, b) => b[1] - a[1])[0];
       const topVenue = topVenueEntry ? { name: topVenueEntry[0], count: topVenueEntry[1] } : null;
-
-      // Find favorite day
       const favoriteDayEntry = Object.entries(dayCount).sort((a, b) => b[1] - a[1])[0];
-      const favoriteDay = favoriteDayEntry ? favoriteDayEntry[0] : null;
 
-      // Build monthly breakdown
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const monthlyBreakdown = months.map(month => ({
-        month,
-        count: monthCount[month] || 0
-      }));
-
-      // Build days breakdown
-      const daysBreakdown = DAYS_ORDER.map(day => ({
-        day,
-        count: dayCount[day] || 0
-      }));
-
-      const totalMics = trackedMics?.length || 0;
-      const totalShows = customShows?.length || 0;
 
       return {
-        totalMics,
-        totalShows,
-        totalPerformances: totalMics + totalShows,
+        totalMics: trackedMics.length,
+        totalShows: customShows.length,
+        totalPerformances: trackedMics.length + customShows.length,
         uniqueVenues: venues.size,
         uniqueBoroughs: Array.from(boroughs),
         uniqueNeighborhoods: Array.from(neighborhoods),
-        favoriteDay,
+        favoriteDay: favoriteDayEntry ? favoriteDayEntry[0] : null,
         topVenue,
         estimatedStageTime: totalStageTime,
-        likedMicsCount: likedMics?.length || 0,
-        firstMicDate: firstDate ? firstDate.toISOString() : null,
-        monthlyBreakdown,
-        daysBreakdown
+        likedMicsCount: likedMics.length,
+        firstMicDate: firstDate ? (firstDate as Date).toISOString() : null,
+        monthlyBreakdown: months.map(month => ({ month, count: monthCount[month] || 0 })),
+        daysBreakdown: DAYS_ORDER.map(day => ({ day, count: dayCount[day] || 0 })),
       };
     },
     enabled: !!userId,

@@ -1,102 +1,49 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchSavedMics, saveMic, unsaveMic, SavedMic } from "@/api/pb/savedMics";
 import { useAuth } from "@/contexts/AuthContext";
 
-export interface SavedMic {
-  id: string;
-  user_id: string;
-  mic_unique_identifier: string;
-  created_at: string;
-}
+export type { SavedMic };
 
 export function useSavedMics() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Fetch all saved mics for current user
   const { data: savedMics = [], isLoading, error } = useQuery({
     queryKey: ["saved-mics", user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-
-      const { data, error } = await supabase
-        .from("saved_mics")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data as SavedMic[];
-    },
+    queryFn: () => fetchSavedMics(user!.id),
     enabled: !!user,
-    staleTime: 60 * 1000, // 1 minute
+    staleTime: 60 * 1000,
   });
 
-  // Check if a specific mic is saved
-  const isMicSaved = (micUniqueIdentifier: string) => {
-    return savedMics.some(s => s.mic_unique_identifier === micUniqueIdentifier);
-  };
+  const isMicSaved = (micUniqueIdentifier: string) =>
+    savedMics.some(s => s.mic_unique_identifier === micUniqueIdentifier);
 
-  // Toggle save mutation
   const toggleSaveMutation = useMutation({
     mutationFn: async (micUniqueIdentifier: string) => {
       if (!user) throw new Error("Must be logged in to save mics");
-
-      const isSaved = isMicSaved(micUniqueIdentifier);
-
-      if (isSaved) {
-        // Remove save
-        const { error } = await supabase
-          .from("saved_mics")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("mic_unique_identifier", micUniqueIdentifier);
-
-        if (error) throw error;
+      if (isMicSaved(micUniqueIdentifier)) {
+        await unsaveMic(user.id, micUniqueIdentifier);
         return { saved: false };
       } else {
-        // Add save
-        const { error } = await supabase
-          .from("saved_mics")
-          .insert({
-            user_id: user.id,
-            mic_unique_identifier: micUniqueIdentifier
-          });
-
-        if (error) throw error;
+        await saveMic(user.id, micUniqueIdentifier);
         return { saved: true };
       }
     },
     onMutate: async (micUniqueIdentifier) => {
-      // Optimistic update
       await queryClient.cancelQueries({ queryKey: ["saved-mics", user?.id] });
-      const previousSaved = queryClient.getQueryData(["saved-mics", user?.id]);
-
+      const previous = queryClient.getQueryData(["saved-mics", user?.id]);
       queryClient.setQueryData(["saved-mics", user?.id], (old: SavedMic[] = []) => {
-        const isSaved = old.some(s => s.mic_unique_identifier === micUniqueIdentifier);
-        if (isSaved) {
-          return old.filter(s => s.mic_unique_identifier !== micUniqueIdentifier);
-        } else {
-          return [...old, {
-            id: 'temp-' + Date.now(),
-            user_id: user?.id || '',
-            mic_unique_identifier: micUniqueIdentifier,
-            created_at: new Date().toISOString()
-          }];
-        }
+        const saved = old.some(s => s.mic_unique_identifier === micUniqueIdentifier);
+        return saved
+          ? old.filter(s => s.mic_unique_identifier !== micUniqueIdentifier)
+          : [...old, { id: 'tmp-' + Date.now(), user_id: user?.id || '', mic_unique_identifier: micUniqueIdentifier, created_at: new Date().toISOString() }];
       });
-
-      return { previousSaved };
+      return { previous };
     },
-    onError: (err, micUniqueIdentifier, context) => {
-      // Rollback on error
-      if (context?.previousSaved) {
-        queryClient.setQueryData(["saved-mics", user?.id], context.previousSaved);
-      }
+    onError: (_err, _mic, context) => {
+      if (context?.previous) queryClient.setQueryData(["saved-mics", user?.id], context.previous);
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["saved-mics", user?.id] });
-    }
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["saved-mics", user?.id] }),
   });
 
   return {

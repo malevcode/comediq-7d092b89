@@ -7,7 +7,7 @@ import {
   updateGrowthOpportunity,
   deleteGrowthOpportunity,
   type GrowthOpportunityType,
-} from "@/api/growthOpportunities";
+} from "@/api/pb/growthOpportunities";
 
 export function useGrowthOpportunities(type?: GrowthOpportunityType) {
   return useQuery({

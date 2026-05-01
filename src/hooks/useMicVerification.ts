@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { pb } from '@/integrations/pocketbase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const STORAGE_KEY_PREFIX = 'mic-verified-';
@@ -12,86 +12,61 @@ export const useMicVerification = (micUniqueIdentifier?: string) => {
   const [hasVerifiedToday, setHasVerifiedToday] = useState(false);
   const [justVerified, setJustVerified] = useState(false);
 
-  // Check localStorage for today's verification
   useEffect(() => {
     if (!micUniqueIdentifier) return;
-    
     const today = new Date().toDateString();
-    const storageKey = `${STORAGE_KEY_PREFIX}${micUniqueIdentifier}`;
-    const stored = localStorage.getItem(storageKey);
-    
-    if (stored === today) {
-      setHasVerifiedToday(true);
-    }
+    const stored = localStorage.getItem(`${STORAGE_KEY_PREFIX}${micUniqueIdentifier}`);
+    if (stored === today) setHasVerifiedToday(true);
   }, [micUniqueIdentifier]);
 
   const verify = useCallback(async () => {
     if (!micUniqueIdentifier || isVerifying) return;
-
     setIsVerifying(true);
-    
+
     try {
-      // Get current session for auth header (optional)
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const response = await fetch(
-        `https://cotfweyhlglpjmgqxwqx.supabase.co/functions/v1/verify-mic`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': session?.access_token ? `Bearer ${session.access_token}` : '',
-          },
-          body: JSON.stringify({ mic_unique_identifier: micUniqueIdentifier }),
+      const today = new Date().toDateString();
+      const storageKey = `${STORAGE_KEY_PREFIX}${micUniqueIdentifier}`;
+      const alreadyVerified = localStorage.getItem(storageKey) === today;
+
+      if (!alreadyVerified) {
+        // Increment verification_count on the mic record
+        const mics = await pb.collection('open_mics_historical').getFullList({
+          filter: `unique_identifier = "${micUniqueIdentifier}"`,
+          fields: 'id,verification_count',
+        });
+
+        if (mics[0]) {
+          const current = (mics[0].verification_count as number) || 0;
+          await pb.collection('open_mics_historical').update(mics[0].id, {
+            verification_count: current + 1,
+            last_verified: new Date().toISOString().split('T')[0],
+          });
         }
-      );
-
-      const result = await response.json();
-
-      if (result.success) {
-        // Store in localStorage
-        const today = new Date().toDateString();
-        localStorage.setItem(`${STORAGE_KEY_PREFIX}${micUniqueIdentifier}`, today);
-        setHasVerifiedToday(true);
-        
-        // Invalidate the latest verification query to refetch fresh data
-        queryClient.invalidateQueries({ 
-          queryKey: ['latestVerification', micUniqueIdentifier] 
-        });
-        
-        // Show success animation
-        setJustVerified(true);
-        setTimeout(() => setJustVerified(false), 2000);
-
-        toast({
-          title: result.alreadyVerified ? "Already verified!" : "Thanks for verifying!",
-          description: result.alreadyVerified 
-            ? "You already verified this mic today." 
-            : "Your confirmation helps the community.",
-        });
-      } else {
-        toast({
-          title: "Couldn't verify",
-          description: result.error || "Please try again later.",
-          variant: "destructive",
-        });
       }
+
+      localStorage.setItem(storageKey, today);
+      setHasVerifiedToday(true);
+      queryClient.invalidateQueries({ queryKey: ['latestVerification', micUniqueIdentifier] });
+      setJustVerified(true);
+      setTimeout(() => setJustVerified(false), 2000);
+
+      toast({
+        title: alreadyVerified ? "Already verified!" : "Thanks for verifying!",
+        description: alreadyVerified
+          ? "You already verified this mic today."
+          : "Your confirmation helps the community.",
+      });
     } catch (error) {
       console.error('Verification error:', error);
       toast({
-        title: "Network error",
-        description: "Please check your connection and try again.",
+        title: "Couldn't verify",
+        description: "Please try again later.",
         variant: "destructive",
       });
     } finally {
       setIsVerifying(false);
     }
-  }, [micUniqueIdentifier, isVerifying, toast]);
+  }, [micUniqueIdentifier, isVerifying, toast, queryClient]);
 
-  return {
-    verify,
-    isVerifying,
-    hasVerifiedToday,
-    justVerified,
-  };
+  return { verify, isVerifying, hasVerifiedToday, justVerified };
 };

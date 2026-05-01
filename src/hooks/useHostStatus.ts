@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { checkHostStatus } from '@/api/signups';
+import { checkHostStatus } from '@/api/pb/signups';
 import { useAuth } from '@/contexts/AuthContext';
 
 export function useHostStatus() {

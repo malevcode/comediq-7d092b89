@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchAllActiveEvents } from '@/api/slots';
+import { fetchAllActiveEvents } from '@/api/pb/slots';
 
 export function useAllSignupEvents() {
   return useQuery({

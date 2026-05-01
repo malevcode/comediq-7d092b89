@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { pb } from '@/integrations/pocketbase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 const SESSION_KEY = 'comediq_session_id';
@@ -19,35 +19,30 @@ export function useAnalyticsTracker() {
   const { user } = useAuth();
   const lastTrackedPath = useRef<string | null>(null);
 
-  // Track page view on route change
   useEffect(() => {
     const path = location.pathname;
     if (path === lastTrackedPath.current) return;
     lastTrackedPath.current = path;
 
-    const pageName = getPageName(path);
-    supabase.from('analytics_events').insert({
+    pb.collection('analytics_events').create({
       session_id: getSessionId(),
       user_id: user?.id || null,
       event_type: 'page_view',
-      event_name: pageName,
+      event_name: getPageName(path),
       page_path: path,
-    }).then(({ error }) => {
-      if (error) console.error('Analytics page_view error:', error);
-    });
+      metadata: {},
+    }).catch(() => {});
   }, [location.pathname, user?.id]);
 
   const trackEvent = useCallback((eventType: string, eventName: string, metadata?: Record<string, any>) => {
-    supabase.from('analytics_events').insert({
+    pb.collection('analytics_events').create({
       session_id: getSessionId(),
       user_id: user?.id || null,
       event_type: eventType,
       event_name: eventName,
       page_path: location.pathname,
       metadata: metadata || {},
-    }).then(({ error }) => {
-      if (error) console.error('Analytics event error:', error);
-    });
+    }).catch(() => {});
   }, [user?.id, location.pathname]);
 
   const trackClick = useCallback((buttonName: string, metadata?: Record<string, any>) => {
@@ -67,16 +62,13 @@ function getPageName(path: string): string {
   return segments.join('_') || 'home';
 }
 
-// Singleton tracker for use outside React components
 export function trackAnalyticsEvent(eventType: string, eventName: string, pagePath: string, userId?: string, metadata?: Record<string, any>) {
-  supabase.from('analytics_events').insert({
+  pb.collection('analytics_events').create({
     session_id: getSessionId(),
     user_id: userId || null,
     event_type: eventType,
     event_name: eventName,
     page_path: pagePath,
     metadata: metadata || {},
-  }).then(({ error }) => {
-    if (error) console.error('Analytics event error:', error);
-  });
+  }).catch(() => {});
 }
