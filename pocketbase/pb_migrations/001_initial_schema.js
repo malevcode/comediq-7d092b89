@@ -32,7 +32,7 @@ migrate((app) => {
     updateRule: "@request.auth.id = user",
     deleteRule: null,
   });
-  app.save(profiles);
+  app.saveCollection(profiles);
 
   // ─── OPEN MICS ────────────────────────────────────────────────────────────────
   const openMics = new Collection({
@@ -81,7 +81,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(openMics);
+  app.saveCollection(openMics);
 
   // ─── AUDIENCE SHOWS ──────────────────────────────────────────────────────────
   const audienceShows = new Collection({
@@ -135,7 +135,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(audienceShows);
+  app.saveCollection(audienceShows);
 
   // ─── VENUE SOURCES (affiliation registry) ────────────────────────────────────
   const venueSources = new Collection({
@@ -157,7 +157,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(venueSources);
+  app.saveCollection(venueSources);
 
   // ─── USER MIC RATINGS ────────────────────────────────────────────────────────
   const micRatings = new Collection({
@@ -175,7 +175,7 @@ migrate((app) => {
     updateRule: "@request.auth.id = user_id",
     deleteRule: "@request.auth.id = user_id",
   });
-  app.save(micRatings);
+  app.saveCollection(micRatings);
 
   // ─── PROFILE OPEN MICS (attendance log) ──────────────────────────────────────
   const profileOpenMics = new Collection({
@@ -195,7 +195,7 @@ migrate((app) => {
     updateRule: "@request.auth.id != ''",
     deleteRule: "@request.auth.id != ''",
   });
-  app.save(profileOpenMics);
+  app.saveCollection(profileOpenMics);
 
   // ─── PROFILE CUSTOM SHOWS ────────────────────────────────────────────────────
   const profileCustomShows = new Collection({
@@ -218,7 +218,7 @@ migrate((app) => {
     updateRule: "@request.auth.id != ''",
     deleteRule: "@request.auth.id != ''",
   });
-  app.save(profileCustomShows);
+  app.saveCollection(profileCustomShows);
 
   // ─── SAVED MICS ──────────────────────────────────────────────────────────────
   const savedMics = new Collection({
@@ -235,7 +235,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: "@request.auth.id = user_id",
   });
-  app.save(savedMics);
+  app.saveCollection(savedMics);
 
   // ─── ANALYTICS EVENTS ────────────────────────────────────────────────────────
   const analyticsEvents = new Collection({
@@ -255,7 +255,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(analyticsEvents);
+  app.saveCollection(analyticsEvents);
 
   // ─── USER VISITS ─────────────────────────────────────────────────────────────
   const userVisits = new Collection({
@@ -271,7 +271,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(userVisits);
+  app.saveCollection(userVisits);
 
   // ─── AD CLICKS ───────────────────────────────────────────────────────────────
   const adClicks = new Collection({
@@ -289,7 +289,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(adClicks);
+  app.saveCollection(adClicks);
 
   // ─── GCAL CLICKS ─────────────────────────────────────────────────────────────
   const gcalClicks = new Collection({
@@ -304,7 +304,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(gcalClicks);
+  app.saveCollection(gcalClicks);
 
   // ─── MIC VERIFICATIONS ───────────────────────────────────────────────────────
   const micVerifications = new Collection({
@@ -323,7 +323,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(micVerifications);
+  app.saveCollection(micVerifications);
 
   // ─── POINTS LEDGER ───────────────────────────────────────────────────────────
   const pointsLedger = new Collection({
@@ -342,7 +342,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(pointsLedger);
+  app.saveCollection(pointsLedger);
 
   // ─── COMEDIAN SOCIAL LINKS ───────────────────────────────────────────────────
   const comedianSocialLinks = new Collection({
@@ -361,7 +361,7 @@ migrate((app) => {
     updateRule: "@request.auth.id = user_id",
     deleteRule: "@request.auth.id = user_id",
   });
-  app.save(comedianSocialLinks);
+  app.saveCollection(comedianSocialLinks);
 
   // ─── USER NOTES ──────────────────────────────────────────────────────────────
   const userNotes = new Collection({
@@ -380,7 +380,7 @@ migrate((app) => {
     updateRule: "@request.auth.id = user_id",
     deleteRule: "@request.auth.id = user_id",
   });
-  app.save(userNotes);
+  app.saveCollection(userNotes);
 
   // ─── MIC PLAYLISTS ───────────────────────────────────────────────────────────
   const micPlaylists = new Collection({
@@ -399,7 +399,7 @@ migrate((app) => {
     updateRule: "@request.auth.id = user_id",
     deleteRule: "@request.auth.id = user_id",
   });
-  app.save(micPlaylists);
+  app.saveCollection(micPlaylists);
 
   // ─── MIC PLAYLIST ITEMS ──────────────────────────────────────────────────────
   const micPlaylistItems = new Collection({
@@ -418,7 +418,7 @@ migrate((app) => {
     updateRule: "@request.auth.id != ''",
     deleteRule: "@request.auth.id != ''",
   });
-  app.save(micPlaylistItems);
+  app.saveCollection(micPlaylistItems);
 
   // ─── OPEN MICS REQUESTS (submissions) ────────────────────────────────────────
   const openMicsRequests = new Collection({
@@ -458,7 +458,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(openMicsRequests);
+  app.saveCollection(openMicsRequests);
 
   // ─── MIC COMMENTS ────────────────────────────────────────────────────────────
   const micComments = new Collection({
@@ -476,7 +476,7 @@ migrate((app) => {
     updateRule: "@request.auth.id = user_id",
     deleteRule: "@request.auth.id = user_id",
   });
-  app.save(micComments);
+  app.saveCollection(micComments);
 
   // ─── MIC HOSTS ───────────────────────────────────────────────────────────────
   const micHosts = new Collection({
@@ -495,7 +495,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(micHosts);
+  app.saveCollection(micHosts);
 
   // ─── BANNER ADS ──────────────────────────────────────────────────────────────
   const bannerAds = new Collection({
@@ -523,7 +523,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(bannerAds);
+  app.saveCollection(bannerAds);
 
   // ─── WEEKLY TOP MICS ─────────────────────────────────────────────────────────
   const weeklyTopMics = new Collection({
@@ -548,7 +548,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(weeklyTopMics);
+  app.saveCollection(weeklyTopMics);
 
   // ─── MIC SIGNUP EVENTS ───────────────────────────────────────────────────────
   const micSignupEvents = new Collection({
@@ -574,7 +574,7 @@ migrate((app) => {
     updateRule: "@request.auth.id = host_id",
     deleteRule: null,
   });
-  app.save(micSignupEvents);
+  app.saveCollection(micSignupEvents);
 
   // ─── MIC SIGNUPS ─────────────────────────────────────────────────────────────
   const micSignups = new Collection({
@@ -597,7 +597,7 @@ migrate((app) => {
     updateRule: "@request.auth.id = user_id",
     deleteRule: "@request.auth.id = user_id",
   });
-  app.save(micSignups);
+  app.saveCollection(micSignups);
 
   // ─── SHOW RSVPS ──────────────────────────────────────────────────────────────
   const showRsvps = new Collection({
@@ -617,7 +617,7 @@ migrate((app) => {
     updateRule: "@request.auth.id = user_id",
     deleteRule: "@request.auth.id = user_id",
   });
-  app.save(showRsvps);
+  app.saveCollection(showRsvps);
 
   // ─── WAITLIST ────────────────────────────────────────────────────────────────
   const waitlist = new Collection({
@@ -638,7 +638,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(waitlist);
+  app.saveCollection(waitlist);
 
   // ─── GROWTH OPPORTUNITIES ────────────────────────────────────────────────────
   const growthOpps = new Collection({
@@ -667,7 +667,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(growthOpps);
+  app.saveCollection(growthOpps);
 
   // ─── MIC OF THE DAY ──────────────────────────────────────────────────────────
   const micOfTheDay = new Collection({
@@ -686,7 +686,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(micOfTheDay);
+  app.saveCollection(micOfTheDay);
 
   // ─── MOTD NOMINATIONS ────────────────────────────────────────────────────────
   const motdNominations = new Collection({
@@ -703,7 +703,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(motdNominations);
+  app.saveCollection(motdNominations);
 
   // ─── MOTD NOMINATION VOTES ───────────────────────────────────────────────────
   const motdVotes = new Collection({
@@ -720,7 +720,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: "@request.auth.id = user_id",
   });
-  app.save(motdVotes);
+  app.saveCollection(motdVotes);
 
   // ─── MOTD WEEKLY DEFAULTS ────────────────────────────────────────────────────
   const motdWeeklyDefaults = new Collection({
@@ -740,7 +740,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(motdWeeklyDefaults);
+  app.saveCollection(motdWeeklyDefaults);
 
   // ─── SAVED SHOWS (future feature) ────────────────────────────────────────────
   const savedShows = new Collection({
@@ -757,7 +757,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: "@request.auth.id = user_id",
   });
-  app.save(savedShows);
+  app.saveCollection(savedShows);
 
   // ─── SHOW REVIEWS (future feature) ───────────────────────────────────────────
   const showReviews = new Collection({
@@ -778,7 +778,7 @@ migrate((app) => {
     updateRule: "@request.auth.id = user_id",
     deleteRule: "@request.auth.id = user_id",
   });
-  app.save(showReviews);
+  app.saveCollection(showReviews);
 
   // ─── TICKET PURCHASES (future feature) ───────────────────────────────────────
   const ticketPurchases = new Collection({
@@ -801,7 +801,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(ticketPurchases);
+  app.saveCollection(ticketPurchases);
 
   // ─── WORK HISTORY (future feature) ───────────────────────────────────────────
   const workHistory = new Collection({
@@ -830,7 +830,7 @@ migrate((app) => {
     updateRule: null,
     deleteRule: null,
   });
-  app.save(workHistory);
+  app.saveCollection(workHistory);
 
 }, (app) => {
   // Down migration — drop all collections in reverse dependency order
@@ -849,7 +849,7 @@ migrate((app) => {
   for (const name of names) {
     try {
       const col = app.findCollectionByNameOrId(name);
-      app.delete(col);
+      app.deleteCollection(col);
     } catch (_) {}
   }
 });

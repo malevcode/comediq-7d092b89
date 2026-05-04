@@ -20,7 +20,7 @@ migrate((app) => {
     profilesCollection.fields.add(
       new Field({ name: "email", type: "email" })
     );
-    app.save(profilesCollection);
+    app.saveCollection(profilesCollection);
   }
 
   // Step 2 — link profiles to auth users by email (safe to re-run; skips already-linked rows)
@@ -45,7 +45,7 @@ migrate((app) => {
     if (!userId) continue;
 
     profile.set("user", userId);
-    app.save(profile);
+    app.saveCollection(profile);
     linked++;
   }
 
@@ -54,11 +54,11 @@ migrate((app) => {
   // Down — remove email field from profiles and unlink all user relations
   const profilesCollection = app.findCollectionByNameOrId("profiles");
   profilesCollection.fields.removeByName("email");
-  app.save(profilesCollection);
+  app.saveCollection(profilesCollection);
 
   const profiles = app.findAllRecords("profiles");
   for (const profile of profiles) {
     profile.set("user", "");
-    app.save(profile);
+    app.saveCollection(profile);
   }
 });
