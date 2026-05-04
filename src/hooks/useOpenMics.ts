@@ -2,12 +2,49 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic, MicStatus, MicFrequency, SignupMethod } from "@/types/openMic";
 
+const CACHE_KEY = "comediq_open_mics_v1";
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+function loadCached(): OpenMic[] | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const { data, savedAt } = JSON.parse(raw);
+    if (Date.now() - savedAt > CACHE_TTL_MS) return null;
+    return data as OpenMic[];
+  } catch {
+    return null;
+  }
+}
+
+function saveCache(data: OpenMic[]) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ data, savedAt: Date.now() }));
+  } catch {}
+}
+
 export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_historical") => {
+  const cached = loadCached();
+
   return useQuery({
     queryKey: ["openMics", tableName],
     queryFn: async (): Promise<OpenMic[]> => {
       console.log(`Fetching open mics from Supabase table: ${tableName}...`);
-      const { data, error } = await supabase.from(tableName).select("*").eq("active", true).neq("status", "pending");
+      let data: unknown[], error: unknown;
+      try {
+        const result = await supabase.from(tableName).select("*").eq("active", true).neq("status", "pending");
+        data = result.data ?? [];
+        error = result.error;
+      } catch (e) {
+        if (cached) return cached;
+        throw e;
+      }
+
+      if (error) {
+        console.error("Supabase error:", error);
+        if (cached) return cached;
+        throw error;
+      }
 
       if (error) {
         console.error("Supabase error:", error);
@@ -18,7 +55,7 @@ export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_histo
 
       if (!data || data.length === 0) {
         console.warn(`No data returned from ${tableName} table`);
-        return [];
+        return cached ?? [];
       }
 
       const mappedData = data.map((row: unknown) => {
@@ -61,8 +98,10 @@ export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_histo
       });
 
       console.log("Final mapped data count:", mappedData.length);
+      saveCache(mappedData);
       return mappedData;
     },
+    initialData: cached ?? undefined,
     staleTime: 10 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     refetchOnWindowFocus: false,
