@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { pb } from "@/integrations/pocketbase/client";
 import { OpenMic, MicStatus, MicFrequency, SignupMethod } from "@/types/openMic";
 
 const CACHE_KEY = "comediq_open_mics_v1";
@@ -23,81 +23,65 @@ function saveCache(data: OpenMic[]) {
   } catch {}
 }
 
+function mapRow(row: Record<string, unknown>): OpenMic {
+  return {
+    id: row["unique_identifier"] as string,
+    openMic: (row["open_mic"] as string) || "",
+    day: (row["day"] as string) || "",
+    startTime: (row["start_time"] as string) || "",
+    latestEndTime: (row["latest_end_time"] as string) || "",
+    venueName: (row["venue_name"] as string) || "",
+    borough: ((row["borough"] as string) || "").trim(),
+    neighborhood: (row["neighborhood"] as string) || "",
+    location: (row["location"] as string) || "",
+    venueType: (row["venue_type"] as string) || "",
+    cost: (row["cost"] as string) || "",
+    stageTime: (row["stage_time"] as string) || "",
+    signUpInstructions: (row["sign_up_instructions"] as string) || "",
+    hosts: (row["hosts_organizers"] as string) || "",
+    instagramHandle: (row["changes_updates"] as string) || "",
+    lastVerified: (row["last_verified"] as string) || "",
+    uniqueIdentifier: (row["unique_identifier"] as string) || "",
+    city: (row["city"] as string) || "",
+    signupEnabled: (row["signup_enabled"] as boolean) || false,
+    otherRules: (row["other_rules"] as string) || "",
+    coverImageUrl: (row["cover_image_url"] as string) || undefined,
+    status: (row["status"] as MicStatus) || "verified",
+    frequency: (row["frequency"] as MicFrequency) || "weekly",
+    verificationCount: (row["verification_count"] as number) || 0,
+    submissionDate: (row["submission_date"] as string) || undefined,
+    legacyTag: (row["legacy_tag"] as string) || undefined,
+    creatorId: (row["creator_id"] as string) || undefined,
+    signupMethod: (row["signup_method"] as SignupMethod) || undefined,
+    signupUrl: (row["signup_url"] as string) || undefined,
+    frequencyCustomText: (row["frequency_custom_text"] as string) || undefined,
+    slotsEnabled: (row["slots_enabled"] as boolean) || false,
+    slotDurationMinutes: (row["slot_duration_minutes"] as number) || 5,
+  };
+}
+
 export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_historical") => {
   const cached = loadCached();
 
   return useQuery({
     queryKey: ["openMics", tableName],
     queryFn: async (): Promise<OpenMic[]> => {
-      console.log(`Fetching open mics from Supabase table: ${tableName}...`);
-      let data: unknown[], error: unknown;
+      let rows: Record<string, unknown>[];
       try {
-        const result = await supabase.from(tableName).select("*").eq("active", true).neq("status", "pending");
-        data = result.data ?? [];
-        error = result.error;
+        rows = await pb.collection(tableName).getFullList({
+          filter: 'active = true && status != "pending"',
+          sort: "+day,+start_time",
+        }) as Record<string, unknown>[];
       } catch (e) {
         if (cached) return cached;
         throw e;
       }
 
-      if (error) {
-        console.error("Supabase error:", error);
-        if (cached) return cached;
-        throw error;
-      }
-
-      if (error) {
-        console.error("Supabase error:", error);
-        throw error;
-      }
-
-      console.log("Number of records fetched:", data?.length || 0);
-
-      if (!data || data.length === 0) {
-        console.warn(`No data returned from ${tableName} table`);
+      if (!rows || rows.length === 0) {
         return cached ?? [];
       }
 
-      const mappedData = data.map((row: unknown) => {
-        const mapped: OpenMic = {
-          id: row["unique_identifier"],
-          openMic: row["open_mic"] || "",
-          day: row["day"] || "",
-          startTime: row["start_time"] || "",
-          latestEndTime: row["latest_end_time"] || "",
-          venueName: row["venue_name"] || "",
-          borough: row["borough"]?.trim() || "",
-          neighborhood: row["neighborhood"] || "",
-          location: row["location"] || "",
-          venueType: row["venue_type"] || "",
-          cost: row["cost"] || "",
-          stageTime: row["stage_time"] || "",
-          signUpInstructions: row["sign_up_instructions"] || "",
-          hosts: row["hosts_organizers"] || "",
-          instagramHandle: row["changes_updates"] || "",
-          lastVerified: row["last_verified"] || "",
-          uniqueIdentifier: row["unique_identifier"] || "",
-          city: row["city"] || "",
-          signupEnabled: row["signup_enabled"] || false,
-          otherRules: row["other_rules"] || "",
-          coverImageUrl: row["cover_image_url"] || undefined,
-          // New fields
-          status: (row["status"] as MicStatus) || "verified",
-          frequency: (row["frequency"] as MicFrequency) || "weekly",
-          verificationCount: row["verification_count"] || 0,
-          submissionDate: row["submission_date"] || undefined,
-          legacyTag: row["legacy_tag"] || undefined,
-          creatorId: row["creator_id"] || undefined,
-          signupMethod: (row["signup_method"] as SignupMethod) || undefined,
-          signupUrl: row["signup_url"] || undefined,
-          frequencyCustomText: row["frequency_custom_text"] || undefined,
-          slotsEnabled: row["slots_enabled"] || false,
-          slotDurationMinutes: row["slot_duration_minutes"] || 5,
-        };
-        return mapped;
-      });
-
-      console.log("Final mapped data count:", mappedData.length);
+      const mappedData = rows.map(mapRow);
       saveCache(mappedData);
       return mappedData;
     },

@@ -1,7 +1,7 @@
 import PocketBase from 'pocketbase';
 
 // URL will be set via env var at build time. Falls back to local dev.
-const PB_URL = import.meta.env.VITE_POCKETBASE_URL || 'http://127.0.0.1:8090';
+const PB_URL = import.meta.env.VITE_POCKETBASE_URL || 'https://comediq-pb.fly.dev';
 
 export const pb = new PocketBase(PB_URL);
 
