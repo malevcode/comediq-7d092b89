@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles, Calendar, X, Upload, ListMusic } from 'lucide-react';
+import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles, Calendar, X, Upload, ListMusic, Mic } from 'lucide-react';
 import { PerformanceHeatmap } from '@/components/profile/PerformanceHeatmap';
 import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
@@ -26,13 +26,14 @@ import { useToast } from '@/hooks/use-toast';
 import BulkImportModal from '@/components/shows/BulkImportModal';
 import { useMicPlaylists } from '@/hooks/useMicPlaylists';
 import { PlaylistsTab } from '@/components/playlists';
-import { 
-  useComedianProfile, 
-  useUpdateProfile, 
+import {
+  useComedianProfile,
+  useUpdateProfile,
   useUploadHeadshot,
   useAddSocialLink,
-  useRemoveSocialLink 
+  useRemoveSocialLink
 } from '@/hooks/useComedianProfile';
+import { UserMicManagement } from '@/components/mic/UserMicManagement';
 
 const Profile = () => {
   const { user, signOut, loading } = useAuth();
@@ -109,10 +110,14 @@ const Profile = () => {
               onOpenChange={setShowBulkImport}
             />
 
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="profile">My Profile</TabsTrigger>
               <TabsTrigger value="work">Gigs</TabsTrigger>
               <TabsTrigger value="liked">Liked Mics</TabsTrigger>
+              <TabsTrigger value="mymics" className="gap-1">
+                <Mic className="h-3.5 w-3.5" />
+                My Mics
+              </TabsTrigger>
               <TabsTrigger value="playlists" className="gap-1">
                 <ListMusic className="h-3.5 w-3.5" />
                 Playlists{playlists.length > 0 && ` (${playlists.length})`}
@@ -200,6 +205,11 @@ const Profile = () => {
             {/* Work History Tab */}
             <TabsContent value="work" className="space-y-6">
               <WorkHistorySection userId={user.id} />
+            </TabsContent>
+
+            {/* My Mics Tab */}
+            <TabsContent value="mymics" className="space-y-6">
+              <UserMicManagement />
             </TabsContent>
 
             {/* Liked Mics Tab */}
