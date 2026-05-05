@@ -116,6 +116,14 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
   }
 }
 

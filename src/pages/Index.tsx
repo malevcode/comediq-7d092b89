@@ -17,7 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
 
 const Index = () => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const { data: topMics } = useTopRatedMics();
 
@@ -48,7 +48,7 @@ const Index = () => {
       <div className="min-h-screen pb-20 overflow-x-hidden">
         <PageHeader title="Comediq" subtitle="Comedy Starts Here" />
         <div className="pt-0">
-          {loading ? null : user ? (
+          {user ? (
             <Home />
           ) : (
             <>
