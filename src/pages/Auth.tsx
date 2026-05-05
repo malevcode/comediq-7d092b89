@@ -6,6 +6,7 @@ import PageHeader from '@/components/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { startClerkOAuth, type ClerkOAuthStrategy } from '@/lib/clerkOAuth';
 
 type Step = 'phone' | 'otp';
 type Flow = 'signin' | 'signup';
@@ -38,7 +39,7 @@ const Auth = () => {
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<'oauth_google' | 'oauth_apple' | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<ClerkOAuthStrategy | null>(null);
 
   useEffect(() => {
     if (user) navigate('/perform', { replace: true });
@@ -67,20 +68,26 @@ const Auth = () => {
     setError('');
 
     try {
+      console.log('Sending code to:', e164(phone));
       await signIn!.create({ identifier: e164(phone), strategy: 'phone_code' });
       setFlow('signin');
       setStep('otp');
     } catch (err: unknown) {
+      console.error('Clerk Sign In Error:', err);
       const clerkErr = err as { errors?: Array<{ code?: string; message?: string }> };
+      
+      // If user doesn't exist, try signing them up
       if (clerkErr?.errors?.[0]?.code === 'form_identifier_not_found') {
         try {
+          console.log('User not found, attempting signup for:', e164(phone));
           await signUp!.create({ phoneNumber: e164(phone) });
           await signUp!.preparePhoneNumberVerification({ strategy: 'phone_code' });
           setFlow('signup');
           setStep('otp');
         } catch (signUpErr: unknown) {
+          console.error('Clerk Sign Up Error:', signUpErr);
           const e = signUpErr as { errors?: Array<{ message?: string }> };
-          setError(e?.errors?.[0]?.message ?? 'Could not send code. Try again.');
+          setError(e?.errors?.[0]?.message ?? 'Could not send code. Ensure SMS is enabled in Clerk dashboard.');
         }
       } else {
         setError(clerkErr?.errors?.[0]?.message ?? 'Could not send code. Try again.');
@@ -111,23 +118,17 @@ const Auth = () => {
     }
   };
 
-  const handleOAuthSignIn = async (strategy: 'oauth_google' | 'oauth_apple') => {
-    if (!signInLoaded) return;
-
+  const handleOAuthSignIn = async (strategy: ClerkOAuthStrategy) => {
     setOauthLoading(strategy);
     setError('');
 
     try {
-      await signIn!.authenticateWithRedirect({
-        strategy,
-        redirectUrl: '/sso-callback',
-        redirectUrlComplete: '/perform',
-        continueSignIn: true,
-        continueSignUp: true,
-      });
+      console.log('Starting OAuth with strategy:', strategy);
+      await startClerkOAuth(signInLoaded ? signIn : null, strategy);
     } catch (err: unknown) {
+      console.error('Clerk OAuth Error:', err);
       const e = err as { errors?: Array<{ message?: string }> };
-      setError(e?.errors?.[0]?.message ?? 'Could not start sign in. Try again.');
+      setError(e?.errors?.[0]?.message ?? (err instanceof Error ? err.message : 'Could not start sign in. Try again.'));
       setOauthLoading(null);
     }
   };
@@ -157,7 +158,7 @@ const Auth = () => {
                   variant="outline"
                   className="w-full"
                   onClick={() => handleOAuthSignIn('oauth_google')}
-                  disabled={!signInLoaded || !!oauthLoading}
+                  disabled={!!oauthLoading}
                 >
                   <GoogleIcon />
                   {oauthLoading === 'oauth_google' ? 'Opening Google...' : 'Continue with Google'}
@@ -167,7 +168,7 @@ const Auth = () => {
                   variant="outline"
                   className="w-full"
                   onClick={() => handleOAuthSignIn('oauth_apple')}
-                  disabled={!signInLoaded || !!oauthLoading}
+                  disabled={!!oauthLoading}
                 >
                   <AppleIcon />
                   {oauthLoading === 'oauth_apple' ? 'Opening Apple...' : 'Continue with Apple'}
