@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { pb } from "@/integrations/pocketbase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { OpenMic, MicStatus, MicFrequency, SignupMethod } from "@/types/openMic";
 
 const CACHE_KEY = "comediq_open_mics_v1";
@@ -60,30 +61,69 @@ function mapRow(row: Record<string, unknown>): OpenMic {
   };
 }
 
+async function fetchFromPocketBase(tableName: string): Promise<OpenMic[]> {
+  const rows = (await pb.collection(tableName).getFullList({
+    filter: 'active = true && status != "pending"',
+    sort: "+day,+start_time",
+  })) as Record<string, unknown>[];
+  return (rows ?? []).map(mapRow);
+}
+
+async function fetchFromSupabase(tableName: string): Promise<OpenMic[]> {
+  // Page through Supabase since the default cap is 1000 (we currently have ~400)
+  const pageSize = 1000;
+  let from = 0;
+  const all: Record<string, unknown>[] = [];
+  // Cap at a few pages defensively
+  for (let i = 0; i < 5; i++) {
+    const { data, error } = await (supabase as any)
+      .from(tableName)
+      .select("*")
+      .eq("active", true)
+      .neq("status", "pending")
+      .range(from, from + pageSize - 1);
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+    all.push(...(data as Record<string, unknown>[]));
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+  return all.map(mapRow);
+}
+
 export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_historical") => {
   const cached = loadCached();
 
   return useQuery({
     queryKey: ["openMics", tableName],
     queryFn: async (): Promise<OpenMic[]> => {
-      let rows: Record<string, unknown>[];
+      // 1) Primary: PocketBase
       try {
-        rows = await pb.collection(tableName).getFullList({
-          filter: 'active = true && status != "pending"',
-          sort: "+day,+start_time",
-        }) as Record<string, unknown>[];
+        const pbRows = await fetchFromPocketBase(tableName);
+        if (pbRows.length > 0) {
+          saveCache(pbRows);
+          return pbRows;
+        }
       } catch (e) {
-        if (cached) return cached;
-        throw e;
+        console.warn("[useOpenMics] PocketBase fetch failed, trying Supabase fallback:", e);
       }
 
-      if (!rows || rows.length === 0) {
-        return cached ?? [];
+      // 2) Fallback: Supabase
+      try {
+        const sbRows = await fetchFromSupabase(tableName);
+        if (sbRows.length > 0) {
+          saveCache(sbRows);
+          return sbRows;
+        }
+      } catch (e) {
+        console.warn("[useOpenMics] Supabase fallback failed:", e);
       }
 
-      const mappedData = rows.map(mapRow);
-      saveCache(mappedData);
-      return mappedData;
+      // 3) Last resort: localStorage cache (may be empty)
+      if (cached && cached.length > 0) return cached;
+
+      // Throw so the UI can show its retry/empty state
+      throw new Error("All mic data sources unavailable");
     },
     initialData: cached ?? undefined,
     staleTime: 10 * 60 * 1000,
@@ -91,6 +131,6 @@ export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_histo
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     retry: 1,
-    retryDelay: 1000,
+    retryDelay: 1500,
   });
 };

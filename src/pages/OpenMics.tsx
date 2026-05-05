@@ -492,11 +492,15 @@ const OpenMics = () => {
     return <OpenMicsLoadingScreen />;
   }
 
-  if (error) {
+  if (error && openMics.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Error loading open mics</p>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <div className="text-4xl mb-3">🎤</div>
+          <p className="text-foreground font-semibold mb-1">Live mic data is temporarily unavailable</p>
+          <p className="text-sm text-muted-foreground mb-4">
+            Our backend is reconnecting. Please try again in a moment.
+          </p>
           <Button onClick={() => window.location.reload()} className="bg-orange-500 hover:bg-orange-600">
             Try Again
           </Button>
