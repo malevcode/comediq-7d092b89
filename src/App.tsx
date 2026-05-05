@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ClerkProvider } from "@clerk/react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { HelmetProvider } from 'react-helmet-async';
@@ -66,6 +67,7 @@ function PointsSyncWrapper({ children }: { children: React.ReactNode }) {
 }
 
 const App = () => (
+  <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <PointsSyncWrapper>
@@ -123,6 +125,7 @@ const App = () => (
       </PointsSyncWrapper>
     </AuthProvider>
   </QueryClientProvider>
+  </ClerkProvider>
 );
 
 export default App;
