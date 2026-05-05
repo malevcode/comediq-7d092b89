@@ -153,25 +153,20 @@ const Auth = () => {
                 <p className="text-muted-foreground text-sm">Enter your phone number to continue</p>
               </div>
               <div className="space-y-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => handleOAuthSignIn('oauth_google')}
-                  disabled={!!oauthLoading}
+                  disabled={!!oauthLoading || !signInLoaded}
                 >
                   <GoogleIcon />
-                  {oauthLoading === 'oauth_google' ? 'Opening Google...' : 'Continue with Google'}
+                  {!signInLoaded ? 'Loading...' : oauthLoading === 'oauth_google' ? 'Opening Google...' : 'Continue with Google'}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   className="w-full"
                   onClick={() => handleOAuthSignIn('oauth_apple')}
-                  disabled={!!oauthLoading}
+                  disabled={!!oauthLoading || !signInLoaded}
                 >
                   <AppleIcon />
-                  {oauthLoading === 'oauth_apple' ? 'Opening Apple...' : 'Continue with Apple'}
+                  {!signInLoaded ? 'Loading...' : oauthLoading === 'oauth_apple' ? 'Opening Apple...' : 'Continue with Apple'}
                 </Button>
                 <div className="flex items-center gap-3 text-xs uppercase text-muted-foreground">
                   <div className="h-px flex-1 bg-border" />

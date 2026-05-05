@@ -12,7 +12,7 @@ export async function startClerkOAuth(
   strategy: ClerkOAuthStrategy,
 ) {
   if (!signIn?.authenticateWithRedirect) {
-    throw new Error('Sign-in is still loading. Check the Clerk publishable key if this keeps happening.');
+    throw new Error('Clerk is still initializing. Please wait a moment and try again.');
   }
 
   await signIn.authenticateWithRedirect({
