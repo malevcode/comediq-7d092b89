@@ -86,6 +86,8 @@ export default function AddShow() {
       recurrence_day: null,
       parent_show_id: null,
       is_active: true,
+      source: 'user',
+      source_event_id: null,
     });
   };
 

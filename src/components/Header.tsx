@@ -11,10 +11,10 @@ function useUserProfile(userId) {
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("username, avatar_url, level")
+        .select("username, headshot_url")
         .eq("user_id", userId)
-        .single();
-      return data ?? null;
+        .maybeSingle();
+      return (data as { username?: string; headshot_url?: string } | null) ?? null;
     },
     enabled: !!userId,
     staleTime: 10 * 60 * 1000,
@@ -51,8 +51,8 @@ export default function Header({ className = "", showEmail = true, showLevel = t
 
   // Fallbacks
   const displayName = profile?.username || user?.email?.split("@")[0] || "Comedian";
-  const avatarUrl = profile?.avatar_url || "/lovable-uploads/fc65b384-6c71-4c5e-9c70-52716864f5ad.png";
-  const level = profile?.level || "Rising Star";
+  const avatarUrl = profile?.headshot_url || "/lovable-uploads/fc65b384-6c71-4c5e-9c70-52716864f5ad.png";
+  const level = "Rising Star";
 
   return (
     <div className={`bg-white/80 backdrop-blur rounded-xl p-6 shadow-sm ${className}`}>
