@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { GrowthOpportunity } from "@/api/growthOpportunities";
 
 const typeConfig = {
-  barking: { icon: Megaphone, color: "bg-blue-100 text-blue-800", label: "Barking" },
+  barking: { icon: Megaphone, color: "bg-blue-100 text-blue-800", label: "Booking" },
   festival: { icon: Trophy, color: "bg-purple-100 text-purple-800", label: "Festival" },
   school_ad: { icon: GraduationCap, color: "bg-amber-100 text-amber-800", label: "Training" },
   podcast: { icon: Headphones, color: "bg-green-100 text-green-800", label: "Podcast" },

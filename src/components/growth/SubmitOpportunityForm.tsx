@@ -104,16 +104,16 @@ export function SubmitOpportunityForm() {
             <Select value={form.type} onValueChange={(v) => update('type', v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
+                <SelectItem value="barking">Booking Opportunity</SelectItem>
                 <SelectItem value="podcast">Podcast</SelectItem>
                 <SelectItem value="school_ad">Training / School</SelectItem>
-                <SelectItem value="barking">Barking Gig</SelectItem>
                 <SelectItem value="festival">Festival / Event</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div>
             <Label>Title *</Label>
-            <Input value={form.title} onChange={e => update('title', e.target.value)} placeholder={isPodcast ? "e.g. Likeable with David Stickle" : "e.g. Barker needed for Saturday show"} />
+              <Input value={form.title} onChange={e => update('title', e.target.value)} placeholder={isPodcast ? "e.g. Likeable with David Stickle" : "e.g. Comic needed for Saturday show"} />
           </div>
           <div>
             <Label>Description</Label>

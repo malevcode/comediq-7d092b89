@@ -134,7 +134,7 @@ export default function AdminGrowthManager() {
                 <span className="text-xs text-muted-foreground">
                   Listed {new Date(opp.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </span>
-                <Badge variant="outline" className="text-xs">{opp.type}</Badge>
+                <Badge variant="outline" className="text-xs">{opp.type === 'barking' ? 'booking' : opp.type}</Badge>
                 <Badge className={statusColors[(opp.status as GrowthOpportunityStatus) || 'submitted']}>
                   {(opp.status as string) || 'submitted'}
                 </Badge>

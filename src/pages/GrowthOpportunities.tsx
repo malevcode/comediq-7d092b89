@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { Megaphone, Trophy, GraduationCap, Search, Clock, CheckCircle, XCircle, AlertCircle, ExternalLink, Podcast } from "lucide-react";
+import { Megaphone, Trophy, GraduationCap, Search, Clock, CheckCircle, XCircle, AlertCircle, Podcast } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +9,7 @@ import { SubmitOpportunityForm } from "@/components/growth/SubmitOpportunityForm
 import { useGrowthOpportunities, useMyGrowthSubmissions } from "@/hooks/useGrowthOpportunities";
 import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
-import type { GrowthOpportunityStatus } from "@/api/growthOpportunities";
+import type { GrowthOpportunity, GrowthOpportunityStatus } from "@/api/growthOpportunities";
 
 const statusConfig: Record<GrowthOpportunityStatus, { label: string; icon: any; className: string }> = {
   submitted: { label: 'Submitted', icon: Clock, className: 'bg-muted text-muted-foreground' },
@@ -21,16 +19,41 @@ const statusConfig: Record<GrowthOpportunityStatus, { label: string; icon: any; 
 };
 
 const GrowthOpportunities = () => {
-  const [tab, setTab] = useState("podcasts");
+  const [tab, setTab] = useState("booking");
   const { user } = useAuth();
 
-  const typeMap = { barking: 'barking' as const, festivals: 'festival' as const, training: 'school_ad' as const, podcasts: 'podcast' as const };
+  const typeMap = { booking: 'barking' as const, festivals: 'festival' as const, training: 'school_ad' as const, podcasts: 'podcast' as const };
   const currentType = typeMap[tab as keyof typeof typeMap];
   const { data: opportunities, isLoading } = useGrowthOpportunities(currentType);
   const { data: mySubmissions } = useMyGrowthSubmissions(user?.id);
+  const bookingOpportunities: GrowthOpportunity[] = [
+    {
+      id: 'east-village-garden-cinco-de-mayo-2026',
+      type: 'barking',
+      title: 'East Village Garden Pop Up Cinco de Mayo Show',
+      description: 'Stand up comedy from 6:30-8 pm, followed by an outdoor film screening from 8-9 pm. Optional donations and volunteer time support the community garden.',
+      venue_name: 'El Sol Brillante Garden',
+      borough: 'Manhattan',
+      date: '2026-05-05',
+      time: '6:30 PM',
+      compensation: 'Booking opportunity',
+      contact_info: '12th Street between Ave A & B',
+      external_url: null,
+      image_url: null,
+      is_featured: true,
+      is_active: true,
+      status: 'approved',
+      submitted_by: null,
+      contact_id: null,
+      created_at: '2026-05-05T00:00:00.000Z',
+      updated_at: '2026-05-05T00:00:00.000Z',
+    },
+    ...(opportunities ?? []),
+  ];
+  const visibleOpportunities = tab === 'booking' ? bookingOpportunities : opportunities;
 
   const emptyMessages = {
-    barking: { title: "No barking gigs yet", sub: "Check back soon or post one yourself!" },
+    booking: { title: "No booking opportunities yet", sub: "Check back soon or post one yourself!" },
     festivals: { title: "No festivals listed yet", sub: "Know about a comedy festival? Submit it!" },
     training: { title: "No training opportunities yet", sub: "Comedy schools and coaches — advertise here!" },
     podcasts: { title: "No podcasts listed yet", sub: "Know a great comedy podcast? Submit it!" },
@@ -40,8 +63,8 @@ const GrowthOpportunities = () => {
     <>
       <SEO
         title="Growth Opportunities - Level Up Your Comedy"
-        description="Find barking gigs, comedy festivals, and training opportunities to grow your comedy career in NYC."
-        keywords="comedy growth, barking gigs, comedy festivals, comedy schools, comedy training, NYC comedy"
+        description="Find booking opportunities, comedy festivals, podcasts, and training opportunities to grow your comedy career in NYC."
+        keywords="comedy growth, booking opportunities, comedy festivals, comedy schools, comedy training, NYC comedy"
       />
       <div className="min-h-screen bg-background pb-20">
         <PageHeader title="Growth" subtitle="Level up your comedy career" />
@@ -50,21 +73,21 @@ const GrowthOpportunities = () => {
           {/* Submit CTA */}
           <div className="mb-6 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Barking gigs, festivals, and training resources for comedians.
+              Booking opportunities, podcasts, festivals, and training resources for comedians.
             </p>
             <SubmitOpportunityForm />
           </div>
 
           <Tabs value={tab} onValueChange={setTab} className="w-full">
             <TabsList className="w-full grid grid-cols-4">
+              <TabsTrigger value="booking" className="flex items-center gap-1 text-xs sm:text-sm">
+                <Megaphone className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Booking
+              </TabsTrigger>
               <TabsTrigger value="podcasts" className="flex items-center gap-1 text-xs sm:text-sm">
                 <Podcast className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Podcasts
               </TabsTrigger>
               <TabsTrigger value="training" className="flex items-center gap-1 text-xs sm:text-sm">
                 <GraduationCap className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Training
-              </TabsTrigger>
-              <TabsTrigger value="barking" className="flex items-center gap-1 text-xs sm:text-sm">
-                <Megaphone className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Barking
               </TabsTrigger>
               <TabsTrigger value="festivals" className="flex items-center gap-1 text-xs sm:text-sm">
                 <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Festivals
@@ -79,9 +102,9 @@ const GrowthOpportunities = () => {
                     <Skeleton key={i} className="h-48 rounded-lg" />
                   ))}
                 </div>
-              ) : opportunities && opportunities.length > 0 ? (
+              ) : visibleOpportunities && visibleOpportunities.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  {opportunities.map((opp) => (
+                  {visibleOpportunities.map((opp) => (
                     <OpportunityCard key={opp.id} opportunity={opp} />
                   ))}
                 </div>
@@ -94,17 +117,17 @@ const GrowthOpportunities = () => {
               )}
             </TabsContent>
 
-            {["barking", "festivals", "podcasts"].map((t) => (
+            {["booking", "festivals", "podcasts"].map((t) => (
               <TabsContent key={t} value={t}>
-                {isLoading && tab === t ? (
+                {isLoading && tab === t && t !== 'booking' ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     {[...Array(4)].map((_, i) => (
                       <Skeleton key={i} className="h-48 rounded-lg" />
                     ))}
                   </div>
-                ) : opportunities && opportunities.length > 0 ? (
+                ) : visibleOpportunities && visibleOpportunities.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    {opportunities.map((opp) => (
+                    {visibleOpportunities.map((opp) => (
                       <OpportunityCard key={opp.id} opportunity={opp} />
                     ))}
                   </div>
