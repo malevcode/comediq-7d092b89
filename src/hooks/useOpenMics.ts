@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { pb } from "@/integrations/pocketbase/client";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic, MicStatus, MicFrequency, SignupMethod } from "@/types/openMic";
 
@@ -61,14 +60,6 @@ function mapRow(row: Record<string, unknown>): OpenMic {
   };
 }
 
-async function fetchFromPocketBase(tableName: string): Promise<OpenMic[]> {
-  const rows = (await pb.collection(tableName).getFullList({
-    filter: 'active = true && status != "pending"',
-    sort: "+day,+start_time",
-  })) as Record<string, unknown>[];
-  return (rows ?? []).map(mapRow);
-}
-
 async function fetchFromSupabase(tableName: string): Promise<OpenMic[]> {
   // Page through Supabase since the default cap is 1000 (we currently have ~400)
   const pageSize = 1000;
@@ -97,33 +88,20 @@ export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_histo
   return useQuery({
     queryKey: ["openMics", tableName],
     queryFn: async (): Promise<OpenMic[]> => {
-      // 1) Primary: PocketBase
       try {
-        const pbRows = await fetchFromPocketBase(tableName);
-        if (pbRows.length > 0) {
-          saveCache(pbRows);
-          return pbRows;
+        const rows = await fetchFromSupabase(tableName);
+        if (rows.length > 0) {
+          saveCache(rows);
+          return rows;
         }
       } catch (e) {
-        console.warn("[useOpenMics] PocketBase fetch failed, trying Supabase fallback:", e);
+        console.warn("[useOpenMics] Supabase fetch failed:", e);
       }
 
-      // 2) Fallback: Supabase
-      try {
-        const sbRows = await fetchFromSupabase(tableName);
-        if (sbRows.length > 0) {
-          saveCache(sbRows);
-          return sbRows;
-        }
-      } catch (e) {
-        console.warn("[useOpenMics] Supabase fallback failed:", e);
-      }
-
-      // 3) Last resort: localStorage cache (may be empty)
+      // Fallback: localStorage cache
       if (cached && cached.length > 0) return cached;
 
-      // Throw so the UI can show its retry/empty state
-      throw new Error("All mic data sources unavailable");
+      throw new Error("Mic data unavailable");
     },
     initialData: cached ?? undefined,
     staleTime: 10 * 60 * 1000,
