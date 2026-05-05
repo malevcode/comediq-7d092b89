@@ -2,6 +2,7 @@ import { Calendar, MapPin, DollarSign, ExternalLink, Megaphone, Trophy, Graduati
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { BookingSignupDialog } from "@/components/growth/BookingSignupDialog";
 import type { GrowthOpportunity } from "@/api/growthOpportunities";
 
 const typeConfig = {
@@ -24,12 +25,12 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
       className={`hover:shadow-md transition-shadow ${opportunity.is_featured ? "border-primary/40 ring-1 ring-primary/20" : ""}`}
     >
       <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-2 min-w-0">
             <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-            <CardTitle className="text-base leading-tight truncate">{opportunity.title}</CardTitle>
+            <CardTitle className="text-base leading-tight break-words">{opportunity.title}</CardTitle>
           </div>
-          <div className="flex gap-1 shrink-0">
+          <div className="flex flex-wrap gap-1 shrink-0">
             {opportunity.is_featured && (
               <Badge variant="default" className="text-xs">
                 Featured
@@ -79,6 +80,10 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
               <ExternalLink className="h-3 w-3 mr-1" /> Learn More
             </a>
           </Button>
+        )}
+
+        {opportunity.type === "barking" && (
+          <BookingSignupDialog opportunity={opportunity} />
         )}
       </CardContent>
     </Card>
