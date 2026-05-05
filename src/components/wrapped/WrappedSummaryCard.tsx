@@ -23,7 +23,7 @@ const WrappedSummaryCard = ({ stats, stageName, year = 2025 }: WrappedSummaryCar
       {/* Header */}
       <div className="text-center mb-3">
         <p className="text-comediq-cream/50 text-[9px] tracking-widest font-nunito mb-0.5">EST. 2025</p>
-        <h2 className="font-fredoka text-xl font-bold tracking-tight">COMEDIQ</h2>
+        <h2 className="font-fredoka text-xl font-bold tracking-tight">Comediq</h2>
         <p className="text-comediq-cream/80 text-[11px] font-fredoka font-medium">WRAPPED {year}</p>
       </div>
 

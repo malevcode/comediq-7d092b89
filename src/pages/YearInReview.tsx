@@ -93,7 +93,7 @@ const YearInReview = () => {
           <div className="text-center space-y-8 animate-fade-in">
             <div className="text-7xl mb-6 animate-bounce">🎤</div>
             <h1 className="font-fredoka text-5xl md:text-6xl text-comediq-cream tracking-tight">
-              COMEDIQ
+              Comediq
             </h1>
             <div className="font-fredoka text-6xl md:text-7xl text-yellow-300 font-bold">
               2025

@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ClerkProvider } from "@clerk/react";
+import { AuthenticateWithRedirectCallback, ClerkProvider } from "@clerk/react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { HelmetProvider } from 'react-helmet-async';
@@ -88,6 +88,7 @@ const App = () => (
                     <Route path="/track-sets" element={<ProgressTrackerPage />} />
                     <Route path="/shows" element={<TabProvider><Shows /></TabProvider>} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/sso-callback" element={<AuthenticateWithRedirectCallback />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/admintest" element={<AdminInterface />} />
                     <Route path="/playlists" element={<Playlists />} />

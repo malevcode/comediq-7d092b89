@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSignIn, useSignUp } from '@clerk/react';
+import { Apple } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
@@ -22,6 +23,7 @@ const Auth = () => {
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<'oauth_google' | 'oauth_apple' | null>(null);
 
   useEffect(() => {
     if (user) navigate('/perform', { replace: true });
@@ -94,6 +96,27 @@ const Auth = () => {
     }
   };
 
+  const handleOAuthSignIn = async (strategy: 'oauth_google' | 'oauth_apple') => {
+    if (!signInLoaded) return;
+
+    setOauthLoading(strategy);
+    setError('');
+
+    try {
+      await signIn!.authenticateWithRedirect({
+        strategy,
+        redirectUrl: '/sso-callback',
+        redirectUrlComplete: '/perform',
+        continueSignIn: true,
+        continueSignUp: true,
+      });
+    } catch (err: unknown) {
+      const e = err as { errors?: Array<{ message?: string }> };
+      setError(e?.errors?.[0]?.message ?? 'Could not start sign in. Try again.');
+      setOauthLoading(null);
+    }
+  };
+
   const handleResend = async () => {
     setOtp('');
     setError('');
@@ -108,8 +131,37 @@ const Auth = () => {
           {step === 'phone' ? (
             <div className="space-y-6">
               <div className="text-center space-y-1">
-                <h1 className="text-2xl font-bold">Welcome to ComedIQ</h1>
+                <h1 className="text-2xl font-bold">Welcome to Comediq</h1>
                 <p className="text-muted-foreground text-sm">Enter your phone number to continue</p>
+              </div>
+              <div className="space-y-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => handleOAuthSignIn('oauth_google')}
+                  disabled={!signInLoaded || !!oauthLoading}
+                >
+                  <span className="flex h-4 w-4 items-center justify-center font-semibold text-[15px] leading-none text-[#4285F4]">
+                    G
+                  </span>
+                  {oauthLoading === 'oauth_google' ? 'Opening Google...' : 'Continue with Google'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => handleOAuthSignIn('oauth_apple')}
+                  disabled={!signInLoaded || !!oauthLoading}
+                >
+                  <Apple className="h-4 w-4" aria-hidden="true" />
+                  {oauthLoading === 'oauth_apple' ? 'Opening Apple...' : 'Continue with Apple'}
+                </Button>
+                <div className="flex items-center gap-3 text-xs uppercase text-muted-foreground">
+                  <div className="h-px flex-1 bg-border" />
+                  <span>or</span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
               </div>
               <div className="space-y-3">
                 <div className="flex gap-2">
@@ -133,7 +185,7 @@ const Auth = () => {
                   onClick={handleSendCode}
                   disabled={sending || !signInLoaded || !signUpLoaded}
                 >
-                  {sending ? 'Sending…' : 'Send code'}
+                  {sending ? 'Sending...' : 'Send code'}
                 </Button>
               </div>
             </div>
@@ -168,7 +220,7 @@ const Auth = () => {
                   onClick={handleVerifyOtp}
                   disabled={verifying || otp.length < 6}
                 >
-                  {verifying ? 'Verifying…' : 'Continue'}
+                  {verifying ? 'Verifying...' : 'Continue'}
                 </Button>
                 <button
                   type="button"

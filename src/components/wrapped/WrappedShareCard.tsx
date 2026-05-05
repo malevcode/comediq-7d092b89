@@ -30,7 +30,7 @@ const WrappedShareCard = ({
     >
       {/* Top Section: Header + 2025 */}
       <div className="flex justify-between items-start">
-        {/* YOUR COMEDIQ - left aligned */}
+        {/* YOUR Comediq - left aligned */}
         <div>
           <p 
             className="font-bold tracking-wide text-white/90 leading-none"
@@ -42,7 +42,7 @@ const WrappedShareCard = ({
             className="font-bold tracking-tight leading-none"
             style={{ fontSize: 'clamp(24px, 8%, 40px)' }}
           >
-            COMEDIQ
+            Comediq
           </p>
         </div>
         
@@ -165,7 +165,7 @@ const WrappedShareCard = ({
           className="font-bold tracking-wider text-white/60"
           style={{ fontSize: 'clamp(10px, 3%, 16px)' }}
         >
-          COMEDIQ.COM/WRAPPED
+          Comediq.com/wrapped
         </p>
       </div>
     </div>

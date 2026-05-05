@@ -101,7 +101,7 @@ const Wrapped = () => {
         <div className="relative z-10 flex flex-col items-center">
           <div className="text-6xl mb-6 animate-float">🎤</div>
           <h1 className="font-fredoka text-5xl font-bold text-comediq-cream text-center mb-4 tracking-tight">
-            COMEDIQ
+            Comediq
           </h1>
           <p className="font-fredoka text-2xl text-comediq-cream/80 mb-8 text-center">
             WRAPPED {YEAR}
@@ -178,7 +178,7 @@ const Wrapped = () => {
               <div className="text-8xl mb-8 animate-float">🎤</div>
               <p className="font-nunito text-lg text-comediq-cream/60 tracking-widest mb-2">EST. 2025</p>
               <h1 className="font-fredoka text-6xl md:text-8xl font-bold text-comediq-cream text-center mb-2 tracking-tight">
-                COMEDIQ
+                Comediq
               </h1>
               <p className="font-fredoka text-3xl md:text-4xl text-comediq-cream/90 font-medium text-center mb-8">
                 WRAPPED {YEAR}
