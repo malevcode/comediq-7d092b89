@@ -54,9 +54,8 @@ const Auth = () => {
 
   const isLoaded = signInLoaded || signUpLoaded || forceLoaded;
 
-  // Use the clerk client directly as a fallback
-  const finalSignIn = signInLoaded ? signIn : clerk.client.signIn;
-  const finalSignUp = signUpLoaded ? signUp : clerk.client.signUp;
+  const finalSignIn = signIn;
+  const finalSignUp = signUp;
 
   useEffect(() => {
     if (user) navigate('/perform', { replace: true });
