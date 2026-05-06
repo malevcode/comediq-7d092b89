@@ -54,6 +54,10 @@ const Auth = () => {
 
   const isLoaded = signInLoaded || signUpLoaded || forceLoaded;
 
+  // Use the clerk client directly as a fallback
+  const finalSignIn = signInLoaded ? signIn : clerk.client.signIn;
+  const finalSignUp = signUpLoaded ? signUp : clerk.client.signUp;
+
   useEffect(() => {
     if (user) navigate('/perform', { replace: true });
   }, [user, navigate]);
@@ -75,14 +79,14 @@ const Auth = () => {
       setError('Enter a valid 10-digit US phone number');
       return;
     }
-    if (!signInLoaded || !signUpLoaded) return;
+    if (!isLoaded || !finalSignIn) return;
 
     setSending(true);
     setError('');
 
     try {
       console.log('Sending code to:', e164(phone));
-      await signIn!.create({ identifier: e164(phone), strategy: 'phone_code' });
+      await finalSignIn!.create({ identifier: e164(phone), strategy: 'phone_code' });
       setFlow('signin');
       setStep('otp');
     } catch (err: unknown) {
@@ -93,8 +97,8 @@ const Auth = () => {
       if (clerkErr?.errors?.[0]?.code === 'form_identifier_not_found') {
         try {
           console.log('User not found, attempting signup for:', e164(phone));
-          await signUp!.create({ phoneNumber: e164(phone) });
-          await signUp!.preparePhoneNumberVerification({ strategy: 'phone_code' });
+          await finalSignUp!.create({ phoneNumber: e164(phone) });
+          await finalSignUp!.preparePhoneNumberVerification({ strategy: 'phone_code' });
           setFlow('signup');
           setStep('otp');
         } catch (signUpErr: unknown) {
@@ -116,10 +120,10 @@ const Auth = () => {
     setError('');
     try {
       if (flow === 'signin') {
-        const result = await signIn!.attemptFirstFactor({ strategy: 'phone_code', code: otp });
+        const result = await finalSignIn!.attemptFirstFactor({ strategy: 'phone_code', code: otp });
         if (result.status === 'complete') navigate('/perform', { replace: true });
       } else {
-        const result = await signUp!.attemptPhoneNumberVerification({ code: otp });
+        const result = await finalSignUp!.attemptPhoneNumberVerification({ code: otp });
         if (result.status === 'complete') navigate('/perform', { replace: true });
       }
     } catch (err: unknown) {
@@ -137,7 +141,7 @@ const Auth = () => {
 
     try {
       console.log('Starting OAuth with strategy:', strategy);
-      await startClerkOAuth(signInLoaded ? signIn : null, strategy);
+      await startClerkOAuth(finalSignIn, strategy);
     } catch (err: unknown) {
       console.error('Clerk OAuth Error:', err);
       const e = err as { errors?: Array<{ message?: string }> };
