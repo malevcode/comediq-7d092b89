@@ -1,4 +1,4 @@
-import { Ticket, Sparkles } from "lucide-react";
+import { Tickets, Sparkles } from "lucide-react";
 
 const ShowTNPromo = () => {
   return (
@@ -20,20 +20,21 @@ const ShowTNPromo = () => {
 
             <div className="bg-white/10 rounded-2xl p-5 sm:p-6 w-full max-w-xl mb-6 border border-white/10">
               <div className="flex items-center justify-center gap-3 mb-3">
-                <Ticket className="w-6 h-6 text-yellow-300" />
+                <Tickets className="w-6 h-6 text-xs font-mono rounded-sm bg-destructive-foreground text-primary-foreground" />
                 <span className="text-2xl sm:text-3xl font-bold">
-                  Starting at $18/month
+                  Starting at $10/month
                 </span>
               </div>
-              <p className="text-sm sm:text-base text-blue-100">
-                Real tickets to <strong>2 pro shows</strong> every month — top clubs, bar popups, and underground venues across NYC.
+              <p className="text-sm sm:text-base text-blue-100 whitespace-pre-line">
+                Real tickets to pro shows every month at...{"\n"}
+                top clubs, bar popups, and underground venues across NYC
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-xl mb-6 text-left">
               <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                 <p className="text-xs uppercase tracking-wide text-blue-200 mb-1 font-semibold">Free Tier</p>
-                <p className="text-sm sm:text-base">Top open mics & shows in your zip code</p>
+                <p className="text-sm sm:text-base">Top open mics in your zip code</p>
               </div>
               <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                 <p className="text-xs uppercase tracking-wide text-yellow-300 mb-1 font-semibold">Paid Tier</p>
