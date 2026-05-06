@@ -2,16 +2,16 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic, MicStatus, MicFrequency, SignupMethod } from "@/types/openMic";
 
-const CACHE_KEY = "comediq_open_mics_v1";
-const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const CACHE_KEY = "comediq_open_mics_v2"; // bumped to bust stale 7-day caches
+const CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
 
-function loadCached(): OpenMic[] | null {
+function loadCached(): { data: OpenMic[]; savedAt: number } | null {
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
     const { data, savedAt } = JSON.parse(raw);
     if (Date.now() - savedAt > CACHE_TTL_MS) return null;
-    return data as OpenMic[];
+    return { data: data as OpenMic[], savedAt };
   } catch {
     return null;
   }
@@ -99,15 +99,16 @@ export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_histo
       }
 
       // Fallback: localStorage cache
-      if (cached && cached.length > 0) return cached;
+      if (cached && cached.data.length > 0) return cached.data;
 
       throw new Error("Mic data unavailable");
     },
-    initialData: cached ?? undefined,
+    initialData: cached?.data ?? undefined,
+    initialDataUpdatedAt: cached?.savedAt ?? 0,
     staleTime: 10 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: true,
     retry: 1,
     retryDelay: 1500,
   });
