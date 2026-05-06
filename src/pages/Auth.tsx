@@ -153,6 +153,11 @@ const Auth = () => {
                 <p className="text-muted-foreground text-sm">Enter your phone number to continue</p>
               </div>
               <div className="space-y-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => handleOAuthSignIn('oauth_google')}
                   disabled={!!oauthLoading || !signInLoaded}
                 >
                   <GoogleIcon />
