@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSignIn, useSignUp } from '@clerk/react';
+import { useSignIn, useSignUp, useClerk } from '@clerk/react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import PageHeader from '@/components/PageHeader';
@@ -29,6 +29,7 @@ const AppleIcon = () => (
 const Auth = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const clerk = useClerk();
   const { signIn, isLoaded: signInLoaded } = useSignIn();
   const { signUp, isLoaded: signUpLoaded } = useSignUp();
 
@@ -54,8 +55,8 @@ const Auth = () => {
 
   const isLoaded = signInLoaded || signUpLoaded || forceLoaded;
 
-  const finalSignIn = signIn;
-  const finalSignUp = signUp;
+  const finalSignIn = signIn ?? clerk.client?.signIn;
+  const finalSignUp = signUp ?? clerk.client?.signUp;
 
   useEffect(() => {
     if (user) navigate('/perform', { replace: true });
@@ -114,7 +115,7 @@ const Auth = () => {
   };
 
   const handleVerifyOtp = async () => {
-    if (!signInLoaded || !signUpLoaded) return;
+    if (!isLoaded) return;
     setVerifying(true);
     setError('');
     try {
