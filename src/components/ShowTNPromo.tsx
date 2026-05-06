@@ -25,8 +25,9 @@ const ShowTNPromo = () => {
                   Starting at $10/month
                 </span>
               </div>
-              <p className="text-sm sm:text-base text-blue-100 whitespace-pre-line">
-                Real tickets to pro shows every month at...{"\n"}
+              <p className="text-sm sm:text-base text-blue-100">
+                Real tickets to pro shows every month at...
+                <br />
                 top clubs, bar popups, and underground venues across NYC
               </p>
             </div>
