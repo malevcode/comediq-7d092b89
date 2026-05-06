@@ -40,6 +40,19 @@ const Auth = () => {
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<ClerkOAuthStrategy | null>(null);
+  const [forceLoaded, setForceLoaded] = useState(false);
+
+  // Diagnostic logging
+  useEffect(() => {
+    console.log('Auth Hook Status:', { signInLoaded, signUpLoaded, authLoading: !user && !signInLoaded });
+    const timer = setTimeout(() => {
+      console.log('Forcing load state after timeout');
+      setForceLoaded(true);
+    }, 3500);
+    return () => clearTimeout(timer);
+  }, [signInLoaded, signUpLoaded]);
+
+  const isLoaded = signInLoaded || signUpLoaded || forceLoaded;
 
   useEffect(() => {
     if (user) navigate('/perform', { replace: true });
@@ -158,20 +171,20 @@ const Auth = () => {
                   variant="outline"
                   className="w-full"
                   onClick={() => handleOAuthSignIn('oauth_google')}
-                  disabled={!!oauthLoading || !signInLoaded}
+                  disabled={!!oauthLoading || !isLoaded}
                 >
                   <GoogleIcon />
-                  {!signInLoaded ? 'Loading...' : oauthLoading === 'oauth_google' ? 'Opening Google...' : 'Continue with Google'}
+                  {!isLoaded ? 'Loading...' : oauthLoading === 'oauth_google' ? 'Opening Google...' : 'Continue with Google'}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   className="w-full"
                   onClick={() => handleOAuthSignIn('oauth_apple')}
-                  disabled={!!oauthLoading || !signInLoaded}
+                  disabled={!!oauthLoading || !isLoaded}
                 >
                   <AppleIcon />
-                  {!signInLoaded ? 'Loading...' : oauthLoading === 'oauth_apple' ? 'Opening Apple...' : 'Continue with Apple'}
+                  {!isLoaded ? 'Loading...' : oauthLoading === 'oauth_apple' ? 'Opening Apple...' : 'Continue with Apple'}
                 </Button>
                 <div className="flex items-center gap-3 text-xs uppercase text-muted-foreground">
                   <div className="h-px flex-1 bg-border" />
@@ -199,7 +212,7 @@ const Auth = () => {
                 <Button
                   className="w-full"
                   onClick={handleSendCode}
-                  disabled={sending || !signInLoaded || !signUpLoaded}
+                  disabled={sending || !isLoaded}
                 >
                   {sending ? 'Sending...' : 'Send code'}
                 </Button>
