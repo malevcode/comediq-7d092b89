@@ -11,11 +11,6 @@ const ShowTNPromo = () => {
           className="block bg-white/10 backdrop-blur-sm rounded-3xl p-6 sm:p-10 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-[1.01] shadow-2xl"
         >
           <div className="flex flex-col items-center text-center text-white">
-            <div className="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 px-4 py-1.5 rounded-full text-xs font-bold mb-4">
-              <Sparkles className="w-3.5 h-3.5" />
-              NEW · SHOWTONIGHT
-            </div>
-
             <h2 className="text-3xl sm:text-5xl font-bold mb-3">
               ShowTN
             </h2>
