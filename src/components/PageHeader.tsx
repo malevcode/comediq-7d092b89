@@ -2,9 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import HamburgerMenu from "@/components/HamburgerMenu";
-import { LogIn } from "lucide-react";
 import { ReactNode } from "react";
-
 
 interface PageHeaderProps {
   title?: string;
@@ -17,85 +15,48 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
-  const handleSignUp = () => {
-    navigate("/auth");
-  };
-
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md border-b border-gray-200 z-50">
+    <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-100 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
-          <div className="flex items-center h-12">
-            <div className="mr-2 flex items-center flex-shrink-0">
-              <HamburgerMenu />
-            </div>
-            <div className="flex items-center mr-2 flex-shrink-0">
-              <button 
-                onClick={() => navigate('/')}
-              >
-                <img src="/comediq_white.png" alt="Comediq" className="h-10 w-auto object-contain" />
-              </button>
-            </div>
-            <div className="min-w-md">
-              <h1 className="text-2xl font-bold text-gray-900">{title || "Comediq"}</h1>
-              {subtitle && (
-                <p className="text-xs text-gray-600">{subtitle}</p>
-              )}
-            </div>
-            </div>
-          {/* Desktop auth section */}
-          <div className="hidden sm:flex items-center gap-3">
-            {user ? (
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-600 whitespace-nowrap">
-                  Welcome back
-                  {user.user_metadata?.username
-                    ? ` ${user.user_metadata.username}!`
-                    : '!'}
+        <div className="flex justify-between items-center h-14">
+          {/* Left: hamburger + wordmark */}
+          <div className="flex items-center gap-2">
+            <HamburgerMenu />
+            <button onClick={() => navigate('/')} className="flex items-center gap-2">
+              <img src="/comediq_white.png" alt="Comediq" className="h-8 w-auto object-contain" />
+              {title && title !== "Comediq" && (
+                <span className="hidden sm:inline text-sm font-medium text-gray-600 border-l border-gray-200 pl-3 ml-1">
+                  {title}
                 </span>
-                <Button
-                  onClick={async () => {
-                    await signOut();
-                    navigate('/');
-                  }}
-                  size="sm"
-                  variant="outline"
-                  className="text-xs px-2 py-1"
-                >
-                  Sign Out
-                </Button>
-              </div>
-            ) : (
-              <Button 
-                onClick={handleSignUp}
-                className="bg-[#1a5fb4] hover:bg-[#164d94] text-white px-6 py-2 rounded-full"
-              >
-                Sign In
-              </Button>
-            )}
+              )}
+            </button>
           </div>
-          {/* Mobile auth section */}
-          <div className="sm:hidden flex flex-row items-center gap-2">
+
+          {children}
+
+          {/* Right: auth */}
+          <div className="flex items-center gap-3">
             {user ? (
               <>
+                <span className="hidden sm:inline text-xs text-gray-500">
+                  {user.user_metadata?.username ? `@${user.user_metadata.username}` : 'My account'}
+                </span>
                 <Button
-                  onClick={async () => {
-                    await signOut();
-                    navigate('/');
-                  }}
+                  onClick={async () => { await signOut(); navigate('/'); }}
                   size="sm"
                   variant="outline"
-                  className="text-xs px-2 py-1 self-end"
+                  className="text-xs h-8 px-3 border-gray-200 text-gray-600 hover:bg-gray-50"
                 >
-                  Sign Out
+                  Sign out
                 </Button>
               </>
             ) : (
-              <Button 
-                onClick={handleSignUp}
-                className="bg-[#1a5fb4] hover:bg-[#164d94] text-white px-6 py-2 rounded-full"
+              <Button
+                onClick={() => navigate("/auth")}
+                size="sm"
+                className="bg-[#1a5fb4] hover:bg-[#164d94] text-white text-xs h-8 px-4 rounded-md"
               >
-                Sign In
+                Sign in
               </Button>
             )}
           </div>
