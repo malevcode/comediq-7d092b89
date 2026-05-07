@@ -685,9 +685,6 @@ const Auth = () => {
           style={{ background: `linear-gradient(160deg, #0d3d7a 0%, ${BRAND_BLUE} 60%, #2a7ad4 100%)` }}
         >
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-              <Mic className="w-4 h-4 text-white" />
-            </div>
             <span className="font-semibold text-lg tracking-tight">Comediq</span>
           </div>
 
