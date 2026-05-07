@@ -24,11 +24,10 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
             <HamburgerMenu />
             <button onClick={() => navigate('/')} className="flex items-center gap-2">
               <img src="/comediq_logo.jpg" alt="Comediq" className="h-8 w-auto object-contain" />
-              {title && title !== "Comediq" && (
-                <span className="hidden sm:inline text-sm font-medium text-gray-600 border-l border-gray-200 pl-3 ml-1">
-                  {title}
-                </span>
-              )}
+              <div className="flex flex-col items-start leading-tight">
+                <span className="font-bold text-gray-900 text-base leading-none">{title || 'Comediq'}</span>
+                {subtitle && <span className="text-xs text-gray-500 leading-none mt-0.5">{subtitle}</span>}
+              </div>
             </button>
           </div>
 
