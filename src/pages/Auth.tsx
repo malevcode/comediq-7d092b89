@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SEO from '@/components/SEO';
@@ -7,6 +7,9 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Eye, EyeOff, Mic } from 'lucide-react';
+
+// Google Client ID — set VITE_GOOGLE_CLIENT_ID in your .env / Lovable build secrets
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 
 const BRAND_BLUE = '#1a5fb4';
 
@@ -39,11 +42,22 @@ const Auth = () => {
   const [resetPasswordConfirm, setResetPasswordConfirm] = useState('');
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const gisLoaded = useRef(false);
 
   const location = useLocation();
   const navigate = useNavigate();
   const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
+
+  // Load Google Identity Services script
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID || gisLoaded.current) return;
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.onload = () => { gisLoaded.current = true; };
+    document.head.appendChild(script);
+  }, []);
 
   useEffect(() => {
     if (user && view !== 'reset_password') {
@@ -102,15 +116,49 @@ const Auth = () => {
     setLoading(false);
   };
 
-  const handleOAuth = async (provider: 'google' | 'apple') => {
+  // Google sign-in via GIS — shows "comediq.us" on consent screen, not supabase.co
+  const handleGoogleSignIn = () => {
+    const google = (window as any).google;
+    if (!google?.accounts?.id || !GOOGLE_CLIENT_ID) {
+      // Fallback to redirect flow if GIS not loaded or client ID missing
+      supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/perform` },
+      });
+      return;
+    }
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      ux_mode: 'popup',
+      callback: async ({ credential }: { credential: string }) => {
+        const { error } = await supabase.auth.signInWithIdToken({
+          provider: 'google',
+          token: credential,
+        });
+        if (error) {
+          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        } else {
+          navigate('/perform');
+        }
+      },
+    });
+    google.accounts.id.prompt((notification: any) => {
+      // One Tap was suppressed (e.g. user dismissed) — show button popup instead
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        google.accounts.id.prompt();
+      }
+    });
+  };
+
+  const handleAppleSignIn = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: { redirectTo: `${window.location.origin}/perform` }
+        provider: 'apple',
+        options: { redirectTo: `${window.location.origin}/perform` },
       });
-      if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+      if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } catch {
-      toast({ title: "Error", description: "Failed to sign in.", variant: "destructive" });
+      toast({ title: 'Error', description: 'Failed to sign in with Apple.', variant: 'destructive' });
     }
   };
 
@@ -306,7 +354,7 @@ const Auth = () => {
                 <div className="space-y-3 mb-6">
                   <button
                     type="button"
-                    onClick={() => handleOAuth('apple')}
+                    onClick={handleAppleSignIn}
                     className="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-md border border-gray-200 bg-black text-white text-sm font-medium hover:bg-gray-900 transition-colors"
                   >
                     <AppleIcon />
@@ -314,7 +362,7 @@ const Auth = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleOAuth('google')}
+                    onClick={handleGoogleSignIn}
                     className="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-md border border-gray-200 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
                   >
                     <GoogleIcon />
