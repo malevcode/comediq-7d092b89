@@ -16,8 +16,8 @@ const Hero = () => {
           Track every set.
         </h1>
 
-        <p className="text-base sm:text-lg text-gray-500 mb-10 max-w-xl mx-auto leading-relaxed">
-          Comediq is the home base for NYC comedians — discover 500+ open mics, log your performances, and build your comedy career.
+        <p className="text-base sm:text-lg text-gray-500 mb-10 max-w-xl mx-auto leading-relaxed whitespace-pre-line">
+          Comediq is the home base for NYC comedians{"\n"}Find open mics, log your performances, and build your comedy career
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
