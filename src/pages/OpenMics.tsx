@@ -637,7 +637,7 @@ const OpenMics = () => {
                 <select
                   value={filters.city}
                   onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-                  className="appearance-none pl-2 pr-5 py-1 h-7 w-16 text-[11px] font-bold rounded-md bg-gradient-to-r from-cyan-500 to-blue-600 text-white border border-cyan-600 shadow-sm hover:shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
+                  className="appearance-none pl-2 pr-5 py-1 h-7 w-16 text-[11px] font-bold rounded-md bg-blue-600 text-white border border-blue-700 shadow-sm hover:bg-blue-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
                   aria-label="Select city"
                 >
                   {cities.map((city) => (
