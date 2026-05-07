@@ -23,7 +23,7 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
           <div className="flex items-center gap-2">
             <HamburgerMenu />
             <button onClick={() => navigate('/')} className="flex items-center gap-2">
-              <img src="/comediq_white.png" alt="Comediq" className="h-8 w-auto object-contain" />
+              <img src="/comediq_logo.jpg" alt="Comediq" className="h-8 w-auto object-contain" />
               {title && title !== "Comediq" && (
                 <span className="hidden sm:inline text-sm font-medium text-gray-600 border-l border-gray-200 pl-3 ml-1">
                   {title}
