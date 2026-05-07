@@ -109,71 +109,60 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
       {showFilters && (
         <>
           <div 
-            className="fixed inset-0 bg-black/50 z-50 md:hidden" 
+            className="fixed inset-0 bg-black/30 z-50 md:hidden" 
             onClick={() => setShowFilters(false)}
           />
           
-          <div className={`
-            fixed md:absolute 
-            inset-0 md:inset-auto
-            md:top-full md:right-0 md:mt-2 
-            z-[9999] 
-            md:w-80 
-            ${showFilters ? 'block' : 'hidden'}
-          `}>
-            <Card className="h-full md:h-auto md:shadow-lg border-0 md:border rounded-none md:rounded-lg">
-              <CardContent className="p-6 h-full flex flex-col">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-semibold text-lg text-foreground">Filter Open Mics</h3>
+          <div className="fixed md:absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto top-20 md:top-full md:right-0 md:mt-2 z-[9999] w-[92vw] max-w-sm md:w-72">
+            <Card className="shadow-lg border rounded-lg">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-sm text-foreground">Filter Open Mics</h3>
                   <Button
                     onClick={() => setShowFilters(false)}
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0"
+                    className="h-6 w-6 p-0"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-4 w-4" />
                   </Button>
                 </div>
 
-                <div className="flex-1 space-y-8 overflow-y-auto">
-                  {/* Mic Status Filter */}
-                  <div>
-                    <label className="text-base font-medium mb-3 block text-foreground">Mic Status</label>
-                    <div className="flex flex-wrap gap-2">
-                      {STATUS_OPTIONS.map(opt => (
-                        <Button
-                          key={opt.value}
-                          onClick={() => onFiltersChange({ ...filters, micStatus: opt.value })}
-                          variant="outline"
-                          size="sm"
-                          className={`text-xs ${(filters.micStatus || 'all') === opt.value ? 'bg-cyan-50 border-cyan-300' : 'border-border'}`}
-                        >
-                          {opt.label}
-                        </Button>
-                      ))}
+                <div className="space-y-3">
+                  {/* Frequency + City Row */}
+                  <div className="flex gap-2 items-end">
+                    <div>
+                      <label className="text-xs font-medium mb-1 block text-foreground">Frequency</label>
+                      <select
+                        value={filters.frequency || 'all'}
+                        onChange={(e) => onFiltersChange({ ...filters, frequency: e.target.value as MicFrequency | 'all' })}
+                        className="w-auto px-2 py-1 text-xs border border-border rounded-md bg-background"
+                      >
+                        {FREQUENCY_OPTIONS.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
                     </div>
-                  </div>
-
-                  {/* Frequency Filter */}
-                  <div>
-                    <label className="text-base font-medium mb-3 block text-foreground">Frequency</label>
-                    <select
-                      value={filters.frequency || 'all'}
-                      onChange={(e) => onFiltersChange({ ...filters, frequency: e.target.value as MicFrequency | 'all' })}
-                      className="w-full px-3 py-2 text-sm border border-border rounded-md bg-background"
-                    >
-                      {FREQUENCY_OPTIONS.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
+                    <div>
+                      <label className="text-xs font-medium mb-1 block text-foreground">City</label>
+                      <select
+                        value={filters.city}
+                        onChange={(e) => onFiltersChange({ ...filters, city: e.target.value })}
+                        className="w-auto px-2 py-1 text-xs border border-border rounded-md bg-background"
+                      >
+                        {cities.map((city) => (
+                          <option key={city} value={city}>{city}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   {/* Cost Filter */}
                   <div>
-                    <label className="text-base font-medium mb-4 block text-foreground">
-                      Cost Range: {formatCostValue(filters.costRange[0])} - {formatCostValue(filters.costRange[1])}
+                    <label className="text-xs font-medium mb-2 block text-foreground">
+                      Cost: {formatCostValue(filters.costRange[0])} - {formatCostValue(filters.costRange[1])}
                     </label>
-                    <div className="px-2">
+                    <div className="px-1">
                       <Slider
                         value={filters.costRange}
                         onValueChange={(value) => onFiltersChange({ ...filters, costRange: value as [number, number] })}
@@ -183,26 +172,15 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                         className="w-full"
                       />
                     </div>
-                    <div className="flex justify-between text-sm text-muted-foreground mt-3 px-2">
-                      <span>Free</span>
-                      <span>{formatCostValue(maxCost)}</span>
-                    </div>
                   </div>
 
                   {/* Borough Filter */}
                   <div>
-                    <label className="text-base font-medium mb-4 block text-foreground">Borough</label>
+                    <label className="text-xs font-medium mb-1 block text-foreground">Borough</label>
                     <select
                       value={filters.borough}
                       onChange={(e) => onFiltersChange({ ...filters, borough: e.target.value })}
-                      className={`w-full px-3 py-2 text-sm border border-border rounded-md border-l-4 ${
-                        filters.borough === "Manhattan" ? "border-l-cyan-500" :
-                        filters.borough === "Brooklyn" ? "border-l-amber-800" :
-                        filters.borough === "Queens" ? "border-l-purple-600" :
-                        filters.borough === "Bronx" ? "border-l-orange-600" :
-                        filters.borough === "Staten Island" ? "border-l-gray-500" :
-                        "border-l-gray-400"
-                      }`}
+                      className="w-full px-2 py-1 text-xs border border-border rounded-md bg-background"
                     >
                       {boroughs.map((borough) => (
                         <option key={borough} value={borough}>{borough}</option>
@@ -210,59 +188,40 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                     </select>
                   </div>
 
-                  {/* City Filter */}
-                  <div>
-                    <label className="text-base font-medium mb-4 block text-foreground">City</label>
-                    <select
-                      value={filters.city}
-                      onChange={(e) => onFiltersChange({ ...filters, city: e.target.value })}
-                      className="w-full px-3 py-2 text-sm border border-border rounded-md bg-background"
-                    >
-                      {cities.map((city) => (
-                        <option key={city} value={city}>{city}</option>
-                      ))}
-                    </select>
-                  </div>
-
                   {/* Time of Day Filter */}
                   <div>
-                    <label className="text-base font-medium mb-4 block text-foreground">Time of Day</label>
-                    <div className="space-y-3">
-                      {timeSlots.map((slot) => (
-                        <Button
-                          key={slot.id}
-                          onClick={() => toggleTimeSlot(slot.id)}
-                          variant="outline"
-                          size="lg"
-                          className={`w-full justify-start text-sm py-3 h-auto relative ${
-                            filters.timeOfDay.includes(slot.id)
-                              ? 'bg-cyan-50 border-cyan-300 hover:bg-cyan-100'
-                              : 'border-border hover:bg-muted'
-                          }`}
-                        >
-                          {filters.timeOfDay.includes(slot.id) && (
-                            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-cyan-500 rounded-sm flex items-center justify-center">
-                              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                          )}
-                          <span className={filters.timeOfDay.includes(slot.id) ? 'ml-8' : 'ml-0'}>
-                            {slot.label}
-                          </span>
-                        </Button>
-                      ))}
+                    <label className="text-xs font-medium mb-1 block text-foreground">Time of Day</label>
+                    <div className="grid grid-cols-3 gap-1">
+                      {timeSlots.map((slot) => {
+                        const active = filters.timeOfDay.includes(slot.id);
+                        const short = slot.id === 'daytime' ? 'Day' : slot.id === 'evening' ? 'Eve' : 'Late';
+                        return (
+                          <Button
+                            key={slot.id}
+                            onClick={() => toggleTimeSlot(slot.id)}
+                            variant="outline"
+                            size="sm"
+                            className={`text-xs h-7 px-1 ${
+                              active
+                                ? 'bg-blue-50 border-blue-400 text-blue-700 hover:bg-blue-100'
+                                : 'border-border hover:bg-muted'
+                            }`}
+                          >
+                            {short}
+                          </Button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
 
                 {hasActiveFilters && (
-                  <div className="mt-8 pt-6 border-t border-border">
+                  <div className="mt-3 pt-2 border-t border-border">
                     <Button
                       onClick={clearFilters}
                       variant="outline"
-                      size="lg"
-                      className="w-full text-sm py-3"
+                      size="sm"
+                      className="w-full text-xs h-7"
                     >
                       Clear All Filters
                     </Button>
