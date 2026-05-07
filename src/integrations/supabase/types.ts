@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -1062,14 +1062,14 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_mic_verifications_mic"
+            foreignKeyName: "mic_verifications_mic_unique_identifier_fkey"
             columns: ["mic_unique_identifier"]
             isOneToOne: false
             referencedRelation: "open_mics_display"
             referencedColumns: ["unique_identifier"]
           },
           {
-            foreignKeyName: "fk_mic_verifications_mic"
+            foreignKeyName: "mic_verifications_mic_unique_identifier_fkey"
             columns: ["mic_unique_identifier"]
             isOneToOne: false
             referencedRelation: "open_mics_historical"
@@ -2418,14 +2418,14 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_mic_verifications_mic"
+            foreignKeyName: "mic_verifications_mic_unique_identifier_fkey"
             columns: ["mic_unique_identifier"]
             isOneToOne: false
             referencedRelation: "open_mics_display"
             referencedColumns: ["unique_identifier"]
           },
           {
-            foreignKeyName: "fk_mic_verifications_mic"
+            foreignKeyName: "mic_verifications_mic_unique_identifier_fkey"
             columns: ["mic_unique_identifier"]
             isOneToOne: false
             referencedRelation: "open_mics_historical"
@@ -2493,10 +2493,10 @@ export type Database = {
           city?: string | null
           cost?: string | null
           day?: string | null
-          end_time_display?: never
+          end_time_display?: string | null
           hosts_organizers?: string | null
           last_verified?: string | null
-          last_verified_display?: never
+          last_verified_display?: string | null
           latest_end_time?: string | null
           location?: string | null
           neighborhood?: string | null
@@ -2507,7 +2507,7 @@ export type Database = {
           sms_response?: string | null
           stage_time?: string | null
           start_time?: string | null
-          start_time_display?: never
+          start_time_display?: string | null
           unique_identifier?: string | null
           venue_name?: string | null
           venue_type?: string | null
@@ -2519,10 +2519,10 @@ export type Database = {
           city?: string | null
           cost?: string | null
           day?: string | null
-          end_time_display?: never
+          end_time_display?: string | null
           hosts_organizers?: string | null
           last_verified?: string | null
-          last_verified_display?: never
+          last_verified_display?: string | null
           latest_end_time?: string | null
           location?: string | null
           neighborhood?: string | null
@@ -2533,7 +2533,7 @@ export type Database = {
           sms_response?: string | null
           stage_time?: string | null
           start_time?: string | null
-          start_time_display?: never
+          start_time_display?: string | null
           unique_identifier?: string | null
           venue_name?: string | null
           venue_type?: string | null
@@ -2542,22 +2542,7 @@ export type Database = {
       }
     }
     Functions: {
-      expire_trial_mics: { Args: never; Returns: number }
-      get_or_create_system_host: {
-        Args: { mic_id_param: string }
-        Returns: string
-      }
-      is_producer: { Args: { _user_id: string }; Returns: boolean }
-      resolve_motd_for: { Args: { target_date: string }; Returns: string }
-      verify_mic_with_points: {
-        Args: {
-          ip_hash_param: string
-          mic_identifier: string
-          status_param?: string
-          user_id_param?: string
-        }
-        Returns: Json
-      }
+      [_ in never]: never
     }
     Enums: {
       application_status:
