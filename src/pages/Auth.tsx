@@ -11,7 +11,7 @@ const BRAND_BLUE = '#1a5fb4';
 // Public client ID (not a secret — override with VITE_GOOGLE_CLIENT_ID env var if needed)
 const GOOGLE_CLIENT_ID =
   (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ||
-  '813537966822-qgnhcen8uvn5csqp1kt0jj1bjeu8j9c2.apps.googleusercontent.com';
+  '428222257092-9fu57bee9jmd3galvs2n007f4lgv8b1m.apps.googleusercontent.com';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
