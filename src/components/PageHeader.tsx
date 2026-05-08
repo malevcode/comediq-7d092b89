@@ -18,12 +18,12 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-100 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-14">
+        <div className="flex justify-between items-center h-16">
           {/* Left: hamburger + wordmark */}
           <div className="flex items-center gap-2">
             <HamburgerMenu />
             <button onClick={() => navigate('/')} className="flex items-center gap-2">
-              <img src="/comediq_logo.jpg" alt="Comediq" className="h-8 w-auto object-contain" />
+              <img src="/comediq_logo.jpg" alt="Comediq" className="h-14 w-auto object-contain" />
               <div className="flex flex-col items-start leading-tight">
                 <span className="font-bold text-gray-900 text-base leading-none">{title || 'Comediq'}</span>
                 {subtitle && <span className="text-xs text-gray-500 leading-none mt-0.5">{subtitle}</span>}
