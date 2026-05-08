@@ -30,7 +30,7 @@ export function useMicOfTheDay() {
   const query = useQuery({
     queryKey: ['micOfTheDay', 'resolved', today],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('resolve_motd_for', { target_date: today });
+      const { data, error } = await (supabase as any).rpc('resolve_motd_for', { target_date: today });
       if (error) throw error;
       return (data as string | null) || null;
     },

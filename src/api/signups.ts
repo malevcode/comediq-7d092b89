@@ -52,7 +52,7 @@ export async function getOrCreateNextEvent(micId: string, micDay: string, micSta
     return existingEvents[0];
   }
 
-  const { data: hostId, error: hostError } = await supabase
+  const { data: hostId, error: hostError } = await (supabase as any)
     .rpc('get_or_create_system_host', { mic_id_param: micId });
 
   if (hostError) throw hostError;
