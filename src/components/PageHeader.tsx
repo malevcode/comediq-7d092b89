@@ -26,7 +26,7 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
               <img src="/comediq_logo.jpg" alt="Comediq" className="h-14 w-auto object-contain" />
               <div className="flex flex-col items-start leading-tight">
                 <span className="font-bold text-gray-900 leading-none text-2xl">{title || 'Comediq'}</span>
-                {subtitle && <span className="text-xs text-gray-500 leading-none mt-0.5">{subtitle}</span>}
+                {subtitle && <span className="text-xs text-gray-500 leading-none mt-0.5 text-left">{subtitle}</span>}
               </div>
             </button>
           </div>
