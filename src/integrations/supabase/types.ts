@@ -2542,7 +2542,7 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      resolve_motd_for: { Args: { target_date: string }; Returns: string }
     }
     Enums: {
       application_status:
