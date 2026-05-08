@@ -2,10 +2,8 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserCreatedMics } from '@/hooks/useUserCreatedMics';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import AddMicRequestForm, { MicRequestFormData } from '@/components/host/AddMicRequestForm';
 import HostMicEditForm from '@/components/host/HostMicEditForm';
+import EditableMicCard from '@/components/mic/EditableMicCard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,82 +19,9 @@ const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'outline'> = {
 export function UserMicManagement() {
   const { user } = useAuth();
   const { data: mics = [], isLoading } = useUserCreatedMics(user?.id);
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingMic, setEditingMic] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmitMic = async (formData: MicRequestFormData) => {
-    if (!user) return;
-    setIsSubmitting(true);
-    try {
-      const { error } = await supabase.from('open_mics_historical').insert([{
-        open_mic: formData.open_mic,
-        venue_name: formData.venue_name,
-        borough: formData.borough || null,
-        neighborhood: formData.neighborhood || null,
-        location: formData.location || null,
-        day: formData.day,
-        start_time: formData.start_time,
-        latest_end_time: formData.latest_end_time || null,
-        stage_time: formData.stage_time || null,
-        cost: formData.cost || 'Free',
-        venue_type: formData.venue_type || null,
-        sign_up_instructions: formData.sign_up_instructions || null,
-        hosts_organizers: formData.hosts_organizers || null,
-        changes_updates: formData.changes_updates || null,
-        other_rules: null,
-        city: formData.city || 'New York',
-        active: true,
-        status: 'trial' as const,
-        frequency: formData.frequency || 'weekly',
-        signup_method: formData.signup_method || 'in_person',
-        signup_url: formData.signup_url || null,
-        frequency_custom_text: formData.frequency_custom_text || null,
-        submission_date: new Date().toISOString(),
-        creator_id: user.id,
-        verification_count: 0,
-      }]);
-
-      if (error) throw error;
-
-      await supabase.from('open_mics_requests').insert([{
-        show_title: formData.open_mic,
-        open_mic: formData.open_mic,
-        venue_name: formData.venue_name,
-        borough: formData.borough || null,
-        neighborhood: formData.neighborhood || null,
-        location: formData.location || null,
-        date: formData.day,
-        time: formData.start_time,
-        latest_end_time: formData.latest_end_time || null,
-        stage_time: formData.stage_time || null,
-        cost: formData.cost || null,
-        venue_type: formData.venue_type || null,
-        sign_up_instructions: formData.sign_up_instructions || null,
-        hosts_organizers: formData.hosts_organizers || null,
-        changes_updates: formData.changes_updates || null,
-        city: formData.city || 'New York',
-        user_id: user.id,
-        frequency: formData.frequency || 'weekly',
-        signup_method: formData.signup_method || 'in_person',
-        signup_url: formData.signup_url || null,
-        frequency_custom_text: formData.frequency_custom_text || null,
-        reviewed: true,
-        status: 'approved',
-      }]);
-
-      toast({ title: 'Mic added!', description: "It's now live on the site." });
-      setShowAddForm(false);
-      queryClient.invalidateQueries({ queryKey: ['userCreatedMics'] });
-      queryClient.invalidateQueries({ queryKey: ['openMics'] });
-    } catch (e: any) {
-      toast({ title: 'Error', description: e.message || 'Failed to add mic.', variant: 'destructive' });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   if (isLoading) {
     return <p className="text-muted-foreground py-4">Loading your mics...</p>;
@@ -114,6 +39,18 @@ export function UserMicManagement() {
           Add a Mic
         </Button>
       </div>
+
+      {showAddForm && user && (
+        <EditableMicCard
+          userId={user.id}
+          userName={user.email ?? undefined}
+          onClose={() => setShowAddForm(false)}
+          onSubmitted={() => {
+            setShowAddForm(false);
+            queryClient.invalidateQueries({ queryKey: ['userCreatedMics'] });
+          }}
+        />
+      )}
 
       {mics.length === 0 ? (
         <Card>
@@ -168,14 +105,6 @@ export function UserMicManagement() {
             </Card>
           ))}
         </div>
-      )}
-
-      {showAddForm && (
-        <AddMicRequestForm
-          onSubmit={handleSubmitMic}
-          onCancel={() => setShowAddForm(false)}
-          isSubmitting={isSubmitting}
-        />
       )}
 
       {editingMic && (

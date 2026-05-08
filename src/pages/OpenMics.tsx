@@ -14,6 +14,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import MicDetailModal from "@/components/MicDetailModal";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import AddMicRequestForm, { MicRequestFormData } from "@/components/host/AddMicRequestForm";
+import EditableMicCard from "@/components/mic/EditableMicCard";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilters";
@@ -31,6 +32,7 @@ const OpenMics = () => {
   const [showKey, setShowKey] = useState(false);
   const [visibleCount, setVisibleCount] = useState(100);
   const [showRequestModal, setShowRequestModal] = useState(false);
+  const [showInlineAdd, setShowInlineAdd] = useState(false);
 
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
@@ -649,10 +651,13 @@ const OpenMics = () => {
                 </svg>
               </div>
               <Button
-                onClick={() => setShowRequestModal(true)}
+                onClick={() => {
+                  if (!user) { navigate('/auth'); return; }
+                  setShowInlineAdd(true);
+                }}
                 variant="outline"
                 size="sm"
-                className="flex items-center justify-center px-2 py-1 h-7 w-12 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+                className="flex items-center justify-center px-2 py-1 h-7 w-12 bg-white border-gray-900 text-gray-900 hover:bg-gray-100"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -660,6 +665,16 @@ const OpenMics = () => {
             </div>
           </div>
         </div>
+
+        {/* Inline new mic card */}
+        {showInlineAdd && user && (
+          <EditableMicCard
+            userId={user.id}
+            userName={user.email ?? undefined}
+            onClose={() => setShowInlineAdd(false)}
+            onSubmitted={() => setShowInlineAdd(false)}
+          />
+        )}
 
         {/* Day Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
