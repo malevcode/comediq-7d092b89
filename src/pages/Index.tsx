@@ -53,6 +53,7 @@ const Index = () => {
           ) : (
             <>
               <Hero />
+              <AppWaitlistSection />
 
               {/* Social Proof Bar */}
               <div className="bg-[#1a5fb4] py-3">
