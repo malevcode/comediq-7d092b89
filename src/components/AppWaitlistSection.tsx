@@ -151,7 +151,7 @@ const AppWaitlistSection = () => {
               { key: "affiliate" as const, label: "Being an affiliate comedian for Comediq" },
               { key: "beta" as const, label: "Being a Comediq beta tester" },
               { key: "showcase" as const, label: "Getting booked on Comediq showcase shows" },
-              { key: "curious" as const, label: "Nothing — I just want to see the app" },
+              { key: "curious" as const, label: "Nothing lol I just want to see the app" },
             ].map((opt) => (
               <label
                 key={opt.key}
