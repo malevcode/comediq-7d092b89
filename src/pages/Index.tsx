@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
+import AppWaitlistSection from "@/components/AppWaitlistSection";
 
 import ShowTNPromo from "@/components/ShowTNPromo";
 import SponsorSection from "@/components/SponsorSection";
@@ -52,6 +53,7 @@ const Index = () => {
           ) : (
             <>
               <Hero />
+              <AppWaitlistSection />
 
               {/* Social Proof Bar */}
               <div className="bg-[#1a5fb4] py-3">
