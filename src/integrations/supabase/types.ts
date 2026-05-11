@@ -248,6 +248,42 @@ export type Database = {
         }
         Relationships: []
       }
+      App_waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          instagram: string | null
+          interested_affiliate: boolean
+          interested_beta_tester: boolean
+          interested_showcase_booking: boolean
+          just_curious: boolean
+          years_doing_comedy: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          instagram?: string | null
+          interested_affiliate?: boolean
+          interested_beta_tester?: boolean
+          interested_showcase_booking?: boolean
+          just_curious?: boolean
+          years_doing_comedy?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          instagram?: string | null
+          interested_affiliate?: boolean
+          interested_beta_tester?: boolean
+          interested_showcase_booking?: boolean
+          just_curious?: boolean
+          years_doing_comedy?: string | null
+        }
+        Relationships: []
+      }
       audience_shows: {
         Row: {
           age_restriction: string | null
