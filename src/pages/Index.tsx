@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
+import AppWaitlistSection from "@/components/AppWaitlistSection";
 
 import ShowTNPromo from "@/components/ShowTNPromo";
 import SponsorSection from "@/components/SponsorSection";
