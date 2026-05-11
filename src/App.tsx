@@ -77,7 +77,7 @@ const App = () => (
             <BrowserRouter>
               <AnalyticsProvider>
                 <ScrollToTop />
-                {/* <MarqueeBanner /> temporarily hidden */}
+                <MarqueeBanner />
                 <div className="pb-8">
                   <Routes>
                     <Route path="/" element={<Index />} />
