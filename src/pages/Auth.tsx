@@ -77,18 +77,26 @@ const Auth = () => {
   const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
 
-  // ── Init GIS renderButton (more reliable than One Tap prompt) ─────────────
+  // ── Init GIS renderButton with nonce ──────────────────────────────────────
 
   useEffect(() => {
-    const initGIS = () => {
+    const rawNonce = crypto.getRandomValues(new Uint8Array(16)).reduce((s, b) => s + b.toString(16).padStart(2, '0'), '');
+
+    const initGIS = async () => {
       const google = (window as any).google;
       if (!google?.accounts?.id || !googleContainerRef.current) return false;
+
+      const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(rawNonce));
+      const hashedNonce = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
       google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
+        nonce: rawNonce,
         callback: async ({ credential }: { credential: string }) => {
           const { error } = await supabase.auth.signInWithIdToken({
             provider: 'google',
             token: credential,
+            nonce: hashedNonce,
           });
           if (error) toast({ title: 'Google sign-in failed', description: error.message, variant: 'destructive' });
           else navigate('/perform');
@@ -99,10 +107,13 @@ const Auth = () => {
       });
       return true;
     };
-    if (!initGIS()) {
-      const interval = setInterval(() => { if (initGIS()) clearInterval(interval); }, 200);
-      return () => clearInterval(interval);
-    }
+
+    initGIS().then(ok => {
+      if (!ok) {
+        const interval = setInterval(() => { initGIS().then(ready => { if (ready) clearInterval(interval); }); }, 200);
+        return () => clearInterval(interval);
+      }
+    });
   }, []);
 
   // ── Redirect if already authed ────────────────────────────────────────────
@@ -215,7 +226,6 @@ const Auth = () => {
   };
 
   const handleOtpChange = (index: number, value: string) => {
-    // Handle paste of full 6-digit code
     if (value.length > 1) {
       const digits = value.replace(/\D/g, '').slice(0, 6).split('');
       const next = ['', '', '', '', '', ''];
@@ -392,7 +402,6 @@ const Auth = () => {
         We sent a 6-digit code to <span className="font-medium text-gray-700">{phoneDisplay}</span>
       </p>
 
-      {/* 6-digit OTP boxes */}
       <div className="flex gap-2.5 mb-6 justify-center">
         {otpDigits.map((digit, i) => (
           <input
@@ -450,154 +459,63 @@ const Auth = () => {
       <p className="text-sm text-gray-500 mb-7">Welcome back.</p>
 
       <form onSubmit={handleEmailAuth} className="space-y-3">
-        <Input
-          type="email"
-          placeholder="Email address"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-          autoComplete="email"
-        />
+        <Input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" />
         <div className="relative">
-          <Input
-            type={showPassword ? 'text' : 'password'}
-            placeholder="Password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            minLength={6}
-            className="pr-10"
-            autoComplete="current-password"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(v => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            tabIndex={-1}
-          >
+          <Input type={showPassword ? 'text' : 'password'} placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className="pr-10" autoComplete="current-password" />
+          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" tabIndex={-1}>
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
         <div className="text-right">
-          <button
-            type="button"
-            onClick={() => setStep('forgot_password')}
-            className="text-xs text-gray-500 hover:text-gray-700"
-          >
-            Forgot password?
-          </button>
+          <button type="button" onClick={() => setStep('forgot_password')} className="text-xs text-gray-500 hover:text-gray-700">Forgot password?</button>
         </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50"
-          style={{ background: BRAND_BLUE }}
-        >
+        <button type="submit" disabled={loading} className="w-full py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50" style={{ background: BRAND_BLUE }}>
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-gray-500">
         No account?{' '}
-        <button
-          type="button"
-          onClick={() => setStep('email_signup')}
-          className="font-medium underline underline-offset-2"
-          style={{ color: BRAND_BLUE }}
-        >
-          Create one
-        </button>
+        <button type="button" onClick={() => setStep('email_signup')} className="font-medium underline underline-offset-2" style={{ color: BRAND_BLUE }}>Create one</button>
       </p>
     </>
   );
 
   const renderEmailSignup = () => (
     <>
-      <button
-        type="button"
-        onClick={() => setStep('email_auth')}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
-      >
+      <button type="button" onClick={() => setStep('email_auth')} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6">
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
-
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">Create your account</h1>
       <p className="text-sm text-gray-500 mb-7">Free forever. Start saving your mics.</p>
-
       <form onSubmit={handleEmailSignup} className="space-y-3">
-        <Input
-          type="email"
-          placeholder="Email address"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-          autoComplete="email"
-        />
+        <Input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" />
         <div className="relative">
-          <Input
-            type={showPassword ? 'text' : 'password'}
-            placeholder="Password (6+ characters)"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            minLength={6}
-            className="pr-10"
-            autoComplete="new-password"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(v => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            tabIndex={-1}
-          >
+          <Input type={showPassword ? 'text' : 'password'} placeholder="Password (6+ characters)" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className="pr-10" autoComplete="new-password" />
+          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" tabIndex={-1}>
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50"
-          style={{ background: BRAND_BLUE }}
-        >
+        <button type="submit" disabled={loading} className="w-full py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50" style={{ background: BRAND_BLUE }}>
           {loading ? 'Creating account…' : 'Create account'}
         </button>
       </form>
-
       <p className="mt-4 text-xs text-gray-400 text-center leading-relaxed">
-        By signing up you agree to our{' '}
-        <a href="/privacy-policy" className="underline hover:text-gray-600">Privacy Policy</a>.
+        By signing up you agree to our <a href="/privacy-policy" className="underline hover:text-gray-600">Privacy Policy</a>.
       </p>
     </>
   );
 
   const renderForgotPassword = () => (
     <>
-      <button
-        type="button"
-        onClick={() => setStep('email_auth')}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
-      >
+      <button type="button" onClick={() => setStep('email_auth')} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6">
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
-
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">Reset password</h1>
       <p className="text-sm text-gray-500 mb-7">We'll email you a link to reset it.</p>
-
       <form onSubmit={handleForgotPassword} className="space-y-3">
-        <Input
-          type="email"
-          placeholder="Email address"
-          value={resetEmail}
-          onChange={e => setResetEmail(e.target.value)}
-          required
-        />
-        <button
-          type="submit"
-          className="w-full py-3 rounded-xl text-white text-sm font-medium"
-          style={{ background: BRAND_BLUE }}
-        >
-          Send reset link
-        </button>
+        <Input type="email" placeholder="Email address" value={resetEmail} onChange={e => setResetEmail(e.target.value)} required />
+        <button type="submit" className="w-full py-3 rounded-xl text-white text-sm font-medium" style={{ background: BRAND_BLUE }}>Send reset link</button>
       </form>
     </>
   );
@@ -606,42 +524,15 @@ const Auth = () => {
     <>
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">Set new password</h1>
       <p className="text-sm text-gray-500 mb-7">Choose a strong password for your account.</p>
-
       <form onSubmit={handlePasswordReset} className="space-y-3">
         <div className="relative">
-          <Input
-            type={showPassword ? 'text' : 'password'}
-            placeholder="New password"
-            value={resetPassword}
-            onChange={e => setResetPassword(e.target.value)}
-            required
-            minLength={6}
-            className="pr-10"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(v => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            tabIndex={-1}
-          >
+          <Input type={showPassword ? 'text' : 'password'} placeholder="New password" value={resetPassword} onChange={e => setResetPassword(e.target.value)} required minLength={6} className="pr-10" />
+          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" tabIndex={-1}>
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
-        <Input
-          type={showPassword ? 'text' : 'password'}
-          placeholder="Confirm password"
-          value={resetConfirm}
-          onChange={e => setResetConfirm(e.target.value)}
-          required
-          minLength={6}
-        />
-        <button
-          type="submit"
-          className="w-full py-3 rounded-xl text-white text-sm font-medium"
-          style={{ background: BRAND_BLUE }}
-        >
-          Update password
-        </button>
+        <Input type={showPassword ? 'text' : 'password'} placeholder="Confirm password" value={resetConfirm} onChange={e => setResetConfirm(e.target.value)} required minLength={6} />
+        <button type="submit" className="w-full py-3 rounded-xl text-white text-sm font-medium" style={{ background: BRAND_BLUE }}>Update password</button>
       </form>
     </>
   );
@@ -664,27 +555,14 @@ const Auth = () => {
     reset_password: 'Set New Password | Comediq',
   }[step];
 
-  // ─── Render ────────────────────────────────────────────────────────────────
-
   return (
     <>
-      <SEO
-        title={seoTitle}
-        description="Sign in or create a free Comediq account to save open mics, track your comedy journey, and connect with the NYC comedy community."
-        url="https://comediq.us/auth"
-        noindex={true}
-      />
-
+      <SEO title={seoTitle} description="Sign in or create a free Comediq account to save open mics, track your comedy journey, and connect with the NYC comedy community." url="https://comediq.us/auth" noindex={true} />
       <div className="min-h-screen flex">
-        {/* Left brand panel — desktop only */}
-        <div
-          className="hidden lg:flex lg:w-[45%] flex-col justify-between p-12 text-white"
-          style={{ background: `linear-gradient(160deg, #0d3d7a 0%, ${BRAND_BLUE} 60%, #2a7ad4 100%)` }}
-        >
+        <div className="hidden lg:flex lg:w-[45%] flex-col justify-between p-12 text-white" style={{ background: `linear-gradient(160deg, #0d3d7a 0%, ${BRAND_BLUE} 60%, #2a7ad4 100%)` }}>
           <div className="flex items-center gap-3">
             <span className="font-semibold text-lg tracking-tight">Comediq</span>
           </div>
-
           <div>
             <blockquote className="text-2xl font-medium leading-snug mb-6 text-white/90">
               "The best tool for tracking NYC open mics. I use it every week before I hit the road."
@@ -697,32 +575,19 @@ const Auth = () => {
               </div>
             </div>
           </div>
-
           <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/20">
-            <div>
-              <p className="text-2xl font-bold">1,250+</p>
-              <p className="text-white/60 text-sm">comedians per week</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold">500+</p>
-              <p className="text-white/60 text-sm">open mics tracked</p>
-            </div>
+            <div><p className="text-2xl font-bold">1,250+</p><p className="text-white/60 text-sm">comedians per week</p></div>
+            <div><p className="text-2xl font-bold">500+</p><p className="text-white/60 text-sm">open mics tracked</p></div>
           </div>
         </div>
-
-        {/* Right form panel */}
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-white">
-          {/* Mobile logo */}
           <div className="lg:hidden mb-8 flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: BRAND_BLUE }}>
               <Mic className="w-3.5 h-3.5 text-white" />
             </div>
             <span className="font-semibold text-lg">Comediq</span>
           </div>
-
-          <div className="w-full max-w-sm">
-            {stepContent}
-          </div>
+          <div className="w-full max-w-sm">{stepContent}</div>
         </div>
       </div>
     </>
