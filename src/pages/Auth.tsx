@@ -80,6 +80,7 @@ const Auth = () => {
   // ── Init GIS renderButton with nonce ──────────────────────────────────────
 
   useEffect(() => {
+    // GIS expects the SHA-256 hash in initialize(); Supabase expects the raw nonce in signInWithIdToken()
     const rawNonce = crypto.getRandomValues(new Uint8Array(16)).reduce((s, b) => s + b.toString(16).padStart(2, '0'), '');
 
     const initGIS = async () => {
@@ -91,15 +92,15 @@ const Auth = () => {
 
       google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
-        nonce: rawNonce,
+        nonce: hashedNonce,   // GIS embeds this as-is in the JWT nonce claim
         callback: async ({ credential }: { credential: string }) => {
           const { error } = await supabase.auth.signInWithIdToken({
             provider: 'google',
             token: credential,
-            nonce: hashedNonce,
+            nonce: rawNonce,  // Supabase SHA-256-hashes this and compares against JWT
           });
           if (error) toast({ title: 'Google sign-in failed', description: error.message, variant: 'destructive' });
-          else navigate('/perform');
+          // navigation handled by user state useEffect below
         },
       });
       google.accounts.id.renderButton(googleContainerRef.current, {
