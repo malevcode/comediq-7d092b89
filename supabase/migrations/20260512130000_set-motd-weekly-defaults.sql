@@ -28,14 +28,13 @@ BEGIN
     ORDER BY COALESCE(verification_count, 0) DESC LIMIT 1;
   IF v_mic_id IS NULL THEN
     v_mic_id := pg_temp.most_liked_for_day('Sunday');
-    RAISE NOTICE 'Sunday: Fear City not found — falling back to most-liked Sunday mic (%)', v_mic_id;
+    RAISE NOTICE 'Sunday: Fear City not found — using most-liked Sunday mic (%)', v_mic_id;
   ELSE
     RAISE NOTICE 'Sunday default set to Fear City mic (%)', v_mic_id;
   END IF;
   IF v_mic_id IS NOT NULL THEN
-    INSERT INTO public.motd_weekly_defaults (day_of_week, mic_unique_identifier)
-      VALUES (0, v_mic_id)
-      ON CONFLICT (day_of_week) DO UPDATE SET mic_unique_identifier = EXCLUDED.mic_unique_identifier, updated_at = now();
+    UPDATE public.motd_weekly_defaults SET mic_unique_identifier = v_mic_id, updated_at = now() WHERE day_of_week = 0;
+    IF NOT FOUND THEN INSERT INTO public.motd_weekly_defaults (day_of_week, mic_unique_identifier) VALUES (0, v_mic_id); END IF;
   END IF;
 
   -- Monday (1): KGB Bar mic
@@ -45,14 +44,13 @@ BEGIN
     ORDER BY COALESCE(verification_count, 0) DESC LIMIT 1;
   IF v_mic_id IS NULL THEN
     v_mic_id := pg_temp.most_liked_for_day('Monday');
-    RAISE NOTICE 'Monday: KGB Bar not found — falling back to most-liked Monday mic (%)', v_mic_id;
+    RAISE NOTICE 'Monday: KGB Bar not found — using most-liked Monday mic (%)', v_mic_id;
   ELSE
     RAISE NOTICE 'Monday default set to KGB Bar mic (%)', v_mic_id;
   END IF;
   IF v_mic_id IS NOT NULL THEN
-    INSERT INTO public.motd_weekly_defaults (day_of_week, mic_unique_identifier)
-      VALUES (1, v_mic_id)
-      ON CONFLICT (day_of_week) DO UPDATE SET mic_unique_identifier = EXCLUDED.mic_unique_identifier, updated_at = now();
+    UPDATE public.motd_weekly_defaults SET mic_unique_identifier = v_mic_id, updated_at = now() WHERE day_of_week = 1;
+    IF NOT FOUND THEN INSERT INTO public.motd_weekly_defaults (day_of_week, mic_unique_identifier) VALUES (1, v_mic_id); END IF;
   END IF;
 
   -- Tuesday (2): No Nazar Cafe
@@ -62,14 +60,13 @@ BEGIN
     ORDER BY COALESCE(verification_count, 0) DESC LIMIT 1;
   IF v_mic_id IS NULL THEN
     v_mic_id := pg_temp.most_liked_for_day('Tuesday');
-    RAISE NOTICE 'Tuesday: No Nazar Cafe not found — falling back to most-liked Tuesday mic (%)', v_mic_id;
+    RAISE NOTICE 'Tuesday: No Nazar Cafe not found — using most-liked Tuesday mic (%)', v_mic_id;
   ELSE
     RAISE NOTICE 'Tuesday default set to No Nazar Cafe mic (%)', v_mic_id;
   END IF;
   IF v_mic_id IS NOT NULL THEN
-    INSERT INTO public.motd_weekly_defaults (day_of_week, mic_unique_identifier)
-      VALUES (2, v_mic_id)
-      ON CONFLICT (day_of_week) DO UPDATE SET mic_unique_identifier = EXCLUDED.mic_unique_identifier, updated_at = now();
+    UPDATE public.motd_weekly_defaults SET mic_unique_identifier = v_mic_id, updated_at = now() WHERE day_of_week = 2;
+    IF NOT FOUND THEN INSERT INTO public.motd_weekly_defaults (day_of_week, mic_unique_identifier) VALUES (2, v_mic_id); END IF;
   END IF;
 
   -- Wednesday (3): Judy Z mic
@@ -79,14 +76,13 @@ BEGIN
     ORDER BY COALESCE(verification_count, 0) DESC LIMIT 1;
   IF v_mic_id IS NULL THEN
     v_mic_id := pg_temp.most_liked_for_day('Wednesday');
-    RAISE NOTICE 'Wednesday: Judy Z not found — falling back to most-liked Wednesday mic (%)', v_mic_id;
+    RAISE NOTICE 'Wednesday: Judy Z not found — using most-liked Wednesday mic (%)', v_mic_id;
   ELSE
     RAISE NOTICE 'Wednesday default set to Judy Z mic (%)', v_mic_id;
   END IF;
   IF v_mic_id IS NOT NULL THEN
-    INSERT INTO public.motd_weekly_defaults (day_of_week, mic_unique_identifier)
-      VALUES (3, v_mic_id)
-      ON CONFLICT (day_of_week) DO UPDATE SET mic_unique_identifier = EXCLUDED.mic_unique_identifier, updated_at = now();
+    UPDATE public.motd_weekly_defaults SET mic_unique_identifier = v_mic_id, updated_at = now() WHERE day_of_week = 3;
+    IF NOT FOUND THEN INSERT INTO public.motd_weekly_defaults (day_of_week, mic_unique_identifier) VALUES (3, v_mic_id); END IF;
   END IF;
 
   -- Thursday (4): Knockouts comedy mic
@@ -96,14 +92,13 @@ BEGIN
     ORDER BY COALESCE(verification_count, 0) DESC LIMIT 1;
   IF v_mic_id IS NULL THEN
     v_mic_id := pg_temp.most_liked_for_day('Thursday');
-    RAISE NOTICE 'Thursday: Knockouts not found — falling back to most-liked Thursday mic (%)', v_mic_id;
+    RAISE NOTICE 'Thursday: Knockouts not found — using most-liked Thursday mic (%)', v_mic_id;
   ELSE
     RAISE NOTICE 'Thursday default set to Knockouts mic (%)', v_mic_id;
   END IF;
   IF v_mic_id IS NOT NULL THEN
-    INSERT INTO public.motd_weekly_defaults (day_of_week, mic_unique_identifier)
-      VALUES (4, v_mic_id)
-      ON CONFLICT (day_of_week) DO UPDATE SET mic_unique_identifier = EXCLUDED.mic_unique_identifier, updated_at = now();
+    UPDATE public.motd_weekly_defaults SET mic_unique_identifier = v_mic_id, updated_at = now() WHERE day_of_week = 4;
+    IF NOT FOUND THEN INSERT INTO public.motd_weekly_defaults (day_of_week, mic_unique_identifier) VALUES (4, v_mic_id); END IF;
   END IF;
 
   -- Friday (5): Drew 1pm hourlong GVCC mic
@@ -113,14 +108,13 @@ BEGIN
     ORDER BY COALESCE(verification_count, 0) DESC LIMIT 1;
   IF v_mic_id IS NULL THEN
     v_mic_id := pg_temp.most_liked_for_day('Friday');
-    RAISE NOTICE 'Friday: GVCC not found — falling back to most-liked Friday mic (%)', v_mic_id;
+    RAISE NOTICE 'Friday: GVCC not found — using most-liked Friday mic (%)', v_mic_id;
   ELSE
     RAISE NOTICE 'Friday default set to GVCC mic (%)', v_mic_id;
   END IF;
   IF v_mic_id IS NOT NULL THEN
-    INSERT INTO public.motd_weekly_defaults (day_of_week, mic_unique_identifier)
-      VALUES (5, v_mic_id)
-      ON CONFLICT (day_of_week) DO UPDATE SET mic_unique_identifier = EXCLUDED.mic_unique_identifier, updated_at = now();
+    UPDATE public.motd_weekly_defaults SET mic_unique_identifier = v_mic_id, updated_at = now() WHERE day_of_week = 5;
+    IF NOT FOUND THEN INSERT INTO public.motd_weekly_defaults (day_of_week, mic_unique_identifier) VALUES (5, v_mic_id); END IF;
   END IF;
 
   -- Saturday (6): Tiny Cupboard 11:45 mic
@@ -130,14 +124,13 @@ BEGIN
     ORDER BY COALESCE(verification_count, 0) DESC LIMIT 1;
   IF v_mic_id IS NULL THEN
     v_mic_id := pg_temp.most_liked_for_day('Saturday');
-    RAISE NOTICE 'Saturday: Tiny Cupboard not found — falling back to most-liked Saturday mic (%)', v_mic_id;
+    RAISE NOTICE 'Saturday: Tiny Cupboard not found — using most-liked Saturday mic (%)', v_mic_id;
   ELSE
     RAISE NOTICE 'Saturday default set to Tiny Cupboard mic (%)', v_mic_id;
   END IF;
   IF v_mic_id IS NOT NULL THEN
-    INSERT INTO public.motd_weekly_defaults (day_of_week, mic_unique_identifier)
-      VALUES (6, v_mic_id)
-      ON CONFLICT (day_of_week) DO UPDATE SET mic_unique_identifier = EXCLUDED.mic_unique_identifier, updated_at = now();
+    UPDATE public.motd_weekly_defaults SET mic_unique_identifier = v_mic_id, updated_at = now() WHERE day_of_week = 6;
+    IF NOT FOUND THEN INSERT INTO public.motd_weekly_defaults (day_of_week, mic_unique_identifier) VALUES (6, v_mic_id); END IF;
   END IF;
 
 END $$;
