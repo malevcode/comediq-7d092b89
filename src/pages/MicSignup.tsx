@@ -14,6 +14,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getOrCreateNextEvent } from '@/api/signups';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { generateVenueSlug } from '@/utils/slugify';
 
 export default function MicSignup() {
   const { slug } = useParams<{ slug: string }>();
@@ -23,10 +24,7 @@ export default function MicSignup() {
   const queryClient = useQueryClient();
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
 
-  const mic = mics?.find(m => {
-    const micSlug = `${m.venueName}-${m.openMic}`.toLowerCase().replace(/\s+/g, '-');
-    return micSlug === slug;
-  });
+  const mic = mics?.find(m => generateVenueSlug(m) === slug);
 
   const { data: events, isLoading: eventsLoading, refetch: refetchEvents } = useSignupEvents(mic?.uniqueIdentifier || '');
 
