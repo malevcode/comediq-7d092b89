@@ -499,7 +499,7 @@ const OpenMics = () => {
         title: "Mic added! 🎤",
         description: "It's now live on the site. Thanks for contributing!",
       });
-      setShowRequestModal(false);
+      setShowInlineCard(false);
     } catch (e) {
       console.error('Unexpected error:', e);
       toast({
