@@ -69,7 +69,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
 
-  const gisLoaded = useRef(false);
+  const googleContainerRef = useRef<HTMLDivElement>(null);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null, null, null]);
 
   const navigate = useNavigate();
@@ -77,16 +77,32 @@ const Auth = () => {
   const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
 
-  // ── Load GIS ──────────────────────────────────────────────────────────────
+  // ── Init GIS renderButton (more reliable than One Tap prompt) ─────────────
 
   useEffect(() => {
-    if (gisLoaded.current) return;
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.onload = () => { gisLoaded.current = true; };
-    document.head.appendChild(script);
-    return () => { document.head.removeChild(script); };
+    const initGIS = () => {
+      const google = (window as any).google;
+      if (!google?.accounts?.id || !googleContainerRef.current) return false;
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: async ({ credential }: { credential: string }) => {
+          const { error } = await supabase.auth.signInWithIdToken({
+            provider: 'google',
+            token: credential,
+          });
+          if (error) toast({ title: 'Google sign-in failed', description: error.message, variant: 'destructive' });
+          else navigate('/perform');
+        },
+      });
+      google.accounts.id.renderButton(googleContainerRef.current, {
+        type: 'standard', theme: 'outline', size: 'large',
+      });
+      return true;
+    };
+    if (!initGIS()) {
+      const interval = setInterval(() => { if (initGIS()) clearInterval(interval); }, 200);
+      return () => clearInterval(interval);
+    }
   }, []);
 
   // ── Redirect if already authed ────────────────────────────────────────────
@@ -128,33 +144,12 @@ const Auth = () => {
   // ─── Handlers ─────────────────────────────────────────────────────────────
 
   const handleGoogleSignIn = () => {
-    const google = (window as any).google;
-    if (!google?.accounts?.id) {
-      // Fallback if GIS not loaded yet
-      supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: `${window.location.origin}/perform` },
-      });
-      return;
+    const btn = googleContainerRef.current?.querySelector('div[role=button]') as HTMLElement | null;
+    if (btn) {
+      btn.click();
+    } else {
+      toast({ title: 'Google not ready', description: 'Please wait a moment and try again.', variant: 'destructive' });
     }
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      ux_mode: 'popup',
-      callback: async ({ credential }: { credential: string }) => {
-        const { error } = await supabase.auth.signInWithIdToken({
-          provider: 'google',
-          token: credential,
-        });
-        if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
-        else navigate('/perform');
-      },
-    });
-    google.accounts.id.prompt((n: any) => {
-      if (n.isNotDisplayed() || n.isSkippedMoment()) {
-        // One Tap suppressed — user dismissed previously; use popup fallback
-        google.accounts.id.prompt();
-      }
-    });
   };
 
   const handleAppleSignIn = async () => {
@@ -303,6 +298,8 @@ const Auth = () => {
 
   const OAuthButtons = () => (
     <div className="space-y-3">
+      {/* Hidden GIS button — our styled button clicks it */}
+      <div ref={googleContainerRef} className="absolute opacity-0 pointer-events-none h-0 overflow-hidden" aria-hidden="true" />
       <button
         type="button"
         onClick={handleGoogleSignIn}
