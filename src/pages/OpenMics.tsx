@@ -13,7 +13,8 @@ import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import MicDetailModal from "@/components/MicDetailModal";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
-import AddMicRequestForm, { MicRequestFormData } from "@/components/host/AddMicRequestForm";
+import { MicRequestFormData } from "@/components/host/AddMicRequestForm";
+import { EditableMicCard } from "@/components/EditableMicCard";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilters";
@@ -30,7 +31,7 @@ const OpenMics = () => {
   const [activeTab, setActiveTab] = useState("next");
   const [showKey, setShowKey] = useState(false);
   const [visibleCount, setVisibleCount] = useState(100);
-  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [showInlineCard, setShowInlineCard] = useState(false);
 
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
@@ -39,11 +40,11 @@ const OpenMics = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const hasScrolled = useRef(false);
 
-  // Auto-open Add Mic modal when ?addMic=true is in URL (from marquee banner link)
+  // Auto-open inline add card when ?addMic=true is in URL (from marquee banner link)
   useEffect(() => {
     if (searchParams.get('addMic') === 'true') {
-      setShowRequestModal(true);
-      // Clean up the URL param
+      setShowInlineCard(true);
+      setActiveTab('next');
       searchParams.delete('addMic');
       setSearchParams(searchParams, { replace: true });
     }
@@ -333,6 +334,24 @@ const OpenMics = () => {
     return filtered;
   };
 
+  const getNewMics = () => {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return openMics
+      .filter((mic) => {
+        if (!mic.submissionDate) return false;
+        if (new Date(mic.submissionDate) <= thirtyDaysAgo) return false;
+        const matchesSearch =
+          mic.openMic.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          mic.venueName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesBorough = filters.borough === "All" || mic.borough === filters.borough;
+        const matchesCity = mic.city === filters.city;
+        return matchesSearch && matchesBorough && matchesCity;
+      })
+      .sort((a, b) => new Date(b.submissionDate!).getTime() - new Date(a.submissionDate!).getTime());
+  };
+
   const renderMicContent = (filteredMics: OpenMic[], tabName: string) => {
     const micsToShow = filteredMics;
 
@@ -341,9 +360,10 @@ const OpenMics = () => {
         <div className="mb-4">
           <p className="text-xs text-gray-500">
             Showing {Math.min(visibleCount, micsToShow.length)} of {micsToShow.length}
-            {tabName === "next" ? " upcoming" : tabName === "liked" ? " liked" : ""} open mic
+            {tabName === "next" ? " upcoming" : tabName === "liked" ? " liked" : tabName === "new" ? " new" : ""} open mic
             {micsToShow.length !== 1 ? "s" : ""}
-            {tabName !== "next" && tabName !== "liked" ? ` on ${tabName}` : ""}
+            {tabName !== "next" && tabName !== "liked" && tabName !== "new" ? ` on ${tabName}` : ""}
+            {tabName === "new" ? " added in the last 30 days" : ""}
           </p>
         </div>
 
@@ -355,18 +375,22 @@ const OpenMics = () => {
             <p className="text-muted-foreground font-medium">
               {tabName === "liked"
                 ? "No liked open mics yet"
-                : filters.frequency && filters.frequency !== 'all'
-                  ? `No ${FREQUENCY_LABELS[filters.frequency as MicFrequency] || ''} mics scheduled right now`
-                  : `No ${tabName === "next" ? "upcoming " : ""}open mics found${
-                      tabName !== "next" && tabName !== "liked" ? ` for ${tabName}` : ""
-                    }`}
+                : tabName === "new"
+                  ? "No new mics added in the last 30 days"
+                  : filters.frequency && filters.frequency !== 'all'
+                    ? `No ${FREQUENCY_LABELS[filters.frequency as MicFrequency] || ''} mics scheduled right now`
+                    : `No ${tabName === "next" ? "upcoming " : ""}open mics found${
+                        tabName !== "next" && tabName !== "liked" ? ` for ${tabName}` : ""
+                      }`}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
               {tabName === "liked"
                 ? "Start liking mics to see them here!"
-                : filters.frequency && filters.frequency !== 'all'
-                  ? "Try checking the Weekly list or clearing your filters."
-                  : "Try adjusting your filters."}
+                : tabName === "new"
+                  ? "New mics appear here for 30 days after being added."
+                  : filters.frequency && filters.frequency !== 'all'
+                    ? "Try checking the Weekly list or clearing your filters."
+                    : "Try adjusting your filters."}
             </p>
             {tabName !== "liked" && (
               <Button
@@ -649,7 +673,7 @@ const OpenMics = () => {
                 </svg>
               </div>
               <Button
-                onClick={() => setShowRequestModal(true)}
+                onClick={() => { setShowInlineCard(true); setActiveTab('next'); }}
                 variant="outline"
                 size="sm"
                 className="flex items-center justify-center px-2 py-1 h-7 w-12 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
@@ -663,9 +687,12 @@ const OpenMics = () => {
 
         {/* Day Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full ${user ? "grid-cols-9" : "grid-cols-8"} mb-6 h-9 gap-1.5`}>
+          <TabsList className={`grid w-full ${user ? "grid-cols-10" : "grid-cols-9"} mb-6 h-9 gap-1.5`}>
             <TabsTrigger value="next" className="text-xs py-1 px-1">
               Next
+            </TabsTrigger>
+            <TabsTrigger value="new" className="text-xs py-1 px-0.5">
+              New ✨
             </TabsTrigger>
             {user && (
               <TabsTrigger value="liked" className="text-xs py-1 px-1">
@@ -680,7 +707,18 @@ const OpenMics = () => {
           </TabsList>
 
           <TabsContent value="next" className="mt-2">
+            {showInlineCard && (
+              <EditableMicCard
+                onSave={async (data) => { await handleRequestMic(data); setShowInlineCard(false); }}
+                onCancel={() => setShowInlineCard(false)}
+                isSubmitting={isSubmittingMic}
+              />
+            )}
             {renderMicContent(getFilteredMics("next"), "next")}
+          </TabsContent>
+
+          <TabsContent value="new" className="mt-2">
+            {renderMicContent(getNewMics(), "new")}
           </TabsContent>
 
           {user && (
@@ -702,7 +740,6 @@ const OpenMics = () => {
         <MicDetailModal mic={selectedMic} onClose={() => setSelectedMic(null)} onAddToSchedule={handleAddToSchedule} />
       )}
 
-      {showRequestModal && <AddMicRequestForm onSubmit={handleRequestMic} onCancel={() => setShowRequestModal(false)} isSubmitting={isSubmittingMic} />}
       </div>
     </>
   );
