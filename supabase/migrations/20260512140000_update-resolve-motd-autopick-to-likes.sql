@@ -39,10 +39,10 @@ BEGIN
 
   -- Priority 4: auto-pick — most-liked active mic running that weekday
   day_label := TRIM(TO_CHAR(target_date, 'Day'));
-  SELECT omh.unique_identifier INTO result
+  SELECT omh.unique_identifier::uuid INTO result
   FROM public.open_mics_historical omh
   LEFT JOIN public.mic_like_counts mlc
-         ON mlc.mic_unique_identifier = omh.unique_identifier::text
+         ON mlc.mic_unique_identifier = omh.unique_identifier
   WHERE omh.active = true
     AND omh.day ILIKE day_label
   ORDER BY COALESCE(mlc.likes, 0) DESC, COALESCE(omh.verification_count, 0) DESC, omh.submission_date DESC NULLS LAST
