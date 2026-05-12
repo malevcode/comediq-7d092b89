@@ -692,7 +692,7 @@ const OpenMics = () => {
               Next
             </TabsTrigger>
             <TabsTrigger value="new" className="text-xs py-1 px-0.5">
-              New ✨
+              New
             </TabsTrigger>
             {user && (
               <TabsTrigger value="liked" className="text-xs py-1 px-1">
