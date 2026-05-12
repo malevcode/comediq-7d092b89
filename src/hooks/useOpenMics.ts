@@ -103,11 +103,10 @@ export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_histo
 
       throw new Error("Mic data unavailable");
     },
-    initialData: cached ?? undefined,
+    placeholderData: cached ?? undefined,
     staleTime: 10 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
     retry: 1,
     retryDelay: 1500,
   });
