@@ -222,13 +222,15 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
   }, [userLocation, mic.location]);
 
   
+  const isComediqPartner = mic.signupMethod === 'comediq_slots';
+
   return (
-    <div 
+    <div
       ref={(el) => onRegisterRow?.(mic.uniqueIdentifier, el)}
-      className={`flex flex-col md:flex-row w-full bg-white border rounded-xl shadow-sm p-2.5 gap-0.5 md:gap-3 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${getBoroughOutline(mic.borough)} ${flash ? 'ring-2 ring-yellow-400 ring-offset-2' : ''}`} 
+      className={`flex flex-col md:flex-row w-full border rounded-xl shadow-sm p-2.5 gap-0.5 md:gap-3 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${isComediqPartner ? 'bg-gradient-to-br from-blue-50 via-blue-50/60 to-white border-blue-200 border-l-4 border-l-blue-500' : `bg-white ${getBoroughOutline(mic.borough)}`} ${flash ? 'ring-2 ring-yellow-400 ring-offset-2' : ''}`}
       id={mic.id}
       style={mic.coverImageUrl ? {
-        backgroundImage: `linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)), url(${mic.coverImageUrl})`,
+        backgroundImage: `linear-gradient(rgba(235,245,255,0.92), rgba(235,245,255,0.92)), url(${mic.coverImageUrl})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center'
       } : undefined}
@@ -254,6 +256,11 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
           
           {/* Right-aligned traffic light + frequency pill */}
           <div className="flex-1 flex justify-end items-center gap-1">
+            {isComediqPartner && (
+              <span className="inline-flex items-center rounded-full bg-blue-100 text-blue-700 border border-blue-300 font-semibold text-[9px] px-1.5 py-0 whitespace-nowrap">
+                Comediq
+              </span>
+            )}
             {mic.frequency && mic.frequency !== 'weekly' && (
               <span className="inline-flex items-center rounded-full bg-muted/50 text-muted-foreground border border-border/50 font-medium text-[10px] px-1.5 py-0 whitespace-nowrap">
                 {FREQUENCY_LABELS[mic.frequency]}
