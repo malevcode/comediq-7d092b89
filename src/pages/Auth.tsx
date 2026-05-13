@@ -421,7 +421,7 @@ const Auth = () => {
         </button>
       </form>
       <p className="mt-4 text-xs text-gray-400 text-center leading-relaxed">
-        By signing up you agree to our <a href="/privacy-policy" className="underline hover:text-gray-600">Privacy Policy</a>.
+        By signing up you agree to our <a href="/privacy" className="underline hover:text-gray-600">Privacy Policy</a>.
       </p>
     </>
   );

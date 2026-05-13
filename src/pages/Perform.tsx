@@ -1,4 +1,6 @@
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OpenMics from "./OpenMics";
 import Shows from "./Shows";
@@ -10,9 +12,15 @@ import { Megaphone, ListMusic, Sheet, TicketCheck } from "lucide-react";
 import DevView from "./DevView";
 
 const Perform = () => {
+  const { needsOnboarding, loading } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const { activeTab, setActiveTab } = useTabContext();
+
+  useEffect(() => {
+    if (!loading && needsOnboarding) navigate('/onboarding');
+  }, [loading, needsOnboarding, navigate]);
 
   const scrollPositions = useRef({
     'find-mics': 0,

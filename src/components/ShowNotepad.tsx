@@ -108,9 +108,6 @@ function getGoogleCalendarUrl(show) {
   ? `Open mic at ${show.venue}\nCost: ${show.cost}\nStage time: ${show.stageTime}`
   : `Comedy show at ${show.venue}`;
 
-  console.log(show.date)
-  console.log(show.time)
-
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: show.title,

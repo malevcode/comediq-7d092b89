@@ -9,6 +9,9 @@ export interface AppUser {
   user_metadata: Record<string, unknown>;
 }
 
+type UserRole = 'performer' | 'host' | 'showrunner' | 'admin' | null;
+type SubscriptionPlan = 'free' | 'standard' | 'premium';
+
 interface AuthContextType {
   user: AppUser | null;
   session: Session | null;
@@ -19,6 +22,11 @@ interface AuthContextType {
   visitInserted: boolean;
   resetVisitInserted: () => void;
   isAdmin: boolean;
+  role: UserRole;
+  subscriptionPlan: SubscriptionPlan;
+  creditsBalance: number;
+  needsOnboarding: boolean;
+  refreshProfile: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,6 +52,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [visitInserted, setVisitInserted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [role, setRole] = useState<UserRole>(null);
+  const [subscriptionPlan, setSubscriptionPlan] = useState<SubscriptionPlan>('free');
+  const [creditsBalance, setCreditsBalance] = useState(0);
+  const [profileFetchKey, setProfileFetchKey] = useState(0);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -61,25 +73,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  // Fetch isAdmin flag
+  // Fetch profile fields: isAdmin, role, plan, credits
   useEffect(() => {
-    if (!user) { setIsAdmin(false); return; }
+    if (!user) {
+      setIsAdmin(false);
+      setRole(null);
+      setSubscriptionPlan('free');
+      setCreditsBalance(0);
+      return;
+    }
     supabase
       .from('profiles')
-      .select('isadmin')
+      .select('isadmin, role, subscription_plan, credits_balance')
       .eq('user_id', user.id)
-      .single<{ isadmin: boolean }>()
-      .then(({ data, error }) => { setIsAdmin(!error && !!data?.isadmin); });
-  }, [user?.id]);
+      .single<{ isadmin: boolean; role: UserRole; subscription_plan: SubscriptionPlan; credits_balance: number }>()
+      .then(({ data, error }) => {
+        if (error || !data) return;
+        setIsAdmin(!!data.isadmin);
+        setRole(data.role ?? null);
+        setSubscriptionPlan(data.subscription_plan ?? 'free');
+        setCreditsBalance(data.credits_balance ?? 0);
+      });
+  }, [user?.id, profileFetchKey]);
 
   // Auto-create profile row on first sign-in
   useEffect(() => {
     if (!user) return;
-    supabase.from('profiles').select('id').eq('user_id', user.id).single().then(({ data }) => {
-      if (!data) {
-        supabase.from('profiles').insert({ user_id: user.id, phone: user.phone });
-      }
-    });
+    supabase.from('profiles').upsert(
+      { user_id: user.id, phone: user.phone },
+      { onConflict: 'user_id', ignoreDuplicates: true }
+    );
   }, [user?.id]);
 
   // Record a visit once per day
@@ -116,9 +139,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const resetVisitInserted = () => setVisitInserted(false);
+  const refreshProfile = () => setProfileFetchKey(k => k + 1);
+
+  const needsOnboarding = !!user && role === null;
 
   return (
-    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, loading, visitInserted, resetVisitInserted, isAdmin }}>
+    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, loading, visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, creditsBalance, needsOnboarding, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

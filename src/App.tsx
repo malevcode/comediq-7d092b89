@@ -46,6 +46,7 @@ import LikedMics from "./pages/LikedMics";
 import TopMics from "./pages/TopMics";
 import Slots from "./pages/Slots";
 import ShowsMap from "./pages/ShowsMap";
+import Onboarding from "./pages/Onboarding";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -111,6 +112,7 @@ const App = () => (
                     <Route path="/top-mics" element={<TopMics />} />
                     <Route path="/dev-view" element={<TabProvider><DevView /></TabProvider>} />
                     <Route path="/slots" element={<Slots />} />
+                    <Route path="/onboarding" element={<Onboarding />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </div>

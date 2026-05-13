@@ -323,13 +323,6 @@ const OpenMics = () => {
       return comparison;
     });
 
-    // Debug: Log the first 5 sorted results
-    console.log('First 5 sorted mics:', filtered.slice(0, 5).map(mic => ({
-      name: mic.openMic,
-      day: mic.day,
-      time: mic.startTime,
-      nextOccurrence: getNextOccurrence(mic).toISOString()
-    })));
     
     return filtered;
   };
@@ -533,9 +526,7 @@ const OpenMics = () => {
     );
   }
 
-  const handleAddToSchedule = (showData: any) => {
-    console.log("Adding show to schedule:", showData);
-  };
+  const handleAddToSchedule = (_showData: any) => {};
 
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Home', url: 'https://comediq.us' },
