@@ -148,18 +148,9 @@ export default function MicSignup() {
             <CardHeader>
               <CardTitle>No Active Signups</CardTitle>
               <CardDescription>
-                {!user 
-                  ? "Sign in to open signups for this mic!"
-                  : "Check back later for signup availability."}
+                Signups aren't open yet for this mic. Check back closer to show time.
               </CardDescription>
             </CardHeader>
-            {!user && (
-              <CardContent>
-                <Button asChild>
-                  <Link to="/auth">Sign In to Enable Signups</Link>
-                </Button>
-              </CardContent>
-            )}
           </Card>
         ) : (
           <div className="space-y-6">
