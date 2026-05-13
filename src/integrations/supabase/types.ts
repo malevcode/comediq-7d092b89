@@ -1557,12 +1557,17 @@ export type Database = {
           bio: string | null
           created_at: string
           credit: string | null
+          credits_balance: number
           headshot_url: string | null
           id: string
           isadmin: boolean
           phone: string | null
           points_balance: number
+          role: 'performer' | 'host' | 'showrunner' | 'admin' | null
           stage_name: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_plan: 'free' | 'standard' | 'premium'
           updated_at: string | null
           user_id: string
           username: string | null
@@ -1572,12 +1577,17 @@ export type Database = {
           bio?: string | null
           created_at?: string
           credit?: string | null
+          credits_balance?: number
           headshot_url?: string | null
           id?: string
           isadmin?: boolean
           phone?: string | null
           points_balance?: number
+          role?: 'performer' | 'host' | 'showrunner' | 'admin' | null
           stage_name?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_plan?: 'free' | 'standard' | 'premium'
           updated_at?: string | null
           user_id: string
           username?: string | null
@@ -1587,12 +1597,17 @@ export type Database = {
           bio?: string | null
           created_at?: string
           credit?: string | null
+          credits_balance?: number
           headshot_url?: string | null
           id?: string
           isadmin?: boolean
           phone?: string | null
           points_balance?: number
+          role?: 'performer' | 'host' | 'showrunner' | 'admin' | null
           stage_name?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_plan?: 'free' | 'standard' | 'premium'
           updated_at?: string | null
           user_id?: string
           username?: string | null

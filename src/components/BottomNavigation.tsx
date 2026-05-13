@@ -1,17 +1,22 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Eye, User, Book, MicVocal } from "lucide-react";
+import { Home, Eye, User, Book, MicVocal, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAnalytics } from "@/components/AnalyticsProvider";
 
 const BottomNavigation = () => {
   const location = useLocation();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, role } = useAuth();
   const { trackClick } = useAnalytics();
+
+  const isHostOrShowrunner = role === 'host' || role === 'showrunner';
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
     { path: "/open-mics", icon: MicVocal, label: "Perform" },
-    { path: "/laugh", icon: Eye, label: "Laugh" },
+    ...(isHostOrShowrunner
+      ? [{ path: "/host-dashboard", icon: LayoutDashboard, label: "Dashboard" }]
+      : [{ path: "/laugh", icon: Eye, label: "Laugh" }]
+    ),
     ...(user ? [{ path: "/profile", icon: User, label: "Profile" }] : []),
     ...(isAdmin ? [{ path: "/admintest", icon: Book, label: "Admin" }] : [])
   ];
@@ -26,13 +31,16 @@ const BottomNavigation = () => {
             
             // Special handling for Perform section - highlight when on any perform-related route
             if (path === "/open-mics") {
-              isActive = location.pathname === "/open-mics" || 
-                        location.pathname === "/track-sets" || 
+              isActive = location.pathname === "/open-mics" ||
+                        location.pathname === "/track-sets" ||
                         location.pathname === "/shows" ||
                         location.pathname === "/growth" ||
-                        location.pathname === "/host-dashboard" ||
                         location.pathname === "/dev-view" ||
                         location.pathname.startsWith("/mic/");
+            }
+            if (path === "/host-dashboard") {
+              isActive = location.pathname === "/host-dashboard" ||
+                        location.pathname.startsWith("/mic/") && location.pathname.endsWith("/signup");
             }
             
             // Special handling for Laugh section
