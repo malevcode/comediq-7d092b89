@@ -117,7 +117,10 @@ const Auth = () => {
     setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({
       email: otpEmail,
-      options: { shouldCreateUser: true },
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: `${window.location.origin}/perform`,
+      },
     });
     setLoading(false);
     if (error) {
@@ -151,7 +154,10 @@ const Auth = () => {
 
   const handleResendCode = async () => {
     if (resendCooldown > 0) return;
-    const { error } = await supabase.auth.signInWithOtp({ email: otpEmail });
+    const { error } = await supabase.auth.signInWithOtp({
+      email: otpEmail,
+      options: { emailRedirectTo: `${window.location.origin}/perform` },
+    });
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
