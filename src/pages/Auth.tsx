@@ -8,10 +8,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Eye, EyeOff, Mic, ArrowLeft } from 'lucide-react';
 
 const BRAND_BLUE = '#1a5fb4';
-// Public client ID (not a secret — override with VITE_GOOGLE_CLIENT_ID env var if needed)
-const GOOGLE_CLIENT_ID =
-  (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ||
-  '428222257092-9fu57bee9jmd3galvs2n007f4lgv8b1m.apps.googleusercontent.com';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -69,7 +65,6 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
 
-  const googleContainerRef = useRef<HTMLDivElement>(null);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null, null, null]);
 
   const navigate = useNavigate();
@@ -77,39 +72,6 @@ const Auth = () => {
   const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
 
-  // ── Init GIS renderButton ─────────────────────────────────────────────────
-  // Note: nonce is intentionally omitted. GIS's renderButton popup flow does not
-  // embed a nonce in the returned id_token, so passing one to signInWithIdToken
-  // causes a Supabase mismatch error. Security is maintained via HTTPS +
-  // Google-signed JWT (aud claim) verification by Supabase.
-
-  useEffect(() => {
-    const initGIS = () => {
-      const google = (window as any).google;
-      if (!google?.accounts?.id || !googleContainerRef.current) return false;
-
-      google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: async ({ credential }: { credential: string }) => {
-          const { error } = await supabase.auth.signInWithIdToken({
-            provider: 'google',
-            token: credential,
-          });
-          if (error) toast({ title: 'Google sign-in failed', description: error.message, variant: 'destructive' });
-          // navigation handled by user state useEffect below
-        },
-      });
-      google.accounts.id.renderButton(googleContainerRef.current, {
-        type: 'standard', theme: 'outline', size: 'large',
-      });
-      return true;
-    };
-
-    if (!initGIS()) {
-      const interval = setInterval(() => { if (initGIS()) clearInterval(interval); }, 200);
-      return () => clearInterval(interval);
-    }
-  }, []);
 
   // ── Redirect if already authed ────────────────────────────────────────────
 
@@ -149,13 +111,12 @@ const Auth = () => {
 
   // ─── Handlers ─────────────────────────────────────────────────────────────
 
-  const handleGoogleSignIn = () => {
-    const btn = googleContainerRef.current?.querySelector('div[role=button]') as HTMLElement | null;
-    if (btn) {
-      btn.click();
-    } else {
-      toast({ title: 'Google not ready', description: 'Please wait a moment and try again.', variant: 'destructive' });
-    }
+  const handleGoogleSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/perform` },
+    });
+    if (error) toast({ title: 'Google sign-in failed', description: error.message, variant: 'destructive' });
   };
 
   const handleAppleSignIn = async () => {
@@ -303,12 +264,6 @@ const Auth = () => {
 
   const OAuthButtons = () => (
     <div className="space-y-3">
-      {/* GIS renders its button here — positioned off-screen so it has real dimensions */}
-      <div
-        ref={googleContainerRef}
-        aria-hidden="true"
-        style={{ position: 'fixed', top: '-9999px', left: '-9999px', width: '240px', height: '44px', overflow: 'hidden', opacity: 0, pointerEvents: 'none' }}
-      />
       <button
         type="button"
         onClick={handleGoogleSignIn}
