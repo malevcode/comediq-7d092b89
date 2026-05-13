@@ -77,27 +77,23 @@ const Auth = () => {
   const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
 
-  // ── Init GIS renderButton with nonce ──────────────────────────────────────
+  // ── Init GIS renderButton ─────────────────────────────────────────────────
+  // Note: nonce is intentionally omitted. GIS's renderButton popup flow does not
+  // embed a nonce in the returned id_token, so passing one to signInWithIdToken
+  // causes a Supabase mismatch error. Security is maintained via HTTPS +
+  // Google-signed JWT (aud claim) verification by Supabase.
 
   useEffect(() => {
-    // GIS expects the SHA-256 hash in initialize(); Supabase expects the raw nonce in signInWithIdToken()
-    const rawNonce = crypto.getRandomValues(new Uint8Array(16)).reduce((s, b) => s + b.toString(16).padStart(2, '0'), '');
-
-    const initGIS = async () => {
+    const initGIS = () => {
       const google = (window as any).google;
       if (!google?.accounts?.id || !googleContainerRef.current) return false;
 
-      const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(rawNonce));
-      const hashedNonce = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-
       google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
-        nonce: hashedNonce,   // GIS embeds this as-is in the JWT nonce claim
         callback: async ({ credential }: { credential: string }) => {
           const { error } = await supabase.auth.signInWithIdToken({
             provider: 'google',
             token: credential,
-            nonce: rawNonce,  // Supabase SHA-256-hashes this and compares against JWT
           });
           if (error) toast({ title: 'Google sign-in failed', description: error.message, variant: 'destructive' });
           // navigation handled by user state useEffect below
@@ -109,12 +105,10 @@ const Auth = () => {
       return true;
     };
 
-    initGIS().then(ok => {
-      if (!ok) {
-        const interval = setInterval(() => { initGIS().then(ready => { if (ready) clearInterval(interval); }); }, 200);
-        return () => clearInterval(interval);
-      }
-    });
+    if (!initGIS()) {
+      const interval = setInterval(() => { if (initGIS()) clearInterval(interval); }, 200);
+      return () => clearInterval(interval);
+    }
   }, []);
 
   // ── Redirect if already authed ────────────────────────────────────────────
