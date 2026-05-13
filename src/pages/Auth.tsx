@@ -309,8 +309,12 @@ const Auth = () => {
 
   const OAuthButtons = () => (
     <div className="space-y-3">
-      {/* Hidden GIS button — our styled button clicks it */}
-      <div ref={googleContainerRef} className="absolute opacity-0 pointer-events-none h-0 overflow-hidden" aria-hidden="true" />
+      {/* GIS renders its button here — positioned off-screen so it has real dimensions */}
+      <div
+        ref={googleContainerRef}
+        aria-hidden="true"
+        style={{ position: 'fixed', top: '-9999px', left: '-9999px', width: '240px', height: '44px', overflow: 'hidden', opacity: 0, pointerEvents: 'none' }}
+      />
       <button
         type="button"
         onClick={handleGoogleSignIn}
