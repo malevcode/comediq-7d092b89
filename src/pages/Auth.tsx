@@ -29,32 +29,18 @@ const AppleIcon = () => (
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type AuthStep =
-  | 'main'           // Google + Apple + phone number entry
-  | 'phone_verify'   // 6-digit SMS OTP
-  | 'email_auth'     // email + password sign in
-  | 'email_signup'   // create account with email
+  | 'main'             // Google + Apple + email OTP entry
+  | 'email_otp_verify' // 6-digit email OTP
+  | 'email_auth'       // email + password sign in
+  | 'email_signup'     // create account with email
   | 'forgot_password'
   | 'reset_password';
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatPhone(raw: string): string {
-  const digits = raw.replace(/\D/g, '').slice(0, 10);
-  if (digits.length <= 3) return digits;
-  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-}
-
-function toE164(raw: string): string {
-  const digits = raw.replace(/\D/g, '');
-  return digits.startsWith('1') ? `+${digits}` : `+1${digits}`;
-}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const Auth = () => {
   const [step, setStep] = useState<AuthStep>('main');
-  const [phoneDisplay, setPhoneDisplay] = useState('');
+  const [otpEmail, setOtpEmail] = useState('');
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -71,7 +57,6 @@ const Auth = () => {
   const location = useLocation();
   const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
-
 
   // ── Redirect if already authed ────────────────────────────────────────────
 
@@ -104,7 +89,7 @@ const Auth = () => {
   // ── Auto-submit when all OTP digits filled ────────────────────────────────
 
   useEffect(() => {
-    if (step === 'phone_verify' && otpDigits.every(d => d !== '')) {
+    if (step === 'email_otp_verify' && otpDigits.every(d => d !== '')) {
       handleVerifyOtp(otpDigits.join(''));
     }
   }, [otpDigits, step]);
@@ -127,22 +112,20 @@ const Auth = () => {
     if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
   };
 
-  const handleSendCode = async (e: React.FormEvent) => {
+  const handleSendEmailCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    const digits = phoneDisplay.replace(/\D/g, '');
-    if (digits.length !== 10) {
-      toast({ title: 'Invalid number', description: 'Enter a 10-digit US phone number.', variant: 'destructive' });
-      return;
-    }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({ phone: toE164(digits) });
+    const { error } = await supabase.auth.signInWithOtp({
+      email: otpEmail,
+      options: { shouldCreateUser: true },
+    });
     setLoading(false);
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
       setOtpDigits(['', '', '', '', '', '']);
-      setStep('phone_verify');
-      setResendCooldown(30);
+      setStep('email_otp_verify');
+      setResendCooldown(60);
       setTimeout(() => otpRefs.current[0]?.focus(), 100);
     }
   };
@@ -152,9 +135,9 @@ const Auth = () => {
     if (token.length !== 6) return;
     setLoading(true);
     const { error } = await supabase.auth.verifyOtp({
-      phone: toE164(phoneDisplay.replace(/\D/g, '')),
+      email: otpEmail,
       token,
-      type: 'sms',
+      type: 'email',
     });
     setLoading(false);
     if (error) {
@@ -168,14 +151,12 @@ const Auth = () => {
 
   const handleResendCode = async () => {
     if (resendCooldown > 0) return;
-    const { error } = await supabase.auth.signInWithOtp({
-      phone: toE164(phoneDisplay.replace(/\D/g, '')),
-    });
+    const { error } = await supabase.auth.signInWithOtp({ email: otpEmail });
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'Code resent' });
-      setResendCooldown(30);
+      setResendCooldown(60);
       setOtpDigits(['', '', '', '', '', '']);
       setTimeout(() => otpRefs.current[0]?.focus(), 50);
     }
@@ -303,25 +284,21 @@ const Auth = () => {
 
       <OAuthButtons />
 
-      <Divider label="or use your phone" />
+      <Divider label="or use your email" />
 
-      <form onSubmit={handleSendCode} className="space-y-3">
-        <div className="flex rounded-xl border border-gray-200 overflow-hidden focus-within:ring-2 focus-within:ring-[#1a5fb4] focus-within:border-[#1a5fb4]">
-          <span className="flex items-center pl-3.5 pr-2 text-sm text-gray-500 select-none bg-white">+1</span>
-          <input
-            type="tel"
-            inputMode="numeric"
-            placeholder="(212) 555-1234"
-            value={phoneDisplay}
-            onChange={e => setPhoneDisplay(formatPhone(e.target.value))}
-            className="flex-1 py-3 pr-3 text-sm bg-white outline-none placeholder-gray-400"
-            required
-            autoComplete="tel-national"
-          />
-        </div>
+      <form onSubmit={handleSendEmailCode} className="space-y-3">
+        <input
+          type="email"
+          placeholder="you@example.com"
+          value={otpEmail}
+          onChange={e => setOtpEmail(e.target.value)}
+          className="w-full rounded-xl border border-gray-200 py-3 px-3.5 text-sm outline-none focus:ring-2 focus:ring-[#1a5fb4] focus:border-[#1a5fb4] placeholder-gray-400"
+          required
+          autoComplete="email"
+        />
         <button
           type="submit"
-          disabled={loading || phoneDisplay.replace(/\D/g, '').length !== 10}
+          disabled={loading || !otpEmail}
           className="w-full py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50"
           style={{ background: BRAND_BLUE }}
         >
@@ -336,12 +313,12 @@ const Auth = () => {
         onClick={() => setStep('email_auth')}
         className="w-full text-center text-sm text-gray-500 hover:text-gray-700 py-1"
       >
-        Sign in with email →
+        Sign in with password →
       </button>
     </>
   );
 
-  const renderPhoneVerify = () => (
+  const renderEmailOtpVerify = () => (
     <>
       <button
         type="button"
@@ -351,9 +328,9 @@ const Auth = () => {
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
-      <h1 className="text-2xl font-semibold text-gray-900 mb-1">Check your phone</h1>
+      <h1 className="text-2xl font-semibold text-gray-900 mb-1">Check your email</h1>
       <p className="text-sm text-gray-500 mb-8">
-        We sent a 6-digit code to <span className="font-medium text-gray-700">{phoneDisplay}</span>
+        We sent a 6-digit code to <span className="font-medium text-gray-700">{otpEmail}</span>
       </p>
 
       <div className="flex gap-2.5 mb-6 justify-center">
@@ -493,7 +470,7 @@ const Auth = () => {
 
   const stepContent = {
     main: renderMain,
-    phone_verify: renderPhoneVerify,
+    email_otp_verify: renderEmailOtpVerify,
     email_auth: renderEmailAuth,
     email_signup: renderEmailSignup,
     forgot_password: renderForgotPassword,
@@ -502,7 +479,7 @@ const Auth = () => {
 
   const seoTitle = {
     main: 'Sign In | Comediq',
-    phone_verify: 'Verify Phone | Comediq',
+    email_otp_verify: 'Check Your Email | Comediq',
     email_auth: 'Sign In | Comediq',
     email_signup: 'Join Comediq',
     forgot_password: 'Reset Password | Comediq',
