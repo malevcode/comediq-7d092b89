@@ -20,7 +20,7 @@ function getNextOccurrence(dayName: string): Date {
   }
   
   let daysUntil = targetDay - currentDay;
-  if (daysUntil <= 0) {
+  if (daysUntil < 0) {
     daysUntil += 7;
   }
   
