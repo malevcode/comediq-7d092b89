@@ -18,6 +18,7 @@ import SocialLinksManager from '@/components/profile/SocialLinksManager';
 import ComedianCard from '@/components/profile/ComedianCard';
 import WorkHistorySection from '@/components/profile/WorkHistorySection';
 import PointsDisplay from '@/components/profile/PointsDisplay';
+import { CreditBalance } from '@/components/CreditBalance';
 import ProfileCompleteness from '@/components/profile/ProfileCompleteness';
 import { useUserSignups } from '@/hooks/useUserSignups';
 import { cancelSignup } from '@/api/signups';
@@ -141,6 +142,7 @@ const Profile = () => {
                     <ComedianCard comedian={profile} />
                     
                     <div className="space-y-6">
+                      <CreditBalance />
                       <PointsDisplay />
                       <Card>
                         <CardContent className="p-6">

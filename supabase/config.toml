@@ -1,4 +1,8 @@
-project_id = "cotfweyhlglpjmgqxwqx"
+project_id = "wwqoztrqprqksdubjwgj"
+
+[functions.stripe-webhook]
+enabled = true
+verify_jwt = false
 
 [functions.get-mapbox-token]
 enabled = true

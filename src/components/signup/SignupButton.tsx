@@ -7,7 +7,10 @@ import { signUpForEvent, guestSignUpForEvent } from '@/api/signups';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
-import { UserPlus } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { UserPlus, Zap, ExternalLink } from 'lucide-react';
+
+const STRIPE_STANDARD_LINK = import.meta.env.VITE_STRIPE_STANDARD_LINK ?? '';
 
 interface SignupButtonProps {
   eventId: string;
@@ -20,20 +23,40 @@ export function SignupButton({ eventId, isFull }: SignupButtonProps) {
   const [guestEmail, setGuestEmail] = useState('');
   const [guestPhone, setGuestPhone] = useState('');
   const [open, setOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, creditsBalance, refreshProfile } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const noCredits = !!user && creditsBalance < 1;
+
   const signupMutation = useMutation({
-    mutationFn: () => signUpForEvent(eventId, notes),
+    mutationFn: async () => {
+      // Deduct 1 credit atomically before signup
+      if (user) {
+        const { data: ok } = await supabase.rpc('spend_credit', {
+          p_user_id: user.id,
+          p_reference: eventId,
+        });
+        if (!ok) throw new Error('no_credits');
+      }
+      return signUpForEvent(eventId, notes);
+    },
     onSuccess: () => {
       toast({ title: 'Signed up!', description: "You're on the list!" });
       queryClient.invalidateQueries({ queryKey: ['eventSignups', eventId] });
       queryClient.invalidateQueries({ queryKey: ['allSignupEvents'] });
+      refreshProfile();
       setOpen(false);
       setNotes('');
     },
     onError: (error: any) => {
+      if (error.message === 'no_credits') return; // handled by noCredits UI
+      // Refund credit if signup failed after deduction
+      if (user) {
+        supabase.rpc('admin_add_credits', {
+          p_user_id: user.id, p_delta: 1, p_reason: 'refund', p_reference: eventId,
+        }).then(() => refreshProfile());
+      }
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     },
   });
@@ -73,6 +96,18 @@ export function SignupButton({ eventId, isFull }: SignupButtonProps) {
       guestMutation.mutate();
     }
   };
+
+  if (noCredits && STRIPE_STANDARD_LINK) {
+    return (
+      <a href={STRIPE_STANDARD_LINK} target="_blank" rel="noopener noreferrer">
+        <Button size="sm" variant="outline" className="gap-1.5 border-amber-300 text-amber-700 hover:bg-amber-50">
+          <Zap className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+          Get credits
+          <ExternalLink className="h-3 w-3" />
+        </Button>
+      </a>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
