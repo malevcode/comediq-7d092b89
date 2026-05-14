@@ -56,7 +56,7 @@ const renderAdStrip = (ads: AdBox[], repeatCount: number, userId?: string) => {
 };
 
 const MarqueeBanner = () => {
-  const { topAds, bottomAds } = useBannerAds();
+  const { bottomAds } = useBannerAds();
   const { user } = useAuth();
 
   return (
