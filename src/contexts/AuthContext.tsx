@@ -12,6 +12,10 @@ export interface AppUser {
 type UserRole = 'performer' | 'host' | 'showrunner' | 'admin' | null;
 type SubscriptionPlan = 'free' | 'standard' | 'premium';
 
+interface ProfileAccessFields {
+  isadmin: boolean;
+}
+
 interface AuthContextType {
   user: AppUser | null;
   session: Session | null;
@@ -73,7 +77,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  // Fetch profile fields: isAdmin, role, plan, credits
+  // Fetch admin access from the profile row. Optional product fields default below
+  // because this Supabase schema does not currently include them.
   useEffect(() => {
     if (!user) {
       setIsAdmin(false);
@@ -84,15 +89,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     supabase
       .from('profiles')
-      .select('isadmin, role, subscription_plan, credits_balance')
+      .select('isadmin')
       .eq('user_id', user.id)
-      .single<{ isadmin: boolean; role: UserRole; subscription_plan: SubscriptionPlan; credits_balance: number }>()
+      .single<ProfileAccessFields>()
       .then(({ data, error }) => {
         if (error || !data) return;
         setIsAdmin(!!data.isadmin);
-        setRole(data.role ?? null);
-        setSubscriptionPlan(data.subscription_plan ?? 'free');
-        setCreditsBalance(data.credits_balance ?? 0);
       });
   }, [user?.id, profileFetchKey]);
 
