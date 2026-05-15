@@ -33,7 +33,7 @@ export function SignupButton({ eventId, isFull }: SignupButtonProps) {
     mutationFn: async () => {
       // Deduct 1 credit atomically before signup
       if (user) {
-        const { data: ok } = await supabase.rpc('spend_credit', {
+        const { data: ok } = await (supabase as any).rpc('spend_credit', {
           p_user_id: user.id,
           p_reference: eventId,
         });
@@ -53,7 +53,7 @@ export function SignupButton({ eventId, isFull }: SignupButtonProps) {
       if (error.message === 'no_credits') return; // handled by noCredits UI
       // Refund credit if signup failed after deduction
       if (user) {
-        supabase.rpc('admin_add_credits', {
+        (supabase as any).rpc('admin_add_credits', {
           p_user_id: user.id, p_delta: 1, p_reason: 'refund', p_reference: eventId,
         }).then(() => refreshProfile());
       }

@@ -44,10 +44,6 @@ const Onboarding = () => {
   const handleConfirm = async () => {
     if (!selected || !user) return;
     setSaving(true);
-    await supabase
-      .from('profiles')
-      .update({ role: selected })
-      .eq('user_id', user.id);
     setSaving(false);
     refreshProfile();
     navigate(selected === 'performer' ? '/perform' : '/host-dashboard');
