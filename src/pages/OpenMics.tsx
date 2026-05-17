@@ -25,7 +25,11 @@ import OpenMicsLoadingScreen from "@/components/OpenMicsLoadingScreen";
 
 
 
-const OpenMics = () => {
+interface OpenMicsProps {
+  embedded?: boolean;
+}
+
+const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [activeTab, setActiveTab] = useState("next");
@@ -550,9 +554,9 @@ const OpenMics = () => {
         structuredData={breadcrumbSchema}
       />
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
-        <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />
+        {!embedded && <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />}
 
-      <div className="max-w-7xl mx-auto px-4 pt-32 sm:pt-36 pb-0">
+      <div className={`max-w-7xl mx-auto px-4 ${embedded ? 'pt-3' : 'pt-32 sm:pt-36'} pb-0`}>
         {/* Key/Legend */}
         {showKey && (
             <div className="block mb-3">
