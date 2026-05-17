@@ -8,7 +8,7 @@ import Slots from "./Slots";
 import { PlaylistsTab } from "@/components/playlists";
 import { useLocation, Link } from 'react-router-dom';
 import { useTabContext } from "@/contexts/TabContext";
-import { Megaphone, ListMusic, Sheet, TicketCheck } from "lucide-react";
+import { ListMusic, Sheet, TicketCheck } from "lucide-react";
 import DevView from "./DevView";
 
 const Perform = () => {
@@ -68,9 +68,9 @@ const Perform = () => {
   return (
     <div className="h-full">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="sticky top-2 z-40">
+        <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
           <div className="max-w-7xl mx-auto px-4">
-            <TabsList className="grid w-full grid-cols-5 mb-0">
+            <TabsList className="grid w-full grid-cols-5 my-2">
               <TabsTrigger value="find-mics">Find Mics</TabsTrigger>
               <TabsTrigger value="playlists" className="gap-1">
                 <ListMusic className="h-3.5 w-3.5" />
@@ -89,20 +89,11 @@ const Perform = () => {
                 Dev View
               </TabsTrigger>
             </TabsList>
-            <div className="text-center mt-2">
-              <Link 
-                to="/advertise" 
-                className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
-              >
-                <Megaphone className="h-3.5 w-3.5 mr-1" />
-                Want to promote your mic? Advertise with us
-              </Link>
-            </div>
           </div>
         </div>
 
         <TabsContent value="find-mics" className="mt-0">
-          <OpenMics />
+          <OpenMics embedded />
         </TabsContent>
 
         <TabsContent value="playlists" className="mt-0">
