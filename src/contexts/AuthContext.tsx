@@ -59,6 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [profileChecked, setProfileChecked] = useState(false);
   const [visitInserted, setVisitInserted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [role, setRole] = useState<UserRole>(null);
@@ -86,6 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (!user) {
       setProfileLoading(false);
+      setProfileChecked(true);
       setIsAdmin(false);
       setRole(null);
       setSubscriptionPlan('free');
@@ -93,6 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
     setProfileLoading(true);
+    setProfileChecked(false);
     Promise.all([
       supabase
       .from('profiles')
@@ -109,7 +112,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setRole(primaryRole);
       setIsAdmin(!!profileResult.data?.isadmin || roles.includes('admin'));
-    }).finally(() => setProfileLoading(false));
+    }).finally(() => {
+      setProfileLoading(false);
+      setProfileChecked(true);
+    });
   }, [user?.id, profileFetchKey]);
 
   // Auto-create profile row on first sign-in
@@ -160,7 +166,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const needsOnboarding = !!user && role === null;
 
   return (
-    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, loading: loading || profileLoading, visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, creditsBalance, needsOnboarding, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, loading: loading || profileLoading || (!!user && !profileChecked), visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, creditsBalance, needsOnboarding, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
