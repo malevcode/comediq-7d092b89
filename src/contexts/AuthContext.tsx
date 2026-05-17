@@ -58,6 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [visitInserted, setVisitInserted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [role, setRole] = useState<UserRole>(null);
@@ -84,12 +85,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Fetch access from dedicated role rows. Profile admin remains a legacy fallback.
   useEffect(() => {
     if (!user) {
+      setProfileLoading(false);
       setIsAdmin(false);
       setRole(null);
       setSubscriptionPlan('free');
       setCreditsBalance(0);
       return;
     }
+    setProfileLoading(true);
     Promise.all([
       supabase
       .from('profiles')
@@ -106,7 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setRole(primaryRole);
       setIsAdmin(!!profileResult.data?.isadmin || roles.includes('admin'));
-    });
+    }).finally(() => setProfileLoading(false));
   }, [user?.id, profileFetchKey]);
 
   // Auto-create profile row on first sign-in
@@ -157,7 +160,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const needsOnboarding = !!user && role === null;
 
   return (
-    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, loading, visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, creditsBalance, needsOnboarding, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, loading: loading || profileLoading, visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, creditsBalance, needsOnboarding, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
