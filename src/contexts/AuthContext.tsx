@@ -161,7 +161,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const resetVisitInserted = () => setVisitInserted(false);
-  const refreshProfile = () => setProfileFetchKey(k => k + 1);
+  const refreshProfile = () => {
+    setProfileLoading(true);
+    setProfileChecked(false);
+    setProfileFetchKey(k => k + 1);
+  };
 
   const needsOnboarding = !!user && role === null;
 
