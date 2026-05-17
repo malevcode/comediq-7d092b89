@@ -16,6 +16,10 @@ interface ProfileAccessFields {
   isadmin: boolean;
 }
 
+interface UserRoleRow {
+  role: Exclude<UserRole, null>;
+}
+
 interface AuthContextType {
   user: AppUser | null;
   session: Session | null;
@@ -77,8 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  // Fetch admin access from the profile row. Optional product fields default below
-  // because this Supabase schema does not currently include them.
+  // Fetch access from dedicated role rows. Profile admin remains a legacy fallback.
   useEffect(() => {
     if (!user) {
       setIsAdmin(false);
@@ -87,15 +90,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCreditsBalance(0);
       return;
     }
-    supabase
+    Promise.all([
+      supabase
       .from('profiles')
       .select('isadmin')
       .eq('user_id', user.id)
-      .single<ProfileAccessFields>()
-      .then(({ data, error }) => {
-        if (error || !data) return;
-        setIsAdmin(!!data.isadmin);
-      });
+        .maybeSingle<ProfileAccessFields>(),
+      (supabase as any)
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id),
+    ]).then(([profileResult, rolesResult]) => {
+      const roles = ((rolesResult.data || []) as UserRoleRow[]).map(row => row.role);
+      const primaryRole = roles.find(r => r !== 'admin') ?? null;
+
+      setRole(primaryRole);
+      setIsAdmin(!!profileResult.data?.isadmin || roles.includes('admin'));
+    });
   }, [user?.id, profileFetchKey]);
 
   // Auto-create profile row on first sign-in
