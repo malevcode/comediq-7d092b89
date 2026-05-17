@@ -4,6 +4,11 @@ import { Mic, CalendarDays, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import SEO from '@/components/SEO';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from '@/hooks/use-toast';
 
 const BRAND_BLUE = '#1a5fb4';
 
@@ -34,6 +39,10 @@ const Onboarding = () => {
   const { user, needsOnboarding, loading, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [selected, setSelected] = useState<Role | null>(null);
+  const [runsOpenMic, setRunsOpenMic] = useState(false);
+  const [runsShow, setRunsShow] = useState(false);
+  const [micOrShowName, setMicOrShowName] = useState('');
+  const [wantsListingPromo, setWantsListingPromo] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -44,9 +53,40 @@ const Onboarding = () => {
   const handleConfirm = async () => {
     if (!selected || !user) return;
     setSaving(true);
-    setSaving(false);
+
+    const runsAnything = runsOpenMic || runsShow || selected === 'host' || selected === 'showrunner';
+    const cleanedName = micOrShowName.trim();
+
+    const { error: responseError } = await (supabase as any)
+      .from('user_onboarding_responses')
+      .upsert({
+        user_id: user.id,
+        primary_use: selected,
+        runs_open_mic: runsOpenMic || selected === 'host',
+        runs_show: runsShow || selected === 'showrunner',
+        mic_or_show_name: cleanedName || null,
+        wants_listing_promo: runsAnything && wantsListingPromo,
+      }, { onConflict: 'user_id' });
+
+    if (responseError) {
+      setSaving(false);
+      toast({ title: 'Could not save onboarding', description: responseError.message, variant: 'destructive' });
+      return;
+    }
+
+    const { error: roleError } = await (supabase as any)
+      .from('user_roles')
+      .upsert({ user_id: user.id, role: selected }, { onConflict: 'user_id,role' });
+
+    if (roleError) {
+      setSaving(false);
+      toast({ title: 'Could not save role', description: roleError.message, variant: 'destructive' });
+      return;
+    }
+
     refreshProfile();
-    navigate(selected === 'performer' ? '/perform' : '/host-dashboard');
+    setSaving(false);
+    navigate(selected === 'performer' ? '/perform' : '/host-dashboard', { replace: true });
   };
 
   return (
@@ -64,7 +104,7 @@ const Onboarding = () => {
           <h1 className="text-2xl font-semibold text-gray-900 mb-2 text-center">How do you use Comediq?</h1>
           <p className="text-sm text-gray-500 mb-8 text-center">We'll tailor the experience for you. You can change this later.</p>
 
-          <div className="space-y-3 mb-8">
+          <div className="space-y-3 mb-6">
             {roles.map(r => (
               <button
                 key={r.id}
@@ -85,15 +125,53 @@ const Onboarding = () => {
             ))}
           </div>
 
-          <button
+          {selected && (
+            <div className="space-y-4 mb-6 rounded-xl border border-gray-200 p-4 bg-gray-50/60">
+              <div className="space-y-3">
+                <Label className="text-sm text-gray-900">Do you run an open mic or show?</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label className="flex items-center gap-2 text-sm text-gray-700">
+                    <Checkbox checked={runsOpenMic || selected === 'host'} disabled={selected === 'host'} onCheckedChange={(checked) => setRunsOpenMic(checked === true)} />
+                    I run an open mic
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-700">
+                    <Checkbox checked={runsShow || selected === 'showrunner'} disabled={selected === 'showrunner'} onCheckedChange={(checked) => setRunsShow(checked === true)} />
+                    I run a show
+                  </label>
+                </div>
+              </div>
+
+              {(runsOpenMic || runsShow || selected === 'host' || selected === 'showrunner') && (
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="micOrShowName" className="text-sm text-gray-900">Open mic or show name</Label>
+                    <Input
+                      id="micOrShowName"
+                      value={micOrShowName}
+                      onChange={(event) => setMicOrShowName(event.target.value)}
+                      maxLength={120}
+                      placeholder="e.g. Sunday Night Mic"
+                      className="mt-2 bg-white"
+                    />
+                  </div>
+                  <label className="flex items-start gap-2 text-sm text-gray-700">
+                    <Checkbox checked={wantsListingPromo} onCheckedChange={(checked) => setWantsListingPromo(checked === true)} />
+                    <span>I want to list it on Comediq for extra promo</span>
+                  </label>
+                </div>
+              )}
+            </div>
+          )}
+
+          <Button
             type="button"
             onClick={handleConfirm}
             disabled={!selected || saving}
-            className="w-full py-3.5 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50"
+            className="w-full h-12 rounded-xl text-sm font-medium disabled:opacity-50"
             style={{ background: BRAND_BLUE }}
           >
             {saving ? 'Saving…' : 'Continue'}
-          </button>
+          </Button>
         </div>
       </div>
     </>
