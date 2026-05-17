@@ -2117,6 +2117,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_onboarding_responses: {
+        Row: {
+          created_at: string
+          id: string
+          mic_or_show_name: string | null
+          primary_use: Database["public"]["Enums"]["app_role"]
+          runs_open_mic: boolean
+          runs_show: boolean
+          updated_at: string
+          user_id: string
+          wants_listing_promo: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mic_or_show_name?: string | null
+          primary_use: Database["public"]["Enums"]["app_role"]
+          runs_open_mic?: boolean
+          runs_show?: boolean
+          updated_at?: string
+          user_id: string
+          wants_listing_promo?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mic_or_show_name?: string | null
+          primary_use?: Database["public"]["Enums"]["app_role"]
+          runs_open_mic?: boolean
+          runs_show?: boolean
+          updated_at?: string
+          user_id?: string
+          wants_listing_promo?: boolean
+        }
+        Relationships: []
+      }
       user_plans: {
         Row: {
           created_at: string
@@ -2161,6 +2197,30 @@ export type Database = {
             referencedColumns: ["unique_identifier"]
           },
         ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_visits: {
         Row: {
@@ -2578,9 +2638,17 @@ export type Database = {
       }
     }
     Functions: {
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       resolve_motd_for: { Args: { target_date: string }; Returns: string }
     }
     Enums: {
+      app_role: "performer" | "host" | "showrunner" | "admin"
       application_status:
         | "pending"
         | "accepted"
@@ -2746,6 +2814,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["performer", "host", "showrunner", "admin"],
       application_status: [
         "pending",
         "accepted",

@@ -16,6 +16,10 @@ interface ProfileAccessFields {
   isadmin: boolean;
 }
 
+interface UserRoleRow {
+  role: Exclude<UserRole, null>;
+}
+
 interface AuthContextType {
   user: AppUser | null;
   session: Session | null;
@@ -54,6 +58,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileChecked, setProfileChecked] = useState(false);
   const [visitInserted, setVisitInserted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [role, setRole] = useState<UserRole>(null);
@@ -77,25 +83,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  // Fetch admin access from the profile row. Optional product fields default below
-  // because this Supabase schema does not currently include them.
+  // Fetch access from dedicated role rows. Profile admin remains a legacy fallback.
   useEffect(() => {
     if (!user) {
+      setProfileLoading(false);
+      setProfileChecked(true);
       setIsAdmin(false);
       setRole(null);
       setSubscriptionPlan('free');
       setCreditsBalance(0);
       return;
     }
-    supabase
+    setProfileLoading(true);
+    setProfileChecked(false);
+    Promise.all([
+      supabase
       .from('profiles')
       .select('isadmin')
       .eq('user_id', user.id)
-      .single<ProfileAccessFields>()
-      .then(({ data, error }) => {
-        if (error || !data) return;
-        setIsAdmin(!!data.isadmin);
-      });
+        .maybeSingle<ProfileAccessFields>(),
+      (supabase as any)
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id),
+    ]).then(([profileResult, rolesResult]) => {
+      const roles = ((rolesResult.data || []) as UserRoleRow[]).map(row => row.role);
+      const primaryRole = roles.find(r => r !== 'admin') ?? null;
+
+      setRole(primaryRole);
+      setIsAdmin(!!profileResult.data?.isadmin || roles.includes('admin'));
+    }).finally(() => {
+      setProfileLoading(false);
+      setProfileChecked(true);
+    });
   }, [user?.id, profileFetchKey]);
 
   // Auto-create profile row on first sign-in
@@ -141,12 +161,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const resetVisitInserted = () => setVisitInserted(false);
-  const refreshProfile = () => setProfileFetchKey(k => k + 1);
+  const refreshProfile = () => {
+    setProfileLoading(true);
+    setProfileChecked(false);
+    setProfileFetchKey(k => k + 1);
+  };
 
   const needsOnboarding = !!user && role === null;
 
   return (
-    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, loading, visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, creditsBalance, needsOnboarding, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, loading: loading || profileLoading || (!!user && !profileChecked), visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, creditsBalance, needsOnboarding, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
