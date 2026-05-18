@@ -78,7 +78,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
       costRange: [0, maxCost],
       timeOfDay: [],
       borough: "All",
-      city: "New York",
+      city: filters.city,
       frequency: 'all',
       micStatus: 'all',
     });
@@ -174,7 +174,8 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                     </div>
                   </div>
 
-                  {/* Borough Filter */}
+                  {/* Borough Filter — NYC only */}
+                  {filters.city === "New York" && (
                   <div>
                     <label className="text-xs font-medium mb-1 block text-foreground">Borough</label>
                     <select
@@ -187,6 +188,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                       ))}
                     </select>
                   </div>
+                  )}
 
                   {/* Time of Day Filter */}
                   <div>

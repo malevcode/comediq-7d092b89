@@ -58,6 +58,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   const cities: { label: string; value: string }[] = [
     { label: "NY", value: "New York" },
+    { label: "HV", value: "Upstate NY" },
     { label: "LA", value: "Los Angeles" },
     { label: "ATX", value: "Austin" },
   ];
@@ -393,7 +394,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
               <Button
                 onClick={() => {
                   setSearchTerm("");
-                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", city: "New York", frequency: 'all', micStatus: 'all' });
+                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", city: filters.city, frequency: 'all', micStatus: 'all' });
                 }}
                 variant="outline"
                 className="mt-4 text-sm"
