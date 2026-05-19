@@ -38,27 +38,15 @@ export const useMicStatus = (micUniqueIdentifier: string) => {
 
   const updateStatusMutation = useMutation({
     mutationFn: async (newStatus: MicStatusType) => {
-      const response = await fetch(
-        `https://cotfweyhlglpjmgqxwqx.supabase.co/functions/v1/verify-mic`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token || ''}`,
-          },
-          body: JSON.stringify({
-            mic_unique_identifier: micUniqueIdentifier,
-            status: newStatus,
-          }),
-        }
-      );
+      const { data, error } = await supabase.functions.invoke('verify-mic', {
+        body: {
+          mic_unique_identifier: micUniqueIdentifier,
+          status: newStatus,
+        },
+      });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to update status');
-      }
-
-      return response.json();
+      if (error) throw new Error(error.message || 'Failed to update status');
+      return data;
     },
     onMutate: async (newStatus: MicStatusType) => {
       await queryClient.cancelQueries({ queryKey: ['mic-status', micUniqueIdentifier] });

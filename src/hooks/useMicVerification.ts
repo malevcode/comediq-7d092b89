@@ -31,24 +31,13 @@ export const useMicVerification = (micUniqueIdentifier?: string) => {
     setIsVerifying(true);
     
     try {
-      // Get current session for auth header (optional)
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const response = await fetch(
-        `https://cotfweyhlglpjmgqxwqx.supabase.co/functions/v1/verify-mic`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': session?.access_token ? `Bearer ${session.access_token}` : '',
-          },
-          body: JSON.stringify({ mic_unique_identifier: micUniqueIdentifier }),
-        }
-      );
+      const { data: result, error: fnError } = await supabase.functions.invoke('verify-mic', {
+        body: { mic_unique_identifier: micUniqueIdentifier },
+      });
 
-      const result = await response.json();
+      if (fnError) throw fnError;
 
-      if (result.success) {
+      if (result?.success) {
         // Store in localStorage
         const today = new Date().toDateString();
         localStorage.setItem(`${STORAGE_KEY_PREFIX}${micUniqueIdentifier}`, today);
@@ -65,21 +54,21 @@ export const useMicVerification = (micUniqueIdentifier?: string) => {
 
         toast({
           title: result.alreadyVerified ? "Already verified!" : "Thanks for verifying!",
-          description: result.alreadyVerified 
-            ? "You already verified this mic today." 
+          description: result.alreadyVerified
+            ? "You already verified this mic today."
             : "Your confirmation helps the community.",
         });
       } else {
         toast({
           title: "Couldn't verify",
-          description: result.error || "Please try again later.",
+          description: result?.error || "Please try again later.",
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error('Verification error:', error);
       toast({
-        title: "Network error",
+        title: "Couldn't verify",
         description: "Please check your connection and try again.",
         variant: "destructive",
       });
