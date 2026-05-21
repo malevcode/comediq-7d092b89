@@ -11,6 +11,7 @@ import { Calendar, Clock, DollarSign, MapPin, UserRoundCheck, Heart, ArrowLeft, 
 import { WentUpToggle } from "@/components/mic/WentUpToggle";
 import { VerificationBadge } from "@/components/VerificationBadge";
 import ClaimMicButton from "@/components/host/ClaimMicButton";
+import SuggestEditButton from "@/components/mic/SuggestEditButton";
 import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
@@ -232,11 +233,12 @@ const MicDetailPage = () => {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Claim / Edit Mic */}
-              <ClaimMicButton 
+              <ClaimMicButton
                 micUniqueIdentifier={mic.uniqueIdentifier}
                 micName={mic.openMic}
                 venueName={mic.venueName}
               />
+              <SuggestEditButton mic={mic} />
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Browse Similar</CardTitle>
