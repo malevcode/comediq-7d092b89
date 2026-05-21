@@ -94,8 +94,13 @@ const AdminRequestCard = ({
         {req.hosts_organizers && (
           <div className="text-sm text-muted-foreground mb-1">Host: <span className="font-semibold text-foreground">{req.hosts_organizers}</span></div>
         )}
+        {req.status === 'edit_suggestion' && req.changes_updates && (
+          <div className="my-3 p-3 rounded-lg bg-blue-50 border border-blue-200 text-sm text-blue-900 whitespace-pre-wrap">
+            {req.changes_updates.replace(/^\[EDIT SUGGESTION[^\]]*\]\n?/, '')}
+          </div>
+        )}
         <div className="text-xs text-muted-foreground mb-2">Requested: {req.created_at ? new Date(req.created_at).toLocaleString() : 'Unknown'}</div>
-        
+
         {/* Submitter info */}
         {req.user_id && (
           <div className="text-xs text-muted-foreground mb-2">
