@@ -317,27 +317,74 @@ const Auth = () => {
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
-      <h1 className="text-2xl font-semibold text-gray-900 mb-1">Check your email</h1>
-      <p className="text-sm text-gray-500 mb-8">
-        We sent a 6-digit code to <span className="font-medium text-gray-700">{otpEmail}</span>
-      </p>
+      {/* Deli ticket */}
+      <div className="relative mx-auto mb-6" style={{ maxWidth: 320 }}>
+        {/* Perforated top edge */}
+        <div className="w-full overflow-hidden" style={{ height: 12 }}>
+          <svg width="100%" height="12" preserveAspectRatio="none">
+            <path
+              d="M0,12 Q8,0 16,12 Q24,0 32,12 Q40,0 48,12 Q56,0 64,12 Q72,0 80,12 Q88,0 96,12 Q104,0 112,12 Q120,0 128,12 Q136,0 144,12 Q152,0 160,12 Q168,0 176,12 Q184,0 192,12 Q200,0 208,12 Q216,0 224,12 Q232,0 240,12 Q248,0 256,12 Q264,0 272,12 Q280,0 288,12 Q296,0 304,12 Q312,0 320,12"
+              fill="#faf7f0"
+              stroke="#e5e0d5"
+              strokeWidth="1"
+            />
+          </svg>
+        </div>
 
-      <div className="flex gap-2.5 mb-6 justify-center">
-        {otpDigits.map((digit, i) => (
-          <input
-            key={i}
-            ref={(el) => { otpRefs.current[i] = el; }}
-            type="text"
-            inputMode="numeric"
-            maxLength={6}
-            value={digit}
-            onChange={e => handleOtpChange(i, e.target.value)}
-            onKeyDown={e => handleOtpKeyDown(i, e)}
-            onFocus={e => e.target.select()}
-            className="w-11 h-14 text-center text-xl font-semibold rounded-xl border border-gray-200 outline-none focus:border-[#1a5fb4] focus:ring-2 focus:ring-[#1a5fb4]/20 transition-colors"
-            aria-label={`Digit ${i + 1}`}
-          />
-        ))}
+        {/* Ticket body */}
+        <div className="bg-[#faf7f0] border-x border-[#e5e0d5] px-8 py-5">
+          {/* Header */}
+          <div className="text-center mb-1">
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400">ComedIQ</p>
+            <p className="text-[11px] font-bold tracking-[0.15em] uppercase text-gray-700 mt-0.5">Your sign-in code</p>
+          </div>
+
+          {/* Dashed divider */}
+          <div className="border-t border-dashed border-gray-300 my-4" />
+
+          {/* Digit boxes */}
+          <div className="flex gap-2 justify-center mb-4">
+            {otpDigits.map((digit, i) => (
+              <input
+                key={i}
+                ref={(el) => { otpRefs.current[i] = el; }}
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                value={digit}
+                onChange={e => handleOtpChange(i, e.target.value)}
+                onKeyDown={e => handleOtpKeyDown(i, e)}
+                onFocus={e => e.target.select()}
+                className="w-10 h-12 text-center text-2xl font-bold bg-white border border-[#d4cfc4] rounded outline-none focus:border-[#1a5fb4] focus:ring-2 focus:ring-[#1a5fb4]/20 transition-colors text-gray-800"
+                style={{ fontFamily: 'monospace' }}
+                aria-label={`Digit ${i + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Dashed divider */}
+          <div className="border-t border-dashed border-gray-300 mb-4" />
+
+          {/* Footer */}
+          <div className="text-center">
+            <p className="text-[10px] text-gray-400 tracking-wide">
+              sent to {otpEmail}
+            </p>
+            <p className="text-[10px] text-gray-400 mt-0.5">valid for 1 hour · one use only</p>
+          </div>
+        </div>
+
+        {/* Perforated bottom edge */}
+        <div className="w-full overflow-hidden" style={{ height: 12 }}>
+          <svg width="100%" height="12" preserveAspectRatio="none">
+            <path
+              d="M0,0 Q8,12 16,0 Q24,12 32,0 Q40,12 48,0 Q56,12 64,0 Q72,12 80,0 Q88,12 96,0 Q104,12 112,0 Q120,12 128,0 Q136,12 144,0 Q152,12 160,0 Q168,12 176,0 Q184,12 192,0 Q200,12 208,0 Q216,12 224,0 Q232,12 240,0 Q248,12 256,0 Q264,12 272,0 Q280,12 288,0 Q296,12 304,0 Q312,12 320,0"
+              fill="#faf7f0"
+              stroke="#e5e0d5"
+              strokeWidth="1"
+            />
+          </svg>
+        </div>
       </div>
 
       <button
@@ -347,7 +394,7 @@ const Auth = () => {
         className="w-full py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50 mb-4"
         style={{ background: BRAND_BLUE }}
       >
-        {loading ? 'Verifying…' : 'Verify code'}
+        {loading ? 'Verifying…' : 'Step right up'}
       </button>
 
       <p className="text-center text-sm text-gray-500">
