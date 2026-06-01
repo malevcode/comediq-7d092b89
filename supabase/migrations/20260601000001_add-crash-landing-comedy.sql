@@ -20,7 +20,7 @@ BEGIN
       gen_random_uuid(), 'Crash Landing Comedy', 'Monday', '8:00 PM', '9:30 PM',
       'Red Eye', 'Manhattan', 'Hell''s Kitchen', '355 W 41st St, New York, NY',
       'New York', 'Bar', 'Free', '5 min', 'In person', 'Ashley Ryan',
-      NULL, NULL, 'active', true, false,
+      NULL, NULL, 'verified', true, false,
       'weekly', 'in_person', NULL, NULL,
       NULL, 5, false, NULL, NULL, 0, CURRENT_DATE, CURRENT_DATE, NULL, NULL
     );
