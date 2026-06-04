@@ -47,6 +47,7 @@ import TopMics from "./pages/TopMics";
 import Slots from "./pages/Slots";
 import ShowsMap from "./pages/ShowsMap";
 import Onboarding from "./pages/Onboarding";
+import { ComediqChatbot } from "./components/chat/ComediqChatbot";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -116,6 +117,7 @@ const App = () => (
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </div>
+                <ComediqChatbot />
                 <SiteFooter />
                 <BottomNavigation />
               </AnalyticsProvider>
