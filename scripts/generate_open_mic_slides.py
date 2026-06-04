@@ -1,60 +1,77 @@
 #!/usr/bin/env python3
-"""
-Generate Instagram carousel slides for NYC open mics — one or more slides per day.
-Usage: python3 generate_open_mic_slides.py
-Output: scripts/instagram_slides/  (PNG files)
-Data:   scripts/nyc_mics_june2026.csv  (exported from Supabase open_mics_historical)
+"""Generate Instagram carousel PNG slides for NYC open mics — one slide per day of the week.
+Output: scripts/instagram_slides/00_cover.png + 01_monday.png … 07_sunday.png
+Data:   scripts/nyc_mics_june2026.csv  (active=true, city=New York)
+Week:   June 2–8 2026 (Mon=2 Jun … Sun=8 Jun)
 """
 
 import csv
 import os
 import re
-from datetime import date, timedelta
+import shutil
+from datetime import date
 from PIL import Image, ImageDraw, ImageFont
 
-# ── Brand colours ─────────────────────────────────────────────────────────────
-BG_TOP       = (12,  58, 114)   # #0c3a72  comediq-blue-dark
-BG_BOT       = ( 6,  22,  60)   # deeper navy
-ACCENT       = (27,  94, 176)   # #1b5eb0  comediq-blue
-ACCENT_LIGHT = (71, 133, 209)   # #4785d1  comediq-blue-light
-CREAM        = (244, 241, 234)  # #f4f1ea  comediq-cream
-WHITE        = (255, 255, 255)
-DIM          = (150, 175, 210)  # muted blue-grey
-DIVIDER      = ( 38,  72, 138)  # subtle divider
+# ── Colours (matched to Canva design screenshot) ──────────────────────────────
+BG_COLOR   = (30,  60, 195)     # vivid Comediq blue
+HEADER_BG  = (18,  40, 155)     # darker blue for header band
+WHITE      = (255, 255, 255)
+OFF_WHITE  = (210, 220, 255)    # venue text, footer
+RULE_COLOR = (70,  95, 210)     # column divider + row rules
+
+# ── Paths ─────────────────────────────────────────────────────────────────────
+BASE        = os.path.dirname(os.path.abspath(__file__))
+CSV_PATH    = os.path.join(BASE, "nyc_mics_june2026.csv")
+LOGO_PATH   = os.path.join(BASE, "..", "public", "comediq_white.png")
+OUTPUT_DIR  = os.path.join(BASE, "instagram_slides")
+
+FONT_BOLD   = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+FONT_REG    = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 
 # ── Canvas ────────────────────────────────────────────────────────────────────
-W, H         = 1080, 1350       # 4:5 portrait — ideal Instagram carousel
-MICS_PER_SLIDE = 20             # max entries per slide before splitting
+W, H = 1080, 1350   # 4:5 portrait Instagram carousel
 
-# ── Fonts ─────────────────────────────────────────────────────────────────────
-FONT_DIR  = "/usr/share/fonts/truetype/dejavu"
-FONT_BOLD = os.path.join(FONT_DIR, "DejaVuSans-Bold.ttf")
-FONT_REG  = os.path.join(FONT_DIR, "DejaVuSans.ttf")
+DAYS        = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+WEEK_DATES  = {
+    "Monday":    date(2026, 6, 2),
+    "Tuesday":   date(2026, 6, 3),
+    "Wednesday": date(2026, 6, 4),
+    "Thursday":  date(2026, 6, 5),
+    "Friday":    date(2026, 6, 6),
+    "Saturday":  date(2026, 6, 7),
+    "Sunday":    date(2026, 6, 8),  # 2nd Sunday of June (June 1 was 1st)
+}
 
-def load(path, size):
-    try:
-        return ImageFont.truetype(path, size)
-    except Exception:
-        return ImageFont.load_default()
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-def vertical_gradient(draw, width, height, top_color, bot_color):
-    for y in range(height):
-        t = y / height
-        r = int(top_color[0] + t * (bot_color[0] - top_color[0]))
-        g = int(top_color[1] + t * (bot_color[1] - top_color[1]))
-        b = int(top_color[2] + t * (bot_color[2] - top_color[2]))
-        draw.line([(0, y), (width, y)], fill=(r, g, b))
+def fnt(path: str, size: int) -> ImageFont.FreeTypeFont:
+    return ImageFont.truetype(path, size)
 
 
-def time_sort_key(m):
-    t = (m.get("start_time") or "").strip()
-    if not t:
-        return (3, 0)
+def text_w(draw: ImageDraw.ImageDraw, text: str, font) -> int:
+    bb = draw.textbbox((0, 0), text, font=font)
+    return bb[2] - bb[0]
+
+
+def centered(draw: ImageDraw.ImageDraw, text: str, y: int, font, color=WHITE):
+    tw = text_w(draw, text, font)
+    draw.text(((W - tw) // 2, y), text, font=font, fill=color)
+
+
+def truncate(draw: ImageDraw.ImageDraw, text: str, max_w: int, font: ImageFont.FreeTypeFont) -> str:
+    if text_w(draw, text, font) <= max_w:
+        return text
+    while len(text) > 2 and text_w(draw, text + "…", font) > max_w:
+        text = text[:-1]
+    return text + "…"
+
+
+def time_sort_key(t: str) -> int:
+    """Ascending sort; early AM (midnight–7:59 AM) sorts after PM = late night."""
     nums = re.findall(r"\d+", t)
     if not nums:
-        return (2, 0)
+        return 9999
     h  = int(nums[0])
     mn = int(nums[1]) if len(nums) > 1 else 0
     pm = "PM" in t.upper()
@@ -62,270 +79,229 @@ def time_sort_key(m):
         h += 12
     if not pm and h == 12:
         h = 0
-    if h == 0:
-        h = 24  # midnight = late-night
-    return (0, h * 60 + mn)
+    if h < 8:          # treat early AM as post-midnight
+        h += 24
+    return h * 60 + mn
 
 
-def week_occurrence(d: date) -> int:
+def nth_occurrence(d: date) -> int:
     return (d.day - 1) // 7 + 1
 
 
-def mics_for_day(all_mics, target_day, target_date):
-    occurrence = week_occurrence(target_date)
-    result = []
-    for mic in all_mics:
-        if mic["day"].strip() != target_day:
-            continue
-        if mic["active"].strip().lower() != "true":
-            continue
-        if mic["city"].strip() != "New York":
-            continue
-        freq = (mic.get("frequency") or "weekly").strip().lower()
-        if freq == "weekly":
-            result.append(mic)
-        elif freq == "bi_weekly" or freq == "biweekly":
-            result.append(mic)
-        elif freq == "1st_of_month":
-            if occurrence == 1:
-                result.append(mic)
-        elif freq == "2nd_of_month":
-            if occurrence == 2:
-                result.append(mic)
-        elif freq == "3rd_of_month":
-            if occurrence == 3:
-                result.append(mic)
-        elif freq == "4th_of_month":
-            if occurrence == 4:
-                result.append(mic)
-        else:
-            result.append(mic)
-    result.sort(key=time_sort_key)
-    return result
+# ── Data loading ─────────────────────────────────────────────────────────────
+
+def load_mics() -> dict:
+    by_day: dict = {d: [] for d in DAYS}
+    with open(CSV_PATH, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            if row.get("active", "").strip().lower() != "true":
+                continue
+            city = row.get("city", "").strip()
+            if city not in ("New York", "New York City", "NYC"):
+                continue
+            day = row.get("day", "").strip()
+            if day not in DAYS:
+                continue
+            freq = row.get("frequency", "weekly").strip().lower()
+            nth  = nth_occurrence(WEEK_DATES[day])
+            include = (
+                freq in ("weekly", "bi_weekly", "biweekly") or
+                (freq == "1st_of_month" and nth == 1) or
+                (freq == "2nd_of_month" and nth == 2) or
+                (freq == "3rd_of_month" and nth == 3) or
+                (freq == "4th_of_month" and nth == 4) or
+                (freq == "5th_of_month" and nth == 5)
+            )
+            if include:
+                by_day[day].append(row)
+    for day in DAYS:
+        by_day[day].sort(key=lambda r: time_sort_key(r.get("start_time", "")))
+    return by_day
 
 
-def truncate(text, font, max_width, draw):
-    if draw.textlength(text, font=font) <= max_width:
-        return text
-    while text and draw.textlength(text + "…", font=font) > max_width:
-        text = text[:-1]
-    return text + "…"
+# ── Sparkle texture ────────────────────────────────────────────────────────────
 
-
-# ── Slide builders ────────────────────────────────────────────────────────────
-
-def draw_logo_bar(draw, img, logo_img, y_top=36):
-    pad = 54
-    logo_size = 58
-    resized = logo_img.resize((logo_size, logo_size), Image.LANCZOS)
-    img.paste(resized, (pad, y_top), mask=resized.split()[3])
-    f_brand = load(FONT_BOLD, 29)
-    f_sub   = load(FONT_REG,  23)
-    draw.text((pad + logo_size + 14, y_top + 6),  "COMEDIQ",         font=f_brand, fill=WHITE)
-    draw.text((pad + logo_size + 14, y_top + 38), "NYC OPEN MICS",   font=f_sub,   fill=CREAM)
-    line_y = y_top + logo_size + 14
-    draw.rectangle([(pad, line_y), (W - pad, line_y + 2)], fill=ACCENT)
-    return line_y + 2
-
-
-def make_day_slide(day_name, full_date, mics, logo_img,
-                   part=None, total_parts=None):
-    img  = Image.new("RGB", (W, H))
+def sparkle(img: Image.Image, seed: int = 0):
+    import random
+    rng = random.Random(seed)
     draw = ImageDraw.Draw(img)
-    vertical_gradient(draw, W, H, BG_TOP, BG_BOT)
+    for _ in range(350):
+        x = rng.randint(0, W - 1)
+        y = rng.randint(0, H - 1)
+        r = rng.randint(1, 3)
+        b = rng.randint(170, 220)
+        draw.ellipse([(x - r, y - r), (x + r, y + r)], fill=(b, b + 10, 255))
 
-    # Subtle dot grid
-    for gx in range(0, W, 70):
-        for gy in range(0, H, 70):
-            draw.ellipse([(gx-1, gy-1), (gx+1, gy+1)], fill=(255, 255, 255, 12))
 
-    pad = 54
-    y   = 36
+# ── Header ────────────────────────────────────────────────────────────────────
+HEADER_H = 215
 
-    # Logo / brand bar
-    line_y = draw_logo_bar(draw, img, logo_img, y_top=y)
-    y = line_y + 26
 
-    # Day name
-    f_day  = load(FONT_BOLD, 80)
-    f_date = load(FONT_REG,  32)
-    draw.text((pad, y), day_name.upper(), font=f_day, fill=WHITE)
-    y += 84
+def draw_header(draw: ImageDraw.ImageDraw, day_label: str, month: str = "JUNE"):
+    draw.rectangle([(0, 0), (W, HEADER_H)], fill=HEADER_BG)
+    f1 = fnt(FONT_BOLD, 52)
+    f2 = fnt(FONT_BOLD, 108)
+    f3 = fnt(FONT_BOLD, 21)
+    centered(draw, "COMEDIQ'S",                  8,   f1)
+    centered(draw, month,                        55,  f2)
+    centered(draw, "2026 weekly OPEN MIC LIST",  172, f3, OFF_WHITE)
+    f4 = fnt(FONT_BOLD, 29)
+    centered(draw, day_label.upper() + " MICS",  HEADER_H + 7, f4)
 
-    # Date + optional part label
-    date_str = full_date
-    if part and total_parts and total_parts > 1:
-        date_str += f"   •   Part {part} of {total_parts}"
-    draw.text((pad, y), date_str, font=f_date, fill=CREAM)
-    y += 38
 
-    # Accent rule
-    draw.rectangle([(pad, y), (W - pad, y + 3)], fill=ACCENT_LIGHT)
-    y += 3 + 24
+# ── Footer ────────────────────────────────────────────────────────────────────
 
-    # ── Mic rows ──────────────────────────────────────────────────────────────
-    avail_h  = H - y - 90   # leave 90 for footer
-    n        = len(mics)
-    row_h    = max(avail_h // max(n, 1), 52)
-    row_h    = min(row_h, 95)
+def draw_footer(draw: ImageDraw.ImageDraw, img: Image.Image, month_lc: str = "june"):
+    f = fnt(FONT_REG, 17)
+    centered(draw, "Easier and more accurate at www.comediq.us", H - 70, f, OFF_WHITE)
+    centered(draw, f"* mics resume during {month_lc} (check website for more details)", H - 48, f, OFF_WHITE)
+    try:
+        logo = Image.open(LOGO_PATH).convert("RGBA")
+        logo = logo.resize((60, 60), Image.LANCZOS)
+        img.paste(logo, (W - 78, H - 78), logo)
+    except Exception:
+        pass
 
-    mic_fs    = max(26, min(38, row_h - 30))
-    detail_fs = max(20, min(29, row_h - 42))
 
-    f_mic    = load(FONT_BOLD, mic_fs)
-    f_detail = load(FONT_REG,  detail_fs)
+# ── Mic list (two-column) ─────────────────────────────────────────────────────
+LIST_TOP    = 260
+LIST_BOTTOM = H - 90
+LIST_H      = LIST_BOTTOM - LIST_TOP
+COL_GAP     = 20
+MARGIN      = 18
+COL_W       = (W - 2 * MARGIN - COL_GAP) // 2
+COL_L       = MARGIN
+COL_R       = MARGIN + COL_W + COL_GAP
 
-    for i, mic in enumerate(mics):
-        if y + row_h > H - 80:
-            remaining = len(mics) - i
-            f_more = load(FONT_REG, 26)
-            draw.text((pad, y + 8), f"+ {remaining} more…", font=f_more, fill=DIM)
+
+def draw_mic_list(draw: ImageDraw.ImageDraw, img: Image.Image, mics: list):
+    n = len(mics)
+    if n == 0:
+        return
+
+    # Auto-size fonts to fit all mics in two columns
+    for ms in range(23, 11, -1):
+        vs    = max(ms - 4, 9)
+        row_h = ms + vs + 5
+        rpc   = LIST_H // row_h
+        if rpc * 2 >= n:
             break
+    else:
+        ms, vs = 12, 9
+        row_h  = ms + vs + 4
+        rpc    = LIST_H // row_h
 
-        name  = (mic.get("open_mic")    or "").strip()
-        time  = (mic.get("start_time")  or "").strip()
-        venue = (mic.get("venue_name")  or "").strip()
+    fm = fnt(FONT_BOLD, ms)
+    fv = fnt(FONT_REG,  vs)
+    ft = fnt(FONT_BOLD, ms)
 
-        name_trunc = truncate(name, f_mic, W - pad * 2, draw)
-        draw.text((pad, y), name_trunc, font=f_mic, fill=WHITE)
-        y += mic_fs + 4
+    half = min(rpc, (n + 1) // 2)
+    col1 = mics[:half]
+    col2 = mics[half: half + rpc]
 
-        parts = []
-        if time:  parts.append(time)
-        if venue: parts.append(venue)
-        detail = "  ·  ".join(parts)
-        detail_trunc = truncate(detail, f_detail, W - pad * 2, draw)
-        draw.text((pad, y), detail_trunc, font=f_detail, fill=ACCENT_LIGHT)
-        y += detail_fs + 8
+    # Vertical divider
+    div_x = COL_L + COL_W + COL_GAP // 2
+    draw.line([(div_x, LIST_TOP), (div_x, LIST_BOTTOM)], fill=RULE_COLOR, width=1)
 
-        if i < n - 1:
-            draw.rectangle([(pad, y + 4), (W - pad, y + 5)], fill=DIVIDER)
-            y += 16
+    for col_mics, cx in ((col1, COL_L), (col2, COL_R)):
+        y = LIST_TOP
+        for m in col_mics:
+            name  = m.get("open_mic", "").strip()
+            venue = m.get("venue_name", "").strip()
+            time  = m.get("start_time", "").strip()
 
-    # Footer
-    f_foot   = load(FONT_REG, 26)
-    foot_txt = "comediq.com  ·  New York City"
-    fw = draw.textlength(foot_txt, font=f_foot)
-    draw.text(((W - fw) / 2, H - 66), foot_txt, font=f_foot, fill=DIM)
+            tw = text_w(draw, time, ft)
+            tx = cx + COL_W - tw
 
+            avail = COL_W - tw - 6
+            name  = truncate(draw, name,  avail, fm)
+            venue = truncate(draw, venue, COL_W, fv)
+
+            draw.text((cx, y),              name,  font=fm, fill=WHITE)
+            draw.text((tx, y),              time,  font=ft, fill=WHITE)
+            draw.text((cx + 2, y + ms + 1), venue, font=fv, fill=OFF_WHITE)
+
+            rule_y = y + ms + vs + 3
+            draw.line([(cx, rule_y), (cx + COL_W, rule_y)], fill=RULE_COLOR, width=1)
+            y += row_h
+
+
+# ── Cover slide ───────────────────────────────────────────────────────────────
+
+def make_cover(total: int) -> Image.Image:
+    img  = Image.new("RGB", (W, H), BG_COLOR)
+    sparkle(img, seed=0)
+    draw = ImageDraw.Draw(img)
+    draw.rectangle([(0, 0), (W, HEADER_H)], fill=HEADER_BG)
+
+    f1 = fnt(FONT_BOLD, 52)
+    f2 = fnt(FONT_BOLD, 108)
+    f3 = fnt(FONT_BOLD, 21)
+    centered(draw, "COMEDIQ'S",                  8,   f1)
+    centered(draw, "JUNE",                        55,  f2)
+    centered(draw, "2026 weekly OPEN MIC LIST",  172, f3, OFF_WHITE)
+
+    f_body  = fnt(FONT_BOLD, 34)
+    f_swipe = fnt(FONT_REG,  27)
+    centered(draw, f"{total} active mics · New York City", 320, f_body)
+    centered(draw, "Swipe for each day →",                 400, f_swipe, OFF_WHITE)
+
+    # Day pills
+    f_pill = fnt(FONT_BOLD, 25)
+    pills  = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+    pill_h = 44
+    pill_y = 490
+    gap    = 12
+    total_pw = sum(text_w(draw, p, f_pill) + 26 for p in pills) + gap * (len(pills) - 1)
+    px = (W - total_pw) // 2
+    for p in pills:
+        pw  = text_w(draw, p, f_pill) + 26
+        ptw = text_w(draw, p, f_pill)
+        draw.rounded_rectangle([(px, pill_y), (px + pw, pill_y + pill_h)],
+                                radius=8, fill=(55, 85, 220), outline=WHITE, width=2)
+        draw.text((px + (pw - ptw) // 2, pill_y + 9), p, font=f_pill, fill=WHITE)
+        px += pw + gap
+
+    draw_footer(draw, img)
     return img
 
 
-def make_cover_slide(week_label, total_mics, logo_img):
-    img  = Image.new("RGB", (W, H))
+# ── Day slide ─────────────────────────────────────────────────────────────────
+
+def make_day_slide(day: str, mics: list, seed: int = 1) -> Image.Image:
+    img  = Image.new("RGB", (W, H), BG_COLOR)
+    sparkle(img, seed=seed)
     draw = ImageDraw.Draw(img)
-    vertical_gradient(draw, W, H, BG_TOP, (4, 14, 48))
-
-    pad = 54
-    cy  = H // 2 - 120
-
-    logo_size = 110
-    resized   = logo_img.resize((logo_size, logo_size), Image.LANCZOS)
-    logo_x    = (W - logo_size) // 2
-    img.paste(resized, (logo_x, cy - logo_size - 16), mask=resized.split()[3])
-
-    f_big   = load(FONT_BOLD, 92)
-    f_med   = load(FONT_BOLD, 50)
-    f_small = load(FONT_REG,  34)
-    f_tiny  = load(FONT_REG,  27)
-
-    title   = "OPEN MICS"
-    tw      = draw.textlength(title, font=f_big)
-    draw.text(((W - tw) / 2, cy), title, font=f_big, fill=WHITE)
-
-    sub  = "NEW YORK CITY"
-    sw   = draw.textlength(sub, font=f_med)
-    draw.text(((W - sw) / 2, cy + 100), sub, font=f_med, fill=ACCENT_LIGHT)
-
-    draw.rectangle([(pad * 2, cy + 166), (W - pad * 2, cy + 169)], fill=ACCENT)
-
-    ww = draw.textlength(week_label, font=f_small)
-    draw.text(((W - ww) / 2, cy + 186), week_label, font=f_small, fill=CREAM)
-
-    count_txt = f"{total_mics} active mics this week"
-    cw = draw.textlength(count_txt, font=f_tiny)
-    draw.text(((W - cw) / 2, cy + 232), count_txt, font=f_tiny, fill=DIM)
-
-    swipe = "Swipe for each day  →"
-    sxw   = draw.textlength(swipe, font=f_tiny)
-    draw.text(((W - sxw) / 2, H - 90), swipe, font=f_tiny, fill=DIM)
-
-    brand = "comediq.com"
-    bw    = draw.textlength(brand, font=f_tiny)
-    draw.text(((W - bw) / 2, H - 50), brand, font=f_tiny, fill=DIM)
-
+    draw_header(draw, day)
+    draw_mic_list(draw, img, mics)
+    draw_footer(draw, img)
     return img
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    csv_path   = os.path.join(script_dir, "nyc_mics_june2026.csv")
-    logo_path  = os.path.join(script_dir, "..", "public", "comediq_white.png")
-    output_dir = os.path.join(script_dir, "instagram_slides")
-    os.makedirs(output_dir, exist_ok=True)
+    if os.path.exists(OUTPUT_DIR):
+        shutil.rmtree(OUTPUT_DIR)
+    os.makedirs(OUTPUT_DIR)
 
-    # Remove old Austin slides
-    for f in os.listdir(output_dir):
-        os.remove(os.path.join(output_dir, f))
+    print("Loading mics…")
+    by_day = load_mics()
+    total  = sum(len(v) for v in by_day.values())
+    print(f"  {total} mics across all days\n")
 
-    with open(csv_path, newline="", encoding="utf-8") as f:
-        all_mics = list(csv.DictReader(f))
+    img = make_cover(total)
+    img.save(os.path.join(OUTPUT_DIR, "00_cover.png"), "PNG")
+    print("  Saved 00_cover.png")
 
-    logo_img = Image.open(logo_path).convert("RGBA")
+    for i, day in enumerate(DAYS, start=1):
+        mics  = by_day[day]
+        fname = f"{i:02d}_{day.lower()}.png"
+        img   = make_day_slide(day, mics, seed=i * 13)
+        img.save(os.path.join(OUTPUT_DIR, fname), "PNG")
+        print(f"  Saved {fname} — {len(mics)} mics")
 
-    week_start   = date(2026, 6, 2)   # Monday June 2
-    days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday",
-                    "Friday", "Saturday", "Sunday"]
-
-    # Collect all slides (cover first, then per-day chunks)
-    all_day_slides = []
-    total_mics     = 0
-
-    for i, day_name in enumerate(days_of_week):
-        target_date = week_start + timedelta(days=i)
-        mics        = mics_for_day(all_mics, day_name, target_date)
-        total_mics += len(mics)
-
-        full_date   = target_date.strftime("%B %-d, %Y")
-        chunks      = [mics[j:j + MICS_PER_SLIDE]
-                       for j in range(0, max(len(mics), 1), MICS_PER_SLIDE)]
-        total_parts = len(chunks)
-
-        for part_idx, chunk in enumerate(chunks):
-            all_day_slides.append({
-                "day":         day_name,
-                "full_date":   full_date,
-                "mics":        chunk,
-                "part":        part_idx + 1,
-                "total_parts": total_parts,
-                "mic_count":   len(mics),
-            })
-
-    # Cover slide
-    week_label = "Week of June 2 – 8, 2026"
-    cover      = make_cover_slide(week_label, total_mics, logo_img)
-    cover_path = os.path.join(output_dir, "00_cover.png")
-    cover.save(cover_path)
-    print(f"Saved: 00_cover.png")
-
-    # Day slides
-    idx = 1
-    for s in all_day_slides:
-        part_suffix = (f"_part{s['part']}" if s["total_parts"] > 1 else "")
-        fname       = f"{idx:02d}_{s['day'].lower()}{part_suffix}.png"
-        slide       = make_day_slide(
-            s["day"], s["full_date"], s["mics"], logo_img,
-            part=s["part"], total_parts=s["total_parts"]
-        )
-        slide.save(os.path.join(output_dir, fname))
-        label = (f" (part {s['part']}/{s['total_parts']})"
-                 if s["total_parts"] > 1 else "")
-        print(f"Saved: {fname}  —  {len(s['mics'])} mics{label}")
-        idx += 1
-
-    print(f"\nDone. {idx} slides total ({total_mics} active NYC mics this week).")
+    print(f"\nDone — {len(DAYS) + 1} slides in {OUTPUT_DIR}/")
 
 
 if __name__ == "__main__":
