@@ -34,7 +34,7 @@ export function useMotdNominations(date?: string) {
       if (error) throw error;
       return (data || []) as unknown as NominationTally[];
     },
-    staleTime: 30_000,
+    staleTime: 5 * 60 * 1000,
   });
 
   const myVotes = useQuery({

@@ -29,7 +29,7 @@ export function useSavedMics() {
       return data as SavedMic[];
     },
     enabled: !!user,
-    staleTime: 60 * 1000, // 1 minute
+    staleTime: 15 * 60 * 1000,
   });
 
   // Check if a specific mic is saved

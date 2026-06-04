@@ -115,6 +115,6 @@ export function useAnalyticsDashboard() {
         dailyViews, topPages, topClicks, featureUsage, hourlyActivity,
       };
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 30 * 60 * 1000,
   });
 }
