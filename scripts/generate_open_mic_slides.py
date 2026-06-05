@@ -134,7 +134,7 @@ def sparkle(img: Image.Image, seed: int = 0):
 
 
 # ── Header ────────────────────────────────────────────────────────────────────
-HEADER_H = 215
+HEADER_H = 235
 
 
 def draw_header(draw: ImageDraw.ImageDraw, day_label: str, month: str = "JUNE"):
@@ -144,7 +144,7 @@ def draw_header(draw: ImageDraw.ImageDraw, day_label: str, month: str = "JUNE"):
     f3 = fnt(FONT_BOLD, 21)
     centered(draw, "COMEDIQ'S",                  8,   f1)
     centered(draw, month,                        55,  f2)
-    centered(draw, "2026 weekly OPEN MIC LIST",  172, f3, OFF_WHITE)
+    centered(draw, "2026 weekly OPEN MIC LIST",  192, f3, OFF_WHITE)
     f4 = fnt(FONT_BOLD, 29)
     centered(draw, day_label.upper() + " MICS",  HEADER_H + 7, f4)
 
@@ -164,7 +164,7 @@ def draw_footer(draw: ImageDraw.ImageDraw, img: Image.Image, month_lc: str = "ju
 
 
 # ── Mic list (two-column) ─────────────────────────────────────────────────────
-LIST_TOP    = 260
+LIST_TOP    = 280
 LIST_BOTTOM = H - 90
 LIST_H      = LIST_BOTTOM - LIST_TOP
 COL_GAP     = 20
@@ -239,7 +239,7 @@ def make_cover(total: int) -> Image.Image:
     f3 = fnt(FONT_BOLD, 21)
     centered(draw, "COMEDIQ'S",                  8,   f1)
     centered(draw, "JUNE",                        55,  f2)
-    centered(draw, "2026 weekly OPEN MIC LIST",  172, f3, OFF_WHITE)
+    centered(draw, "2026 weekly OPEN MIC LIST",  192, f3, OFF_WHITE)
 
     f_body  = fnt(FONT_BOLD, 34)
     f_swipe = fnt(FONT_REG,  27)
