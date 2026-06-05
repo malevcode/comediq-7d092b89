@@ -42,6 +42,25 @@ const Hero = () => {
             😂 I Watch
           </Button>
         </div>
+
+        <div className="mt-5 space-y-1.5 text-center">
+          <a
+            href="https://instagram.com/malevcomedy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block text-sm text-gray-500 hover:text-[#1a5fb4] transition-colors"
+          >
+            Made and maintained by Adam Malev @malevcomedy
+          </a>
+          <a
+            href="https://instagram.com/comediq.us"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block text-sm text-gray-500 hover:text-[#1a5fb4] transition-colors"
+          >
+            Questions or new mics? DM @comediq.us
+          </a>
+        </div>
       </div>
     </section>
   );
