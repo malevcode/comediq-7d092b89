@@ -1,0 +1,12 @@
+name = "comediq-api"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "comediq"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+[vars]
+JWT_SECRET = "REPLACE_WITH_A_SECURE_RANDOM_SECRET"
