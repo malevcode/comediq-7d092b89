@@ -167,7 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfileFetchKey(k => k + 1);
   };
 
-  const needsOnboarding = !!user && role === null;
+  const needsOnboarding = false;
 
   return (
     <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, loading: loading || profileLoading || (!!user && !profileChecked), visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, creditsBalance, needsOnboarding, refreshProfile }}>
