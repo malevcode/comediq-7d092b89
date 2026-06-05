@@ -58,7 +58,7 @@ export function useMicPlaylists() {
       })) as MicPlaylist[];
     },
     enabled: !!user,
-    staleTime: 60 * 1000, // 1 minute
+    staleTime: 15 * 60 * 1000,
   });
 
   // Create playlist mutation
@@ -224,7 +224,7 @@ export function usePlaylistItems(playlistId: string) {
       return data as MicPlaylistItem[];
     },
     enabled: !!playlistId && !!user,
-    staleTime: 30 * 1000,
+    staleTime: 10 * 60 * 1000,
   });
 
   return { items, isLoading, error };

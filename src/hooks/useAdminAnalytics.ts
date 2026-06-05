@@ -79,6 +79,7 @@ export function useAdminAnalytics() {
         userGrowth,
       };
     },
+    staleTime: 60 * 60 * 1000,
   });
 }
 

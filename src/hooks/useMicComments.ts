@@ -45,7 +45,7 @@ export function useMicComments(micUniqueIdentifier: string) {
       })) as MicComment[];
     },
     enabled: !!micUniqueIdentifier,
-    staleTime: 30 * 1000, // 30 seconds
+    staleTime: 5 * 60 * 1000,
   });
 
   // Get comment count

@@ -5,6 +5,7 @@ export function useAllSignupEvents() {
   return useQuery({
     queryKey: ['allSignupEvents'],
     queryFn: fetchAllActiveEvents,
-    refetchInterval: 30000, // refresh every 30s
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 }
