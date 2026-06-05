@@ -65,3 +65,5 @@ const Hero = () => {
     </section>
   );
 };
+
+export default Hero;
