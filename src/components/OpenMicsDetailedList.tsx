@@ -341,6 +341,16 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
       <div className="w-full md:flex-[1.2] flex flex-col justify-center gap-0">
         {expanded && (
           <div className="bg-blue-50 border border-blue-100 rounded-md p-2 flex flex-col gap-1.5">
+            {/* Nominate for Mic of the Day — surfaced at top so it's easy to find */}
+            <div className="rounded-md border border-amber-200 bg-amber-50/60 p-2" onClick={(e) => e.stopPropagation()}>
+              <p className="text-[11px] font-medium text-amber-800 mb-1.5 flex items-center gap-1">
+                🏆 Think this mic deserves the spotlight?
+              </p>
+              <NominateMotdButton
+                micUniqueIdentifier={mic.uniqueIdentifier}
+                micName={mic.openMic}
+              />
+            </div>
             {mic.legacyTag && (
               <div className="flex items-center gap-1 text-[10px]">
                 <span className="inline-flex items-center rounded-full bg-muted/50 text-muted-foreground border border-border/50 font-medium px-1.5 py-0">
@@ -348,6 +358,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
                 </span>
               </div>
             )}
+
             <div
               className="break-words font-normal select-text cursor-text flex flex-row text-xs"
               onClick={e => e.stopPropagation()}
