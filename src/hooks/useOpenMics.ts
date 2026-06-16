@@ -4,13 +4,14 @@ import { OpenMic, MicStatus, MicFrequency, SignupMethod } from "@/types/openMic"
 
 const CACHE_KEY = "comediq_open_mics_v1";
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const CACHE_FRESH_MS = 60 * 60 * 1000; // 1 hour — matches staleTime
 
-function loadCached(): OpenMic[] | null {
+function loadCached(maxAge: number = CACHE_TTL_MS): OpenMic[] | null {
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
     const { data, savedAt } = JSON.parse(raw);
-    if (Date.now() - savedAt > CACHE_TTL_MS) return null;
+    if (Date.now() - savedAt > maxAge) return null;
     return data as OpenMic[];
   } catch {
     return null;
@@ -69,7 +70,7 @@ async function fetchFromSupabase(tableName: string): Promise<OpenMic[]> {
   for (let i = 0; i < 5; i++) {
     const { data, error } = await (supabase as any)
       .from(tableName)
-      .select("*")
+      .select("unique_identifier,open_mic,day,start_time,latest_end_time,venue_name,borough,neighborhood,location,venue_type,cost,stage_time,sign_up_instructions,hosts_organizers,changes_updates,last_verified,city,signup_enabled,other_rules,cover_image_url,status,frequency,verification_count,submission_date,legacy_tag,creator_id,signup_method,signup_url,frequency_custom_text,slots_enabled,slot_duration_minutes")
       .eq("active", true)
       .neq("status", "pending")
       .range(from, from + pageSize - 1);
@@ -88,6 +89,10 @@ export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_histo
   return useQuery({
     queryKey: ["openMics", tableName],
     queryFn: async (): Promise<OpenMic[]> => {
+      // Skip the DB call entirely if localStorage data is less than 1 hour old.
+      const fresh = loadCached(CACHE_FRESH_MS);
+      if (fresh && fresh.length > 0) return fresh;
+
       try {
         const rows = await fetchFromSupabase(tableName);
         if (rows.length > 0) {
@@ -98,7 +103,7 @@ export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_histo
         console.warn("[useOpenMics] Supabase fetch failed:", e);
       }
 
-      // Fallback: localStorage cache
+      // Fallback: stale localStorage data (up to 7 days old).
       if (cached && cached.length > 0) return cached;
 
       throw new Error("Mic data unavailable");
