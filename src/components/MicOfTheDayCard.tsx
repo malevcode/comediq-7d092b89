@@ -8,8 +8,7 @@ import { slugify } from '@/utils/slugify';
 import { useAuth } from '@/contexts/AuthContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-import { slugify } from '@/utils/slugify';
-import { useAuth } from '@/contexts/AuthContext';
+
 
 interface MicOfTheDayCardProps {
   className?: string;
