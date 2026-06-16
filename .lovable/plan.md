@@ -1,56 +1,40 @@
-I confirmed this is not a Mic of the Day layout issue. The open mic feed is failing because the app cannot reach its active data source, and the old fallback source is also currently blocked.
+# Mic of the Day — Why Crash Landing, and how to make MOTD easier to change
 
-What I verified:
-- The browser is requesting PocketBase at `https://comediq-pb.fly.dev/api/collections/open_mics_historical/records...` and every request fails with `Failed to fetch`.
-- A direct health/request check to `https://comediq-pb.fly.dev` times out with zero bytes returned, so the PocketBase Fly app is currently unreachable.
-- Supabase still contains mic data: `398` active, non-pending mics are present in `public.open_mics_historical`.
-- However, browser-accessible Supabase REST/Edge Function calls return `402` with: `Service for this project is restricted due to ... exceed_egress_quota`.
+## Why Crash Landing Comedy is today's MOTD
 
-So the feed has no working live source right now:
+The MOTD resolver runs this priority chain (`resolve_motd_for` in Postgres):
 
-```text
-Open Mics page
-  -> PocketBase primary fetch: down / unreachable
-  -> Supabase browser fallback: blocked by egress quota
-  -> localStorage cache: only works if that browser already loaded mics before
-  -> result: Error loading open mics or empty feed
-```
+1. **Admin-locked pick** for today → none set
+2. **Top-voted nomination** for today → **Crash Landing Comedy** (1 nomination, 0 votes) ✅ wins here
+3. **Weekly default for this day-of-week** → would have been *Easy Paradise Mag @ KGB* (Monday default)
+4. Most recent claim → n/a
 
-Plan to make this work robustly:
+So Crash Landing isn't hard-coded — one user nominated it earlier today (2:47pm ET) and it auto-won because it was the only nomination. The reason the *same mics* show up week after week is step 3: the `motd_weekly_defaults` table was seeded May 12 and never rotated, so when nobody nominates on a given day, you keep seeing the same 7 mics on repeat.
 
-1. Update the open mics data hook
-   - Keep PocketBase as the first attempted source.
-   - Add an explicit Supabase fallback in `useOpenMics` using the existing Supabase client, mapping rows into the `OpenMic` shape.
-   - Preserve the existing 7-day localStorage cache as the next fallback.
-   - Add clear error metadata so the UI can distinguish: PocketBase down, Supabase quota blocked, and no local cache.
+## What I'd build
 
-2. Add a bundled static emergency fallback
-   - Generate a `public/open-mics-fallback.json` snapshot from the currently readable Supabase mic data.
-   - If PocketBase fails, Supabase is blocked, and local cache is empty, load this static JSON so users still see mics.
-   - This is not a replacement for the database, but it prevents a total outage on fresh browsers.
+### 1. Make "Nominate for Mic of the Day" much more discoverable
+- The `NominateMotdButton` already exists inside the expanded mic card (it's there but buried below ~6 other buttons). I'll:
+  - Move it to the **top of the expanded "Additional Details" panel** with a small "🏆 Nominate this for Mic of the Day" callout block, so it's the first thing users see when they expand a mic.
+  - Add a tiny **"🏆 Nominate"** chip to the collapsed card's action row (next to Like / Save / Share) so users don't even need to expand.
+  - Keep the existing one-nomination-per-day rule and the "already nominated" state styling.
 
-3. Improve the error/loading UI
-   - Replace the generic `Error loading open mics` state with a friendlier status:
-     - If fallback data is shown: “Showing saved mic data while live backend reconnects.”
-     - If no fallback exists: “Live mic data is temporarily unavailable.”
-   - Keep the Try Again button.
-   - Avoid showing a blank feed when the issue is backend availability.
+### 2. Make weekly defaults rotate (so it doesn't feel stale)
+Two small additions to the existing `AdminMotdControl` panel on `/admin`:
+  - **"Rotate weekly defaults"** button that bumps each day's default to the next-highest-rated mic for that weekday (using `weekly_top_mics` rankings), so a stale default auto-refreshes.
+  - **"Clear default"** quick action per day, so the resolver falls through to "most recent claim" instead of an old pick.
 
-4. Add PocketBase deployment hardening in config
-   - Update `pocketbase/fly.toml` from `256mb` to at least `512mb`.
-   - Change auto-stop behavior so the PocketBase machine is less likely to sleep/crash during user traffic.
-   - This code/config change still requires a Fly deploy outside Lovable for the live PocketBase service to recover.
+Optionally (ask below): an automatic monthly rotation via the existing `resolve-motd` cron, so you don't need to touch it manually.
 
-5. External recovery needed
-   - Supabase must have its egress quota restriction resolved for browser Supabase queries and Edge Functions to work again.
-   - PocketBase on Fly must be restarted/redeployed, and the `pb_data` volume should be checked.
+### 3. Small transparency tweak
+Add a subtle "Why this mic?" tooltip on the MOTD card showing which step won (nomination / weekly default / admin lock). Helps you debug at a glance instead of asking me.
 
-After approval, I’ll implement the app-side resilience immediately so the feed can load from fallback data even while PocketBase/Supabase service issues are being fixed.
+## Technical notes
 
-<lov-actions>
-  <lov-open-history>View History</lov-open-history>
-</lov-actions>
+- Files touched: `src/components/OpenMicsDetailedList.tsx` (move + add chip), `src/components/mic/MicActionBar.tsx` (chip), `src/components/admin/AdminMotdControl.tsx` (rotate / clear), `src/components/MicOfTheDayCard.tsx` (tooltip).
+- No schema migrations needed — `motd_nominations`, `motd_weekly_defaults`, and `resolve_motd_for` already support all of this.
+- No edge function changes required unless you want auto-rotation (would add a small update to `supabase/functions/resolve-motd/index.ts`).
 
-<lov-actions>
-<lov-link url="https://docs.lovable.dev/tips-tricks/troubleshooting">Troubleshooting docs</lov-link>
-</lov-actions>
+## One question before I build
+
+Do you want weekly defaults to **auto-rotate** (e.g. monthly, pulling from top-rated mics for each weekday), or keep it **manual** with just easier admin controls?
