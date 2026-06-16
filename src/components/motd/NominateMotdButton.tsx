@@ -8,9 +8,12 @@ import { useToast } from '@/hooks/use-toast';
 interface Props {
   micUniqueIdentifier: string;
   micName: string;
+  /** 'button' (default) renders a full-width outline button. 'inline' renders a subtle text link. */
+  variant?: 'button' | 'inline';
 }
 
-export default function NominateMotdButton({ micUniqueIdentifier, micName }: Props) {
+export default function NominateMotdButton({ micUniqueIdentifier, micName, variant = 'button' }: Props) {
+
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -52,6 +55,14 @@ export default function NominateMotdButton({ micUniqueIdentifier, micName }: Pro
   };
 
   if (userNominatedThisOne) {
+    if (variant === 'inline') {
+      return (
+        <span className="inline-flex items-center gap-1 text-[11px] text-amber-700">
+          <Check className="w-3 h-3" />
+          You nominated this for Mic of the Day
+        </span>
+      );
+    }
     return (
       <div className="flex items-center justify-center gap-2 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
         <Check className="w-3.5 h-3.5" />
@@ -59,6 +70,38 @@ export default function NominateMotdButton({ micUniqueIdentifier, micName }: Pro
       </div>
     );
   }
+
+  if (variant === 'inline') {
+    const label = alreadyNominated
+      ? 'Already nominated today'
+      : userAlreadyUsedToday
+        ? 'You\'ve used today\'s nomination'
+        : 'Nominate for Mic of the Day';
+    const disabled = nominate.isPending || alreadyNominated || userAlreadyUsedToday;
+    return (
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={disabled}
+        className="inline-flex items-center gap-1 text-[11px] text-amber-700 hover:text-amber-900 hover:underline disabled:opacity-60 disabled:no-underline disabled:cursor-not-allowed"
+        title={
+          alreadyNominated
+            ? 'Already nominated today — go upvote it!'
+            : userAlreadyUsedToday
+              ? 'You\'ve used your nomination for today'
+              : undefined
+        }
+      >
+        {nominate.isPending ? (
+          <Loader2 className="w-3 h-3 animate-spin" />
+        ) : (
+          <Trophy className="w-3 h-3" />
+        )}
+        {label}
+      </button>
+    );
+  }
+
 
   return (
     <Button
