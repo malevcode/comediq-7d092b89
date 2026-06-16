@@ -424,11 +424,8 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
               micUniqueIdentifier={mic.uniqueIdentifier}
               micName={mic.openMic}
             />
-            {/* Nominate for Mic of the Day (any signed-in user, 1/day) */}
-            <NominateMotdButton
-              micUniqueIdentifier={mic.uniqueIdentifier}
-              micName={mic.openMic}
-            />
+            {/* Nominate button moved to top of expanded panel */}
+
             <div className="flex flex-row gap-2 mt-2">
               <Button
                 size="sm"
