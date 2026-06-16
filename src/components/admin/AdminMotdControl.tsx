@@ -119,6 +119,58 @@ export default function AdminMotdControl() {
     qc.invalidateQueries({ queryKey: ['admin-motd-defaults'] });
   };
 
+  const [rotating, setRotating] = useState(false);
+  const rotateWeeklyDefaults = async () => {
+    setRotating(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      // Pull current top-ranked mics (rank=1..N) for the latest week
+      const { data: top, error } = await supabase
+        .from('weekly_top_mics')
+        .select('mic_unique_identifier, day, rank, week_start')
+        .order('week_start', { ascending: false })
+        .order('rank', { ascending: true })
+        .limit(200);
+      if (error) throw error;
+      const dayMap: Record<string, number> = {
+        Sunday: 0, Monday: 1, Tuesday: 2, Wednesday: 3, Thursday: 4, Friday: 5, Saturday: 6,
+      };
+      // Pick the top-ranked mic per weekday, excluding any already used as a default
+      const currentIds = new Set((defaults.data || []).map((d: any) => d.mic_unique_identifier));
+      const pickByDow: Record<number, string> = {};
+      for (const row of top || []) {
+        const dow = dayMap[row.day as string];
+        if (dow === undefined) continue;
+        if (pickByDow[dow]) continue;
+        if (currentIds.has(row.mic_unique_identifier)) continue;
+        pickByDow[dow] = row.mic_unique_identifier as string;
+      }
+      const updates = Object.entries(pickByDow);
+      if (updates.length === 0) {
+        toast({ title: 'Nothing to rotate', description: 'No fresh top-ranked mics found.' });
+        return;
+      }
+      for (const [dowStr, micId] of updates) {
+        const dow = Number(dowStr);
+        const existing = defaults.data?.find((d: any) => d.day_of_week === dow);
+        const payload: any = { day_of_week: dow, mic_unique_identifier: micId, updated_at: new Date().toISOString(), updated_by: user?.id };
+        if (existing) {
+          await supabase.from('motd_weekly_defaults').update(payload).eq('id', existing.id);
+        } else {
+          await supabase.from('motd_weekly_defaults').insert(payload);
+        }
+      }
+      toast({ title: 'Rotated', description: `Updated ${updates.length} weekday default${updates.length === 1 ? '' : 's'} from top-ranked mics.` });
+      qc.invalidateQueries({ queryKey: ['admin-motd-defaults'] });
+      qc.invalidateQueries({ queryKey: ['micOfTheDay'] });
+    } catch (e: any) {
+      toast({ title: 'Rotate failed', description: e?.message || 'Unknown error', variant: 'destructive' });
+    } finally {
+      setRotating(false);
+    }
+  };
+
+
   const todayMic = todayLock.data ? mics.find((m) => m.uniqueIdentifier === todayLock.data!.mic_unique_identifier) : null;
 
   return (
