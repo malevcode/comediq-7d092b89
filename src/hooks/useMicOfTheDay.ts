@@ -22,6 +22,8 @@ export interface MicOfTheDayRow {
   is_admin_locked?: boolean;
 }
 
+export type MotdSource = 'admin_lock' | 'nomination' | 'weekly_default' | 'auto_pick' | 'unknown';
+
 export function useMicOfTheDay() {
   const { data: mics = [] } = useOpenMics();
   const today = getTodayNY();
@@ -30,19 +32,59 @@ export function useMicOfTheDay() {
   const query = useQuery({
     queryKey: ['micOfTheDay', 'resolved', today],
     queryFn: async () => {
-      const { data, error } = await (supabase as any).rpc('resolve_motd_for', { target_date: today });
-      if (error) throw error;
-      return (data as string | null) || null;
+      const winnerRes = await (supabase as any).rpc('resolve_motd_for', { target_date: today });
+      if (winnerRes.error) throw winnerRes.error;
+      const winner = (winnerRes.data as string | null) || null;
+      if (!winner) return { winner: null as string | null, source: 'unknown' as MotdSource };
+
+      // Detect which resolver step won, in same priority order
+      const [lockRes, nomsRes] = await Promise.all([
+        supabase
+          .from('mic_of_the_day')
+          .select('mic_unique_identifier, is_admin_locked')
+          .eq('claim_date', today)
+          .eq('is_admin_locked', true)
+          .maybeSingle(),
+        (supabase as any)
+          .from('motd_nomination_tallies')
+          .select('mic_unique_identifier, vote_count, created_at')
+          .eq('nomination_date', today)
+          .order('vote_count', { ascending: false })
+          .order('created_at', { ascending: true })
+          .limit(1)
+          .maybeSingle(),
+      ]);
+
+      let source: MotdSource = 'auto_pick';
+      if (lockRes.data?.mic_unique_identifier === winner) {
+        source = 'admin_lock';
+      } else if (nomsRes.data?.mic_unique_identifier === winner) {
+        source = 'nomination';
+      } else {
+        const dow = new Date(today + 'T12:00:00').getUTCDay();
+        const { data: wd } = await supabase
+          .from('motd_weekly_defaults')
+          .select('mic_unique_identifier')
+          .eq('day_of_week', dow)
+          .eq('mic_unique_identifier', winner)
+          .maybeSingle();
+        if (wd) source = 'weekly_default';
+      }
+
+      return { winner, source };
     },
     staleTime: 5 * 60 * 1000,
   });
 
-  const mic: OpenMic | null = query.data
-    ? mics.find((m) => m.uniqueIdentifier === query.data) || null
+  const winner = query.data?.winner || null;
+  const mic: OpenMic | null = winner
+    ? mics.find((m) => m.uniqueIdentifier === winner) || null
     : null;
+  const source: MotdSource = query.data?.source || 'unknown';
 
-  return { ...query, mic, claimDate: today };
+  return { ...query, mic, source, claimDate: today };
 }
+
 
 // Legacy claim hook (kept for verified-host claim button)
 export function useClaimMicOfTheDay() {
