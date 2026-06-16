@@ -1,11 +1,14 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, MapPin, Calendar, ArrowRight, Trophy } from 'lucide-react';
+import { Star, MapPin, Calendar, ArrowRight, Trophy, Info } from 'lucide-react';
 import { useMicOfTheDay } from '@/hooks/useMicOfTheDay';
 import { Link, useNavigate } from 'react-router-dom';
 import { slugify } from '@/utils/slugify';
 import { useAuth } from '@/contexts/AuthContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
+
 
 interface MicOfTheDayCardProps {
   className?: string;
@@ -27,13 +30,21 @@ export function MicOfTheDayCard({
   variant = 'compact',
   onSelect,
 }: MicOfTheDayCardProps) {
-  const { mic, isLoading } = useMicOfTheDay();
+  const { mic, isLoading, source } = useMicOfTheDay();
   const { user } = useAuth();
   const navigate = useNavigate();
 
   if (isLoading || !mic) return null;
 
   const label = mic.openMic || mic.venueName || 'Mic of the Day';
+  const sourceLabel: Record<string, string> = {
+    admin_lock: 'Pinned by Comediq admin for today.',
+    nomination: 'Won today by community nomination — most votes.',
+    weekly_default: 'Featured as this weekday\'s default. Nominate another mic to take the spot!',
+    auto_pick: 'Auto-picked from recent activity.',
+    unknown: 'Today\'s featured mic.',
+  };
+
 
   if (variant === 'premium') {
     const handleClick = (e?: React.MouseEvent) => {
@@ -70,6 +81,24 @@ export function MicOfTheDayCard({
                 <Star className="h-2.5 w-2.5 fill-yellow-500 text-yellow-500" />
                 MIC OF THE DAY
               </Badge>
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      className="shrink-0 inline-flex items-center text-yellow-700/80 hover:text-yellow-900"
+                      aria-label="Why this mic?"
+                    >
+                      <Info className="h-3 w-3" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[220px] text-xs">
+                    {sourceLabel[source] || sourceLabel.unknown}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
             </div>
             <Button
               size="sm"

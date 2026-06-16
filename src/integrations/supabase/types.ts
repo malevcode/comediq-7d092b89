@@ -1212,11 +1212,17 @@ export type Database = {
           day: string | null
           frequency: Database["public"]["Enums"]["mic_frequency"] | null
           frequency_custom_text: string | null
+          geocoded_at: string | null
+          geocoding_match_address: string | null
+          geocoding_provider: string | null
+          geocoding_score: number | null
           hosts_organizers: string | null
           last_verified: string | null
           latest_end_time: string | null
+          latitude: number | null
           legacy_tag: string | null
           location: string | null
+          longitude: number | null
           neighborhood: string | null
           open_mic: string
           other_rules: string | null
@@ -1248,11 +1254,17 @@ export type Database = {
           day?: string | null
           frequency?: Database["public"]["Enums"]["mic_frequency"] | null
           frequency_custom_text?: string | null
+          geocoded_at?: string | null
+          geocoding_match_address?: string | null
+          geocoding_provider?: string | null
+          geocoding_score?: number | null
           hosts_organizers?: string | null
           last_verified?: string | null
           latest_end_time?: string | null
+          latitude?: number | null
           legacy_tag?: string | null
           location?: string | null
+          longitude?: number | null
           neighborhood?: string | null
           open_mic: string
           other_rules?: string | null
@@ -1284,11 +1296,17 @@ export type Database = {
           day?: string | null
           frequency?: Database["public"]["Enums"]["mic_frequency"] | null
           frequency_custom_text?: string | null
+          geocoded_at?: string | null
+          geocoding_match_address?: string | null
+          geocoding_provider?: string | null
+          geocoding_score?: number | null
           hosts_organizers?: string | null
           last_verified?: string | null
           latest_end_time?: string | null
+          latitude?: number | null
           legacy_tag?: string | null
           location?: string | null
+          longitude?: number | null
           neighborhood?: string | null
           open_mic?: string
           other_rules?: string | null
