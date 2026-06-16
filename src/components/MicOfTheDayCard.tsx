@@ -1,9 +1,13 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, MapPin, Calendar, ArrowRight, Trophy } from 'lucide-react';
+import { Star, MapPin, Calendar, ArrowRight, Trophy, Info } from 'lucide-react';
 import { useMicOfTheDay } from '@/hooks/useMicOfTheDay';
 import { Link, useNavigate } from 'react-router-dom';
+import { slugify } from '@/utils/slugify';
+import { useAuth } from '@/contexts/AuthContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
 import { slugify } from '@/utils/slugify';
 import { useAuth } from '@/contexts/AuthContext';
 
