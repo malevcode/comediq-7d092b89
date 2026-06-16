@@ -248,10 +248,23 @@ export default function AdminMotdControl() {
 
       {/* Weekly defaults */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Weekly Defaults (fallback)</CardTitle>
-          <p className="text-xs text-muted-foreground">Pulled when nobody votes. Used only if no admin lock.</p>
+        <CardHeader className="pb-3 flex flex-row items-start justify-between gap-2 space-y-0">
+          <div>
+            <CardTitle className="text-base">Weekly Defaults (fallback)</CardTitle>
+            <p className="text-xs text-muted-foreground">Pulled when nobody votes. Used only if no admin lock.</p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={rotateWeeklyDefaults}
+            disabled={rotating}
+            className="shrink-0"
+          >
+            {rotating ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Trophy className="w-3.5 h-3.5 mr-1" />}
+            Rotate from top-ranked
+          </Button>
         </CardHeader>
+
         <CardContent className="space-y-2">
           {DAYS.map((label, idx) => {
             const existing = defaults.data?.find((d: any) => d.day_of_week === idx);
