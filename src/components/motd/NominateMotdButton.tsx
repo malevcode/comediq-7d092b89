@@ -8,9 +8,12 @@ import { useToast } from '@/hooks/use-toast';
 interface Props {
   micUniqueIdentifier: string;
   micName: string;
+  /** 'button' (default) renders a full-width outline button. 'inline' renders a subtle text link. */
+  variant?: 'button' | 'inline';
 }
 
-export default function NominateMotdButton({ micUniqueIdentifier, micName }: Props) {
+export default function NominateMotdButton({ micUniqueIdentifier, micName, variant = 'button' }: Props) {
+
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
