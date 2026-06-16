@@ -81,6 +81,24 @@ export function MicOfTheDayCard({
                 <Star className="h-2.5 w-2.5 fill-yellow-500 text-yellow-500" />
                 MIC OF THE DAY
               </Badge>
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      className="shrink-0 inline-flex items-center text-yellow-700/80 hover:text-yellow-900"
+                      aria-label="Why this mic?"
+                    >
+                      <Info className="h-3 w-3" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[220px] text-xs">
+                    {sourceLabel[source] || sourceLabel.unknown}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
             </div>
             <Button
               size="sm"
