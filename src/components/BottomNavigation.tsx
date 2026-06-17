@@ -46,7 +46,8 @@ const BottomNavigation = () => {
             // Special handling for Laugh section
             if (path === "/laugh") {
               isActive = location.pathname === "/laugh" || 
-                        location.pathname === "/audience-shows";
+                        location.pathname === "/audience-shows" ||
+                        location.pathname === "/shows/map";
             }
             
             return (

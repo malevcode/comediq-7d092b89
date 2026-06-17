@@ -5,6 +5,71 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
+const OPEN_MIC_DISPLAY_COLUMNS = [
+  'open_mic',
+  'day',
+  'start_time',
+  'latest_end_time',
+  'venue_name',
+  'borough',
+  'neighborhood',
+  'location',
+  'venue_type',
+  'cost',
+  'stage_time',
+  'sign_up_instructions',
+  'hosts_organizers',
+  'changes_updates',
+  'last_verified',
+  'other_rules',
+  'unique_identifier',
+  'active',
+  'signup_enabled',
+].join(',');
+
+type OpenMicDisplayRow = {
+  open_mic: string | null;
+  day: string | null;
+  start_time: string | null;
+  latest_end_time: string | null;
+  venue_name: string | null;
+  borough: string | null;
+  neighborhood: string | null;
+  location: string | null;
+  venue_type: string | null;
+  cost: string | null;
+  stage_time: string | null;
+  sign_up_instructions: string | null;
+  hosts_organizers: string | null;
+  changes_updates: string | null;
+  last_verified: string | null;
+  other_rules: string | null;
+  unique_identifier: string | null;
+  active: boolean | null;
+  signup_enabled: boolean | null;
+};
+
+type OpenMicDbUpdates = Partial<{
+  open_mic: string;
+  day: string;
+  start_time: string;
+  latest_end_time: string;
+  venue_name: string;
+  borough: string;
+  neighborhood: string;
+  location: string;
+  venue_type: string;
+  cost: string;
+  stage_time: string;
+  sign_up_instructions: string;
+  hosts_organizers: string;
+  changes_updates: string;
+  last_verified: string;
+  other_rules: string;
+  active: boolean;
+  signup_enabled: boolean;
+}>;
+
 // Using the display format that components expect (with spaces and title case)
 export interface OpenMicDisplay {
   'Open Mic': string;
@@ -39,9 +104,15 @@ export interface FetchOpenMicsOptions {
 export async function fetchOpenMics(options: FetchOpenMicsOptions = {}) {
   const { tableName = 'open_mics_historical', activeOnly = true } = options;
 
-  const { data, error } = await supabase
+  let query = supabase
     .from(tableName)
-    .select('*');
+    .select(OPEN_MIC_DISPLAY_COLUMNS);
+
+  if (activeOnly) {
+    query = query.eq('active', true);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw error;
@@ -51,11 +122,8 @@ export async function fetchOpenMics(options: FetchOpenMicsOptions = {}) {
     return [];
   }
 
-  // Filter and transform data
-  let mics = data.filter((mic: any) => !activeOnly || mic.active);
-
   // Map to display format
-  return mics.map((mic: any) => ({
+  return (data as OpenMicDisplayRow[]).map((mic) => ({
     'Open Mic': mic.open_mic || '',
     'Day': mic.day || '',
     'Start Time': mic.start_time || '',
@@ -98,7 +166,7 @@ export async function fetchAllMics() {
  */
 export async function updateMic(uniqueId: string, updates: Partial<OpenMicDisplay>) {
   // Convert display format to database format
-  const dbUpdates: any = {};
+  const dbUpdates: OpenMicDbUpdates = {};
   
   if (updates['Open Mic'] !== undefined) dbUpdates.open_mic = updates['Open Mic'];
   if (updates['Day'] !== undefined) dbUpdates.day = updates['Day'];

@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic, MicStatus, MicFrequency, SignupMethod } from "@/types/openMic";
 
-const CACHE_KEY = "comediq_open_mics_v1";
+const CACHE_KEY = "comediq_open_mics_v2";
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
-const CACHE_FRESH_MS = 60 * 60 * 1000; // 1 hour — matches staleTime
+const CACHE_FRESH_MS = 24 * 60 * 60 * 1000; // 24 hours — open mic schedules do not need per-session refetches
 
 function loadCached(maxAge: number = CACHE_TTL_MS): OpenMic[] | null {
   try {
@@ -21,7 +21,9 @@ function loadCached(maxAge: number = CACHE_TTL_MS): OpenMic[] | null {
 function saveCache(data: OpenMic[]) {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify({ data, savedAt: Date.now() }));
-  } catch {}
+  } catch {
+    // Ignore cache write failures; Supabase remains the source of truth.
+  }
 }
 
 function mapRow(row: Record<string, unknown>): OpenMic {
@@ -58,19 +60,25 @@ function mapRow(row: Record<string, unknown>): OpenMic {
     frequencyCustomText: (row["frequency_custom_text"] as string) || undefined,
     slotsEnabled: (row["slots_enabled"] as boolean) || false,
     slotDurationMinutes: (row["slot_duration_minutes"] as number) || 5,
+    latitude: (row["latitude"] as number | null) ?? null,
+    longitude: (row["longitude"] as number | null) ?? null,
+    geocodedAt: (row["geocoded_at"] as string | null) ?? null,
+    geocodingProvider: (row["geocoding_provider"] as string | null) ?? null,
+    geocodingScore: (row["geocoding_score"] as number | null) ?? null,
+    geocodingMatchAddress: (row["geocoding_match_address"] as string | null) ?? null,
   };
 }
 
 async function fetchFromSupabase(tableName: string): Promise<OpenMic[]> {
-  // Page through Supabase since the default cap is 1000 (we currently have ~400)
+  // Fetch the whole public mic catalog once, then let search/filter/map interactions run in memory.
   const pageSize = 1000;
   let from = 0;
   const all: Record<string, unknown>[] = [];
   // Cap at a few pages defensively
   for (let i = 0; i < 5; i++) {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from(tableName)
-      .select("unique_identifier,open_mic,day,start_time,latest_end_time,venue_name,borough,neighborhood,location,venue_type,cost,stage_time,sign_up_instructions,hosts_organizers,changes_updates,last_verified,city,signup_enabled,other_rules,cover_image_url,status,frequency,verification_count,submission_date,legacy_tag,creator_id,signup_method,signup_url,frequency_custom_text,slots_enabled,slot_duration_minutes")
+      .select("unique_identifier,open_mic,day,start_time,latest_end_time,venue_name,borough,neighborhood,location,venue_type,cost,stage_time,sign_up_instructions,hosts_organizers,changes_updates,last_verified,city,signup_enabled,other_rules,cover_image_url,status,frequency,verification_count,submission_date,legacy_tag,creator_id,signup_method,signup_url,frequency_custom_text,slots_enabled,slot_duration_minutes,latitude,longitude,geocoded_at,geocoding_provider,geocoding_score,geocoding_match_address")
       .eq("active", true)
       .neq("status", "pending")
       .range(from, from + pageSize - 1);
@@ -89,7 +97,7 @@ export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_histo
   return useQuery({
     queryKey: ["openMics", tableName],
     queryFn: async (): Promise<OpenMic[]> => {
-      // Skip the DB call entirely if localStorage data is less than 1 hour old.
+      // Skip the DB call entirely while the local browser copy is fresh.
       const fresh = loadCached(CACHE_FRESH_MS);
       if (fresh && fresh.length > 0) return fresh;
 
@@ -109,8 +117,10 @@ export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_histo
       throw new Error("Mic data unavailable");
     },
     placeholderData: cached ?? undefined,
-    staleTime: 60 * 60 * 1000,
-    gcTime: 2 * 60 * 60 * 1000,
+    staleTime: CACHE_FRESH_MS,
+    gcTime: CACHE_FRESH_MS,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     retry: 1,
     retryDelay: 1500,

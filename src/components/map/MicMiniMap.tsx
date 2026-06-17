@@ -1,105 +1,100 @@
-import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-
-const CACHE_KEY = 'nominatim_cache_v1';
-
-function loadCache(): Record<string, [number, number]> {
-  try { return JSON.parse(localStorage.getItem(CACHE_KEY) || '{}'); }
-  catch { return {}; }
-}
-
-function saveToCache(key: string, coords: [number, number]) {
-  try {
-    const cache = loadCache();
-    cache[key] = coords;
-    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-  } catch {}
-}
-
-async function geocodeAddress(address: string): Promise<[number, number] | null> {
-  const cache = loadCache();
-  if (cache[address]) return cache[address];
-
-  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1&countrycodes=us`;
-  const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-  if (!res.ok) return null;
-  const data = await res.json();
-  if (!data || !data[0]) return null;
-
-  const coords: [number, number] = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-  saveToCache(address, coords);
-  return coords;
-}
-
-const pinIcon = L.divIcon({
-  html: `<div style="width:12px;height:12px;background:#1a5fb4;border:2px solid white;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.5)"></div>`,
-  className: '',
-  iconSize: [12, 12],
-  iconAnchor: [6, 6],
-});
-
-// Forces Leaflet to recalculate tile layout after the container is painted.
-// Without this, maps rendered inside collapsed-then-expanded sections see 0x0
-// and never draw tiles (only the first map on the page works otherwise).
-function InvalidateSize() {
-  const map = useMap();
-  useEffect(() => {
-    const t = setTimeout(() => map.invalidateSize(), 50);
-    return () => clearTimeout(t);
-  }, [map]);
-  return null;
-}
+import { useEffect, useRef, useState } from 'react';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { getMapboxToken } from './MapInitializer';
 
 interface MicMiniMapProps {
   location: string;
   venueName: string;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
-export function MicMiniMap({ location, venueName }: MicMiniMapProps) {
-  const [coords, setCoords] = useState<[number, number] | null>(null);
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+function parseCoordinate(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+export function MicMiniMap({ location, venueName, latitude, longitude }: MicMiniMapProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const markerRef = useRef<mapboxgl.Marker | null>(null);
+  const [token, setToken] = useState('');
+  const parsedLatitude = parseCoordinate(latitude);
+  const parsedLongitude = parseCoordinate(longitude);
+
+  const openInGoogleMaps = () => {
+    const query = encodeURIComponent([venueName, location].filter(Boolean).join(', '));
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank', 'noopener,noreferrer');
+  };
 
   useEffect(() => {
-    if (!location && !venueName) { setStatus('error'); return; }
-    setStatus('loading');
-    const query = `${venueName}, ${location}, New York, NY`;
-    geocodeAddress(query)
-      .then(result => {
-        if (result) { setCoords(result); setStatus('ready'); }
-        else setStatus('error');
-      })
-      .catch(() => setStatus('error'));
-  }, [location, venueName]);
+    getMapboxToken().then(setToken);
+  }, []);
 
-  if (status === 'loading') {
-    return (
-      <div className="h-32 bg-gray-100 rounded-md animate-pulse flex items-center justify-center text-xs text-gray-400 mt-1">
-        Loading map…
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!token || !containerRef.current || parsedLatitude === null || parsedLongitude === null) return;
 
-  if (status === 'error' || !coords) return null;
+    mapboxgl.accessToken = token;
+
+    const map = new mapboxgl.Map({
+      container: containerRef.current,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [parsedLongitude, parsedLatitude],
+      zoom: 15,
+      interactive: false,
+      attributionControl: false,
+    });
+
+    const markerElement = document.createElement('div');
+    markerElement.style.width = '12px';
+    markerElement.style.height = '12px';
+    markerElement.style.borderRadius = '50%';
+    markerElement.style.background = '#1a5fb4';
+    markerElement.style.border = '2px solid #fff';
+    markerElement.style.boxShadow = '0 1px 4px rgba(0,0,0,0.5)';
+
+    const marker = new mapboxgl.Marker({ element: markerElement })
+      .setLngLat([parsedLongitude, parsedLatitude])
+      .addTo(map);
+
+    const resizeMap = () => map.resize();
+    const resizeTimer = window.setTimeout(resizeMap, 75);
+    const resizeObserver = new ResizeObserver(resizeMap);
+    resizeObserver.observe(containerRef.current);
+    map.once('load', resizeMap);
+
+    mapRef.current = map;
+    markerRef.current = marker;
+
+    return () => {
+      window.clearTimeout(resizeTimer);
+      resizeObserver.disconnect();
+      marker.remove();
+      map.remove();
+      mapRef.current = null;
+      markerRef.current = null;
+    };
+  }, [parsedLatitude, parsedLongitude, token]);
+
+  if (parsedLatitude === null || parsedLongitude === null) return null;
 
   return (
-    <div className="h-36 rounded-md overflow-hidden border border-blue-200 mt-1">
-      <MapContainer
-        key={`${coords[0]},${coords[1]}`}
-        center={coords}
-        zoom={15}
-        className="h-full w-full"
-        zoomControl={false}
-        scrollWheelZoom={false}
-        dragging={false}
-        doubleClickZoom={false}
-        attributionControl={false}
-      >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        <Marker position={coords} icon={pinIcon} />
-        <InvalidateSize />
-      </MapContainer>
-    </div>
+    <button
+      type="button"
+      onClick={openInGoogleMaps}
+      className="h-36 w-full rounded-md overflow-hidden border border-blue-200 mt-1 cursor-pointer text-left"
+      aria-label={`Open ${venueName || location} in Google Maps`}
+    >
+      {token ? (
+        <div ref={containerRef} className="h-full w-full" />
+      ) : (
+        <div className="h-full w-full bg-blue-50" />
+      )}
+    </button>
   );
 }
