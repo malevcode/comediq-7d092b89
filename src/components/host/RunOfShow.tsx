@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useEventSignups } from '@/hooks/useSignupEvents';
+import { SubscriberBadge } from '@/components/SubscriberBadge';
 import { format } from 'date-fns';
 import { GripVertical, Download, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,6 +57,7 @@ function SortableSignupItem({ signup, index }: { signup: any; index: number }) {
         <span className="text-foreground text-sm">
           {signup.profiles?.username || signup.guest_name || 'Comedian'}
         </span>
+        {signup.profiles?.subscription_plan === 'subscriber' && <SubscriberBadge />}
         {signup.guest_name && !signup.profiles?.username && (
           <Badge variant="secondary" className="text-[10px] px-1 py-0">Guest</Badge>
         )}
@@ -117,9 +119,9 @@ export function RunOfShow({ eventId, eventDate, totalSpots }: RunOfShowProps) {
   const handleExportCSV = () => {
     const items = orderedSignups || confirmedSignups;
     const csv = [
-      'Order,Name,Status,Notes',
+      'Order,Name,Subscriber,Status,Notes',
       ...items.map((s: any, i: number) =>
-        `${i + 1},"${s.profiles?.username || s.guest_name || 'Comedian'}",${s.status},"${s.notes || ''}"`
+        `${i + 1},"${s.profiles?.username || s.guest_name || 'Comedian'}",${s.profiles?.subscription_plan === 'subscriber' ? 'Yes' : 'No'},${s.status},"${s.notes || ''}"`
       ),
     ].join('\n');
 

@@ -10,10 +10,11 @@ export interface AppUser {
 }
 
 type UserRole = 'performer' | 'host' | 'showrunner' | 'admin' | null;
-type SubscriptionPlan = 'free' | 'standard' | 'premium';
+type SubscriptionPlan = 'free' | 'subscriber';
 
 interface ProfileAccessFields {
   isadmin: boolean;
+  subscription_plan: SubscriptionPlan | null;
 }
 
 interface UserRoleRow {
@@ -32,7 +33,7 @@ interface AuthContextType {
   isAdmin: boolean;
   role: UserRole;
   subscriptionPlan: SubscriptionPlan;
-  creditsBalance: number;
+  isSubscriber: boolean;
   needsOnboarding: boolean;
   refreshProfile: () => void;
 }
@@ -64,7 +65,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAdmin, setIsAdmin] = useState(false);
   const [role, setRole] = useState<UserRole>(null);
   const [subscriptionPlan, setSubscriptionPlan] = useState<SubscriptionPlan>('free');
-  const [creditsBalance, setCreditsBalance] = useState(0);
   const [profileFetchKey, setProfileFetchKey] = useState(0);
 
   useEffect(() => {
@@ -91,7 +91,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsAdmin(false);
       setRole(null);
       setSubscriptionPlan('free');
-      setCreditsBalance(0);
       return;
     }
     setProfileLoading(true);
@@ -99,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     Promise.all([
       supabase
       .from('profiles')
-      .select('isadmin')
+      .select('isadmin, subscription_plan')
       .eq('user_id', user.id)
         .maybeSingle<ProfileAccessFields>(),
       (supabase as any)
@@ -112,6 +111,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setRole(primaryRole);
       setIsAdmin(!!profileResult.data?.isadmin || roles.includes('admin'));
+      const plan = profileResult.data?.subscription_plan;
+      setSubscriptionPlan(plan === 'subscriber' ? 'subscriber' : 'free');
     }).finally(() => {
       setProfileLoading(false);
       setProfileChecked(true);
@@ -170,7 +171,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const needsOnboarding = false;
 
   return (
-    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, loading: loading || profileLoading || (!!user && !profileChecked), visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, creditsBalance, needsOnboarding, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, loading: loading || profileLoading || (!!user && !profileChecked), visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, isSubscriber: subscriptionPlan === 'subscriber', needsOnboarding, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

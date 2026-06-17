@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { useEventSignups } from '@/hooks/useSignupEvents';
+import { SubscriberBadge } from '@/components/SubscriberBadge';
 
 interface SignupListProps {
   eventId: string;
@@ -34,6 +35,7 @@ export function SignupList({ eventId, totalSpots, signupMode }: SignupListProps)
               <span className="text-foreground">
                 {signup.profiles?.username || signup.guest_name || 'Comedian'}
               </span>
+              {signup.profiles?.subscription_plan === 'subscriber' && <SubscriberBadge />}
               {signup.guest_name && !signup.profiles?.username && (
                 <Badge variant="secondary" className="text-[10px] px-1 py-0">Guest</Badge>
               )}

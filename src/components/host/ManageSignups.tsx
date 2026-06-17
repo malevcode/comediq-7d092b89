@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useEventSignups } from '@/hooks/useSignupEvents';
+import { SubscriberBadge } from '@/components/SubscriberBadge';
 import { format } from 'date-fns';
 
 interface ManageSignupsProps {
@@ -35,6 +36,7 @@ export function ManageSignups({ eventId, eventDate, totalSpots }: ManageSignupsP
                 <div className="flex items-center gap-3">
                   <span className="font-semibold text-foreground">#{index + 1}</span>
                   <span className="text-foreground">{signup.profiles?.username || 'Anonymous'}</span>
+                  {signup.profiles?.subscription_plan === 'subscriber' && <SubscriberBadge />}
                 </div>
                 <Badge variant="secondary">{signup.status}</Badge>
               </div>

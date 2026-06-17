@@ -211,7 +211,7 @@ export async function fetchEventSignups(eventId: string) {
     .from('mic_signups')
     .select(`
       *,
-      profiles (username)
+      profiles (username, subscription_plan)
     `)
     .eq('event_id', eventId)
     .order('created_at', { ascending: true });
