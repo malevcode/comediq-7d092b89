@@ -294,6 +294,10 @@ export type Database = {
           doors_time: string | null
           expected_audience: number | null
           external_ticket_url: string | null
+          geocoded_at: string | null
+          geocoding_match_address: string | null
+          geocoding_provider: string | null
+          geocoding_score: number | null
           host_name: string | null
           id: string
           image_url: string | null
@@ -303,7 +307,9 @@ export type Database = {
           is_independently_produced: boolean | null
           is_paid: boolean | null
           is_recurring: boolean | null
+          latitude: number | null
           lineup: string | null
+          longitude: number | null
           parent_show_id: string | null
           price_cents: number | null
           producer_ig_handle: string | null
@@ -339,6 +345,10 @@ export type Database = {
           doors_time?: string | null
           expected_audience?: number | null
           external_ticket_url?: string | null
+          geocoded_at?: string | null
+          geocoding_match_address?: string | null
+          geocoding_provider?: string | null
+          geocoding_score?: number | null
           host_name?: string | null
           id?: string
           image_url?: string | null
@@ -348,7 +358,9 @@ export type Database = {
           is_independently_produced?: boolean | null
           is_paid?: boolean | null
           is_recurring?: boolean | null
+          latitude?: number | null
           lineup?: string | null
+          longitude?: number | null
           parent_show_id?: string | null
           price_cents?: number | null
           producer_ig_handle?: string | null
@@ -384,6 +396,10 @@ export type Database = {
           doors_time?: string | null
           expected_audience?: number | null
           external_ticket_url?: string | null
+          geocoded_at?: string | null
+          geocoding_match_address?: string | null
+          geocoding_provider?: string | null
+          geocoding_score?: number | null
           host_name?: string | null
           id?: string
           image_url?: string | null
@@ -393,7 +409,9 @@ export type Database = {
           is_independently_produced?: boolean | null
           is_paid?: boolean | null
           is_recurring?: boolean | null
+          latitude?: number | null
           lineup?: string | null
+          longitude?: number | null
           parent_show_id?: string | null
           price_cents?: number | null
           producer_ig_handle?: string | null
