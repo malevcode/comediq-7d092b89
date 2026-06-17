@@ -20,9 +20,6 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  optimizeDeps: {
-    include: ['leaflet', 'leaflet.markercluster']
-  },
   define: {
     global: 'globalThis',
   }

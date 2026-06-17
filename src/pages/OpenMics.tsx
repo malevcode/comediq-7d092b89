@@ -21,6 +21,7 @@ import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilter
 import PageHeader from "@/components/PageHeader";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import OpenMicsLoadingScreen from "@/components/OpenMicsLoadingScreen";
+import { OpenMicsMapRefactored } from "@/components/map";
 
 
 
@@ -350,6 +351,13 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       .sort((a, b) => new Date(b.submissionDate!).getTime() - new Date(a.submissionDate!).getTime());
   };
 
+  const getActiveTabMics = () => {
+    if (activeTab === "new") return getNewMics();
+    if (activeTab === "liked") return getFilteredMics("liked");
+    if (daysOfWeek.includes(activeTab)) return getFilteredMics("day", activeTab);
+    return getFilteredMics("next");
+  };
+
   const renderMicContent = (filteredMics: OpenMic[], tabName: string) => {
     const micsToShow = filteredMics;
 
@@ -531,7 +539,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     );
   }
 
-  const handleAddToSchedule = (_showData: any) => {};
+  const handleAddToSchedule = (_showData: unknown) => {};
 
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Home', url: 'https://comediq.us' },
@@ -683,7 +691,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
         {/* Day Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full ${user ? "grid-cols-10" : "grid-cols-9"} mb-6 h-9 gap-1.5`}>
+          <TabsList className={`grid w-full ${user ? "grid-cols-10" : "grid-cols-9"} mb-4 h-9 gap-1.5`}>
             <TabsTrigger value="next" className="text-xs py-1 px-1">
               Next
             </TabsTrigger>
@@ -701,6 +709,13 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
               </TabsTrigger>
             ))}
           </TabsList>
+
+          <div className="mb-4">
+            <OpenMicsMapRefactored
+              mics={getActiveTabMics()}
+              onMicSelect={(mic) => setSelectedMic(mic)}
+            />
+          </div>
 
           <TabsContent value="next" className="mt-2">
             {showInlineCard && (
