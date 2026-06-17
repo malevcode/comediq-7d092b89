@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import HamburgerMenu from "@/components/HamburgerMenu";
+import { TopAdBar } from "@/components/TopAdBar";
 import { ReactNode } from "react";
 
 interface PageHeaderProps {
