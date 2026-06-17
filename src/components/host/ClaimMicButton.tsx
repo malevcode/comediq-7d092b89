@@ -94,29 +94,23 @@ export default function ClaimMicButton({ micUniqueIdentifier, micName, venueName
 
   // No claim yet
   return (
-    <Card>
-      <CardContent className="pt-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Shield className="w-4 h-4" />
-            <span>Are you the host?</span>
-          </div>
-          <Button 
-            size="sm" 
-            variant="outline" 
-            onClick={handleClaim}
-            disabled={claimMutation.isPending}
-          >
-            {!user ? (
-              <><LogIn className="w-3 h-3 mr-1" /> Sign in to Claim</>
-            ) : claimMutation.isPending ? (
-              'Submitting...'
-            ) : (
-              'Claim This Mic'
-            )}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+      <Shield className="w-3 h-3" />
+      <span>Are you the host?</span>
+      <button
+        type="button"
+        onClick={handleClaim}
+        disabled={claimMutation.isPending}
+        className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline disabled:opacity-60 disabled:no-underline disabled:cursor-not-allowed"
+      >
+        {claimMutation.isPending ? (
+          'Submitting...'
+        ) : !user ? (
+          <><LogIn className="w-3 h-3" /> Sign in to Claim</>
+        ) : (
+          'Claim This Mic'
+        )}
+      </button>
+    </div>
   );
 }
