@@ -62,6 +62,7 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
           </div>
         </div>
       </div>
+      <TopAdBar />
     </nav>
   );
 };
