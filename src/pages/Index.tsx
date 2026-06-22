@@ -11,15 +11,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import Home from "@/components/Home";
 import SEO from "@/components/SEO";
 import { generateOrganizationSchema, generateWebSiteSchema } from "@/utils/structuredData";
-import { useTopRatedMics } from "@/hooks/useTopRatedMics";
-import { linkManager } from "@/utils/linkManager";
-import { Card, CardContent } from "@/components/ui/card";
-import { Star } from "lucide-react";
 
 const Index = () => {
   const { user } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
-  const { data: topMics } = useTopRatedMics();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -71,37 +66,6 @@ const Index = () => {
               </div>
 
               <Features />
-
-              {/* Popular Mics Section */}
-              {topMics && topMics.length > 0 && (
-                <section className="py-10 bg-gradient-to-b from-gray-50 to-white">
-                  <div className="container mx-auto px-4">
-                    <h2 className="text-2xl font-bold mb-4 text-center">Most Popular Open Mics</h2>
-                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 max-w-5xl mx-auto">
-                      {topMics.slice(0, 5).map(mic => (
-                        <Link to={linkManager.micDetail(mic)} key={mic.uniqueIdentifier}>
-                          <Card className="hover:shadow-md transition h-full">
-                            <CardContent className="p-3">
-                              <h3 className="font-bold text-sm mb-1 truncate">{mic.openMic}</h3>
-                              <p className="text-xs text-muted-foreground truncate">{mic.venueName}</p>
-                              <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                                <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                                <span>{mic.likeCount}</span>
-                              </div>
-                              <p className="text-xs mt-1">{mic.day} • {mic.cost}</p>
-                            </CardContent>
-                          </Card>
-                        </Link>
-                      ))}
-                    </div>
-                    <div className="text-center mt-4">
-                      <Link to="/open-mics" className="text-[#1a5fb4] hover:underline text-sm font-medium">
-                        View all open mics →
-                      </Link>
-                    </div>
-                  </div>
-                </section>
-              )}
 
               <SponsorSection />
               <ShowTNPromo />

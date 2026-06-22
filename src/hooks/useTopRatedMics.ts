@@ -2,11 +2,36 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic } from "@/types/openMic";
 
+const CACHE_KEY = 'comediq_top_rated_v1';
+const CACHE_FRESH_MS = 4 * 60 * 60 * 1000;
+
+function loadCached(): (OpenMic & { likeCount: number })[] | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const { data, savedAt } = JSON.parse(raw);
+    if (Date.now() - savedAt > CACHE_FRESH_MS) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function saveCache(data: (OpenMic & { likeCount: number })[]) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ data, savedAt: Date.now() }));
+  } catch {}
+}
+
 export const useTopRatedMics = () => {
+  const cached = loadCached();
+
   return useQuery({
     queryKey: ['topRatedMics'],
     queryFn: async () => {
-      // Get mics with the most likes
+      const fresh = loadCached();
+      if (fresh && fresh.length > 0) return fresh;
+
       const { data: likeCounts, error: likeError } = await supabase
         .from('mic_like_counts')
         .select('mic_unique_identifier, likes')
@@ -14,22 +39,17 @@ export const useTopRatedMics = () => {
         .limit(10);
 
       if (likeError) throw likeError;
+      if (!likeCounts || likeCounts.length === 0) return [];
 
-      if (!likeCounts || likeCounts.length === 0) {
-        return [];
-      }
-
-      // Fetch full mic data for these top mics
       const micIds = likeCounts.map(lc => lc.mic_unique_identifier);
       const { data: mics, error: micsError } = await supabase
         .from('open_mics_historical')
-        .select('*')
+        .select('unique_identifier,open_mic,day,start_time,venue_name,borough,neighborhood,cost')
         .in('unique_identifier', micIds)
         .eq('active', true);
 
       if (micsError) throw micsError;
 
-      // Map to OpenMic format and attach like counts
       const mappedMics = mics?.map((row: any) => {
         const likeCount = likeCounts.find(lc => lc.mic_unique_identifier === row.unique_identifier);
         return {
@@ -37,35 +57,36 @@ export const useTopRatedMics = () => {
           openMic: row.open_mic || "",
           day: row.day || "",
           startTime: row.start_time || "",
-          latestEndTime: row.latest_end_time || "",
+          latestEndTime: "",
           venueName: row.venue_name || "",
           borough: row.borough?.trim() || "",
           neighborhood: row.neighborhood || "",
-          location: row.location || "",
-          venueType: row.venue_type || "",
+          location: "",
           cost: row.cost || "",
-          stageTime: row.stage_time || "",
-          signUpInstructions: row.sign_up_instructions || "",
-          hosts: row.hosts_organizers || "",
-          instagramHandle: row.changes_updates || "",
-          lastVerified: row.last_verified || "",
+          stageTime: "",
+          signUpInstructions: "",
+          hosts: "",
+          instagramHandle: "",
+          lastVerified: "",
           uniqueIdentifier: row.unique_identifier || "",
-          city: row.city || "",
-          signupEnabled: row.signup_enabled || false,
-          otherRules: row.other_rules || "",
-          status: row.status || "trial",
-          frequency: row.frequency || "weekly",
-          verificationCount: row.verification_count || 0,
-          slotsEnabled: row.slots_enabled || false,
-          slotDurationMinutes: row.slot_duration_minutes || 5,
-          likeCount: likeCount?.likes || 0
+          city: "",
+          signupEnabled: false,
+          otherRules: "",
+          status: "verified" as const,
+          frequency: "weekly" as const,
+          slotsEnabled: false,
+          slotDurationMinutes: 5,
+          likeCount: likeCount?.likes || 0,
         };
       }) || [];
 
-      // Sort by like count
-      return mappedMics.sort((a, b) => b.likeCount - a.likeCount);
+      const sorted = mappedMics.sort((a, b) => b.likeCount - a.likeCount);
+      if (sorted.length > 0) saveCache(sorted);
+      return sorted;
     },
-    staleTime: 15 * 60 * 1000, // 15 minutes
-    gcTime: 30 * 60 * 1000,
+    placeholderData: cached ?? undefined,
+    staleTime: 4 * 60 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
