@@ -255,7 +255,7 @@ const Profile = () => {
             </TabsContent>
 
             {/* Playlists Tab */}
-            <TabsContent value="playlists">
+            <TabsContent value="playlists" className="mt-10">
               <PlaylistsTab />
             </TabsContent>
 

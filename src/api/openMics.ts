@@ -104,19 +104,9 @@ export interface FetchOpenMicsOptions {
 export async function fetchOpenMics(options: FetchOpenMicsOptions = {}) {
   const { tableName = 'open_mics_historical', activeOnly = true } = options;
 
-  let query = supabase
+  const { data, error } = await supabase
     .from(tableName)
-<<<<<<< HEAD
     .select('unique_identifier,open_mic,day,start_time,latest_end_time,venue_name,borough,neighborhood,location,venue_type,cost,stage_time,sign_up_instructions,hosts_organizers,changes_updates,last_verified,other_rules,active,signup_enabled');
-=======
-    .select(OPEN_MIC_DISPLAY_COLUMNS);
-
-  if (activeOnly) {
-    query = query.eq('active', true);
-  }
-
-  const { data, error } = await query;
->>>>>>> b5b5cbd (Add Mapbox open mic map updates)
 
   if (error) {
     throw error;
@@ -126,8 +116,10 @@ export async function fetchOpenMics(options: FetchOpenMicsOptions = {}) {
     return [];
   }
 
+  const mics = (data as OpenMicDisplayRow[]).filter((mic) => !activeOnly || mic.active);
+
   // Map to display format
-  return (data as OpenMicDisplayRow[]).map((mic) => ({
+  return mics.map((mic) => ({
     'Open Mic': mic.open_mic || '',
     'Day': mic.day || '',
     'Start Time': mic.start_time || '',

@@ -6,13 +6,18 @@ import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3, Heart, Bookmark, Music, ListMusic } from "lucide-react";
+import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3, Heart, Bookmark, Music, ListMusic, Sparkles } from "lucide-react";
 import { SponsorCard } from "./SponsorCard";
 import { QuickNotes } from "./home/QuickNotes";
 import Header from "./Header";
 import { useSavedMics } from "@/hooks/useSavedMics";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useMicPlaylists } from "@/hooks/useMicPlaylists";
+import { getValidStripePaymentLink } from "@/utils/stripeLinks";
+
+const STRIPE_PAID_LINK = getValidStripePaymentLink(
+  import.meta.env.VITE_STRIPE_PAID_LINK,
+);
 
 
 
@@ -264,6 +269,19 @@ export default function Home() {
                   <CardDescription className="text-white/80">Common tasks</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2 pt-6">
+                  <Button asChild className="w-full justify-start bg-[#f97316] text-white hover:bg-[#ea580c]" size="sm">
+                    {STRIPE_PAID_LINK ? (
+                      <a href={STRIPE_PAID_LINK} target="_blank" rel="noopener noreferrer">
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Subscribe to Full Pass
+                      </a>
+                    ) : (
+                      <Link to="/auth">
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Subscribe to Full Pass
+                      </Link>
+                    )}
+                  </Button>
                   <Button asChild variant="outline" className="w-full justify-start border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50 bg-transparent" size="sm">
                     <Link to="/open-mics">
                       <MapPin className="mr-2 h-4 w-4" />

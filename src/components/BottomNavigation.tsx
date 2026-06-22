@@ -9,6 +9,7 @@ const BottomNavigation = () => {
   const { trackClick } = useAnalytics();
 
   const isHostOrShowrunner = role === 'host' || role === 'showrunner';
+  if (location.pathname.startsWith("/auth")) return null;
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
