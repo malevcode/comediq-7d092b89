@@ -40,7 +40,7 @@ export default function SubscriptionSuccessBanner() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed left-4 right-4 top-4 z-[200] mx-auto max-w-4xl">
+    <div className="fixed left-4 right-4 top-4 z-50 mx-auto max-w-4xl">
       <Card className="relative overflow-hidden border border-yellow-300/60 border-l-4 border-l-yellow-500 bg-gradient-to-br from-yellow-50 via-amber-50 to-white shadow-lg">
         <CardContent className="p-4 sm:p-5">
           <div className="flex items-start gap-3 pr-9">
