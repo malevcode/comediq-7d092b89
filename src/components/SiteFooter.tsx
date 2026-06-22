@@ -6,7 +6,7 @@ const SiteFooter = () => {
   const boroughs = ['Manhattan', 'Brooklyn', 'Queens', 'Bronx', 'Staten Island'];
 
   return (
-    <footer className="bg-gray-900 text-white py-12 mt-16">
+    <footer className="bg-gray-900 text-white py-12">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-4 gap-8">
           {/* Browse by Day */}

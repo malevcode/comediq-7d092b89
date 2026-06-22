@@ -1,8 +1,8 @@
 import { Zap, ExternalLink } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { getValidStripePaymentLink } from '@/utils/stripeLinks';
 
-const STRIPE_STANDARD_LINK = import.meta.env.VITE_STRIPE_STANDARD_LINK ?? '';
-const STRIPE_PREMIUM_LINK  = import.meta.env.VITE_STRIPE_PREMIUM_LINK  ?? '';
+const STRIPE_PAID_LINK = getValidStripePaymentLink(import.meta.env.VITE_STRIPE_PAID_LINK);
 
 interface Props {
   compact?: boolean;
@@ -18,9 +18,7 @@ export function CreditBalance({ compact = false }: Props) {
   const { creditsBalance, subscriptionPlan, user } = useAuth();
   if (!user) return null;
 
-  const upgradeUrl = subscriptionPlan === 'free'     ? STRIPE_STANDARD_LINK
-                   : subscriptionPlan === 'standard' ? STRIPE_PREMIUM_LINK
-                   : null;
+  const upgradeUrl = subscriptionPlan === 'premium' ? null : STRIPE_PAID_LINK;
 
   if (compact) {
     return (
@@ -49,12 +47,12 @@ export function CreditBalance({ compact = false }: Props) {
 
       {subscriptionPlan === 'free' && (
         <p className="text-xs text-gray-500">
-          Credits let you sign up for open mics online. Standard plan: 5 credits/mo for $5.
+          Full Pass unlocks monthly Comediq open mic access and subscriber benefits.
         </p>
       )}
       {subscriptionPlan === 'standard' && (
         <p className="text-xs text-gray-500">
-          Premium: 15 credits/mo for $10 — more mics, priority booking.
+          Upgrade to Full Pass for the complete monthly comedy subscription.
         </p>
       )}
 
@@ -65,7 +63,7 @@ export function CreditBalance({ compact = false }: Props) {
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-white text-sm font-medium bg-[#1a5fb4] hover:bg-[#1550a0] transition-colors"
         >
-          {subscriptionPlan === 'free' ? 'Get credits — $5/mo' : 'Upgrade to Premium'}
+          Subscribe to Full Pass
           <ExternalLink className="w-3.5 h-3.5" />
         </a>
       )}

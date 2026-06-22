@@ -21,6 +21,7 @@ import BottomNavigation from "./components/BottomNavigation";
 import ScrollToTop from "./components/ScrollToTop";
 import MarqueeBanner from "./components/MarqueeBanner";
 import SiteFooter from "./components/SiteFooter";
+import SubscriptionSuccessBanner from "./components/SubscriptionSuccessBanner";
 import ProgressTrackerPage from "./pages/ProgressTracker";
 import Home from "./components/Home";
 import { TabProvider } from "@/contexts/TabContext";
@@ -78,7 +79,8 @@ const App = () => (
               <AnalyticsProvider>
                 <ScrollToTop />
                 <MarqueeBanner />
-                <div className="pb-8">
+                <SubscriptionSuccessBanner />
+                <div className="pb-0">
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/perform" element={<TabProvider><Perform /></TabProvider>} />
@@ -87,6 +89,8 @@ const App = () => (
                     <Route path="/track-sets" element={<ProgressTrackerPage />} />
                     <Route path="/shows" element={<TabProvider><Shows /></TabProvider>} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/auth/sign-in" element={<Auth />} />
+                    <Route path="/auth/create" element={<Auth />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/admintest" element={<AdminInterface />} />
                     <Route path="/playlists" element={<Playlists />} />

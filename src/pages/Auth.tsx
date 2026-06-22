@@ -1,13 +1,27 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Eye, EyeOff, Mic, ArrowLeft, Mail } from 'lucide-react';
+import { Eye, EyeOff, Mic, ArrowLeft, Mail, CheckCircle } from 'lucide-react';
+import { getValidStripePaymentLink } from '@/utils/stripeLinks';
 
 const BRAND_BLUE = '#1a5fb4';
+const STRIPE_PAID_LINK = getValidStripePaymentLink(
+  import.meta.env.VITE_STRIPE_PAID_LINK,
+);
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'object' && error && 'message' in error) {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === 'string') return message;
+  }
+
+  return fallback;
+};
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -25,6 +39,7 @@ const GoogleIcon = () => (
 
 type AuthStep =
   | 'main'             // Google + Apple + email OTP entry
+  | 'sign_in_options'
   | 'email_otp_verify' // 6-digit email OTP
   | 'email_auth'       // email + password sign in
   | 'email_signup'     // create account with email
@@ -67,6 +82,15 @@ const Auth = () => {
   }, [location.hash]);
 
   useEffect(() => {
+    if (step === 'reset_password') return;
+    if (location.pathname === '/auth/sign-in' || location.pathname === '/auth/create') {
+      if (step === 'main' || step === 'email_signup') setStep('sign_in_options');
+    } else if (location.pathname === '/auth' && (step === 'sign_in_options' || step === 'email_signup')) {
+      setStep('main');
+    }
+  }, [location.pathname, step]);
+
+  useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') setStep('reset_password');
     });
@@ -81,14 +105,6 @@ const Auth = () => {
     return () => clearInterval(id);
   }, [resendCooldown]);
 
-  // ── Auto-submit when all OTP digits filled ────────────────────────────────
-
-  useEffect(() => {
-    if (step === 'email_otp_verify' && otpDigits.every(d => d !== '')) {
-      handleVerifyOtp(otpDigits.join(''));
-    }
-  }, [otpDigits, step]);
-
   // ─── Handlers ─────────────────────────────────────────────────────────────
 
   const handleGoogleSignIn = async () => {
@@ -98,6 +114,33 @@ const Auth = () => {
     });
     if (error) toast({ title: 'Google sign-in failed', description: error.message, variant: 'destructive' });
   };
+
+  const handleVerifyOtp = useCallback(async (code?: string) => {
+    const token = code ?? otpDigits.join('');
+    if (token.length !== 6) return;
+    setLoading(true);
+    const { error } = await supabase.auth.verifyOtp({
+      email: otpEmail,
+      token,
+      type: 'email',
+    });
+    setLoading(false);
+    if (error) {
+      toast({ title: 'Incorrect code', description: 'Check the code and try again.', variant: 'destructive' });
+      setOtpDigits(['', '', '', '', '', '']);
+      setTimeout(() => otpRefs.current[0]?.focus(), 50);
+    } else {
+      navigate('/perform');
+    }
+  }, [navigate, otpDigits, otpEmail, toast]);
+
+  // ── Auto-submit when all OTP digits filled ────────────────────────────────
+
+  useEffect(() => {
+    if (step === 'email_otp_verify' && otpDigits.every(d => d !== '')) {
+      handleVerifyOtp(otpDigits.join(''));
+    }
+  }, [handleVerifyOtp, otpDigits, step]);
 
 
   const handleSendEmailCode = async (e: React.FormEvent) => {
@@ -118,25 +161,6 @@ const Auth = () => {
       setStep('email_otp_verify');
       setResendCooldown(60);
       setTimeout(() => otpRefs.current[0]?.focus(), 100);
-    }
-  };
-
-  const handleVerifyOtp = async (code?: string) => {
-    const token = code ?? otpDigits.join('');
-    if (token.length !== 6) return;
-    setLoading(true);
-    const { error } = await supabase.auth.verifyOtp({
-      email: otpEmail,
-      token,
-      type: 'email',
-    });
-    setLoading(false);
-    if (error) {
-      toast({ title: 'Incorrect code', description: 'Check the code and try again.', variant: 'destructive' });
-      setOtpDigits(['', '', '', '', '', '']);
-      setTimeout(() => otpRefs.current[0]?.focus(), 50);
-    } else {
-      navigate('/perform');
     }
   };
 
@@ -185,7 +209,7 @@ const Auth = () => {
     const { error } = await signIn(email, password);
     setLoading(false);
     if (error) {
-      toast({ title: 'Error', description: (error as any)?.message || 'Sign in failed.', variant: 'destructive' });
+      toast({ title: 'Error', description: getErrorMessage(error, 'Sign in failed.'), variant: 'destructive' });
     } else {
       navigate('/perform');
     }
@@ -197,7 +221,7 @@ const Auth = () => {
     const { error } = await signUp(email, password, '', '');
     setLoading(false);
     if (error) {
-      toast({ title: 'Error', description: (error as any)?.message || 'Sign up failed.', variant: 'destructive' });
+      toast({ title: 'Error', description: getErrorMessage(error, 'Sign up failed.'), variant: 'destructive' });
     } else {
       toast({ title: 'Account created!', description: 'Check your email to confirm your address.' });
       setStep('email_auth');
@@ -235,6 +259,12 @@ const Auth = () => {
     }
   };
 
+  const handleSubscribe = () => {
+    if (STRIPE_PAID_LINK) {
+      window.location.assign(STRIPE_PAID_LINK);
+    }
+  };
+
   // ─── Layout helpers ────────────────────────────────────────────────────────
 
   const Divider = ({ label = 'or' }: { label?: string }) => (
@@ -248,62 +278,158 @@ const Auth = () => {
     </div>
   );
 
+  const TierComparison = () => (
+    <div className="grid gap-3 sm:grid-cols-[1.18fr_0.82fr]">
+      <div className="relative rounded-2xl border-2 border-[#1a5fb4] bg-[#1a5fb4]/5 p-4 shadow-sm">
+        <div className="absolute right-3 top-3 rounded-full bg-[#1a5fb4] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+          Best value
+        </div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-[#1a5fb4]">Paid tier</p>
+        <h2 className="mt-1 text-xl font-semibold text-gray-950">Full Pass</h2>
+        <h2 className="mt-1 text-2xl font-bold text-gray-950">$20<span className="ml-1 text-base font-normal text-gray-700">/month</span></h2>
+        <button
+          type="button"
+          onClick={handleSubscribe}
+          className="mt-4 w-full rounded-xl bg-[#1a5fb4] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1550a0]"
+        >
+          Subscribe
+        </button>
+        <p className="mt-4 space-y-2 text-sm text-gray-700">Everything in Basic, plus:</p>
+        <ul className="mt-4 space-y-2 text-sm text-gray-700">
+          {[
+            'No ads',
+            'Free entry to the expanding network of Comediq open mics for you and 1 guest',
+            'Access to the Highline Comedy Club Book Me Mic, which gives comics a shot at stage time at a stronger club (3 comics every mic will be chosen to do the 8 pm show after)',
+            'Show you support the best database of NYC open mic data and want to contribute to maintaining and growing comedy digital infrastructure',
+          ].map((feature) => (
+            <li key={feature} className="flex gap-2">
+              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#1a5fb4]" />
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="rounded-2xl border border-gray-200 bg-white p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Free tier</p>
+        <h2 className="mt-1 text-xl font-semibold text-gray-950">Basic</h2>
+        <h2 className="mt-1 text-2xl font-bold text-gray-950">$0<span className="ml-1 text-base font-normal text-gray-700">/month</span></h2>
+        <button
+          type="button"
+          onClick={() => navigate('/auth/sign-in')}
+          className="mt-4 w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+        >
+          Create an Account
+        </button>
+        <p className="mt-4 space-y-2 text-sm text-gray-700">Basic Features:</p>
+        <ul className="mt-4 space-y-2 text-sm text-gray-600">
+          {[
+            'Browse open mics',
+            'Save your favorite mics',
+            'Basic signup access',
+            'Community mic updates',
+          ].map((feature) => (
+            <li key={feature} className="flex gap-2">
+              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+
   // ─── Step renderers ────────────────────────────────────────────────────────
 
   const renderMain = () => (
     <>
-      <h1 className="text-2xl font-semibold text-gray-900 mb-1">Sign in to Comediq</h1>
-      <p className="text-sm text-gray-500 mb-7">Free forever. Jump right in.</p>
-
-      {/* Google — primary CTA */}
       <button
         type="button"
-        onClick={handleGoogleSignIn}
-        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
+        onClick={() => navigate('/')}
+        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
       >
-        <GoogleIcon />
-        Continue with Google
+        <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
       </button>
 
-      <Divider label="or get a code emailed to you" />
+      <h1 className="text-2xl font-semibold text-gray-900 mb-4">Create an Account</h1>
+      <div className="mb-8">
+        <TierComparison />
+      </div>
 
-      {/* Email OTP — secondary */}
-      <form onSubmit={handleSendEmailCode} className="space-y-3">
-        <div className="flex rounded-xl border border-gray-200 overflow-hidden focus-within:ring-2 focus-within:ring-[#1a5fb4] focus-within:border-[#1a5fb4]">
-          <span className="flex items-center pl-3.5 pr-2 text-gray-400">
-            <Mail className="w-4 h-4" />
-          </span>
-          <input
-            type="email"
-            placeholder="you@example.com"
-            value={otpEmail}
-            onChange={e => setOtpEmail(e.target.value)}
-            className="flex-1 py-3 pr-3 text-sm bg-white outline-none placeholder-gray-400"
-            required
-            autoComplete="email"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading || !otpEmail}
-          className="w-full py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50"
-          style={{ background: BRAND_BLUE }}
-        >
-          {loading ? 'Sending…' : 'Send code'}
-        </button>
-      </form>
-
-      {/* Password — tertiary, barely visible */}
-      <p className="text-center text-xs text-gray-400 mt-8">
-        Have a password?{' '}
+      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Sign in to Comediq</h2>
+      <div className="mx-auto w-full max-w-sm">
         <button
           type="button"
-          onClick={() => setStep('email_auth')}
-          className="underline hover:text-gray-600"
+          onClick={() => navigate('/auth/sign-in')}
+          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
         >
-          Sign in
+          Sign In
         </button>
-      </p>
+      </div>
+    </>
+  );
+
+  const renderSignInOptions = () => (
+    <>
+      <button
+        type="button"
+        onClick={() => navigate('/auth')}
+        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
+      >
+        <ArrowLeft className="w-3.5 h-3.5" /> Back
+      </button>
+
+      <h1 className="text-2xl font-semibold text-gray-900 mb-7">Create an Account or Sign in</h1>
+
+        {/* Google — primary CTA */}
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
+        >
+          <GoogleIcon />
+          Continue with Google
+        </button>
+
+        <Divider label="or get a code emailed to you" />
+
+        {/* Email OTP — secondary */}
+        <form onSubmit={handleSendEmailCode} className="space-y-3">
+          <div className="flex rounded-xl border border-gray-200 overflow-hidden focus-within:ring-2 focus-within:ring-[#1a5fb4] focus-within:border-[#1a5fb4]">
+            <span className="flex items-center pl-3.5 pr-2 text-gray-400">
+              <Mail className="w-4 h-4" />
+            </span>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={otpEmail}
+              onChange={e => setOtpEmail(e.target.value)}
+              className="flex-1 py-3 pr-3 text-sm bg-white outline-none placeholder-gray-400"
+              required
+              autoComplete="email"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading || !otpEmail}
+            className="w-full py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50"
+            style={{ background: BRAND_BLUE }}
+          >
+            {loading ? 'Sending…' : 'Send code'}
+          </button>
+        </form>
+
+        {/* Password — tertiary, barely visible */}
+        <p className="text-center text-xs text-gray-400 mt-8">
+          Have a password?{' '}
+          <button
+            type="button"
+            onClick={() => setStep('email_auth')}
+            className="underline hover:text-gray-600"
+          >
+            Sign in
+          </button>
+        </p>
     </>
   );
 
@@ -311,7 +437,7 @@ const Auth = () => {
     <>
       <button
         type="button"
-        onClick={() => setStep('main')}
+        onClick={() => setStep('sign_in_options')}
         className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
@@ -369,7 +495,10 @@ const Auth = () => {
     <>
       <button
         type="button"
-        onClick={() => setStep('main')}
+        onClick={() => {
+          navigate('/auth/sign-in');
+          setStep('sign_in_options');
+        }}
         className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
@@ -393,21 +522,16 @@ const Auth = () => {
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
-
-      <p className="mt-6 text-center text-sm text-gray-500">
-        No account?{' '}
-        <button type="button" onClick={() => setStep('email_signup')} className="font-medium underline underline-offset-2" style={{ color: BRAND_BLUE }}>Create one</button>
-      </p>
     </>
   );
 
   const renderEmailSignup = () => (
     <>
-      <button type="button" onClick={() => setStep('email_auth')} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6">
+      <button type="button" onClick={() => navigate('/auth')} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6">
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">Create your account</h1>
-      <p className="text-sm text-gray-500 mb-7">Free forever. Start saving your mics.</p>
+
       <form onSubmit={handleEmailSignup} className="space-y-3">
         <Input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" />
         <div className="relative">
@@ -459,6 +583,7 @@ const Auth = () => {
 
   const stepContent = {
     main: renderMain,
+    sign_in_options: renderSignInOptions,
     email_otp_verify: renderEmailOtpVerify,
     email_auth: renderEmailAuth,
     email_signup: renderEmailSignup,
@@ -468,6 +593,7 @@ const Auth = () => {
 
   const seoTitle = {
     main: 'Sign In | Comediq',
+    sign_in_options: 'Sign In | Comediq',
     email_otp_verify: 'Check Your Email | Comediq',
     email_auth: 'Sign In | Comediq',
     email_signup: 'Join Comediq',
@@ -479,35 +605,35 @@ const Auth = () => {
     <>
       <SEO title={seoTitle} description="Sign in or create a free Comediq account to save open mics, track your comedy journey, and connect with the NYC comedy community." url="https://comediq.us/auth" noindex={true} />
       <div className="min-h-screen flex">
-        <div className="hidden lg:flex lg:w-[45%] flex-col justify-between p-12 text-white" style={{ background: `linear-gradient(160deg, #0d3d7a 0%, ${BRAND_BLUE} 60%, #2a7ad4 100%)` }}>
-          <div className="flex items-center gap-3">
+        <div className="relative hidden overflow-hidden lg:flex lg:w-[36%] xl:w-[34%] flex-col justify-between p-12 text-white">
+          <video
+            className="absolute inset-0 h-full w-full object-cover"
+            src="/videos/sign-in-loop.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+          >
+            "The best tool for tracking NYC open mics. I use it every week before I hit the road."
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/20 to-black/60" />
+          <div className="relative z-10 flex items-center gap-3">
             <span className="font-semibold text-lg tracking-tight">Comediq</span>
           </div>
-          <div>
-            <blockquote className="text-2xl font-medium leading-snug mb-6 text-white/90">
-              "The best tool for tracking NYC open mics. I use it every week before I hit the road."
-            </blockquote>
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">J</div>
-              <div>
-                <p className="font-medium text-sm">Jamie Chen</p>
-                <p className="text-white/60 text-xs">Stand-up comedian, NYC</p>
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/20">
+          <div className="relative z-10" />
+          <div className="relative z-10 grid grid-cols-2 gap-4 pt-4 border-t border-white/20">
             <div><p className="text-2xl font-bold">1,250+</p><p className="text-white/60 text-sm">comedians per week</p></div>
             <div><p className="text-2xl font-bold">500+</p><p className="text-white/60 text-sm">open mics tracked</p></div>
           </div>
         </div>
-        <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-white">
+        <div className="flex-1 flex flex-col items-center justify-start px-6 py-12 bg-white lg:pt-24">
           <div className="lg:hidden mb-8 flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: BRAND_BLUE }}>
               <Mic className="w-3.5 h-3.5 text-white" />
             </div>
             <span className="font-semibold text-lg">Comediq</span>
           </div>
-          <div className="w-full max-w-sm">{stepContent}</div>
+          <div className={step === 'main' ? 'w-full max-w-2xl' : 'w-full max-w-sm'}>{stepContent}</div>
         </div>
       </div>
     </>
