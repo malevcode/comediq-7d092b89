@@ -1,17 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { OpenMic, MicStatus, MicFrequency, SignupMethod } from "@/types/openMic";
+import { OpenMic } from "@/types/openMic";
 
-const CACHE_KEY = "comediq_open_mics_v2";
-const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
-const CACHE_FRESH_MS = 4 * 60 * 60 * 1000; // 4 hours — mic data barely changes
+const CACHE_KEY = "comediq_open_mics_v3";
+const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days — static data
 
-function loadCached(maxAge: number = CACHE_TTL_MS): OpenMic[] | null {
+function loadCached(): OpenMic[] | null {
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
     const { data, savedAt } = JSON.parse(raw);
-    if (Date.now() - savedAt > maxAge) return null;
+    if (Date.now() - savedAt > CACHE_TTL_MS) return null;
     return data as OpenMic[];
   } catch {
     return null;
@@ -24,90 +22,39 @@ function saveCache(data: OpenMic[]) {
   } catch {}
 }
 
-function mapRow(row: Record<string, unknown>): OpenMic {
-  return {
-    id: row["unique_identifier"] as string,
-    openMic: (row["open_mic"] as string) || "",
-    day: (row["day"] as string) || "",
-    startTime: (row["start_time"] as string) || "",
-    latestEndTime: (row["latest_end_time"] as string) || "",
-    venueName: (row["venue_name"] as string) || "",
-    borough: ((row["borough"] as string) || "").trim(),
-    neighborhood: (row["neighborhood"] as string) || "",
-    location: (row["location"] as string) || "",
-    cost: (row["cost"] as string) || "",
-    stageTime: (row["stage_time"] as string) || "",
-    signUpInstructions: (row["sign_up_instructions"] as string) || "",
-    hosts: (row["hosts_organizers"] as string) || "",
-    instagramHandle: (row["changes_updates"] as string) || "",
-    lastVerified: (row["last_verified"] as string) || "",
-    uniqueIdentifier: (row["unique_identifier"] as string) || "",
-    city: (row["city"] as string) || "",
-    signupEnabled: (row["signup_enabled"] as boolean) || false,
-    otherRules: (row["other_rules"] as string) || "",
-    coverImageUrl: (row["cover_image_url"] as string) || undefined,
-    status: (row["status"] as MicStatus) || "verified",
-    frequency: (row["frequency"] as MicFrequency) || "weekly",
-    submissionDate: (row["submission_date"] as string) || undefined,
-    legacyTag: (row["legacy_tag"] as string) || undefined,
-    signupMethod: (row["signup_method"] as SignupMethod) || undefined,
-    slotsEnabled: (row["slots_enabled"] as boolean) || false,
-    slotDurationMinutes: (row["slot_duration_minutes"] as number) || 5,
-  };
-}
-
-async function fetchFromSupabase(tableName: string): Promise<OpenMic[]> {
-  // Page through Supabase since the default cap is 1000 (we currently have ~400)
-  const pageSize = 1000;
-  let from = 0;
-  const all: Record<string, unknown>[] = [];
-  // Cap at a few pages defensively
-  for (let i = 0; i < 5; i++) {
-    const { data, error } = await (supabase as any)
-      .from(tableName)
-      .select("unique_identifier,open_mic,day,start_time,latest_end_time,venue_name,borough,neighborhood,location,cost,stage_time,sign_up_instructions,hosts_organizers,changes_updates,last_verified,city,signup_enabled,other_rules,cover_image_url,status,frequency,submission_date,legacy_tag,signup_method,slots_enabled,slot_duration_minutes")
-      .eq("active", true)
-      .neq("status", "pending")
-      .range(from, from + pageSize - 1);
-    if (error) throw error;
-    if (!data || data.length === 0) break;
-    all.push(...(data as Record<string, unknown>[]));
-    if (data.length < pageSize) break;
-    from += pageSize;
+async function fetchFromStaticJson(): Promise<OpenMic[]> {
+  const res = await fetch("/mics.json");
+  if (!res.ok) throw new Error(`Failed to fetch /mics.json: ${res.status}`);
+  const mics = await res.json();
+  if (!Array.isArray(mics) || mics.length === 0) {
+    throw new Error("Static mic data is empty");
   }
-  return all.map(mapRow);
+  return mics as OpenMic[];
 }
 
-export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_historical") => {
+export const useOpenMics = () => {
   const cached = loadCached();
 
   return useQuery({
-    queryKey: ["openMics", tableName],
+    queryKey: ["openMics"],
     queryFn: async (): Promise<OpenMic[]> => {
-      // Skip the DB call entirely if localStorage data is less than 1 hour old.
-      const fresh = loadCached(CACHE_FRESH_MS);
-      if (fresh && fresh.length > 0) return fresh;
+      // Serve from localStorage if available — zero network requests
+      if (cached && cached.length > 0) return cached;
 
       try {
-        const rows = await fetchFromSupabase(tableName);
-        if (rows.length > 0) {
-          saveCache(rows);
-          return rows;
-        }
+        const rows = await fetchFromStaticJson();
+        saveCache(rows);
+        return rows;
       } catch (e) {
-        console.warn("[useOpenMics] Supabase fetch failed:", e);
+        console.warn("[useOpenMics] Static JSON fetch failed:", e);
       }
-
-      // Fallback: stale localStorage data (up to 7 days old).
-      if (cached && cached.length > 0) return cached;
 
       throw new Error("Mic data unavailable");
     },
     placeholderData: cached ?? undefined,
-    staleTime: 4 * 60 * 60 * 1000,
-    gcTime: 8 * 60 * 60 * 1000,
+    staleTime: Infinity,
+    gcTime: Infinity,
     refetchOnWindowFocus: false,
     retry: 1,
-    retryDelay: 1500,
   });
 };
