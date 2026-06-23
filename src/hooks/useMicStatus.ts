@@ -1,5 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+// Supabase imports removed — mic status disabled to conserve egress until July 5
 
 export type MicStatusType = 'verified' | 'unverified' | 'cancelled';
 
@@ -8,70 +7,13 @@ interface MicStatusData {
   updatedAt: string;
 }
 
-export const useMicStatus = (micUniqueIdentifier: string) => {
-  const queryClient = useQueryClient();
-
-  const query = useQuery({
-    queryKey: ['mic-status', micUniqueIdentifier],
-    queryFn: async (): Promise<MicStatusData | null> => {
-      const { data, error } = await supabase
-        .from('mic_verifications')
-        .select('status, verified_at')
-        .eq('mic_unique_identifier', micUniqueIdentifier)
-        .order('verified_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (error) throw error;
-      
-      if (data) {
-        return { 
-          status: (data.status as MicStatusType) || 'unverified', 
-          updatedAt: data.verified_at 
-        };
-      }
-      return null;
-    },
-    enabled: !!micUniqueIdentifier,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-
-  const updateStatusMutation = useMutation({
-    mutationFn: async (newStatus: MicStatusType) => {
-      const { data, error } = await supabase.functions.invoke('verify-mic', {
-        body: {
-          mic_unique_identifier: micUniqueIdentifier,
-          status: newStatus,
-        },
-      });
-      if (error) throw new Error(error.message || 'Failed to update status');
-      return data;
-    },
-    onMutate: async (newStatus: MicStatusType) => {
-      await queryClient.cancelQueries({ queryKey: ['mic-status', micUniqueIdentifier] });
-      const previous = queryClient.getQueryData<MicStatusData | null>(['mic-status', micUniqueIdentifier]);
-      queryClient.setQueryData(['mic-status', micUniqueIdentifier], {
-        status: newStatus,
-        updatedAt: new Date().toISOString(),
-      });
-      return { previous };
-    },
-    onError: (_err, _newStatus, context) => {
-      if (context?.previous !== undefined) {
-        queryClient.setQueryData(['mic-status', micUniqueIdentifier], context.previous);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mic-status', micUniqueIdentifier] });
-      queryClient.invalidateQueries({ queryKey: ['latestVerification', micUniqueIdentifier] });
-    },
-  });
-
+// Mic status disabled to eliminate Supabase egress until billing cycle resets (July 5)
+export const useMicStatus = (_micUniqueIdentifier: string) => {
   return {
-    status: query.data?.status || 'unverified',
-    updatedAt: query.data?.updatedAt,
-    isLoading: query.isLoading,
-    updateStatus: updateStatusMutation.mutate,
-    isUpdating: updateStatusMutation.isPending,
+    status: 'unverified' as MicStatusType,
+    updatedAt: undefined,
+    isLoading: false,
+    updateStatus: (_newStatus: MicStatusType) => {},
+    isUpdating: false,
   };
 };

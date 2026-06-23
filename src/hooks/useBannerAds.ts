@@ -36,34 +36,14 @@ const fallbackBottomAds = [
   { label: "Advertise!", href: "https://docs.google.com/forms/d/e/1FAIpQLSe58Za3tfgyuUFNoVxQb_qAe3PPfVrnm4gciw_cklp-HPkKQg/viewform?usp=publish-editor", external: true },
 ];
 
+// Banner ads disabled to eliminate Supabase egress until billing cycle resets (July 5)
 export function useBannerAds() {
-  const today = new Date().toISOString().split('T')[0];
-
-  const { data: ads, isLoading, error } = useQuery({
-    queryKey: ['banner-ads', today],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('banner_ads')
-        .select('*')
-        .eq('is_active', true)
-        .or(`start_date.is.null,start_date.lte.${today}`)
-        .or(`end_date.is.null,end_date.gte.${today}`)
-        .order('sort_order');
-      if (error) throw error;
-      return data as BannerAd[];
-    },
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const topAds = ads?.filter(a => a.position === 'top') ?? [];
-  const bottomAds = ads?.filter(a => a.position === 'bottom') ?? [];
-
   return {
-    topAds: topAds.length > 0 ? topAds : fallbackTopAds,
-    bottomAds: bottomAds.length > 0 ? bottomAds : fallbackBottomAds,
-    isLoading,
-    error,
-    isUsingFallback: !ads || ads.length === 0,
+    topAds: fallbackTopAds,
+    bottomAds: fallbackBottomAds,
+    isLoading: false,
+    error: null,
+    isUsingFallback: true,
   };
 }
 
@@ -95,33 +75,14 @@ export function useAdClickCounts() {
   });
 }
 
-export async function recordAdClick(adId: string, userId?: string, placement?: string) {
-  await supabase.from('ad_clicks').insert({
-    ad_id: adId,
-    user_id: userId || null,
-    placement: placement || 'banner',
-  });
-}
+// Ad click recording disabled to eliminate Supabase egress until billing cycle resets (July 5)
+export async function recordAdClick(_adId: string, _userId?: string, _placement?: string) {}
 
+// Sponsor ad disabled to eliminate Supabase egress until billing cycle resets (July 5)
 export function useSponsorAd() {
-  const today = new Date().toISOString().split('T')[0];
-
   return useQuery({
-    queryKey: ['sponsor-ad', today],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('banner_ads')
-        .select('*')
-        .eq('position', 'sponsor')
-        .eq('is_active', true)
-        .or(`start_date.is.null,start_date.lte.${today}`)
-        .or(`end_date.is.null,end_date.gte.${today}`)
-        .order('sort_order')
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      return data as BannerAd | null;
-    },
-    staleTime: 5 * 60 * 1000,
+    queryKey: ['sponsor-ad', 'disabled'],
+    queryFn: async () => null as BannerAd | null,
+    staleTime: Infinity,
   });
 }
