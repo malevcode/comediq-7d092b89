@@ -48,6 +48,7 @@ import TopMics from "./pages/TopMics";
 import Slots from "./pages/Slots";
 import ShowsMap from "./pages/ShowsMap";
 import Onboarding from "./pages/Onboarding";
+import BookMeMicSignup from "./pages/BookMeMicSignup";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -117,6 +118,7 @@ const App = () => (
                     <Route path="/dev-view" element={<TabProvider><DevView /></TabProvider>} />
                     <Route path="/slots" element={<Slots />} />
                     <Route path="/onboarding" element={<Onboarding />} />
+                    <Route path="/book-me-mic" element={<BookMeMicSignup />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </div>

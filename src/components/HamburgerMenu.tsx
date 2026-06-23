@@ -25,7 +25,7 @@ const HamburgerMenu = () => {
     { path: "/open-mics", icon: Search, label: "Find Mics" },
     { path: "/top-mics", icon: Flame, label: "Top Mics" },
     ...(user ? [{ path: "/saved", icon: Bookmark, label: "Saved Mics" }] : []),
-    ...(user ? [{ path: "/open-mics?tab=playlists", icon: ListMusic, label: "My Playlists" }] : []),
+    ...(user ? [{ path: "/playlists", icon: ListMusic, label: "My Playlists" }] : []),
     { path: "/growth", icon: Briefcase, label: "Growth" },
     ...(user ? [{ path: "/host-dashboard", icon: MicVocal, label: "Host Dashboard" }] : []),
   ];

@@ -14,6 +14,8 @@ type SubscriptionPlan = 'free' | 'standard' | 'premium';
 
 interface ProfileAccessFields {
   isadmin: boolean;
+  subscription_plan: SubscriptionPlan;
+  credits_balance: number;
 }
 
 interface UserRoleRow {
@@ -23,7 +25,7 @@ interface UserRoleRow {
 interface AuthContextType {
   user: AppUser | null;
   session: Session | null;
-  signUp: (email: string, password: string, username?: string, phone?: string) => Promise<{ error: unknown }>;
+  signUp: (email: string, password: string, username?: string, phone?: string, emailRedirectTo?: string) => Promise<{ error: unknown }>;
   signIn: (email: string, password: string) => Promise<{ error: unknown }>;
   signOut: () => Promise<void>;
   loading: boolean;
@@ -99,10 +101,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     Promise.all([
       supabase
       .from('profiles')
-      .select('isadmin')
+      .select('isadmin, subscription_plan, credits_balance')
       .eq('user_id', user.id)
         .maybeSingle<ProfileAccessFields>(),
-      (supabase as any)
+      supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id),
@@ -112,6 +114,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setRole(primaryRole);
       setIsAdmin(!!profileResult.data?.isadmin || roles.includes('admin'));
+      setSubscriptionPlan(profileResult.data?.subscription_plan ?? 'free');
+      setCreditsBalance(profileResult.data?.credits_balance ?? 0);
     }).finally(() => {
       setProfileLoading(false);
       setProfileChecked(true);
@@ -151,8 +155,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password });
+  const signUp = async (email: string, password: string, _username?: string, _phone?: string, emailRedirectTo?: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: emailRedirectTo ? { emailRedirectTo } : undefined,
+    });
     return { error };
   };
 

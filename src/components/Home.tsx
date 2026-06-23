@@ -240,7 +240,7 @@ export default function Home() {
                 </div>
 
                 {/* Playlists card */}
-                <Link to="/open-mics?tab=playlists">
+                <Link to="/playlists" className="block pt-1">
                   <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer">
                     <CardContent className="p-3">
                       <div className="flex items-center gap-2">
@@ -270,17 +270,10 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="space-y-2 pt-6">
                   <Button asChild className="w-full justify-start bg-[#f97316] text-white hover:bg-[#ea580c]" size="sm">
-                    {STRIPE_PAID_LINK ? (
-                      <a href={STRIPE_PAID_LINK} target="_blank" rel="noopener noreferrer">
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        Subscribe to Full Pass
-                      </a>
-                    ) : (
-                      <Link to="/auth">
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        Subscribe to Full Pass
-                      </Link>
-                    )}
+                    <Link to="/auth?plans=true">
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Subscribe to Full Pass
+                    </Link>
                   </Button>
                   <Button asChild variant="outline" className="w-full justify-start border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50 bg-transparent" size="sm">
                     <Link to="/open-mics">
@@ -301,7 +294,7 @@ export default function Home() {
                     </Link>
                   </Button>
                   <Button asChild variant="outline" className="w-full justify-start border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50 bg-transparent" size="sm">
-                    <Link to="/open-mics?tab=playlists">
+                    <Link to="/playlists">
                       <Music className="mr-2 h-4 w-4" />
                       My Playlists
                     </Link>
@@ -350,7 +343,7 @@ export default function Home() {
                           variant="ghost"
                           size="sm"
                           className="text-[#1a5fb4] hover:bg-blue-50"
-                          onClick={() => navigate('/perform?tab=show-scheduler')}
+                          onClick={() => navigate('/shows')}
                         >
                           <ArrowRight className="h-4 w-4" />
                         </Button>

@@ -50,8 +50,9 @@ const renderAdStrip = (ads: AdBox[], repeatCount: number, userId?: string) => {
 
 export function TopAdBar() {
   const { topAds } = useBannerAds();
-  const { user } = useAuth();
+  const { user, subscriptionPlan } = useAuth();
 
+  if (subscriptionPlan !== 'free') return null;
   if (!topAds || topAds.length === 0) return null;
 
   return (

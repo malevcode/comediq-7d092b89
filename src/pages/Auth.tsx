@@ -23,6 +23,14 @@ const getErrorMessage = (error: unknown, fallback: string) => {
   return fallback;
 };
 
+const isEmailRateLimitError = (error: unknown) =>
+  getErrorMessage(error, '').toLowerCase().includes('email rate limit');
+
+const isEmailConfirmationError = (error: unknown) => {
+  const message = getErrorMessage(error, '').toLowerCase();
+  return message.includes('email not confirmed') || message.includes('confirm your email');
+};
+
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
 const GoogleIcon = () => (
@@ -46,14 +54,18 @@ type AuthStep =
   | 'forgot_password'
   | 'reset_password';
 
+type OtpVerificationType = 'email' | 'signup';
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const Auth = () => {
   const [step, setStep] = useState<AuthStep>('main');
   const [otpEmail, setOtpEmail] = useState('');
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
+  const [otpVerificationType, setOtpVerificationType] = useState<OtpVerificationType>('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [pendingSignupPassword, setPendingSignupPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetPassword, setResetPassword] = useState('');
@@ -67,12 +79,21 @@ const Auth = () => {
   const location = useLocation();
   const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
+  const searchParams = new URLSearchParams(location.search);
+  const nextPathParam = searchParams.get('next');
+  const shouldShowPlans = searchParams.get('plans') === 'true';
+  const postAuthPath = nextPathParam?.startsWith('/') ? nextPathParam : '/';
+  const authRedirectUrl = `${window.location.origin}/auth/sign-in?next=${encodeURIComponent(postAuthPath)}`;
+  const plansParam = shouldShowPlans ? '&plans=true' : '';
+  const signInOptionsPath = `/auth/sign-in?next=${encodeURIComponent(postAuthPath)}${plansParam}`;
+  const createAccountPath = `/auth/create?next=${encodeURIComponent(postAuthPath)}${plansParam}`;
+  const authLandingPath = `/auth?next=${encodeURIComponent(postAuthPath)}${plansParam}`;
 
   // ── Redirect if already authed ────────────────────────────────────────────
 
   useEffect(() => {
-    if (user && step !== 'reset_password') navigate('/perform');
-  }, [user, navigate, step]);
+    if (user && step !== 'reset_password' && !shouldShowPlans) navigate(postAuthPath);
+  }, [user, navigate, postAuthPath, shouldShowPlans, step]);
 
   // ── Detect password-reset link ────────────────────────────────────────────
 
@@ -83,7 +104,9 @@ const Auth = () => {
 
   useEffect(() => {
     if (step === 'reset_password') return;
-    if (location.pathname === '/auth/sign-in' || location.pathname === '/auth/create') {
+    if (location.pathname === '/auth/create') {
+      if (step === 'main' || step === 'sign_in_options') setStep('email_signup');
+    } else if (location.pathname === '/auth/sign-in') {
       if (step === 'main' || step === 'email_signup') setStep('sign_in_options');
     } else if (location.pathname === '/auth' && (step === 'sign_in_options' || step === 'email_signup')) {
       setStep('main');
@@ -110,7 +133,7 @@ const Auth = () => {
   const handleGoogleSignIn = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/perform` },
+      options: { redirectTo: authRedirectUrl },
     });
     if (error) toast({ title: 'Google sign-in failed', description: error.message, variant: 'destructive' });
   };
@@ -122,17 +145,31 @@ const Auth = () => {
     const { error } = await supabase.auth.verifyOtp({
       email: otpEmail,
       token,
-      type: 'email',
+      type: otpVerificationType,
     });
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast({ title: 'Incorrect code', description: 'Check the code and try again.', variant: 'destructive' });
       setOtpDigits(['', '', '', '', '', '']);
       setTimeout(() => otpRefs.current[0]?.focus(), 50);
     } else {
-      navigate('/perform');
+      if (pendingSignupPassword) {
+        const { error: passwordError } = await supabase.auth.updateUser({ password: pendingSignupPassword });
+        if (passwordError) {
+          setLoading(false);
+          toast({
+            title: 'Password was not saved',
+            description: getErrorMessage(passwordError, 'You are signed in, but your password could not be saved.'),
+            variant: 'destructive',
+          });
+          return;
+        }
+        setPendingSignupPassword('');
+      }
+      setLoading(false);
+      navigate(postAuthPath);
     }
-  }, [navigate, otpDigits, otpEmail, toast]);
+  }, [navigate, otpDigits, otpEmail, otpVerificationType, pendingSignupPassword, postAuthPath, toast]);
 
   // ── Auto-submit when all OTP digits filled ────────────────────────────────
 
@@ -150,13 +187,22 @@ const Auth = () => {
       email: otpEmail,
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: `${window.location.origin}/perform`,
+        emailRedirectTo: authRedirectUrl,
       },
     });
     setLoading(false);
     if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      if (isEmailRateLimitError(error)) {
+        toast({
+          title: 'Error',
+          description: 'Email rate limit exceeded. Try again later.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
     } else {
+      setOtpVerificationType('email');
       setOtpDigits(['', '', '', '', '', '']);
       setStep('email_otp_verify');
       setResendCooldown(60);
@@ -165,13 +211,29 @@ const Auth = () => {
   };
 
   const handleResendCode = async () => {
-    if (resendCooldown > 0) return;
-    const { error } = await supabase.auth.signInWithOtp({
-      email: otpEmail,
-      options: { emailRedirectTo: `${window.location.origin}/perform` },
-    });
+    if (resendCooldown > 0 || loading) return;
+    setLoading(true);
+    const { error } = otpVerificationType === 'signup'
+      ? await supabase.auth.resend({
+        type: 'signup',
+        email: otpEmail,
+        options: { emailRedirectTo: authRedirectUrl },
+      })
+      : await supabase.auth.signInWithOtp({
+        email: otpEmail,
+        options: { emailRedirectTo: authRedirectUrl },
+      });
+    setLoading(false);
     if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      if (isEmailRateLimitError(error)) {
+        toast({
+          title: 'Error',
+          description: 'Email rate limit exceeded. Try again later.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
     } else {
       toast({ title: 'Code resent' });
       setResendCooldown(60);
@@ -209,22 +271,68 @@ const Auth = () => {
     const { error } = await signIn(email, password);
     setLoading(false);
     if (error) {
-      toast({ title: 'Error', description: getErrorMessage(error, 'Sign in failed.'), variant: 'destructive' });
+      if (isEmailConfirmationError(error)) {
+        toast({
+          title: 'Email confirmation required',
+          description: 'Your password was saved, but this email needs to be confirmed before sign-in.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({ title: 'Error', description: getErrorMessage(error, 'Sign in failed.'), variant: 'destructive' });
+      }
     } else {
-      navigate('/perform');
+      setPendingSignupPassword('');
+      navigate(postAuthPath);
     }
   };
 
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await signUp(email, password, '', '');
-    setLoading(false);
+    const { error } = await signUp(email, password, '', '', authRedirectUrl);
     if (error) {
+      setLoading(false);
       toast({ title: 'Error', description: getErrorMessage(error, 'Sign up failed.'), variant: 'destructive' });
     } else {
-      toast({ title: 'Account created!', description: 'Check your email to confirm your address.' });
-      setStep('email_auth');
+      setPendingSignupPassword(password);
+      const { error: emailCodeError } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: authRedirectUrl,
+        },
+      });
+      setLoading(false);
+
+      if (emailCodeError && !isEmailRateLimitError(emailCodeError)) {
+        setPendingSignupPassword('');
+        toast({
+          title: 'Error',
+          description: getErrorMessage(emailCodeError, 'We could not send a sign-in code. Try signing in with email and code.'),
+          variant: 'destructive',
+        });
+        return;
+      } else if (emailCodeError) {
+        setPendingSignupPassword('');
+        toast({
+          title: 'Error',
+          description: 'Email rate limit exceeded. Try again later.',
+          variant: 'destructive',
+        });
+        return;
+      } else {
+        toast({
+          title: 'Account created!',
+          description: 'Enter the sign-in code sent to your email.',
+        });
+      }
+
+      setOtpEmail(email);
+      setOtpVerificationType('email');
+      setOtpDigits(['', '', '', '', '', '']);
+      setStep('email_otp_verify');
+      setResendCooldown(60);
+      setTimeout(() => otpRefs.current[0]?.focus(), 100);
     }
   };
 
@@ -316,7 +424,7 @@ const Auth = () => {
         <h2 className="mt-1 text-2xl font-bold text-gray-950">$0<span className="ml-1 text-base font-normal text-gray-700">/month</span></h2>
         <button
           type="button"
-          onClick={() => navigate('/auth/sign-in')}
+          onClick={() => navigate(createAccountPath)}
           className="mt-4 w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
         >
           Create an Account
@@ -360,7 +468,7 @@ const Auth = () => {
       <div className="mx-auto w-full max-w-sm">
         <button
           type="button"
-          onClick={() => navigate('/auth/sign-in')}
+          onClick={() => navigate(signInOptionsPath)}
           className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
         >
           Sign In
@@ -373,13 +481,13 @@ const Auth = () => {
     <>
       <button
         type="button"
-        onClick={() => navigate('/auth')}
+        onClick={() => navigate(authLandingPath)}
         className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
-      <h1 className="text-2xl font-semibold text-gray-900 mb-7">Create an Account or Sign in</h1>
+      <h1 className="text-2xl font-semibold text-gray-900 mb-7">Sign in to Comediq</h1>
 
         {/* Google — primary CTA */}
         <button
@@ -411,25 +519,28 @@ const Auth = () => {
           </div>
           <button
             type="submit"
-            disabled={loading || !otpEmail}
+            disabled={loading || !otpEmail || resendCooldown > 0}
             className="w-full py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50"
             style={{ background: BRAND_BLUE }}
           >
-            {loading ? 'Sending…' : 'Send code'}
+            {loading ? 'Sending…' : resendCooldown > 0 ? `Try again in ${resendCooldown}s` : 'Send code'}
           </button>
         </form>
 
-        {/* Password — tertiary, barely visible */}
-        <p className="text-center text-xs text-gray-400 mt-8">
-          Have a password?{' '}
+        <Divider label="or use a password" />
+
+        <div className="w-full flex items-center justify-center">
           <button
             type="button"
-            onClick={() => setStep('email_auth')}
-            className="underline hover:text-gray-600"
+            onClick={() => {
+              navigate(signInOptionsPath);
+              setStep('email_auth');
+            }}
+            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-center text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
           >
-            Sign in
+            Sign in with password
           </button>
-        </p>
+        </div>
     </>
   );
 
@@ -437,15 +548,25 @@ const Auth = () => {
     <>
       <button
         type="button"
-        onClick={() => setStep('sign_in_options')}
+        onClick={() => {
+          if (otpVerificationType === 'signup') {
+            navigate(createAccountPath);
+            setStep('email_signup');
+          } else {
+            setStep('sign_in_options');
+          }
+        }}
         className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
-      <h1 className="text-2xl font-semibold text-gray-900 mb-1">Check your email</h1>
+      <h1 className="text-2xl font-semibold text-gray-900 mb-1">
+        {otpVerificationType === 'signup' ? 'Confirm your account' : 'Check your email'}
+      </h1>
       <p className="text-sm text-gray-500 mb-8">
-        We sent a 6-digit code to <span className="font-medium text-gray-700">{otpEmail}</span>
+        {otpVerificationType === 'signup' ? 'Enter the confirmation code sent to ' : 'We sent a 6-digit code to '}
+        <span className="font-medium text-gray-700">{otpEmail}</span>
       </p>
 
       <div className="flex gap-2.5 mb-6 justify-center">
@@ -481,11 +602,11 @@ const Auth = () => {
         <button
           type="button"
           onClick={handleResendCode}
-          disabled={resendCooldown > 0}
+          disabled={loading || resendCooldown > 0}
           className="font-medium hover:underline disabled:opacity-40"
           style={{ color: BRAND_BLUE }}
         >
-          {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code'}
+          {loading ? 'Sending...' : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code'}
         </button>
       </p>
     </>
@@ -496,7 +617,7 @@ const Auth = () => {
       <button
         type="button"
         onClick={() => {
-          navigate('/auth/sign-in');
+          navigate(signInOptionsPath);
           setStep('sign_in_options');
         }}
         className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
@@ -527,10 +648,11 @@ const Auth = () => {
 
   const renderEmailSignup = () => (
     <>
-      <button type="button" onClick={() => navigate('/auth')} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6">
+      <button type="button" onClick={() => navigate(authLandingPath)} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6">
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">Create your account</h1>
+      <p className="text-sm text-gray-500 mb-7">Welcome to Comediq.</p>
 
       <form onSubmit={handleEmailSignup} className="space-y-3">
         <Input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" />
