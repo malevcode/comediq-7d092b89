@@ -29,7 +29,7 @@ function useUserShows(userId) {
       return (data || []).filter(row => row.schedule_type === "upcoming" && row.open_mics);
     },
     enabled: !!userId,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
   return { shows: data ?? [], loading: isLoading };
@@ -49,7 +49,7 @@ function useUserCompletedShows(userId) {
       return (data || []).filter(row => row.open_mics);
     },
     enabled: !!userId,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
   return { completedShows: data ?? [], loading: isLoading };

@@ -73,7 +73,7 @@ export function useMicOfTheDay() {
 
       return { winner, source };
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 60 * 60 * 1000,
   });
 
   const winner = query.data?.winner || null;

@@ -41,7 +41,7 @@ export async function fetchOpenMics(options: FetchOpenMicsOptions = {}) {
 
   const { data, error } = await supabase
     .from(tableName)
-    .select('*');
+    .select('unique_identifier,open_mic,day,start_time,latest_end_time,venue_name,borough,neighborhood,location,venue_type,cost,stage_time,sign_up_instructions,hosts_organizers,changes_updates,last_verified,other_rules,active,signup_enabled');
 
   if (error) {
     throw error;
@@ -84,7 +84,7 @@ export async function fetchOpenMics(options: FetchOpenMicsOptions = {}) {
 export async function fetchAllMics() {
   const { data, error } = await supabase
     .from('open_mics_historical')
-    .select('*');
+    .select('unique_identifier,open_mic,day,start_time,latest_end_time,venue_name,borough,neighborhood,location,venue_type,cost,stage_time,sign_up_instructions,hosts_organizers,changes_updates,last_verified,other_rules,active,signup_enabled');
 
   if (error) {
     throw error;

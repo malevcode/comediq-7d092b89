@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic, MicStatus, MicFrequency, SignupMethod } from "@/types/openMic";
 
-const CACHE_KEY = "comediq_open_mics_v1";
+const CACHE_KEY = "comediq_open_mics_v2";
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
-const CACHE_FRESH_MS = 60 * 60 * 1000; // 1 hour — matches staleTime
+const CACHE_FRESH_MS = 4 * 60 * 60 * 1000; // 4 hours — mic data barely changes
 
 function loadCached(maxAge: number = CACHE_TTL_MS): OpenMic[] | null {
   try {
@@ -35,7 +35,6 @@ function mapRow(row: Record<string, unknown>): OpenMic {
     borough: ((row["borough"] as string) || "").trim(),
     neighborhood: (row["neighborhood"] as string) || "",
     location: (row["location"] as string) || "",
-    venueType: (row["venue_type"] as string) || "",
     cost: (row["cost"] as string) || "",
     stageTime: (row["stage_time"] as string) || "",
     signUpInstructions: (row["sign_up_instructions"] as string) || "",
@@ -49,13 +48,9 @@ function mapRow(row: Record<string, unknown>): OpenMic {
     coverImageUrl: (row["cover_image_url"] as string) || undefined,
     status: (row["status"] as MicStatus) || "verified",
     frequency: (row["frequency"] as MicFrequency) || "weekly",
-    verificationCount: (row["verification_count"] as number) || 0,
     submissionDate: (row["submission_date"] as string) || undefined,
     legacyTag: (row["legacy_tag"] as string) || undefined,
-    creatorId: (row["creator_id"] as string) || undefined,
     signupMethod: (row["signup_method"] as SignupMethod) || undefined,
-    signupUrl: (row["signup_url"] as string) || undefined,
-    frequencyCustomText: (row["frequency_custom_text"] as string) || undefined,
     slotsEnabled: (row["slots_enabled"] as boolean) || false,
     slotDurationMinutes: (row["slot_duration_minutes"] as number) || 5,
   };
@@ -70,7 +65,7 @@ async function fetchFromSupabase(tableName: string): Promise<OpenMic[]> {
   for (let i = 0; i < 5; i++) {
     const { data, error } = await (supabase as any)
       .from(tableName)
-      .select("unique_identifier,open_mic,day,start_time,latest_end_time,venue_name,borough,neighborhood,location,venue_type,cost,stage_time,sign_up_instructions,hosts_organizers,changes_updates,last_verified,city,signup_enabled,other_rules,cover_image_url,status,frequency,verification_count,submission_date,legacy_tag,creator_id,signup_method,signup_url,frequency_custom_text,slots_enabled,slot_duration_minutes")
+      .select("unique_identifier,open_mic,day,start_time,latest_end_time,venue_name,borough,neighborhood,location,cost,stage_time,sign_up_instructions,hosts_organizers,changes_updates,last_verified,city,signup_enabled,other_rules,cover_image_url,status,frequency,submission_date,legacy_tag,signup_method,slots_enabled,slot_duration_minutes")
       .eq("active", true)
       .neq("status", "pending")
       .range(from, from + pageSize - 1);
@@ -109,8 +104,8 @@ export const useOpenMics = (tableName: "open_mics_historical" = "open_mics_histo
       throw new Error("Mic data unavailable");
     },
     placeholderData: cached ?? undefined,
-    staleTime: 60 * 60 * 1000,
-    gcTime: 2 * 60 * 60 * 1000,
+    staleTime: 4 * 60 * 60 * 1000,
+    gcTime: 8 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
     retry: 1,
     retryDelay: 1500,
