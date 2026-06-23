@@ -39,7 +39,7 @@ const Profile = () => {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const { data: likedMicIds = [] } = useUserLikedMics();
-  const { data: openMics = [] } = useOpenMics('open_mics_historical');
+  const { data: openMics = [] } = useOpenMics();
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showBulkImport, setShowBulkImport] = useState(false);

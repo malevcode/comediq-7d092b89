@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 
 export interface WeeklyTopMic {
   id: string;
@@ -17,49 +16,28 @@ export interface WeeklyTopMic {
 }
 
 const CACHE_KEY = 'comediq_weekly_top_v1';
-const CACHE_FRESH_MS = 4 * 60 * 60 * 1000;
 
 function loadCached(): WeeklyTopMic[] | null {
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
-    const { data, savedAt } = JSON.parse(raw);
-    if (Date.now() - savedAt > CACHE_FRESH_MS) return null;
+    const { data } = JSON.parse(raw);
     return data as WeeklyTopMic[];
   } catch {
     return null;
   }
 }
 
-function saveCache(data: WeeklyTopMic[]) {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ data, savedAt: Date.now() }));
-  } catch {}
-}
-
+// Supabase calls disabled — serve from localStorage only
 export function useWeeklyTopMics() {
   const cached = loadCached();
 
   return useQuery({
     queryKey: ['weekly-top-mics'],
-    queryFn: async () => {
-      const fresh = loadCached();
-      if (fresh && fresh.length > 0) return fresh;
-
-      const { data, error } = await supabase
-        .from('weekly_top_mics')
-        .select('id,mic_unique_identifier,mic_name,venue_name,borough,neighborhood,day,start_time,cost,like_count,rank,week_start')
-        .order('rank')
-        .limit(5);
-
-      if (error) throw error;
-      const rows = (data || []) as WeeklyTopMic[];
-      if (rows.length > 0) saveCache(rows);
-      return rows;
-    },
+    queryFn: async () => cached ?? [],
     placeholderData: cached ?? undefined,
-    staleTime: 4 * 60 * 60 * 1000,
-    gcTime: 24 * 60 * 60 * 1000,
+    staleTime: Infinity,
+    gcTime: Infinity,
     refetchOnWindowFocus: false,
   });
 }
