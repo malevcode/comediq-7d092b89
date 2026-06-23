@@ -35,6 +35,7 @@ const BottomNavigation = () => {
               isActive = location.pathname === "/open-mics" ||
                         location.pathname === "/track-sets" ||
                         location.pathname === "/shows" ||
+                        location.pathname === "/playlists" ||
                         location.pathname === "/growth" ||
                         location.pathname === "/dev-view" ||
                         location.pathname.startsWith("/mic/");
