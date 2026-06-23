@@ -23,7 +23,7 @@ export interface BannerAd {
 }
 
 const fallbackTopAds = [
-  { label: "6/28 Comediq Book Me Mic at High Line Comedy Club", href: "/open-mics", external: false },
+  { label: "6/28 Comediq Book Me Mic at High Line Comedy Club", href: "/book-me-mic", external: false },
   { label: "#MeThree", href: "https://metoomvmt.org/", external: true },
   { label: "Comediq Supports Safe Funny Spaces", href: "/", external: false },
   { label: "Advertise!", href: "https://docs.google.com/forms/d/e/1FAIpQLSe58Za3tfgyuUFNoVxQb_qAe3PPfVrnm4gciw_cklp-HPkKQg/viewform?usp=publish-editor", external: true },
@@ -35,6 +35,26 @@ const fallbackBottomAds = [
   { label: "Feedback", href: "https://docs.google.com/forms/d/e/1FAIpQLSeDk4FdZGDD1APBNCUzV1IhaylLiHSAnlmhUaUz503umv457A/viewform?usp=dialog", external: true },
   { label: "Advertise!", href: "https://docs.google.com/forms/d/e/1FAIpQLSe58Za3tfgyuUFNoVxQb_qAe3PPfVrnm4gciw_cklp-HPkKQg/viewform?usp=publish-editor", external: true },
 ];
+
+const mergeWithFallbackAds = <T extends { label: string; href: string }>(
+  ads: T[],
+  fallbackAds: Array<{ label: string; href: string; external: boolean }>,
+) => {
+  const seen = new Set<string>();
+
+  return [...ads, ...fallbackAds].map((ad) => {
+    if (/book me mic at high line comedy club/i.test(ad.label)) {
+      return { ...ad, href: '/book-me-mic', external: false };
+    }
+
+    return ad;
+  }).filter((ad) => {
+    const key = `${ad.label}|${ad.href}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
 
 export function useBannerAds() {
   const today = new Date().toISOString().split('T')[0];
@@ -59,8 +79,8 @@ export function useBannerAds() {
   const bottomAds = ads?.filter(a => a.position === 'bottom') ?? [];
 
   return {
-    topAds: topAds.length > 0 ? topAds : fallbackTopAds,
-    bottomAds: bottomAds.length > 0 ? bottomAds : fallbackBottomAds,
+    topAds: mergeWithFallbackAds(topAds, fallbackTopAds),
+    bottomAds: mergeWithFallbackAds(bottomAds, fallbackBottomAds),
     isLoading,
     error,
     isUsingFallback: !ads || ads.length === 0,
