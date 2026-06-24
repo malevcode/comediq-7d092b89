@@ -519,6 +519,33 @@ export type Database = {
           },
         ]
       }
+      book_me_mic_signups: {
+        Row: {
+          created_at: string
+          id: string
+          instagram_handle: string
+          name: string
+          phone_number: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instagram_handle: string
+          name: string
+          phone_number: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instagram_handle?: string
+          name?: string
+          phone_number?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       comedian_social_links: {
         Row: {
           created_at: string | null
@@ -1593,12 +1620,14 @@ export type Database = {
           bio: string | null
           created_at: string
           credit: string | null
+          credits_balance: number
           headshot_url: string | null
           id: string
           isadmin: boolean
           phone: string | null
           points_balance: number
           stage_name: string | null
+          subscription_plan: string
           updated_at: string | null
           user_id: string
           username: string | null
@@ -1608,12 +1637,14 @@ export type Database = {
           bio?: string | null
           created_at?: string
           credit?: string | null
+          credits_balance?: number
           headshot_url?: string | null
           id?: string
           isadmin?: boolean
           phone?: string | null
           points_balance?: number
           stage_name?: string | null
+          subscription_plan?: string
           updated_at?: string | null
           user_id: string
           username?: string | null
@@ -1623,12 +1654,14 @@ export type Database = {
           bio?: string | null
           created_at?: string
           credit?: string | null
+          credits_balance?: number
           headshot_url?: string | null
           id?: string
           isadmin?: boolean
           phone?: string | null
           points_balance?: number
           stage_name?: string | null
+          subscription_plan?: string
           updated_at?: string | null
           user_id?: string
           username?: string | null
@@ -2674,6 +2707,8 @@ export type Database = {
       }
     }
     Functions: {
+      email_account_status: { Args: { p_email: string }; Returns: string }
+      email_exists: { Args: { p_email: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
