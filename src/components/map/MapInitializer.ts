@@ -14,16 +14,6 @@ export const getMapboxToken = async (): Promise<string> => {
   const storedToken = localStorage.getItem('mapbox_token');
   if (storedToken) return storedToken;
 
-  // Try edge function as last resort
-  try {
-    const { data, error } = await supabase.functions.invoke('get-mapbox-token');
-    if (!error && data?.token) {
-      localStorage.setItem('mapbox_token', data.token);
-      return data.token;
-    }
-  } catch {
-    // silent
-  }
-
+  // Edge function disabled to conserve Supabase egress until July 5
   return '';
 };
