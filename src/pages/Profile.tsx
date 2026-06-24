@@ -1,13 +1,13 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserLikedMics } from '@/hooks/useMicRatings';
 import { useOpenMics } from '@/hooks/useOpenMics';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles, Calendar, X, Upload, ListMusic } from 'lucide-react';
+import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles, Calendar, X, Upload, ListMusic, Bookmark } from 'lucide-react';
 import { PerformanceHeatmap } from '@/components/profile/PerformanceHeatmap';
 import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
@@ -27,6 +27,9 @@ import { useToast } from '@/hooks/use-toast';
 import BulkImportModal from '@/components/shows/BulkImportModal';
 import { useMicPlaylists } from '@/hooks/useMicPlaylists';
 import { PlaylistsTab } from '@/components/playlists';
+import { useSavedMics } from '@/hooks/useSavedMics';
+import OpenMicsDetailedList from '@/components/OpenMicsDetailedList';
+import type { UserProfile } from '@/api/profiles';
 import { 
   useComedianProfile, 
   useUpdateProfile, 
@@ -35,21 +38,60 @@ import {
   useRemoveSocialLink 
 } from '@/hooks/useComedianProfile';
 
+const PROFILE_TABS = ['profile', 'work', 'liked', 'saved', 'playlists', 'signups'];
+
+function parseMicStartMinutes(mic: OpenMic): number | null {
+  if (!mic.startTime) return null;
+
+  const match = mic.startTime.trim().toLowerCase().match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
+  if (!match) return null;
+
+  const rawHour = Number(match[1]);
+  const minutes = Number(match[2] ?? 0);
+  const period = match[3];
+
+  if (!Number.isFinite(rawHour) || !Number.isFinite(minutes)) return null;
+
+  let hour = rawHour;
+  if (period === 'pm' && hour < 12) {
+    hour += 12;
+  } else if (period === 'am' && hour === 12) {
+    hour = 0;
+  }
+
+  return hour * 60 + minutes;
+}
+
+function hasMicAlreadyHappenedToday(mic: OpenMic, date = new Date()): boolean {
+  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  if (daysOfWeek[date.getDay()] !== mic.day) return false;
+
+  const startMinutes = parseMicStartMinutes(mic);
+  if (startMinutes === null) return false;
+
+  return startMinutes < date.getHours() * 60 + date.getMinutes();
+}
+
 const Profile = () => {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: likedMicIds = [] } = useUserLikedMics();
-  const { data: openMics = [] } = useOpenMics('open_mics_historical');
+  const { data: openMics = [], isLoading: openMicsLoading } = useOpenMics('open_mics_historical');
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showBulkImport, setShowBulkImport] = useState(false);
+  const [savedVisibleCount, setSavedVisibleCount] = useState(20);
 
   const { data: profile, isLoading: profileLoading } = useComedianProfile(user?.id);
   const { playlists } = useMicPlaylists();
+  const { savedMics, isLoading: savedMicsLoading } = useSavedMics();
   const updateProfile = useUpdateProfile();
   const uploadHeadshot = useUploadHeadshot();
   const addSocialLink = useAddSocialLink();
   const removeSocialLink = useRemoveSocialLink();
+  const requestedTab = searchParams.get('tab') || 'profile';
+  const activeTab = PROFILE_TABS.includes(requestedTab) ? requestedTab : 'profile';
 
   useEffect(() => {
     if (!loading && !user) {
@@ -72,8 +114,21 @@ const Profile = () => {
   const likedMics = openMics.filter(mic => 
     likedMicIds.includes(mic.uniqueIdentifier)
   );
+  const savedMicIds = savedMics.map(savedMic => savedMic.mic_unique_identifier);
+  const savedOpenMics = openMics.filter(mic =>
+    savedMicIds.includes(mic.uniqueIdentifier)
+  );
 
-  const handleSaveProfile = (data: any) => {
+  const handleTabChange = (value: string) => {
+    if (value === 'profile') {
+      setSearchParams({});
+      return;
+    }
+
+    setSearchParams({ tab: value });
+  };
+
+  const handleSaveProfile = (data: Partial<UserProfile>) => {
     updateProfile.mutate(
       { userId: user.id, updates: data },
       { onSuccess: () => setIsEditing(false) }
@@ -103,17 +158,21 @@ const Profile = () => {
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
         <PageHeader title="Profile" subtitle="Your comedy profile and stats" />
         
-        <div className="max-w-7xl mx-auto px-4 pt-28 pb-6">
-          <Tabs defaultValue="profile" className="space-y-6">
+        <div className="max-w-7xl mx-auto px-4 page-content-offset pb-6">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <BulkImportModal
               open={showBulkImport} 
               onOpenChange={setShowBulkImport}
             />
 
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
               <TabsTrigger value="profile">My Profile</TabsTrigger>
               <TabsTrigger value="work">Gigs</TabsTrigger>
               <TabsTrigger value="liked">Liked Mics</TabsTrigger>
+              <TabsTrigger value="saved" className="gap-1">
+                <Bookmark className="h-3.5 w-3.5" />
+                Saved Mics
+              </TabsTrigger>
               <TabsTrigger value="playlists" className="gap-1">
                 <ListMusic className="h-3.5 w-3.5" />
                 Playlists{playlists.length > 0 && ` (${playlists.length})`}
@@ -201,12 +260,18 @@ const Profile = () => {
 
             {/* Work History Tab */}
             <TabsContent value="work" className="space-y-6">
+              <h2 className="text-xl font-bold text-gray-900">Your Gigs</h2>
               <WorkHistorySection userId={user.id} />
             </TabsContent>
 
             {/* Liked Mics Tab */}
-            <TabsContent value="liked" className="space-y-6">
-              <h2 className="text-xl font-bold text-gray-900">Your Liked Open Mics</h2>
+            <TabsContent value="liked" className="space-y-4">
+              <div className="space-y-1">
+                <h2 className="text-xl font-bold text-gray-900">Your Liked Open Mics</h2>
+                <p className="text-sm text-gray-600">
+                  {likedMics.length} liked mic{likedMics.length !== 1 ? 's' : ''}
+                </p>
+              </div>
               
               {likedMics.length === 0 ? (
                 <Card>
@@ -221,35 +286,79 @@ const Profile = () => {
                 </Card>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {likedMics.map((mic, index) => (
-                    <Card
-                      key={index}
-                      className="hover:shadow-lg transition-shadow cursor-pointer"
-                      onClick={() => setSelectedMic(mic)}
-                    >
-                      <CardContent className="p-4">
-                        <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">
-                          {mic.openMic}
-                        </h3>
-                        <div className="space-y-2 text-sm text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4" />
-                            <span>{mic.day} at {mic.startTime}</span>
+                  {likedMics.map((mic, index) => {
+                    const isFinished = hasMicAlreadyHappenedToday(mic);
+
+                    return (
+                      <Card
+                        key={index}
+                        className={`hover:shadow-lg transition-shadow cursor-pointer ${
+                          isFinished ? 'bg-gray-100 border-gray-300 opacity-80' : 'bg-white'
+                        }`}
+                        onClick={() => setSelectedMic(mic)}
+                      >
+                        <CardContent className="p-4">
+                          <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">
+                            {mic.openMic}
+                          </h3>
+                          <div className="space-y-2 text-sm text-gray-600">
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4" />
+                              <span>{mic.day} at {mic.startTime}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4" />
+                              <span>{mic.venueName}, {mic.neighborhood}</span>
+                            </div>
+                            <div className="flex justify-between items-center pt-2">
+                              <span className="text-green-600 font-medium">{mic.cost}</span>
+                              <span className="text-orange-600 font-medium">
+                                {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            <span>{mic.venueName}, {mic.neighborhood}</span>
-                          </div>
-                          <div className="flex justify-between items-center pt-2">
-                            <span className="text-green-600 font-medium">{mic.cost}</span>
-                            <span className="text-orange-600 font-medium">
-                              {mic.stageTime.replace(/\s*(minutes?|mins?)\s*/gi, '').trim()}
-                            </span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Saved Mics Tab */}
+            <TabsContent value="saved" className="space-y-4">
+              <div className="space-y-1">
+                <h2 className="text-xl font-bold text-gray-900">Your Saved Open Mics</h2>
+                <p className="text-sm text-gray-600">
+                  {savedOpenMics.length} saved mic{savedOpenMics.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+
+              {savedMicsLoading || openMicsLoading ? (
+                <Card>
+                  <CardContent className="flex items-center justify-center p-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-orange-500" />
+                  </CardContent>
+                </Card>
+              ) : savedOpenMics.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <Bookmark className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-600 mb-2">No saved mics yet</h3>
+                    <p className="text-gray-500 mb-4">Bookmark mics from the Open Mics page to see them here.</p>
+                    <Button onClick={() => navigate('/open-mics')} className="bg-orange-500 hover:bg-orange-600">
+                      Browse Open Mics
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div>
+                  <OpenMicsDetailedList
+                    mics={savedOpenMics}
+                    visibleCount={savedVisibleCount}
+                    setVisibleCount={setSavedVisibleCount}
+                    showSponsor={false}
+                  />
                 </div>
               )}
             </TabsContent>
@@ -290,8 +399,9 @@ function SignupsTabContent({ userId }: { userId: string }) {
       await cancelSignup(signupId);
       toast({ title: 'Signup cancelled' });
       queryClient.invalidateQueries({ queryKey: ['userSignups'] });
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } catch (error: unknown) {
+      const description = error instanceof Error ? error.message : 'Unable to cancel signup.';
+      toast({ title: 'Error', description, variant: 'destructive' });
     } finally {
       setCancellingId(null);
     }

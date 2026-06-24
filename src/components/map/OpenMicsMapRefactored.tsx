@@ -419,7 +419,7 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
               top: [0, 12],
               'top-left': [12, 12],
               'top-right': [-12, 12],
-              bottom: [0, -56],
+              bottom: [0, -50],
               'bottom-left': [12, -56],
               'bottom-right': [-12, -56],
               left: [18, -24],

@@ -13,7 +13,7 @@ export default function Playlists() {
       />
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-24">
         <PageHeader title="Playlists" subtitle="Your saved mic collections" />
-        <div className="pt-28">
+        <div className="page-content-offset">
           <PlaylistsTab />
         </div>
       </div>

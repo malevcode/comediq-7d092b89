@@ -2674,6 +2674,8 @@ export type Database = {
       }
     }
     Functions: {
+      email_account_status: { Args: { p_email: string }; Returns: string }
+      email_exists: { Args: { p_email: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

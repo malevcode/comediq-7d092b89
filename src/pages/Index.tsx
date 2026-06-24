@@ -102,7 +102,7 @@ const Index = () => {
         url="https://comediq.us"
         structuredData={structuredData}
       />
-      <div className="min-h-screen pb-20 overflow-x-hidden">
+      <div className={`${user ? 'pb-20' : 'pb-0'} min-h-screen overflow-x-hidden`}>
         <PageHeader title="Comediq" subtitle="Comedy Starts Here" />
         <div className="pt-0">
           {user ? (
