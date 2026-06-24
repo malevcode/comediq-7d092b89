@@ -26,8 +26,8 @@ async function fetchFromStaticJson(): Promise<OpenMic[]> {
   const res = await fetch("/mics.json");
   if (!res.ok) throw new Error(`Failed to fetch /mics.json: ${res.status}`);
   const mics = await res.json();
-  if (!Array.isArray(mics) || mics.length === 0) {
-    throw new Error("Static mic data is empty");
+  if (!Array.isArray(mics)) {
+    throw new Error("Static mic data is invalid");
   }
   return mics as OpenMic[];
 }
@@ -43,13 +43,12 @@ export const useOpenMics = () => {
 
       try {
         const rows = await fetchFromStaticJson();
-        saveCache(rows);
+        if (rows.length > 0) saveCache(rows);
         return rows;
       } catch (e) {
         console.warn("[useOpenMics] Static JSON fetch failed:", e);
+        return [];
       }
-
-      throw new Error("Mic data unavailable");
     },
     placeholderData: cached ?? undefined,
     staleTime: Infinity,

@@ -85,6 +85,20 @@ try {
   const sizeKB = (Buffer.byteLength(JSON.stringify(mics)) / 1024).toFixed(1);
   console.log(`[export-mics] ✓ ${mics.length} mics → public/mics.json (${sizeKB} KB)`);
 } catch (e) {
-  console.warn(`[export-mics] ✗ Fetch failed, writing empty array: ${e.message}`);
-  writeFileSync(OUT_PATH, "[]");
+  console.warn(`[export-mics] ✗ Fetch failed: ${e.message}`);
+  const { readFileSync, existsSync } = await import("fs");
+  if (existsSync(OUT_PATH)) {
+    try {
+      const existing = JSON.parse(readFileSync(OUT_PATH, "utf8"));
+      if (Array.isArray(existing) && existing.length > 0) {
+        console.warn(`[export-mics]   Keeping existing ${OUT_PATH} (${existing.length} mics)`);
+      } else {
+        console.warn(`[export-mics]   ⚠ Existing ${OUT_PATH} is empty and fetch failed — site will have no data`);
+      }
+    } catch {
+      // existing file is corrupt, leave it as-is
+    }
+  } else {
+    writeFileSync(OUT_PATH, "[]");
+  }
 }
