@@ -28,7 +28,6 @@ function loadCached(): WeeklyTopMic[] | null {
   }
 }
 
-// Supabase calls disabled — serve from localStorage only
 export function useWeeklyTopMics() {
   const cached = loadCached();
 
