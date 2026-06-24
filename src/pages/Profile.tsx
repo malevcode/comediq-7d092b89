@@ -77,7 +77,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: likedMicIds = [] } = useUserLikedMics();
-  const { data: openMics = [], isLoading: openMicsLoading } = useOpenMics();
+  const { data: openMics = [], isLoading: openMicsLoading } = useOpenMics('open_mics_historical');
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showBulkImport, setShowBulkImport] = useState(false);
