@@ -1,5 +1,3 @@
-import { supabase } from '@/integrations/supabase/client';
-
 /**
  * MapInitializer only handles Mapbox token retrieval.
  * Browser map rendering uses a public Mapbox token; address geocoding stays in backend/offline jobs.
@@ -27,17 +25,7 @@ export const getMapboxToken = async (): Promise<string> => {
   const storedToken = normalizeToken(localStorage.getItem('mapbox_token'));
   if (storedToken) return storedToken;
 
-  // Try edge function as last resort
-  try {
-    const { data, error } = await supabase.functions.invoke('get-mapbox-token');
-    const token = normalizeToken(data?.token);
-    if (!error && token) {
-      localStorage.setItem('mapbox_token', token);
-      return token;
-    }
-  } catch {
-    // silent
-  }
+  // Edge function fallback is disabled so anonymous map visitors do not call Supabase.
 
   return '';
 };

@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 
 export interface WeeklyTopMic {
   id: string;
@@ -16,20 +15,28 @@ export interface WeeklyTopMic {
   week_start: string;
 }
 
+const CACHE_KEY = 'comediq_weekly_top_v1';
+
+function loadCached(): WeeklyTopMic[] | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const { data } = JSON.parse(raw);
+    return data as WeeklyTopMic[];
+  } catch {
+    return null;
+  }
+}
+
 export function useWeeklyTopMics() {
+  const cached = loadCached();
+
   return useQuery({
     queryKey: ['weekly-top-mics'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('weekly_top_mics')
-        .select('*')
-        .order('rank')
-        .limit(5);
-
-      if (error) throw error;
-      return (data || []) as WeeklyTopMic[];
-    },
-    staleTime: 60 * 60 * 1000, // 1 hour
-    gcTime: 24 * 60 * 60 * 1000,
+    queryFn: async () => cached ?? [],
+    placeholderData: cached ?? undefined,
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 }

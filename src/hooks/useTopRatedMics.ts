@@ -1,71 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { OpenMic } from "@/types/openMic";
 
+const CACHE_KEY = "comediq_top_rated_v1";
+
+function loadCached(): (OpenMic & { likeCount: number })[] | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const { data } = JSON.parse(raw);
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 export const useTopRatedMics = () => {
+  const cached = loadCached();
+
   return useQuery({
-    queryKey: ['topRatedMics'],
-    queryFn: async () => {
-      // Get mics with the most likes
-      const { data: likeCounts, error: likeError } = await supabase
-        .from('mic_like_counts')
-        .select('mic_unique_identifier, likes')
-        .order('likes', { ascending: false })
-        .limit(10);
-
-      if (likeError) throw likeError;
-
-      if (!likeCounts || likeCounts.length === 0) {
-        return [];
-      }
-
-      // Fetch full mic data for these top mics
-      const micIds = likeCounts.map(lc => lc.mic_unique_identifier);
-      const { data: mics, error: micsError } = await supabase
-        .from('open_mics_historical')
-        .select('*')
-        .in('unique_identifier', micIds)
-        .eq('active', true);
-
-      if (micsError) throw micsError;
-
-      // Map to OpenMic format and attach like counts
-      const mappedMics = mics?.map((row: any) => {
-        const likeCount = likeCounts.find(lc => lc.mic_unique_identifier === row.unique_identifier);
-        return {
-          id: row.unique_identifier,
-          openMic: row.open_mic || "",
-          day: row.day || "",
-          startTime: row.start_time || "",
-          latestEndTime: row.latest_end_time || "",
-          venueName: row.venue_name || "",
-          borough: row.borough?.trim() || "",
-          neighborhood: row.neighborhood || "",
-          location: row.location || "",
-          venueType: row.venue_type || "",
-          cost: row.cost || "",
-          stageTime: row.stage_time || "",
-          signUpInstructions: row.sign_up_instructions || "",
-          hosts: row.hosts_organizers || "",
-          instagramHandle: row.changes_updates || "",
-          lastVerified: row.last_verified || "",
-          uniqueIdentifier: row.unique_identifier || "",
-          city: row.city || "",
-          signupEnabled: row.signup_enabled || false,
-          otherRules: row.other_rules || "",
-          status: row.status || "trial",
-          frequency: row.frequency || "weekly",
-          verificationCount: row.verification_count || 0,
-          slotsEnabled: row.slots_enabled || false,
-          slotDurationMinutes: row.slot_duration_minutes || 5,
-          likeCount: likeCount?.likes || 0
-        };
-      }) || [];
-
-      // Sort by like count
-      return mappedMics.sort((a, b) => b.likeCount - a.likeCount);
-    },
-    staleTime: 15 * 60 * 1000, // 15 minutes
-    gcTime: 30 * 60 * 1000,
+    queryKey: ["topRatedMics"],
+    queryFn: async () => cached ?? [],
+    placeholderData: cached ?? undefined,
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 };
