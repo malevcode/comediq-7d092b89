@@ -25,7 +25,7 @@ export default function ProgressTrackerPage() {
         <PageHeader title="Progress Tracker" subtitle="Track your comedy journey and improve your craft" />
       
       {/* Instructions dropdown styled to match Show Scheduler */}
-      <div className="max-w-xs mx-auto px-4 pt-28">
+      <div className="max-w-xs mx-auto px-4 page-content-offset">
         <button
           className="appearance-none cursor-pointer bg-red-50 border border-red-200 rounded-lg p-2 mb-4 relative w-full text-left flex flex-col hover:bg-red-100 transition font-semibold text-xs text-red-800 gap-1 outline-none"
           aria-label={showInstructions ? 'Collapse instructions' : 'Expand instructions'}

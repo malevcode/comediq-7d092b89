@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useBannerAds, recordAdClick, type BannerAd } from "@/hooks/useBannerAds";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -58,7 +58,9 @@ const renderAdStrip = (ads: AdBox[], repeatCount: number, userId?: string) => {
 const MarqueeBanner = () => {
   const { bottomAds } = useBannerAds();
   const { user, subscriptionPlan } = useAuth();
+  const location = useLocation();
 
+  if (location.pathname.startsWith('/auth')) return null;
   if (subscriptionPlan !== 'free') return null;
 
   return (

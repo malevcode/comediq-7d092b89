@@ -5,10 +5,11 @@ import { useAnalytics } from "@/components/AnalyticsProvider";
 
 const BottomNavigation = () => {
   const location = useLocation();
-  const { user, isAdmin, role } = useAuth();
+  const { user, isAdmin, role, subscriptionPlan } = useAuth();
   const { trackClick } = useAnalytics();
 
   const isHostOrShowrunner = role === 'host' || role === 'showrunner';
+  const isSubscriber = subscriptionPlan !== 'free';
   if (location.pathname.startsWith("/auth")) return null;
 
   const navItems = [
@@ -23,7 +24,7 @@ const BottomNavigation = () => {
   ];
 
   return (
-    <nav className="fixed bottom-6 left-0 right-0 bg-white border-t border-gray-200 z-50">
+    <nav className={`fixed left-0 right-0 bg-white border-t border-gray-200 z-50 ${isSubscriber ? 'bottom-0' : 'bottom-6'}`}>
       <div className="max-w-md mx-auto">
         <div className="flex justify-around py-2">
           {navItems.map(({ path, icon: Icon, label }) => {

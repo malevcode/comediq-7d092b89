@@ -214,7 +214,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 p-4 z-[100] overflow-y-auto overscroll-contain">
-      <div className="bg-white rounded-2xl max-w-2xl w-full mt-20 mb-4 mx-auto">
+      <div className="bg-white rounded-2xl max-w-2xl w-full mt-10 mb-4 mx-auto">
         {/* Header */}
         <div className="sticky top-0 bg-background border-b border-border px-6 py-4 rounded-t-2xl">
           <div className="flex justify-between items-start">

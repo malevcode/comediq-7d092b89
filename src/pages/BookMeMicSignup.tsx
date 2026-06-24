@@ -76,19 +76,19 @@ export default function BookMeMicSignup() {
         url="https://comediq.us/book-me-mic"
         noindex={true}
       />
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-24">
+      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50">
         <PageHeader title="Book Me Mic" subtitle="Subscriber signup" />
 
-        <main className="mx-auto max-w-xl px-4 pt-32">
+        <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-4 py-28">
           <Link
             to="/"
-            className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+            className="mb-4 inline-flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Home
           </Link>
 
-          <Card className="overflow-hidden border border-yellow-300/60 border-l-4 border-l-yellow-500 bg-gradient-to-br from-yellow-50 via-amber-50 to-white shadow-sm">
+          <Card className="w-full overflow-hidden border border-yellow-300/60 border-l-4 border-l-yellow-500 bg-gradient-to-br from-yellow-50 via-amber-50 to-white shadow-sm">
             <CardHeader>
               <div className="mb-2 inline-flex w-fit items-center gap-1 rounded-full border border-yellow-500/60 bg-yellow-100/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-yellow-800">
                 <Sparkles className="h-3 w-3 fill-yellow-500 text-yellow-500" />
@@ -110,6 +110,20 @@ export default function BookMeMicSignup() {
                     Signup submitted
                   </div>
                   <p className="mt-1 text-sm">Thanks. We received your Book Me Mic signup.</p>
+                </div>
+              ) : !user ? (
+                <div className="space-y-4 rounded-xl border border-yellow-200 bg-white/70 p-4">
+                  <p className="text-sm font-medium text-gray-900">
+                    You need to sign in to sign up.
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Sign in to your Comediq account to continue with the Book Me Mic signup.
+                  </p>
+                  <Button asChild className="bg-[#1a5fb4] hover:bg-[#1550a0]">
+                    <Link to={upgradePath}>
+                      Sign in
+                    </Link>
+                  </Button>
                 </div>
               ) : !isSubscriber ? (
                 <div className="space-y-4 rounded-xl border border-yellow-200 bg-white/70 p-4">

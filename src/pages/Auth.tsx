@@ -26,6 +26,13 @@ const getErrorMessage = (error: unknown, fallback: string) => {
 const isEmailRateLimitError = (error: unknown) =>
   getErrorMessage(error, '').toLowerCase().includes('email rate limit');
 
+const isDuplicateEmailError = (error: unknown) => {
+  const message = getErrorMessage(error, '').toLowerCase();
+  return message.includes('already registered')
+    || message.includes('already exists')
+    || message.includes('user already');
+};
+
 const isEmailConfirmationError = (error: unknown) => {
   const message = getErrorMessage(error, '').toLowerCase();
   return message.includes('email not confirmed') || message.includes('confirm your email');
@@ -74,6 +81,8 @@ const Auth = () => {
   const [resendCooldown, setResendCooldown] = useState(0);
 
   const otpRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null, null, null]);
+  const signInHeadingRef = useRef<HTMLHeadingElement | null>(null);
+  const signInEmailRef = useRef<HTMLInputElement | null>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -128,6 +137,18 @@ const Auth = () => {
     return () => clearInterval(id);
   }, [resendCooldown]);
 
+  useEffect(() => {
+    if (step !== 'sign_in_options') return;
+    const id = window.setTimeout(() => {
+      signInEmailRef.current?.blur();
+      signInHeadingRef.current?.focus({ preventScroll: true });
+      if (document.activeElement === signInEmailRef.current) {
+        signInEmailRef.current.blur();
+      }
+    }, 100);
+    return () => window.clearTimeout(id);
+  }, [step]);
+
   // ─── Handlers ─────────────────────────────────────────────────────────────
 
   const handleGoogleSignIn = async () => {
@@ -136,6 +157,20 @@ const Auth = () => {
       options: { redirectTo: authRedirectUrl },
     });
     if (error) toast({ title: 'Google sign-in failed', description: error.message, variant: 'destructive' });
+  };
+
+  const routeToExistingAccountSignIn = (normalizedEmail: string, message: string) => {
+    setLoading(false);
+    setEmail(normalizedEmail);
+    setPassword('');
+    setPendingSignupPassword('');
+    toast({
+      title: 'Account already exists',
+      description: message,
+      variant: 'destructive',
+    });
+    navigate(signInOptionsPath, { replace: true });
+    setStep('email_auth');
   };
 
   const handleVerifyOtp = useCallback(async (code?: string) => {
@@ -289,14 +324,52 @@ const Auth = () => {
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await signUp(email, password, '', '', authRedirectUrl);
+    const normalizedEmail = email.trim().toLowerCase();
+    const { data: accountStatus, error: duplicateCheckError } = await supabase.rpc('email_account_status', {
+      p_email: normalizedEmail,
+    });
+
+    if (duplicateCheckError) {
+      setLoading(false);
+      toast({
+        title: 'Error',
+        description: getErrorMessage(duplicateCheckError, 'Could not check this email. Try again.'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (accountStatus === 'confirmed') {
+      routeToExistingAccountSignIn(
+        normalizedEmail,
+        'This email already has an account. Sign in instead, or use the email code option if you need help getting back in.',
+      );
+      return;
+    }
+
+    if (accountStatus === 'unconfirmed') {
+      routeToExistingAccountSignIn(
+        normalizedEmail,
+        'This email already has an unfinished account. Sign in with an email code to finish setup.',
+      );
+      return;
+    }
+
+    const { error } = await signUp(normalizedEmail, password, '', '', authRedirectUrl);
     if (error) {
       setLoading(false);
-      toast({ title: 'Error', description: getErrorMessage(error, 'Sign up failed.'), variant: 'destructive' });
+      if (isDuplicateEmailError(error)) {
+        routeToExistingAccountSignIn(
+          normalizedEmail,
+          'This email already has an account. Sign in instead, or use the email code option if you need help getting back in.',
+        );
+      } else {
+        toast({ title: 'Error', description: getErrorMessage(error, 'Sign up failed.'), variant: 'destructive' });
+      }
     } else {
       setPendingSignupPassword(password);
       const { error: emailCodeError } = await supabase.auth.signInWithOtp({
-        email,
+        email: normalizedEmail,
         options: {
           shouldCreateUser: false,
           emailRedirectTo: authRedirectUrl,
@@ -314,6 +387,14 @@ const Auth = () => {
         return;
       } else if (emailCodeError) {
         setPendingSignupPassword('');
+        if (accountStatus === 'unconfirmed') {
+          toast({
+            title: 'Account already exists',
+            description: 'This email has an unfinished account. Try signing in with an email code again later to finish setup.',
+            variant: 'destructive',
+          });
+          return;
+        }
         toast({
           title: 'Error',
           description: 'Email rate limit exceeded. Try again later.',
@@ -327,7 +408,7 @@ const Auth = () => {
         });
       }
 
-      setOtpEmail(email);
+      setOtpEmail(normalizedEmail);
       setOtpVerificationType('email');
       setOtpDigits(['', '', '', '', '', '']);
       setStep('email_otp_verify');
@@ -454,7 +535,7 @@ const Auth = () => {
       <button
         type="button"
         onClick={() => navigate('/')}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
       </button>
@@ -464,14 +545,14 @@ const Auth = () => {
         <TierComparison />
       </div>
 
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Sign in to Comediq</h2>
+      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Already Have an Account?</h2>
       <div className="mx-auto w-full max-w-sm">
         <button
           type="button"
           onClick={() => navigate(signInOptionsPath)}
           className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
         >
-          Sign In
+          Sign in
         </button>
       </div>
     </>
@@ -482,12 +563,18 @@ const Auth = () => {
       <button
         type="button"
         onClick={() => navigate(authLandingPath)}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
-      <h1 className="text-2xl font-semibold text-gray-900 mb-7">Sign in to Comediq</h1>
+      <h1
+        ref={signInHeadingRef}
+        tabIndex={-1}
+        className="text-2xl font-semibold text-gray-900 mb-7 focus:outline-none"
+      >
+        Sign in to Comediq
+      </h1>
 
         {/* Google — primary CTA */}
         <button
@@ -508,6 +595,7 @@ const Auth = () => {
               <Mail className="w-4 h-4" />
             </span>
             <input
+              ref={signInEmailRef}
               type="email"
               placeholder="you@example.com"
               value={otpEmail}
@@ -556,7 +644,7 @@ const Auth = () => {
             setStep('sign_in_options');
           }
         }}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
@@ -620,7 +708,7 @@ const Auth = () => {
           navigate(signInOptionsPath);
           setStep('sign_in_options');
         }}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
@@ -648,9 +736,14 @@ const Auth = () => {
 
   const renderEmailSignup = () => (
     <>
-      <button type="button" onClick={() => navigate(authLandingPath)} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6">
+      <button
+        type="button"
+        onClick={() => navigate(authLandingPath)}
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+      >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
+
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">Create your account</h1>
       <p className="text-sm text-gray-500 mb-7">Welcome to Comediq.</p>
 
@@ -674,9 +767,14 @@ const Auth = () => {
 
   const renderForgotPassword = () => (
     <>
-      <button type="button" onClick={() => setStep('email_auth')} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6">
+      <button
+        type="button"
+        onClick={() => setStep('email_auth')}
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+      >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
+
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">Reset password</h1>
       <p className="text-sm text-gray-500 mb-7">We'll email you a link to reset it.</p>
       <form onSubmit={handleForgotPassword} className="space-y-3">
@@ -748,7 +846,7 @@ const Auth = () => {
             <div><p className="text-2xl font-bold">500+</p><p className="text-white/60 text-sm">open mics tracked</p></div>
           </div>
         </div>
-        <div className="flex-1 flex flex-col items-center justify-start px-6 py-12 bg-white lg:pt-24">
+        <div className="flex-1 flex min-h-screen flex-col items-center justify-center overflow-y-auto bg-white px-6 py-12">
           <div className="lg:hidden mb-8 flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: BRAND_BLUE }}>
               <Mic className="w-3.5 h-3.5 text-white" />
