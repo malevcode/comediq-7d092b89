@@ -14,7 +14,6 @@ function loadCached(): (OpenMic & { likeCount: number })[] | null {
   }
 }
 
-// Supabase calls disabled — serve from localStorage only
 export const useTopRatedMics = () => {
   const cached = loadCached();
 

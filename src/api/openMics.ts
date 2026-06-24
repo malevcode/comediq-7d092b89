@@ -33,28 +33,6 @@ export interface FetchOpenMicsOptions {
   activeOnly?: boolean;
 }
 
-interface OpenMicDisplayRow {
-  unique_identifier: string | null;
-  open_mic: string | null;
-  day: string | null;
-  start_time: string | null;
-  latest_end_time: string | null;
-  venue_name: string | null;
-  borough: string | null;
-  neighborhood: string | null;
-  location: string | null;
-  venue_type: string | null;
-  cost: string | null;
-  stage_time: string | null;
-  sign_up_instructions: string | null;
-  hosts_organizers: string | null;
-  changes_updates: string | null;
-  last_verified: string | null;
-  other_rules: string | null;
-  active: boolean | null;
-  signup_enabled: boolean | null;
-}
-
 /**
  * Fetches open mics from the database
  */
@@ -73,10 +51,10 @@ export async function fetchOpenMics(options: FetchOpenMicsOptions = {}) {
     return [];
   }
 
-  const mics = (data as OpenMicDisplayRow[]).filter((mic) => !activeOnly || mic.active);
+  const mics = data.filter((mic: any) => !activeOnly || mic.active);
 
   // Map to display format
-  return mics.map((mic) => ({
+  return mics.map((mic: any) => ({
     'Open Mic': mic.open_mic || '',
     'Day': mic.day || '',
     'Start Time': mic.start_time || '',

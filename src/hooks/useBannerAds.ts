@@ -94,10 +94,8 @@ export function useAdClickCounts() {
   });
 }
 
-// Ad click recording disabled to eliminate Supabase egress until billing cycle resets (July 5)
 export async function recordAdClick(_adId: string, _userId?: string, _placement?: string) {}
 
-// Sponsor ad disabled to eliminate Supabase egress until billing cycle resets (July 5)
 export function useSponsorAd() {
   return useQuery({
     queryKey: ['sponsor-ad', 'disabled'],
