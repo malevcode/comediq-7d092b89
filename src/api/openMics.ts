@@ -5,71 +5,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-const OPEN_MIC_DISPLAY_COLUMNS = [
-  'open_mic',
-  'day',
-  'start_time',
-  'latest_end_time',
-  'venue_name',
-  'borough',
-  'neighborhood',
-  'location',
-  'venue_type',
-  'cost',
-  'stage_time',
-  'sign_up_instructions',
-  'hosts_organizers',
-  'changes_updates',
-  'last_verified',
-  'other_rules',
-  'unique_identifier',
-  'active',
-  'signup_enabled',
-].join(',');
-
-type OpenMicDisplayRow = {
-  open_mic: string | null;
-  day: string | null;
-  start_time: string | null;
-  latest_end_time: string | null;
-  venue_name: string | null;
-  borough: string | null;
-  neighborhood: string | null;
-  location: string | null;
-  venue_type: string | null;
-  cost: string | null;
-  stage_time: string | null;
-  sign_up_instructions: string | null;
-  hosts_organizers: string | null;
-  changes_updates: string | null;
-  last_verified: string | null;
-  other_rules: string | null;
-  unique_identifier: string | null;
-  active: boolean | null;
-  signup_enabled: boolean | null;
-};
-
-type OpenMicDbUpdates = Partial<{
-  open_mic: string;
-  day: string;
-  start_time: string;
-  latest_end_time: string;
-  venue_name: string;
-  borough: string;
-  neighborhood: string;
-  location: string;
-  venue_type: string;
-  cost: string;
-  stage_time: string;
-  sign_up_instructions: string;
-  hosts_organizers: string;
-  changes_updates: string;
-  last_verified: string;
-  other_rules: string;
-  active: boolean;
-  signup_enabled: boolean;
-}>;
-
 // Using the display format that components expect (with spaces and title case)
 export interface OpenMicDisplay {
   'Open Mic': string;
@@ -96,6 +31,28 @@ export interface OpenMicDisplay {
 export interface FetchOpenMicsOptions {
   tableName?: 'open_mics_historical';
   activeOnly?: boolean;
+}
+
+interface OpenMicDisplayRow {
+  unique_identifier: string | null;
+  open_mic: string | null;
+  day: string | null;
+  start_time: string | null;
+  latest_end_time: string | null;
+  venue_name: string | null;
+  borough: string | null;
+  neighborhood: string | null;
+  location: string | null;
+  venue_type: string | null;
+  cost: string | null;
+  stage_time: string | null;
+  sign_up_instructions: string | null;
+  hosts_organizers: string | null;
+  changes_updates: string | null;
+  last_verified: string | null;
+  other_rules: string | null;
+  active: boolean | null;
+  signup_enabled: boolean | null;
 }
 
 /**
@@ -162,8 +119,8 @@ export async function fetchAllMics() {
  */
 export async function updateMic(uniqueId: string, updates: Partial<OpenMicDisplay>) {
   // Convert display format to database format
-  const dbUpdates: OpenMicDbUpdates = {};
-  
+  const dbUpdates: any = {};
+
   if (updates['Open Mic'] !== undefined) dbUpdates.open_mic = updates['Open Mic'];
   if (updates['Day'] !== undefined) dbUpdates.day = updates['Day'];
   if (updates['Start Time'] !== undefined) dbUpdates.start_time = updates['Start Time'];
