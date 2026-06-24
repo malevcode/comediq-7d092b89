@@ -36,14 +36,39 @@ const fallbackBottomAds = [
   { label: "Advertise!", href: "https://docs.google.com/forms/d/e/1FAIpQLSe58Za3tfgyuUFNoVxQb_qAe3PPfVrnm4gciw_cklp-HPkKQg/viewform?usp=publish-editor", external: true },
 ];
 
-// Banner ads disabled to eliminate Supabase egress until billing cycle resets (July 5)
 export function useBannerAds() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['banner-ads-active'],
+    queryFn: async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('banner_ads')
+        .select('*')
+        .eq('is_active', true)
+        .order('position')
+        .order('sort_order');
+      if (error) throw error;
+      return (data ?? []).filter((a: BannerAd) => {
+        if (a.start_date && a.start_date > today) return false;
+        if (a.end_date && a.end_date < today) return false;
+        return true;
+      }) as BannerAd[];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const ads = data ?? [];
+  const topAds = ads.filter(a => a.position === 'top');
+  const bottomAds = ads.filter(a => a.position === 'bottom');
+
+  const isUsingFallback = !!error || (!isLoading && ads.length === 0);
+
   return {
-    topAds: fallbackTopAds,
-    bottomAds: fallbackBottomAds,
-    isLoading: false,
-    error: null,
-    isUsingFallback: true,
+    topAds: topAds.length > 0 ? topAds : (isUsingFallback ? fallbackTopAds : []),
+    bottomAds: bottomAds.length > 0 ? bottomAds : (isUsingFallback ? fallbackBottomAds : []),
+    isLoading,
+    error,
+    isUsingFallback,
   };
 }
 
