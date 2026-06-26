@@ -128,9 +128,23 @@ const Auth = () => {
     }
   }, [refreshProfile, subscriptionRefreshRequested, subscriptionSucceeded, user]);
 
+  const { subscriptionPlan } = useAuth();
+
   useEffect(() => {
-    if (user && step !== 'reset_password' && !shouldShowPlans) navigate(postAuthPath);
-  }, [user, navigate, postAuthPath, shouldShowPlans, step]);
+    if (!user) return;
+    if (step === 'reset_password') return;
+    // Premium users — go straight to destination
+    if (subscriptionPlan !== 'free') {
+      navigate(postAuthPath);
+      return;
+    }
+    // Free users — show plan chooser once after sign-in (unless explicitly skipped)
+    if (step !== 'choose_plan' && !shouldShowPlans) {
+      setStep('choose_plan');
+    } else if (shouldShowPlans && step !== 'choose_plan') {
+      setStep('choose_plan');
+    }
+  }, [user, subscriptionPlan, navigate, postAuthPath, shouldShowPlans, step]);
 
   // ── Detect password-reset link ────────────────────────────────────────────
 
@@ -140,15 +154,13 @@ const Auth = () => {
   }, [location.hash]);
 
   useEffect(() => {
-    if (step === 'reset_password') return;
-    if (location.pathname === '/auth/create') {
-      if (step === 'main' || step === 'sign_in_options') setStep('email_signup');
-    } else if (location.pathname === '/auth/sign-in') {
-      if (step === 'main' || step === 'email_signup') setStep('sign_in_options');
-    } else if (location.pathname === '/auth' && (step === 'sign_in_options' || step === 'email_signup')) {
+    if (step === 'reset_password' || step === 'choose_plan') return;
+    if (user) return; // don't override step when authed
+    // All auth routes show the unified sign-in screen by default
+    if (step !== 'main' && step !== 'email_otp_verify' && step !== 'email_auth' && step !== 'email_signup' && step !== 'forgot_password') {
       setStep('main');
     }
-  }, [location.pathname, step]);
+  }, [location.pathname, step, user]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
