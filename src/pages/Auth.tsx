@@ -113,7 +113,7 @@ const Auth = () => {
   const subscribeParam = subscribeIntent ? '&subscribe=true' : '';
   const signInOptionsPath = `/auth/sign-in?next=${encodeURIComponent(postAuthPath)}${plansParam}${subscribeParam}`;
   const createAccountPath = `/auth/create?next=${encodeURIComponent(postAuthPath)}${plansParam}${subscribeParam}`;
-  const basicCreateAccountPath = `/auth/create?next=${encodeURIComponent(postAuthPath)}${plansParam}`;
+  
   const authLandingPath = `/auth?next=${encodeURIComponent(postAuthPath)}${plansParam}${subscribeParam}`;
   const checkoutReturnPath = postAuthPath === '/book-me-mic' ? '/book-me-mic' : '/';
 
