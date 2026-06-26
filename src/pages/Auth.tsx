@@ -1056,7 +1056,7 @@ const Auth = () => {
             </div>
             <span className="font-semibold text-lg">Comediq</span>
           </div>
-          <div className={step === 'main' ? 'w-full max-w-2xl' : 'w-full max-w-sm'}>{stepContent}</div>
+          <div className={step === 'choose_plan' ? 'w-full max-w-2xl' : 'w-full max-w-sm'}>{stepContent}</div>
         </div>
       </div>
     </>
