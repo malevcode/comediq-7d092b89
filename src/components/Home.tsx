@@ -13,11 +13,6 @@ import Header from "./Header";
 import { useSavedMics } from "@/hooks/useSavedMics";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useMicPlaylists } from "@/hooks/useMicPlaylists";
-import { getValidStripePaymentLink } from "@/utils/stripeLinks";
-
-const STRIPE_PAID_LINK = getValidStripePaymentLink(
-  import.meta.env.VITE_STRIPE_PAID_LINK,
-);
 
 
 
@@ -91,6 +86,18 @@ function useUserVisits(userId, refetchTrigger) {
   return { visits, loading, refetch: fetchVisits };
 }
 
+function getLocalDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getVisitDateKey(visitDate: string) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(visitDate)) return visitDate;
+  return getLocalDateKey(new Date(visitDate));
+}
+
 export default function Home() {
   const { user, visitInserted, resetVisitInserted, subscriptionPlan } = useAuth();
   const { shows: upcomingMics, loading: showsLoading } = useUserShows(user?.id);
@@ -141,15 +148,7 @@ export default function Home() {
     // Extract unique days in YYYY-MM-DD format, using local time
     const uniqueDays = Array.from(
       new Set(
-        visits.map(v => {
-          const d = new Date(v.visit_date);
-          // Get local date in YYYY-MM-DD
-          const year = d.getFullYear();
-          const month = (d.getMonth() + 1).toString().padStart(2, '0');
-          const day = d.getDate().toString().padStart(2, '0');
-          //console.log(d.getFullYear(), d.getMonth() + 1, d.getDate()); // Local
-          return `${year}-${month}-${day}`;
-        })
+        visits.map(v => getVisitDateKey(v.visit_date))
       )
     ).sort((a, b) => b.localeCompare(a)); // Descending
     //console.log('uniqueDays:', uniqueDays);
@@ -282,7 +281,7 @@ export default function Home() {
                     </Button>
                   ) : (
                     <Button asChild className="w-full justify-start bg-[#f97316] text-white hover:bg-[#ea580c]" size="sm">
-                      <Link to="/auth?plans=true">
+                      <Link to="/auth?next=%2F&plans=true">
                         <Sparkles className="mr-2 h-4 w-4" />
                         Subscribe to Full Pass
                       </Link>
