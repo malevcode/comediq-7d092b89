@@ -615,14 +615,8 @@ const Auth = () => {
         <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Free tier</p>
         <h2 className="mt-1 text-xl font-semibold text-gray-950">Basic</h2>
         <h2 className="mt-1 text-2xl font-bold text-gray-950">$0<span className="ml-1 text-base font-normal text-gray-700">/month</span></h2>
-        <button
-          type="button"
-          onClick={() => navigate(basicCreateAccountPath)}
-          className="mt-4 w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
-        >
-          Create an Account
-        </button>
         <p className="mt-4 space-y-2 text-sm text-gray-700">Basic Features:</p>
+
         <ul className="mt-4 space-y-2 text-sm text-gray-600">
           {[
             'Browse open mics',
