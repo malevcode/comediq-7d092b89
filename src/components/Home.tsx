@@ -6,7 +6,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic2, Clock, TrendingUp, Star, ArrowRight, Calendar, MapPin, Edit3, Heart, Bookmark, Music, ListMusic } from "lucide-react";
+import { Mic2, TrendingUp, Star, ArrowRight, Calendar, MapPin, Heart, Bookmark, Music, ListMusic, Sparkles } from "lucide-react";
 import { SponsorCard } from "./SponsorCard";
 import { QuickNotes } from "./home/QuickNotes";
 import Header from "./Header";
@@ -29,7 +29,7 @@ function useUserShows(userId) {
       return (data || []).filter(row => row.schedule_type === "upcoming" && row.open_mics);
     },
     enabled: !!userId,
-    staleTime: 30 * 60 * 1000,
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
   return { shows: data ?? [], loading: isLoading };
@@ -49,7 +49,7 @@ function useUserCompletedShows(userId) {
       return (data || []).filter(row => row.open_mics);
     },
     enabled: !!userId,
-    staleTime: 30 * 60 * 1000,
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
   return { completedShows: data ?? [], loading: isLoading };
@@ -86,8 +86,20 @@ function useUserVisits(userId, refetchTrigger) {
   return { visits, loading, refetch: fetchVisits };
 }
 
+function getLocalDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getVisitDateKey(visitDate: string) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(visitDate)) return visitDate;
+  return getLocalDateKey(new Date(visitDate));
+}
+
 export default function Home() {
-  const { user, visitInserted, resetVisitInserted } = useAuth();
+  const { user, visitInserted, resetVisitInserted, subscriptionPlan } = useAuth();
   const { shows: upcomingMics, loading: showsLoading } = useUserShows(user?.id);
   const { completedShows, loading: completedLoading } = useUserCompletedShows(user?.id);
   const { visits, loading: visitsLoading, refetch } = useUserVisits(user?.id, visitInserted);
@@ -95,6 +107,10 @@ export default function Home() {
   const { data: likedMics = [] } = useUserLikedMics();
   const { playlists } = useMicPlaylists();
   const navigate = useNavigate();
+  const isSubscriber = subscriptionPlan !== 'free';
+  const displayUpcomingMics = upcomingMics.filter((mic) =>
+    mic.open_mics && String(mic.open_mics["Open Mic"] || '').trim().length > 0
+  );
 
 
 
@@ -132,15 +148,7 @@ export default function Home() {
     // Extract unique days in YYYY-MM-DD format, using local time
     const uniqueDays = Array.from(
       new Set(
-        visits.map(v => {
-          const d = new Date(v.visit_date);
-          // Get local date in YYYY-MM-DD
-          const year = d.getFullYear();
-          const month = (d.getMonth() + 1).toString().padStart(2, '0');
-          const day = d.getDate().toString().padStart(2, '0');
-          //console.log(d.getFullYear(), d.getMonth() + 1, d.getDate()); // Local
-          return `${year}-${month}-${day}`;
-        })
+        visits.map(v => getVisitDateKey(v.visit_date))
       )
     ).sort((a, b) => b.localeCompare(a)); // Descending
     //console.log('uniqueDays:', uniqueDays);
@@ -173,7 +181,7 @@ export default function Home() {
   //console.log('Final streak:', streak);
 
   return (
-    <div className="pt-28 flex-col bg-gradient-to-br from-blue-50/50 to-white">
+    <div className="page-content-offset flex-col bg-gradient-to-br from-blue-50/50 to-white">
       <main className="max-w-7xl mx-auto px-8 py-10">
         <div>
           <Header className="mb-8" />
@@ -202,7 +210,7 @@ export default function Home() {
 
                 {/* Saved + Liked - 2-column row */}
                 <div className="grid grid-cols-2 gap-3">
-                  <Link to="/saved">
+                  <Link to="/profile?tab=saved">
                     <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer h-full">
                       <CardContent className="p-3">
                         <div className="flex items-center gap-2">
@@ -217,7 +225,7 @@ export default function Home() {
                       </CardContent>
                     </Card>
                   </Link>
-                  <Link to="/liked">
+                  <Link to="/profile?tab=liked">
                     <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer h-full">
                       <CardContent className="p-3">
                         <div className="flex items-center gap-2">
@@ -235,7 +243,7 @@ export default function Home() {
                 </div>
 
                 {/* Playlists card */}
-                <Link to="/open-mics?tab=playlists">
+                <Link to="/profile?tab=playlists" className="block pt-0.9">
                   <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer">
                     <CardContent className="p-3">
                       <div className="flex items-center gap-2">
@@ -264,6 +272,21 @@ export default function Home() {
                   <CardDescription className="text-white/80">Common tasks</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2 pt-6">
+                  {isSubscriber ? (
+                    <Button asChild className="w-full justify-start bg-[#f97316] text-white hover:bg-[#ea580c]" size="sm">
+                      <Link to="/book-me-mic">
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Book Me Mic Signup
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button asChild className="w-full justify-start bg-[#f97316] text-white hover:bg-[#ea580c]" size="sm">
+                      <Link to="/auth?next=%2F&plans=true">
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Subscribe to Full Pass
+                      </Link>
+                    </Button>
+                  )}
                   <Button asChild variant="outline" className="w-full justify-start border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50 bg-transparent" size="sm">
                     <Link to="/open-mics">
                       <MapPin className="mr-2 h-4 w-4" />
@@ -277,13 +300,13 @@ export default function Home() {
                     </Link>
                   </Button>
                   <Button asChild variant="outline" className="w-full justify-start border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50 bg-transparent" size="sm">
-                    <Link to="/saved">
+                    <Link to="/profile?tab=saved">
                       <Bookmark className="mr-2 h-4 w-4" />
                       Saved Mics
                     </Link>
                   </Button>
                   <Button asChild variant="outline" className="w-full justify-start border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50 bg-transparent" size="sm">
-                    <Link to="/open-mics?tab=playlists">
+                    <Link to="/profile?tab=playlists">
                       <Music className="mr-2 h-4 w-4" />
                       My Playlists
                     </Link>
@@ -296,17 +319,19 @@ export default function Home() {
                   <div>
                     <CardTitle className="text-lg text-white">🎭 Next Open Mics</CardTitle>
                     <CardDescription className="text-white/80">
-                      Your upcoming performances • {completedLoading ? '--' : upcomingMics.length} scheduled
+                      Your upcoming performances • {showsLoading ? '--' : displayUpcomingMics.length} scheduled
                     </CardDescription>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-6">
                   {showsLoading ? (
                     <div>Loading upcoming mics...</div>
-                  ) : upcomingMics.length === 0 ? (
-                    <div>No upcoming mics scheduled.</div>
+                  ) : displayUpcomingMics.length === 0 ? (
+                    <div className="rounded-lg border border-[#1a5fb4]/10 bg-blue-50/50 p-4 text-sm font-medium text-gray-700">
+                      No upcoming performances
+                    </div>
                   ) : (
-                    upcomingMics.map((mic) => (
+                    displayUpcomingMics.map((mic) => (
                       <div
                         key={mic.id}
                         className="flex items-center justify-between p-4 rounded-lg border border-[#1a5fb4]/10 bg-gradient-to-r from-blue-50/50 to-white hover:from-blue-50 hover:to-blue-50/50 transition-colors"
@@ -332,7 +357,7 @@ export default function Home() {
                           variant="ghost"
                           size="sm"
                           className="text-[#1a5fb4] hover:bg-blue-50"
-                          onClick={() => navigate('/perform?tab=show-scheduler')}
+                          onClick={() => navigate('/shows')}
                         >
                           <ArrowRight className="h-4 w-4" />
                         </Button>

@@ -4,6 +4,18 @@ project_id = "wwqoztrqprqksdubjwgj"
 enabled = true
 verify_jwt = false
 
+[functions.create-billing-portal-session]
+enabled = true
+verify_jwt = false
+
+[functions.create-checkout-session]
+enabled = true
+verify_jwt = false
+
+[functions.create-email-account]
+enabled = true
+verify_jwt = false
+
 [functions.get-mapbox-token]
 enabled = true
 verify_jwt = true
