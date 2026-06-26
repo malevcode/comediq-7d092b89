@@ -128,7 +128,7 @@ const Auth = () => {
     }
   }, [refreshProfile, subscriptionRefreshRequested, subscriptionSucceeded, user]);
 
-  const { subscriptionPlan } = useAuth();
+  
 
   useEffect(() => {
     if (!user) return;
