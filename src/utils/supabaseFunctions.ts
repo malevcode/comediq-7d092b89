@@ -92,9 +92,15 @@ export async function invokeSupabaseFunction<T = unknown>(
 
     return { data, error: null };
   } catch (error) {
+    const message = error instanceof Error && error.message === 'Load failed'
+      ? `Could not reach local Supabase functions at ${localFunctionsUrl}. Make sure "supabase functions serve --env-file .env.local" is running.`
+      : error instanceof Error
+        ? error.message
+        : `Function ${name} failed`;
+
     return {
       data: null,
-      error: error instanceof Error ? error : new Error(`Function ${name} failed`),
+      error: new Error(message),
     };
   }
 }
