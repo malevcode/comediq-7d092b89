@@ -1004,7 +1004,8 @@ const Auth = () => {
 
   const stepContent = {
     main: renderMain,
-    sign_in_options: renderSignInOptions,
+    sign_in_options: renderMain,
+    choose_plan: renderChoosePlan,
     email_otp_verify: renderEmailOtpVerify,
     email_auth: renderEmailAuth,
     email_signup: renderEmailSignup,
@@ -1015,6 +1016,7 @@ const Auth = () => {
   const seoTitle = {
     main: 'Sign In | Comediq',
     sign_in_options: 'Sign In | Comediq',
+    choose_plan: 'Choose Your Plan | Comediq',
     email_otp_verify: 'Check Your Email | Comediq',
     email_auth: 'Sign In | Comediq',
     email_signup: 'Join Comediq',
