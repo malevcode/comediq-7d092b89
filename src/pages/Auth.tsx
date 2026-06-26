@@ -100,7 +100,7 @@ const Auth = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn, user, refreshProfile } = useAuth();
+  const { signIn, user, refreshProfile, subscriptionPlan } = useAuth();
   const { toast } = useToast();
   const searchParams = new URLSearchParams(location.search);
   const nextPathParam = searchParams.get('next');
