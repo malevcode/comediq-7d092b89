@@ -1,8 +1,9 @@
-import { Zap, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Zap, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-
-const STRIPE_STANDARD_LINK = import.meta.env.VITE_STRIPE_STANDARD_LINK ?? '';
-const STRIPE_PREMIUM_LINK  = import.meta.env.VITE_STRIPE_PREMIUM_LINK  ?? '';
+import { useToast } from '@/hooks/use-toast';
+import { invokeSupabaseFunction } from '@/utils/supabaseFunctions';
 
 interface Props {
   compact?: boolean;
@@ -10,17 +11,77 @@ interface Props {
 
 const planLabel: Record<string, string> = {
   free:     'Free',
-  standard: 'Standard',
-  premium:  'Premium',
+  premium:  'Full Pass',
 };
 
 export function CreditBalance({ compact = false }: Props) {
   const { creditsBalance, subscriptionPlan, user } = useAuth();
+  const { toast } = useToast();
+  const location = useLocation();
+  const [isOpeningPortal, setIsOpeningPortal] = useState(false);
   if (!user) return null;
 
-  const upgradeUrl = subscriptionPlan === 'free'     ? STRIPE_STANDARD_LINK
-                   : subscriptionPlan === 'standard' ? STRIPE_PREMIUM_LINK
-                   : null;
+  const isSubscriber = subscriptionPlan !== 'free';
+  const returnPath = `${location.pathname}${location.search}`;
+  const upgradePath = `/auth?next=${encodeURIComponent(returnPath)}&plans=true`;
+
+  const getFunctionErrorMessage = async (error: unknown, data: unknown) => {
+    if (data && typeof data === 'object' && 'error' in data) {
+      const message = (data as { error?: unknown }).error;
+      if (typeof message === 'string') return message;
+    }
+
+    if (error && typeof error === 'object' && 'context' in error) {
+      const context = (error as { context?: unknown }).context;
+      if (context && typeof context === 'object' && 'json' in context && typeof context.json === 'function') {
+        try {
+          const response = context as Response;
+          const body = await response.clone().json();
+          if (body && typeof body.error === 'string') return body.error;
+        } catch {
+          // Fall through to text parsing below.
+        }
+      }
+
+      if (context && typeof context === 'object' && 'text' in context && typeof context.text === 'function') {
+        try {
+          const response = context as Response;
+          const text = await response.clone().text();
+          if (text) return text;
+        } catch {
+          // Fall through to generic error parsing below.
+        }
+      }
+    }
+
+    if (error instanceof Error) return error.message;
+    if (error && typeof error === 'object' && 'message' in error) {
+      const message = (error as { message?: unknown }).message;
+      if (typeof message === 'string') return message;
+    }
+
+    return 'Please try again or contact support.';
+  };
+
+  const handleManageSubscription = async () => {
+    setIsOpeningPortal(true);
+    const { data, error } = await invokeSupabaseFunction<{ url?: string }>('create-billing-portal-session', {
+      body: { returnPath: '/profile' },
+    });
+    setIsOpeningPortal(false);
+
+    if (error || !data?.url) {
+      const description = await getFunctionErrorMessage(error, data);
+      toast({
+        title: 'Could not open billing portal',
+        description,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    window.location.assign(data.url);
+  };
 
   if (compact) {
     return (
@@ -49,25 +110,28 @@ export function CreditBalance({ compact = false }: Props) {
 
       {subscriptionPlan === 'free' && (
         <p className="text-xs text-gray-500">
-          Credits let you sign up for open mics online. Standard plan: 5 credits/mo for $5.
+          Full Pass unlocks monthly Comediq open mic access and subscriber benefits.
         </p>
       )}
-      {subscriptionPlan === 'standard' && (
-        <p className="text-xs text-gray-500">
-          Premium: 15 credits/mo for $10 — more mics, priority booking.
-        </p>
-      )}
-
-      {upgradeUrl && (
-        <a
-          href={upgradeUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+      {!isSubscriber && (
+        <Link
+          to={upgradePath}
           className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-white text-sm font-medium bg-[#1a5fb4] hover:bg-[#1550a0] transition-colors"
         >
-          {subscriptionPlan === 'free' ? 'Get credits — $5/mo' : 'Upgrade to Premium'}
-          <ExternalLink className="w-3.5 h-3.5" />
-        </a>
+          Subscribe to Full Pass
+        </Link>
+      )}
+
+      {isSubscriber && (
+        <button
+          type="button"
+          onClick={handleManageSubscription}
+          disabled={isOpeningPortal}
+          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+        >
+          <Settings className="w-3.5 h-3.5" />
+          {isOpeningPortal ? 'Opening billing...' : 'Manage Subscription'}
+        </button>
       )}
     </div>
   );

@@ -1,13 +1,54 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Eye, EyeOff, Mic, ArrowLeft, Mail } from 'lucide-react';
+import { Eye, EyeOff, Mic, ArrowLeft, Mail, CheckCircle } from 'lucide-react';
+import { getValidStripePaymentLink } from '@/utils/stripeLinks';
+import { invokeSupabaseFunction } from '@/utils/supabaseFunctions';
 
 const BRAND_BLUE = '#1a5fb4';
+const STRIPE_PAID_LINK = getValidStripePaymentLink(
+  import.meta.env.VITE_STRIPE_PAID_LINK,
+);
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'object' && error && 'message' in error) {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === 'string') return message;
+  }
+
+  return fallback;
+};
+
+const isEmailRateLimitError = (error: unknown) =>
+  {
+    const message = getErrorMessage(error, '').toLowerCase();
+    return message.includes('email rate limit')
+      || message.includes('only request this after')
+      || message.includes('rate limit');
+  };
+
+const getEmailRateLimitSeconds = (error: unknown) => {
+  const message = getErrorMessage(error, '');
+  const match = message.match(/after\s+(\d+)\s+seconds?/i);
+  return match ? Number(match[1]) : 60;
+};
+
+const isDuplicateEmailError = (error: unknown) => {
+  const message = getErrorMessage(error, '').toLowerCase();
+  return message.includes('already registered')
+    || message.includes('already exists')
+    || message.includes('user already');
+};
+
+const isEmailConfirmationError = (error: unknown) => {
+  const message = getErrorMessage(error, '').toLowerCase();
+  return message.includes('email not confirmed') || message.includes('confirm your email');
+};
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -25,11 +66,14 @@ const GoogleIcon = () => (
 
 type AuthStep =
   | 'main'             // Google + Apple + email OTP entry
+  | 'sign_in_options'
   | 'email_otp_verify' // 6-digit email OTP
   | 'email_auth'       // email + password sign in
   | 'email_signup'     // create account with email
   | 'forgot_password'
   | 'reset_password';
+
+type OtpVerificationType = 'email';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -37,27 +81,55 @@ const Auth = () => {
   const [step, setStep] = useState<AuthStep>('main');
   const [otpEmail, setOtpEmail] = useState('');
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
+  const [otpVerificationType, setOtpVerificationType] = useState<OtpVerificationType>('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [pendingSignupPassword, setPendingSignupPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetPassword, setResetPassword] = useState('');
   const [resetConfirm, setResetConfirm] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [subscriptionRefreshRequested, setSubscriptionRefreshRequested] = useState(false);
 
   const otpRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null, null, null]);
+  const signInHeadingRef = useRef<HTMLHeadingElement | null>(null);
+  const signInEmailRef = useRef<HTMLInputElement | null>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { signUp, signIn, user } = useAuth();
+  const { signIn, user, refreshProfile } = useAuth();
   const { toast } = useToast();
+  const searchParams = new URLSearchParams(location.search);
+  const nextPathParam = searchParams.get('next');
+  const shouldShowPlans = searchParams.get('plans') === 'true';
+  const subscriptionSucceeded = searchParams.get('subscription') === 'success';
+  const subscribeIntent = searchParams.get('subscribe') === 'true';
+  const postAuthPath = nextPathParam?.startsWith('/') ? nextPathParam : '/';
+  const authRedirectUrl = `${window.location.origin}/auth/sign-in?next=${encodeURIComponent(postAuthPath)}`;
+  const plansParam = shouldShowPlans ? '&plans=true' : '';
+  const subscribeParam = subscribeIntent ? '&subscribe=true' : '';
+  const signInOptionsPath = `/auth/sign-in?next=${encodeURIComponent(postAuthPath)}${plansParam}${subscribeParam}`;
+  const createAccountPath = `/auth/create?next=${encodeURIComponent(postAuthPath)}${plansParam}${subscribeParam}`;
+  const basicCreateAccountPath = `/auth/create?next=${encodeURIComponent(postAuthPath)}${plansParam}`;
+  const authLandingPath = `/auth?next=${encodeURIComponent(postAuthPath)}${plansParam}${subscribeParam}`;
+  const checkoutReturnPath = postAuthPath === '/book-me-mic' ? '/book-me-mic' : '/';
 
   // ── Redirect if already authed ────────────────────────────────────────────
 
   useEffect(() => {
-    if (user && step !== 'reset_password') navigate('/perform');
-  }, [user, navigate, step]);
+    if (user && subscriptionSucceeded && !subscriptionRefreshRequested) {
+      setSubscriptionRefreshRequested(true);
+      refreshProfile();
+      const retryId = window.setTimeout(refreshProfile, 2000);
+      return () => window.clearTimeout(retryId);
+    }
+  }, [refreshProfile, subscriptionRefreshRequested, subscriptionSucceeded, user]);
+
+  useEffect(() => {
+    if (user && step !== 'reset_password' && !shouldShowPlans) navigate(postAuthPath);
+  }, [user, navigate, postAuthPath, shouldShowPlans, step]);
 
   // ── Detect password-reset link ────────────────────────────────────────────
 
@@ -65,6 +137,17 @@ const Auth = () => {
     const params = new URLSearchParams(location.hash.substring(1));
     if (params.get('type') === 'recovery') setStep('reset_password');
   }, [location.hash]);
+
+  useEffect(() => {
+    if (step === 'reset_password') return;
+    if (location.pathname === '/auth/create') {
+      if (step === 'main' || step === 'sign_in_options') setStep('email_signup');
+    } else if (location.pathname === '/auth/sign-in') {
+      if (step === 'main' || step === 'email_signup') setStep('sign_in_options');
+    } else if (location.pathname === '/auth' && (step === 'sign_in_options' || step === 'email_signup')) {
+      setStep('main');
+    }
+  }, [location.pathname, step]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
@@ -81,23 +164,78 @@ const Auth = () => {
     return () => clearInterval(id);
   }, [resendCooldown]);
 
-  // ── Auto-submit when all OTP digits filled ────────────────────────────────
-
   useEffect(() => {
-    if (step === 'email_otp_verify' && otpDigits.every(d => d !== '')) {
-      handleVerifyOtp(otpDigits.join(''));
-    }
-  }, [otpDigits, step]);
+    if (step !== 'sign_in_options') return;
+    const id = window.setTimeout(() => {
+      signInEmailRef.current?.focus({ preventScroll: true });
+    }, 100);
+    return () => window.clearTimeout(id);
+  }, [step]);
 
   // ─── Handlers ─────────────────────────────────────────────────────────────
 
   const handleGoogleSignIn = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/perform` },
+      options: { redirectTo: authRedirectUrl },
     });
     if (error) toast({ title: 'Google sign-in failed', description: error.message, variant: 'destructive' });
   };
+
+  const routeToExistingAccountSignIn = (normalizedEmail: string, message: string) => {
+    setLoading(false);
+    setEmail(normalizedEmail);
+    setPassword('');
+    setPendingSignupPassword('');
+    toast({
+      title: 'Account already exists',
+      description: message,
+      variant: 'destructive',
+    });
+    navigate(signInOptionsPath, { replace: true });
+    setStep('email_auth');
+  };
+
+  const handleVerifyOtp = useCallback(async (code?: string) => {
+    const token = code ?? otpDigits.join('');
+    if (token.length !== 6) return;
+    setLoading(true);
+    const { error } = await supabase.auth.verifyOtp({
+      email: otpEmail,
+      token,
+      type: otpVerificationType,
+    });
+    if (error) {
+      setLoading(false);
+      toast({ title: 'Incorrect code', description: 'Check the code and try again.', variant: 'destructive' });
+      setOtpDigits(['', '', '', '', '', '']);
+      setTimeout(() => otpRefs.current[0]?.focus(), 50);
+    } else {
+      if (pendingSignupPassword) {
+        const { error: passwordError } = await supabase.auth.updateUser({ password: pendingSignupPassword });
+        if (passwordError) {
+          setLoading(false);
+          toast({
+            title: 'Password was not saved',
+            description: getErrorMessage(passwordError, 'You are signed in, but your password could not be saved.'),
+            variant: 'destructive',
+          });
+          return;
+        }
+        setPendingSignupPassword('');
+      }
+      setLoading(false);
+      navigate(postAuthPath);
+    }
+  }, [navigate, otpDigits, otpEmail, otpVerificationType, pendingSignupPassword, postAuthPath, toast]);
+
+  // ── Auto-submit when all OTP digits filled ────────────────────────────────
+
+  useEffect(() => {
+    if (step === 'email_otp_verify' && otpDigits.every(d => d !== '')) {
+      handleVerifyOtp(otpDigits.join(''));
+    }
+  }, [handleVerifyOtp, otpDigits, step]);
 
 
   const handleSendEmailCode = async (e: React.FormEvent) => {
@@ -107,13 +245,22 @@ const Auth = () => {
       email: otpEmail,
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: `${window.location.origin}/perform`,
+        emailRedirectTo: authRedirectUrl,
       },
     });
     setLoading(false);
     if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      if (isEmailRateLimitError(error)) {
+        toast({
+          title: 'Error',
+          description: 'Email rate limit exceeded. Try again later.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
     } else {
+      setOtpVerificationType('email');
       setOtpDigits(['', '', '', '', '', '']);
       setStep('email_otp_verify');
       setResendCooldown(60);
@@ -121,33 +268,27 @@ const Auth = () => {
     }
   };
 
-  const handleVerifyOtp = async (code?: string) => {
-    const token = code ?? otpDigits.join('');
-    if (token.length !== 6) return;
+  const handleResendCode = async () => {
+    if (resendCooldown > 0 || loading) return;
     setLoading(true);
-    const { error } = await supabase.auth.verifyOtp({
+    const { error } = await supabase.auth.signInWithOtp({
       email: otpEmail,
-      token,
-      type: 'email',
+      options: {
+        shouldCreateUser: false,
+        emailRedirectTo: authRedirectUrl,
+      },
     });
     setLoading(false);
     if (error) {
-      toast({ title: 'Incorrect code', description: 'Check the code and try again.', variant: 'destructive' });
-      setOtpDigits(['', '', '', '', '', '']);
-      setTimeout(() => otpRefs.current[0]?.focus(), 50);
-    } else {
-      navigate('/perform');
-    }
-  };
-
-  const handleResendCode = async () => {
-    if (resendCooldown > 0) return;
-    const { error } = await supabase.auth.signInWithOtp({
-      email: otpEmail,
-      options: { emailRedirectTo: `${window.location.origin}/perform` },
-    });
-    if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      if (isEmailRateLimitError(error)) {
+        toast({
+          title: 'Error',
+          description: 'Email rate limit exceeded. Try again later.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
     } else {
       toast({ title: 'Code resent' });
       setResendCooldown(60);
@@ -185,23 +326,169 @@ const Auth = () => {
     const { error } = await signIn(email, password);
     setLoading(false);
     if (error) {
-      toast({ title: 'Error', description: (error as any)?.message || 'Sign in failed.', variant: 'destructive' });
+      if (isEmailConfirmationError(error)) {
+        toast({
+          title: 'Email confirmation required',
+          description: 'Your password was saved, but this email needs to be confirmed before sign-in.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({ title: 'Error', description: getErrorMessage(error, 'Sign in failed.'), variant: 'destructive' });
+      }
     } else {
-      navigate('/perform');
+      setPendingSignupPassword('');
+      navigate(postAuthPath);
     }
   };
 
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await signUp(email, password, '', '');
-    setLoading(false);
-    if (error) {
-      toast({ title: 'Error', description: (error as any)?.message || 'Sign up failed.', variant: 'destructive' });
-    } else {
-      toast({ title: 'Account created!', description: 'Check your email to confirm your address.' });
-      setStep('email_auth');
+    const normalizedEmail = email.trim().toLowerCase();
+    const enterVerificationStep = (message?: { title: string; description: string }, cooldown = 60) => {
+      setLoading(false);
+      setPendingSignupPassword(password);
+      setOtpEmail(normalizedEmail);
+      setOtpVerificationType('email');
+      setOtpDigits(['', '', '', '', '', '']);
+      setStep('email_otp_verify');
+      setResendCooldown(cooldown);
+      if (message) toast(message);
+      setTimeout(() => otpRefs.current[0]?.focus(), 100);
+    };
+    const showRateLimitMessage = (error: unknown) => {
+      const seconds = getEmailRateLimitSeconds(error);
+      setLoading(false);
+      setResendCooldown(seconds);
+      toast({
+        title: 'Please wait before requesting another code',
+        description: `No new code was sent. Try again in about ${seconds} seconds.`,
+        variant: 'destructive',
+      });
+    };
+    const sendVerificationCode = async () => supabase.auth.signInWithOtp({
+      email: normalizedEmail,
+      options: {
+        shouldCreateUser: false,
+        emailRedirectTo: authRedirectUrl,
+      },
+    });
+
+    const { data: accountStatus, error: duplicateCheckError } = await supabase.rpc('email_account_status', {
+      p_email: normalizedEmail,
+    });
+
+    if (duplicateCheckError) {
+      setLoading(false);
+      toast({
+        title: 'Error',
+        description: getErrorMessage(duplicateCheckError, 'Could not check this email. Try again.'),
+        variant: 'destructive',
+      });
+      return;
     }
+
+    if (accountStatus === 'confirmed') {
+      const { error } = await sendVerificationCode();
+
+      if (error) {
+        if (isEmailRateLimitError(error)) {
+          showRateLimitMessage(error);
+          return;
+        }
+
+        setLoading(false);
+        toast({
+          title: 'Error',
+          description: getErrorMessage(error, 'We could not send a verification code. Try signing in with email and code.'),
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      enterVerificationStep({
+        title: 'Verification code sent',
+        description: 'This email already has an account. Enter the code sent to your email to continue.',
+      });
+      return;
+    }
+
+    if (accountStatus === 'unconfirmed') {
+      const { error: confirmAccountError } = await invokeSupabaseFunction('create-email-account', {
+        body: { email: normalizedEmail, prepareExisting: true },
+      });
+
+      if (confirmAccountError) {
+        setLoading(false);
+        toast({
+          title: 'Error',
+          description: getErrorMessage(confirmAccountError, 'Could not prepare this account for verification.'),
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const { error } = await sendVerificationCode();
+
+      if (error) {
+        if (isEmailRateLimitError(error)) {
+          showRateLimitMessage(error);
+          return;
+        }
+
+        setLoading(false);
+        toast({
+          title: 'Error',
+          description: getErrorMessage(error, 'We could not send a verification code. Try signing in with email and code.'),
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      enterVerificationStep({
+        title: 'Verification code sent',
+        description: 'Enter the verification code sent to your email.',
+      });
+      return;
+    }
+
+    const { data: createAccountData, error: createAccountError } = await invokeSupabaseFunction('create-email-account', {
+      body: { email: normalizedEmail },
+    });
+
+    if (createAccountError || (createAccountData as { error?: unknown } | null)?.error) {
+      setLoading(false);
+      const message = (createAccountData as { error?: unknown } | null)?.error;
+      toast({
+        title: 'Error',
+        description: typeof message === 'string'
+          ? message
+          : getErrorMessage(createAccountError, 'Could not create account.'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const { error } = await sendVerificationCode();
+
+    if (error) {
+      if (isEmailRateLimitError(error)) {
+        showRateLimitMessage(error);
+      } else {
+        setLoading(false);
+        toast({
+          title: 'Error',
+          description: getErrorMessage(error, 'We could not send a verification code. Try signing in with email and code.'),
+          variant: 'destructive',
+        });
+      }
+      return;
+    }
+
+    enterVerificationStep({
+      title: 'Verification code sent',
+      description: 'Enter the verification code sent to your email.',
+    });
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -235,6 +522,36 @@ const Auth = () => {
     }
   };
 
+  const handleSubscribe = () => {
+    if (!user) {
+      navigate(`/auth/create?next=${encodeURIComponent(postAuthPath)}${plansParam}&subscribe=true`);
+      return;
+    }
+
+    setLoading(true);
+    invokeSupabaseFunction<{ url?: string }>('create-checkout-session', {
+      body: { returnPath: checkoutReturnPath },
+    }).then(({ data, error }) => {
+      setLoading(false);
+
+      if (error || !data?.url) {
+        if (STRIPE_PAID_LINK) {
+          window.location.assign(STRIPE_PAID_LINK);
+          return;
+        }
+
+        toast({
+          title: 'Checkout unavailable',
+          description: getErrorMessage(error, 'Please try again later.'),
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      window.location.assign(data.url);
+    });
+  };
+
   // ─── Layout helpers ────────────────────────────────────────────────────────
 
   const Divider = ({ label = 'or' }: { label?: string }) => (
@@ -248,78 +565,200 @@ const Auth = () => {
     </div>
   );
 
+  const TierComparison = () => (
+    <div className="grid gap-3 sm:grid-cols-[1.18fr_0.82fr]">
+      <div className="relative rounded-2xl border-2 border-[#1a5fb4] bg-[#1a5fb4]/5 p-4 shadow-sm">
+        <div className="absolute right-3 top-3 rounded-full bg-[#1a5fb4] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+          Best value
+        </div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-[#1a5fb4]">Paid tier</p>
+        <h2 className="mt-1 text-xl font-semibold text-gray-950">Full Pass</h2>
+        <h2 className="mt-1 text-2xl font-bold text-gray-950">$20<span className="ml-1 text-base font-normal text-gray-700">/month</span></h2>
+        <button
+          type="button"
+          onClick={handleSubscribe}
+          disabled={loading}
+          className="mt-4 w-full rounded-xl bg-[#1a5fb4] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1550a0]"
+        >
+          {loading ? 'Opening checkout...' : 'Subscribe'}
+        </button>
+        <p className="mt-4 space-y-2 text-sm text-gray-700">Everything in Basic, plus:</p>
+        <ul className="mt-4 space-y-2 text-sm text-gray-700">
+          {[
+            'No ads',
+            'Free entry to the expanding network of Comediq open mics for you and 1 guest',
+            'Access to the Highline Comedy Club Book Me Mic, which gives comics a shot at stage time at a stronger club (3 comics every mic will be chosen to do the 8 pm show after)',
+            'Show you support the best database of NYC open mic data and want to contribute to maintaining and growing comedy digital infrastructure',
+          ].map((feature) => (
+            <li key={feature} className="flex gap-2">
+              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#1a5fb4]" />
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="rounded-2xl border border-gray-200 bg-white p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Free tier</p>
+        <h2 className="mt-1 text-xl font-semibold text-gray-950">Basic</h2>
+        <h2 className="mt-1 text-2xl font-bold text-gray-950">$0<span className="ml-1 text-base font-normal text-gray-700">/month</span></h2>
+        <button
+          type="button"
+          onClick={() => navigate(basicCreateAccountPath)}
+          className="mt-4 w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+        >
+          Create an Account
+        </button>
+        <p className="mt-4 space-y-2 text-sm text-gray-700">Basic Features:</p>
+        <ul className="mt-4 space-y-2 text-sm text-gray-600">
+          {[
+            'Browse open mics',
+            'Save your favorite mics',
+            'Basic signup access',
+            'Community mic updates',
+          ].map((feature) => (
+            <li key={feature} className="flex gap-2">
+              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+
   // ─── Step renderers ────────────────────────────────────────────────────────
 
   const renderMain = () => (
     <>
-      <h1 className="text-2xl font-semibold text-gray-900 mb-1">Sign in to Comediq</h1>
-      <p className="text-sm text-gray-500 mb-7">Free forever. Jump right in.</p>
-
-      {/* Google — primary CTA */}
       <button
         type="button"
-        onClick={handleGoogleSignIn}
-        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
+        onClick={() => navigate('/')}
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
       >
-        <GoogleIcon />
-        Continue with Google
+        <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
       </button>
 
-      <Divider label="or get a code emailed to you" />
+      <h1 className="text-2xl font-semibold text-gray-900 mb-4">Create an Account</h1>
+      <div className="mb-8">
+        <TierComparison />
+      </div>
 
-      {/* Email OTP — secondary */}
-      <form onSubmit={handleSendEmailCode} className="space-y-3">
-        <div className="flex rounded-xl border border-gray-200 overflow-hidden focus-within:ring-2 focus-within:ring-[#1a5fb4] focus-within:border-[#1a5fb4]">
-          <span className="flex items-center pl-3.5 pr-2 text-gray-400">
-            <Mail className="w-4 h-4" />
-          </span>
-          <input
-            type="email"
-            placeholder="you@example.com"
-            value={otpEmail}
-            onChange={e => setOtpEmail(e.target.value)}
-            className="flex-1 py-3 pr-3 text-sm bg-white outline-none placeholder-gray-400"
-            required
-            autoComplete="email"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading || !otpEmail}
-          className="w-full py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50"
-          style={{ background: BRAND_BLUE }}
-        >
-          {loading ? 'Sending…' : 'Send code'}
-        </button>
-      </form>
-
-      {/* Password — tertiary, barely visible */}
-      <p className="text-center text-xs text-gray-400 mt-8">
-        Have a password?{' '}
+      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Already Have an Account?</h2>
+      <div className="mx-auto w-full max-w-sm">
         <button
           type="button"
-          onClick={() => setStep('email_auth')}
-          className="underline hover:text-gray-600"
+          onClick={() => navigate(signInOptionsPath)}
+          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
         >
           Sign in
         </button>
-      </p>
+      </div>
     </>
   );
 
-  const renderEmailOtpVerify = () => (
+  const renderSignInOptions = () => (
     <>
       <button
         type="button"
-        onClick={() => setStep('main')}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
+        onClick={() => navigate(authLandingPath)}
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
-      <h1 className="text-2xl font-semibold text-gray-900 mb-1">Check your email</h1>
+      <h1
+        ref={signInHeadingRef}
+        tabIndex={-1}
+        className="text-2xl font-semibold text-gray-900 mb-7 focus:outline-none"
+      >
+        Sign in to Comediq
+      </h1>
+
+        {/* Google — primary CTA */}
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
+        >
+          <GoogleIcon />
+          Continue with Google
+        </button>
+
+        <Divider label="or get a code emailed to you" />
+
+        {/* Email OTP — secondary */}
+        <form onSubmit={handleSendEmailCode} className="space-y-3">
+          <div className="flex rounded-xl border border-gray-200 overflow-hidden focus-within:ring-2 focus-within:ring-[#1a5fb4] focus-within:border-[#1a5fb4]">
+            <span className="flex items-center pl-3.5 pr-2 text-gray-400">
+              <Mail className="w-4 h-4" />
+            </span>
+            <input
+              ref={signInEmailRef}
+              type="email"
+              placeholder="you@example.com"
+              value={otpEmail}
+              onChange={e => setOtpEmail(e.target.value)}
+              className="flex-1 py-3 pr-3 text-sm bg-white outline-none placeholder-gray-400"
+              required
+              autoComplete="email"
+              autoFocus
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading || !otpEmail || resendCooldown > 0}
+            className="w-full py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50"
+            style={{ background: BRAND_BLUE }}
+          >
+            {loading ? 'Sending…' : resendCooldown > 0 ? `Try again in ${resendCooldown}s` : 'Send code'}
+          </button>
+        </form>
+
+        <Divider label="or use a password" />
+
+        <div className="w-full flex items-center justify-center">
+          <button
+            type="button"
+            onClick={() => {
+              navigate(signInOptionsPath);
+              setStep('email_auth');
+            }}
+            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-center text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+          >
+            Sign in with password
+          </button>
+        </div>
+    </>
+  );
+
+  const renderEmailOtpVerify = () => {
+    const isCreatingAccount = Boolean(pendingSignupPassword);
+
+    return (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          if (isCreatingAccount) {
+            setPendingSignupPassword('');
+            navigate(createAccountPath);
+            setStep('email_signup');
+          } else {
+            setStep('sign_in_options');
+          }
+        }}
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+      >
+        <ArrowLeft className="w-3.5 h-3.5" /> Back
+      </button>
+
+      <h1 className="text-2xl font-semibold text-gray-900 mb-1">
+        {isCreatingAccount ? 'Create your account' : 'Check your email'}
+      </h1>
       <p className="text-sm text-gray-500 mb-8">
-        We sent a 6-digit code to <span className="font-medium text-gray-700">{otpEmail}</span>
+        {isCreatingAccount ? 'Enter the verification code sent to ' : 'We sent a 6-digit code to '}
+        <span className="font-medium text-gray-700">{otpEmail}</span>
       </p>
 
       <div className="flex gap-2.5 mb-6 justify-center">
@@ -355,22 +794,26 @@ const Auth = () => {
         <button
           type="button"
           onClick={handleResendCode}
-          disabled={resendCooldown > 0}
+          disabled={loading || resendCooldown > 0}
           className="font-medium hover:underline disabled:opacity-40"
           style={{ color: BRAND_BLUE }}
         >
-          {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code'}
+          {loading ? 'Sending...' : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code'}
         </button>
       </p>
     </>
-  );
+    );
+  };
 
   const renderEmailAuth = () => (
     <>
       <button
         type="button"
-        onClick={() => setStep('main')}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
+        onClick={() => {
+          navigate(signInOptionsPath);
+          setStep('sign_in_options');
+        }}
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
@@ -393,21 +836,41 @@ const Auth = () => {
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
-
-      <p className="mt-6 text-center text-sm text-gray-500">
-        No account?{' '}
-        <button type="button" onClick={() => setStep('email_signup')} className="font-medium underline underline-offset-2" style={{ color: BRAND_BLUE }}>Create one</button>
-      </p>
     </>
   );
 
   const renderEmailSignup = () => (
     <>
-      <button type="button" onClick={() => setStep('email_auth')} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6">
+      <button
+        type="button"
+        onClick={() => navigate(authLandingPath)}
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+      >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
+
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">Create your account</h1>
-      <p className="text-sm text-gray-500 mb-7">Free forever. Start saving your mics.</p>
+      <p className="text-sm text-gray-500 mb-7">Welcome to Comediq.</p>
+
+      {subscribeIntent && (
+        <div className="mb-5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+          <p className="font-medium">Create an account or sign in first.</p>
+          <p className="mt-1 text-blue-800/80">
+            You need a Comediq account before subscribing to Full Pass.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              navigate(signInOptionsPath);
+              setStep('sign_in_options');
+            }}
+            className="mt-3 text-sm font-semibold text-[#1a5fb4] hover:underline"
+          >
+            Sign in instead
+          </button>
+        </div>
+      )}
+
       <form onSubmit={handleEmailSignup} className="space-y-3">
         <Input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" />
         <div className="relative">
@@ -428,9 +891,14 @@ const Auth = () => {
 
   const renderForgotPassword = () => (
     <>
-      <button type="button" onClick={() => setStep('email_auth')} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6">
+      <button
+        type="button"
+        onClick={() => setStep('email_auth')}
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+      >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
+
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">Reset password</h1>
       <p className="text-sm text-gray-500 mb-7">We'll email you a link to reset it.</p>
       <form onSubmit={handleForgotPassword} className="space-y-3">
@@ -459,6 +927,7 @@ const Auth = () => {
 
   const stepContent = {
     main: renderMain,
+    sign_in_options: renderSignInOptions,
     email_otp_verify: renderEmailOtpVerify,
     email_auth: renderEmailAuth,
     email_signup: renderEmailSignup,
@@ -468,6 +937,7 @@ const Auth = () => {
 
   const seoTitle = {
     main: 'Sign In | Comediq',
+    sign_in_options: 'Sign In | Comediq',
     email_otp_verify: 'Check Your Email | Comediq',
     email_auth: 'Sign In | Comediq',
     email_signup: 'Join Comediq',
@@ -479,35 +949,35 @@ const Auth = () => {
     <>
       <SEO title={seoTitle} description="Sign in or create a free Comediq account to save open mics, track your comedy journey, and connect with the NYC comedy community." url="https://comediq.us/auth" noindex={true} />
       <div className="min-h-screen flex">
-        <div className="hidden lg:flex lg:w-[45%] flex-col justify-between p-12 text-white" style={{ background: `linear-gradient(160deg, #0d3d7a 0%, ${BRAND_BLUE} 60%, #2a7ad4 100%)` }}>
-          <div className="flex items-center gap-3">
+        <div className="relative hidden overflow-hidden lg:flex lg:w-[36%] xl:w-[34%] flex-col justify-between p-12 text-white">
+          <video
+            className="absolute inset-0 h-full w-full object-cover"
+            src="/videos/sign-in-loop.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+          >
+            "The best tool for tracking NYC open mics. I use it every week before I hit the road."
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/20 to-black/60" />
+          <div className="relative z-10 flex items-center gap-3">
             <span className="font-semibold text-lg tracking-tight">Comediq</span>
           </div>
-          <div>
-            <blockquote className="text-2xl font-medium leading-snug mb-6 text-white/90">
-              "The best tool for tracking NYC open mics. I use it every week before I hit the road."
-            </blockquote>
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">J</div>
-              <div>
-                <p className="font-medium text-sm">Jamie Chen</p>
-                <p className="text-white/60 text-xs">Stand-up comedian, NYC</p>
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/20">
+          <div className="relative z-10" />
+          <div className="relative z-10 grid grid-cols-2 gap-4 pt-4 border-t border-white/20">
             <div><p className="text-2xl font-bold">1,250+</p><p className="text-white/60 text-sm">comedians per week</p></div>
             <div><p className="text-2xl font-bold">500+</p><p className="text-white/60 text-sm">open mics tracked</p></div>
           </div>
         </div>
-        <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-white">
+        <div className="flex-1 flex min-h-screen flex-col items-center justify-center overflow-y-auto bg-white px-6 py-12">
           <div className="lg:hidden mb-8 flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: BRAND_BLUE }}>
               <Mic className="w-3.5 h-3.5 text-white" />
             </div>
             <span className="font-semibold text-lg">Comediq</span>
           </div>
-          <div className="w-full max-w-sm">{stepContent}</div>
+          <div className={step === 'main' ? 'w-full max-w-2xl' : 'w-full max-w-sm'}>{stepContent}</div>
         </div>
       </div>
     </>
