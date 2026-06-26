@@ -652,21 +652,85 @@ const Auth = () => {
         <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
       </button>
 
-      <h1 className="text-2xl font-semibold text-gray-900 mb-4">Create an Account</h1>
-      <div className="mb-8">
-        <TierComparison />
-      </div>
+      <h1
+        ref={signInHeadingRef}
+        tabIndex={-1}
+        className="text-2xl font-semibold text-gray-900 mb-2 focus:outline-none"
+      >
+        Sign in to Comediq
+      </h1>
+      <p className="text-sm text-gray-500 mb-7">New here? Signing in with Google creates your account automatically.</p>
 
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Already Have an Account?</h2>
-      <div className="mx-auto w-full max-w-sm">
+      {/* Google — primary CTA */}
+      <button
+        type="button"
+        onClick={handleGoogleSignIn}
+        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl text-white text-sm font-semibold shadow-sm transition-colors"
+        style={{ background: BRAND_BLUE }}
+      >
+        <GoogleIcon />
+        Continue with Google
+      </button>
+
+      <Divider label="or get a code emailed to you" />
+
+      <form onSubmit={handleSendEmailCode} className="space-y-3">
+        <div className="flex rounded-xl border border-gray-200 overflow-hidden focus-within:ring-2 focus-within:ring-[#1a5fb4] focus-within:border-[#1a5fb4]">
+          <span className="flex items-center pl-3.5 pr-2 text-gray-400">
+            <Mail className="w-4 h-4" />
+          </span>
+          <input
+            ref={signInEmailRef}
+            type="email"
+            placeholder="you@example.com"
+            value={otpEmail}
+            onChange={e => setOtpEmail(e.target.value)}
+            className="flex-1 py-3 pr-3 text-sm bg-white outline-none placeholder-gray-400"
+            required
+            autoComplete="email"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={loading || !otpEmail || resendCooldown > 0}
+          className="w-full py-3 rounded-xl border border-gray-300 bg-white text-gray-900 text-sm font-semibold transition-colors hover:bg-gray-50 disabled:opacity-50"
+        >
+          {loading ? 'Sending…' : resendCooldown > 0 ? `Try again in ${resendCooldown}s` : 'Email me a code'}
+        </button>
+      </form>
+
+      <p className="mt-6 text-center text-xs text-gray-500">
+        Have a password?{' '}
         <button
           type="button"
-          onClick={() => navigate(signInOptionsPath)}
-          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+          onClick={() => setStep('email_auth')}
+          className="font-medium hover:underline"
+          style={{ color: BRAND_BLUE }}
         >
-          Sign in
+          Sign in with email & password
         </button>
+      </p>
+
+      <p className="mt-4 text-center text-[11px] text-gray-400 leading-relaxed">
+        By continuing you agree to our <a href="/privacy" className="underline hover:text-gray-600">Privacy Policy</a>.
+      </p>
+    </>
+  );
+
+  const renderChoosePlan = () => (
+    <>
+      <h1 className="text-2xl font-semibold text-gray-900 mb-1">You're signed in 🎉</h1>
+      <p className="text-sm text-gray-500 mb-6">Choose how you'd like to use Comediq.</p>
+      <div className="mb-6">
+        <TierComparison />
       </div>
+      <button
+        type="button"
+        onClick={() => navigate(postAuthPath)}
+        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+      >
+        Continue with Basic (free)
+      </button>
     </>
   );
 
