@@ -65,11 +65,12 @@ const GoogleIcon = () => (
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type AuthStep =
-  | 'main'             // Google + Apple + email OTP entry
-  | 'sign_in_options'
+  | 'main'             // Google + email OTP entry (sign in/up combined)
+  | 'sign_in_options'  // alias for main
+  | 'choose_plan'      // post-auth plan selection
   | 'email_otp_verify' // 6-digit email OTP
   | 'email_auth'       // email + password sign in
-  | 'email_signup'     // create account with email
+  | 'email_signup'     // create account with email (legacy, still reachable)
   | 'forgot_password'
   | 'reset_password';
 
