@@ -1627,6 +1627,8 @@ export type Database = {
           phone: string | null
           points_balance: number
           stage_name: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           subscription_plan: string
           updated_at: string | null
           user_id: string
@@ -1644,6 +1646,8 @@ export type Database = {
           phone?: string | null
           points_balance?: number
           stage_name?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           subscription_plan?: string
           updated_at?: string | null
           user_id: string
@@ -1661,6 +1665,8 @@ export type Database = {
           phone?: string | null
           points_balance?: number
           stage_name?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           subscription_plan?: string
           updated_at?: string | null
           user_id?: string

@@ -65,11 +65,12 @@ const GoogleIcon = () => (
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type AuthStep =
-  | 'main'             // Google + Apple + email OTP entry
-  | 'sign_in_options'
+  | 'main'             // Google + email OTP entry (sign in/up combined)
+  | 'sign_in_options'  // alias for main
+  | 'choose_plan'      // post-auth plan selection
   | 'email_otp_verify' // 6-digit email OTP
   | 'email_auth'       // email + password sign in
-  | 'email_signup'     // create account with email
+  | 'email_signup'     // create account with email (legacy, still reachable)
   | 'forgot_password'
   | 'reset_password';
 
@@ -99,7 +100,7 @@ const Auth = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn, user, refreshProfile } = useAuth();
+  const { signIn, user, refreshProfile, subscriptionPlan } = useAuth();
   const { toast } = useToast();
   const searchParams = new URLSearchParams(location.search);
   const nextPathParam = searchParams.get('next');
@@ -127,9 +128,23 @@ const Auth = () => {
     }
   }, [refreshProfile, subscriptionRefreshRequested, subscriptionSucceeded, user]);
 
+  
+
   useEffect(() => {
-    if (user && step !== 'reset_password' && !shouldShowPlans) navigate(postAuthPath);
-  }, [user, navigate, postAuthPath, shouldShowPlans, step]);
+    if (!user) return;
+    if (step === 'reset_password') return;
+    // Premium users — go straight to destination
+    if (subscriptionPlan !== 'free') {
+      navigate(postAuthPath);
+      return;
+    }
+    // Free users — show plan chooser once after sign-in (unless explicitly skipped)
+    if (step !== 'choose_plan' && !shouldShowPlans) {
+      setStep('choose_plan');
+    } else if (shouldShowPlans && step !== 'choose_plan') {
+      setStep('choose_plan');
+    }
+  }, [user, subscriptionPlan, navigate, postAuthPath, shouldShowPlans, step]);
 
   // ── Detect password-reset link ────────────────────────────────────────────
 
@@ -139,15 +154,13 @@ const Auth = () => {
   }, [location.hash]);
 
   useEffect(() => {
-    if (step === 'reset_password') return;
-    if (location.pathname === '/auth/create') {
-      if (step === 'main' || step === 'sign_in_options') setStep('email_signup');
-    } else if (location.pathname === '/auth/sign-in') {
-      if (step === 'main' || step === 'email_signup') setStep('sign_in_options');
-    } else if (location.pathname === '/auth' && (step === 'sign_in_options' || step === 'email_signup')) {
+    if (step === 'reset_password' || step === 'choose_plan') return;
+    if (user) return; // don't override step when authed
+    // All auth routes show the unified sign-in screen by default
+    if (step !== 'main' && step !== 'email_otp_verify' && step !== 'email_auth' && step !== 'email_signup' && step !== 'forgot_password') {
       setStep('main');
     }
-  }, [location.pathname, step]);
+  }, [location.pathname, step, user]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
@@ -639,21 +652,85 @@ const Auth = () => {
         <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
       </button>
 
-      <h1 className="text-2xl font-semibold text-gray-900 mb-4">Create an Account</h1>
-      <div className="mb-8">
-        <TierComparison />
-      </div>
+      <h1
+        ref={signInHeadingRef}
+        tabIndex={-1}
+        className="text-2xl font-semibold text-gray-900 mb-2 focus:outline-none"
+      >
+        Sign in to Comediq
+      </h1>
+      <p className="text-sm text-gray-500 mb-7">New here? Signing in with Google creates your account automatically.</p>
 
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Already Have an Account?</h2>
-      <div className="mx-auto w-full max-w-sm">
+      {/* Google — primary CTA */}
+      <button
+        type="button"
+        onClick={handleGoogleSignIn}
+        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl text-white text-sm font-semibold shadow-sm transition-colors"
+        style={{ background: BRAND_BLUE }}
+      >
+        <GoogleIcon />
+        Continue with Google
+      </button>
+
+      <Divider label="or get a code emailed to you" />
+
+      <form onSubmit={handleSendEmailCode} className="space-y-3">
+        <div className="flex rounded-xl border border-gray-200 overflow-hidden focus-within:ring-2 focus-within:ring-[#1a5fb4] focus-within:border-[#1a5fb4]">
+          <span className="flex items-center pl-3.5 pr-2 text-gray-400">
+            <Mail className="w-4 h-4" />
+          </span>
+          <input
+            ref={signInEmailRef}
+            type="email"
+            placeholder="you@example.com"
+            value={otpEmail}
+            onChange={e => setOtpEmail(e.target.value)}
+            className="flex-1 py-3 pr-3 text-sm bg-white outline-none placeholder-gray-400"
+            required
+            autoComplete="email"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={loading || !otpEmail || resendCooldown > 0}
+          className="w-full py-3 rounded-xl border border-gray-300 bg-white text-gray-900 text-sm font-semibold transition-colors hover:bg-gray-50 disabled:opacity-50"
+        >
+          {loading ? 'Sending…' : resendCooldown > 0 ? `Try again in ${resendCooldown}s` : 'Email me a code'}
+        </button>
+      </form>
+
+      <p className="mt-6 text-center text-xs text-gray-500">
+        Have a password?{' '}
         <button
           type="button"
-          onClick={() => navigate(signInOptionsPath)}
-          className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+          onClick={() => setStep('email_auth')}
+          className="font-medium hover:underline"
+          style={{ color: BRAND_BLUE }}
         >
-          Sign in
+          Sign in with email & password
         </button>
+      </p>
+
+      <p className="mt-4 text-center text-[11px] text-gray-400 leading-relaxed">
+        By continuing you agree to our <a href="/privacy" className="underline hover:text-gray-600">Privacy Policy</a>.
+      </p>
+    </>
+  );
+
+  const renderChoosePlan = () => (
+    <>
+      <h1 className="text-2xl font-semibold text-gray-900 mb-1">You're signed in 🎉</h1>
+      <p className="text-sm text-gray-500 mb-6">Choose how you'd like to use Comediq.</p>
+      <div className="mb-6">
+        <TierComparison />
       </div>
+      <button
+        type="button"
+        onClick={() => navigate(postAuthPath)}
+        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+      >
+        Continue with Basic (free)
+      </button>
     </>
   );
 
@@ -927,7 +1004,8 @@ const Auth = () => {
 
   const stepContent = {
     main: renderMain,
-    sign_in_options: renderSignInOptions,
+    sign_in_options: renderMain,
+    choose_plan: renderChoosePlan,
     email_otp_verify: renderEmailOtpVerify,
     email_auth: renderEmailAuth,
     email_signup: renderEmailSignup,
@@ -938,6 +1016,7 @@ const Auth = () => {
   const seoTitle = {
     main: 'Sign In | Comediq',
     sign_in_options: 'Sign In | Comediq',
+    choose_plan: 'Choose Your Plan | Comediq',
     email_otp_verify: 'Check Your Email | Comediq',
     email_auth: 'Sign In | Comediq',
     email_signup: 'Join Comediq',
@@ -977,7 +1056,7 @@ const Auth = () => {
             </div>
             <span className="font-semibold text-lg">Comediq</span>
           </div>
-          <div className={step === 'main' ? 'w-full max-w-2xl' : 'w-full max-w-sm'}>{stepContent}</div>
+          <div className={step === 'choose_plan' ? 'w-full max-w-2xl' : 'w-full max-w-sm'}>{stepContent}</div>
         </div>
       </div>
     </>
