@@ -23,7 +23,7 @@ export interface BannerAd {
 }
 
 const fallbackTopAds = [
-  { label: "6/28 Comediq Book Me Mic at High Line Comedy Club", href: "/open-mics", external: false },
+  { label: "6/28 Comediq Book Me Mic at High Line Comedy Club", href: "/book-me-mic", external: false },
   { label: "#MeThree", href: "https://metoomvmt.org/", external: true },
   { label: "Comediq Supports Safe Funny Spaces", href: "/", external: false },
   { label: "Advertise!", href: "https://docs.google.com/forms/d/e/1FAIpQLSe58Za3tfgyuUFNoVxQb_qAe3PPfVrnm4gciw_cklp-HPkKQg/viewform?usp=publish-editor", external: true },
@@ -36,39 +36,33 @@ const fallbackBottomAds = [
   { label: "Advertise!", href: "https://docs.google.com/forms/d/e/1FAIpQLSe58Za3tfgyuUFNoVxQb_qAe3PPfVrnm4gciw_cklp-HPkKQg/viewform?usp=publish-editor", external: true },
 ];
 
-export function useBannerAds() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['banner-ads-active'],
-    queryFn: async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const { data, error } = await supabase
-        .from('banner_ads')
-        .select('*')
-        .eq('is_active', true)
-        .order('position')
-        .order('sort_order');
-      if (error) throw error;
-      return (data ?? []).filter((a: BannerAd) => {
-        if (a.start_date && a.start_date > today) return false;
-        if (a.end_date && a.end_date < today) return false;
-        return true;
-      }) as BannerAd[];
-    },
-    staleTime: 5 * 60 * 1000,
+const mergeWithFallbackAds = <T extends { label: string; href: string }>(
+  ads: T[],
+  fallbackAds: Array<{ label: string; href: string; external: boolean }>,
+) => {
+  const seen = new Set<string>();
+
+  return [...ads, ...fallbackAds].map((ad) => {
+    if (/book me mic at high line comedy club/i.test(ad.label)) {
+      return { ...ad, href: '/book-me-mic', external: false };
+    }
+
+    return ad;
+  }).filter((ad) => {
+    const key = `${ad.label}|${ad.href}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
   });
+};
 
-  const ads = data ?? [];
-  const topAds = ads.filter(a => a.position === 'top');
-  const bottomAds = ads.filter(a => a.position === 'bottom');
-
-  const isUsingFallback = !!error || (!isLoading && ads.length === 0);
-
+export function useBannerAds() {
   return {
-    topAds: topAds.length > 0 ? topAds : (isUsingFallback ? fallbackTopAds : []),
-    bottomAds: bottomAds.length > 0 ? bottomAds : (isUsingFallback ? fallbackBottomAds : []),
-    isLoading,
-    error,
-    isUsingFallback,
+    topAds: mergeWithFallbackAds([], fallbackTopAds),
+    bottomAds: mergeWithFallbackAds([], fallbackBottomAds),
+    isLoading: false,
+    error: null,
+    isUsingFallback: true,
   };
 }
 
@@ -100,10 +94,8 @@ export function useAdClickCounts() {
   });
 }
 
-// Ad click recording disabled to eliminate Supabase egress until billing cycle resets (July 5)
 export async function recordAdClick(_adId: string, _userId?: string, _placement?: string) {}
 
-// Sponsor ad disabled to eliminate Supabase egress until billing cycle resets (July 5)
 export function useSponsorAd() {
   return useQuery({
     queryKey: ['sponsor-ad', 'disabled'],

@@ -13,7 +13,7 @@ export default function TopMics() {
   return (
     <>
       <PageHeader />
-      <div className="pt-28 px-4 max-w-2xl mx-auto pb-20">
+      <div className="page-content-offset px-4 max-w-2xl mx-auto pb-20">
         <div className="mb-3">
           <h1 className="text-lg font-bold text-foreground">🔥 Top Mics This Week</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Most liked open mics, updated every Monday.</p>

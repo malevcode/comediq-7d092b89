@@ -1,63 +1,47 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { MapContainer, TileLayer, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import 'leaflet.markercluster/dist/MarkerCluster.css';
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-import 'leaflet.markercluster';
-import './leaflet-dark.css';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { format, parseISO } from 'date-fns';
 import { AudienceShow } from '@/api/audienceShows';
-import { GeocodingService, GeocodingProgress } from './GeocodingService';
 import { getMapboxToken } from './MapInitializer';
 import { getShowTypeColor, SHOW_TYPE_COLORS } from './MapUtils';
-import { format, parseISO } from 'date-fns';
 
 interface AudienceShowsMapProps {
   shows: AudienceShow[];
 }
 
 interface VenueGroup {
-  key: string;       // address used as geocoding key
+  key: string;
   venueName: string;
+  latitude: number;
+  longitude: number;
   shows: AudienceShow[];
 }
 
-const CARTO_DARK_URL = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
-const CARTO_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
-
-const SUBWAY_LINE_COLORS: Record<string, string> = {
-  '1': '#EE352E', '2': '#EE352E', '3': '#EE352E',
-  '4': '#00933C', '5': '#00933C', '6': '#00933C',
-  '7': '#B933AD',
-  'A': '#0039A6', 'C': '#0039A6', 'E': '#0039A6',
-  'B': '#FF6319', 'D': '#FF6319', 'F': '#FF6319', 'M': '#FF6319',
-  'G': '#6CBE45',
-  'J': '#996633', 'Z': '#996633',
-  'L': '#A7A9AC',
-  'N': '#FCCC0A', 'Q': '#FCCC0A', 'R': '#FCCC0A', 'W': '#FCCC0A',
-  'S': '#808183', 'GS': '#808183', 'FS': '#808183',
+type VenueFeatureProperties = {
+  key: string;
+  color: string;
 };
 
-const createShowMarkerIcon = (color: string) => {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="24" height="36">
-    <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24C24 5.4 18.6 0 12 0z" fill="${color}" stroke="#1e293b" stroke-width="1.5"/>
-    <circle cx="12" cy="12" r="5" fill="#1e293b" opacity="0.6"/>
-  </svg>`;
-  return L.divIcon({
-    html: svg,
-    className: 'leaflet-marker-custom',
-    iconSize: [24, 36],
-    iconAnchor: [12, 36],
-    popupAnchor: [0, -36],
-  });
+const NYC_CENTER: [number, number] = [-73.9352, 40.7308];
+const EMPTY_FEATURE_COLLECTION: GeoJSON.FeatureCollection<GeoJSON.Point, VenueFeatureProperties> = {
+  type: 'FeatureCollection',
+  features: [],
 };
+
+function parseCoordinate(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
 
 const formatShowDateTime = (dateStr: string, timeStr: string): string => {
   try {
     const date = parseISO(dateStr);
     const day = format(date, 'EEE, MMM d');
-    // Trim seconds from time strings like "20:00:00"
     const time = timeStr?.replace(/:\d{2}$/, '').trim() || '';
     return time ? `${day} · ${time}` : day;
   } catch {
@@ -74,406 +58,229 @@ const formatPrice = (show: AudienceShow): string => {
   return '';
 };
 
-const buildVenuePopupHtml = (venueName: string, shows: AudienceShow[]): string => {
-  const rows = shows
-    .map((show, i) => {
-      const dateTime = formatShowDateTime(show.show_date, show.show_time);
-      const price = formatPrice(show);
-      const ticketUrl = show.external_ticket_url || show.ticket_url;
-      const isLast = i === shows.length - 1;
-
-      const typeTag = show.show_type
-        ? `<span style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;">${show.show_type}</span><br/>`
-        : '';
-      const priceTag = price
-        ? `<div style="color:#f97316;font-size:11px;font-weight:600;margin-top:2px;">${price}</div>`
-        : '';
-      const ticketBtn = ticketUrl
-        ? `<a href="${ticketUrl}" target="_blank" rel="noopener noreferrer"
-             style="display:inline-block;margin-top:5px;padding:3px 12px;background:#f97316;color:#fff;border-radius:4px;font-size:11px;font-weight:600;text-decoration:none;">
-             Get Tickets →
-           </a>`
-        : '';
-      const border = isLast ? '' : 'border-bottom:1px solid #e2e8f0;margin-bottom:8px;';
-
-      return `<div style="padding-bottom:6px;${border}">
-        ${typeTag}
-        <div style="font-weight:700;font-size:13px;color:#0f172a;line-height:1.3;">${show.title}</div>
-        <div style="color:#475569;font-size:11px;margin-top:2px;">${dateTime}</div>
-        ${priceTag}
-        ${ticketBtn}
-      </div>`;
-    })
-    .join('');
-
-  return `<div style="min-width:200px;max-width:250px;max-height:300px;overflow-y:auto;">
-    <div style="font-weight:700;font-size:14px;color:#0f172a;border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:8px;">${venueName}</div>
-    ${rows}
-  </div>`;
-};
-
-// Inner component that attaches markers to the map
-const ShowMarkersLayer: React.FC<{
-  venueGroups: VenueGroup[];
-  geocodingService: GeocodingService;
-  onProgress: (p: GeocodingProgress | null) => void;
-  onLoading: (v: boolean) => void;
-  onCount: (n: number) => void;
-  onVenueClick: (venueName: string, shows: AudienceShow[]) => void;
-}> = ({ venueGroups, geocodingService, onProgress, onLoading, onCount, onVenueClick }) => {
-  const map = useMap();
-  const clusterRef = useRef<L.MarkerClusterGroup | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const load = async () => {
-      onLoading(true);
-
-      if (clusterRef.current) {
-        map.removeLayer(clusterRef.current);
-        clusterRef.current = null;
-      }
-
-      const cluster = L.markerClusterGroup({
-        maxClusterRadius: 50,
-        spiderfyOnMaxZoom: true,
-        showCoverageOnHover: false,
-        zoomToBoundsOnClick: true,
-        disableClusteringAtZoom: 16,
-        iconCreateFunction: (c) => {
-          const count = c.getChildCount();
-          const px = count >= 50 ? 48 : count >= 10 ? 42 : 36;
-          const size = count >= 50 ? 'large' : count >= 10 ? 'medium' : 'small';
-          return L.divIcon({
-            html: `<div class="cluster-icon cluster-${size}"><span>${count}</span></div>`,
-            className: 'marker-cluster-custom',
-            iconSize: L.point(px, px),
-          });
-        },
-      });
-
-      const addresses = venueGroups.map((g) => g.key);
-      const coordsMap = await geocodingService.geocodeAddresses(addresses, (p) => {
-        if (!cancelled) onProgress(p);
-      });
-
-      if (cancelled) return;
-
-      let count = 0;
-      venueGroups.forEach((group) => {
-        const coords = coordsMap.get(group.key);
-        if (!coords) return;
-        const [lng, lat] = coords;
-
-        const color = getShowTypeColor(group.shows[0]?.show_type ?? null);
-        const icon = createShowMarkerIcon(color);
-        const marker = L.marker([lat, lng], { icon });
-        marker.on('click', () => onVenueClick(group.venueName, group.shows));
-        cluster.addLayer(marker);
-        count++;
-      });
-
-      map.addLayer(cluster);
-      clusterRef.current = cluster;
-      onCount(count);
-      onLoading(false);
-      onProgress(null);
-    };
-
-    load();
-
-    return () => {
-      cancelled = true;
-      if (clusterRef.current) {
-        map.removeLayer(clusterRef.current);
-        clusterRef.current = null;
-      }
-    };
-  }, [venueGroups, geocodingService, map]);
-
-  return null;
-};
-
-const ZoomControlTopRight = () => {
-  const map = useMap();
-  useEffect(() => {
-    const zc = L.control.zoom({ position: 'topright' });
-    zc.addTo(map);
-    return () => { zc.remove(); };
-  }, [map]);
-  return null;
-};
-
-const SubwayLayer: React.FC = () => {
-  const map = useMap();
-  const routeLayerRef = useRef<L.LayerGroup | null>(null);
-  const dotLayerRef = useRef<L.LayerGroup | null>(null);
-  const badgeLayerRef = useRef<L.LayerGroup | null>(null);
-
-  useEffect(() => {
-    const routeLayer = L.layerGroup();
-    const dotLayer = L.layerGroup();
-    const badgeLayer = L.layerGroup();
-    routeLayerRef.current = routeLayer;
-    dotLayerRef.current = dotLayer;
-    badgeLayerRef.current = badgeLayer;
-    let cancelled = false;
-
-    const updateVisibility = () => {
-      const zoom = map.getZoom();
-      // Route lines: always visible
-      if (!map.hasLayer(routeLayer)) routeLayer.addTo(map);
-      // Dot markers: zoom 14–15
-      if (zoom >= 14 && zoom < 16) {
-        if (!map.hasLayer(dotLayer)) dotLayer.addTo(map);
-        map.removeLayer(badgeLayer);
-      } else if (zoom >= 16) {
-        map.removeLayer(dotLayer);
-        if (!map.hasLayer(badgeLayer)) badgeLayer.addTo(map);
-      } else {
-        map.removeLayer(dotLayer);
-        map.removeLayer(badgeLayer);
-      }
-    };
-
-    const loadRoutes = async () => {
-      const query = `[out:json];rel["network"="NYC Subway"]["type"="route"](40.4,-74.3,40.9,-73.7);out body geom;`;
-      const res = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      if (cancelled) return;
-
-      data.elements.forEach((rel: any) => {
-        if (rel.type !== 'relation') return;
-        const ref = rel.tags?.ref || '';
-        const colour = rel.tags?.colour || SUBWAY_LINE_COLORS[ref] || '#808183';
-
-        rel.members?.forEach((member: any) => {
-          if (member.type !== 'way' || !member.geometry?.length) return;
-          const latlngs = member.geometry.map((pt: any) => [pt.lat, pt.lon] as [number, number]);
-          if (latlngs.length < 2) return;
-          L.polyline(latlngs, { color: colour, weight: 3, opacity: 0.85 }).addTo(routeLayer);
-        });
-      });
-    };
-
-    const loadStations = async () => {
-      const res = await fetch(
-        'https://data.ny.gov/resource/i9wp-a4ja.json?$limit=2500&$select=station_id,stop_name,daytime_routes,entrance_latitude,entrance_longitude'
-      );
-      const entrances = await res.json();
-      if (cancelled) return;
-
-      const seen = new Set<string>();
-      const stations = entrances.filter((e: any) => {
-        if (!e.station_id || seen.has(e.station_id)) return false;
-        seen.add(e.station_id);
-        return true;
-      });
-
-      stations.forEach((station: any) => {
-        const lat = parseFloat(station.entrance_latitude);
-        const lng = parseFloat(station.entrance_longitude);
-        if (isNaN(lat) || isNaN(lng)) return;
-        const lines = (station.daytime_routes || '').split(' ').map((l: string) => l.trim()).filter(Boolean);
-        const dotColor = SUBWAY_LINE_COLORS[lines[0]] || '#808183';
-
-        const badges = lines.map((line: string) => {
-          const color = SUBWAY_LINE_COLORS[line] || '#808183';
-          const textColor = ['N', 'Q', 'R', 'W'].includes(line) ? '#000' : '#fff';
-          return `<span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:${color};color:${textColor};font-size:8px;font-weight:700;margin:0 1px;">${line}</span>`;
-        }).join('');
-
-        // Simple dot for zoom 12–15
-        const dotIcon = L.divIcon({
-          html: `<div style="width:7px;height:7px;border-radius:50%;background:${dotColor};border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.5);"></div>`,
-          className: '',
-          iconSize: [7, 7],
-          iconAnchor: [3, 3],
-          popupAnchor: [0, -6],
-        });
-        L.marker([lat, lng], { icon: dotIcon })
-          .bindPopup(`<div style="font-size:12px;font-weight:600;color:#0f172a;">${station.stop_name}</div>`, { className: 'dark-popup', maxWidth: 200 })
-          .addTo(dotLayer);
-
-        // Badge marker for zoom 16+
-        const width = Math.max(lines.length * 17, 17);
-        const badgeIcon = L.divIcon({
-          html: `<div style="display:flex;align-items:center;">${badges}</div>`,
-          className: 'subway-marker',
-          iconSize: [width, 15],
-          iconAnchor: [width / 2, 7],
-          popupAnchor: [0, -10],
-        });
-        L.marker([lat, lng], { icon: badgeIcon })
-          .bindPopup(
-            `<div style="font-size:12px;font-weight:600;color:#0f172a;">${station.stop_name}</div>
-             <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:2px;">${badges}</div>`,
-            { className: 'dark-popup', maxWidth: 200 }
-          )
-          .addTo(badgeLayer);
-      });
-    };
-
-    const init = async () => {
-      try {
-        await Promise.all([loadRoutes(), loadStations()]);
-        updateVisibility();
-      } catch (err) {
-        console.warn('Failed to load subway data:', err);
-      }
-    };
-
-    map.on('zoomend', updateVisibility);
-    init();
-
-    return () => {
-      cancelled = true;
-      map.off('zoomend', updateVisibility);
-      [routeLayerRef.current, dotLayerRef.current, badgeLayerRef.current].forEach(l => {
-        if (l) map.removeLayer(l);
-      });
-    };
-  }, [map]);
-
-  return null;
-};
-
-const CitiBikeLayer: React.FC = () => {
-  const map = useMap();
-  const layerRef = useRef<L.LayerGroup | null>(null);
-
-  useEffect(() => {
-    const layer = L.layerGroup();
-    layerRef.current = layer;
-    let cancelled = false;
-
-    const updateVisibility = () => {
-      if (!layerRef.current) return;
-      if (map.getZoom() >= 16) {
-        if (!map.hasLayer(layerRef.current)) layerRef.current.addTo(map);
-      } else {
-        map.removeLayer(layerRef.current);
-      }
-    };
-
-    const load = async () => {
-      try {
-        const res = await fetch('https://gbfs.citibikenyc.com/gbfs/en/station_information.json');
-        const json = await res.json();
-        if (cancelled) return;
-        const stations = json.data?.stations || [];
-
-        const icon = L.divIcon({
-          html: `<div style="width:6px;height:6px;border-radius:50%;background:#0ea5e9;border:1px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.4);"></div>`,
-          className: 'citibike-marker',
-          iconSize: [6, 6],
-          iconAnchor: [3, 3],
-          popupAnchor: [0, -8],
-        });
-
-        stations.forEach((station: any) => {
-          if (!station.lat || !station.lon) return;
-          const marker = L.marker([station.lat, station.lon], { icon });
-          marker.bindPopup(
-            `<div style="font-size:12px;font-weight:600;color:#0f172a;">🚲 ${station.name}</div>
-             <div style="font-size:11px;color:#475569;margin-top:2px;">${station.capacity} docks</div>`,
-            { className: 'dark-popup', maxWidth: 200 }
-          );
-          layer.addLayer(marker);
-        });
-
-        updateVisibility();
-      } catch (err) {
-        console.warn('Failed to load Citi Bike stations:', err);
-      }
-    };
-
-    map.on('zoomend', updateVisibility);
-    load();
-
-    return () => {
-      cancelled = true;
-      map.off('zoomend', updateVisibility);
-      if (layerRef.current) map.removeLayer(layerRef.current);
-    };
-  }, [map]);
-
-  return null;
-};
+function getSource(map: mapboxgl.Map): mapboxgl.GeoJSONSource | undefined {
+  return map.getSource('audience-shows') as mapboxgl.GeoJSONSource | undefined;
+}
 
 const AudienceShowsMap: React.FC<AudienceShowsMapProps> = ({ shows }) => {
-  const geocodingService = useRef<GeocodingService | null>(null);
-  const [serviceReady, setServiceReady] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [progress, setProgress] = useState<GeocodingProgress | null>(null);
-  const [loadedCount, setLoadedCount] = useState(0);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+
+  const [mapReady, setMapReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [bottomSheet, setBottomSheet] = useState<{ venueName: string; shows: AudienceShow[] } | null>(null);
 
-  useEffect(() => {
-    getMapboxToken().then((token) => {
-      if (token) geocodingService.current = new GeocodingService(token);
-      setServiceReady(true);
-    });
-  }, []);
-
-  // Group shows by venue address
   const venueGroups = useMemo<VenueGroup[]>(() => {
     const map = new Map<string, VenueGroup>();
     for (const show of shows) {
-      const key = show.venue_address?.trim() || `${show.venue_name}, New York, NY`;
+      const latitude = parseCoordinate(show.latitude);
+      const longitude = parseCoordinate(show.longitude);
+      if (latitude === null || longitude === null) continue;
+
+      const key = `${show.venue_name}:${latitude.toFixed(5)}:${longitude.toFixed(5)}`;
       if (!map.has(key)) {
-        map.set(key, { key, venueName: show.venue_name, shows: [] });
+        map.set(key, { key, venueName: show.venue_name, latitude, longitude, shows: [] });
       }
       map.get(key)!.shows.push(show);
     }
     return Array.from(map.values());
   }, [shows]);
 
-  const defaultCenter: [number, number] = [40.7308, -73.9352]; // NYC
+  const venueGroupLookup = useMemo(
+    () => new Map(venueGroups.map((group) => [group.key, group])),
+    [venueGroups],
+  );
+
+  const features = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point, VenueFeatureProperties>>(
+    () => ({
+      type: 'FeatureCollection',
+      features: venueGroups.map((group) => ({
+        type: 'Feature',
+        id: group.key,
+        properties: {
+          key: group.key,
+          color: getShowTypeColor(group.shows[0]?.show_type ?? null),
+        },
+        geometry: {
+          type: 'Point',
+          coordinates: [group.longitude, group.latitude],
+        },
+      })),
+    }),
+    [venueGroups],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const initMap = async () => {
+      const token = await getMapboxToken();
+      if (cancelled) return;
+
+      if (!token) {
+        setError('Mapbox token is required to render the map.');
+        return;
+      }
+
+      if (!mapContainerRef.current || mapRef.current) return;
+
+      mapboxgl.accessToken = token;
+
+      const map = new mapboxgl.Map({
+        container: mapContainerRef.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: NYC_CENTER,
+        zoom: 12,
+        minZoom: 6,
+        maxZoom: 18,
+      });
+
+      mapRef.current = map;
+      map.addControl(new mapboxgl.NavigationControl({ visualizePitch: false }), 'top-right');
+
+      map.on('load', () => {
+        map.addSource('audience-shows', {
+          type: 'geojson',
+          data: EMPTY_FEATURE_COLLECTION,
+          cluster: true,
+          clusterMaxZoom: 13,
+          clusterRadius: 48,
+        });
+
+        map.addLayer({
+          id: 'audience-show-clusters',
+          type: 'circle',
+          source: 'audience-shows',
+          filter: ['has', 'point_count'],
+          paint: {
+            'circle-color': ['step', ['get', 'point_count'], '#f97316', 10, '#f5c542', 50, '#ef4444'],
+            'circle-radius': ['step', ['get', 'point_count'], 18, 10, 22, 50, 26],
+            'circle-stroke-color': '#ffffff',
+            'circle-stroke-width': 2,
+          },
+        });
+
+        map.addLayer({
+          id: 'audience-show-cluster-count',
+          type: 'symbol',
+          source: 'audience-shows',
+          filter: ['has', 'point_count'],
+          layout: {
+            'text-field': ['get', 'point_count_abbreviated'],
+            'text-size': 13,
+            'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+          },
+          paint: {
+            'text-color': '#111827',
+          },
+        });
+
+        map.addLayer({
+          id: 'audience-show-pins',
+          type: 'circle',
+          source: 'audience-shows',
+          filter: ['!', ['has', 'point_count']],
+          paint: {
+            'circle-color': ['get', 'color'],
+            'circle-radius': 8,
+            'circle-stroke-color': '#ffffff',
+            'circle-stroke-width': 2,
+          },
+        });
+
+        map.addLayer({
+          id: 'audience-show-pin-core',
+          type: 'circle',
+          source: 'audience-shows',
+          filter: ['!', ['has', 'point_count']],
+          paint: {
+            'circle-color': '#111827',
+            'circle-radius': 3,
+            'circle-opacity': 0.7,
+          },
+        });
+
+        map.on('click', 'audience-show-clusters', (event) => {
+          const renderedFeatures = map.queryRenderedFeatures(event.point, { layers: ['audience-show-clusters'] });
+          const clusterId = renderedFeatures[0]?.properties?.cluster_id;
+          const source = getSource(map);
+          if (clusterId === undefined || !source) return;
+
+          source.getClusterExpansionZoom(clusterId, (zoomError, zoom) => {
+            if (zoomError || zoom === undefined) return;
+            const coordinates = (renderedFeatures[0].geometry as GeoJSON.Point).coordinates as [number, number];
+            map.easeTo({ center: coordinates, zoom });
+          });
+        });
+
+        map.on('click', 'audience-show-pins', (event) => {
+          const key = event.features?.[0]?.properties?.key;
+          const group = typeof key === 'string' ? venueGroupLookup.get(key) : null;
+          if (group) {
+            setBottomSheet({ venueName: group.venueName, shows: group.shows });
+          }
+        });
+
+        ['audience-show-clusters', 'audience-show-pins'].forEach((layerId) => {
+          map.on('mouseenter', layerId, () => {
+            map.getCanvas().style.cursor = 'pointer';
+          });
+          map.on('mouseleave', layerId, () => {
+            map.getCanvas().style.cursor = '';
+          });
+        });
+
+        setMapReady(true);
+      });
+    };
+
+    initMap();
+
+    return () => {
+      cancelled = true;
+      mapRef.current?.remove();
+      mapRef.current = null;
+      setMapReady(false);
+    };
+  }, [venueGroupLookup]);
+
+  useEffect(() => {
+    const source = mapRef.current ? getSource(mapRef.current) : undefined;
+    source?.setData(features);
+  }, [features, mapReady]);
 
   return (
     <div className="relative w-full h-full">
-      {/* Legend */}
-      <div className="hidden md:block absolute top-3 left-3 z-[1000] bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 text-xs space-y-1">
+      <div className="hidden md:block absolute top-3 left-3 z-10 rounded-lg border border-border bg-white/95 px-3 py-2 text-xs shadow-sm space-y-1">
         {SHOW_TYPE_COLORS.map(({ label, color }) => (
           <div key={label} className="flex items-center gap-2">
             <span
               className="inline-block w-3 h-3 rounded-full border border-slate-600 flex-shrink-0"
               style={{ backgroundColor: color }}
             />
-            <span className="text-slate-300">{label}</span>
+            <span className="text-slate-700">{label}</span>
           </div>
         ))}
-        <div className="border-t border-slate-700 pt-1 mt-1 space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="inline-block w-3 h-3 rounded-full bg-sky-500 border border-slate-600 flex-shrink-0" />
-            <span className="text-slate-400">Citi Bike (zoom 16+)</span>
-          </div>
-          <div className="text-slate-500 text-[9px]">Subway lines always · stations at 14+ · service at 16+</div>
-        </div>
       </div>
 
-      {/* Loading overlay */}
-      {isLoading && (
-        <div className="absolute top-3 right-12 z-[1000] bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-slate-300">
-          {progress
-            ? `Locating venues… ${progress.current}/${progress.total}`
-            : 'Loading shows…'}
+      {venueGroups.length > 0 && (
+        <div className="absolute bottom-8 left-3 z-10 rounded-lg border border-border bg-white/95 px-3 py-1.5 text-xs text-slate-700 shadow-sm">
+          {venueGroups.length} venue{venueGroups.length !== 1 ? 's' : ''} mapped · upcoming
         </div>
       )}
 
-      {/* Show count badge */}
-      {!isLoading && loadedCount > 0 && (
-        <div className="absolute bottom-8 left-3 z-[1000] bg-black/70 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs text-slate-300">
-          {loadedCount} venue{loadedCount !== 1 ? 's' : ''} · next 5 days
+      {shows.length > 0 && venueGroups.length === 0 && mapReady && (
+        <div className="absolute inset-x-4 top-20 z-10 flex justify-center pointer-events-none">
+          <div className="rounded-lg border border-border bg-white/95 px-3 py-2 text-center text-sm text-muted-foreground shadow-sm">
+            {shows.length} upcoming show{shows.length !== 1 ? 's' : ''} found, but none have stored coordinates yet.
+          </div>
         </div>
       )}
 
       {bottomSheet && (
         <>
-          <div className="absolute inset-0 z-[1001]" onClick={() => setBottomSheet(null)} />
-          <div className="absolute bottom-0 left-0 right-0 z-[1002] bg-white rounded-t-2xl shadow-2xl flex flex-col max-h-[65vh]">
+          <div className="absolute inset-0 z-20" onClick={() => setBottomSheet(null)} />
+          <div className="absolute bottom-0 left-0 right-0 z-30 bg-white rounded-t-2xl shadow-2xl flex flex-col max-h-[65vh]">
             <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
               <div className="w-10 h-1 rounded-full bg-slate-300" />
             </div>
@@ -482,7 +289,9 @@ const AudienceShowsMap: React.FC<AudienceShowsMapProps> = ({ shows }) => {
               <button
                 onClick={() => setBottomSheet(null)}
                 className="text-slate-400 hover:text-slate-600 text-lg leading-none flex-shrink-0"
-              >✕</button>
+              >
+                x
+              </button>
             </div>
             <div className="overflow-y-auto flex-1 px-4 py-3 space-y-4">
               {bottomSheet.shows.map((show, i) => {
@@ -490,7 +299,7 @@ const AudienceShowsMap: React.FC<AudienceShowsMapProps> = ({ shows }) => {
                 const price = formatPrice(show);
                 const ticketUrl = show.external_ticket_url || show.ticket_url;
                 return (
-                  <div key={i} className={`pb-3 ${i < bottomSheet.shows.length - 1 ? 'border-b border-slate-100' : ''}`}>
+                  <div key={show.id} className={`pb-3 ${i < bottomSheet.shows.length - 1 ? 'border-b border-slate-100' : ''}`}>
                     {show.show_type && (
                       <span className="text-[10px] uppercase tracking-wider text-slate-400">{show.show_type}</span>
                     )}
@@ -515,31 +324,17 @@ const AudienceShowsMap: React.FC<AudienceShowsMapProps> = ({ shows }) => {
         </>
       )}
 
-      <MapContainer
-        center={defaultCenter}
-        zoom={11}
-        maxZoom={18}
-        minZoom={10}
-        preferCanvas={true}
-        className="h-full w-full z-0"
-        zoomControl={false}
-        attributionControl={true}
-      >
-        <TileLayer url={CARTO_DARK_URL} attribution={CARTO_ATTRIBUTION} subdomains="abcd" />
-        <ZoomControlTopRight />
-        <SubwayLayer />
-        <CitiBikeLayer />
-        {serviceReady && geocodingService.current && (
-          <ShowMarkersLayer
-            venueGroups={venueGroups}
-            geocodingService={geocodingService.current}
-            onProgress={setProgress}
-            onLoading={setIsLoading}
-            onCount={setLoadedCount}
-            onVenueClick={(venueName, shows) => setBottomSheet({ venueName, shows })}
-          />
-        )}
-      </MapContainer>
+      <div ref={mapContainerRef} className="h-full w-full" />
+      {error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white/80 px-4 text-center text-sm text-muted-foreground">
+          {error}
+        </div>
+      )}
+      {!mapReady && !error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-muted-foreground">
+          Loading map...
+        </div>
+      )}
     </div>
   );
 };

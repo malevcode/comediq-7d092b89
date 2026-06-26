@@ -1,8 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { OpenMic } from "@/types/openMic";
 
-const CACHE_KEY = "comediq_open_mics_v3";
-const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days — static data
+const CACHE_KEY = "comediq_open_mics_v4";
+const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days; public mic data is exported at build time.
+
+function hasCoordinates(mic: OpenMic): boolean {
+  return mic.latitude !== null
+    && mic.latitude !== undefined
+    && mic.longitude !== null
+    && mic.longitude !== undefined;
+}
+
+function hasUsableCoordinateData(data: OpenMic[]): boolean {
+  return data.length === 0 || data.some(hasCoordinates);
+}
 
 function loadCached(): OpenMic[] | null {
   try {
@@ -10,6 +21,7 @@ function loadCached(): OpenMic[] | null {
     if (!raw) return null;
     const { data, savedAt } = JSON.parse(raw);
     if (Date.now() - savedAt > CACHE_TTL_MS) return null;
+    if (!Array.isArray(data) || !hasUsableCoordinateData(data)) return null;
     return data as OpenMic[];
   } catch {
     return null;
@@ -19,26 +31,30 @@ function loadCached(): OpenMic[] | null {
 function saveCache(data: OpenMic[]) {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify({ data, savedAt: Date.now() }));
-  } catch {}
+  } catch {
+    // Ignore cache write failures; /mics.json remains the source of truth for public visitors.
+  }
 }
 
 async function fetchFromStaticJson(): Promise<OpenMic[]> {
   const res = await fetch("/mics.json");
   if (!res.ok) throw new Error(`Failed to fetch /mics.json: ${res.status}`);
+
   const mics = await res.json();
-  if (!Array.isArray(mics)) {
-    throw new Error("Static mic data is invalid");
+  if (!Array.isArray(mics)) throw new Error("Static mic data is invalid");
+  if (!hasUsableCoordinateData(mics as OpenMic[])) {
+    throw new Error("Static mic data is missing coordinates");
   }
+
   return mics as OpenMic[];
 }
 
-export const useOpenMics = () => {
+export const useOpenMics = (_tableName: "open_mics_historical" = "open_mics_historical") => {
   const cached = loadCached();
 
   return useQuery({
     queryKey: ["openMics"],
     queryFn: async (): Promise<OpenMic[]> => {
-      // Serve from localStorage if available — zero network requests
       if (cached && cached.length > 0) return cached;
 
       try {
@@ -53,6 +69,8 @@ export const useOpenMics = () => {
     placeholderData: cached ?? undefined,
     staleTime: Infinity,
     gcTime: Infinity,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     retry: 1,
   });

@@ -1,346 +1,596 @@
-import React, { useEffect, useState, useCallback, useMemo, memo, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import 'leaflet.markercluster/dist/MarkerCluster.css';
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-import 'leaflet.markercluster';
-import './leaflet-dark.css';
-import { OpenMic } from '@/types/openMic';
-import { GeocodingService, GeocodingProgress, ViewportBounds } from './GeocodingService';
-import { LocationService } from './LocationService';
-import { MapLegend } from './MapLegend';
-import { MapControls } from './MapControls';
-import { getMapboxToken } from './MapInitializer';
-import { getVerificationColor, formatTime, formatCost, formatStageTime, calculateDistance, formatDistance } from './MapUtils';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import { Info } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { OpenMic } from '@/types/openMic';
+import { LocationService } from './LocationService';
+import { MapControls } from './MapControls';
+import { MapLegend } from './MapLegend';
+import { getMapboxToken } from './MapInitializer';
+import { formatCost, formatStageTime, formatTime } from './MapUtils';
 
 interface OpenMicsMapProps {
   mics: OpenMic[];
   onMicSelect: (mic: OpenMic) => void;
 }
 
-// Custom hook to create verification-colored marker icons
-const createMarkerIcon = (color: string) => {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="24" height="36">
-    <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24C24 5.4 18.6 0 12 0z" fill="${color}" stroke="#1e293b" stroke-width="1.5"/>
-    <circle cx="12" cy="12" r="5" fill="#1e293b" opacity="0.6"/>
-  </svg>`;
-  return L.divIcon({
-    html: svg,
-    className: 'leaflet-marker-custom',
-    iconSize: [24, 36],
-    iconAnchor: [12, 36],
-    popupAnchor: [0, -36],
-  });
+type MicPinStatus = 'verified' | 'warning' | 'error' | 'finished';
+type MicFeatureProperties = {
+  micId: string;
+  dotIcon: string;
+  pinIcon: string;
+  pinLabel: string;
+  timeLabel: string;
+  timePeriod: string;
 };
+type MappedMic = { mic: OpenMic; latitude: number; longitude: number };
 
-const userLocationIcon = L.divIcon({
-  html: `<div style="width:14px;height:14px;background:#3b82f6;border:3px solid white;border-radius:50%;box-shadow:0 0 8px rgba(59,130,246,0.6);"></div>`,
-  className: 'leaflet-marker-user',
-  iconSize: [14, 14],
-  iconAnchor: [7, 7],
-});
+const RECENT_VERIFICATION_DAYS = 60;
+const LONG_UNVERIFIED_DAYS = 120;
+const MINUTES_PER_DAY = 24 * 60;
+const NYC_CENTER: [number, number] = [-73.935242, 40.73061];
+const PIN_IMAGE_IDS: MicPinStatus[] = ['verified', 'warning', 'error', 'finished'];
+const PIN_ZOOM_THRESHOLD = 12.5;
+const EMPTY_FEATURE_COLLECTION: GeoJSON.FeatureCollection<GeoJSON.Point, MicFeatureProperties> = {
+  type: 'FeatureCollection',
+  features: [],
+};
+const COORDINATE_GROUP_PRECISION = 5;
 
-// MarkerCluster component using leaflet.markercluster directly
-const MarkerClusterLayer: React.FC<{
-  markers: Array<{ coordinates: [number, number]; mic: OpenMic }>;
-  onMicSelect: (mic: OpenMic) => void;
-  userLocation: [number, number] | null;
-}> = ({ markers, onMicSelect, userLocation }) => {
-  const map = useMap();
-  const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null);
-
-  useEffect(() => {
-    if (clusterGroupRef.current) {
-      map.removeLayer(clusterGroupRef.current);
-    }
-
-    const cluster = L.markerClusterGroup({
-      maxClusterRadius: 50,
-      spiderfyOnMaxZoom: true,
-      showCoverageOnHover: false,
-      zoomToBoundsOnClick: true,
-      disableClusteringAtZoom: 16,
-      iconCreateFunction: (clusterObj) => {
-        const count = clusterObj.getChildCount();
-        let size = 'small';
-        let px = 36;
-        if (count >= 50) { size = 'large'; px = 48; }
-        else if (count >= 10) { size = 'medium'; px = 42; }
-        return L.divIcon({
-          html: `<div class="cluster-icon cluster-${size}"><span>${count}</span></div>`,
-          className: 'marker-cluster-custom',
-          iconSize: L.point(px, px),
-        });
-      },
-    });
-
-    markers.forEach(({ coordinates, mic }) => {
-      const [lng, lat] = coordinates;
-      const color = getVerificationColor(mic.lastVerified);
-      const icon = createMarkerIcon(color);
-
-      let distanceText = '';
-      if (userLocation) {
-        const [userLng, userLat] = userLocation;
-        const distanceMiles = calculateDistance(userLat, userLng, lat, lng);
-        distanceText = formatDistance(distanceMiles);
-      }
-
-      const marker = L.marker([lat, lng], { icon });
-
-      marker.bindPopup(`
-        <div class="p-2 text-sm" style="min-width:180px">
-          <h3 class="font-bold text-base mb-1">${mic.openMic}</h3>
-          <p class="text-gray-400 mb-1">${mic.venueName}</p>
-          ${distanceText ? `<p class="text-blue-400 font-medium">📍 ${distanceText} away</p>` : ''}
-          <p>${formatTime(mic.startTime)} – ${formatTime(mic.latestEndTime)}</p>
-          <p>${formatCost(mic.cost)}</p>
-          <p>Stage time: ${formatStageTime(mic.stageTime)}</p>
-        </div>
-      `, { closeButton: false, className: 'dark-popup' });
-
-      marker.on('click', () => {
-        onMicSelect(mic);
-      });
-
-      cluster.addLayer(marker);
-    });
-
-    map.addLayer(cluster);
-    clusterGroupRef.current = cluster;
-
-    return () => {
-      if (clusterGroupRef.current) {
-        map.removeLayer(clusterGroupRef.current);
-      }
-    };
-  }, [markers, map, onMicSelect, userLocation]);
-
+function parseCoordinate(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
   return null;
-};
+}
 
-// Component to handle viewport-based loading
-const ViewportLoader: React.FC<{
-  mics: OpenMic[];
-  geocodingService: GeocodingService;
-  onMarkersLoaded: (markers: Array<{ coordinates: [number, number]; mic: OpenMic }>) => void;
-  onLoadingChange: (loading: boolean) => void;
-  onProgressChange: (progress: GeocodingProgress | null) => void;
-  onError: (error: string | null) => void;
-  onCountChange: (count: number) => void;
-}> = ({ mics, geocodingService, onMarkersLoaded, onLoadingChange, onProgressChange, onError, onCountChange }) => {
-  const map = useMap();
-  const loadedRef = useRef(false);
+function parseLastVerifiedDate(value: unknown, currentYear = new Date().getFullYear()): Date | null {
+  if (typeof value !== 'string') return null;
 
-  const loadMarkers = useCallback(async () => {
-    const bounds = map.getBounds();
-    const viewportBounds: ViewportBounds = {
-      north: bounds.getNorth(),
-      south: bounds.getSouth(),
-      east: bounds.getEast(),
-      west: bounds.getWest(),
-    };
+  const normalizedValue = value.trim();
+  if (!normalizedValue || /unverified/i.test(normalizedValue)) return null;
 
-    onLoadingChange(true);
-    onError(null);
+  const isoMatch = normalizedValue.match(/\d{4}-\d{2}-\d{2}(?:t[^\s]+)?/i);
+  if (isoMatch) {
+    const parsed = new Date(isoMatch[0]);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
 
-    try {
-      const micsInViewport = await geocodingService.getMicsInViewport(
-        mics,
-        viewportBounds,
-        onProgressChange
-      );
-      onMarkersLoaded(micsInViewport);
-      onCountChange(micsInViewport.length);
-    } catch (err) {
-      onError('Failed to load markers for current area');
-    } finally {
-      onLoadingChange(false);
-      onProgressChange(null);
+  const dateMatch = normalizedValue.match(/(\d{1,2})[/.](\d{1,2})(?:[/.](\d{2,4}))?/);
+  if (!dateMatch) return null;
+
+  const month = Number(dateMatch[1]);
+  const day = Number(dateMatch[2]);
+  const rawYear = dateMatch[3] ? Number(dateMatch[3]) : currentYear;
+  const year = rawYear < 100 ? 2000 + rawYear : rawYear;
+  const parsed = new Date(year, month - 1, day);
+
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function getDaysSince(date: Date, now = new Date()): number {
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  return Math.floor((startOfToday - startOfDate) / (MINUTES_PER_DAY * 60 * 1000));
+}
+
+function getMicPinStatus(mic: OpenMic): MicPinStatus {
+  if (hasMicAlreadyHappenedToday(mic)) {
+    return 'finished';
+  }
+
+  const status = mic.status?.toLowerCase();
+  const lastVerified = parseLastVerifiedDate(mic.lastVerified);
+  const daysSinceVerified = lastVerified ? getDaysSince(lastVerified) : null;
+
+  if (status === 'verified' && daysSinceVerified !== null && daysSinceVerified <= RECENT_VERIFICATION_DAYS) {
+    return 'verified';
+  }
+
+  if (daysSinceVerified !== null && daysSinceVerified <= LONG_UNVERIFIED_DAYS) {
+    return 'warning';
+  }
+
+  return 'error';
+}
+
+function getMicWeekdayIndex(mic: OpenMic): number | null {
+  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const index = daysOfWeek.findIndex((day) => day.toLowerCase() === mic.day?.trim().toLowerCase());
+  return index === -1 ? null : index;
+}
+
+function parseMicStartMinutes(mic: OpenMic): number | null {
+  const rawTime = mic.startTime;
+  if (!rawTime) return null;
+
+  const match = rawTime.trim().toLowerCase().match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
+  if (!match) return null;
+
+  const rawHour = Number(match[1]);
+  const minutes = Number(match[2] ?? 0);
+  const period = match[3];
+
+  if (!Number.isFinite(rawHour) || !Number.isFinite(minutes)) return null;
+
+  let hour = rawHour;
+  if (period === 'pm' && hour < 12) {
+    hour += 12;
+  } else if (period === 'am' && hour === 12) {
+    hour = 0;
+  }
+
+  return hour * 60 + minutes;
+}
+
+function hasMicAlreadyHappenedToday(mic: OpenMic, date = new Date()): boolean {
+  if (getMicWeekdayIndex(mic) !== date.getDay()) return false;
+
+  const startMinutes = parseMicStartMinutes(mic);
+  if (startMinutes === null) return false;
+
+  return startMinutes < date.getHours() * 60 + date.getMinutes();
+}
+
+function getCoordinateGroupKey({ latitude, longitude }: MappedMic): string {
+  return `${latitude.toFixed(COORDINATE_GROUP_PRECISION)}:${longitude.toFixed(COORDINATE_GROUP_PRECISION)}`;
+}
+
+function getMicPinSortMinutes(mic: OpenMic): number {
+  return parseMicStartMinutes(mic) ?? Number.MAX_SAFE_INTEGER;
+}
+
+function getRepresentativeMappedMic(mics: MappedMic[]): MappedMic {
+  const [representativeMic] = [...mics].sort((a, b) => {
+    const aIsFinished = hasMicAlreadyHappenedToday(a.mic);
+    const bIsFinished = hasMicAlreadyHappenedToday(b.mic);
+
+    if (aIsFinished !== bIsFinished) {
+      return aIsFinished ? 1 : -1;
     }
-  }, [mics, geocodingService, map, onMarkersLoaded, onLoadingChange, onProgressChange, onError, onCountChange]);
 
-  // Load on initial mount
-  useEffect(() => {
-    if (!loadedRef.current) {
-      // Wait for map to be ready
-      const timer = setTimeout(() => {
-        loadMarkers();
-        loadedRef.current = true;
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [loadMarkers]);
-
-  // Load on viewport change
-  useMapEvents({
-    moveend: loadMarkers,
-    zoomend: loadMarkers,
+    return getMicPinSortMinutes(a.mic) - getMicPinSortMinutes(b.mic);
   });
 
-  return null;
-};
+  return representativeMic ?? mics[0];
+}
 
-// Recenter helper
-const RecenterMap: React.FC<{ center: [number, number] | null }> = ({ center }) => {
-  const map = useMap();
-  useEffect(() => {
-    if (center) {
-      // Leaflet uses [lat, lng]
-      map.flyTo([center[1], center[0]], 14, { duration: 1.5 });
+function getRepresentativeMappedMics(mics: MappedMic[]): MappedMic[] {
+  const groupsByCoordinate = new Map<string, MappedMic[]>();
+
+  mics.forEach((mappedMic) => {
+    const key = getCoordinateGroupKey(mappedMic);
+    const groupedMics = groupsByCoordinate.get(key);
+
+    if (groupedMics) {
+      groupedMics.push(mappedMic);
+    } else {
+      groupsByCoordinate.set(key, [mappedMic]);
     }
-  }, [center, map]);
-  return null;
-};
+  });
 
-const OSM_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+  return Array.from(groupsByCoordinate.values()).map(getRepresentativeMappedMic);
+}
+
+function getPinLabel(timeStr: string): string {
+  const { value, period } = getPinTimeParts(timeStr);
+  return period ? `${value}\n${period}` : value;
+}
+
+function getPinTimeParts(timeStr: string): { value: string; period: string } {
+  const formatted = formatTime(timeStr).trim();
+  const match = formatted.match(/^(.+?)\s*(AM|PM)$/i);
+  if (!match) return { value: formatted || 'OPEN', period: '' };
+  return { value: match[1].trim(), period: match[2].toUpperCase() };
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function buildPopupHtml(mic: OpenMic): string {
+  return `
+    <div style="min-width:180px;padding:8px;font-size:13px;color:#0f172a;">
+      <div style="font-weight:800;font-size:15px;margin-bottom:3px;">${escapeHtml(mic.openMic)}</div>
+      <div style="color:#475569;margin-bottom:6px;">${escapeHtml(mic.venueName)}</div>
+      <div>${escapeHtml(formatTime(mic.startTime))} - ${escapeHtml(formatTime(mic.latestEndTime))}</div>
+      <div>${escapeHtml(formatCost(mic.cost))}</div>
+      <div>Stage time: ${escapeHtml(formatStageTime(mic.stageTime))}</div>
+    </div>
+  `;
+}
+
+function loadMapImage(map: mapboxgl.Map, id: string, url: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (map.hasImage(id)) {
+      resolve();
+      return;
+    }
+
+    map.loadImage(url, (error, image) => {
+      if (error || !image) {
+        reject(error ?? new Error(`Unable to load ${url}`));
+        return;
+      }
+
+      if (!map.hasImage(id)) {
+        map.addImage(id, image);
+      }
+      resolve();
+    });
+  });
+}
+
+function getSource(map: mapboxgl.Map): mapboxgl.GeoJSONSource | undefined {
+  return map.getSource('open-mics') as mapboxgl.GeoJSONSource | undefined;
+}
 
 const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
-  const { user } = useAuth();
-  const geocodingService = useRef<GeocodingService | null>(null);
+  const mapShellRef = useRef<HTMLDivElement | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const popupRef = useRef<mapboxgl.Popup | null>(null);
+  const userLocationMarkerRef = useRef<mapboxgl.Marker | null>(null);
+  const hasRequestedLocationRef = useRef(false);
+  const micLookupRef = useRef(new Map<string, OpenMic>());
+  const onMicSelectRef = useRef(onMicSelect);
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [geocodingProgress, setGeocodingProgress] = useState<GeocodingProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [mapReady, setMapReady] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
-  const [loadedMicCount, setLoadedMicCount] = useState(0);
-  const [markers, setMarkers] = useState<Array<{ coordinates: [number, number]; mic: OpenMic }>>([]);
-  const [serviceReady, setServiceReady] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Initialize geocoding service (still needs Mapbox token for geocoding API)
   useEffect(() => {
-    const init = async () => {
+    onMicSelectRef.current = onMicSelect;
+  }, [onMicSelect]);
+
+  const mappedMics = useMemo(
+    () =>
+      mics.flatMap((mic) => {
+        const latitude = parseCoordinate(mic.latitude);
+        const longitude = parseCoordinate(mic.longitude);
+        if (latitude === null || longitude === null) return [];
+        return [{ mic, latitude, longitude }];
+      }),
+    [mics],
+  );
+
+  const representativeMappedMics = useMemo(() => getRepresentativeMappedMics(mappedMics), [mappedMics]);
+
+  const micGeoJson = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point, MicFeatureProperties>>(
+    () => ({
+      type: 'FeatureCollection',
+      features: representativeMappedMics.map(({ mic, latitude, longitude }) => {
+        const pinStatus = getMicPinStatus(mic);
+        const timeParts = getPinTimeParts(mic.startTime);
+        return {
+          type: 'Feature',
+          id: mic.uniqueIdentifier,
+          properties: {
+            micId: mic.uniqueIdentifier,
+            dotIcon: `mic-dot-${pinStatus}`,
+            pinIcon: `mic-pin-${pinStatus}`,
+            pinLabel: getPinLabel(mic.startTime),
+            timeLabel: timeParts.value,
+            timePeriod: timeParts.period,
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: [longitude, latitude],
+          },
+        };
+      }),
+    }),
+    [representativeMappedMics],
+  );
+
+  useEffect(() => {
+    micLookupRef.current = new Map(representativeMappedMics.map(({ mic }) => [mic.uniqueIdentifier, mic]));
+  }, [representativeMappedMics]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const initMap = async () => {
       const token = await getMapboxToken();
-      if (token) {
-        geocodingService.current = new GeocodingService(token);
+      if (cancelled) return;
+
+      if (!token) {
+        setError('Mapbox token is required to render the map.');
+        return;
       }
-      setServiceReady(true);
+
+      mapboxgl.accessToken = token;
+
+      if (!mapContainerRef.current || mapRef.current) return;
+
+      const map = new mapboxgl.Map({
+        container: mapContainerRef.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: NYC_CENTER,
+        zoom: 12.8,
+        minZoom: 6,
+        maxZoom: 18,
+      });
+
+      mapRef.current = map;
+      map.addControl(new mapboxgl.NavigationControl({ visualizePitch: false }), 'top-right');
+
+      map.on('load', async () => {
+        try {
+          await Promise.all(
+            PIN_IMAGE_IDS.flatMap((status) => [
+              loadMapImage(map, `mic-pin-${status}`, `/map-pins/pin-${status}.png`),
+              loadMapImage(map, `mic-dot-${status}`, `/map-pins/dot-${status}.png`),
+            ]),
+          );
+        } catch (loadError) {
+          console.warn('Failed to load map pin images:', loadError);
+        }
+
+        map.addSource('open-mics', {
+          type: 'geojson',
+          data: EMPTY_FEATURE_COLLECTION,
+        });
+
+        map.addLayer({
+          id: 'open-mic-dots',
+          type: 'symbol',
+          source: 'open-mics',
+          maxzoom: PIN_ZOOM_THRESHOLD,
+          layout: {
+            'icon-image': ['get', 'dotIcon'],
+            'icon-size': 0.13,
+            'icon-allow-overlap': true,
+            'icon-ignore-placement': true,
+          },
+        });
+
+        map.addLayer({
+          id: 'open-mic-pins',
+          type: 'symbol',
+          source: 'open-mics',
+          minzoom: PIN_ZOOM_THRESHOLD,
+          layout: {
+            'icon-image': ['get', 'pinIcon'],
+            'icon-size': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                12.5, 0.14,  // At 12.5 zoom, pins are slightly smaller (14%)
+                15.0, 0.18,  // At 15.0 zoom, pins reach standard display size (18%)
+                18.0, 0.26   // At maximum 18.0 zoom, pins grow comfortably larger (26%)
+            ],
+            'icon-anchor': 'bottom',
+            'icon-allow-overlap': true,
+            'icon-ignore-placement': true,
+            'text-field': [
+              'format',
+              ['to-string', ['get', 'timeLabel']],
+              { 'font-scale': 1.08 },
+              '\n',
+              {},
+              ['to-string', ['get', 'timePeriod']],
+              { 'font-scale': 0.6 },
+            ],
+            'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular'],
+            'text-size': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                12.5, 9,    // Scale down text slightly at the starting threshold to fit the smaller pin asset
+                15.0, 12,   // Standard readable font scale matching your middle zoom
+                18.0, 17    // Expand the font to match the larger asset when zoomed all th
+            ],
+            'text-line-height': 1.25,
+            'text-anchor': 'center',
+            'text-offset': [0, -1.9],
+            'text-padding': 10,
+            'text-allow-overlap': false,
+            'text-ignore-placement': false,
+          },
+          paint: {
+            'text-color': '#111827',
+            'text-halo-color': 'rgba(255,255,255,0.55)',
+            'text-halo-width': 0.5,
+          },
+        });
+
+        const handleMicLayerClick = (event: mapboxgl.MapLayerMouseEvent) => {
+          const feature = event.features?.[0];
+          const micId = feature?.properties?.micId;
+          const mic = typeof micId === 'string' ? micLookupRef.current.get(micId) : null;
+          const coordinates = feature?.geometry.type === 'Point' ? feature.geometry.coordinates as [number, number] : null;
+
+          if (!mic || !coordinates) return;
+
+          popupRef.current?.remove();
+          popupRef.current = new mapboxgl.Popup({
+            closeButton: false,
+            className: 'comediq-map-popup',
+            offset: {
+              top: [0, 12],
+              'top-left': [12, 12],
+              'top-right': [-12, 12],
+              bottom: [0, -50],
+              'bottom-left': [12, -56],
+              'bottom-right': [-12, -56],
+              left: [18, -24],
+              right: [-18, -24],
+            },
+          })
+            .setLngLat(coordinates)
+            .setHTML(buildPopupHtml(mic))
+            .addTo(map);
+
+          onMicSelectRef.current(mic);
+        };
+
+        map.on('click', 'open-mic-dots', (event) => {
+          const feature = event.features?.[0];
+          const coordinates = feature?.geometry.type === 'Point' ? feature.geometry.coordinates as [number, number] : null;
+          if (!coordinates) return;
+          map.easeTo({ center: coordinates, zoom: PIN_ZOOM_THRESHOLD + 0.8 });
+        });
+
+        map.on('click', 'open-mic-pins', handleMicLayerClick);
+
+        ['open-mic-dots', 'open-mic-pins'].forEach((layerId) => {
+          map.on('mouseenter', layerId, () => {
+            map.getCanvas().style.cursor = 'pointer';
+          });
+          map.on('mouseleave', layerId, () => {
+            map.getCanvas().style.cursor = '';
+          });
+        });
+
+        setMapReady(true);
+      });
     };
-    init();
+
+    initMap();
+
+    return () => {
+      cancelled = true;
+      popupRef.current?.remove();
+      userLocationMarkerRef.current?.remove();
+      userLocationMarkerRef.current = null;
+      mapRef.current?.remove();
+      mapRef.current = null;
+      setMapReady(false);
+    };
   }, []);
 
-  // Get user location for logged-in users
   useEffect(() => {
-    if (user && LocationService.isLocationSupported()) {
-      recenterOnUserLocation();
+    const source = mapRef.current ? getSource(mapRef.current) : undefined;
+    source?.setData(micGeoJson);
+  }, [micGeoJson, mapReady]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === mapShellRef.current);
+      window.setTimeout(() => mapRef.current?.resize(), 75);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(async () => {
+    const shell = mapShellRef.current;
+    if (!shell) return;
+
+    try {
+      if (document.fullscreenElement === shell) {
+        await document.exitFullscreen();
+      } else {
+        await shell.requestFullscreen();
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to toggle fullscreen.');
     }
-  }, [user]);
+  }, []);
+
+  const showUserLocationMarker = useCallback((coordinates: [number, number]) => {
+    if (!mapRef.current) return;
+
+    if (!userLocationMarkerRef.current) {
+      const markerElement = document.createElement('div');
+      markerElement.className = 'h-4 w-4 rounded-full border-2 border-white bg-[#1a5fb4] shadow-[0_0_0_6px_rgba(26,95,180,0.18)]';
+      markerElement.setAttribute('aria-label', 'Your location');
+
+      userLocationMarkerRef.current = new mapboxgl.Marker({ element: markerElement })
+        .setLngLat(coordinates)
+        .addTo(mapRef.current);
+      return;
+    }
+
+    userLocationMarkerRef.current.setLngLat(coordinates);
+  }, []);
 
   const recenterOnUserLocation = useCallback(async () => {
     if (!LocationService.isLocationSupported()) {
       setError('Geolocation is not supported by this browser.');
       return;
     }
+
     setLocationLoading(true);
     try {
-      const location = await LocationService.getUserLocation();
-      setUserLocation(location);
-    } catch (err: any) {
-      setError(err.message);
+      const [longitude, latitude] = await LocationService.getUserLocation();
+      showUserLocationMarker([longitude, latitude]);
+      mapRef.current?.flyTo({ center: [longitude, latitude], zoom: 14, essential: true });
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unable to get your location.');
     } finally {
       setLocationLoading(false);
     }
-  }, []);
+  }, [showUserLocationMarker]);
 
-  // NYC center: [lat, lng] for Leaflet
-  const defaultCenter: [number, number] = [40.730610, -73.935242];
+  useEffect(() => {
+    if (mapReady && !hasRequestedLocationRef.current && LocationService.isLocationSupported()) {
+      hasRequestedLocationRef.current = true;
+      recenterOnUserLocation();
+    }
+  }, [mapReady, recenterOnUserLocation]);
 
   return (
     <div className="w-full">
-      <div className="relative w-full h-96 rounded-lg overflow-hidden border border-border">
-        {/* Map legend */}
-        <div className="absolute top-12 left-2 z-[1000] group">
-          <div className="flex items-center gap-1 mb-1 text-xs text-muted-foreground opacity-100">
-            <Info className="w-3 h-3" />
-            <span>Legend</span>
+      <div
+        ref={mapShellRef}
+        className="relative w-full h-96 rounded-lg overflow-hidden border border-border bg-white fullscreen:h-screen fullscreen:w-screen fullscreen:rounded-none fullscreen:border-0"
+      >
+        {mapReady && (
+          <>
+            <div className="absolute top-2 left-2 z-10 group">
+              <div className="flex items-center gap-1 mb-1 text-xs text-muted-foreground opacity-100">
+                <Info className="w-3 h-3" />
+                <span>Legend</span>
+              </div>
+              <div className="opacity-0 group-hover:opacity-90 transition-opacity duration-200">
+                <MapLegend />
+              </div>
+            </div>
+          </>
+        )}
+
+        <div ref={mapContainerRef} className="h-full w-full" />
+
+        {error && !mapReady && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/80 px-4 text-center text-sm text-muted-foreground">
+            {error}
           </div>
-          <div className="opacity-0 group-hover:opacity-80 transition-opacity duration-200">
-            <MapLegend />
+        )}
+
+        {!mapReady && !error && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-muted-foreground">
+            Loading map...
           </div>
-        </div>
+        )}
 
-        <MapContainer
-          center={defaultCenter}
-          zoom={10}
-          maxZoom={18}
-          minZoom={6}
-          preferCanvas={true}
-          className="h-full w-full z-0"
-          zoomControl={false}
-          attributionControl={true}
-        >
-          <TileLayer
-            url={OSM_TILE_URL}
-            attribution={OSM_ATTRIBUTION}
+        {mapReady && (
+          <MapControls
+            onRecenter={recenterOnUserLocation}
+            onToggleFullscreen={toggleFullscreen}
+            locationLoading={locationLoading}
+            isFullscreen={isFullscreen}
+            error={error}
+            onDismissError={() => setError(null)}
+            loadedMicCount={representativeMappedMics.length}
+            totalMicCount={mics.length}
+            countLabel="pins mapped"
+            backgroundLoading={false}
           />
-
-          {/* Zoom control in top-right */}
-          <ZoomControlTopRight />
-
-          {/* Recenter when user location changes */}
-          <RecenterMap center={userLocation} />
-
-          {/* Viewport-based marker loading */}
-          {serviceReady && geocodingService.current && (
-            <ViewportLoader
-              mics={mics}
-              geocodingService={geocodingService.current}
-              onMarkersLoaded={setMarkers}
-              onLoadingChange={setIsLoading}
-              onProgressChange={setGeocodingProgress}
-              onError={setError}
-              onCountChange={setLoadedMicCount}
-            />
-          )}
-
-          {/* Clustered markers */}
-          <MarkerClusterLayer
-            markers={markers}
-            onMicSelect={onMicSelect}
-            userLocation={userLocation}
-          />
-
-          {/* User location marker */}
-          {userLocation && (
-            <Marker
-              position={[userLocation[1], userLocation[0]]}
-              icon={userLocationIcon}
-            >
-              <Popup>You are here</Popup>
-            </Marker>
-          )}
-        </MapContainer>
-
-        {/* Map controls overlay */}
-        <MapControls
-          onRecenter={recenterOnUserLocation}
-          locationLoading={locationLoading}
-          isLoading={isLoading}
-          geocodingProgress={geocodingProgress}
-          error={error}
-          onDismissError={() => setError(null)}
-          loadedMicCount={loadedMicCount}
-          backgroundLoading={false}
-        />
+        )}
       </div>
     </div>
   );
-};
-
-// Small helper to place zoom control top-right
-const ZoomControlTopRight = () => {
-  const map = useMap();
-  useEffect(() => {
-    const zc = L.control.zoom({ position: 'topright' });
-    zc.addTo(map);
-    return () => { zc.remove(); };
-  }, [map]);
-  return null;
 };
 
 const arePropsEqual = (prevProps: OpenMicsMapProps, nextProps: OpenMicsMapProps) => {

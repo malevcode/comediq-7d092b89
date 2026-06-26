@@ -43,7 +43,7 @@ const CreatePosting = () => {
     return (
       <div className="min-h-screen bg-background pb-20">
         <PageHeader title="Create Posting" subtitle="Post a comedy opportunity" />
-        <div className="pt-24 px-4 max-w-2xl mx-auto text-center">
+        <div className="page-content-offset px-4 max-w-2xl mx-auto text-center">
           <p className="text-muted-foreground mb-4">You need to be logged in to create a posting.</p>
           <Button onClick={() => navigate('/auth')}>Sign In</Button>
         </div>
@@ -60,7 +60,7 @@ const CreatePosting = () => {
       <div className="min-h-screen bg-background pb-20">
         <PageHeader title="Create Posting" subtitle="Post a comedy opportunity" />
 
-        <div className="pt-24 px-4 max-w-4xl mx-auto">
+        <div className="page-content-offset px-4 max-w-4xl mx-auto">
           <Button
             variant="ghost"
             size="sm"

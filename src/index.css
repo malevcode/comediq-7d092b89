@@ -147,3 +147,27 @@ html {
 .animate-marquee-reverse {
   animation: marquee-reverse 150s linear infinite;
 }
+
+.comediq-map-popup .mapboxgl-popup-content {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 14px 32px rgb(15 23 42 / 18%);
+}
+
+.comediq-map-popup .mapboxgl-popup-tip {
+  border-top-color: white;
+  border-bottom-color: white;
+}
+
+/* Fixed header spacing: free users see ad bars, Full Pass users do not. */
+.non-subscriber-layout {
+  --page-top-offset: 9rem;
+}
+
+.subscriber-layout {
+  --page-top-offset: 7rem;
+}
+
+.page-content-offset {
+  padding-top: var(--page-top-offset);
+}

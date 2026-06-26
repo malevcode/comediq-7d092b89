@@ -13,7 +13,45 @@ import { join } from "path";
 const SUPABASE_URL = "https://wwqoztrqprqksdubjwgj.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3cW96dHJxcHJxa3NkdWJqd2dqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NDA5NzYsImV4cCI6MjA5MzUxNjk3Nn0.qYBpB5qHDyuHVfzwz6q7yzJgTUB0Xps6t_ezlh9kA9w";
 
-const COLUMNS = "unique_identifier,open_mic,day,start_time,latest_end_time,venue_name,borough,neighborhood,location,cost,stage_time,sign_up_instructions,hosts_organizers,changes_updates,last_verified,city,signup_enabled,other_rules,cover_image_url,status,frequency,submission_date,legacy_tag,signup_method,slots_enabled,slot_duration_minutes";
+const COLUMNS = [
+  "unique_identifier",
+  "open_mic",
+  "day",
+  "start_time",
+  "latest_end_time",
+  "venue_name",
+  "borough",
+  "neighborhood",
+  "location",
+  "venue_type",
+  "cost",
+  "stage_time",
+  "sign_up_instructions",
+  "hosts_organizers",
+  "changes_updates",
+  "last_verified",
+  "city",
+  "signup_enabled",
+  "other_rules",
+  "cover_image_url",
+  "status",
+  "frequency",
+  "verification_count",
+  "submission_date",
+  "legacy_tag",
+  "creator_id",
+  "signup_method",
+  "signup_url",
+  "frequency_custom_text",
+  "slots_enabled",
+  "slot_duration_minutes",
+  "latitude",
+  "longitude",
+  "geocoded_at",
+  "geocoding_provider",
+  "geocoding_score",
+  "geocoding_match_address",
+].join(",");
 
 const OUT_PATH = join(process.cwd(), "public", "mics.json");
 
@@ -28,6 +66,7 @@ function mapRow(row) {
     borough: (row.borough || "").trim(),
     neighborhood: row.neighborhood || "",
     location: row.location || "",
+    venueType: row.venue_type || "",
     cost: row.cost || "",
     stageTime: row.stage_time || "",
     signUpInstructions: row.sign_up_instructions || "",
@@ -41,11 +80,21 @@ function mapRow(row) {
     coverImageUrl: row.cover_image_url || undefined,
     status: row.status || "verified",
     frequency: row.frequency || "weekly",
+    verificationCount: row.verification_count || 0,
     submissionDate: row.submission_date || undefined,
     legacyTag: row.legacy_tag || undefined,
+    creatorId: row.creator_id || undefined,
     signupMethod: row.signup_method || undefined,
+    signupUrl: row.signup_url || undefined,
+    frequencyCustomText: row.frequency_custom_text || undefined,
     slotsEnabled: row.slots_enabled || false,
     slotDurationMinutes: row.slot_duration_minutes || 5,
+    latitude: row.latitude ?? null,
+    longitude: row.longitude ?? null,
+    geocodedAt: row.geocoded_at ?? null,
+    geocodingProvider: row.geocoding_provider ?? null,
+    geocodingScore: row.geocoding_score ?? null,
+    geocodingMatchAddress: row.geocoding_match_address ?? null,
   };
 }
 
