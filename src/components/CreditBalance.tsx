@@ -65,8 +65,12 @@ export function CreditBalance({ compact = false }: Props) {
 
   const handleManageSubscription = async () => {
     setIsOpeningPortal(true);
+    const portalReturnPath = '/profile?billing=portal';
     const { data, error } = await invokeSupabaseFunction<{ url?: string }>('create-billing-portal-session', {
-      body: { returnPath: '/profile' },
+      body: {
+        returnPath: portalReturnPath,
+        returnUrl: `${window.location.origin}${portalReturnPath}`,
+      },
     });
     setIsOpeningPortal(false);
 

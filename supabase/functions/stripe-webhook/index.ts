@@ -81,6 +81,20 @@ async function getSubscriptionUserId(subscriptionId: string | null) {
   return subscription.metadata?.supabase_user_id ?? null
 }
 
+async function updateCustomerUserMetadata(customerId: string | null, userId: string | null) {
+  if (!customerId || !userId) return
+
+  const customer = await getCustomer(customerId)
+  if (!customer || customer.metadata?.supabase_user_id === userId) return
+
+  await stripe.customers.update(customerId, {
+    metadata: {
+      ...customer.metadata,
+      supabase_user_id: userId,
+    },
+  })
+}
+
 async function activateFullPass(userId: string, customerId: string | null, subscriptionId?: string | null) {
   const { error } = await supabase
     .from('profiles')
@@ -129,7 +143,13 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     return
   }
 
+  if (subscription.cancel_at_period_end) {
+    await deactivateFullPass(customerId, subscription.id)
+    return
+  }
+
   if (subscription.status === 'active' || subscription.status === 'trialing') {
+    await updateCustomerUserMetadata(customerId, userId)
     await activateFullPass(userId, customerId, subscription.id)
     return
   }
@@ -154,12 +174,13 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const customerId = typeof session.customer === 'string' ? session.customer : null
   const email = session.customer_details?.email ?? session.customer_email
   const subscriptionId = typeof session.subscription === 'string' ? session.subscription : null
-  const userId = await getSubscriptionUserId(subscriptionId) ?? await resolveUserId(customerId, email)
+  const userId = session.client_reference_id ?? await getSubscriptionUserId(subscriptionId) ?? await resolveUserId(customerId, email)
   if (!userId) {
     console.warn(`No Supabase user found for checkout session ${session.id}`)
     return
   }
 
+  await updateCustomerUserMetadata(customerId, userId)
   await activateFullPass(userId, customerId, subscriptionId)
 }
 
@@ -172,12 +193,13 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
   }
 
   const customerId = typeof invoice.customer === 'string' ? invoice.customer : null
-  const userId = await resolveUserId(customerId, invoice.customer_email)
+  const userId = await getSubscriptionUserId(subscriptionId) ?? await resolveUserId(customerId, invoice.customer_email)
   if (!userId) {
     console.warn(`No Supabase user found for invoice ${invoice.id}`)
     return
   }
 
+  await updateCustomerUserMetadata(customerId, userId)
   await activateFullPass(userId, customerId, subscriptionId)
 }
 
