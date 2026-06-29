@@ -111,6 +111,22 @@ export default function Home() {
   const displayUpcomingMics = upcomingMics.filter((mic) =>
     mic.open_mics && String(mic.open_mics["Open Mic"] || '').trim().length > 0
   );
+  const micOfTheWeekBanners = [
+    {
+      title: "Comediq Book Me Mic",
+      description: "Highline Comedy Club stage-time opportunity",
+      href: "/book-me-mic",
+      icon: Sparkles,
+      accent: "from-amber-50 to-yellow-50 border-amber-200 text-amber-700",
+    },
+    {
+      title: "This Week's Open Mics",
+      description: "Find fresh rooms to get on stage",
+      href: "/open-mics",
+      icon: Mic2,
+      accent: "from-blue-50 to-white border-[#1a5fb4]/20 text-[#1a5fb4]",
+    },
+  ];
 
 
 
@@ -268,8 +284,10 @@ export default function Home() {
             <div className="lg:w-1/3 space-y-6">
               <Card className="border-[#1a5fb4]/20 bg-white/80 backdrop-blur">
                 <CardHeader className="bg-[#1a5fb4] rounded-t-lg">
-                  <CardTitle className="text-lg text-white">⚡ Quick Actions</CardTitle>
-                  <CardDescription className="text-white/80">Common tasks</CardDescription>
+                  <div>
+                    <CardTitle className="text-lg text-white">⚡ Quick Actions</CardTitle>
+                    <CardDescription className="text-white/80">Common tasks</CardDescription>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-2 pt-6">
                   {isSubscriber ? (
@@ -311,6 +329,39 @@ export default function Home() {
                       My Playlists
                     </Link>
                   </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="border-[#1a5fb4]/20 bg-white/80 backdrop-blur">
+                <CardHeader className="bg-[#1a5fb4] rounded-t-lg">
+                  <div>
+                    <CardTitle className="text-lg text-white">📌  Opportunities</CardTitle>
+                    <CardDescription className="text-white/80">Mics of the week</CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3 pt-6">
+                  {micOfTheWeekBanners.map((banner) => {
+                    const Icon = banner.icon;
+
+                    return (
+                      <Link
+                        key={banner.title}
+                        to={banner.href}
+                        className={`group flex items-center justify-between gap-3 rounded-lg border bg-gradient-to-r p-4 transition-all hover:-translate-y-0.5 hover:shadow-md ${banner.accent}`}
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="rounded-lg bg-white/80 p-2 shadow-sm">
+                            <Icon className="h-4 w-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-gray-900">{banner.title}</p>
+                            <p className="mt-0.5 text-xs text-gray-600">{banner.description}</p>
+                          </div>
+                        </div>
+                        <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
+                      </Link>
+                    );
+                  })}
                 </CardContent>
               </Card>
 

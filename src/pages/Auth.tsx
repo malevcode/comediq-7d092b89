@@ -91,7 +91,6 @@ const Auth = () => {
   const [resetConfirm, setResetConfirm] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [subscriptionRefreshRequested, setSubscriptionRefreshRequested] = useState(false);
 
   const otpRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null, null, null]);
   const signInHeadingRef = useRef<HTMLHeadingElement | null>(null);
@@ -104,7 +103,6 @@ const Auth = () => {
   const searchParams = new URLSearchParams(location.search);
   const nextPathParam = searchParams.get('next');
   const shouldShowPlans = searchParams.get('plans') === 'true';
-  const subscriptionSucceeded = searchParams.get('subscription') === 'success';
   const subscribeIntent = searchParams.get('subscribe') === 'true';
   const postAuthPath = nextPathParam?.startsWith('/') ? nextPathParam : '/';
   const authRedirectUrl = `${window.location.origin}/auth/sign-in?next=${encodeURIComponent(postAuthPath)}`;
@@ -117,15 +115,6 @@ const Auth = () => {
   const checkoutReturnPath = postAuthPath === '/book-me-mic' ? '/book-me-mic' : '/';
 
   // ── Redirect if already authed ────────────────────────────────────────────
-
-  useEffect(() => {
-    if (user && subscriptionSucceeded && !subscriptionRefreshRequested) {
-      setSubscriptionRefreshRequested(true);
-      refreshProfile();
-      const retryId = window.setTimeout(refreshProfile, 2000);
-      return () => window.clearTimeout(retryId);
-    }
-  }, [refreshProfile, subscriptionRefreshRequested, subscriptionSucceeded, user]);
 
   useEffect(() => {
     if (user && step !== 'reset_password' && !shouldShowPlans) navigate(postAuthPath);
@@ -530,7 +519,10 @@ const Auth = () => {
 
     setLoading(true);
     invokeSupabaseFunction<{ url?: string }>('create-checkout-session', {
-      body: { returnPath: checkoutReturnPath },
+      body: {
+        returnPath: checkoutReturnPath,
+        returnUrl: `${window.location.origin}${checkoutReturnPath}`,
+      },
     }).then(({ data, error }) => {
       setLoading(false);
 
@@ -574,6 +566,9 @@ const Auth = () => {
         <p className="text-xs font-semibold uppercase tracking-wide text-[#1a5fb4]">Paid tier</p>
         <h2 className="mt-1 text-xl font-semibold text-gray-950">Full Pass</h2>
         <h2 className="mt-1 text-2xl font-bold text-gray-950">$20<span className="ml-1 text-base font-normal text-gray-700">/month</span></h2>
+        <div className="mt-2 inline-flex rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-yellow-800">
+          First 3 months free with promo code
+        </div>
         <button
           type="button"
           onClick={handleSubscribe}
