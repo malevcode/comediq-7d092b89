@@ -366,6 +366,13 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
               <span className="flex">
                 {mic.signUpInstructions ? makeLinksClickable(mic.signUpInstructions) : 'N/A'}
               </span>
+              <Link
+                to={linkManager.micSignup(mic)}
+                className="ml-2 whitespace-nowrap font-semibold text-orange-700 hover:underline"
+                onClick={e => e.stopPropagation()}
+              >
+                Open Comediq sheet
+              </Link>
             </div>
             <div className="text-xs">
               <a href={getMapUrl(mic.location, mic.venueName)} target="_blank" rel="noopener noreferrer" className="flex flex-row gap-2 items-center hover:underline font-normal">
@@ -387,19 +394,17 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
               </div>
             )}
             <div className="flex flex-col gap-2">
-              {mic.signupEnabled && (
-                <Button
-                  size="sm"
-                  variant="default"
-                  className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
-                  asChild
-                >
-                  <Link to={linkManager.micSignup(mic)}>
-                    <UserRoundCheck className="w-4 h-4" />
-                    Sign Up for Spots
-                  </Link>
-                </Button>
-              )}
+              <Button
+                size="sm"
+                variant="default"
+                className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
+                asChild
+              >
+                <Link to={linkManager.micSignup(mic)}>
+                  <UserRoundCheck className="w-4 h-4" />
+                  Sign Up for Spots
+                </Link>
+              </Button>
               {user && (
                 <Button
                   size="sm"

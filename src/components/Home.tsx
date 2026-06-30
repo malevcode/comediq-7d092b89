@@ -13,8 +13,7 @@ import Header from "./Header";
 import { useSavedMics } from "@/hooks/useSavedMics";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useMicPlaylists } from "@/hooks/useMicPlaylists";
-
-
+import { useUserSignups } from "@/hooks/useUserSignups";
 
 // Custom hook to fetch user's upcoming shows (from Shows.tsx)
 function useUserShows(userId) {
@@ -106,6 +105,7 @@ export default function Home() {
   const { savedMics } = useSavedMics();
   const { data: likedMics = [] } = useUserLikedMics();
   const { playlists } = useMicPlaylists();
+  const { data: userSignups = [] } = useUserSignups(user?.id);
   const navigate = useNavigate();
   const isSubscriber = subscriptionPlan !== 'free';
   const displayUpcomingMics = upcomingMics.filter((mic) =>
@@ -224,8 +224,8 @@ export default function Home() {
                   </CardContent>
                 </Card>
 
-                {/* Saved + Liked - 2-column row */}
-                <div className="grid grid-cols-2 gap-3">
+                {/* Saved + Liked + Signed Up - 3-column row */}
+                <div className="grid grid-cols-3 gap-3">
                   <Link to="/profile?tab=saved">
                     <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer h-full">
                       <CardContent className="p-3">
@@ -251,6 +251,21 @@ export default function Home() {
                           <div className="min-w-0">
                             <div className="text-xl font-bold text-[#1a5fb4]">{likedMics.length}</div>
                             <div className="text-xs text-[#1a5fb4]/70 font-medium whitespace-nowrap">Liked Mics</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                  <Link to="/profile?tab=signups">
+                    <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer h-full">
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 bg-[#1a5fb4]/60 rounded-lg shrink-0">
+                            <Heart className="h-4 w-4 text-white" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xl font-bold text-[#1a5fb4]">{userSignups.length}</div>
+                            <div className="text-xs text-[#1a5fb4]/70 font-medium whitespace-nowrap">Signed Up Mics</div>
                           </div>
                         </div>
                       </CardContent>
