@@ -52,10 +52,31 @@ export async function getOrCreateNextEvent(micId: string, micDay: string, micSta
     return existingEvents[0];
   }
 
-  const { data: hostId, error: hostError } = await (supabase as any)
-    .rpc('get_or_create_system_host', { mic_id_param: micId });
+  const { data: existingHost, error: existingHostError } = await supabase
+    .from('mic_hosts')
+    .select('id')
+    .eq('mic_id', micId)
+    .eq('user_id', user.id)
+    .maybeSingle();
 
-  if (hostError) throw hostError;
+  if (existingHostError) throw existingHostError;
+
+  let hostId = existingHost?.id;
+
+  if (!hostId) {
+    const { data: newHost, error: hostError } = await supabase
+      .from('mic_hosts')
+      .insert({
+        user_id: user.id,
+        mic_id: micId,
+        is_verified: false,
+      })
+      .select('id')
+      .single();
+
+    if (hostError) throw hostError;
+    hostId = newHost.id;
+  }
 
   const nextDate = getNextOccurrence(micDay);
   const eventDate = nextDate.toISOString().split('T')[0];
@@ -156,7 +177,11 @@ export async function fetchSignupEvents(micId: string) {
 }
 
 // Sign up for a spot (authenticated)
-export async function signUpForEvent(eventId: string, notes?: string) {
+export async function signUpForEvent(eventId: string, signupInfo?: {
+  name?: string;
+  phone?: string;
+  notes?: string;
+}) {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) throw new Error('Must be authenticated');
@@ -166,7 +191,9 @@ export async function signUpForEvent(eventId: string, notes?: string) {
     .insert({
       event_id: eventId,
       user_id: user.id,
-      notes,
+      guest_name: signupInfo?.name?.trim() || null,
+      guest_phone: signupInfo?.phone?.trim() || null,
+      notes: signupInfo?.notes?.trim() || null,
       status: 'confirmed'
     })
     .select()
