@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useBannerAds, recordAdClick, type BannerAd } from "@/hooks/useBannerAds";
+import { recordAdClick } from "@/hooks/useBannerAds";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface AdBox {
@@ -8,6 +8,11 @@ interface AdBox {
   href: string;
   external?: boolean;
 }
+
+const TOP_ADS: AdBox[] = [
+  { label: "Likeable Podcast👍", href: "https://youtube.com/@davidsticklecomedy?si=LvLAmg2NElpPN3qx", external: true },
+  { label: "St. Marks Comedy Club Competition", href: "https://www.stmarkscomedy.com/competition?utm_source=comediq&utm_medium=partner&utm_campaign=stmarks_comedy_competition_2026", external: true },
+];
 
 const AdItem = ({ ad, userId }: { ad: AdBox; userId?: string }) => {
   const className =
@@ -49,16 +54,14 @@ const renderAdStrip = (ads: AdBox[], repeatCount: number, userId?: string) => {
 };
 
 export function TopAdBar() {
-  const { topAds } = useBannerAds();
   const { user, subscriptionPlan } = useAuth();
 
   if (subscriptionPlan !== 'free') return null;
-  if (!topAds || topAds.length === 0) return null;
 
   return (
     <div className="w-full h-7 bg-[#f5f0e6] border-b border-[#d4c4a8] overflow-x-auto overflow-y-hidden flex items-center scrollbar-hide touch-pan-x">
       <div className="animate-marquee whitespace-nowrap flex items-center hover:[animation-play-state:paused]">
-        {renderAdStrip(topAds as AdBox[], 8, user?.id)}
+        {renderAdStrip(TOP_ADS, 8, user?.id)}
       </div>
     </div>
   );
