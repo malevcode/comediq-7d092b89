@@ -15,6 +15,7 @@ export interface GrowthOpportunity {
   compensation: string | null;
   contact_info: string | null;
   external_url: string | null;
+  external_label?: string | null;
   image_url: string | null;
   is_featured: boolean;
   is_active: boolean;
