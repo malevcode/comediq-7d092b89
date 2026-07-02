@@ -2,7 +2,7 @@ import { useWeeklyTopMics } from '@/hooks/useWeeklyTopMics';
 import { SponsorCard } from '@/components/SponsorCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ThumbsUp, MapPin, Clock, Calendar, Flame } from 'lucide-react';
+import { ThumbsUp, MapPin, Clock, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { slugify } from '@/utils/slugify';
 import PageHeader from '@/components/PageHeader';
