@@ -56,7 +56,7 @@ const Index = () => {
                     variant="outline"
                     className="text-[10px] font-semibold text-yellow-800 border-yellow-500/60 bg-yellow-100/60 px-2 py-0.5"
                   >
-                    First 3 months free with promo code
+                    First 2 months free with promo code
                   </Badge>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">

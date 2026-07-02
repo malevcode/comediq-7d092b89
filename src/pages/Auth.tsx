@@ -567,7 +567,7 @@ const Auth = () => {
         <h2 className="mt-1 text-xl font-semibold text-gray-950">Full Pass</h2>
         <h2 className="mt-1 text-2xl font-bold text-gray-950">$20<span className="ml-1 text-base font-normal text-gray-700">/month</span></h2>
         <div className="mt-2 inline-flex rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-yellow-800">
-          First 3 months free with promo code
+          First 2 months free with promo code
         </div>
         <button
           type="button"
