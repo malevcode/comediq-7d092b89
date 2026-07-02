@@ -19,7 +19,7 @@ const HamburgerMenu = () => {
 
   const newFeatureItems = [
     { path: "/growth", icon: Briefcase, label: "Growth", isNew: true },
-    { path: "/strip", icon: Clapperboard, label: "Comic Strips", isNew: true },
+    { path: "/strip", icon: Clapperboard, label: "Carouseler", isNew: true },
   ];
 
   const performSubItems = [
