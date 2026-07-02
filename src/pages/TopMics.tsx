@@ -2,7 +2,7 @@ import { useWeeklyTopMics } from '@/hooks/useWeeklyTopMics';
 import { SponsorCard } from '@/components/SponsorCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ThumbsUp, MapPin, Clock, Calendar, Flame } from 'lucide-react';
+import { ThumbsUp, MapPin, Clock, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { slugify } from '@/utils/slugify';
 import PageHeader from '@/components/PageHeader';
@@ -29,10 +29,12 @@ export default function TopMics() {
               No rankings yet — check back after Monday!
             </p>
           ) : (
-            topMics.map((mic) => (
+          topMics.map((mic) => {
+            const to = mic.to || `/mics/${slugify(mic.venue_name || '')}-${slugify(mic.neighborhood || '')}`;
+            return (
               <Link
                 key={mic.id}
-                to={`/mics/${slugify(mic.venue_name || '')}-${slugify(mic.neighborhood || '')}`}
+                to={to}
                 className="block"
               >
                 <Card className="border-border bg-card hover:shadow-md transition-shadow cursor-pointer">
@@ -72,8 +74,8 @@ export default function TopMics() {
                   </CardContent>
                 </Card>
               </Link>
-            ))
-          )}
+            )}
+          ))}
         </div>
 
         <div className="mt-3">
