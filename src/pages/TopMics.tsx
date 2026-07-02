@@ -29,10 +29,12 @@ export default function TopMics() {
               No rankings yet — check back after Monday!
             </p>
           ) : (
-            topMics.map((mic) => (
+          topMics.map((mic) => {
+            const to = mic.to || `/mics/${slugify(mic.venue_name || '')}-${slugify(mic.neighborhood || '')}`;
+            return (
               <Link
                 key={mic.id}
-                to={`/mics/${slugify(mic.venue_name || '')}-${slugify(mic.neighborhood || '')}`}
+                to={to}
                 className="block"
               >
                 <Card className="border-border bg-card hover:shadow-md transition-shadow cursor-pointer">
