@@ -75,7 +75,7 @@ export default function TopMics() {
                 </Card>
               </Link>
             )}
-          )}
+          ))}
         </div>
 
         <div className="mt-3">
