@@ -74,7 +74,7 @@ export default function TopMics() {
                   </CardContent>
                 </Card>
               </Link>
-            ))
+            )}
           )}
         </div>
 
