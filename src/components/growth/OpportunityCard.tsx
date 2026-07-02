@@ -1,4 +1,4 @@
-import { Calendar, MapPin, DollarSign, ExternalLink, Megaphone, Trophy, GraduationCap, Headphones } from "lucide-react";
+import { Calendar, MapPin, DollarSign, ExternalLink, Megaphone, Trophy, GraduationCap, Headphones, Clock, Instagram } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -68,21 +68,38 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
               <DollarSign className="h-3 w-3" /> {opportunity.compensation}
             </span>
           )}
+          {opportunity.type === "podcast" && opportunity.compensation && (
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" /> {opportunity.compensation}
+            </span>
+          )}
         </div>
 
         {opportunity.type !== "podcast" && opportunity.contact_info && (
           <p className="text-xs text-muted-foreground">📬 {opportunity.contact_info}</p>
         )}
 
+        {opportunity.type === "podcast" && opportunity.contact_info && (
+          <a
+            href={`https://instagram.com/${opportunity.contact_info.replace(/^@/, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+          >
+            <Instagram className="h-3 w-3" /> Follow on Instagram
+          </a>
+        )}
+
         {opportunity.external_url && (
           <Button variant="outline" size="sm" className="w-full mt-2" asChild>
             <a href={opportunity.external_url} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-3 w-3 mr-1" /> Learn More
+              <ExternalLink className="h-3 w-3 mr-1" />
+              {opportunity.external_label ?? (opportunity.type === "podcast" ? "Watch on YouTube" : "Learn More")}
             </a>
           </Button>
         )}
 
-        {opportunity.type === "barking" && (
+        {opportunity.type === "barking" && !opportunity.external_url && (
           <BookingSignupDialog opportunity={opportunity} />
         )}
       </CardContent>
