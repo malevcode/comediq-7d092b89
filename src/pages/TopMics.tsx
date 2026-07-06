@@ -30,7 +30,7 @@ export default function TopMics() {
             </p>
           ) : (
           topMics.map((mic) => {
-            const to = mic.to || `/mics/${slugify(mic.venue_name || '')}-${slugify(mic.neighborhood || '')}`;
+            const to = mic.to || `/mics/${slugify(mic.venue_name || '')}-${slugify(mic.neighborhood || '')}?id=${mic.mic_unique_identifier}`;
             return (
               <Link
                 key={mic.id}

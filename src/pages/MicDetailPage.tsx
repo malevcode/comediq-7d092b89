@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useMicRatings } from "@/hooks/useMicRatings";
 import { parseVenueSlug, slugify } from "@/utils/slugify";
@@ -25,12 +25,15 @@ function getMapUrl(location: string, venueName: string) {
 
 const MicDetailPage = () => {
   const { venueSlug } = useParams<{ venueSlug: string }>();
+  const [searchParams] = useSearchParams();
+  const idParam = searchParams.get('id');
   const navigate = useNavigate();
   const { data: mics, isLoading } = useOpenMics();
   const { user } = useAuth();
 
-  // Find mic by matching slug
+  // Prefer unique_identifier when provided (disambiguates mics that share venue+neighborhood)
   const mic = mics?.find(m => {
+    if (idParam) return m.uniqueIdentifier === idParam;
     const micSlug = `${slugify(m.venueName)}-${slugify(m.neighborhood)}`;
     return micSlug === venueSlug;
   });
