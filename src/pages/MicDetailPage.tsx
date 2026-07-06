@@ -25,12 +25,15 @@ function getMapUrl(location: string, venueName: string) {
 
 const MicDetailPage = () => {
   const { venueSlug } = useParams<{ venueSlug: string }>();
+  const [searchParams] = useSearchParams();
+  const idParam = searchParams.get('id');
   const navigate = useNavigate();
   const { data: mics, isLoading } = useOpenMics();
   const { user } = useAuth();
 
-  // Find mic by matching slug
+  // Prefer unique_identifier when provided (disambiguates mics that share venue+neighborhood)
   const mic = mics?.find(m => {
+    if (idParam) return m.uniqueIdentifier === idParam;
     const micSlug = `${slugify(m.venueName)}-${slugify(m.neighborhood)}`;
     return micSlug === venueSlug;
   });
