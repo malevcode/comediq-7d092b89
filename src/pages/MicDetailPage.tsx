@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useMicRatings } from "@/hooks/useMicRatings";
 import { parseVenueSlug, slugify } from "@/utils/slugify";
