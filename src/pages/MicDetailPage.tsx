@@ -13,8 +13,6 @@ import ClaimMicButton from "@/components/host/ClaimMicButton";
 import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useState, useEffect } from "react";
 
 function getMapUrl(location: string, venueName: string) {
   const searchQuery = encodeURIComponent(`${venueName}, ${location}`);
