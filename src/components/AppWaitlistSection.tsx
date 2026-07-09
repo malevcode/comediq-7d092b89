@@ -85,28 +85,28 @@ const AppWaitlistSection = () => {
   return (
     <section
       id="app-waitlist"
-      className="py-10 bg-gradient-to-br from-[#f5f0e6] via-white to-blue-50 px-4"
+      className="px-4 py-8"
     >
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto rounded-2xl bg-[#102a53]/78 p-5 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_22px_80px_rgba(2,10,30,0.34)] backdrop-blur-xl transition-transform duration-300 hover:scale-[1.01]">
         <div className="text-center mb-5">
-          <span className="inline-block text-xs font-semibold text-[#1a5fb4] uppercase tracking-wide mb-2">
+          <span className="inline-block text-xs font-semibold text-[#8ec5ff] uppercase tracking-wide mb-2">
             Coming Soon
           </span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
             Join the Comediq App Waitlist
           </h2>
-          <p className="text-sm sm:text-base text-gray-600">
+          <p className="text-sm sm:text-base text-white/68">
             Be first in line when the app drops.
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl p-5 shadow-xl space-y-4"
+          className="rounded-2xl bg-white/10 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] space-y-4"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="aw-email" className="text-sm">Email *</Label>
+              <Label htmlFor="aw-email" className="text-sm text-white/84">Email *</Label>
               <Input
                 id="aw-email"
                 type="email"
@@ -118,7 +118,7 @@ const AppWaitlistSection = () => {
               />
             </div>
             <div>
-              <Label htmlFor="aw-ig" className="text-sm">Instagram</Label>
+              <Label htmlFor="aw-ig" className="text-sm text-white/84">Instagram</Label>
               <Input
                 id="aw-ig"
                 value={instagram}
@@ -130,7 +130,7 @@ const AppWaitlistSection = () => {
           </div>
 
           <div>
-            <Label className="text-sm">Years doing comedy *</Label>
+            <Label className="text-sm text-white/84">Years doing comedy *</Label>
             <Select value={years} onValueChange={setYears}>
               <SelectTrigger className="mt-1 h-10">
                 <SelectValue placeholder="Select" />
@@ -146,7 +146,7 @@ const AppWaitlistSection = () => {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm">I'm interested in...</Label>
+            <Label className="text-sm text-white/84">I'm interested in...</Label>
             {[
               { key: "affiliate" as const, label: "Being an affiliate comedian for Comediq" },
               { key: "beta" as const, label: "Being a Comediq beta tester" },
@@ -155,7 +155,7 @@ const AppWaitlistSection = () => {
             ].map((opt) => (
               <label
                 key={opt.key}
-                className="flex items-start gap-2 cursor-pointer text-sm text-gray-700"
+                className="flex items-start gap-2 cursor-pointer text-sm text-white/72"
               >
                 <Checkbox
                   checked={interests[opt.key]}

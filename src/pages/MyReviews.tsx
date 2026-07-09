@@ -47,11 +47,11 @@ export default function MyReviews() {
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
           <Film className="w-8 h-8 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-medium text-foreground mb-2">Sign In to Track Reviews</h3>
-        <p className="text-muted-foreground mb-4">
+        <h3 className="text-lg text-white font-medium text-foreground mb-2">Sign In to Track Reviews</h3>
+        <p className="text-white/60 mb-4">
           Keep track of shows you've attended!
         </p>
-        <Button onClick={() => navigate('/auth')}>
+        <Button className="rounded-md border-0 rounded-lg text-white text-sm font-medium bg-[#1a5fb4] hover:bg-[#1550a0] transition-colors hover:text-white" onClick={() => navigate('/auth')}>
           Sign In
         </Button>
       </div>
@@ -62,8 +62,8 @@ export default function MyReviews() {
     return (
       <div className="space-y-6">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">My Reviews</h2>
-          <p className="text-sm text-muted-foreground">Track shows you've attended</p>
+          <h2 className="text-lg font-bold text-white">My Reviews</h2>
+          <p className="text-sm text-white/60">Track shows you've attended</p>
         </div>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
@@ -89,7 +89,7 @@ export default function MyReviews() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-lg font-semibold text-foreground">My Reviews</h2>
+        <h2 className="text-lg font-semibold text-white">My Reviews</h2>
         <p className="text-sm text-muted-foreground">
           Track shows you've attended
         </p>
@@ -186,11 +186,11 @@ export default function MyReviews() {
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
             <Film className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-medium text-foreground mb-2">No Reviews Yet</h3>
-          <p className="text-muted-foreground mb-4">
+          <h3 className="text-lg font-medium text-white/60 mb-2">No Reviews Yet</h3>
+          <p className="text-white/60 mb-4">
             Attend a show and write a review to track your experiences!
           </p>
-          <Button onClick={() => navigate('/laugh?tab=find-shows')}>
+          <Button className="border-0 rounded-lg text-white text-sm font-medium bg-[#1a5fb4] hover:bg-[#1550a0] transition-colors hover:text-white" onClick={() => navigate('/laugh?tab=find-shows')}>
             Find Shows
           </Button>
         </div>

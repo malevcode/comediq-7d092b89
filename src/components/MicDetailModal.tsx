@@ -13,6 +13,7 @@ import { makeLinksClickable } from '@/utils/makeLinksClickable';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
 import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
+import { createPortal } from 'react-dom';
 
 interface MicDetailModalProps {
   mic: OpenMic;
@@ -193,8 +194,8 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+  return createPortal(
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[1200]">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-background border-b border-border px-6 py-4 rounded-t-2xl">
@@ -393,7 +394,8 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
           </Collapsible>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

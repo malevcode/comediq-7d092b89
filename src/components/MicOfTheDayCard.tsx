@@ -65,18 +65,18 @@ export function MicOfTheDayCard({
 
     const card = (
       <Card
-        className={`relative overflow-hidden border border-yellow-300/60 border-l-4 border-l-yellow-500 bg-gradient-to-br from-yellow-50 via-amber-50 to-white shadow-sm hover:shadow-md transition-all cursor-pointer ${className}`}
+        className={`relative overflow-hidden border border-white/12 bg-[#102a53]/78 text-white shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl hover:bg-[#102a53]/86 hover:shadow-[0_16px_48px_rgba(2,10,30,0.3)] transition-all cursor-pointer ${className}`}
       >
         <CardContent className="p-3 sm:p-3.5">
           {/* Row 1: Mic name • MOTD badge • Sign Up */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <h3 className="text-sm sm:text-base font-bold text-foreground leading-tight truncate">
+              <h3 className="text-sm sm:text-base font-bold text-white leading-tight truncate">
                 {label}
               </h3>
               <Badge
                 variant="outline"
-                className="shrink-0 text-[9px] font-semibold text-yellow-800 border-yellow-500/60 bg-yellow-100/60 gap-0.5 px-1.5 py-0"
+                className="shrink-0 text-[9px] font-semibold text-[#ffc72c] border-[#ffc72c]/50 bg-white/10 gap-0.5 px-1.5 py-0"
               >
                 <Star className="h-2.5 w-2.5 fill-yellow-500 text-yellow-500" />
                 MIC OF THE DAY
@@ -87,7 +87,7 @@ export function MicOfTheDayCard({
                     <button
                       type="button"
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                      className="shrink-0 inline-flex items-center text-yellow-700/80 hover:text-yellow-900"
+                      className="shrink-0 inline-flex items-center text-[#ffc72c]/80 hover:text-[#ffc72c]"
                       aria-label="Why this mic?"
                     >
                       <Info className="h-3 w-3" />
@@ -111,7 +111,7 @@ export function MicOfTheDayCard({
           </div>
 
           {/* Row 2: Location • Start time • Nominate link */}
-          <div className="mt-1 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+          <div className="mt-1 flex items-center justify-between gap-2 text-xs text-white/64">
             <div className="flex items-center gap-x-2 gap-y-0.5 min-w-0 flex-wrap">
               {mic.venueName && mic.openMic !== mic.venueName && (
                 <span className="flex items-center gap-1 min-w-0">
@@ -166,17 +166,17 @@ export function MicOfTheDayCard({
   // Compact variant (legacy)
   const inner = (
     <Card
-      className={`border-border bg-card border-l-4 border-l-yellow-500 hover:shadow-md transition-shadow cursor-pointer ${className}`}
+      className={`border-white/12 bg-[#102a53]/78 text-white shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl hover:bg-[#102a53]/86 hover:shadow-[0_16px_48px_rgba(2,10,30,0.3)] transition-all cursor-pointer ${className}`}
     >
       <CardContent className="px-3 py-2 flex items-center gap-2.5">
         <Badge
           variant="outline"
-          className="text-[9px] text-yellow-700 border-yellow-500/50 shrink-0 self-start mt-0.5 gap-0.5"
+          className="text-[9px] text-[#ffc72c] border-[#ffc72c]/50 bg-white/10 shrink-0 self-start mt-0.5 gap-0.5"
         >
           <Star className="h-2.5 w-2.5 fill-yellow-500 text-yellow-500" />
           Mic of Day
         </Badge>
-        <span className="min-w-0 flex-1 text-sm font-medium text-foreground truncate">
+        <span className="min-w-0 flex-1 text-sm font-medium text-white truncate">
           {label}
         </span>
       </CardContent>

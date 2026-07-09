@@ -76,10 +76,12 @@ function AppShell() {
   return (
     <BrowserRouter>
       <AnalyticsProvider>
+        <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,199,44,0.72),transparent_30%),radial-gradient(circle_at_88%_8%,rgba(26,95,180,0.82),transparent_34%),linear-gradient(145deg,#07111f_0%,#1a5fb4_36%,#f5f2eb_62%,#ffc72c_100%)]" />
+        <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(180deg,rgba(7,17,31,0.16)_0%,rgba(7,17,31,0.48)_42%,rgba(7,17,31,0.74)_100%)]" />
         <ScrollToTop />
         <MarqueeBanner />
         <SubscriptionSuccessBanner />
-        <div className={isSubscriber ? "subscriber-layout pb-0" : "non-subscriber-layout pb-0"}>
+        <div className={isSubscriber ? "subscriber-layout relative z-10 pb-0" : "non-subscriber-layout relative z-10 pb-0"}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/perform" element={<TabProvider><Perform /></TabProvider>} />
@@ -121,7 +123,9 @@ function AppShell() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
-        <SiteFooter />
+        <div className="relative z-10">
+          <SiteFooter />
+        </div>
         <BottomNavigation />
       </AnalyticsProvider>
     </BrowserRouter>

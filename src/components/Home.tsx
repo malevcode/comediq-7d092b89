@@ -111,6 +111,10 @@ export default function Home() {
   const displayUpcomingMics = upcomingMics.filter((mic) =>
     mic.open_mics && String(mic.open_mics["Open Mic"] || '').trim().length > 0
   );
+  const panelClass = "border-0 bg-[#07111f]/26 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:bg-[#07111f]/5";
+  const panelHeaderClass = "border-b border-white/10 bg-[#102a53]/5";
+  const statCardClass = "border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5";
+  const outlineActionClass = "border-0 w-full justify-start bg-white/10 text-white hover:bg-white/20 hover:text-white hover:-translate-y-0.5 hover:scale-[1.03] backdrop-blur-xl transition-all duration-300";
 
 
 
@@ -122,12 +126,6 @@ export default function Home() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitInserted]);
-
-
-
-
-
-
 
   // Calculate career stage time in minutes
   const careerStageTimeMinutes = completedShows.reduce((total, mic) => {
@@ -181,10 +179,15 @@ export default function Home() {
   //console.log('Final streak:', streak);
 
   return (
-    <div className="page-content-offset flex-col bg-gradient-to-br from-blue-50/50 to-white">
-      <main className="max-w-7xl mx-auto px-8 py-10">
+    <div className="page-content-offset relative flex-col overflow-hidden bg-transparent">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-12 pt-0">
         <div>
-          <Header className="mb-8" />
+          <section
+            aria-label="Home media area"
+            className="mb-6 rounded-[2rem]"
+          >
+            <Header />
+          </section>
 
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Column - Stats and Notepad */}
@@ -192,15 +195,15 @@ export default function Home() {
               {/* Quick Stats Bar */}
               <div className="space-y-3">
                 {/* Day Streak - prominent full-width */}
-                <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/10">
+                <Card className={statCardClass}>
                   <CardContent className="p-3">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-[#1a5fb4] rounded-lg">
+                      <div className="p-2 bg-[#8ec5ff]/20 rounded-lg">
                         <TrendingUp className="h-5 w-5 text-white" />
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-[#1a5fb4]">{visitsLoading ? "--" : streak}</div>
-                        <div className="text-xs text-[#1a5fb4]/70 font-medium whitespace-nowrap">
+                        <div className="text-2xl font-bold text-[#8ec5ff]">{visitsLoading ? "--" : streak}</div>
+                        <div className="text-xs text-white/64 font-medium whitespace-nowrap">
                           Day Streak {streak > 4 ? '🔥' : ''}
                         </div>
                       </div>
@@ -211,30 +214,30 @@ export default function Home() {
                 {/* Saved + Liked - 2-column row */}
                 <div className="grid grid-cols-2 gap-3">
                   <Link to="/profile?tab=saved">
-                    <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer h-full">
+                    <Card className={`${statCardClass} cursor-pointer h-full`}>
                       <CardContent className="p-3">
                         <div className="flex items-center gap-2">
-                          <div className="p-1.5 bg-[#1a5fb4]/80 rounded-lg shrink-0">
+                          <div className="p-1.5 bg-[#8ec5ff]/18 rounded-lg shrink-0">
                             <Bookmark className="h-4 w-4 text-white" />
                           </div>
                           <div className="min-w-0">
-                            <div className="text-xl font-bold text-[#1a5fb4]">{savedMics.length}</div>
-                            <div className="text-xs text-[#1a5fb4]/70 font-medium whitespace-nowrap">Saved Mics</div>
+                            <div className="text-xl font-bold text-[#8ec5ff]">{savedMics.length}</div>
+                            <div className="text-xs text-white/64 font-medium whitespace-nowrap">Saved Mics</div>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                   </Link>
                   <Link to="/profile?tab=liked">
-                    <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer h-full">
+                    <Card className={`${statCardClass} cursor-pointer h-full`}>
                       <CardContent className="p-3">
                         <div className="flex items-center gap-2">
-                          <div className="p-1.5 bg-[#1a5fb4]/60 rounded-lg shrink-0">
+                          <div className="p-1.5 bg-[#8ec5ff]/18 rounded-lg shrink-0">
                             <Heart className="h-4 w-4 text-white" />
                           </div>
                           <div className="min-w-0">
-                            <div className="text-xl font-bold text-[#1a5fb4]">{likedMics.length}</div>
-                            <div className="text-xs text-[#1a5fb4]/70 font-medium whitespace-nowrap">Liked Mics</div>
+                            <div className="text-xl font-bold text-[#8ec5ff]">{likedMics.length}</div>
+                            <div className="text-xs text-white/64 font-medium whitespace-nowrap">Liked Mics</div>
                           </div>
                         </div>
                       </CardContent>
@@ -244,15 +247,15 @@ export default function Home() {
 
                 {/* Playlists card */}
                 <Link to="/profile?tab=playlists" className="block pt-0.9">
-                  <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer">
+                  <Card className={`${statCardClass} cursor-pointer`}>
                     <CardContent className="p-3">
                       <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-[#1a5fb4]/70 rounded-lg shrink-0">
+                        <div className="p-1.5 bg-[#8ec5ff]/18 rounded-lg shrink-0">
                           <ListMusic className="h-4 w-4 text-white" />
                         </div>
                         <div className="min-w-0">
-                          <div className="text-xl font-bold text-[#1a5fb4]">{playlists.length}</div>
-                          <div className="text-xs text-[#1a5fb4]/70 font-medium whitespace-nowrap">Playlists</div>
+                          <div className="text-xl font-bold text-[#8ec5ff]">{playlists.length}</div>
+                          <div className="text-xs text-white/64 font-medium whitespace-nowrap">Playlists</div>
                         </div>
                       </div>
                     </CardContent>
@@ -261,51 +264,51 @@ export default function Home() {
               </div>
 
               {/* Quick Notes Section */}
-              <QuickNotes />
+              <QuickNotes className={panelClass} />
             </div>
 
             {/* Right Column - Quick Actions and Next Open Mics */}
             <div className="lg:w-1/3 space-y-6">
-              <Card className="border-[#1a5fb4]/20 bg-white/80 backdrop-blur">
-                <CardHeader className="bg-[#1a5fb4] rounded-t-lg">
+              <Card className={panelClass}>
+                <CardHeader className={panelHeaderClass}>
                   <CardTitle className="text-lg text-white">⚡ Quick Actions</CardTitle>
                   <CardDescription className="text-white/80">Common tasks</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2 pt-6">
                   {isSubscriber ? (
-                    <Button asChild className="w-full justify-start bg-[#f97316] text-white hover:bg-[#ea580c]" size="sm">
+                    <Button asChild className="w-full justify-start bg-[#f97316] text-white hover:bg-[#ea580c] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03]" size="sm">
                       <Link to="/book-me-mic">
                         <Sparkles className="mr-2 h-4 w-4" />
                         Book Me Mic Signup
                       </Link>
                     </Button>
                   ) : (
-                    <Button asChild className="w-full justify-start bg-[#f97316] text-white hover:bg-[#ea580c]" size="sm">
+                    <Button asChild className="w-full justify-start bg-[#f97316] text-white hover:bg-[#ea580c] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03]" size="sm">
                       <Link to="/auth?next=%2F&plans=true">
                         <Sparkles className="mr-2 h-4 w-4" />
                         Subscribe to Full Pass
                       </Link>
                     </Button>
                   )}
-                  <Button asChild variant="outline" className="w-full justify-start border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50 bg-transparent" size="sm">
+                  <Button asChild variant="outline" className={outlineActionClass} size="sm">
                     <Link to="/open-mics">
                       <MapPin className="mr-2 h-4 w-4" />
                       Find Open Mics
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" className="w-full justify-start border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50 bg-transparent" size="sm">
+                  <Button asChild variant="outline" className={outlineActionClass} size="sm">
                     <Link to="/track-sets">
                       <Mic2 className="mr-2 h-4 w-4" />
                       Log Performance
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" className="w-full justify-start border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50 bg-transparent" size="sm">
+                  <Button asChild variant="outline" className={outlineActionClass} size="sm">
                     <Link to="/profile?tab=saved">
                       <Bookmark className="mr-2 h-4 w-4" />
                       Saved Mics
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" className="w-full justify-start border-[#1a5fb4]/20 text-[#1a5fb4] hover:bg-blue-50 bg-transparent" size="sm">
+                  <Button asChild variant="outline" className={outlineActionClass} size="sm">
                     <Link to="/profile?tab=playlists">
                       <Music className="mr-2 h-4 w-4" />
                       My Playlists
@@ -314,8 +317,8 @@ export default function Home() {
                 </CardContent>
               </Card>
 
-              <Card className="border-[#1a5fb4]/20 bg-white/80 backdrop-blur">
-                <CardHeader className="flex flex-row items-center justify-between bg-[#1a5fb4] rounded-t-lg">
+              <Card className={panelClass}>
+                <CardHeader className={`flex flex-row items-center justify-between ${panelHeaderClass}`}>
                   <div>
                     <CardTitle className="text-lg text-white">🎭 Next Open Mics</CardTitle>
                     <CardDescription className="text-white/80">
@@ -325,30 +328,30 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="space-y-4 pt-6">
                   {showsLoading ? (
-                    <div>Loading upcoming mics...</div>
+                    <div className="text-sm text-white/70">Loading upcoming mics...</div>
                   ) : displayUpcomingMics.length === 0 ? (
-                    <div className="rounded-lg border border-[#1a5fb4]/10 bg-blue-50/50 p-4 text-sm font-medium text-gray-700">
+                    <div className="rounded-lg bg-white/10 p-4 text-sm font-medium text-white/74 shadow-[0_10px_30px_rgba(2,10,30,0.12)]">
                       No upcoming performances
                     </div>
                   ) : (
                     displayUpcomingMics.map((mic) => (
                       <div
                         key={mic.id}
-                        className="flex items-center justify-between p-4 rounded-lg border border-[#1a5fb4]/10 bg-gradient-to-r from-blue-50/50 to-white hover:from-blue-50 hover:to-blue-50/50 transition-colors"
+                        className="flex items-center justify-between p-4 rounded-lg bg-white/10 text-white shadow-[0_10px_30px_rgba(2,10,30,0.12)] transition-colors hover:bg-white/20"
                       >
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <h3 className="font-medium text-sm text-gray-800">{mic.open_mics["Open Mic"]}</h3>
+                            <h3 className="font-medium text-sm text-white">{mic.open_mics["Open Mic"]}</h3>
                           </div>
-                          <div className="flex items-center gap-4 mt-1 text-xs text-gray-600">
+                          <div className="flex items-center gap-4 mt-1 text-xs text-white/66">
                             <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3 text-[#1a5fb4]" />
+                              <Calendar className="h-3 w-3 text-[#8ec5ff]" />
                               <span>
                                 {mic.open_mics["Day"]} at {mic.open_mics["Start Time"]}
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3 text-[#1a5fb4]" />
+                              <MapPin className="h-3 w-3 text-[#8ec5ff]" />
                               <span>{mic.open_mics["Neighborhood"]}, {mic.open_mics["Borough"]}</span>
                             </div>
                           </div>
@@ -356,7 +359,7 @@ export default function Home() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-[#1a5fb4] hover:bg-blue-50"
+                          className="text-[#8ec5ff] hover:bg-white/10 hover:text-white"
                           onClick={() => navigate('/shows')}
                         >
                           <ArrowRight className="h-4 w-4" />
@@ -367,7 +370,7 @@ export default function Home() {
                 </CardContent>
               </Card>
 
-              <SponsorCard placement="home_dashboard" />
+              <SponsorCard placement="home_dashboard" className="border-0 bg-[#07111f]/30 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl" />
             </div>
           </div>
         </div>

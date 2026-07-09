@@ -93,15 +93,15 @@ export function CreditBalance({ compact = false }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+    <div className="rounded-xl border-0 bg-[#07111f]/2 p-4 space-y-3 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Plan</p>
-          <p className="text-sm font-semibold text-gray-900">{planLabel[subscriptionPlan] ?? subscriptionPlan}</p>
+          <p className="text-xs text-white/58 uppercase tracking-wide font-medium">Plan</p>
+          <p className="text-sm font-semibold text-white">{planLabel[subscriptionPlan] ?? subscriptionPlan}</p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Credits</p>
-          <p className="text-2xl font-bold text-gray-900 flex items-center gap-1 justify-end">
+          <p className="text-xs text-white/58 uppercase tracking-wide font-medium">Credits</p>
+          <p className="text-2xl font-bold text-white flex items-center gap-1 justify-end">
             <Zap className="w-5 h-5 fill-amber-400 text-amber-400" />
             {creditsBalance}
           </p>
@@ -109,7 +109,7 @@ export function CreditBalance({ compact = false }: Props) {
       </div>
 
       {subscriptionPlan === 'free' && (
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-white/60">
           Full Pass unlocks monthly Comediq open mic access and subscriber benefits.
         </p>
       )}
@@ -127,7 +127,7 @@ export function CreditBalance({ compact = false }: Props) {
           type="button"
           onClick={handleManageSubscription}
           disabled={isOpeningPortal}
-          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg border border-white/14 text-sm font-medium text-white hover:bg-white/10 transition-colors disabled:opacity-50"
         >
           <Settings className="w-3.5 h-3.5" />
           {isOpeningPortal ? 'Opening billing...' : 'Manage Subscription'}

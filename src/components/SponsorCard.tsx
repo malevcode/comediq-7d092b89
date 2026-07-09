@@ -23,7 +23,7 @@ export function SponsorCard({ placement, className = '' }: SponsorCardProps) {
   return (
     <Card className={`border-border bg-card ${className}`}>
       <CardContent className="px-3 py-2 flex items-center gap-2.5">
-        <Badge variant="outline" className="text-[9px] text-muted-foreground border-border shrink-0 self-start mt-0.5">
+        <Badge variant="outline" className="text-[9px] text-white/64 border-white/18 bg-white/8 shrink-0 self-start mt-0.5">
           Ad
         </Badge>
         {sponsor.icon_url && (
@@ -46,10 +46,10 @@ export function SponsorCard({ placement, className = '' }: SponsorCardProps) {
           target={sponsor.external ? '_blank' : undefined}
           rel={sponsor.external ? 'noopener noreferrer' : undefined}
           onClick={handleClick}
-          className="min-w-0 flex-1 text-sm font-medium text-foreground truncate hover:underline"
+          className="min-w-0 flex-1 text-sm font-medium text-current truncate hover:underline"
         >
           {sponsor.label}
-          {sponsor.external && <ExternalLink className="inline ml-1 h-3 w-3 text-muted-foreground" />}
+          {sponsor.external && <ExternalLink className="inline ml-1 h-3 w-3 text-current opacity-60" />}
         </a>
       </CardContent>
     </Card>

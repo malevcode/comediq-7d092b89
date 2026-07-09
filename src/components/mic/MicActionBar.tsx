@@ -182,10 +182,10 @@ export default function MicActionBar({
             variant="ghost"
             size="sm"
             onClick={handleSignUp}
-            className="h-8 px-2 gap-1 text-xs font-medium text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/10"
+            className="h-8 px-2 gap-1 text-xs font-medium text-white hover:bg-[hsl(var(--primary))]/20 hover:text-white"
             aria-label="Sign up online"
           >
-            <ExternalLink className="w-3.5 h-3.5" />
+            <ExternalLink className="text-white w-3.5 h-3.5" />
             Sign Up
           </Button>
         )}
@@ -193,7 +193,7 @@ export default function MicActionBar({
           variant="ghost"
           size="sm"
           onClick={handleMap}
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 hover:bg-[hsl(var(--primary))]/20 hover:text-white"
           aria-label="Open in Google Maps"
         >
           <MapPin className="w-4 h-4" />
@@ -203,7 +203,7 @@ export default function MicActionBar({
           size="sm"
           onClick={handleSave}
           disabled={isToggling}
-          className={cn("h-8 w-8 p-0", isSaved && "text-[hsl(var(--primary))]")}
+          className={cn("h-8 w-8 p-0 hover:bg-[hsl(var(--primary))]/20 hover:text-white", isSaved && "text-[hsl(var(--primary))] ")}
           aria-label={isSaved ? "Remove from saved" : "Save mic"}
         >
           <Bookmark className={cn("w-4 h-4", isSaved && "fill-[hsl(var(--primary))]")} />
@@ -212,7 +212,7 @@ export default function MicActionBar({
           variant="ghost"
           size="sm"
           onClick={handleShare}
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 hover:bg-[hsl(var(--primary))]/20 hover:text-white"
           aria-label="Share mic"
         >
           <Send className="w-4 h-4" />

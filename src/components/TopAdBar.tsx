@@ -16,7 +16,7 @@ const TOP_ADS: AdBox[] = [
 
 const AdItem = ({ ad, userId }: { ad: AdBox; userId?: string }) => {
   const className =
-    "inline-flex items-center gap-1.5 px-3 py-0.5 mx-2 rounded-full bg-[#1a5fb4]/10 text-[#1a5fb4] text-[11px] font-semibold tracking-wide hover:bg-[#1a5fb4]/20 transition-colors whitespace-nowrap";
+    "inline-flex items-center gap-1.5 px-3 py-0.5 mx-2 rounded-full bg-white/10 text-white text-[11px] font-semibold tracking-wide hover:bg-white/18 transition-colors whitespace-nowrap";
 
   const handleClick = () => {
     if (ad.id) {
@@ -59,9 +59,9 @@ export function TopAdBar() {
   if (subscriptionPlan !== 'free') return null;
 
   return (
-    <div className="w-full h-7 bg-[#f5f0e6] border-b border-[#d4c4a8] overflow-x-auto overflow-y-hidden flex items-center scrollbar-hide touch-pan-x">
+    <div className="w-full h-7 bg-white/[0.02] overflow-x-auto overflow-y-hidden flex items-center scrollbar-hide touch-pan-x backdrop-blur-md">
       <div className="animate-marquee whitespace-nowrap flex items-center hover:[animation-play-state:paused]">
-        {renderAdStrip(TOP_ADS, 8, user?.id)}
+        {renderAdStrip(TOP_ADS, 10, user?.id)}
       </div>
     </div>
   );

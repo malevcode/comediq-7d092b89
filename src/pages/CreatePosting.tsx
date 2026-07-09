@@ -41,7 +41,7 @@ const CreatePosting = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background pb-20">
+      <div className="min-h-screen bg-transparent pb-20">
         <PageHeader title="Create Posting" subtitle="Post a comedy opportunity" />
         <div className="pt-24 px-4 max-w-2xl mx-auto text-center">
           <p className="text-muted-foreground mb-4">You need to be logged in to create a posting.</p>
@@ -57,7 +57,7 @@ const CreatePosting = () => {
         title="Create Gig Posting - Find Gigs"
         description="Post a comedy show opportunity. Find performers, crew, and talent for your show."
       />
-      <div className="min-h-screen bg-background pb-20">
+      <div className="min-h-screen bg-transparent pb-20">
         <PageHeader title="Create Posting" subtitle="Post a comedy opportunity" />
 
         <div className="pt-24 px-4 max-w-4xl mx-auto">

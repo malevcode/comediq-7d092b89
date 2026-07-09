@@ -227,7 +227,7 @@ const Shows = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
+    <div className="min-h-screen bg-transparent pb-20">
       <PageHeader title="Scheduler" subtitle="Track your upcoming and past performances" />
       <div className="max-w-6xl mx-auto px-4 pt-28">
         {user ? (

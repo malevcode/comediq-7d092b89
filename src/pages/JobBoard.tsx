@@ -64,7 +64,7 @@ const JobBoard = () => {
         description="Browse available comedy show opportunities in NYC. Find performer spots, crew positions, and show gigs. Perfect for comedians, videographers, photographers, and production crew."
         keywords="comedy jobs, show opportunities, comedy gigs, NYC comedy, performer spots, comedy crew jobs, videographer jobs, comedy host positions"
       />
-      <div className="min-h-screen bg-background pb-20">
+      <div className="min-h-screen bg-transparent pb-20">
         <PageHeader title="Find Gigs" subtitle="Find comedy gigs and crew work" />
 
         <div className="pt-24 px-4 max-w-7xl mx-auto pb-24">

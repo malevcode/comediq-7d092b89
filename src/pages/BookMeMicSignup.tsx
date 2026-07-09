@@ -76,7 +76,7 @@ export default function BookMeMicSignup() {
         url="https://comediq.us/book-me-mic"
         noindex={true}
       />
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50">
+      <div className="min-h-screen bg-transparent">
         <PageHeader title="Book Me Mic" subtitle="Subscriber signup" />
 
         <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-4 py-28">

@@ -87,7 +87,7 @@ export default function SocialLinksManager({
   };
 
   return (
-    <Card>
+    <Card className="border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           Social Links
@@ -96,6 +96,7 @@ export default function SocialLinksManager({
               type="button"
               size="sm"
               variant="outline"
+              className="border-white/14 bg-white/8 text-white hover:bg-white/14 hover:text-white"
               onClick={() => setShowAddForm(true)}
             >
               <Plus className="h-4 w-4 mr-1" />
@@ -107,13 +108,13 @@ export default function SocialLinksManager({
       <CardContent className="space-y-4">
         {/* Existing links */}
         {socialLinks.length === 0 && !showAddForm && (
-          <p className="text-sm text-muted-foreground text-center py-4">
+          <p className="text-sm text-white/60 text-center py-4">
             No social links added yet
           </p>
         )}
 
         {socialLinks.map((link) => (
-          <div key={link.platform} className="flex items-center gap-3 p-3 border rounded-lg">
+          <div key={link.platform} className="flex items-center gap-3 p-3 rounded-lg bg-white/8">
             <div className={link.platform === 'venmo' ? 'text-green-600' : 'text-primary'}>
               {getIcon(link.platform)}
             </div>
@@ -121,7 +122,7 @@ export default function SocialLinksManager({
               <p className="font-medium capitalize">
                 {link.platform === 'venmo' ? '💸 Venmo (Tip Me)' : link.platform}
               </p>
-              <p className="text-sm text-muted-foreground truncate">
+              <p className="text-sm text-white/60 truncate">
                 {link.platform === 'website' ? link.url : `@${link.handle}`}
               </p>
             </div>
@@ -139,17 +140,17 @@ export default function SocialLinksManager({
 
         {/* Add new link form */}
         {showAddForm && (
-          <div className="space-y-3 p-4 border rounded-lg bg-muted/50">
+          <div className="space-y-3 p-4 rounded-lg bg-white/8">
             <div>
               <Label htmlFor="platform">Platform</Label>
               <Select value={newPlatform} onValueChange={(val) => {
                 setNewPlatform(val);
                 setNewHandle(''); // Reset handle when platform changes
               }}>
-                <SelectTrigger id="platform">
+                <SelectTrigger id="platform" className="border-white/14 bg-white/8 text-white">
                   <SelectValue placeholder="Select platform" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="border-white/12 bg-[#102a53] text-white">
                   {availablePlatforms.map((platform) => (
                     <SelectItem key={platform.value} value={platform.value}>
                       <div className="flex items-center gap-2">
@@ -169,9 +170,10 @@ export default function SocialLinksManager({
                 value={newHandle}
                 onChange={(e) => setNewHandle(e.target.value)}
                 placeholder={newPlatform ? getPlaceholder(newPlatform) : 'username'}
+                className="border-white/14 bg-white/8 text-white placeholder:text-white/42"
               />
               {newPlatform && newPlatform !== 'website' && newHandle && (
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-white/58 mt-1">
                   URL: {generateUrl(newPlatform, newHandle)}
                 </p>
               )}
@@ -190,6 +192,7 @@ export default function SocialLinksManager({
                 type="button"
                 size="sm"
                 variant="ghost"
+                className="text-white hover:bg-white/10 hover:text-white"
                 onClick={() => {
                   setShowAddForm(false);
                   setNewPlatform('');

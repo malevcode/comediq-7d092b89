@@ -2,13 +2,13 @@ import { Tickets, Sparkles } from "lucide-react";
 
 const ShowTNPromo = () => {
   return (
-    <section className="py-12 bg-gradient-to-br from-[#1a5fb4] via-[#1e6bc7] to-[#164d94]">
+    <section className="px-4 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <a
           href="https://showtn.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="block bg-white/10 backdrop-blur-sm rounded-3xl p-6 sm:p-10 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-[1.01] shadow-2xl"
+          className="block rounded-3xl bg-[#102a53]/78 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_22px_80px_rgba(2,10,30,0.34)] backdrop-blur-xl transition-all duration-300 hover:scale-[1.01] sm:p-10"
         >
           <div className="flex flex-col items-center text-center text-white">
             <h2 className="text-3xl sm:text-5xl font-bold mb-3">

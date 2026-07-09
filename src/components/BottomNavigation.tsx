@@ -24,7 +24,7 @@ const BottomNavigation = () => {
   ];
 
   return (
-    <nav className={`fixed left-0 right-0 bg-white border-t border-gray-200 z-50 ${isSubscriber ? 'bottom-0' : 'bottom-6'}`}>
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#07111f]/62 text-white shadow-[0_-18px_50px_rgba(4,20,55,0.26)] backdrop-blur-xl">
       <div className="max-w-md mx-auto">
         <div className="flex justify-around py-2">
           {navItems.map(({ path, icon: Icon, label }) => {
@@ -60,8 +60,8 @@ const BottomNavigation = () => {
                 onClick={() => trackClick(`nav_${label.toLowerCase()}`, { target: path })}
                 className={`flex flex-col items-center p-2 ${
                   isActive
-                    ? "text-[#1a5fb4]"
-                    : "text-gray-400"
+                    ? "text-[#8ec5ff]"
+                    : "text-white/48 hover:text-white/78"
                 }`}
               >
                 <Icon size={24} />
