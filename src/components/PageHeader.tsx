@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import { TopAdBar } from "@/components/TopAdBar";
 import { ReactNode } from "react";
+import { PREMIUM_INTEREST_FORM_URL } from "@/config/premium";
 
 interface PageHeaderProps {
   title?: string;
@@ -52,11 +53,11 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
               </>
             ) : (
               <Button
-                onClick={() => navigate("/auth")}
+                onClick={() => window.open(PREMIUM_INTEREST_FORM_URL, "_blank", "noopener,noreferrer")}
                 size="sm"
                 className="bg-[#1a5fb4] hover:bg-[#164d94] text-white text-xs h-8 px-4 rounded-md"
               >
-                Sign in
+                Get Premium Free
               </Button>
             )}
           </div>

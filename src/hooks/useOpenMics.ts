@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { OpenMic } from "@/types/openMic";
 
-const CACHE_KEY = "comediq_open_mics_v3";
+const CACHE_KEY = "comediq_open_mics_v4";
 const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days — static data
 
 function loadCached(): OpenMic[] | null {
