@@ -1,15 +1,10 @@
-import { Tickets, Sparkles } from "lucide-react";
+import { Tickets } from "lucide-react";
 
 const ShowTNPromo = () => {
   return (
-    <section className="py-12 bg-gradient-to-br from-[#1a5fb4] via-[#1e6bc7] to-[#164d94]">
+    <section className="py-12 bg-gradient-to-br from-[#1f4894] via-[#2453aa] to-[#17366f]">
       <div className="max-w-4xl mx-auto px-4">
-        <a
-          href="https://showtn.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block bg-white/10 backdrop-blur-sm rounded-3xl p-6 sm:p-10 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-[1.01] shadow-2xl"
-        >
+        <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-6 sm:p-10 border border-white/20 shadow-2xl">
           <div className="flex flex-col items-center text-center text-white">
             <h2 className="text-3xl sm:text-5xl font-bold mb-3">
               ShowTN
@@ -43,11 +38,16 @@ const ShowTNPromo = () => {
               </div>
             </div>
 
-            <span className="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 px-8 py-3 rounded-full font-bold text-base sm:text-lg hover:bg-yellow-300 transition-colors">
+            <a
+              href="https://showtn.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 px-8 py-3 rounded-full font-bold text-base sm:text-lg hover:bg-yellow-300 transition-colors"
+            >
               Visit ShowTN.com →
-            </span>
+            </a>
           </div>
-        </a>
+        </div>
       </div>
     </section>
   );
