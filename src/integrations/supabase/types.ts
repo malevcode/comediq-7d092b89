@@ -839,6 +839,36 @@ export type Database = {
         }
         Relationships: []
       }
+      mic_edit_history: {
+        Row: {
+          created_at: string
+          editor_id: string | null
+          field_name: string
+          id: string
+          mic_unique_identifier: string
+          new_value: string | null
+          old_value: string | null
+        }
+        Insert: {
+          created_at?: string
+          editor_id?: string | null
+          field_name: string
+          id?: string
+          mic_unique_identifier: string
+          new_value?: string | null
+          old_value?: string | null
+        }
+        Update: {
+          created_at?: string
+          editor_id?: string | null
+          field_name?: string
+          id?: string
+          mic_unique_identifier?: string
+          new_value?: string | null
+          old_value?: string | null
+        }
+        Relationships: []
+      }
       mic_hosts: {
         Row: {
           created_at: string
