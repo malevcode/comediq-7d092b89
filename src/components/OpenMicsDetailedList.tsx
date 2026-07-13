@@ -12,6 +12,7 @@ import { makeLinksClickable } from '@/utils/makeLinksClickable';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
 import MicActionBar from '@/components/mic/MicActionBar';
+import EditMicButton from '@/components/mic/EditMicButton';
 import MicCommentSection from '@/components/mic/MicCommentSection';
 import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
 import { FREQUENCY_LABELS } from '@/types/openMic';
@@ -412,6 +413,11 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
                 </Button>
               )}
             </div>
+            {/* Open editing: anyone can fix listing facts */}
+            <EditMicButton
+              micUniqueIdentifier={mic.uniqueIdentifier}
+              micName={mic.openMic}
+            />
             {/* Host Claim / Edit */}
             <ClaimMicButton
               micUniqueIdentifier={mic.uniqueIdentifier}

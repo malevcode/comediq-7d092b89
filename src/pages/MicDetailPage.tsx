@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, DollarSign, MapPin, UserRoundCheck, Heart, ArrowLeft, ExternalLink, Navigation } from "lucide-react";
 import { WentUpToggle } from "@/components/mic/WentUpToggle";
 import ClaimMicButton from "@/components/host/ClaimMicButton";
+import EditMicButton from "@/components/mic/EditMicButton";
 import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
@@ -200,7 +201,11 @@ const MicDetailPage = () => {
             )}
           </div>
 
-          <div className="mt-6">
+          <div className="mt-6 space-y-3">
+            <EditMicButton
+              micUniqueIdentifier={mic.uniqueIdentifier}
+              micName={mic.openMic}
+            />
             <ClaimMicButton
               micUniqueIdentifier={mic.uniqueIdentifier}
               micName={mic.openMic}
