@@ -311,7 +311,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
         </div>
       </div>
       {/* Mid: Time, Cost, Stage Time - Clickable to expand */}
-      <div className="flex-1 flex flex-col justify-center min-w-0 gap-x-3 text-xs text-gray-700 mb-0 mr-1">
+      <div className={`flex-1 flex flex-col min-w-0 gap-x-3 text-xs text-gray-700 mb-0 mr-1 ${expanded ? 'justify-center md:justify-start md:pt-1' : 'justify-center'}`}>
         <div 
           className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors"
           onClick={() => setExpanded(e => !e)}
