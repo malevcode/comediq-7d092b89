@@ -100,8 +100,17 @@ export function useAdClickCounts() {
   });
 }
 
-// Ad click recording disabled to eliminate Supabase egress until billing cycle resets (July 5)
-export async function recordAdClick(_adId: string, _userId?: string, _placement?: string) {}
+export async function recordAdClick(adId: string, userId?: string, placement?: string) {
+  try {
+    await supabase.from('ad_clicks').insert({
+      ad_id: adId,
+      user_id: userId ?? null,
+      placement: placement ?? 'banner',
+    });
+  } catch (e) {
+    // swallow: ad tracking must never break UX
+  }
+}
 
 // Sponsor ad disabled to eliminate Supabase egress until billing cycle resets (July 5)
 export function useSponsorAd() {
