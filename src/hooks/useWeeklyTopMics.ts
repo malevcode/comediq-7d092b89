@@ -23,21 +23,6 @@ const WEEK_START = '2026-07-06';
 // Manually curated top mics list.
 export const MANUAL_TOP_MICS: WeeklyTopMic[] = [
   {
-    id: 'manual-book-me-mic',
-    mic_unique_identifier: 'book-me-mic',
-    mic_name: 'Book Me Mic Comediq x High Line Comedy Club',
-    venue_name: 'High Line Comedy Club',
-    borough: 'Manhattan',
-    neighborhood: 'Chelsea',
-    day: null,
-    start_time: null,
-    cost: null,
-    like_count: 0,
-    rank: 1,
-    week_start: WEEK_START,
-    to: '/book-me-mic',
-  },
-  {
     id: 'manual-knockouts',
     mic_unique_identifier: '5b43d5b5-e4d0-4038-b02b-38ea43d7434c',
     mic_name: 'Knockouts Comedy',
@@ -48,7 +33,7 @@ export const MANUAL_TOP_MICS: WeeklyTopMic[] = [
     start_time: '5:00 PM',
     cost: '$5(drink ticket inc.)',
     like_count: 1,
-    rank: 2,
+    rank: 1,
     week_start: WEEK_START,
   },
   {
@@ -62,7 +47,7 @@ export const MANUAL_TOP_MICS: WeeklyTopMic[] = [
     start_time: '6:00 PM',
     cost: '$7 (free drink)',
     like_count: 1,
-    rank: 3,
+    rank: 2,
     week_start: WEEK_START,
   },
   {
@@ -76,7 +61,7 @@ export const MANUAL_TOP_MICS: WeeklyTopMic[] = [
     start_time: '5:00 PM',
     cost: '$5 & u get a drink ticket',
     like_count: 1,
-    rank: 4,
+    rank: 3,
     week_start: WEEK_START,
   },
   {
@@ -90,7 +75,7 @@ export const MANUAL_TOP_MICS: WeeklyTopMic[] = [
     start_time: '6:00 PM',
     cost: 'Free; purchase recommended.',
     like_count: 0,
-    rank: 5,
+    rank: 4,
     week_start: WEEK_START,
   },
 ];
