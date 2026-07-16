@@ -2,7 +2,7 @@ import { Tickets } from "lucide-react";
 
 const ShowTNPromo = () => {
   return (
-    <section className="py-12 bg-gradient-to-br from-[#1f4894] via-[#2453aa] to-[#17366f]">
+    <section className="py-12 bg-[#1a5fb4]">
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-6 sm:p-10 border border-white/20 shadow-2xl">
           <div className="flex flex-col items-center text-center text-white">
