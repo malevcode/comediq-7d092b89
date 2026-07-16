@@ -22,19 +22,6 @@ export interface BannerAd {
   updated_at: string;
 }
 
-const fallbackTopAds = [
-  { label: "#MeThree", href: "https://metoomvmt.org/", external: true },
-  { label: "Comediq Supports Safe Funny Spaces", href: "/", external: false },
-  { label: "Advertise!", href: "https://docs.google.com/forms/d/e/1FAIpQLSe58Za3tfgyuUFNoVxQb_qAe3PPfVrnm4gciw_cklp-HPkKQg/viewform?usp=publish-editor", external: true },
-];
-
-const fallbackBottomAds = [
-  { label: "Add A Mic", href: "/open-mics?addMic=true", external: false },
-  { label: "Add Your Show", href: "https://forms.gle/6acD4UbmJyY45tzz9", external: true },
-  { label: "Feedback", href: "https://docs.google.com/forms/d/e/1FAIpQLSeDk4FdZGDD1APBNCUzV1IhaylLiHSAnlmhUaUz503umv457A/viewform?usp=dialog", external: true },
-  { label: "Advertise!", href: "https://docs.google.com/forms/d/e/1FAIpQLSe58Za3tfgyuUFNoVxQb_qAe3PPfVrnm4gciw_cklp-HPkKQg/viewform?usp=publish-editor", external: true },
-];
-
 export function useBannerAds() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['banner-ads-active'],
@@ -60,14 +47,11 @@ export function useBannerAds() {
   const topAds = ads.filter(a => a.position === 'top');
   const bottomAds = ads.filter(a => a.position === 'bottom');
 
-  const isUsingFallback = !!error || (!isLoading && ads.length === 0);
-
   return {
-    topAds: topAds.length > 0 ? topAds : (isUsingFallback ? fallbackTopAds : []),
-    bottomAds: bottomAds.length > 0 ? bottomAds : (isUsingFallback ? fallbackBottomAds : []),
+    topAds,
+    bottomAds,
     isLoading,
     error,
-    isUsingFallback,
   };
 }
 
