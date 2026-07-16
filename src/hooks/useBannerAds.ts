@@ -23,7 +23,6 @@ export interface BannerAd {
 }
 
 const fallbackTopAds = [
-  { label: "6/28 Comediq Book Me Mic at High Line Comedy Club", href: "/open-mics", external: false },
   { label: "#MeThree", href: "https://metoomvmt.org/", external: true },
   { label: "Comediq Supports Safe Funny Spaces", href: "/", external: false },
   { label: "Advertise!", href: "https://docs.google.com/forms/d/e/1FAIpQLSe58Za3tfgyuUFNoVxQb_qAe3PPfVrnm4gciw_cklp-HPkKQg/viewform?usp=publish-editor", external: true },
