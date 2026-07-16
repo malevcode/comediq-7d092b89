@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { recordAdClick, useBannerAds, type BannerAd } from "@/hooks/useBannerAds";
+import { useBannerAds, recordAdClick, type BannerAd } from "@/hooks/useBannerAds";
 import { useAuth } from "@/contexts/AuthContext";
 
 const AdItem = ({ ad, userId }: { ad: BannerAd; userId?: string }) => {
@@ -7,7 +7,7 @@ const AdItem = ({ ad, userId }: { ad: BannerAd; userId?: string }) => {
     "inline-flex items-center gap-1.5 px-3 py-0.5 mx-2 rounded-full bg-[#1a5fb4]/10 text-[#1a5fb4] text-[11px] font-semibold tracking-wide hover:bg-[#1a5fb4]/20 transition-colors whitespace-nowrap";
 
   const handleClick = () => {
-    recordAdClick(ad.id, userId);
+    recordAdClick(ad.id, userId, 'top');
   };
 
   if (ad.external) {

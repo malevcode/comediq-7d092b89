@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { useOpenMics } from '@/hooks/useOpenMics';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
@@ -21,6 +22,7 @@ interface HostMicEditFormProps {
 
 export default function HostMicEditForm({ micUniqueIdentifier, onClose }: HostMicEditFormProps) {
   const { data: mics } = useOpenMics();
+  const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);
@@ -64,6 +66,39 @@ export default function HostMicEditForm({ micUniqueIdentifier, onClose }: HostMi
   const handleSave = async () => {
     setSaving(true);
     try {
+      // Save the old value of every changed field before overwriting it
+      // (revert foundation — see EDITING_MODEL_PLAN.md). Best-effort: a
+      // failure here must never block the edit itself.
+      if (mic) {
+        const oldValues: Record<string, string> = {
+          day: mic.day || '',
+          start_time: mic.startTime || '',
+          latest_end_time: mic.latestEndTime || '',
+          cost: mic.cost || '',
+          stage_time: mic.stageTime || '',
+          hosts_organizers: mic.hosts || '',
+          sign_up_instructions: mic.signUpInstructions || '',
+          location: mic.location || '',
+          venue_name: mic.venueName || '',
+          borough: mic.borough || '',
+          neighborhood: mic.neighborhood || '',
+          other_rules: mic.otherRules || '',
+        };
+        const historyRows = Object.entries(oldValues)
+          .filter(([field, oldValue]) => form[field as keyof typeof form] !== oldValue)
+          .map(([field, oldValue]) => ({
+            mic_unique_identifier: micUniqueIdentifier,
+            editor_id: user?.id || null,
+            field_name: field,
+            old_value: oldValue,
+            new_value: form[field as keyof typeof form],
+          }));
+        if (historyRows.length > 0) {
+          const { error: historyError } = await supabase.from('mic_edit_history').insert(historyRows);
+          if (historyError) console.error('Failed to record edit history:', historyError);
+        }
+      }
+
       const { error } = await supabase
         .from('open_mics_historical')
         .update({

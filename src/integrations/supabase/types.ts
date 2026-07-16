@@ -1262,6 +1262,7 @@ export type Database = {
           geocoding_provider: string | null
           geocoding_score: number | null
           hosts_organizers: string | null
+          july_verification_status: string | null
           last_verified: string | null
           latest_end_time: string | null
           latitude: number | null
@@ -1304,6 +1305,7 @@ export type Database = {
           geocoding_provider?: string | null
           geocoding_score?: number | null
           hosts_organizers?: string | null
+          july_verification_status?: string | null
           last_verified?: string | null
           latest_end_time?: string | null
           latitude?: number | null
@@ -1346,6 +1348,7 @@ export type Database = {
           geocoding_provider?: string | null
           geocoding_score?: number | null
           hosts_organizers?: string | null
+          july_verification_status?: string | null
           last_verified?: string | null
           latest_end_time?: string | null
           latitude?: number | null
@@ -1471,6 +1474,60 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      pending_mic_submissions: {
+        Row: {
+          active: boolean | null
+          borough: string | null
+          changes_updates: string | null
+          city: string | null
+          cost: string | null
+          day: string | null
+          id: string
+          last_verified: string | null
+          location: string | null
+          open_mic: string | null
+          stage_time: string | null
+          start_time: string | null
+          status: string | null
+          submitted_at: string | null
+          venue_name: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          borough?: string | null
+          changes_updates?: string | null
+          city?: string | null
+          cost?: string | null
+          day?: string | null
+          id?: string
+          last_verified?: string | null
+          location?: string | null
+          open_mic?: string | null
+          stage_time?: string | null
+          start_time?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          venue_name?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          borough?: string | null
+          changes_updates?: string | null
+          city?: string | null
+          cost?: string | null
+          day?: string | null
+          id?: string
+          last_verified?: string | null
+          location?: string | null
+          open_mic?: string | null
+          stage_time?: string | null
+          start_time?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          venue_name?: string | null
+        }
+        Relationships: []
       }
       points_ledger: {
         Row: {

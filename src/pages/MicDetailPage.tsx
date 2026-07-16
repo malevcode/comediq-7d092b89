@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useMicRatings } from "@/hooks/useMicRatings";
 import { parseVenueSlug, slugify } from "@/utils/slugify";
@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, DollarSign, MapPin, UserRoundCheck, Heart, ArrowLeft, ExternalLink, Navigation } from "lucide-react";
 import { WentUpToggle } from "@/components/mic/WentUpToggle";
-import { VerificationBadge } from "@/components/VerificationBadge";
 import ClaimMicButton from "@/components/host/ClaimMicButton";
+import EditMicButton from "@/components/mic/EditMicButton";
 import { OpenMic } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
@@ -25,12 +25,15 @@ function getMapUrl(location: string, venueName: string) {
 
 const MicDetailPage = () => {
   const { venueSlug } = useParams<{ venueSlug: string }>();
+  const [searchParams] = useSearchParams();
+  const idParam = searchParams.get('id');
   const navigate = useNavigate();
   const { data: mics, isLoading } = useOpenMics();
   const { user } = useAuth();
 
-  // Find mic by matching slug
+  // Prefer unique_identifier when provided (disambiguates mics that share venue+neighborhood)
   const mic = mics?.find(m => {
+    if (idParam) return m.uniqueIdentifier === idParam;
     const micSlug = `${slugify(m.venueName)}-${slugify(m.neighborhood)}`;
     return micSlug === venueSlug;
   });
@@ -77,6 +80,15 @@ const MicDetailPage = () => {
     ]
   };
 
+  const cream = "#f5f0e6";
+
+  const Attr = ({ label, value }: { label: string; value: React.ReactNode }) => (
+    <div className="border-t border-white/10 pt-3">
+      <div className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">{label}</div>
+      <div className="text-sm md:text-base" style={{ color: cream }}>{value}</div>
+    </div>
+  );
+
   return (
     <>
       <SEO
@@ -88,212 +100,141 @@ const MicDetailPage = () => {
         structuredData={structuredData}
       />
 
-      <div className="min-h-screen pb-20 pt-28">
-        <div className="container mx-auto px-4 py-8">
-          {/* Back Button */}
-          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
+      <div className="min-h-screen bg-[#0a0a0a] pt-20 pb-16" style={{ color: cream }}>
+        <div className="max-w-[1400px] mx-auto px-5 md:px-10">
+          {/* Top row: back + tiny meta */}
+          <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-white/50 mb-4">
+            <button onClick={() => navigate(-1)} className="hover:text-white transition">
+              ← back
+            </button>
+            <span>{mic.neighborhood?.toLowerCase()} · {mic.borough?.toLowerCase()}</span>
+          </div>
 
-          {/* Hero Section */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-2">
-              <h1 className="text-4xl font-bold">{mic.openMic}</h1>
-              <VerificationBadge 
-                micUniqueIdentifier={mic.uniqueIdentifier}
-                lastVerified={mic.lastVerified === "Unverified" ? undefined : mic.lastVerified}
-              />
-            </div>
-            <p className="text-xl text-muted-foreground">at {mic.venueName}</p>
-            
-            {/* Quick Actions */}
-            <div className="flex gap-4 mt-4 flex-wrap">
+          {/* Display name */}
+          <h1
+            className="font-bold leading-[0.85] tracking-[-0.04em] break-words"
+            style={{
+              color: cream,
+              fontSize: "clamp(2.25rem, 8vw, 6rem)",
+            }}
+          >
+            {mic.openMic.toLowerCase()}
+          </h1>
+
+          {/* Tagline + actions */}
+          <div className="mt-3 md:mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-white/50 text-sm max-w-2xl">
+              {mic.cost?.toLowerCase() === 'free' ? 'free' : mic.cost?.toLowerCase()} · {mic.day?.toLowerCase()} · {mic.venueName?.toLowerCase()}{mic.stageTime ? ` · ${mic.stageTime} on stage` : ''}
+            </p>
+            <div className="flex flex-wrap gap-2">
               <WentUpToggle micId={mic.uniqueIdentifier} />
               {user && (
-                <Button
-                  variant={userRating === 'like' ? 'default' : 'outline'}
+                <button
                   onClick={() => {
                     if (userRating === 'like') removeRating(mic.uniqueIdentifier);
                     else rateMic({ micUniqueIdentifier: mic.uniqueIdentifier, rating: 'like' });
                   }}
                   disabled={isRating}
+                  className="inline-flex items-center gap-2 border border-white/20 hover:border-white/60 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.15em] transition"
+                  style={{ color: cream }}
                 >
-                  <Heart className={`w-4 h-4 mr-2 ${userRating === 'like' ? 'fill-current' : ''}`} />
-                  {userRating === 'like' ? 'Liked' : 'Like'} ({ratingCounts?.likes || 0})
-                </Button>
+                  <Heart className={`w-3 h-3 ${userRating === 'like' ? 'fill-current' : ''}`} />
+                  {ratingCounts?.likes || 0}
+                </button>
               )}
-              <Button variant="outline" asChild>
-                <a href={getMapUrl(mic.location, mic.venueName)} target="_blank" rel="noopener noreferrer">
-                  <Navigation className="w-4 h-4 mr-2" />
-                  Get Directions
+              <a
+                href={getMapUrl(mic.location, mic.venueName)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.15em] transition"
+                style={{ backgroundColor: cream, color: "#0a0a0a" }}
+              >
+                <Navigation className="w-3 h-3" />
+                directions
+              </a>
+            </div>
+          </div>
+
+          {/* Attribute grid — 3 per row */}
+          <div className="mt-8 grid grid-cols-3 gap-x-6 gap-y-5 border-t border-white/10 pt-6">
+            <Attr label="day" value={mic.day} />
+            <Attr label="time" value={`${mic.startTime}${mic.latestEndTime ? '–' + mic.latestEndTime : ''}`} />
+            <Attr label="cost" value={mic.cost || '—'} />
+            <Attr label="stage time" value={mic.stageTime || '—'} />
+            <Attr label="host" value={mic.hosts || mic.instagramHandle || '—'} />
+            <Attr label="venue" value={mic.venueName} />
+            <Attr label="neighborhood" value={mic.neighborhood} />
+            <Attr label="borough" value={mic.borough} />
+            <Attr
+              label="address"
+              value={
+                <a href={getMapUrl(mic.location, mic.venueName)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:text-white transition">
+                  {mic.location}<ExternalLink className="w-3 h-3" />
                 </a>
-              </Button>
-            </div>
+              }
+            />
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Main Content */}
-            <div className="md:col-span-2 space-y-6">
-              {/* Quick Info Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Info</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Day</p>
-                      <p className="font-semibold">{mic.day}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Time</p>
-                      <p className="font-semibold">{mic.startTime} - {mic.latestEndTime}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Cost</p>
-                      <p className="font-semibold">{mic.cost}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Stage Time</p>
-                      <p className="font-semibold">{mic.stageTime}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <UserRoundCheck className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Host</p>
-                      <p className="font-semibold">{mic.hosts || mic.instagramHandle || 'N/A'}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Sign-Up Instructions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>How to Sign Up</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="whitespace-pre-wrap">{mic.signUpInstructions || 'Contact venue for details'}</p>
-                </CardContent>
-              </Card>
-
-              {/* Venue Details */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Venue Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-start gap-2">
-                    <MapPin className="w-5 h-5 text-muted-foreground mt-1" />
-                    <div>
-                      <p className="font-semibold">{mic.venueName}</p>
-                      <a 
-                        href={getMapUrl(mic.location, mic.venueName)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline flex items-center gap-1"
-                      >
-                        {mic.location}
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {mic.neighborhood}, {mic.borough}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Embedded Map */}
-                  <div className="w-full h-64 bg-muted rounded-lg overflow-hidden">
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      frameBorder="0"
-                      style={{ border: 0 }}
-                      src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(mic.venueName + ', ' + mic.location)}`}
-                      allowFullScreen
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Claim / Edit Mic */}
-              <ClaimMicButton 
-                micUniqueIdentifier={mic.uniqueIdentifier}
-                micName={mic.openMic}
-                venueName={mic.venueName}
-              />
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Browse Similar</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <Link 
-                    to={linkManager.borough(mic.borough)}
-                    className="block text-blue-600 hover:underline"
-                  >
-                    All mics in {mic.borough} →
-                  </Link>
-                  <Link 
-                    to={linkManager.neighborhood(mic.neighborhood)}
-                    className="block text-blue-600 hover:underline"
-                  >
-                    More {mic.neighborhood} mics →
-                  </Link>
-                  <Link 
-                    to={linkManager.micsByDay(mic.day)}
-                    className="block text-blue-600 hover:underline"
-                  >
-                    All {mic.day} mics →
-                  </Link>
-                  {mic.cost === 'Free' && (
-                    <Link 
-                      to={linkManager.freeMics()}
-                      className="block text-blue-600 hover:underline"
-                    >
-                      All free mics →
-                    </Link>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Similar Mics */}
-              {similarMics && similarMics.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">You Might Also Like</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {similarMics.map(similarMic => (
-                      <Link
-                        key={similarMic.uniqueIdentifier}
-                        to={linkManager.micDetail(similarMic)}
-                        className="block p-3 border rounded-lg hover:bg-muted transition"
-                      >
-                        <p className="font-semibold text-sm">{similarMic.openMic}</p>
-                        <p className="text-xs text-muted-foreground">{similarMic.venueName}</p>
-                        <p className="text-xs text-muted-foreground">{similarMic.day} • {similarMic.cost}</p>
-                      </Link>
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+          {/* Sign up */}
+          <div className="mt-8 border-t border-white/10 pt-6">
+            <div className="text-[10px] uppercase tracking-[0.25em] text-white/40 mb-2">how to sign up</div>
+            <p className="text-base md:text-lg leading-relaxed whitespace-pre-wrap" style={{ color: cream }}>
+              {mic.signUpInstructions || 'Contact venue for details.'}
+            </p>
           </div>
+
+          {/* Browse links */}
+          <div className="mt-8 border-t border-white/10 pt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/60">
+            <Link to={linkManager.borough(mic.borough)} className="hover:text-white transition">
+              all {mic.borough?.toLowerCase()} mics →
+            </Link>
+            <Link to={linkManager.neighborhood(mic.neighborhood)} className="hover:text-white transition">
+              more {mic.neighborhood?.toLowerCase()} →
+            </Link>
+            <Link to={linkManager.micsByDay(mic.day)} className="hover:text-white transition">
+              all {mic.day?.toLowerCase()} mics →
+            </Link>
+            {mic.cost === 'Free' && (
+              <Link to={linkManager.freeMics()} className="hover:text-white transition">
+                all free mics →
+              </Link>
+            )}
+          </div>
+
+          <div className="mt-6 space-y-3">
+            <EditMicButton
+              micUniqueIdentifier={mic.uniqueIdentifier}
+              micName={mic.openMic}
+            />
+            <ClaimMicButton
+              micUniqueIdentifier={mic.uniqueIdentifier}
+              micName={mic.openMic}
+              venueName={mic.venueName}
+            />
+          </div>
+
+          {/* You might also like */}
+          {similarMics && similarMics.length > 0 && (
+            <section className="mt-16 border-t border-white/10 pt-6">
+              <div className="text-[10px] uppercase tracking-[0.25em] text-white/40 mb-4">you might also like</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
+                {similarMics.map(similarMic => (
+                  <Link
+                    key={similarMic.uniqueIdentifier}
+                    to={linkManager.micDetail(similarMic)}
+                    className="block group border-t border-white/10 pt-3"
+                  >
+                    <div className="text-base font-medium group-hover:text-white transition" style={{ color: cream }}>
+                      {similarMic.openMic.toLowerCase()}
+                    </div>
+                    <div className="text-[11px] uppercase tracking-[0.15em] text-white/40 mt-1">
+                      {similarMic.day} · {similarMic.cost} · {similarMic.neighborhood?.toLowerCase()}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </div>
     </>
