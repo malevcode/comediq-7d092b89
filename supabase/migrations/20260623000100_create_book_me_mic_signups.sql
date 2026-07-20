@@ -1,6 +1,6 @@
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS subscription_plan TEXT NOT NULL DEFAULT 'free'
-    CHECK (subscription_plan IN ('free', 'standard', 'premium')),
+    CHECK (subscription_plan IN ('free', 'premium')),
   ADD COLUMN IF NOT EXISTS credits_balance INTEGER NOT NULL DEFAULT 0;
 
 CREATE TABLE IF NOT EXISTS public.book_me_mic_signups (

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { linkManager } from "@/utils/linkManager";
+import { PREMIUM_INTEREST_FORM_URL } from "@/config/premium";
 
 const SiteFooter = () => {
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -97,9 +98,14 @@ const SiteFooter = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/auth" className="text-gray-300 hover:text-[#1a5fb4] transition text-sm">
-                  Sign In
-                </Link>
+                <a
+                  href={PREMIUM_INTEREST_FORM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-[#1a5fb4] transition text-sm"
+                >
+                  Get Premium Free
+                </a>
               </li>
               <li>
                 <Link to="/privacy" className="text-gray-300 hover:text-[#1a5fb4] transition text-sm">
