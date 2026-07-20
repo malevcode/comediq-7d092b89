@@ -22,17 +22,21 @@ export interface MicOfTheDayRow {
 
 export type MotdSource = 'admin_lock' | 'nomination' | 'weekly_default' | 'auto_pick' | 'unknown';
 
-// MOTD disabled to eliminate Supabase egress until billing cycle resets
+const MOTD_UNIQUE_ID = '41aab682-878f-4c2e-a304-f568ebb719cc';
+
 export function useMicOfTheDay() {
   const today = getTodayNY();
+  const { data: mics } = useOpenMics();
+
+  const mic = mics?.find((m) => m.uniqueIdentifier === MOTD_UNIQUE_ID) ?? null;
 
   const query = useQuery({
-    queryKey: ['micOfTheDay', 'disabled', today],
-    queryFn: async () => ({ winner: null as string | null, source: 'unknown' as MotdSource }),
+    queryKey: ['micOfTheDay', today],
+    queryFn: async () => ({ winner: MOTD_UNIQUE_ID, source: 'admin_lock' as MotdSource }),
     staleTime: Infinity,
   });
 
-  return { ...query, mic: null as OpenMic | null, source: 'unknown' as MotdSource, claimDate: today };
+  return { ...query, mic, source: 'admin_lock' as MotdSource, claimDate: today };
 }
 
 export function useClaimMicOfTheDay() {

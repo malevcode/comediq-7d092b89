@@ -10,7 +10,7 @@ export interface AppUser {
 }
 
 type UserRole = 'performer' | 'host' | 'showrunner' | 'admin' | null;
-type SubscriptionPlan = 'free' | 'standard' | 'premium';
+type SubscriptionPlan = 'free' | 'premium';
 
 interface ProfileAccessFields {
   isadmin: boolean;
@@ -25,7 +25,6 @@ interface UserRoleRow {
 interface AuthContextType {
   user: AppUser | null;
   session: Session | null;
-  signUp: (email: string, password: string, username?: string, phone?: string, emailRedirectTo?: string) => Promise<{ error: unknown }>;
   signIn: (email: string, password: string) => Promise<{ error: unknown }>;
   signOut: () => Promise<void>;
   loading: boolean;
@@ -54,6 +53,13 @@ function toAppUser(u: User): AppUser {
     phone: u.phone ?? null,
     user_metadata: u.user_metadata ?? {},
   };
+}
+
+function getLocalDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -134,17 +140,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Record a visit once per day
   useEffect(() => {
     if (!user) { setVisitInserted(false); return; }
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = getLocalDateKey();
     supabase
       .from('user_visits')
       .select('id')
       .eq('user_id', user.id)
-      .gte('visit_date', todayStr + 'T00:00:00.000Z')
-      .lt('visit_date', todayStr + 'T23:59:59.999Z')
+      .eq('visit_date', todayStr)
       .then(({ data }) => {
         if (!data || data.length === 0) {
           supabase.from('user_visits')
-            .insert([{ user_id: user.id, visit_date: new Date().toISOString() }])
+            .insert([{ user_id: user.id, visit_date: todayStr }])
             .then(({ error }) => { if (!error) setVisitInserted(true); });
         }
       });
@@ -152,15 +157,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error };
-  };
-
-  const signUp = async (email: string, password: string, _username?: string, _phone?: string, emailRedirectTo?: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: emailRedirectTo ? { emailRedirectTo } : undefined,
-    });
     return { error };
   };
 
@@ -178,7 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const needsOnboarding = false;
 
   return (
-    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, loading: loading || profileLoading || (!!user && !profileChecked), visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, creditsBalance, needsOnboarding, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, signIn, signOut, loading: loading || profileLoading || (!!user && !profileChecked), visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, creditsBalance, needsOnboarding, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

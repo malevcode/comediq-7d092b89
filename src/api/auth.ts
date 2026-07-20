@@ -23,16 +23,17 @@ export async function signIn(email: string, password: string) {
 }
 
 /**
- * Signs up a new user
+ * Starts email-code account creation through Supabase Magic Link / OTP.
  */
 export async function signUp(email: string, password: string) {
   const redirectUrl = `${window.location.origin}/`;
-  
-  const { data, error } = await supabase.auth.signUp({
+  void password;
+
+  const { data, error } = await supabase.auth.signInWithOtp({
     email,
-    password,
     options: {
-      emailRedirectTo: redirectUrl
+      shouldCreateUser: true,
+      emailRedirectTo: redirectUrl,
     }
   });
 

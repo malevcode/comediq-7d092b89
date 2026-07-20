@@ -28,29 +28,58 @@ const GrowthOpportunities = () => {
   const { data: mySubmissions } = useMyGrowthSubmissions(user?.id);
   const bookingOpportunities: GrowthOpportunity[] = [
     {
-      id: 'east-village-garden-cinco-de-mayo-2026',
+      id: 'st-marks-comedy-competition-2026',
       type: 'barking',
-      title: 'East Village Garden Pop Up Cinco de Mayo Show',
-      description: 'Stand up comedy from 6:30-8 pm, followed by an outdoor film screening from 8-9 pm. Optional donations and volunteer time support the community garden.',
-      venue_name: 'El Sol Brillante Garden',
+      title: '2nd Annual St. Marks Comedy Competition',
+      description: 'Submit your best 5 minutes. Selected comics compete live for $3,000 in total prizes, including a full year of spots at St. Marks Comedy Club. We watch every submission and pick comics for the live competition — a chance to get on stage, compete for real prizes, and build a relationship with the club.',
+      venue_name: 'St. Marks Comedy Club',
       borough: 'Manhattan',
-      date: '2026-05-05',
-      time: '6:30 PM',
-      compensation: 'Booking opportunity',
-      contact_info: '12th Street between Ave A & B',
-      external_url: null,
+      date: '2026-07-22',
+      time: null,
+      compensation: '$3,000 in total prizes',
+      contact_info: '$20 submission fee • Applications close July 3, 2026',
+      external_url: 'https://www.stmarkscomedy.com/competition?utm_source=comediq&utm_medium=partner&utm_campaign=stmarks_comedy_competition_2026',
+      external_label: 'Submit Your Tape',
       image_url: null,
       is_featured: true,
       is_active: true,
       status: 'approved',
       submitted_by: null,
       contact_id: null,
-      created_at: '2026-05-05T00:00:00.000Z',
-      updated_at: '2026-05-05T00:00:00.000Z',
+      created_at: '2026-07-01T00:00:00.000Z',
+      updated_at: '2026-07-01T00:00:00.000Z',
     },
     ...(opportunities ?? []),
   ];
-  const visibleOpportunities = tab === 'booking' ? bookingOpportunities : opportunities;
+
+  const podcastOpportunities: GrowthOpportunity[] = [
+    {
+      id: 'likeable-with-david-stickle',
+      type: 'podcast',
+      title: 'Likeable with David Stickle',
+      description: "Stand-up comedy from an entry level perspective. Each week David Stickle sits down with comedians at every stage of the game for real, unfiltered conversations about the craft, the hustle, and what it actually takes to make people laugh. 40 episodes in and just getting started.",
+      venue_name: null,
+      borough: null,
+      date: null,
+      time: null,
+      compensation: 'New episodes every Wednesday',
+      contact_info: '@likeablepod',
+      external_url: 'https://youtube.com/@davidsticklecomedy?si=LvLAmg2NElpPN3qx',
+      external_label: 'Watch on YouTube',
+      image_url: null,
+      is_featured: true,
+      is_active: true,
+      status: 'approved',
+      submitted_by: null,
+      contact_id: null,
+      created_at: '2026-07-01T00:00:00.000Z',
+      updated_at: '2026-07-01T00:00:00.000Z',
+    },
+    ...(opportunities ?? []),
+  ];
+
+  const visibleOpportunities =
+    tab === 'booking' ? bookingOpportunities : tab === 'podcasts' ? podcastOpportunities : opportunities;
 
   const emptyMessages = {
     booking: { title: "No booking opportunities yet", sub: "Check back soon or post one yourself!" },
@@ -119,7 +148,7 @@ const GrowthOpportunities = () => {
 
             {["booking", "festivals", "podcasts"].map((t) => (
               <TabsContent key={t} value={t}>
-                {isLoading && tab === t && t !== 'booking' ? (
+                {isLoading && tab === t && t !== 'booking' && t !== 'podcasts' ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     {[...Array(4)].map((_, i) => (
                       <Skeleton key={i} className="h-48 rounded-lg" />
