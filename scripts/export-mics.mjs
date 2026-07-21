@@ -1,7 +1,7 @@
 /**
- * Prebuild script: export active mics from Supabase → public/mics.json
- * Runs once per Vercel deploy. After this, all visitors read static JSON
- * from Vercel's CDN — zero Supabase egress.
+ * Export active mics from Supabase → public/mics.json.
+ * Run this in CI on a schedule, and optionally once per deploy. After this,
+ * all visitors read static JSON from the CDN — zero Supabase egress.
  *
  * If the fetch fails, writes an empty array so the build still succeeds
  * and the app falls back to localStorage cache.
@@ -10,8 +10,14 @@
 import { writeFileSync } from "fs";
 import { join } from "path";
 
-const SUPABASE_URL = "https://wwqoztrqprqksdubjwgj.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3cW96dHJxcHJxa3NkdWJqd2dqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NDA5NzYsImV4cCI6MjA5MzUxNjk3Nn0.qYBpB5qHDyuHVfzwz6q7yzJgTUB0Xps6t_ezlh9kA9w";
+const SUPABASE_URL =
+  process.env.SUPABASE_URL ||
+  process.env.VITE_SUPABASE_URL ||
+  "https://wwqoztrqprqksdubjwgj.supabase.co";
+const SUPABASE_KEY =
+  process.env.SUPABASE_ANON_KEY ||
+  process.env.VITE_SUPABASE_ANON_KEY ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3cW96dHJxcHJxa3NkdWJqd2dqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NDA5NzYsImV4cCI6MjA5MzUxNjk3Nn0.qYBpB5qHDyuHVfzwz6q7yzJgTUB0Xps6t_ezlh9kA9w";
 
 const COLUMNS = [
   "unique_identifier",

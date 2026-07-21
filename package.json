@@ -5,13 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/export-mics.mjs",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "export:mics": "node scripts/export-mics.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "geocode:open-mics": "node scripts/geocode-open-mics.mjs",
     "geocode:audience-shows": "node scripts/geocode-audience-shows.mjs",
-    "test:auth": "node scripts/test-clerk-oauth.mjs"
+    "test:auth": "node scripts/test-clerk-oauth.mjs",
+    "backfill:open-mics": "node scripts/backfill-open-mics-metadata.mjs",
+    "clean:open-mic-names": "node scripts/clean-open-mic-name-asterisks.mjs"
   },
   "dependencies": {
     "@clerk/react": "^6.5.0",

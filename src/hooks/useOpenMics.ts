@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { OpenMic } from "@/types/openMic";
 
-const CACHE_KEY = "comediq_open_mics_v5";
-const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days; public mic data is exported at build time.
+const CACHE_KEY = "comediq_open_mics_v6";
+const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days — static data
 
 function hasCoordinates(mic: OpenMic): boolean {
   return mic.latitude !== null
