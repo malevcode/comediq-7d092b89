@@ -1,0 +1,62 @@
+name: Refresh mics.json
+
+on:
+  schedule:
+    # 9 PM in New York. GitHub cron is UTC, so run during both daylight and
+    # standard time windows and let the first step keep only the true 9 PM run.
+    - cron: "0 1 * * *"
+    - cron: "0 2 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check New York time
+        id: run_time
+        env:
+          TZ: America/New_York
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$(date +%H)" = "21" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.run_time.outputs.should_run == 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        if: steps.run_time.outputs.should_run == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Export mics from Supabase
+        if: steps.run_time.outputs.should_run == 'true'
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: node scripts/export-mics.mjs
+
+      - name: Commit updated mics.json
+        if: steps.run_time.outputs.should_run == 'true'
+        run: |
+          if git diff --quiet -- public/mics.json; then
+            echo "public/mics.json is already up to date."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/mics.json
+          git commit -m "Refresh mics.json"
+          git push
