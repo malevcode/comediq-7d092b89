@@ -115,7 +115,7 @@ const Auth = () => {
   const createAccountPath = `/auth/create?next=${encodeURIComponent(postAuthPath)}${plansParam}${subscribeParam}`;
   
   const authLandingPath = `/auth?next=${encodeURIComponent(postAuthPath)}${plansParam}${subscribeParam}`;
-  const checkoutReturnPath = postAuthPath === '/book-me-mic' ? '/book-me-mic' : '/';
+  const checkoutReturnPath = '/';
 
   // ── Redirect if already authed ────────────────────────────────────────────
 
@@ -600,7 +600,6 @@ const Auth = () => {
           {[
             'No ads',
             'Free entry to the expanding network of Comediq open mics for you and 1 guest',
-            'Access to the Highline Comedy Club Book Me Mic, which gives comics a shot at stage time at a stronger club (3 comics every mic will be chosen to do the 8 pm show after)',
             'Show you support the best database of NYC open mic data and want to contribute to maintaining and growing comedy digital infrastructure',
           ].map((feature) => (
             <li key={feature} className="flex gap-2">

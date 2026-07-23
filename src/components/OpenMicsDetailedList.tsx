@@ -12,6 +12,7 @@ import { makeLinksClickable } from '@/utils/makeLinksClickable';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
 import MicActionBar from '@/components/mic/MicActionBar';
+import EditMicButton from '@/components/mic/EditMicButton';
 import MicCommentSection from '@/components/mic/MicCommentSection';
 import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
 import { FREQUENCY_LABELS } from '@/types/openMic';
@@ -317,9 +318,9 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
         </div>
       </div>
       {/* Mid: Time, Cost, Stage Time - Clickable to expand */}
-      <div className="flex-1 flex flex-col justify-center min-w-0 gap-x-3 text-xs text-white/70 mb-2 mr-1">
-        <div
-          className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center text-xs text-white/70 cursor-pointer hover:bg-white/10 rounded-md px-1 py-0.5 transition-colors"
+      <div className={`flex-1 flex flex-col min-w-0 gap-x-3 text-xs text-gray-700 mb-0 mr-1 ${expanded ? 'justify-center md:justify-start md:pt-1' : 'justify-center'}`}>
+        <div 
+          className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors dark:text-white/70 dark:hover:bg-white/10"
           onClick={() => setExpanded(e => !e)}
           role="button"
           tabIndex={0}
@@ -419,6 +420,11 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
                 </Button>
               )}
             </div>
+            {/* Open editing: anyone can fix listing facts */}
+            <EditMicButton
+              micUniqueIdentifier={mic.uniqueIdentifier}
+              micName={mic.openMic}
+            />
             {/* Host Claim / Edit */}
             <ClaimMicButton
               micUniqueIdentifier={mic.uniqueIdentifier}

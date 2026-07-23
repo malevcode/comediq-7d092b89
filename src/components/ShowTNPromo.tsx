@@ -1,4 +1,4 @@
-import { Tickets, Sparkles } from "lucide-react";
+import { Tickets } from "lucide-react";
 
 const ShowTNPromo = () => {
   return (
@@ -43,9 +43,14 @@ const ShowTNPromo = () => {
               </div>
             </div>
 
-            <span className="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 px-8 py-3 rounded-full font-bold text-base sm:text-lg hover:bg-yellow-300 transition-colors">
+            <a
+              href="https://showtn.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 px-8 py-3 rounded-full font-bold text-base sm:text-lg hover:bg-yellow-300 transition-colors"
+            >
               Visit ShowTN.com →
-            </span>
+            </a>
           </div>
         </a>
       </div>

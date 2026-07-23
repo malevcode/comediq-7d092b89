@@ -275,14 +275,7 @@ export default function Home() {
                   <CardDescription className="text-white/80">Common tasks</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2 pt-6">
-                  {isSubscriber ? (
-                    <Button asChild className="w-full justify-start bg-[#f97316] text-white hover:bg-[#ea580c] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03]" size="sm">
-                      <Link to="/book-me-mic">
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        Book Me Mic Signup
-                      </Link>
-                    </Button>
-                  ) : (
+                  {!isSubscriber && (
                     <Button asChild className="w-full justify-start bg-[#f97316] text-white hover:bg-[#ea580c] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03]" size="sm">
                       <Link to="/auth?next=%2F&plans=true">
                         <Sparkles className="mr-2 h-4 w-4" />
