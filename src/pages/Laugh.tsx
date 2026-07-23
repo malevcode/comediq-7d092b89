@@ -17,14 +17,22 @@ export default function Laugh() {
     'my-reviews': 0,
   });
 
-  // Initialize from URL or localStorage
+  // Keep the active tab in sync with URL changes from the menu or direct links.
   useEffect(() => {
     const tabFromUrl = searchParams.get('tab');
-    const savedTab = localStorage.getItem('laughActiveTab');
     
     if (tabFromUrl && (tabFromUrl === 'find-shows' || tabFromUrl === 'my-reviews')) {
       setActiveTab(tabFromUrl);
-    } else if (savedTab && (savedTab === 'find-shows' || savedTab === 'my-reviews')) {
+    }
+  }, [searchParams, setActiveTab]);
+
+  // Initialize from localStorage only when the URL does not explicitly choose a tab.
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab');
+    if (tabFromUrl) return;
+
+    const savedTab = localStorage.getItem('laughActiveTab');
+    if (savedTab && (savedTab === 'find-shows' || savedTab === 'my-reviews')) {
       setActiveTab(savedTab);
     }
   }, []);

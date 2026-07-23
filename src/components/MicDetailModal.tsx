@@ -376,7 +376,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Button 
                   onClick={() => window.open(getGoogleCalendarUrl(), '_blank')}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                  className="bg-white hover:bg-gray-200 text-white text-sm"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Google Calendar

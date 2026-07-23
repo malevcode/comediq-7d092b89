@@ -442,7 +442,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
               <Button
                 size="sm"
                 variant="outline"
-                className="w-full flex items-center justify-center gap-2 border-gray-300 bg-white hover:bg-gray-100"
+                className="w-full flex items-center justify-center gap-2 border-gray-300 bg-white hover:bg-gray-200"
                 asChild
               >
                 <a
@@ -466,7 +466,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
                   }}
                 >
                   <span className="flex items-center gap-1">
-                    <span className="inline-block w-4 h-4 bg-white text-sky font-bold rounded-full flex items-center justify-center">G</span>
+                    <span className="inline-block w-4 h-4 text-sky font-bold rounded-full flex items-center justify-center">G</span>
                     <span className="text-sky">Google Calendar</span>
                   </span>
                 </a>
@@ -474,7 +474,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
               <Button
                 size="sm"
                 variant="outline"
-                className="w-full flex items-center justify-center gap-2 border-gray-300 bg-white hover:bg-gray-100"
+                className="w-full flex items-center justify-center gap-2 border-gray-300 bg-white hover:bg-gray-200"
                 onClick={() => downloadICal(mic)}
                 aria-label="Download iCal file"
               >

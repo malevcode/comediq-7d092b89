@@ -36,6 +36,8 @@ const HamburgerMenu = () => {
     { path: "/laugh?tab=my-reviews", icon: Star, label: "My Reviews" },
   ];
 
+  const currentPathWithSearch = `${location.pathname}${location.search}`;
+  const isItemActive = (path: string) => currentPathWithSearch === path || location.pathname === path;
   const isPerformActive = performSubItems.some(item => location.pathname === item.path);
   const isLaughActive = location.pathname === '/laugh' || location.pathname === '/audience-shows';
   
@@ -192,7 +194,7 @@ const HamburgerMenu = () => {
                       key={path}
                       onClick={() => handleNavClick(path)}
                       className={`w-full flex items-center px-4 py-2 text-left rounded-md transition-colors text-sm ${
-                        location.pathname === path || (path.includes('?') && location.pathname === '/laugh')
+                        isItemActive(path)
                           ? "text-[#ffc72c] bg-white/12"
                           : "text-white/68 hover:text-white hover:bg-white/10"
                       }`}
