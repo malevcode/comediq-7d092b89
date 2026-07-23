@@ -640,15 +640,15 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
       <div className="max-w-7xl mx-auto px-4 py-0">
         {/* Search and Filters */}
-        <div className="rounded-xl bg-[#102a53]/70 p-3 mb-3 block text-white shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl">
+        <div className="rounded-xl bg-white/50 p-3 mb-3 block text-gray-700 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#102a53]/70 dark:text-white dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]">
           <div className="flex flex-row gap-3 items-center">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-white/45" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray dark:text-white/40" />
               <Input
                 placeholder="Search venues, neighborhoods, or open mic names..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 py-2 text-sm border-0 bg-white/10 text-white placeholder:text-white/45 focus-visible:ring-[#8ec5ff]/45 shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl"
+                className="pl-10 py-2 text-sm border-0 bg-white/10 text-gray-900 placeholder:text-gray-400 focus-visible:ring-gray-200 shadow-[0_12px_38px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:bg-white/10 dark:text-white dark:placeholder:text-white/45 dark:focus-visible:ring-[#8ec5ff]/45 dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]"
               />
             </div>
 
@@ -657,14 +657,14 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                 <select
                   value={filters.city}
                   onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-                  className="appearance-none pl-2 pr-5 py-1 h-7 w-16 text-[11px] font-bold rounded-md bg-blue-600 text-white border border-blue-700 shadow-sm hover:bg-blue-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
+                  className="force-white-text appearance-none pl-2 pr-5 py-1 h-7 w-16 text-[11px] font-bold rounded-md bg-blue-600 border border-blue-400 shadow-sm hover:bg-blue-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
                   aria-label="Select city"
                 >
                   {cities.map((city) => (
                     <option key={city.value} value={city.value} className="bg-white text-gray-900">{city.label}</option>
                   ))}
                 </select>
-                <svg className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 text-white" fill="none" stroke="white" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
@@ -683,20 +683,20 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
         {/* Day Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full ${user ? "grid-cols-10" : "grid-cols-9"} mb-6 h-9 gap-1.5 bg-[#102a53]/70 p-1 text-blue-600 shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl`}>
-            <TabsTrigger value="next" className="text-xs py-1 px-1 data-[state=active]:bg-white/16 data-[state=active]:text-white data-[state=active]:shadow-none">
+          <TabsList className={`grid w-full ${user ? "grid-cols-10" : "grid-cols-9"} mb-6 h-9 gap-1.5 bg-white/55 p-1 text-gray-500 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#102a53]/70 dark:text-blue-600 dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]`}>
+            <TabsTrigger value="next" className="text-xs py-1 px-1 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white">
               Next
             </TabsTrigger>
-            <TabsTrigger value="new" className="text-xs py-1 px-0.5 data-[state=active]:bg-white/16 data-[state=active]:text-white data-[state=active]:shadow-none">
+            <TabsTrigger value="new" className="text-xs py-1 px-0.5 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white">
               New
             </TabsTrigger>
             {user && (
-              <TabsTrigger value="liked" className="text-xs py-1 px-1 data-[state=active]:bg-white/16 data-[state=active]:text-white data-[state=active]:shadow-none">
+              <TabsTrigger value="liked" className="text-xs py-1 px-1 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white">
                 ❤️
               </TabsTrigger>
             )}
             {daysOfWeek.map((day) => (
-              <TabsTrigger key={day} value={day} className="text-xs py-1 px-1 data-[state=active]:bg-white/16 data-[state=active]:text-white data-[state=active]:shadow-none">
+              <TabsTrigger key={day} value={day} className="text-xs py-1 px-1 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white">
                 {day.slice(0, 3)}
               </TabsTrigger>
             ))}

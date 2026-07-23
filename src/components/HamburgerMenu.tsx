@@ -54,17 +54,17 @@ const HamburgerMenu = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="w-10 h-10 p-2 rounded-md bg-[#07111f]/62 text-white shadow-[0_12px_30px_rgba(2,10,30,0.38)] backdrop-blur-xl transition-colors hover:bg-[#07111f]/78"
+          className="w-10 h-10 p-2 rounded-md bg-white/30 text-[#07111f] shadow-[0_12px_30px_rgba(2,10,30,0.16)] backdrop-blur-xl transition-colors hover:bg-white/46 dark:bg-[#07111f]/62 dark:text-white dark:shadow-[0_12px_30px_rgba(2,10,30,0.38)] dark:hover:bg-[#07111f]/78"
         >
           <Menu size={20} />
         </Button>
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="w-64 border-r border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,199,44,0.18),transparent_34%),linear-gradient(155deg,rgba(7,17,31,0.96)_0%,rgba(16,42,83,0.92)_54%,rgba(4,10,24,0.96)_100%)] text-white shadow-[18px_0_60px_rgba(2,10,30,0.48)] backdrop-blur-2xl [&>button]:text-white/70 [&>button:hover]:text-white"
+        className="w-64 border-r border-[#07111f]/10 bg-[radial-gradient(circle_at_top_left,rgba(255,199,44,0.34),transparent_34%),linear-gradient(155deg,rgba(255,247,220,0.96)_0%,rgba(219,234,254,0.92)_54%,rgba(245,242,235,0.96)_100%)] text-[#07111f] shadow-[18px_0_60px_rgba(2,10,30,0.18)] backdrop-blur-2xl [&>button]:text-[#07111f]/70 [&>button:hover]:text-[#07111f] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,rgba(255,199,44,0.18),transparent_34%),linear-gradient(155deg,rgba(7,17,31,0.96)_0%,rgba(16,42,83,0.92)_54%,rgba(4,10,24,0.96)_100%)] dark:text-white dark:shadow-[18px_0_60px_rgba(2,10,30,0.48)] dark:[&>button]:text-white/70 dark:[&>button:hover]:text-white"
       >
-        <SheetHeader className="border-b border-white/10">
-          <SheetTitle className="text-white">Menu</SheetTitle>
+        <SheetHeader className="border-b border-[#07111f]/10 dark:border-white/10">
+          <SheetTitle className="text-[#07111f] dark:text-white">Menu</SheetTitle>
         </SheetHeader>
         <div className="flex-1 py-4">
           <div className="space-y-2">

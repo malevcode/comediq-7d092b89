@@ -53,12 +53,12 @@ export default function Laugh() {
       
       <div className="max-w-4xl mx-auto px-4 page-content-offset pb-6">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6 bg-[#102a53]/70 p-1 text-white/64 shadow-[0_12px_38px_rgba(2,10,30,0.22)] backdrop-blur-xl">
-            <TabsTrigger value="find-shows" className="flex items-center gap-2 data-[state=active]:bg-white/16 data-[state=active]:text-white data-[state=active]:shadow-none text-blue-600">
+          <TabsList className="grid w-full grid-cols-2 mb-6 bg-white/55 p-1 text-gray-500 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#102a53]/70 dark:text-white/64 dark:shadow-[0_12px_38px_rgba(2,10,30,0.22)]">
+            <TabsTrigger value="find-shows" className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white">
               <Ticket className="w-4 h-4" />
               <span>Find Shows</span>
             </TabsTrigger>
-            <TabsTrigger value="my-reviews" className="flex items-center gap-2 data-[state=active]:bg-white/16 data-[state=active]:text-white data-[state=active]:shadow-none text-blue-600">
+            <TabsTrigger value="my-reviews" className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white">
               <Star className="w-4 h-4" />
               <span>My Reviews</span>
             </TabsTrigger>

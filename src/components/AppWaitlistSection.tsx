@@ -89,7 +89,7 @@ const AppWaitlistSection = () => {
     >
       <div className="max-w-2xl mx-auto rounded-2xl bg-[#102a53]/78 p-5 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_22px_80px_rgba(2,10,30,0.34)] backdrop-blur-xl transition-transform duration-300 hover:scale-[1.01]">
         <div className="text-center mb-5">
-          <span className="inline-block text-xs font-semibold text-[#8ec5ff] uppercase tracking-wide mb-2">
+          <span className="inline-block text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">
             Coming Soon
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
@@ -114,7 +114,7 @@ const AppWaitlistSection = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@email.com"
                 required
-                className="mt-1"
+                className="mt-1 bg-white text-gray-900 placeholder:text-gray-400"
               />
             </div>
             <div>
@@ -124,7 +124,7 @@ const AppWaitlistSection = () => {
                 value={instagram}
                 onChange={(e) => setInstagram(e.target.value)}
                 placeholder="@handle"
-                className="mt-1"
+                className="mt-1 bg-white text-gray-900 placeholder:text-gray-400"
               />
             </div>
           </div>
@@ -132,10 +132,10 @@ const AppWaitlistSection = () => {
           <div>
             <Label className="text-sm text-white/84">Years doing comedy *</Label>
             <Select value={years} onValueChange={setYears}>
-              <SelectTrigger className="mt-1 h-10">
-                <SelectValue placeholder="Select" />
+              <SelectTrigger className="mt-1 h-10 bg-white text-white/84 data-[placeholder]:text-white/84">
+                <SelectValue className="text-white/84" placeholder="Select" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 <SelectItem value="0-1">0-1 years</SelectItem>
                 <SelectItem value="1-3">1-3 years</SelectItem>
                 <SelectItem value="3-5">3-5 years</SelectItem>
@@ -170,7 +170,7 @@ const AppWaitlistSection = () => {
           <Button
             type="submit"
             disabled={submitting}
-            className="w-full bg-[#1a5fb4] hover:bg-[#164d94] text-white py-3 rounded-full"
+            className="force-white-text w-full bg-[#1a5fb4] hover:bg-[#164d94] py-3 rounded-full"
           >
             {submitting ? "Joining..." : "Join the Waitlist"}
           </Button>

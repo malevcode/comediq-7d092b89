@@ -140,6 +140,53 @@
   }
 }
 
+@layer utilities {
+  .light .text-white {
+    color: #07111f;
+  }
+
+  .light .text-white\/84,
+  .light .text-white\/80,
+  .light .text-white\/78,
+  .light .text-white\/72,
+  .light .text-white\/70,
+  .light .text-white\/68,
+  .light .text-white\/66,
+  .light .text-white\/65,
+  .light .text-white\/64,
+  .light .text-white\/60 {
+    color: rgba(7, 17, 31, 0.72);
+  }
+
+  .light .text-white\/55,
+  .light .text-white\/52,
+  .light .text-white\/48,
+  .light .text-white\/42 {
+    color: rgba(7, 17, 31, 0.58);
+  }
+
+  .light .border-white\/20,
+  .light .border-white\/18,
+  .light .border-white\/14,
+  .light .border-white\/12,
+  .light .border-white\/10,
+  .light .border-white\/8 {
+    border-color: rgba(7, 17, 31, 0.12);
+  }
+
+  .light .bg-white\/12,
+  .light .bg-white\/10,
+  .light .bg-white\/8,
+  .light .bg-white\/5 {
+    background-color: rgba(255, 255, 255, 0.42);
+  }
+
+  .force-white-text,
+  .force-white-text * {
+    color: #ffffff !important;
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }

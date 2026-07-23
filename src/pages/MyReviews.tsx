@@ -51,7 +51,7 @@ export default function MyReviews() {
         <p className="text-white/60 mb-4">
           Keep track of shows you've attended!
         </p>
-        <Button className="rounded-md border-0 rounded-lg text-white text-sm font-medium bg-[#1a5fb4] hover:bg-[#1550a0] transition-colors hover:text-white" onClick={() => navigate('/auth')}>
+        <Button className="force-white-text rounded-md border-0 rounded-lg text-sm font-medium bg-[#1a5fb4] hover:bg-[#1550a0] transition-colors" onClick={() => navigate('/auth')}>
           Sign In
         </Button>
       </div>
@@ -190,7 +190,7 @@ export default function MyReviews() {
           <p className="text-white/60 mb-4">
             Attend a show and write a review to track your experiences!
           </p>
-          <Button className="border-0 rounded-lg text-white text-sm font-medium bg-[#1a5fb4] hover:bg-[#1550a0] transition-colors hover:text-white" onClick={() => navigate('/laugh?tab=find-shows')}>
+          <Button className="force-white-text border-0 rounded-lg text-sm font-medium bg-[#1a5fb4] hover:bg-[#1550a0] transition-colors" onClick={() => navigate('/laugh?tab=find-shows')}>
             Find Shows
           </Button>
         </div>

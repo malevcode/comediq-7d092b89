@@ -659,7 +659,7 @@ const Auth = () => {
       <button
         type="button"
         onClick={handleGoogleSignIn}
-        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl text-white text-sm font-semibold shadow-sm transition-colors"
+        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl text-white/100 text-sm font-semibold shadow-sm transition-colors"
         style={{ background: BRAND_BLUE }}
       >
         <GoogleIcon />
@@ -750,7 +750,7 @@ const Auth = () => {
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
+          className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-white text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
         >
           <GoogleIcon />
           Continue with Google

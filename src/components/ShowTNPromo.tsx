@@ -14,7 +14,7 @@ const ShowTNPromo = () => {
             <h2 className="text-3xl sm:text-5xl font-bold mb-3">
               ShowTN
             </h2>
-            <p className="text-lg sm:text-2xl text-blue-100 mb-6 max-w-2xl">
+            <p className="text-lg sm:text-2xl text-blue-400 mb-6 max-w-2xl">
               Your Laugh Pass to a Comedy Show Tonight
             </p>
 
@@ -25,7 +25,7 @@ const ShowTNPromo = () => {
                   Starting at $10/month
                 </span>
               </div>
-              <p className="text-sm sm:text-base text-blue-100">
+              <p className="text-sm sm:text-base text-blue-400">
                 Real tickets to pro shows every month at...
                 <br />
                 top clubs, bar popups, and underground venues across NYC
