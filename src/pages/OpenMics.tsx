@@ -11,7 +11,6 @@ import { useOpenMics } from "@/hooks/useOpenMics";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import MicDetailModal from "@/components/MicDetailModal";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import { MicRequestFormData } from "@/components/host/AddMicRequestForm";
 import { EditableMicCard } from "@/components/EditableMicCard";
@@ -32,7 +31,7 @@ interface OpenMicsProps {
 
 const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
+  const [selectedMicId, setSelectedMicId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("next");
   const [showKey, setShowKey] = useState(false);
   const [visibleCount, setVisibleCount] = useState(100);
@@ -373,7 +372,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           </p>
         </div>
 
-        <OpenMicsDetailedList mics={micsToShow} visibleCount={visibleCount} setVisibleCount={setVisibleCount} showSponsor={activeTab === "next"} showMicOfDay={activeTab === "next"} />
+        <OpenMicsDetailedList mics={micsToShow} visibleCount={visibleCount} setVisibleCount={setVisibleCount} showSponsor={activeTab === "next"} showMicOfDay={activeTab === "next"} selectedMicId={selectedMicId} />
 
         {micsToShow.length === 0 && (
           <div className="text-center py-12">
@@ -713,7 +712,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           <div className="mb-4">
             <OpenMicsMapRefactored
               mics={getActiveTabMics()}
-              onMicSelect={(mic) => setSelectedMic(mic)}
+              onMicSelect={(mic) => setSelectedMicId(mic.uniqueIdentifier)}
             />
           </div>
 
@@ -745,11 +744,6 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           ))}
         </Tabs>
       </div>
-
-      {/* Modal */}
-      {selectedMic && (
-        <MicDetailModal mic={selectedMic} onClose={() => setSelectedMic(null)} onAddToSchedule={handleAddToSchedule} />
-      )}
 
       </div>
     </>
