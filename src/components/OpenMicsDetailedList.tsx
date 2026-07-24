@@ -406,13 +406,6 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
               <span className="flex">
                 {mic.signUpInstructions ? makeLinksClickable(mic.signUpInstructions) : 'N/A'}
               </span>
-              <Link
-                to={linkManager.micSignup(mic)}
-                className="ml-2 whitespace-nowrap font-semibold text-orange-700 hover:underline"
-                onClick={e => e.stopPropagation()}
-              >
-                Open Comediq sheet
-              </Link>
             </div>
             <div className="text-xs">
               <a href={getMapUrl(mic.location, mic.venueName)} target="_blank" rel="noopener noreferrer" className="flex flex-row gap-2 items-center hover:underline font-normal">
