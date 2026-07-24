@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { HelmetProvider } from 'react-helmet-async';
@@ -70,6 +70,22 @@ function PointsSyncWrapper({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function isMicSignupPath(pathname: string) {
+  return pathname === '/mic-signup' || /^\/mic\/[^/]+\/signup\/?$/.test(pathname);
+}
+
+function SiteFooterWrapper() {
+  const location = useLocation();
+
+  if (isMicSignupPath(location.pathname)) return null;
+
+  return (
+    <div className="relative z-10">
+      <SiteFooter />
+    </div>
+  );
+}
+
 function AppShell() {
   const { subscriptionPlan } = useAuth();
   const isSubscriber = subscriptionPlan !== 'free';
@@ -124,9 +140,7 @@ function AppShell() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
-        <div className="relative z-10">
-          <SiteFooter />
-        </div>
+        <SiteFooterWrapper />
         <BottomNavigation />
       </AnalyticsProvider>
     </BrowserRouter>

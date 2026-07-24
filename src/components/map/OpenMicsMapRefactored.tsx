@@ -248,7 +248,7 @@ function fitMapToMappedMics(map: mapboxgl.Map, mics: MappedMic[]) {
     const [{ latitude, longitude }] = mics;
     map.easeTo({
       center: [longitude, latitude],
-      zoom: Math.max(map.getZoom(), 12.8),
+      zoom: Math.max(map.getZoom(), 14),
       duration: 700,
     });
     return;
@@ -352,7 +352,7 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
         container: mapContainerRef.current,
         style: mapStyle,
         center: NYC_CENTER,
-        zoom: 12.8,
+        zoom: 14,
         minZoom: 6,
         maxZoom: 18,
       });

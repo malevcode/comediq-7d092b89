@@ -247,31 +247,27 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
         {/* Content */}
         <div className="p-6">
           {/* Quick Actions */}
-          {(mic.signupEnabled || user) && (
-            <div className="mb-6 flex gap-3">
-              {mic.signupEnabled && (
-                <Button
-                  asChild
-                  className="bg-orange-600 hover:bg-orange-700 text-white text-sm flex-1"
-                >
-                  <Link to={linkManager.micSignup(mic)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Sign Up for Spots
-                  </Link>
-                </Button>
-              )}
-              {user && (
-                <Button
-                  onClick={handleAddToSchedule}
-                  variant="outline"
-                  className="text-sm flex-1"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  My Schedule
-                </Button>
-              )}
-            </div>
-          )}
+          <div className="mb-6 flex gap-3">
+            <Button
+              asChild
+              className="bg-orange-600 hover:bg-orange-700 text-white text-sm flex-1"
+            >
+              <Link to={linkManager.micSignup(mic)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Sign Up for Spots
+              </Link>
+            </Button>
+            {user && (
+              <Button
+                onClick={handleAddToSchedule}
+                variant="outline"
+                className="text-sm flex-1"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                My Schedule
+              </Button>
+            )}
+          </div>
 
           {/* Rating Section */}
           <Card className="mb-6 bg-gray-50 border-gray-200">
@@ -344,8 +340,17 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
               <div className="space-y-3">
                 <div>
                   <p className="font-medium text-gray-900 mb-2">Sign-Up Instructions</p>
-                  <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-                    {makeLinksClickable(mic.signUpInstructions)}
+                  <div className="space-y-3 text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+                    <div>{makeLinksClickable(mic.signUpInstructions)}</div>
+                    <Button
+                      asChild
+                      size="sm"
+                      className="bg-orange-600 hover:bg-orange-700 text-white"
+                    >
+                      <Link to={linkManager.micSignup(mic)}>
+                        Open Comediq signup sheet
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               </div>

@@ -3,6 +3,9 @@ import { Home, Eye, User, Book, MicVocal, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAnalytics } from "@/components/AnalyticsProvider";
 
+const isMicSignupPath = (pathname: string) =>
+  pathname === '/mic-signup' || /^\/mic\/[^/]+\/signup\/?$/.test(pathname);
+
 const BottomNavigation = () => {
   const location = useLocation();
   const { user, isAdmin, role, subscriptionPlan } = useAuth();
@@ -11,6 +14,7 @@ const BottomNavigation = () => {
   const isHostOrShowrunner = role === 'host' || role === 'showrunner';
   const isSubscriber = subscriptionPlan !== 'free';
   if (location.pathname.startsWith("/auth")) return null;
+  if (isMicSignupPath(location.pathname)) return null;
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },

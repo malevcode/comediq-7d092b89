@@ -13,13 +13,7 @@ import Header from "./Header";
 import { useSavedMics } from "@/hooks/useSavedMics";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useMicPlaylists } from "@/hooks/useMicPlaylists";
-import { getValidStripePaymentLink } from "@/utils/stripeLinks";
-
-const STRIPE_PAID_LINK = getValidStripePaymentLink(
-  import.meta.env.VITE_STRIPE_PAID_LINK,
-);
-
-
+import { useUserSignups } from "@/hooks/useUserSignups";
 
 // Custom hook to fetch user's upcoming shows (from Shows.tsx)
 function useUserShows(userId) {
@@ -111,6 +105,7 @@ export default function Home() {
   const { savedMics } = useSavedMics();
   const { data: likedMics = [] } = useUserLikedMics();
   const { playlists } = useMicPlaylists();
+  const { data: userSignups = [] } = useUserSignups(user?.id);
   const navigate = useNavigate();
   const isSubscriber = subscriptionPlan !== 'free';
   const displayUpcomingMics = upcomingMics.filter((mic) =>
@@ -120,6 +115,22 @@ export default function Home() {
   const panelHeaderClass = "border-b border-white/10 bg-[#102a53]/5";
   const statCardClass = "border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5";
   const outlineActionClass = "border-0 w-full justify-start bg-white/10 text-white hover:bg-white/20 hover:text-white hover:-translate-y-0.5 hover:scale-[1.03] backdrop-blur-xl transition-all duration-300";
+  const micOfTheWeekBanners = [
+    {
+      title: "Comediq Book Me Mic",
+      description: "Highline Comedy Club stage-time opportunity",
+      href: "/book-me-mic",
+      icon: Sparkles,
+      accent: "from-amber-50 to-yellow-50 border-amber-200 text-amber-700",
+    },
+    {
+      title: "This Week's Open Mics",
+      description: "Find fresh rooms to get on stage",
+      href: "/open-mics",
+      icon: Mic2,
+      accent: "from-blue-50 to-white border-[#1a5fb4]/20 text-[#1a5fb4]",
+    },
+  ];
 
 
 
@@ -216,8 +227,8 @@ export default function Home() {
                   </CardContent>
                 </Card>
 
-                {/* Saved + Liked - 2-column row */}
-                <div className="grid grid-cols-2 gap-3">
+                {/* Saved + Liked + Signed Up - 3-column row */}
+                <div className="grid grid-cols-3 gap-3">
                   <Link to="/profile?tab=saved">
                     <Card className={`${statCardClass} cursor-pointer h-full`}>
                       <CardContent className="p-3">
@@ -243,6 +254,21 @@ export default function Home() {
                           <div className="min-w-0">
                             <div className="text-xl font-bold text-[#8ec5ff]">{likedMics.length}</div>
                             <div className="text-xs text-white/64 font-medium whitespace-nowrap">Liked Mics</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                  <Link to="/profile?tab=signups">
+                    <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer h-full">
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 bg-[#1a5fb4]/60 rounded-lg shrink-0">
+                            <Heart className="h-4 w-4 text-white" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xl font-bold text-[#1a5fb4]">{userSignups.length}</div>
+                            <div className="text-xs text-[#1a5fb4]/70 font-medium whitespace-nowrap">Signed Up Mics</div>
                           </div>
                         </div>
                       </CardContent>
@@ -312,6 +338,39 @@ export default function Home() {
                       My Playlists
                     </Link>
                   </Button>
+                </CardContent>
+              </Card>
+
+              <Card className={panelClass}>
+                <CardHeader className={panelHeaderClass}>
+                  <div>
+                    <CardTitle className="text-lg text-white">📌  Opportunities</CardTitle>
+                    <CardDescription className="text-white/80">Mics of the week</CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3 pt-6">
+                  {micOfTheWeekBanners.map((banner) => {
+                    const Icon = banner.icon;
+
+                    return (
+                      <Link
+                        key={banner.title}
+                        to={banner.href}
+                        className="group flex items-center justify-between gap-3 rounded-lg bg-white/10 p-4 text-white shadow-[0_10px_30px_rgba(2,10,30,0.12)] transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-white/20"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="rounded-lg bg-white/16 p-2 text-[#8ec5ff] shadow-sm">
+                            <Icon className="h-4 w-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-white">{banner.title}</p>
+                            <p className="mt-0.5 text-xs text-white/66">{banner.description}</p>
+                          </div>
+                        </div>
+                        <ArrowRight className="h-4 w-4 shrink-0 text-[#8ec5ff] transition-transform group-hover:translate-x-0.5" />
+                      </Link>
+                    );
+                  })}
                 </CardContent>
               </Card>
 

@@ -213,7 +213,7 @@ function formatStageTime(stageTime: string): string {
 
 function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRow, flash }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void; forceExpanded?: boolean; onRegisterRow?: (id: string, el: HTMLDivElement | null) => void; flash?: boolean }) {
   const [expanded, setExpanded] = useState(false);
-  useEffect(() => { if (forceExpanded) setExpanded(true); }, [forceExpanded]);
+  useEffect(() => { setExpanded(!!forceExpanded); }, [forceExpanded]);
   const [showComments, setShowComments] = useState(false);
   const { user } = useAuth();
   const { userLocation, locationLoading } = useUserLocation();
@@ -435,19 +435,17 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
               </div>
             )}
             <div className="flex flex-col gap-2">
-              {mic.signupEnabled && (
-                <Button
-                  size="sm"
-                  variant="default"
-                  className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
-                  asChild
-                >
-                  <Link to={linkManager.micSignup(mic)}>
-                    <UserRoundCheck className="w-4 h-4" />
-                    Sign Up for Spots
-                  </Link>
-                </Button>
-              )}
+              <Button
+                size="sm"
+                variant="default"
+                className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
+                asChild
+              >
+                <Link to={linkManager.micSignup(mic)}>
+                  <UserRoundCheck className="w-4 h-4" />
+                  Sign Up for Spots
+                </Link>
+              </Button>
               {user && (
                 <Button
                   size="sm"
@@ -549,12 +547,14 @@ export default function OpenMicsDetailedList({
   setVisibleCount,
   showSponsor = true,
   showMicOfDay = false,
+  selectedMicId = null,
 }: {
   mics: OpenMic[];
   visibleCount: number;
   setVisibleCount: React.Dispatch<React.SetStateAction<number>>;
   showSponsor?: boolean;
   showMicOfDay?: boolean;
+  selectedMicId?: string | null;
 }) {
   const validMics = mics
     .filter(Boolean)
@@ -593,6 +593,10 @@ export default function OpenMicsDetailedList({
       }
     }, 80);
   };
+
+  useEffect(() => {
+    if (selectedMicId) handleSelectMicOfDay(selectedMicId);
+  }, [selectedMicId]);
 
   const handleAddToCalendar = async (mic: OpenMic) => {
     if (!user) return;
