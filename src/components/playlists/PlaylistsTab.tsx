@@ -199,7 +199,10 @@ export function PlaylistsTab() {
     <div className="max-w-7xl mx-auto">
       {/* Header Actions */}
       <div className="flex flex-wrap gap-3 mb-6">
-        <Button onClick={() => setShowCreateModal(true)} className="gap-2">
+        <Button
+          onClick={() => setShowCreateModal(true)}
+          className="gap-2 border-0 rounded-lg text-white text-sm font-medium bg-[#1a5fb4] hover:bg-[#1550a0] transition-colors hover:text-white"
+        >
           <Plus className="h-4 w-4" />
           New Playlist
         </Button>
@@ -239,10 +242,10 @@ export function PlaylistsTab() {
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : playlists.length === 0 ? (
-          <div className="text-center py-12 bg-muted/30 rounded-lg">
-            <Mic className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-            <h4 className="font-semibold text-base mb-1">Build your mic rotation</h4>
-            <p className="text-sm text-muted-foreground mb-5 max-w-sm mx-auto">
+          <div className="text-center py-12 bg-muted/20 rounded-lg">
+            <Mic className="h-10 w-10 mx-auto text-white/60 mb-3" />
+            <h4 className="font-semibold text-base mb-1 text-white">Build your mic rotation</h4>
+            <p className="text-sm text-white/60 mb-5 max-w-sm mx-auto">
               Group mics by night, borough, or vibe — just like a Spotify playlist, but for open mics.
             </p>
             <div className="flex flex-wrap gap-2 justify-center mb-4">
@@ -279,7 +282,7 @@ export function PlaylistsTab() {
                 </Button>
               ))}
             </div>
-            <Button onClick={() => setShowCreateModal(true)} size="sm">
+            <Button className="gap-2 border-0 rounded-lg text-white text-sm font-medium bg-[#1a5fb4] hover:bg-[#1550a0] transition-colors hover:text-white" onClick={() => setShowCreateModal(true)} size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Create Custom Playlist
             </Button>

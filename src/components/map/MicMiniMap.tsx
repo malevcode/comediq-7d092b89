@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { useTheme } from 'next-themes';
 import { getMapboxToken } from './MapInitializer';
 
 interface MicMiniMapProps {
@@ -19,13 +20,18 @@ function parseCoordinate(value: unknown): number | null {
   return null;
 }
 
+const LIGHT_MAP_STYLE = 'mapbox://styles/mapbox/streets-v12';
+const DARK_MAP_STYLE = 'mapbox://styles/mapbox/dark-v11';
+
 export function MicMiniMap({ location, venueName, latitude, longitude }: MicMiniMapProps) {
+  const { resolvedTheme } = useTheme();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
   const [token, setToken] = useState('');
   const parsedLatitude = parseCoordinate(latitude);
   const parsedLongitude = parseCoordinate(longitude);
+  const mapStyle = resolvedTheme === 'dark' ? DARK_MAP_STYLE : LIGHT_MAP_STYLE;
 
   const openInGoogleMaps = () => {
     const query = encodeURIComponent([venueName, location].filter(Boolean).join(', '));
@@ -43,7 +49,7 @@ export function MicMiniMap({ location, venueName, latitude, longitude }: MicMini
 
     const map = new mapboxgl.Map({
       container: containerRef.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: mapStyle,
       center: [parsedLongitude, parsedLatitude],
       zoom: 15,
       interactive: false,
@@ -79,7 +85,7 @@ export function MicMiniMap({ location, venueName, latitude, longitude }: MicMini
       mapRef.current = null;
       markerRef.current = null;
     };
-  }, [parsedLatitude, parsedLongitude, token]);
+  }, [mapStyle, parsedLatitude, parsedLongitude, token]);
 
   if (parsedLatitude === null || parsedLongitude === null) return null;
 

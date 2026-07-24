@@ -110,7 +110,7 @@ export default function MicStatusDropdown({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute z-50 mt-1 right-0 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[140px]">
+        <div className="absolute mt-1 z-50 right-0 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[140px]">
           {(Object.keys(STATUS_CONFIG) as MicStatusType[]).map((statusKey) => {
             const config = STATUS_CONFIG[statusKey];
             const StatusIcon = config.icon;

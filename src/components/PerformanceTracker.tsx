@@ -110,7 +110,7 @@ export default function ProgressTracker() {
   const killBombRatio = totalBombs > 0 ? (totalKills / totalBombs).toFixed(1) : totalKills.toString()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20 pt-6">
+    <div className="min-h-screen bg-transparent pb-20 pt-6">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

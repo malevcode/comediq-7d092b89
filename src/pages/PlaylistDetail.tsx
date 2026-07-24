@@ -37,7 +37,7 @@ export default function PlaylistDetail() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#f8f0e1] to-white">
+      <div className="min-h-screen bg-transparent">
         <div className="max-w-7xl mx-auto px-8 py-10">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Please sign in to view playlists</h1>
@@ -50,8 +50,8 @@ export default function PlaylistDetail() {
 
   if (!playlist) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#f8f0e1] to-white">
-        <div className="max-w-7xl mx-auto px-8 page-content-offset pb-10">
+      <div className="min-h-screen bg-transparent">
+        <div className="max-w-7xl mx-auto px-8 pt-28 pb-10">
           <Button variant="ghost" onClick={() => navigate("/playlists")} className="mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Playlists
           </Button>
@@ -66,7 +66,7 @@ export default function PlaylistDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f8f0e1] to-white">
+    <div className="min-h-screen bg-transparent">
       <PageHeader title={playlist.name} subtitle={playlist.description || "Your curated mic collection"} />
       <main className="max-w-7xl mx-auto px-8 page-content-offset pb-10">
         <Button variant="ghost" onClick={() => navigate("/playlists")} className="mb-6">

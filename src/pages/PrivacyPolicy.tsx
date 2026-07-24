@@ -4,7 +4,7 @@ import PageHeader from "@/components/PageHeader";
 
 const PrivacyPolicy = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
+    <div className="min-h-screen bg-transparent pb-20">
       <PageHeader title="Privacy Policy & Terms" subtitle="Last updated: January 2025" />
       
       <div className="max-w-3xl mx-auto px-4 page-content-offset">

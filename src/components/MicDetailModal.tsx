@@ -13,6 +13,7 @@ import { makeLinksClickable } from '@/utils/makeLinksClickable';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
 import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
+import { createPortal } from 'react-dom';
 import { useEffect } from 'react';
 
 type ScheduleMicData = {
@@ -212,8 +213,8 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 p-4 z-[100] overflow-y-auto overscroll-contain">
+  return createPortal(
+    <div className="fixed inset-0 bg-black bg-opacity-50 p-4 z-[1200] overflow-y-auto overscroll-contain">
       <div className="bg-white rounded-2xl max-w-2xl w-full mt-10 mb-4 mx-auto">
         {/* Header */}
         <div className="sticky top-0 bg-background border-b border-border px-6 py-4 rounded-t-2xl">
@@ -399,7 +400,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Button 
                   onClick={() => window.open(getGoogleCalendarUrl(), '_blank')}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                  className="bg-white hover:bg-gray-200 text-white text-sm"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Google Calendar
@@ -417,7 +418,8 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
           </Collapsible>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

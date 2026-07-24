@@ -29,7 +29,8 @@ const Index = () => {
         url="https://comediq.us"
         structuredData={structuredData}
       />
-      <div className={`${user ? 'pb-20' : 'pb-0'} min-h-screen overflow-x-hidden`}>
+      <div className="relative min-h-screen pb-8 overflow-x-hidden bg-transparent">
+        <div className="relative z-10">
         <PageHeader title="Comediq" subtitle="Comedy Starts Here" />
         <div className="pt-0">
           {user ? (
@@ -37,19 +38,24 @@ const Index = () => {
           ) : (
             <>
               <Hero />
-              <AppWaitlistSection />
+              <div className="relative">
+                <div className="pointer-events-none absolute inset-x-0 -top-24 h-32 bg-gradient-to-b from-transparent via-[#f5f2eb]/24 to-[#f5f2eb]/46 dark:via-[#07111f]/34 dark:to-[#07111f]/76" />
+                <AppWaitlistSection />
+              </div>
 
               {/* Social Proof Bar */}
-              <div className="bg-[#1a5fb4] py-3">
+              <div
+                className="mx-4 sm:mx-8 rounded-2xl bg-[#07111f]/22 py-3 shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-sm transition-transform duration-300 hover:scale-[1.04]"
+              >
                 <div className="max-w-6xl mx-auto px-4 flex items-center justify-center gap-6 sm:gap-12 text-white">
                   <div className="text-center">
-                    <div className="text-2xl sm:text-3xl font-bold">1,250+</div>
-                    <div className="text-xs sm:text-sm text-blue-200">comedians visit weekly</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-blue-600">1,250+</div>
+                    <div className="text-xs sm:text-sm text-white/64">comedians visit weekly</div>
                   </div>
-                  <div className="w-px h-8 bg-white/30" />
+                  <div className="w-px h-8 bg-white/14" />
                   <div className="text-center">
-                    <div className="text-2xl sm:text-3xl font-bold">500+</div>
-                    <div className="text-xs sm:text-sm text-blue-200">open mics tracked</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-blue-600">500+</div>
+                    <div className="text-xs sm:text-sm text-white/64">open mics tracked</div>
                   </div>
                 </div>
               </div>
@@ -60,6 +66,7 @@ const Index = () => {
               <ShowTNPromo />
             </>
           )}
+        </div>
         </div>
       </div>
     </>

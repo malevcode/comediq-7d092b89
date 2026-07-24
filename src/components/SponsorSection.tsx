@@ -17,14 +17,14 @@ export default function SponsorSection() {
   };
 
   return (
-    <section className="py-10 bg-gradient-to-b from-white to-blue-50/30">
+    <section className="px-4 py-8">
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="flex items-center justify-center gap-2 mb-4">
-          <Badge variant="outline" className="text-xs text-muted-foreground border-border">
+          <Badge variant="outline" className="border-white/45 bg-white/80 text-xs text-muted-foreground backdrop-blur">
             Sponsored
           </Badge>
         </div>
-        <Card className="border-border bg-card shadow-md hover:shadow-lg transition-shadow">
+        <Card className="border-white/45 bg-white/88 shadow-[0_18px_60px_rgba(4,20,55,0.16)] backdrop-blur-xl hover:shadow-[0_22px_70px_rgba(4,20,55,0.2)] transition-shadow">
           <CardContent className="flex flex-col sm:flex-row items-center gap-6 p-6 sm:p-8">
             {sponsor.icon_url && (
               <a

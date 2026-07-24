@@ -95,13 +95,13 @@ export default function ClaimMicButton({ micUniqueIdentifier, micName, venueName
   // No claim yet
   return (
     <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-      <Shield className="w-3 h-3" />
-      <span>Are you the host?</span>
+      <Shield className="text-white/65 w-3 h-3" />
+      <span className="text-white/65">Are you the host?</span>
       <button
         type="button"
         onClick={handleClaim}
         disabled={claimMutation.isPending}
-        className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline disabled:opacity-60 disabled:no-underline disabled:cursor-not-allowed"
+        className="inline-flex items-center gap-1 text-[11px] text-primary text-white hover:underline disabled:opacity-60 disabled:no-underline disabled:cursor-not-allowed"
       >
         {claimMutation.isPending ? (
           'Submitting...'

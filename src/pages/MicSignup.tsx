@@ -16,6 +16,9 @@ import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { generateVenueSlug } from '@/utils/slugify';
 
+const glassCardClass = "border-0 bg-white/42 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 dark:bg-[#07111f]/62 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.34)]";
+const glassPanelClass = "rounded-lg border-0 bg-white/34 p-4 text-[#07111f] shadow-[0_10px_30px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#07111f]/48 dark:text-white dark:shadow-[0_10px_30px_rgba(2,10,30,0.22)]";
+
 interface SignupSheetProps {
   event: any;
   micId: string;
@@ -101,22 +104,22 @@ function SignupSheet({ event, micId }: SignupSheetProps) {
   };
 
   return (
-    <Card className="border-[#1a5fb4]/20 bg-white">
+    <Card className={glassCardClass}>
       <CardHeader>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <CardTitle className="text-xl">Signup Sheet</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl text-[#07111f] dark:text-white">Signup Sheet</CardTitle>
+            <CardDescription className="text-[#07111f]/62 dark:text-white/62">
               {format(new Date(`${event.event_date}T00:00:00`), 'EEEE, MMMM d, yyyy')}
               {event.event_time ? ` at ${event.event_time}` : ''}
             </CardDescription>
           </div>
-          <Badge variant="outline" className="w-fit">
+          <Badge variant="outline" className="w-fit border-[#07111f]/12 bg-white/35 text-[#07111f] dark:border-white/14 dark:bg-white/12 dark:text-white">
             {confirmedSignups.length} / {event.total_spots} spots
           </Badge>
         </div>
         {event.notes && (
-          <CardDescription className="pt-2">
+          <CardDescription className="pt-2 text-[#07111f]/62 dark:text-white/62">
             {event.notes}
           </CardDescription>
         )}
@@ -124,13 +127,13 @@ function SignupSheet({ event, micId }: SignupSheetProps) {
       <CardContent className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
         <div>
           <div className="mb-3 flex items-center justify-between gap-3 text-sm">
-            <p className="font-semibold text-gray-900">Who has signed up</p>
-            <span className="text-muted-foreground">{spotsRemaining} remaining</span>
+            <p className="font-semibold text-[#07111f] dark:text-white">Who has signed up</p>
+            <span className="text-[#07111f]/60 dark:text-white/60">{spotsRemaining} remaining</span>
           </div>
           {isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading signups...</p>
+            <p className="text-sm text-[#07111f]/60 dark:text-white/60">Loading signups...</p>
           ) : confirmedSignups.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-[#1a5fb4]/20 bg-blue-50/50 p-4 text-sm text-muted-foreground">
+            <div className={`${glassPanelClass} border border-dashed border-[#07111f]/12 text-sm dark:border-white/14`}>
               No signups yet. Be the first on the list.
             </div>
           ) : (
@@ -138,12 +141,12 @@ function SignupSheet({ event, micId }: SignupSheetProps) {
               {confirmedSignups.map((signup: any, index: number) => (
                 <div
                   key={signup.id}
-                  className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm"
+                  className="flex items-center gap-3 rounded-lg border-0 bg-white/32 px-3 py-2 text-sm text-[#07111f] shadow-[0_8px_24px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:bg-[#07111f]/42 dark:text-white"
                 >
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#1a5fb4] text-xs font-bold text-white">
                     {index + 1}
                   </span>
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-[#07111f] dark:text-white">
                     {signup.profiles?.username || signup.guest_name || 'Comedian'}
                   </span>
                   {(signup.user_id === user?.id || isHost) && (
@@ -164,14 +167,14 @@ function SignupSheet({ event, micId }: SignupSheetProps) {
           )}
         </div>
 
-        <div className="rounded-lg border border-[#1a5fb4]/20 bg-blue-50/40 p-4">
+        <div className={glassPanelClass}>
           <div className="mb-4 flex items-center gap-2">
             <UserPlus className="h-4 w-4 text-[#1a5fb4]" />
-            <h3 className="font-semibold text-gray-900">Join the signup sheet</h3>
+            <h3 className="font-semibold text-[#07111f] dark:text-white">Join the signup sheet</h3>
           </div>
           {!user ? (
             <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[#07111f]/60 dark:text-white/60">
                 Sign in to add yourself to this mic signup sheet.
               </p>
               <Button
@@ -295,11 +298,11 @@ export default function MicSignup() {
         title={`Sign Up - ${mic.openMic} at ${mic.venueName}`}
         description={`Sign up for spots at ${mic.openMic}`}
       />
-      <div className="container mx-auto p-8 space-y-4 pb-12">
+      <div className="container mx-auto px-4 sm:px-8 pt-10 space-y-4 pb-12">
         <Button
           type="button"
           variant="ghost"
-          className="gap-2 pl-0 text-[#1a5fb4] hover:bg-transparent hover:text-[#1550a0]"
+          className="gap-2 pl-0 text-[#1a5fb4] hover:bg-transparent hover:text-[#1550a0] dark:text-[#8ec5ff] dark:hover:text-white"
           onClick={() => {
             if (window.history.length > 1) {
               navigate(-1);
@@ -312,28 +315,28 @@ export default function MicSignup() {
           Back
         </Button>
 
-        <Card>
+        <Card className={glassCardClass}>
           <CardHeader>
             <div className="flex items-start justify-between">
               <div>
-                <CardTitle className="text-3xl mb-2">{mic.openMic}</CardTitle>
-                <CardDescription className="text-lg">{mic.venueName}</CardDescription>
+                <CardTitle className="text-3xl mb-2 text-[#07111f] dark:text-white">{mic.openMic}</CardTitle>
+                <CardDescription className="text-lg text-[#07111f]/62 dark:text-white/62">{mic.venueName}</CardDescription>
               </div>
-              <Badge variant="outline" className="text-sm">
+              <Badge variant="outline" className="border-[#07111f]/12 bg-white/35 text-sm text-[#07111f] dark:border-white/14 dark:bg-white/12 dark:text-white">
                 {mic.borough}
               </Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="flex items-center gap-2 text-[#07111f]/64 dark:text-white/64">
               <Calendar className="w-4 h-4" />
               <span>{mic.day}</span>
             </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="flex items-center gap-2 text-[#07111f]/64 dark:text-white/64">
               <Clock className="w-4 h-4" />
               <span>{mic.startTime} - {mic.latestEndTime}</span>
             </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="flex items-center gap-2 text-[#07111f]/64 dark:text-white/64">
               <MapPin className="w-4 h-4" />
               <span>{mic.location}</span>
             </div>
@@ -341,14 +344,14 @@ export default function MicSignup() {
         </Card>
 
         {/* Host Claim CTA */}
-        <Card className="bg-gradient-to-r from-primary/5 via-primary/10 to-transparent border-primary/20">
+        <Card className={glassCardClass}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <UserCheck className="w-5 h-5 text-primary" />
                 <div>
-                  <p className="font-medium text-foreground">Are you the host of this mic?</p>
-                  <p className="text-sm text-muted-foreground">Claim it to manage signups and keep info updated</p>
+                  <p className="font-medium text-[#07111f] dark:text-white">Are you the host of this mic?</p>
+                  <p className="text-sm text-[#07111f]/62 dark:text-white/62">Claim it to manage signups and keep info updated</p>
                 </div>
               </div>
               <Button asChild variant="outline" size="sm">
@@ -361,22 +364,22 @@ export default function MicSignup() {
         </Card>
 
         {isCreatingEvent ? (
-          <Card>
+          <Card className={glassCardClass}>
             <CardHeader>
               <div className="flex items-center gap-3">
                 <Loader2 className="h-5 w-5 animate-spin" />
-                <CardTitle>Setting up signups...</CardTitle>
+                <CardTitle className="text-[#07111f] dark:text-white">Setting up signups...</CardTitle>
               </div>
-              <CardDescription>
+              <CardDescription className="text-[#07111f]/62 dark:text-white/62">
                 Creating a signup event for the next occurrence of this mic.
               </CardDescription>
             </CardHeader>
           </Card>
         ) : activeEvents.length === 0 ? (
-          <Card>
+          <Card className={glassCardClass}>
             <CardHeader>
-              <CardTitle>No Active Signups</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-[#07111f] dark:text-white">No Active Signups</CardTitle>
+              <CardDescription className="text-[#07111f]/62 dark:text-white/62">
                 {!user 
                   ? "Sign in to open signups for this mic!"
                   : "Check back later for signup availability."}

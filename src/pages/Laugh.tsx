@@ -17,14 +17,22 @@ export default function Laugh() {
     'my-reviews': 0,
   });
 
-  // Initialize from URL or localStorage
+  // Keep the active tab in sync with URL changes from the menu or direct links.
   useEffect(() => {
     const tabFromUrl = searchParams.get('tab');
-    const savedTab = localStorage.getItem('laughActiveTab');
     
     if (tabFromUrl && (tabFromUrl === 'find-shows' || tabFromUrl === 'my-reviews')) {
       setActiveTab(tabFromUrl);
-    } else if (savedTab && (savedTab === 'find-shows' || savedTab === 'my-reviews')) {
+    }
+  }, [searchParams, setActiveTab]);
+
+  // Initialize from localStorage only when the URL does not explicitly choose a tab.
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab');
+    if (tabFromUrl) return;
+
+    const savedTab = localStorage.getItem('laughActiveTab');
+    if (savedTab && (savedTab === 'find-shows' || savedTab === 'my-reviews')) {
       setActiveTab(savedTab);
     }
   }, []);
@@ -45,7 +53,7 @@ export default function Laugh() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 pb-24">
+    <div className="min-h-screen bg-transparent pb-24">
       <PageHeader 
         title="Shows" 
         subtitle="Discover live comedy happening near you"
@@ -53,12 +61,12 @@ export default function Laugh() {
       
       <div className="max-w-4xl mx-auto px-4 page-content-offset pb-6">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="find-shows" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-2 mb-6 bg-white/55 p-1 text-gray-500 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#102a53]/70 dark:text-white/64 dark:shadow-[0_12px_38px_rgba(2,10,30,0.22)]">
+            <TabsTrigger value="find-shows" className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white">
               <Ticket className="w-4 h-4" />
               <span>Find Shows</span>
             </TabsTrigger>
-            <TabsTrigger value="my-reviews" className="flex items-center gap-2">
+            <TabsTrigger value="my-reviews" className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white">
               <Star className="w-4 h-4" />
               <span>My Reviews</span>
             </TabsTrigger>

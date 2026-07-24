@@ -2,14 +2,19 @@ import { Tickets } from "lucide-react";
 
 const ShowTNPromo = () => {
   return (
-    <section className="py-12 bg-[#1a5fb4]">
+    <section className="px-4 py-8">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-6 sm:p-10 border border-white/20 shadow-2xl">
+        <a
+          href="https://showtn.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block rounded-3xl bg-[#102a53]/78 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_22px_80px_rgba(2,10,30,0.34)] backdrop-blur-xl transition-all duration-300 hover:scale-[1.01] sm:p-10"
+        >
           <div className="flex flex-col items-center text-center text-white">
             <h2 className="text-3xl sm:text-5xl font-bold mb-3">
               ShowTN
             </h2>
-            <p className="text-lg sm:text-2xl text-blue-100 mb-6 max-w-2xl">
+            <p className="text-lg sm:text-2xl text-blue-400 mb-6 max-w-2xl">
               Your Laugh Pass to a Comedy Show Tonight
             </p>
 
@@ -20,7 +25,7 @@ const ShowTNPromo = () => {
                   Starting at $10/month
                 </span>
               </div>
-              <p className="text-sm sm:text-base text-blue-100">
+              <p className="text-sm sm:text-base text-blue-400">
                 Real tickets to pro shows every month at...
                 <br />
                 top clubs, bar popups, and underground venues across NYC
@@ -47,7 +52,7 @@ const ShowTNPromo = () => {
               Visit ShowTN.com →
             </a>
           </div>
-        </div>
+        </a>
       </div>
     </section>
   );
