@@ -7,8 +7,9 @@ import { ExternalLink } from 'lucide-react';
 
 export default function SponsorSection() {
   const { data: sponsor, isLoading } = useSponsorAd();
-  const { user } = useAuth();
+  const { user, subscriptionPlan } = useAuth();
 
+  if (subscriptionPlan !== 'free') return null;
   if (isLoading || !sponsor) return null;
 
   const handleClick = () => {

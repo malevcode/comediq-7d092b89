@@ -293,7 +293,7 @@ const AdminInterface = () => {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
       <PageHeader />
 
-      <div className="max-w-3xl mx-auto px-4 pt-28 pb-20">
+      <div className="max-w-3xl mx-auto px-4 page-content-offset pb-20">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
           <p className="text-sm text-muted-foreground">Manage open mic requests and content</p>

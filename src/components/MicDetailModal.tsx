@@ -13,11 +13,22 @@ import { makeLinksClickable } from '@/utils/makeLinksClickable';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
 import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
+import { useEffect } from 'react';
+
+type ScheduleMicData = {
+  title: string;
+  venue: string;
+  location: string;
+  date: Date;
+  time: string;
+  status: 'upcoming';
+  notes: string;
+};
 
 interface MicDetailModalProps {
   mic: OpenMic;
   onClose: () => void;
-  onAddToSchedule?: (micData: any) => void;
+  onAddToSchedule?: (micData: ScheduleMicData) => void;
 }
 
 const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) => {
@@ -25,6 +36,14 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
   const navigate = useNavigate();
   const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(mic.uniqueIdentifier);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
 
   const handleRating = (rating: 'like' | 'dislike') => {
     if (!user) {
@@ -194,8 +213,8 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 p-4 z-[100] overflow-y-auto overscroll-contain">
+      <div className="bg-white rounded-2xl max-w-2xl w-full mt-10 mb-4 mx-auto">
         {/* Header */}
         <div className="sticky top-0 bg-background border-b border-border px-6 py-4 rounded-t-2xl">
           <div className="flex justify-between items-start">

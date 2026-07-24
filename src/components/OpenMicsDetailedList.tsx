@@ -12,6 +12,7 @@ import { makeLinksClickable } from '@/utils/makeLinksClickable';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
 import MicActionBar from '@/components/mic/MicActionBar';
+import EditMicButton from '@/components/mic/EditMicButton';
 import MicCommentSection from '@/components/mic/MicCommentSection';
 import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
 import { FREQUENCY_LABELS } from '@/types/openMic';
@@ -83,6 +84,38 @@ function getNextOccurrence(mic: OpenMic) {
   return nextDate;
 }
 
+function parseMicStartMinutes(mic: OpenMic): number | null {
+  if (!mic.startTime) return null;
+
+  const match = mic.startTime.trim().toLowerCase().match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
+  if (!match) return null;
+
+  const rawHour = Number(match[1]);
+  const minutes = Number(match[2] ?? 0);
+  const period = match[3];
+
+  if (!Number.isFinite(rawHour) || !Number.isFinite(minutes)) return null;
+
+  let hour = rawHour;
+  if (period === 'pm' && hour < 12) {
+    hour += 12;
+  } else if (period === 'am' && hour === 12) {
+    hour = 0;
+  }
+
+  return hour * 60 + minutes;
+}
+
+function hasMicAlreadyHappenedToday(mic: OpenMic, date = new Date()): boolean {
+  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  if (daysOfWeek[date.getDay()] !== mic.day) return false;
+
+  const startMinutes = parseMicStartMinutes(mic);
+  if (startMinutes === null) return false;
+
+  return startMinutes < date.getHours() * 60 + date.getMinutes();
+}
+
 function generateCalendarEvent(mic: OpenMic) {
   const nextDate = getNextOccurrence(mic);
   // Parse start time
@@ -94,14 +127,16 @@ function generateCalendarEvent(mic: OpenMic) {
 
   // Handle AM/PM for start
   let startHour24 = startHour;
-  if (mic.startTime.includes('PM') && startHour !== 12) startHour24 += 12;
-  if (mic.startTime.includes('AM') && startHour === 12) startHour24 = 0;
+  const normalizedStartTime = mic.startTime.toUpperCase();
+  if (normalizedStartTime.includes('PM') && startHour !== 12) startHour24 += 12;
+  if (normalizedStartTime.includes('AM') && startHour === 12) startHour24 = 0;
 
   // Handle AM/PM for end
   let endHour24 = endHour;
   if (mic.latestEndTime) {
-    if (mic.latestEndTime.includes('PM') && endHour !== 12) endHour24 += 12;
-    if (mic.latestEndTime.includes('AM') && endHour === 12) endHour24 = 0;
+    const normalizedEndTime = mic.latestEndTime.toUpperCase();
+    if (normalizedEndTime.includes('PM') && endHour !== 12) endHour24 += 12;
+    if (normalizedEndTime.includes('AM') && endHour === 12) endHour24 = 0;
   }
 
   // Calculate duration in minutes
@@ -148,7 +183,7 @@ function truncateMicName(name: string, maxLength: number = 15): string {
 function formatTimeCompact(time: string): string {
   if (!time) return '';
   // Remove :00 when on the hour (e.g., "5:00 PM" → "5 PM")
-  return time.replace(/:00/g, '');
+  return time.replace(/:00/g, '').replace(/\b(am|pm)\b/gi, (period) => period.toUpperCase());
 }
 
 // Helper to format time range compactly
@@ -159,7 +194,7 @@ function formatTimeRange(startTime: string, endTime: string): string {
   const startMatch = start.match(/^(\d+(?::\d+)?)\s*(AM|PM)$/i);
   const endMatch = end.match(/^(\d+(?::\d+)?)\s*(AM|PM)$/i);
   if (startMatch && endMatch && startMatch[2].toUpperCase() === endMatch[2].toUpperCase()) {
-    return `${startMatch[1]}-${endMatch[1]} ${endMatch[2]}`;
+    return `${startMatch[1]}-${endMatch[1]} ${endMatch[2].toUpperCase()}`;
   }
   return `${start} - ${end}`;
 }
@@ -184,6 +219,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
   const { userLocation, locationLoading } = useUserLocation();
   const [distance, setDistance] = useState<string | null>(null);
   const [distanceLoading, setDistanceLoading] = useState(false);
+  const isFinished = hasMicAlreadyHappenedToday(mic);
 
   // Helper to get borough outline color
   const getBoroughOutline = (borough: string) => {
@@ -201,14 +237,14 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
   // Calculate distance when user location changes
   useEffect(() => {
     const calculateDistance = async () => {
-      if (!userLocation || !mic.location) {
+      if (!userLocation || mic.latitude == null || mic.longitude == null) {
         setDistance(null);
         return;
       }
 
       setDistanceLoading(true);
       try {
-        const distanceResult = await DistanceService.calculateDistanceFromUser(mic.location, userLocation);
+        const distanceResult = DistanceService.calculateDistanceFromCoordinates(userLocation, mic.latitude, mic.longitude);
         setDistance(distanceResult);
       } catch (error) {
         console.error('Error calculating distance:', error);
@@ -219,7 +255,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
     };
 
     calculateDistance();
-  }, [userLocation, mic.location]);
+  }, [userLocation, mic.location, mic.latitude, mic.longitude]);
 
   
   const isComediqPartner = mic.signupMethod === 'comediq_slots';
@@ -227,7 +263,11 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
   return (
     <div
       ref={(el) => onRegisterRow?.(mic.uniqueIdentifier, el)}
-      className={`flex flex-col md:flex-row w-full border rounded-xl shadow-sm p-2.5 gap-0.5 md:gap-3 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${isComediqPartner ? 'bg-gradient-to-br from-blue-50 via-blue-50/60 to-white border-blue-200 border-l-4 border-l-blue-500' : `bg-white ${getBoroughOutline(mic.borough)}`} ${flash ? 'ring-2 ring-yellow-400 ring-offset-2' : ''}`}
+      className={`flex flex-col md:flex-row w-full border rounded-xl shadow-sm p-2.5 gap-0.5 md:gap-3 overflow-x-hidden hover:shadow-lg transition-all duration-300 ${
+        isComediqPartner
+          ? 'bg-gradient-to-br from-blue-50 via-blue-50/60 to-white border-blue-200 border-l-4 border-l-blue-500'
+          : `${isFinished ? 'bg-gray-100 border-gray-300 opacity-80' : 'bg-white'} ${getBoroughOutline(mic.borough)}`
+      } ${flash ? 'ring-2 ring-yellow-400 ring-offset-2' : ''}`}
       id={mic.id}
       style={mic.coverImageUrl ? {
         backgroundImage: `linear-gradient(rgba(235,245,255,0.92), rgba(235,245,255,0.92)), url(${mic.coverImageUrl})`,
@@ -310,7 +350,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
         </div>
       </div>
       {/* Mid: Time, Cost, Stage Time - Clickable to expand */}
-      <div className="flex-1 flex flex-col justify-center min-w-0 gap-x-3 text-xs text-gray-700 mb-0 mr-1">
+      <div className={`flex-1 flex flex-col min-w-0 gap-x-3 text-xs text-gray-700 mb-0 mr-1 ${expanded ? 'justify-center md:justify-start md:pt-1' : 'justify-center'}`}>
         <div 
           className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors"
           onClick={() => setExpanded(e => !e)}
@@ -378,7 +418,12 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
               <a href={getMapUrl(mic.location, mic.venueName)} target="_blank" rel="noopener noreferrer" className="flex flex-row gap-2 items-center hover:underline font-normal">
                 <MapPin className="w-3 h-3" /> {mic.location}
               </a>
-              <MicMiniMap location={mic.location} venueName={mic.venueName} />
+              <MicMiniMap
+                location={mic.location}
+                venueName={mic.venueName}
+                latitude={mic.latitude}
+                longitude={mic.longitude}
+              />
             </div>
             {mic.otherRules && (
               <div className="text-xs mt-2 pt-2 border-t border-blue-200">
@@ -417,6 +462,11 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
                 </Button>
               )}
             </div>
+            {/* Open editing: anyone can fix listing facts */}
+            <EditMicButton
+              micUniqueIdentifier={mic.uniqueIdentifier}
+              micName={mic.openMic}
+            />
             {/* Host Claim / Edit */}
             <ClaimMicButton
               micUniqueIdentifier={mic.uniqueIdentifier}
@@ -508,7 +558,14 @@ export default function OpenMicsDetailedList({
   showSponsor?: boolean;
   showMicOfDay?: boolean;
 }) {
-  const validMics = mics.filter(Boolean);
+  const validMics = mics
+    .filter(Boolean)
+    .map((mic, index) => ({ mic, index, isFinished: hasMicAlreadyHappenedToday(mic) }))
+    .sort((a, b) => {
+      if (a.isFinished !== b.isFinished) return a.isFinished ? 1 : -1;
+      return a.index - b.index;
+    })
+    .map(({ mic }) => mic);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [forceExpandedId, setForceExpandedId] = useState<string | null>(null);
   const [flashId, setFlashId] = useState<string | null>(null);
