@@ -166,19 +166,19 @@ const Profile = () => {
               onOpenChange={setShowBulkImport}
             />
 
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 border-0 backdrop-blur-xl bg-[#102a53]/70 p-1 text-blue-500 shadow-[0_12px_38px_rgba(2,10,30,0.24)]">
-              <TabsTrigger value="profile" className="data-[state=active]:bg-white/14 data-[state=active]:text-white data-[state=active]:shadow-none">My Profile</TabsTrigger>
-              <TabsTrigger value="work" className="data-[state=active]:bg-white/14 data-[state=active]:text-white data-[state=active]:shadow-none">Gigs</TabsTrigger>
-              <TabsTrigger value="liked" className="data-[state=active]:bg-white/14 data-[state=active]:text-white data-[state=active]:shadow-none">Liked Mics</TabsTrigger>
-              <TabsTrigger value="saved" className="gap-1 data-[state=active]:bg-white/14 data-[state=active]:text-white data-[state=active]:shadow-none">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 border-0 backdrop-blur-xl p-1 dark:bg-[#102a53]/70 shadow-[0_12px_38px_rgba(2,10,30,0.24)]">
+              <TabsTrigger value="profile" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">My Profile</TabsTrigger>
+              <TabsTrigger value="work" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">Gigs</TabsTrigger>
+              <TabsTrigger value="liked" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">Liked Mics</TabsTrigger>
+              <TabsTrigger value="saved" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">
                 <Bookmark className="h-3.5 w-3.5" />
                 Saved Mics
               </TabsTrigger>
-              <TabsTrigger value="playlists" className="gap-1 data-[state=active]:bg-white/14 data-[state=active]:text-white data-[state=active]:shadow-none">
+              <TabsTrigger value="playlists" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">
                 <ListMusic className="h-3.5 w-3.5" />
                 Playlists{playlists.length > 0 && ` (${playlists.length})`}
               </TabsTrigger>
-              <TabsTrigger value="signups" className="data-[state=active]:bg-white/14 data-[state=active]:text-white data-[state=active]:shadow-none">Signups</TabsTrigger>
+              <TabsTrigger value="signups" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">Signups</TabsTrigger>
             </TabsList>
 
             {/* My Profile Tab */}

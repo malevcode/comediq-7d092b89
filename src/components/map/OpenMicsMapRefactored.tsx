@@ -2,6 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from '
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Info } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { OpenMic } from '@/types/openMic';
 import { LocationService } from './LocationService';
 import { MapControls } from './MapControls';
@@ -36,6 +37,8 @@ const EMPTY_FEATURE_COLLECTION: GeoJSON.FeatureCollection<GeoJSON.Point, MicFeat
   features: [],
 };
 const COORDINATE_GROUP_PRECISION = 5;
+const LIGHT_MAP_STYLE = 'mapbox://styles/mapbox/streets-v12';
+const DARK_MAP_STYLE = 'mapbox://styles/mapbox/dark-v11';
 
 function parseCoordinate(value: unknown): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return value;
@@ -262,9 +265,11 @@ function fitMapToMappedMics(map: mapboxgl.Map, mics: MappedMic[]) {
 }
 
 const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
+  const { resolvedTheme } = useTheme();
   const mapShellRef = useRef<HTMLDivElement | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
+  const mapStyleRef = useRef<string>(LIGHT_MAP_STYLE);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
   const userLocationMarkerRef = useRef<mapboxgl.Marker | null>(null);
   const hasRequestedLocationRef = useRef(false);
@@ -276,6 +281,7 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
   const [mapReady, setMapReady] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const mapStyle = resolvedTheme === 'dark' ? DARK_MAP_STYLE : LIGHT_MAP_STYLE;
 
   useEffect(() => {
     onMicSelectRef.current = onMicSelect;
@@ -341,9 +347,10 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
 
       if (!mapContainerRef.current || mapRef.current) return;
 
+      mapStyleRef.current = mapStyle;
       const map = new mapboxgl.Map({
         container: mapContainerRef.current,
-        style: 'mapbox://styles/mapbox/streets-v12',
+        style: mapStyle,
         center: NYC_CENTER,
         zoom: 12.8,
         minZoom: 6,
@@ -352,8 +359,9 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
 
       mapRef.current = map;
       map.addControl(new mapboxgl.NavigationControl({ visualizePitch: false }), 'top-right');
+      let layerHandlersRegistered = false;
 
-      map.on('load', async () => {
+      const addOpenMicLayers = async () => {
         try {
           await Promise.all(
             PIN_IMAGE_IDS.flatMap((status) => [
@@ -365,30 +373,35 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
           console.warn('Failed to load map pin images:', loadError);
         }
 
-        map.addSource('open-mics', {
-          type: 'geojson',
-          data: EMPTY_FEATURE_COLLECTION,
-        });
+        if (!map.getSource('open-mics')) {
+          map.addSource('open-mics', {
+            type: 'geojson',
+            data: EMPTY_FEATURE_COLLECTION,
+          });
+        }
 
-        map.addLayer({
-          id: 'open-mic-dots',
-          type: 'symbol',
-          source: 'open-mics',
-          maxzoom: PIN_ZOOM_THRESHOLD,
-          layout: {
-            'icon-image': ['get', 'dotIcon'],
-            'icon-size': 0.13,
-            'icon-allow-overlap': true,
-            'icon-ignore-placement': true,
-          },
-        });
+        if (!map.getLayer('open-mic-dots')) {
+          map.addLayer({
+            id: 'open-mic-dots',
+            type: 'symbol',
+            source: 'open-mics',
+            maxzoom: PIN_ZOOM_THRESHOLD,
+            layout: {
+              'icon-image': ['get', 'dotIcon'],
+              'icon-size': 0.13,
+              'icon-allow-overlap': true,
+              'icon-ignore-placement': true,
+            },
+          });
+        }
 
-        map.addLayer({
-          id: 'open-mic-pins',
-          type: 'symbol',
-          source: 'open-mics',
-          minzoom: PIN_ZOOM_THRESHOLD,
-          layout: {
+        if (!map.getLayer('open-mic-pins')) {
+          map.addLayer({
+            id: 'open-mic-pins',
+            type: 'symbol',
+            source: 'open-mics',
+            minzoom: PIN_ZOOM_THRESHOLD,
+            layout: {
             'icon-image': ['get', 'pinIcon'],
             'icon-size': [
                 'interpolate',
@@ -425,15 +438,18 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
             'text-padding': 10,
             'text-allow-overlap': false,
             'text-ignore-placement': false,
-          },
-          paint: {
-            'text-color': '#111827',
-            'text-halo-color': 'rgba(255,255,255,0.55)',
-            'text-halo-width': 0.5,
-          },
-        });
+            },
+            paint: {
+              'text-color': '#111827',
+              'text-halo-color': 'rgba(255,255,255,0.55)',
+              'text-halo-width': 0.5,
+            },
+          });
+        }
 
-        const handleMicLayerClick = (event: mapboxgl.MapLayerMouseEvent) => {
+        if (!layerHandlersRegistered) {
+          layerHandlersRegistered = true;
+          const handleMicLayerClick = (event: mapboxgl.MapLayerMouseEvent) => {
           const feature = event.features?.[0];
           const micId = feature?.properties?.micId;
           const mic = typeof micId === 'string' ? micLookupRef.current.get(micId) : null;
@@ -461,28 +477,32 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
             .addTo(map);
 
           onMicSelectRef.current(mic);
-        };
+          };
 
-        map.on('click', 'open-mic-dots', (event) => {
-          const feature = event.features?.[0];
-          const coordinates = feature?.geometry.type === 'Point' ? feature.geometry.coordinates as [number, number] : null;
-          if (!coordinates) return;
-          map.easeTo({ center: coordinates, zoom: PIN_ZOOM_THRESHOLD + 0.8 });
-        });
-
-        map.on('click', 'open-mic-pins', handleMicLayerClick);
-
-        ['open-mic-dots', 'open-mic-pins'].forEach((layerId) => {
-          map.on('mouseenter', layerId, () => {
-            map.getCanvas().style.cursor = 'pointer';
+          map.on('click', 'open-mic-dots', (event) => {
+            const feature = event.features?.[0];
+            const coordinates = feature?.geometry.type === 'Point' ? feature.geometry.coordinates as [number, number] : null;
+            if (!coordinates) return;
+            map.easeTo({ center: coordinates, zoom: PIN_ZOOM_THRESHOLD + 0.8 });
           });
-          map.on('mouseleave', layerId, () => {
-            map.getCanvas().style.cursor = '';
+
+          map.on('click', 'open-mic-pins', handleMicLayerClick);
+
+          ['open-mic-dots', 'open-mic-pins'].forEach((layerId) => {
+            map.on('mouseenter', layerId, () => {
+              map.getCanvas().style.cursor = 'pointer';
+            });
+            map.on('mouseleave', layerId, () => {
+              map.getCanvas().style.cursor = '';
+            });
           });
-        });
+        }
 
         setMapReady(true);
-      });
+      };
+
+      map.on('load', addOpenMicLayers);
+      map.on('style.load', addOpenMicLayers);
     };
 
     initMap();
@@ -497,6 +517,17 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
       setMapReady(false);
     };
   }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || mapStyleRef.current === mapStyle) return;
+
+    popupRef.current?.remove();
+    popupRef.current = null;
+    setMapReady(false);
+    mapStyleRef.current = mapStyle;
+    map.setStyle(mapStyle);
+  }, [mapStyle]);
 
   useEffect(() => {
     const source = mapRef.current ? getSource(mapRef.current) : undefined;

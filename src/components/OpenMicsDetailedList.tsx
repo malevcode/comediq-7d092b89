@@ -327,7 +327,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
             {mic.venueName}, {mic.neighborhood}
             </a>
             {distance && (
-              <span className="flex items-center gap-1 ml-1 text-[#8ec5ff] font-medium">
+              <span className="flex items-center gap-1 ml-1 text-[#8ec5ff]  font-medium">
                 <Navigation className="w-3 h-3" />
                 {distance}
               </span>
@@ -452,7 +452,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
                 <Button
                   size="sm"
                   variant="outline"
-                  className="flex items-center justify-center gap-2"
+                  className="flex items-center justify-center gap-2 text-gray-800 bg-white hover:bg-gray-200 border-gray-300"
                   onClick={() => onAddToCalendar(mic)}
                 >
                   <Calendar className="w-4 h-4" />
