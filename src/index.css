@@ -161,7 +161,7 @@ html {
 
 /* Fixed header spacing: free users see ad bars, Full Pass users do not. */
 .non-subscriber-layout {
-  --page-top-offset: 9rem;
+  --page-top-offset: 5.75rem;
 }
 
 .subscriber-layout {
