@@ -85,6 +85,7 @@ const Profile = () => {
 
   const { data: profile, isLoading: profileLoading } = useComedianProfile(user?.id);
   const { playlists } = useMicPlaylists();
+  const { data: profileSignups = [] } = useUserSignups(user?.id);
   const { savedMics, isLoading: savedMicsLoading } = useSavedMics();
   const updateProfile = useUpdateProfile();
   const uploadHeadshot = useUploadHeadshot();
@@ -177,7 +178,9 @@ const Profile = () => {
                 <ListMusic className="h-3.5 w-3.5" />
                 Playlists{playlists.length > 0 && ` (${playlists.length})`}
               </TabsTrigger>
-              <TabsTrigger value="signups">Signups</TabsTrigger>
+              <TabsTrigger value="signups">
+                Signups{profileSignups.length > 0 && ` (${profileSignups.length})`}
+              </TabsTrigger>
             </TabsList>
 
             {/* My Profile Tab */}
@@ -437,6 +440,19 @@ function SignupsTabContent({ userId }: { userId: string }) {
 
   return (
     <div className="space-y-6">
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Signed Up Mics</p>
+              <p className="text-2xl font-bold text-gray-900">{signups.length}</p>
+            </div>
+            <Badge variant="secondary">{upcomingSignups.length} upcoming</Badge>
+            <Badge variant="outline">{pastSignups.length} past</Badge>
+          </div>
+        </CardContent>
+      </Card>
+
       {upcomingSignups.length > 0 && (
         <div>
           <h2 className="text-xl font-bold text-gray-900 mb-4">Upcoming Signups</h2>
