@@ -232,6 +232,35 @@ function getSource(map: mapboxgl.Map): mapboxgl.GeoJSONSource | undefined {
   return map.getSource('open-mics') as mapboxgl.GeoJSONSource | undefined;
 }
 
+function getMappedMicsViewportKey(mics: MappedMic[]): string {
+  return mics
+    .map(({ mic, latitude, longitude }) => `${mic.uniqueIdentifier}:${latitude.toFixed(5)}:${longitude.toFixed(5)}`)
+    .join('|');
+}
+
+function fitMapToMappedMics(map: mapboxgl.Map, mics: MappedMic[]) {
+  if (mics.length === 0) return;
+
+  if (mics.length === 1) {
+    const [{ latitude, longitude }] = mics;
+    map.easeTo({
+      center: [longitude, latitude],
+      zoom: Math.max(map.getZoom(), 12.8),
+      duration: 700,
+    });
+    return;
+  }
+
+  const bounds = new mapboxgl.LngLatBounds();
+  mics.forEach(({ latitude, longitude }) => bounds.extend([longitude, latitude]));
+
+  map.fitBounds(bounds, {
+    padding: { top: 56, right: 56, bottom: 56, left: 56 },
+    maxZoom: 13.4,
+    duration: 700,
+  });
+}
+
 const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
   const mapShellRef = useRef<HTMLDivElement | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -239,6 +268,7 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
   const popupRef = useRef<mapboxgl.Popup | null>(null);
   const userLocationMarkerRef = useRef<mapboxgl.Marker | null>(null);
   const hasRequestedLocationRef = useRef(false);
+  const lastViewportKeyRef = useRef('');
   const micLookupRef = useRef(new Map<string, OpenMic>());
   const onMicSelectRef = useRef(onMicSelect);
 
@@ -472,6 +502,16 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
     const source = mapRef.current ? getSource(mapRef.current) : undefined;
     source?.setData(micGeoJson);
   }, [micGeoJson, mapReady]);
+
+  useEffect(() => {
+    if (!mapReady || !mapRef.current) return;
+
+    const viewportKey = getMappedMicsViewportKey(representativeMappedMics);
+    if (!viewportKey || viewportKey === lastViewportKeyRef.current) return;
+
+    lastViewportKeyRef.current = viewportKey;
+    fitMapToMappedMics(mapRef.current, representativeMappedMics);
+  }, [mapReady, representativeMappedMics]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
