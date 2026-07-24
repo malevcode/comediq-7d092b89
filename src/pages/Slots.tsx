@@ -22,7 +22,7 @@ const Slots = () => {
     <div className="min-h-screen pb-20">
       <PageHeader title="Slots" subtitle="One-click mic signups" />
 
-      <div className="max-w-4xl mx-auto px-4 pt-28 pb-6 space-y-5">
+      <div className="max-w-4xl mx-auto px-4 page-content-offset pb-6 space-y-5">
         {/* Header row */}
         <div className="flex items-center justify-between">
           <div>

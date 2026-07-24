@@ -350,7 +350,7 @@ const ShowNotepad = ({ shows, onAddShow, onUpdateShow, onDeleteShow, onSetActive
               if (location.pathname === "/perform") {
                 setActiveTab("find-mics");
               } else {
-                navigate("/perform?tab=find-mics");
+                navigate("/open-mics");
               }
             }}
           >

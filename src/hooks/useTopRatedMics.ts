@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { OpenMic } from "@/types/openMic";
 
-const CACHE_KEY = 'comediq_top_rated_v1';
+const CACHE_KEY = "comediq_top_rated_v1";
 
 function loadCached(): (OpenMic & { likeCount: number })[] | null {
   try {
@@ -14,12 +14,11 @@ function loadCached(): (OpenMic & { likeCount: number })[] | null {
   }
 }
 
-// Supabase calls disabled — serve from localStorage only
 export const useTopRatedMics = () => {
   const cached = loadCached();
 
   return useQuery({
-    queryKey: ['topRatedMics'],
+    queryKey: ["topRatedMics"],
     queryFn: async () => cached ?? [],
     placeholderData: cached ?? undefined,
     staleTime: Infinity,
