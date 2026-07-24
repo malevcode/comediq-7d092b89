@@ -12,8 +12,9 @@ interface SponsorCardProps {
 
 export function SponsorCard({ placement, className = '' }: SponsorCardProps) {
   const { data: sponsor, isLoading } = useSponsorAd();
-  const { user } = useAuth();
+  const { user, subscriptionPlan } = useAuth();
 
+  if (subscriptionPlan !== 'free') return null;
   if (isLoading || !sponsor) return null;
 
   const handleClick = () => {

@@ -13,6 +13,11 @@ import Header from "./Header";
 import { useSavedMics } from "@/hooks/useSavedMics";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useMicPlaylists } from "@/hooks/useMicPlaylists";
+import { getValidStripePaymentLink } from "@/utils/stripeLinks";
+
+const STRIPE_PAID_LINK = getValidStripePaymentLink(
+  import.meta.env.VITE_STRIPE_PAID_LINK,
+);
 
 
 

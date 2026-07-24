@@ -72,7 +72,7 @@ export const getVerificationColor = (lastVerified: string): string => {
 
 // Format time for display
 export const formatTime = (timeStr: string): string => {
-  return timeStr;
+  return timeStr.replace(/\b(am|pm)\b/gi, (period) => period.toUpperCase());
 };
 
 // Format cost for display

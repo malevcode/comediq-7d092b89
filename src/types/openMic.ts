@@ -50,4 +50,10 @@ export interface OpenMic {
   signupMethod?: SignupMethod;
   slotsEnabled: boolean;
   slotDurationMinutes: number;
+  latitude?: number | null;
+  longitude?: number | null;
+  geocodedAt?: string | null;
+  geocodingProvider?: string | null;
+  geocodingScore?: number | null;
+  geocodingMatchAddress?: string | null;
 }

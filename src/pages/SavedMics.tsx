@@ -59,7 +59,7 @@ export default function SavedMics() {
           subtitle="Your bookmarked open mics"
         />
 
-        <main className="container mx-auto px-4 py-4">
+        <main className="container mx-auto px-4 page-content-offset pb-4">
           <Button
             variant="ghost"
             size="sm"
@@ -91,7 +91,7 @@ export default function SavedMics() {
             </div>
           ) : (
             <div>
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-gray-600 mb-4 mt-2">
                 {filteredMics.length} saved mic{filteredMics.length !== 1 ? 's' : ''}
               </p>
               <OpenMicsDetailedList 

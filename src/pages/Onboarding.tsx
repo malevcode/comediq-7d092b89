@@ -14,6 +14,33 @@ const BRAND_BLUE = '#1a5fb4';
 
 type Role = 'performer' | 'host' | 'showrunner';
 
+interface OnboardingResponsePayload {
+  user_id: string;
+  primary_use: Role;
+  runs_open_mic: boolean;
+  runs_show: boolean;
+  mic_or_show_name: string | null;
+  wants_listing_promo: boolean;
+}
+
+type OnboardingClient = {
+  from: (table: 'user_onboarding_responses') => {
+    upsert: (
+      payload: OnboardingResponsePayload,
+      options: { onConflict: string },
+    ) => Promise<{ error: { message: string } | null }>;
+  };
+};
+
+type UserRolesClient = {
+  from: (table: 'user_roles') => {
+    upsert: (
+      payload: { user_id: string; role: Role },
+      options: { onConflict: string },
+    ) => Promise<{ error: { message: string } | null }>;
+  };
+};
+
 const roles: { id: Role; icon: React.ReactNode; label: string; description: string }[] = [
   {
     id: 'performer',
@@ -47,7 +74,7 @@ const Onboarding = () => {
 
   useEffect(() => {
     if (!loading && !user) navigate('/auth');
-    if (!loading && user && !needsOnboarding) navigate('/perform');
+    if (!loading && user && !needsOnboarding) navigate('/open-mics');
   }, [user, loading, needsOnboarding, navigate]);
 
   const handleConfirm = async () => {
@@ -57,7 +84,7 @@ const Onboarding = () => {
     const runsAnything = runsOpenMic || runsShow || selected === 'host' || selected === 'showrunner';
     const cleanedName = micOrShowName.trim();
 
-    const { error: responseError } = await (supabase as any)
+    const { error: responseError } = await (supabase as unknown as OnboardingClient)
       .from('user_onboarding_responses')
       .upsert({
         user_id: user.id,
@@ -74,7 +101,7 @@ const Onboarding = () => {
       return;
     }
 
-    const { error: roleError } = await (supabase as any)
+    const { error: roleError } = await (supabase as unknown as UserRolesClient)
       .from('user_roles')
       .upsert({ user_id: user.id, role: selected }, { onConflict: 'user_id,role' });
 
@@ -86,7 +113,7 @@ const Onboarding = () => {
 
     refreshProfile();
     setSaving(false);
-    navigate(selected === 'performer' ? '/perform' : '/host-dashboard', { replace: true });
+    navigate(selected === 'performer' ? '/open-mics' : '/host-dashboard', { replace: true });
   };
 
   return (
