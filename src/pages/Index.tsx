@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import PageHeader from "@/components/PageHeader";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
@@ -13,15 +12,6 @@ import { generateOrganizationSchema, generateWebSiteSchema } from "@/utils/struc
 
 const Index = () => {
   const { user } = useAuth();
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const structuredData = {
     '@context': 'https://schema.org',

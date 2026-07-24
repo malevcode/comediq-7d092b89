@@ -46,13 +46,13 @@ interface HeaderProps {
 }
 
 export default function Header({ className = "", showEmail = true, showLevel = true }: HeaderProps) {
-  const { user } = useAuth();
+  const { user, subscriptionPlan } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile(user?.id);
 
   // Fallbacks
   const displayName = profile?.username || user?.email?.split("@")[0] || "Comedian";
   const avatarUrl = profile?.headshot_url || "/lovable-uploads/fc65b384-6c71-4c5e-9c70-52716864f5ad.png";
-  const level = "Rising Star";
+  const level = subscriptionPlan !== 'free' ? "Full Pass Subscriber" : "Rising Star";
 
   return (
     <div className={`bg-white/80 backdrop-blur rounded-xl p-6 shadow-sm ${className}`}>
