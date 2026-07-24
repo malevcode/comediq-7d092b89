@@ -196,7 +196,7 @@ export function PlaylistsTab() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-4">
+    <div className="max-w-7xl mx-auto">
       {/* Header Actions */}
       <div className="flex flex-wrap gap-3 mb-6">
         <Button

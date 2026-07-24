@@ -8,7 +8,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 const ShowsMap = () => {
   const navigate = useNavigate();
 
-  // Build date range: today → today + 5 days
   const filters = useMemo(() => {
     const today = new Date();
     const end = new Date(today);
@@ -26,7 +25,7 @@ const ShowsMap = () => {
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-[#07111f]/62 z-10 flex-shrink-0 text-white backdrop-blur-xl">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/laugh?tab=find-shows')}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -53,13 +52,18 @@ const ShowsMap = () => {
           <div className="flex items-center justify-center h-full">
             <p className="text-destructive text-sm">Failed to load shows. Please try again.</p>
           </div>
-        ) : shows && shows.length > 0 ? (
-          <AudienceShowsMap shows={shows} />
         ) : (
-          <div className="flex flex-col items-center justify-center h-full gap-3 text-muted-foreground">
-            <Ticket className="w-10 h-10 opacity-30" />
-            <p className="text-sm">No shows in the next 5 days.</p>
-          </div>
+          <>
+            <AudienceShowsMap shows={shows ?? []} />
+            {(!shows || shows.length === 0) && (
+              <div className="absolute inset-x-4 top-20 z-10 flex justify-center pointer-events-none">
+                <div className="flex items-center gap-2 rounded-lg bg-background/90 border border-border px-3 py-2 text-sm text-muted-foreground shadow-sm">
+                  <Ticket className="w-4 h-4 opacity-50" />
+                  <span>No shows in the next 5 days.</span>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

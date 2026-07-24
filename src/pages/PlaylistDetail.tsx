@@ -68,7 +68,7 @@ export default function PlaylistDetail() {
   return (
     <div className="min-h-screen bg-transparent">
       <PageHeader title={playlist.name} subtitle={playlist.description || "Your curated mic collection"} />
-      <main className="max-w-7xl mx-auto px-8 pt-28 pb-10">
+      <main className="max-w-7xl mx-auto px-8 page-content-offset pb-10">
         <Button variant="ghost" onClick={() => navigate("/playlists")} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Playlists
         </Button>

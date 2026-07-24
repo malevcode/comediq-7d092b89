@@ -7,7 +7,7 @@ const PrivacyPolicy = () => {
     <div className="min-h-screen bg-transparent pb-20">
       <PageHeader title="Privacy Policy & Terms" subtitle="Last updated: January 2025" />
       
-      <div className="max-w-3xl mx-auto px-4 pt-28">
+      <div className="max-w-3xl mx-auto px-4 page-content-offset">
         <Link 
           to="/" 
           className="inline-flex items-center text-orange-600 hover:text-orange-700 mb-6 text-sm"

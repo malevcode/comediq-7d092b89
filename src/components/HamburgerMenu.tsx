@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Home, MicVocal, Eye, User, Book, Search, Calendar, TrendingUp, Menu, ChevronRight, Briefcase, Ticket, Star, Bookmark, ListMusic, TicketCheck, Sparkles, Flame, Clapperboard } from "lucide-react";
+import { Home, MicVocal, Eye, User, Book, Search, Menu, ChevronRight, Briefcase, Ticket, Star, Bookmark, ListMusic, Sparkles, Flame, Clapperboard, Map } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
@@ -18,6 +18,7 @@ const HamburgerMenu = () => {
   ];
 
   const newFeatureItems = [
+    { path: "/open-mics", icon: Map, label: "Open Mics Map", isNew: true },
     { path: "/growth", icon: Briefcase, label: "Growth", isNew: true },
     { path: "/strip", icon: Clapperboard, label: "Carouseler", isNew: true },
   ];

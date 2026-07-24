@@ -98,7 +98,7 @@ export default function AddShow() {
         subtitle="Add your comedy show to our listings"
       />
       
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto px-4 page-content-offset pb-6">
         <Button 
           variant="ghost" 
           onClick={() => navigate('/laugh')}
