@@ -6,7 +6,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic2, TrendingUp, Star, ArrowRight, Calendar, MapPin, Heart, Bookmark, Music, ListMusic, Sparkles } from "lucide-react";
+import { Mic2, TrendingUp, Star, ArrowRight, Calendar, MapPin, Heart, Bookmark, Music, ListMusic, Sparkles, NotebookPen } from "lucide-react";
 import { SponsorCard } from "./SponsorCard";
 import { QuickNotes } from "./home/QuickNotes";
 import Header from "./Header";
@@ -219,7 +219,7 @@ export default function Home() {
                       </div>
                       <div>
                         <div className="text-2xl font-bold text-[#8ec5ff]">{visitsLoading ? "--" : streak}</div>
-                        <div className="text-xs text-white/64 font-medium whitespace-nowrap">
+                        <div className="text-xs text-white/60 font-medium whitespace-nowrap">
                           Day Streak {streak > 4 ? '🔥' : ''}
                         </div>
                       </div>
@@ -233,12 +233,12 @@ export default function Home() {
                     <Card className={`${statCardClass} cursor-pointer h-full`}>
                       <CardContent className="p-3">
                         <div className="flex items-center gap-2">
-                          <div className="p-1.5 bg-[#8ec5ff]/18 rounded-lg shrink-0">
+                          <div className="p-1.5 bg-[#8ec5ff]/20 rounded-lg shrink-0">
                             <Bookmark className="h-4 w-4 text-white" />
                           </div>
                           <div className="min-w-0">
                             <div className="text-xl font-bold text-[#8ec5ff]">{savedMics.length}</div>
-                            <div className="text-xs text-white/64 font-medium whitespace-nowrap">Saved Mics</div>
+                            <div className="text-xs text-white/60 font-medium whitespace-nowrap">Saved Mics</div>
                           </div>
                         </div>
                       </CardContent>
@@ -248,27 +248,27 @@ export default function Home() {
                     <Card className={`${statCardClass} cursor-pointer h-full`}>
                       <CardContent className="p-3">
                         <div className="flex items-center gap-2">
-                          <div className="p-1.5 bg-[#8ec5ff]/18 rounded-lg shrink-0">
+                          <div className="p-1.5 bg-[#8ec5ff]/20 rounded-lg shrink-0">
                             <Heart className="h-4 w-4 text-white" />
                           </div>
                           <div className="min-w-0">
                             <div className="text-xl font-bold text-[#8ec5ff]">{likedMics.length}</div>
-                            <div className="text-xs text-white/64 font-medium whitespace-nowrap">Liked Mics</div>
+                            <div className="text-xs text-white/60 font-medium whitespace-nowrap">Liked Mics</div>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                   </Link>
                   <Link to="/profile?tab=signups">
-                    <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer h-full">
+                    <Card className={`${statCardClass} cursor-pointer h-full`}>
                       <CardContent className="p-3">
                         <div className="flex items-center gap-2">
-                          <div className="p-1.5 bg-[#1a5fb4]/60 rounded-lg shrink-0">
-                            <Heart className="h-4 w-4 text-white" />
+                          <div className="p-1.5 bg-[#8ec5ff]/20 rounded-lg shrink-0">
+                            <NotebookPen className="h-4 w-4 text-white" />
                           </div>
                           <div className="min-w-0">
-                            <div className="text-xl font-bold text-[#1a5fb4]">{userSignups.length}</div>
-                            <div className="text-xs text-[#1a5fb4]/70 font-medium whitespace-nowrap">Signed Up Mics</div>
+                            <div className="text-xl font-bold text-[#8ec5ff]">{userSignups.length}</div>
+                            <div className="text-xs text-white/60 font-medium whitespace-nowrap">Signed Up Mics</div>
                           </div>
                         </div>
                       </CardContent>
@@ -281,12 +281,12 @@ export default function Home() {
                   <Card className={`${statCardClass} cursor-pointer`}>
                     <CardContent className="p-3">
                       <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-[#8ec5ff]/18 rounded-lg shrink-0">
+                        <div className="p-1.5 bg-[#8ec5ff]/20 rounded-lg shrink-0">
                           <ListMusic className="h-4 w-4 text-white" />
                         </div>
                         <div className="min-w-0">
                           <div className="text-xl font-bold text-[#8ec5ff]">{playlists.length}</div>
-                          <div className="text-xs text-white/64 font-medium whitespace-nowrap">Playlists</div>
+                          <div className="text-xs text-white/60 font-medium whitespace-nowrap">Playlists</div>
                         </div>
                       </div>
                     </CardContent>

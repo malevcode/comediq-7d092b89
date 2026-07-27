@@ -176,7 +176,7 @@ export const QuickNotes: React.FC<QuickNotesProps> = ({ className = "" }) => {
           }
         }}>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="border-white/16 bg-white/8 text-white hover:bg-white/14 hover:text-white">
+            <Button variant="outline" size="sm" className="border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white">
               <FileText className="w-4 h-4 mr-2" />
               Saved Notes
             </Button>

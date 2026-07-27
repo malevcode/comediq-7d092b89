@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles, Calendar, X, Upload, ListMusic, Bookmark } from 'lucide-react';
+import { User, Heart, MapPin, Clock, LogIn, Edit, Briefcase, Sparkles, Calendar, X, Upload, ListMusic, Bookmark, NotebookPen } from 'lucide-react';
 import { PerformanceHeatmap } from '@/components/profile/PerformanceHeatmap';
 import { useEffect, useState } from 'react';
 import MicDetailModal from '@/components/MicDetailModal';
@@ -168,18 +168,28 @@ const Profile = () => {
             />
 
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 border-0 backdrop-blur-xl p-1 dark:bg-[#102a53]/70 shadow-[0_12px_38px_rgba(2,10,30,0.24)]">
-              <TabsTrigger value="profile" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">My Profile</TabsTrigger>
-              <TabsTrigger value="work" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">Gigs</TabsTrigger>
-              <TabsTrigger value="liked" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">Liked Mics</TabsTrigger>
+              <TabsTrigger value="profile" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">
+                <User className="h-3.5 w-3.5 mr-1" />
+                My Profile
+              </TabsTrigger>
+              <TabsTrigger value="work" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">
+                <Briefcase className="h-3.5 w-3.5 mr-1" />
+                Gigs
+              </TabsTrigger>
+              <TabsTrigger value="liked" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">
+                <Heart className="h-3.5 w-3.5 mr-1" />
+                Liked Mics
+              </TabsTrigger>
               <TabsTrigger value="saved" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">
-                <Bookmark className="h-3.5 w-3.5" />
+                <Bookmark className="h-3.5 w-3.5 mr-1" />
                 Saved Mics
               </TabsTrigger>
               <TabsTrigger value="playlists" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">
-                <ListMusic className="h-3.5 w-3.5" />
+                <ListMusic className="h-3.5 w-3.5 mr-1" />
                 Playlists{playlists.length > 0 && ` (${playlists.length})`}
               </TabsTrigger>
               <TabsTrigger value="signups" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">
+                <NotebookPen className="h-3.5 w-3.5 mr-1" />
                 Signups{profileSignups.length > 0 && ` (${profileSignups.length})`}
               </TabsTrigger>
             </TabsList>
