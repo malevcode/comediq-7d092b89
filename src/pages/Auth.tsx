@@ -378,27 +378,10 @@ const Auth = () => {
     }
 
     if (accountStatus === 'confirmed') {
-      const { error } = await sendVerificationCode();
-
-      if (error) {
-        if (isEmailRateLimitError(error)) {
-          showRateLimitMessage(error);
-          return;
-        }
-
-        setLoading(false);
-        toast({
-          title: 'Error',
-          description: getErrorMessage(error, 'We could not send a verification code. Try signing in with email and code.'),
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      enterVerificationStep({
-        title: 'Verification code sent',
-        description: 'This email already has an account. Enter the code sent to your email to continue.',
-      });
+      routeToExistingAccountSignIn(
+        normalizedEmail,
+        'This email already has an account. Sign in with your password instead.',
+      );
       return;
     }
 
@@ -865,6 +848,17 @@ const Auth = () => {
           </button>
         </div>
       )}
+
+      <button
+        type="button"
+        onClick={handleGoogleSignIn}
+        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
+      >
+        <GoogleIcon />
+        Create account with Google
+      </button>
+
+      <Divider label="or create with email" />
 
       <form onSubmit={handleEmailSignup} className="space-y-3">
         <Input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" />
