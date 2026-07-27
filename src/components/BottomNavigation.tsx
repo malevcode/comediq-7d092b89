@@ -3,6 +3,9 @@ import { Home, Eye, User, Book, MicVocal, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAnalytics } from "@/components/AnalyticsProvider";
 
+const isMicSignupPath = (pathname: string) =>
+  pathname === '/mic-signup' || /^\/mic\/[^/]+\/signup\/?$/.test(pathname);
+
 const BottomNavigation = () => {
   const location = useLocation();
   const { user, isAdmin, role, subscriptionPlan } = useAuth();
@@ -11,6 +14,7 @@ const BottomNavigation = () => {
   const isHostOrShowrunner = role === 'host' || role === 'showrunner';
   const isSubscriber = subscriptionPlan !== 'free';
   if (location.pathname.startsWith("/auth")) return null;
+  if (isMicSignupPath(location.pathname)) return null;
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
@@ -24,7 +28,7 @@ const BottomNavigation = () => {
   ];
 
   return (
-    <nav className={`fixed left-0 right-0 bg-white border-t border-gray-200 z-50 ${isSubscriber ? 'bottom-0' : 'bottom-6'}`}>
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/32 text-gray-500 shadow-[0_-18px_50px_rgba(4,20,55,0.16)] backdrop-blur-xl dark:bg-[#07111f]/62 dark:text-white dark:shadow-[0_-18px_50px_rgba(4,20,55,0.26)]">
       <div className="max-w-md mx-auto">
         <div className="flex justify-around py-2">
           {navItems.map(({ path, icon: Icon, label }) => {
@@ -60,8 +64,8 @@ const BottomNavigation = () => {
                 onClick={() => trackClick(`nav_${label.toLowerCase()}`, { target: path })}
                 className={`flex flex-col items-center p-2 ${
                   isActive
-                    ? "text-[#1a5fb4]"
-                    : "text-gray-400"
+                    ? "text-[#1a5fb4] dark:text-[#8ec5ff]"
+                    : "text-gray-450 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-100"
                 }`}
               >
                 <Icon size={24} />

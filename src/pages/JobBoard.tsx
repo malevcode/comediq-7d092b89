@@ -64,10 +64,10 @@ const JobBoard = () => {
         description="Browse available comedy show opportunities in NYC. Find performer spots, crew positions, and show gigs. Perfect for comedians, videographers, photographers, and production crew."
         keywords="comedy jobs, show opportunities, comedy gigs, NYC comedy, performer spots, comedy crew jobs, videographer jobs, comedy host positions"
       />
-      <div className="min-h-screen bg-background pb-20">
+      <div className="min-h-screen bg-transparent pb-20">
         <PageHeader title="Find Gigs" subtitle="Find comedy gigs and crew work" />
 
-        <div className="pt-24 px-4 max-w-7xl mx-auto pb-24">
+        <div className="page-content-offset px-4 max-w-7xl mx-auto pb-24">
           {/* Prominent CTA Card */}
           <div className="mb-6 p-6 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

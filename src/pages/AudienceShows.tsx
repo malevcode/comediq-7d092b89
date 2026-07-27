@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Ticket, Calendar, Plus, Map } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { createPortal } from "react-dom";
 
 export default function AudienceShows() {
   const navigate = useNavigate();
@@ -18,6 +19,11 @@ export default function AudienceShows() {
   const [borough, setBorough] = useState("all");
   const [showType, setShowType] = useState("all");
   const [selectedShow, setSelectedShow] = useState<AudienceShow | null>(null);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const handleAddShow = () => {
     if (!user) {
@@ -73,7 +79,7 @@ export default function AudienceShows() {
           variant="outline"
           size="sm"
           onClick={() => navigate('/shows/map')}
-          className="flex items-center gap-1.5 text-xs"
+          className="flex items-center gap-1.5 text-xs border-0 bg-white/10 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:bg-white/20 hover:text-white"
         >
           <Map className="w-3.5 h-3.5" />
           Map View
@@ -109,13 +115,13 @@ export default function AudienceShows() {
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
             <Ticket className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-medium text-foreground mb-2">No Shows Found</h3>
-          <p className="text-muted-foreground mb-4">
+          <h3 className="text-lg text-white font-medium text-foreground mb-2">No Shows Found</h3>
+          <p className="text-white/60 mb-4">
             {searchTerm || borough !== 'all' || showType !== 'all'
               ? "Try adjusting your filters to find more shows."
               : "Check back soon for upcoming comedy shows!"}
           </p>
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center justify-center gap-2 text-sm text-white/60">
             <Calendar className="w-4 h-4" />
             <span>New shows are added regularly</span>
           </div>
@@ -128,14 +134,16 @@ export default function AudienceShows() {
         onClose={handleModalClose}
       />
 
-      {/* Floating Add Show Button */}
-      <Button
-        onClick={handleAddShow}
-        className="fixed bottom-20 right-4 h-12 w-12 rounded-full shadow-lg z-40"
-        size="icon"
-      >
-        <Plus className="h-6 w-6" />
-      </Button>
+      {hasMounted && createPortal(
+        <Button
+          onClick={handleAddShow}
+          className="fixed bottom-[12rem] right-11 z-[1200] rounded-full bg-orange-500 p-2 text-white shadow-lg transition duration-300 hover:bg-orange-600"
+          size="icon"
+        >
+          <Plus className="h-6 w-6" />
+        </Button>,
+        document.body
+      )}
     </div>
   );
 }

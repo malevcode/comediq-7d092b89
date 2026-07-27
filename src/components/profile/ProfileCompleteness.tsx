@@ -94,11 +94,11 @@ export default function ProfileCompleteness({ profile, onEditClick }: ProfileCom
   }
 
   return (
-    <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+    <Card className="border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5">
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center justify-between">
           <span>Profile Completeness</span>
-          <span className="text-2xl font-bold text-primary">{percentage}%</span>
+          <span className="text-2xl font-bold text-[hsl(var(--comediq-cream)]">{percentage}%</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -108,20 +108,20 @@ export default function ProfileCompleteness({ profile, onEditClick }: ProfileCom
           {incompleteItems.slice(0, 4).map((item) => (
             <div
               key={item.key}
-              className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-2 rounded-md -mx-2 transition-colors"
+              className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/20 p-2 rounded-md -mx-2 transition-colors"
               onClick={onEditClick}
             >
               {getStatusIcon(item)}
               <span className="flex-1">{item.label}</span>
               {item.hint && (
-                <span className="text-xs text-muted-foreground hidden sm:block">
+                <span className="text-xs text-white/60 hidden sm:block">
                   {item.hint}
                 </span>
               )}
             </div>
           ))}
           {incompleteItems.length > 4 && (
-            <p className="text-xs text-muted-foreground text-center pt-1">
+            <p className="text-xs text-white/60 text-center pt-1">
               +{incompleteItems.length - 4} more to complete
             </p>
           )}

@@ -2,30 +2,48 @@ import React from 'react';
 
 interface MapControlsProps {
   onRecenter: () => void;
+  onToggleFullscreen?: () => void;
   locationLoading: boolean;
+  isFullscreen?: boolean;
   isLoading?: boolean;
   geocodingProgress?: { current: number; total: number } | null;
   error?: string | null;
   onDismissError?: () => void;
   loadedMicCount?: number;
+  totalMicCount?: number;
+  countLabel?: string;
   backgroundLoading?: boolean;
 }
 
 export const MapControls: React.FC<MapControlsProps> = ({
   onRecenter,
+  onToggleFullscreen,
   locationLoading,
+  isFullscreen,
   isLoading,
   geocodingProgress,
   error,
   onDismissError,
   loadedMicCount,
+  totalMicCount,
+  countLabel = 'mics mapped',
   backgroundLoading
 }) => {
   return (
     <>
-      {/* Recenter button */}
-      <div className="absolute top-2 left-2">
+      {/* Map action buttons */}
+      <div className="absolute bottom-8 right-2 z-10 flex flex-col gap-2">
+        {onToggleFullscreen && (
+          <button
+            type="button"
+            onClick={onToggleFullscreen}
+            className="bg-white hover:bg-blue-50 text-slate-900 px-3 py-2 rounded-lg shadow-lg text-sm font-medium transition-colors duration-200 border border-blue-100"
+          >
+            {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+          </button>
+        )}
         <button 
+          type="button"
           onClick={onRecenter}
           disabled={locationLoading}
           className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-3 py-2 rounded-lg shadow-lg text-sm font-medium transition-colors duration-200"
@@ -74,9 +92,10 @@ export const MapControls: React.FC<MapControlsProps> = ({
 
       {/* Loaded mic count indicator */}
       {loadedMicCount !== undefined && (
-        <div className="absolute bottom-4 left-4 bg-white p-2 rounded-lg shadow-lg">
+        <div className="absolute bottom-8 left-2 bg-white p-2 rounded-lg shadow-lg">
           <div className="text-xs text-gray-600">
-            {loadedMicCount} mics loaded
+            {loadedMicCount}
+            {totalMicCount !== undefined ? ` out of ${totalMicCount}` : ''} {countLabel}
             {backgroundLoading && (
               <div className="text-xs text-blue-600 mt-1">
                 Loading more...

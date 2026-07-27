@@ -75,12 +75,12 @@ export function PerformanceHeatmap() {
   const totalCheckins = Object.values(dateCounts).reduce((a, b) => a + b, 0);
 
   return (
-    <Card>
+    <Card className="border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5">
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <Flame className="h-4 w-4 text-primary" />
+          <Flame className="h-4 w-4 text-[#ffc72c]" />
           Performance Heat Map
-          <span className="text-xs font-normal text-muted-foreground ml-auto">
+          <span className="text-xs font-normal text-white/60 ml-auto">
             {totalCheckins} sets this year
           </span>
         </CardTitle>
@@ -90,7 +90,7 @@ export function PerformanceHeatmap() {
           <div className="flex gap-[2px] min-w-[700px]">
             <div className="flex flex-col gap-[2px] mr-1">
               {DAYS.map((d, i) => (
-                <div key={i} className="h-[10px] text-[8px] text-muted-foreground leading-[10px] w-6">
+                <div key={i} className="h-[10px] text-[8px] text-white/52 leading-[10px] w-6">
                   {i % 2 === 1 ? d : ''}
                 </div>
               ))}
@@ -108,7 +108,7 @@ export function PerformanceHeatmap() {
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground justify-end">
+        <div className="flex items-center gap-1 mt-2 text-[10px] text-white/52 justify-end">
           <span>Less</span>
           <div className="h-[10px] w-[10px] rounded-[2px] bg-muted" />
           <div className="h-[10px] w-[10px] rounded-[2px] bg-primary/30" />

@@ -30,6 +30,9 @@ export default function ProfileEditForm({
   isSaving,
   isUploading
 }: ProfileEditFormProps) {
+  const profileSurfaceClass = "border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5";
+  const inputClass = "border-white/14 bg-white/8 text-white placeholder:text-white/42";
+
   const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormData>({
     defaultValues: {
       stage_name: profile.stage_name || '',
@@ -42,7 +45,7 @@ export default function ProfileEditForm({
 
   return (
     <form onSubmit={handleSubmit(onSave)} className="space-y-6">
-      <Card>
+      <Card className={profileSurfaceClass}>
         <CardHeader>
           <CardTitle>Headshot</CardTitle>
         </CardHeader>
@@ -56,7 +59,7 @@ export default function ProfileEditForm({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className={profileSurfaceClass}>
         <CardHeader>
           <CardTitle>Basic Information</CardTitle>
         </CardHeader>
@@ -67,6 +70,7 @@ export default function ProfileEditForm({
               id="stage_name"
               {...register('stage_name', { required: 'Stage name is required' })}
               placeholder="Your comedy stage name"
+              className={inputClass}
             />
             {errors.stage_name && (
               <p className="text-sm text-destructive mt-1">{errors.stage_name.message}</p>
@@ -79,8 +83,9 @@ export default function ProfileEditForm({
               id="credit"
               {...register('credit')}
               placeholder="As seen on Comedy Central, Netflix, etc."
+              className={inputClass}
             />
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-white/58 mt-1">
               Your biggest credit or where audiences might recognize you from
             </p>
           </div>
@@ -90,6 +95,7 @@ export default function ProfileEditForm({
             <Input
               id="years_performing"
               type="number"
+              className={inputClass}
               {...register('years_performing', { 
                 valueAsNumber: true,
                 min: { value: 0, message: 'Must be 0 or greater' }
@@ -108,6 +114,7 @@ export default function ProfileEditForm({
               type="tel"
               {...register('phone')}
               placeholder="(555) 123-4567"
+              className={inputClass}
             />
           </div>
 
@@ -118,15 +125,16 @@ export default function ProfileEditForm({
               {...register('bio')}
               placeholder="Tell us about yourself and your comedy style..."
               rows={4}
+              className={inputClass}
             />
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-white/58 mt-1">
               This will appear on show fliers and booking forms
             </p>
           </div>
         </CardContent>
       </Card>
 
-      <Button type="submit" disabled={isSaving} className="w-full">
+      <Button type="submit" disabled={isSaving} className="rounded-lg text-white text-sm font-medium bg-[#1a5fb4] hover:bg-[#1550a0] transition-colors">
         {isSaving ? 'Saving...' : 'Save Profile'}
       </Button>
     </form>

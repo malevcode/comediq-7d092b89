@@ -92,17 +92,17 @@ export default function AddShow() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 pb-24">
-      <PageHeader 
+    <div className="min-h-screen bg-transparent pb-24 pt-20">
+      <PageHeader
         title="Submit a Show" 
         subtitle="Add your comedy show to our listings"
       />
       
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto px-4 page-content-offset pb-6">
         <Button 
           variant="ghost" 
           onClick={() => navigate('/laugh')}
-          className="mb-4"
+          className="mb-2"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Shows

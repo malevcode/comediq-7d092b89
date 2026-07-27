@@ -13,11 +13,23 @@ import { makeLinksClickable } from '@/utils/makeLinksClickable';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
 import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
+import { createPortal } from 'react-dom';
+import { useEffect } from 'react';
+
+type ScheduleMicData = {
+  title: string;
+  venue: string;
+  location: string;
+  date: Date;
+  time: string;
+  status: 'upcoming';
+  notes: string;
+};
 
 interface MicDetailModalProps {
   mic: OpenMic;
   onClose: () => void;
-  onAddToSchedule?: (micData: any) => void;
+  onAddToSchedule?: (micData: ScheduleMicData) => void;
 }
 
 const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) => {
@@ -25,6 +37,14 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
   const navigate = useNavigate();
   const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(mic.uniqueIdentifier);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
 
   const handleRating = (rating: 'like' | 'dislike') => {
     if (!user) {
@@ -193,9 +213,9 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+  return createPortal(
+    <div className="fixed inset-0 bg-black bg-opacity-50 p-4 z-[1200] overflow-y-auto overscroll-contain">
+      <div className="bg-white rounded-2xl max-w-2xl w-full mt-10 mb-4 mx-auto">
         {/* Header */}
         <div className="sticky top-0 bg-background border-b border-border px-6 py-4 rounded-t-2xl">
           <div className="flex justify-between items-start">
@@ -227,31 +247,27 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
         {/* Content */}
         <div className="p-6">
           {/* Quick Actions */}
-          {(mic.signupEnabled || user) && (
-            <div className="mb-6 flex gap-3">
-              {mic.signupEnabled && (
-                <Button
-                  asChild
-                  className="bg-orange-600 hover:bg-orange-700 text-white text-sm flex-1"
-                >
-                  <Link to={linkManager.micSignup(mic)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Sign Up for Spots
-                  </Link>
-                </Button>
-              )}
-              {user && (
-                <Button
-                  onClick={handleAddToSchedule}
-                  variant="outline"
-                  className="text-sm flex-1"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  My Schedule
-                </Button>
-              )}
-            </div>
-          )}
+          <div className="mb-6 flex gap-3">
+            <Button
+              asChild
+              className="bg-orange-600 hover:bg-orange-700 text-white text-sm flex-1"
+            >
+              <Link to={linkManager.micSignup(mic)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Sign Up for Spots
+              </Link>
+            </Button>
+            {user && (
+              <Button
+                onClick={handleAddToSchedule}
+                variant="outline"
+                className="text-sm flex-1"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                My Schedule
+              </Button>
+            )}
+          </div>
 
           {/* Rating Section */}
           <Card className="mb-6 bg-gray-50 border-gray-200">
@@ -324,8 +340,17 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
               <div className="space-y-3">
                 <div>
                   <p className="font-medium text-gray-900 mb-2">Sign-Up Instructions</p>
-                  <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-                    {makeLinksClickable(mic.signUpInstructions)}
+                  <div className="space-y-3 text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+                    <div>{makeLinksClickable(mic.signUpInstructions)}</div>
+                    <Button
+                      asChild
+                      size="sm"
+                      className="bg-orange-600 hover:bg-orange-700 text-white"
+                    >
+                      <Link to={linkManager.micSignup(mic)}>
+                        Open Comediq signup sheet
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -375,7 +400,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Button 
                   onClick={() => window.open(getGoogleCalendarUrl(), '_blank')}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                  className="bg-white hover:bg-gray-200 text-white text-sm"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Google Calendar
@@ -393,7 +418,8 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
           </Collapsible>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

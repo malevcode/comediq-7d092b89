@@ -34,8 +34,8 @@ export default function HostDashboard() {
       />
       <div className="container mx-auto p-8 space-y-8">
         <div>
-          <h1 className="text-4xl font-bold text-foreground mb-2">Host Dashboard</h1>
-          <p className="text-muted-foreground">Manage your open mic signup events</p>
+          <h1 className="text-4xl font-bold text-white mb-2">Host Dashboard</h1>
+          <p className="text-white/60">Manage your open mic signup events</p>
         </div>
 
         {pendingHosts.length > 0 && (

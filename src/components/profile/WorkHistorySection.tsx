@@ -15,9 +15,9 @@ const WorkHistorySection = ({ userId }: WorkHistorySectionProps) => {
   if (historyLoading || statsLoading) {
     return (
       <div className="space-y-6">
-        <Card>
+        <Card className="border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5">
           <CardContent className="p-8 text-center">
-            <p className="text-muted-foreground">Loading work history...</p>
+            <p className="text-white/60">Loading work history...</p>
           </CardContent>
         </Card>
       </div>
@@ -26,11 +26,11 @@ const WorkHistorySection = ({ userId }: WorkHistorySectionProps) => {
 
   if (!stats || stats.total_gigs === 0) {
     return (
-      <Card>
+      <Card className="border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5">
         <CardContent className="p-8 text-center">
-          <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">No work history yet</h3>
-          <p className="text-muted-foreground">
+          <Briefcase className="h-12 w-12 text-white/42 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-white mb-2">No work history yet</h3>
+          <p className="text-white/60">
             Complete gigs to build your verified work experience
           </p>
         </CardContent>
@@ -45,7 +45,7 @@ const WorkHistorySection = ({ userId }: WorkHistorySectionProps) => {
   return (
     <div className="space-y-6">
       {/* Stats Overview */}
-      <Card>
+      <Card className="border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
@@ -54,24 +54,24 @@ const WorkHistorySection = ({ userId }: WorkHistorySectionProps) => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-primary/5 rounded-lg">
-              <p className="text-3xl font-bold text-primary">{stats.total_gigs}</p>
-              <p className="text-sm text-muted-foreground">Total Gigs</p>
+            <div className="text-center p-4 bg-white/8 rounded-lg">
+              <p className="text-3xl font-bold text-[#8ec5ff]">{stats.total_gigs}</p>
+              <p className="text-sm text-white/60">Total Gigs</p>
             </div>
-            <div className="text-center p-4 bg-secondary/5 rounded-lg">
-              <p className="text-3xl font-bold text-secondary">{stats.performer_gigs}</p>
-              <p className="text-sm text-muted-foreground">Performer</p>
+            <div className="text-center p-4 bg-white/8 rounded-lg">
+              <p className="text-3xl font-bold text-[#8ec5ff]">{stats.performer_gigs}</p>
+              <p className="text-sm text-white/60">Performer</p>
             </div>
-            <div className="text-center p-4 bg-accent/5 rounded-lg">
-              <p className="text-3xl font-bold text-accent">{stats.crew_gigs}</p>
-              <p className="text-sm text-muted-foreground">Crew</p>
+            <div className="text-center p-4 bg-white/8 rounded-lg">
+              <p className="text-3xl font-bold text-[#8ec5ff]">{stats.crew_gigs}</p>
+              <p className="text-sm text-white/60">Crew</p>
             </div>
             {stats.average_rating && (
-              <div className="text-center p-4 bg-yellow-50 rounded-lg">
+              <div className="text-center p-4 bg-white/8 rounded-lg">
                 <p className="text-3xl font-bold text-yellow-600 flex items-center justify-center gap-1">
                   {stats.average_rating.toFixed(1)} <Star className="h-5 w-5 fill-current" />
                 </p>
-                <p className="text-sm text-muted-foreground">Avg Rating</p>
+                <p className="text-sm text-white/60">Avg Rating</p>
               </div>
             )}
           </div>
@@ -114,7 +114,7 @@ const WorkHistorySection = ({ userId }: WorkHistorySectionProps) => {
       </Card>
 
       {/* Recent Work History */}
-      <Card>
+      <Card className="border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
@@ -126,23 +126,23 @@ const WorkHistorySection = ({ userId }: WorkHistorySectionProps) => {
             {workHistory.slice(0, 10).map((work) => (
               <div
                 key={work.id}
-                className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors"
+                className="flex items-start gap-4 p-4 rounded-lg bg-white/8 hover:bg-white/12 transition-colors"
               >
                 <div className="flex-shrink-0 w-16 text-center">
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-white/58">
                     {format(new Date(work.show_date), 'MMM')}
                   </p>
-                  <p className="text-2xl font-bold text-foreground">
+                  <p className="text-2xl font-bold text-white">
                     {format(new Date(work.show_date), 'd')}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-white/58">
                     {format(new Date(work.show_date), 'yyyy')}
                   </p>
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-1">
-                    <h4 className="font-semibold text-foreground line-clamp-1">
+                    <h4 className="font-semibold text-white line-clamp-1">
                       {work.show_title}
                     </h4>
                     <Badge 
@@ -153,7 +153,7 @@ const WorkHistorySection = ({ userId }: WorkHistorySectionProps) => {
                     </Badge>
                   </div>
                   
-                  <p className="text-sm text-muted-foreground flex items-center gap-2 mb-2">
+                  <p className="text-sm text-white/60 flex items-center gap-2 mb-2">
                     <MapPin className="h-3 w-3" />
                     {work.venue_name}
                     {work.borough && `, ${work.borough}`}
@@ -163,12 +163,12 @@ const WorkHistorySection = ({ userId }: WorkHistorySectionProps) => {
                     <div className="flex items-center gap-1 text-sm">
                       <Star className="h-4 w-4 text-yellow-500 fill-current" />
                       <span className="font-medium">{work.producer_rating}</span>
-                      <span className="text-muted-foreground">/5</span>
+                      <span className="text-white/58">/5</span>
                     </div>
                   )}
 
                   {work.producer_notes && (
-                    <p className="text-sm text-muted-foreground italic mt-2 line-clamp-2">
+                    <p className="text-sm text-white/60 italic mt-2 line-clamp-2">
                       "{work.producer_notes}"
                     </p>
                   )}
@@ -178,7 +178,7 @@ const WorkHistorySection = ({ userId }: WorkHistorySectionProps) => {
           </div>
 
           {workHistory.length > 10 && (
-            <p className="text-center text-sm text-muted-foreground mt-4">
+            <p className="text-center text-sm text-white/58 mt-4">
               Showing 10 of {workHistory.length} gigs
             </p>
           )}
