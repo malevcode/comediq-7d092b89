@@ -963,7 +963,6 @@ const Auth = () => {
             className="absolute inset-0 h-full w-full object-cover"
             src="/videos/sign-in-loop.mp4"
             autoPlay
-            loop
             muted
             playsInline
           >
