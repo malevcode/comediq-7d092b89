@@ -222,7 +222,6 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 mb-1">
                 <h2 className="text-2xl font-bold text-foreground">{mic.openMic}</h2>
-                <MicStatusBadge status={mic.status} legacyTag={mic.legacyTag} size="md" />
               </div>
               <p className="text-muted-foreground">{mic.venueName}</p>
               <div className="flex items-center gap-3 mt-2 flex-wrap">
@@ -231,11 +230,6 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
                     {mic.frequency !== 'weekly' ? `${FREQUENCY_LABELS[mic.frequency]} · ` : ''}{mic.day} • {mic.startTime} • {mic.stageTime} stage time
                   </div>
                 </div>
-                <VerificationBadge 
-                  micUniqueIdentifier={mic.uniqueIdentifier}
-                  lastVerified={mic.lastVerified === "Unverified" ? undefined : mic.lastVerified}
-                  size="sm"
-                />
               </div>
             </div>
             <Button onClick={onClose} variant="ghost" size="sm" className="rounded-full">
