@@ -307,9 +307,6 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
                 {FREQUENCY_LABELS[mic.frequency]}
               </span>
             )}
-            <MicStatusDropdown 
-              micUniqueIdentifier={mic.uniqueIdentifier}
-            />
           </div>
         </div>
         <div className="text-xs text-white/64 mb-0.5">
