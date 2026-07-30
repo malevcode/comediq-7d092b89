@@ -452,9 +452,9 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
           layerHandlersRegistered = true;
           const handleMicLayerClick = (event: mapboxgl.MapLayerMouseEvent) => {
           const feature = event.features?.[0];
-          const micId = feature?.properties?.micId;
+          const micId = (feature as any)?.properties?.micId;
           const mic = typeof micId === 'string' ? micLookupRef.current.get(micId) : null;
-          const coordinates = feature?.geometry.type === 'Point' ? feature.geometry.coordinates as [number, number] : null;
+          const coordinates = (feature as any)?.geometry.type === 'Point' ? (feature as any).geometry.coordinates as [number, number] : null;
 
           if (!mic || !coordinates) return;
 
@@ -482,7 +482,7 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
 
           map.on('click', 'open-mic-dots', (event) => {
             const feature = event.features?.[0];
-            const coordinates = feature?.geometry.type === 'Point' ? feature.geometry.coordinates as [number, number] : null;
+            const coordinates = (feature as any)?.geometry.type === 'Point' ? (feature as any).geometry.coordinates as [number, number] : null;
             if (!coordinates) return;
             map.easeTo({ center: coordinates, zoom: PIN_ZOOM_THRESHOLD + 0.8 });
           });
