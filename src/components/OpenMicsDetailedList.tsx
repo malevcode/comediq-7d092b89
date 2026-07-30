@@ -1,5 +1,4 @@
 import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, ChevronDown, ExternalLink, Navigation, ClipboardList } from "lucide-react";
-import MicStatusDropdown from "@/components/MicStatusDropdown";
 import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
 import { useState, useEffect, useRef } from "react";
@@ -14,7 +13,6 @@ import { Link } from 'react-router-dom';
 import MicActionBar from '@/components/mic/MicActionBar';
 import EditMicButton from '@/components/mic/EditMicButton';
 import MicCommentSection from '@/components/mic/MicCommentSection';
-import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
 import { FREQUENCY_LABELS } from '@/types/openMic';
 import { SponsorCard } from '@/components/SponsorCard';
 import { MicOfTheDayCard } from '@/components/MicOfTheDayCard';
@@ -309,9 +307,6 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
                 {FREQUENCY_LABELS[mic.frequency]}
               </span>
             )}
-            <MicStatusDropdown 
-              micUniqueIdentifier={mic.uniqueIdentifier}
-            />
           </div>
         </div>
         <div className="text-xs text-white/64 mb-0.5">

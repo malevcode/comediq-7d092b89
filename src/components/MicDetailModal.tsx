@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { X, Calendar, Clock, MapPin, User, DollarSign, Timer, Plus, Share, Heart, ThumbsDown, LogIn, ChevronDown, UserCheck } from "lucide-react";
-import { VerificationBadge } from "@/components/VerificationBadge";
+
 import { OpenMic, FREQUENCY_LABELS } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMicRatings, useUserLikedMics } from "@/hooks/useMicRatings";
@@ -12,7 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { makeLinksClickable } from '@/utils/makeLinksClickable';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
-import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
+
 import { createPortal } from 'react-dom';
 import { useEffect } from 'react';
 
@@ -222,7 +222,6 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 mb-1">
                 <h2 className="text-2xl font-bold text-foreground">{mic.openMic}</h2>
-                <MicStatusBadge status={mic.status} legacyTag={mic.legacyTag} size="md" />
               </div>
               <p className="text-muted-foreground">{mic.venueName}</p>
               <div className="flex items-center gap-3 mt-2 flex-wrap">
@@ -231,11 +230,6 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
                     {mic.frequency !== 'weekly' ? `${FREQUENCY_LABELS[mic.frequency]} · ` : ''}{mic.day} • {mic.startTime} • {mic.stageTime} stage time
                   </div>
                 </div>
-                <VerificationBadge 
-                  micUniqueIdentifier={mic.uniqueIdentifier}
-                  lastVerified={mic.lastVerified === "Unverified" ? undefined : mic.lastVerified}
-                  size="sm"
-                />
               </div>
             </div>
             <Button onClick={onClose} variant="ghost" size="sm" className="rounded-full">
