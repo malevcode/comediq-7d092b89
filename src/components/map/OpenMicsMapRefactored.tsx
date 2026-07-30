@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { FeatureCollection, Point } from 'geojson';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Info } from 'lucide-react';
@@ -32,7 +33,7 @@ const MINUTES_PER_DAY = 24 * 60;
 const NYC_CENTER: [number, number] = [-73.935242, 40.73061];
 const PIN_IMAGE_IDS: MicPinStatus[] = ['verified', 'warning', 'error', 'finished'];
 const PIN_ZOOM_THRESHOLD = 12.5;
-const EMPTY_FEATURE_COLLECTION: GeoJSON.FeatureCollection<GeoJSON.Point, MicFeatureProperties> = {
+const EMPTY_FEATURE_COLLECTION: FeatureCollection<Point, MicFeatureProperties> = {
   type: 'FeatureCollection',
   features: [],
 };
@@ -300,7 +301,7 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
 
   const representativeMappedMics = useMemo(() => getRepresentativeMappedMics(mappedMics), [mappedMics]);
 
-  const micGeoJson = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point, MicFeatureProperties>>(
+  const micGeoJson = useMemo<FeatureCollection<Point, MicFeatureProperties>>(
     () => ({
       type: 'FeatureCollection',
       features: representativeMappedMics.map(({ mic, latitude, longitude }) => {
