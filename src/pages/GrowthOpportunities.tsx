@@ -9,6 +9,7 @@ import { SubmitOpportunityForm } from "@/components/growth/SubmitOpportunityForm
 import { useGrowthOpportunities, useMyGrowthSubmissions } from "@/hooks/useGrowthOpportunities";
 import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
+import { featuredBookingOpportunity, featuredPodcastOpportunity } from "@/data/featuredGrowthOpportunities";
 import type { GrowthOpportunity, GrowthOpportunityStatus } from "@/api/growthOpportunities";
 
 const statusConfig: Record<GrowthOpportunityStatus, { label: string; icon: any; className: string }> = {
@@ -27,54 +28,12 @@ const GrowthOpportunities = () => {
   const { data: opportunities, isLoading } = useGrowthOpportunities(currentType);
   const { data: mySubmissions } = useMyGrowthSubmissions(user?.id);
   const bookingOpportunities: GrowthOpportunity[] = [
-    {
-      id: 'st-marks-comedy-competition-2026',
-      type: 'barking',
-      title: '2nd Annual St. Marks Comedy Competition',
-      description: 'Submit your best 5 minutes. Selected comics compete live for $3,000 in total prizes, including a full year of spots at St. Marks Comedy Club. We watch every submission and pick comics for the live competition — a chance to get on stage, compete for real prizes, and build a relationship with the club.',
-      venue_name: 'St. Marks Comedy Club',
-      borough: 'Manhattan',
-      date: '2026-07-22',
-      time: null,
-      compensation: '$3,000 in total prizes',
-      contact_info: '$20 submission fee • Applications close July 3, 2026',
-      external_url: 'https://www.stmarkscomedy.com/competition?utm_source=comediq&utm_medium=partner&utm_campaign=stmarks_comedy_competition_2026',
-      external_label: 'Submit Your Tape',
-      image_url: null,
-      is_featured: true,
-      is_active: true,
-      status: 'approved',
-      submitted_by: null,
-      contact_id: null,
-      created_at: '2026-07-01T00:00:00.000Z',
-      updated_at: '2026-07-01T00:00:00.000Z',
-    },
+    featuredBookingOpportunity,
     ...(opportunities ?? []),
   ];
 
   const podcastOpportunities: GrowthOpportunity[] = [
-    {
-      id: 'likeable-with-david-stickle',
-      type: 'podcast',
-      title: 'Likeable with David Stickle',
-      description: "Stand-up comedy from an entry level perspective. Each week David Stickle sits down with comedians at every stage of the game for real, unfiltered conversations about the craft, the hustle, and what it actually takes to make people laugh. 40 episodes in and just getting started.",
-      venue_name: null,
-      borough: null,
-      date: null,
-      time: null,
-      compensation: 'New episodes every Wednesday',
-      contact_info: '@likeablepod',
-      external_url: 'https://youtube.com/@davidsticklecomedy?si=LvLAmg2NElpPN3qx',
-      external_label: 'Watch on YouTube',
-      image_url: null,
-      is_featured: true,
-      is_active: true,
-      status: 'approved',
-      submitted_by: null,
-      contact_id: null,
-      created_at: '2026-07-01T00:00:00.000Z',
-      updated_at: '2026-07-01T00:00:00.000Z',
-    },
+    featuredPodcastOpportunity,
     ...(opportunities ?? []),
   ];
 
@@ -184,7 +143,10 @@ const GrowthOpportunities = () => {
                   const config = statusConfig[(sub.status as GrowthOpportunityStatus) || 'submitted'];
                   const Icon = config.icon;
                   return (
-                    <div key={sub.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                    <div
+                      key={sub.id}
+                      className="flex items-center justify-between rounded-lg border-0 bg-[rgba(255,255,255,0.58)] p-3 text-foreground shadow-[0_18px_60px_rgba(4,20,55,0.16)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:bg-[rgba(255,255,255,0.72)] dark:bg-[rgba(7,17,31,0.30)] dark:text-white dark:hover:bg-[rgba(7,17,31,0.42)]"
+                    >
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{sub.title}</p>
                         <p className="text-xs text-muted-foreground capitalize">{sub.type} · {new Date(sub.created_at).toLocaleDateString()}</p>
