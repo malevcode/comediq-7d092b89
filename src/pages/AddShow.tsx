@@ -92,6 +92,12 @@ export default function AddShow() {
       is_active: true,
       source: 'user',
       source_event_id: null,
+      latitude: null,
+      longitude: null,
+      geocoded_at: null,
+      geocoding_provider: null,
+      geocoding_score: null,
+      geocoding_match_address: null,
     });
   };
 

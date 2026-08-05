@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { X, Calendar, Clock, MapPin, User, DollarSign, Timer, Plus, Share, Heart, ThumbsDown, LogIn, ChevronDown, UserCheck } from "lucide-react";
-import { VerificationBadge } from "@/components/VerificationBadge";
+import { X, Calendar, MapPin, User, DollarSign, Plus, Heart, ThumbsDown, LogIn, ChevronDown } from "lucide-react";
+
 import { OpenMic, FREQUENCY_LABELS } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMicRatings, useUserLikedMics } from "@/hooks/useMicRatings";
+import { useMicRatings } from "@/hooks/useMicRatings";
 import { useNavigate } from "react-router-dom";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -198,21 +198,6 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
     }
   };
 
-  const getStatusBadgeColor = () => {
-    // if (mic.lastVerified.toLowerCase().includes("tediously")) {
-    //   return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    // } else if (mic.lastVerified.toLowerCase().includes("verified")) {
-    //   return "bg-green-100 text-green-800 border-green-200";
-    // } else {
-    //   return "bg-red-100 text-red-800 border-red-200";
-    // }
-    if (mic.lastVerified.toLowerCase().includes("unverified")) {
-      return "bg-red-100 text-red-800 border-red-200";
-    } else {
-      return "bg-green-100 text-green-800 border-green-200";
-    }
-  };
-
   return createPortal(
     <div className="fixed inset-0 z-[1200] overflow-y-auto overscroll-contain bg-black/60 p-4">
       <div className="mx-auto mb-4 mt-4 w-full max-w-2xl rounded-2xl border border-[#07111f]/10 bg-white/90 text-[#07111f] shadow-[0_24px_80px_rgba(2,10,30,0.24)] backdrop-blur-xl dark:border-white/10 dark:bg-[#102a53]/90 dark:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.50)]">
@@ -231,11 +216,6 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
                     {mic.frequency !== 'weekly' ? `${FREQUENCY_LABELS[mic.frequency]} · ` : ''}{mic.day} • {mic.startTime} • {mic.stageTime} stage time
                   </div>
                 </div>
-                <VerificationBadge 
-                  micUniqueIdentifier={mic.uniqueIdentifier}
-                  lastVerified={mic.lastVerified === "Unverified" ? undefined : mic.lastVerified}
-                  size="sm"
-                />
               </div>
             </div>
             <Button onClick={onClose} variant="ghost" size="sm" className="rounded-full text-[#07111f] hover:bg-[#07111f]/10 dark:text-white dark:hover:bg-white/10">

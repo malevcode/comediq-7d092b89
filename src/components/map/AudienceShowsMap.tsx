@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import type { FeatureCollection, Point } from 'geojson';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { format, parseISO } from 'date-fns';
@@ -27,7 +28,7 @@ type VenueFeatureProperties = {
 const NYC_CENTER: [number, number] = [-73.9352, 40.7308];
 const LIGHT_MAP_STYLE = 'mapbox://styles/mapbox/streets-v12';
 const DARK_MAP_STYLE = 'mapbox://styles/mapbox/dark-v11';
-const EMPTY_FEATURE_COLLECTION: GeoJSON.FeatureCollection<GeoJSON.Point, VenueFeatureProperties> = {
+const EMPTY_FEATURE_COLLECTION: FeatureCollection<Point, VenueFeatureProperties> = {
   type: 'FeatureCollection',
   features: [],
 };
@@ -97,7 +98,7 @@ const AudienceShowsMap: React.FC<AudienceShowsMapProps> = ({ shows }) => {
     [venueGroups],
   );
 
-  const features = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point, VenueFeatureProperties>>(
+  const features = useMemo<FeatureCollection<Point, VenueFeatureProperties>>(
     () => ({
       type: 'FeatureCollection',
       features: venueGroups.map((group) => ({
@@ -222,19 +223,19 @@ const AudienceShowsMap: React.FC<AudienceShowsMapProps> = ({ shows }) => {
           layerHandlersRegistered = true;
           map.on('click', 'audience-show-clusters', (event) => {
           const renderedFeatures = map.queryRenderedFeatures(event.point, { layers: ['audience-show-clusters'] });
-          const clusterId = renderedFeatures[0]?.properties?.cluster_id;
+          const clusterId = (renderedFeatures[0] as any)?.properties?.cluster_id;
           const source = getSource(map);
           if (clusterId === undefined || !source) return;
 
           source.getClusterExpansionZoom(clusterId, (zoomError, zoom) => {
             if (zoomError || zoom === undefined) return;
-            const coordinates = (renderedFeatures[0].geometry as GeoJSON.Point).coordinates as [number, number];
+            const coordinates = ((renderedFeatures[0] as any).geometry as Point).coordinates as [number, number];
             map.easeTo({ center: coordinates, zoom });
           });
           });
 
           map.on('click', 'audience-show-pins', (event) => {
-            const key = event.features?.[0]?.properties?.key;
+            const key = (event.features?.[0] as any)?.properties?.key;
             const group = typeof key === 'string' ? venueGroupLookup.get(key) : null;
             if (group) {
               setBottomSheet({ venueName: group.venueName, shows: group.shows });

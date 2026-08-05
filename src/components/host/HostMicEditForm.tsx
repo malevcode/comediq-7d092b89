@@ -95,7 +95,7 @@ export default function HostMicEditForm({ micUniqueIdentifier, onClose }: HostMi
             new_value: form[field as keyof typeof form],
           }));
         if (historyRows.length > 0) {
-          const { error: historyError } = await supabase.from('mic_edit_history').insert(historyRows);
+          const { error: historyError } = await (supabase as any).from('mic_edit_history').insert(historyRows);
           if (historyError) console.error('Failed to record edit history:', historyError);
         }
       }
