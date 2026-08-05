@@ -137,7 +137,7 @@ export default function AudienceShows() {
       {hasMounted && createPortal(
         <Button
           onClick={handleAddShow}
-          className="fixed bottom-[12rem] right-11 z-[1200] rounded-full bg-orange-500 p-2 text-white shadow-lg transition duration-300 hover:bg-orange-600"
+          className="fixed bottom-[11rem] right-10 z-[1200] rounded-full bg-orange-500 p-2 text-white shadow-lg transition duration-300 hover:bg-orange-600"
           size="icon"
         >
           <Plus className="h-6 w-6" />

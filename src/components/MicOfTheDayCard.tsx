@@ -65,7 +65,7 @@ export function MicOfTheDayCard({
 
     const card = (
       <Card
-        className={`relative overflow-hidden border border-white/12 bg-[#102a53]/78 text-white shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl hover:bg-[#102a53]/86 hover:shadow-[0_16px_48px_rgba(2,10,30,0.3)] transition-all cursor-pointer ${className}`}
+        className={`relative overflow-hidden border border-white/10 bg-[#102a53]/80 text-white shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl hover:bg-[#102a53]/90 hover:shadow-[0_16px_48px_rgba(2,10,30,0.3)] transition-all cursor-pointer ${className}`}
       >
         <CardContent className="p-3 sm:p-3.5">
           {/* Row 1: Mic name • MOTD badge • Sign Up */}
@@ -111,7 +111,7 @@ export function MicOfTheDayCard({
           </div>
 
           {/* Row 2: Location • Start time • Nominate link */}
-          <div className="mt-1 flex items-center justify-between gap-2 text-xs text-white/64">
+          <div className="mt-1 flex items-center justify-between gap-2 text-xs text-white/60">
             <div className="flex items-center gap-x-2 gap-y-0.5 min-w-0 flex-wrap">
               {mic.venueName && mic.openMic !== mic.venueName && (
                 <span className="flex items-center gap-1 min-w-0">
@@ -166,7 +166,7 @@ export function MicOfTheDayCard({
   // Compact variant (legacy)
   const inner = (
     <Card
-      className={`border-white/12 bg-[#102a53]/78 text-white shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl hover:bg-[#102a53]/86 hover:shadow-[0_16px_48px_rgba(2,10,30,0.3)] transition-all cursor-pointer ${className}`}
+      className={`border-white/10 bg-[#102a53]/80 text-white shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl hover:bg-[#102a53]/90 hover:shadow-[0_16px_48px_rgba(2,10,30,0.3)] transition-all cursor-pointer ${className}`}
     >
       <CardContent className="px-3 py-2 flex items-center gap-2.5">
         <Badge

@@ -285,7 +285,7 @@ const AudienceShowsMap: React.FC<AudienceShowsMapProps> = ({ shows }) => {
 
   return (
     <div className="relative w-full h-full">
-      <div className="hidden md:block absolute top-3 left-3 z-10 rounded-lg border border-border bg-white/95 px-3 py-2 text-xs shadow-sm space-y-1">
+      <div className="hidden md:block absolute top-3 left-3 z-10 rounded-lg border border-border bg-white/100 px-3 py-2 text-xs shadow-sm space-y-1">
         {SHOW_TYPE_COLORS.map(({ label, color }) => (
           <div key={label} className="flex items-center gap-2">
             <span
@@ -298,14 +298,14 @@ const AudienceShowsMap: React.FC<AudienceShowsMapProps> = ({ shows }) => {
       </div>
 
       {venueGroups.length > 0 && (
-        <div className="absolute bottom-8 left-3 z-10 rounded-lg border border-border bg-white/95 px-3 py-1.5 text-xs text-slate-700 shadow-sm">
+        <div className="absolute bottom-8 left-3 z-10 rounded-lg border border-border bg-white/100 px-3 py-1.5 text-xs text-slate-700 shadow-sm">
           {venueGroups.length} venue{venueGroups.length !== 1 ? 's' : ''} mapped · upcoming
         </div>
       )}
 
       {shows.length > 0 && venueGroups.length === 0 && mapReady && (
         <div className="absolute inset-x-4 top-20 z-10 flex justify-center pointer-events-none">
-          <div className="rounded-lg border border-border bg-white/95 px-3 py-2 text-center text-sm text-muted-foreground shadow-sm">
+          <div className="rounded-lg border border-border bg-white/100 px-3 py-2 text-center text-sm text-muted-foreground shadow-sm">
             {shows.length} upcoming show{shows.length !== 1 ? 's' : ''} found, but none have stored coordinates yet.
           </div>
         </div>

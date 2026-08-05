@@ -18,17 +18,17 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
   const { user, signOut } = useAuth();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] border-b border-[#07111f]/10 bg-white/20 text-[#07111f] shadow-[0_12px_40px_rgba(4,20,55,0.10)] backdrop-blur-md dark:border-white/10 dark:bg-white/[0.03] dark:text-white">
+    <nav className="fixed top-0 left-0 right-0 z-[100] border-b border-[#07111f]/10 bg-white/20 text-[#07111f] shadow-[0_12px_40px_rgba(4,20,55,0.10)] backdrop-blur-md dark:border-white/10 dark:bg-white/10 dark:text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex min-h-[4.75rem] items-center justify-between py-2">
           {/* Left: hamburger + wordmark */}
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <HamburgerMenu />
-            <button onClick={() => navigate('/')} className="flex items-center gap-2">
+            <button onClick={() => navigate('/')} className="flex min-w-0 items-center gap-2">
               <img src="/comediq_logo.jpg" alt="Comediq" className="h-14 w-auto object-contain" />
-              <div className="flex flex-col items-start leading-tight">
-                <span className="font-bold text-[#07111f] leading-none text-2xl dark:text-white">{title || 'Comediq'}</span>
-                {subtitle && <span className="text-xs text-[#07111f]/60 leading-none mt-0.5 text-left dark:text-white/60">{subtitle}</span>}
+              <div className="mr-3 flex min-w-0 flex-col items-start sm:mr-5">
+                <span className="mt-1 max-w-full truncate text-[clamp(1rem,4.6vw,1.5rem)] font-bold leading-tight text-[#07111f] dark:text-white">{title || 'Comediq'}</span>
+                {subtitle && <span className="max-w-full whitespace-normal break-words text-left text-xs leading-snug text-[#07111f]/60 dark:text-white/60">{subtitle}</span>}
               </div>
             </button>
           </div>
@@ -47,7 +47,7 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
                   onClick={async () => { await signOut(); navigate('/'); }}
                   size="sm"
                   variant="outline"
-                  className="h-8 border-[#07111f]/14 bg-white/28 px-3 text-xs text-[#07111f] hover:bg-white/42 dark:border-white/20 dark:bg-white/8 dark:text-white dark:hover:bg-white/14"
+                  className="h-8 border-[#07111f]/10 bg-white/30 px-3 text-xs text-[#07111f] hover:bg-white/40 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/10"
                 >
                   Sign out
                 </Button>

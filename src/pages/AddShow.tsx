@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,11 +15,15 @@ import { ArrowLeft } from 'lucide-react';
 
 const BOROUGHS = ['Manhattan', 'Brooklyn', 'Queens', 'Bronx', 'Staten Island'];
 const SHOW_TYPES = ['Stand-up', 'Variety', 'Improv', 'Sketch', 'Roast', 'Other'];
+const FIELD_CLASS = 'w-full min-w-0 border-0 bg-white/10 text-sm text-gray-900 shadow-[0_12px_38px_rgba(2,10,30,0.10)] backdrop-blur-xl placeholder:text-gray-400 focus-visible:ring-gray-200 dark:bg-white/10 dark:text-white dark:placeholder:text-white/50 dark:focus-visible:ring-[#8ec5ff]/50 dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)] dark:data-[placeholder]:text-white/50';
 
 export default function AddShow() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
+  const searchParams = new URLSearchParams(location.search);
+  const returnPath = searchParams.get('from') === 'shows' ? '/shows' : '/laugh';
 
   const [title, setTitle] = useState('');
   const [venueName, setVenueName] = useState('');
@@ -43,7 +47,7 @@ export default function AddShow() {
         title: 'Show submitted!',
         description: 'Your show has been submitted for review and will appear once approved.',
       });
-      navigate('/laugh');
+      navigate(returnPath);
     },
     onError: (error: any) => {
       toast({
@@ -58,7 +62,7 @@ export default function AddShow() {
     e.preventDefault();
     
     if (!user) {
-      navigate('/auth?redirect=/add-show');
+      navigate(`/auth?redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`);
       return;
     }
 
@@ -92,23 +96,23 @@ export default function AddShow() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent pb-24 pt-20">
+    <div className="min-h-screen bg-transparent pb-2 pt-20">
       <PageHeader
-        title="Submit a Show" 
+        title="Submit a Show"
         subtitle="Add your comedy show to our listings"
       />
       
-      <div className="max-w-2xl mx-auto px-4 page-content-offset pb-6">
-        <Button 
+      <div className="max-w-2xl mx-auto px-4 mt-10 pb-10">
+        <Button
           variant="ghost" 
-          onClick={() => navigate('/laugh')}
+          onClick={() => navigate(returnPath)}
           className="mb-2"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Shows
+          {returnPath === '/shows' ? 'Back to Scheduler' : 'Back to Shows'}
         </Button>
 
-        <Card>
+        <Card className="bg-white/10 border-0">
           <CardHeader>
             <CardTitle>Show Details</CardTitle>
             <CardDescription>
@@ -124,6 +128,7 @@ export default function AddShow() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g., Friday Night Comedy"
+                  className={FIELD_CLASS}
                   required
                 />
               </div>
@@ -136,13 +141,14 @@ export default function AddShow() {
                     value={venueName}
                     onChange={(e) => setVenueName(e.target.value)}
                     placeholder="e.g., The Comedy Cellar"
+                    className={FIELD_CLASS}
                     required
                   />
                 </div>
                 <div>
                   <Label htmlFor="borough">Borough</Label>
                   <Select value={borough} onValueChange={setBorough}>
-                    <SelectTrigger id="borough">
+                    <SelectTrigger id="borough" className={FIELD_CLASS}>
                       <SelectValue placeholder="Select borough" />
                     </SelectTrigger>
                     <SelectContent>
@@ -161,37 +167,41 @@ export default function AddShow() {
                   value={venueAddress}
                   onChange={(e) => setVenueAddress(e.target.value)}
                   placeholder="e.g., 117 MacDougal St, New York, NY"
+                  className={FIELD_CLASS}
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
+                <div className="min-w-0">
                   <Label htmlFor="showDate">Show Date *</Label>
                   <Input
                     id="showDate"
                     type="date"
                     value={showDate}
                     onChange={(e) => setShowDate(e.target.value)}
+                    className={FIELD_CLASS}
                     required
                   />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <Label htmlFor="showTime">Show Time *</Label>
                   <Input
                     id="showTime"
                     type="time"
                     value={showTime}
                     onChange={(e) => setShowTime(e.target.value)}
+                    className={FIELD_CLASS}
                     required
                   />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <Label htmlFor="doorsTime">Doors Time</Label>
                   <Input
                     id="doorsTime"
                     type="time"
                     value={doorsTime}
                     onChange={(e) => setDoorsTime(e.target.value)}
+                    className={FIELD_CLASS}
                   />
                 </div>
               </div>
@@ -200,7 +210,7 @@ export default function AddShow() {
                 <div>
                   <Label htmlFor="showType">Show Type</Label>
                   <Select value={showType} onValueChange={setShowType}>
-                    <SelectTrigger id="showType">
+                    <SelectTrigger id="showType" className={FIELD_CLASS}>
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -217,6 +227,7 @@ export default function AddShow() {
                     value={ticketPrice}
                     onChange={(e) => setTicketPrice(e.target.value)}
                     placeholder="e.g., Free, $10, $15-20"
+                    className={FIELD_CLASS}
                   />
                 </div>
               </div>
@@ -229,6 +240,7 @@ export default function AddShow() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Tell us about your show..."
                   rows={3}
+                  className={FIELD_CLASS}
                 />
               </div>
 
@@ -240,6 +252,7 @@ export default function AddShow() {
                   onChange={(e) => setLineup(e.target.value)}
                   placeholder="List the performers (one per line or comma-separated)"
                   rows={2}
+                  className={FIELD_CLASS}
                 />
               </div>
 
@@ -251,6 +264,7 @@ export default function AddShow() {
                     value={hostName}
                     onChange={(e) => setHostName(e.target.value)}
                     placeholder="Who's hosting?"
+                    className={FIELD_CLASS}
                   />
                 </div>
                 <div>
@@ -260,6 +274,7 @@ export default function AddShow() {
                     value={instagramHandle}
                     onChange={(e) => setInstagramHandle(e.target.value)}
                     placeholder="@yourshow"
+                    className={FIELD_CLASS}
                   />
                 </div>
               </div>
@@ -272,6 +287,7 @@ export default function AddShow() {
                   value={ticketUrl}
                   onChange={(e) => setTicketUrl(e.target.value)}
                   placeholder="https://..."
+                  className={FIELD_CLASS}
                 />
               </div>
 

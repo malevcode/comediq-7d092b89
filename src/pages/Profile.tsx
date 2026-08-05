@@ -39,7 +39,7 @@ import {
 } from '@/hooks/useComedianProfile';
 
 const PROFILE_TABS = ['profile', 'work', 'liked', 'saved', 'playlists', 'signups'];
-const profileSurfaceClass = "border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5";
+const profileSurfaceClass = "border-0 bg-[#07111f]/10 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/10";
 
 function parseMicStartMinutes(mic: OpenMic): number | null {
   if (!mic.startTime) return null;
@@ -157,7 +157,7 @@ const Profile = () => {
         url="https://comediq.us/profile"
         noindex={true}
       />
-      <div className="min-h-screen bg-transparent pb-20">
+      <div className="bg-transparent">
         <PageHeader title="Profile" subtitle="Your comedy profile and stats" />
         
         <div className="max-w-7xl mx-auto px-4 page-content-offset pb-6">
@@ -167,7 +167,7 @@ const Profile = () => {
               onOpenChange={setShowBulkImport}
             />
 
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 border-0 backdrop-blur-xl p-1 dark:bg-[#102a53]/70 shadow-[0_12px_38px_rgba(2,10,30,0.24)]">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 border-0 backdrop-blur-xl bg-white/60 dark:bg-[#102a53]/70 shadow-[0_12px_38px_rgba(2,10,30,0.24)] p-2">
               <TabsTrigger value="profile" className="text-gray-600 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:text-blue-600 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white data-[state=active]:shadow-none">
                 <User className="h-3.5 w-3.5 mr-1" />
                 My Profile
@@ -290,7 +290,7 @@ const Profile = () => {
               {likedMics.length === 0 ? (
                 <Card className={profileSurfaceClass}>
                   <CardContent className="p-8 text-center">
-                    <Heart className="h-12 w-12 text-white/42 mx-auto mb-4" />
+                    <Heart className="h-12 w-12 text-white/40 mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-white mb-2">No liked mics yet</h3>
                     <p className="text-white/60 mb-4">Start exploring and like your favorite open mics!</p>
                     <Button onClick={() => navigate('/open-mics')} className="bg-orange-500 hover:bg-orange-600">
@@ -315,7 +315,7 @@ const Profile = () => {
                           <h3 className="font-bold text-lg text-white mb-2 line-clamp-2">
                             {mic.openMic}
                           </h3>
-                          <div className="space-y-2 text-sm text-white/66">
+                          <div className="space-y-2 text-sm text-white/70">
                             <div className="flex items-center gap-2">
                               <Clock className="h-4 w-4" />
                               <span>{mic.day} at {mic.startTime}</span>
@@ -357,7 +357,7 @@ const Profile = () => {
               ) : savedOpenMics.length === 0 ? (
                 <Card className={profileSurfaceClass}>
                   <CardContent className="p-8 text-center">
-                    <Bookmark className="h-12 w-12 text-white/42 mx-auto mb-4" />
+                    <Bookmark className="h-12 w-12 text-white/40 mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-white mb-2">No saved mics yet</h3>
                     <p className="text-white/60 mb-4">Bookmark mics from the Open Mics page to see them here.</p>
                     <Button onClick={() => navigate('/open-mics')} className="bg-orange-500 hover:bg-orange-600">
@@ -378,12 +378,13 @@ const Profile = () => {
             </TabsContent>
 
             {/* Playlists Tab */}
-            <TabsContent value="playlists" className="mt-10">
+            <TabsContent value="playlists" className="mt-4">
               <PlaylistsTab />
             </TabsContent>
 
             {/* My Signups Tab */}
             <TabsContent value="signups">
+              <h2 className="text-xl font-bold text-white">Your Signups</h2>
               <SignupsTabContent userId={user.id} />
             </TabsContent>
           </Tabs>
@@ -438,7 +439,7 @@ function SignupsTabContent({ userId }: { userId: string }) {
     return (
       <Card className={profileSurfaceClass}>
         <CardContent className="p-8 text-center">
-          <Calendar className="h-12 w-12 text-white/42 mx-auto mb-4" />
+          <Calendar className="h-12 w-12 text-white/40 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-white mb-2">No signups yet</h3>
           <p className="text-white/60 mb-4">Sign up for open mics to see them here</p>
           <Button onClick={() => navigate('/mic-signup')} className="bg-orange-500 hover:bg-orange-600">
@@ -477,12 +478,12 @@ function SignupsTabContent({ userId }: { userId: string }) {
                       {signup.event?.mic?.venue_name} • {signup.event?.mic?.borough}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <Calendar className="h-4 w-4 text-white/58" />
+                      <Calendar className="h-4 w-4 text-white/60" />
                       <span className="text-sm">
                         {signup.event?.event_date ? new Date(signup.event.event_date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Unknown date'}
                       </span>
                       {signup.event?.event_time && (
-                        <span className="text-sm text-white/58">at {signup.event.event_time}</span>
+                        <span className="text-sm text-white/60">at {signup.event.event_time}</span>
                       )}
                     </div>
                   </div>

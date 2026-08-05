@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Home, MicVocal, Eye, User, Book, Search, Menu, ChevronRight, Briefcase, Ticket, Star, Bookmark, ListMusic, Sparkles, Flame, Clapperboard, Map } from "lucide-react";
+import { Home, MicVocal, Eye, User, Book, Search, Menu, ChevronRight, Briefcase, Ticket, Star, Sparkles, Flame, Clapperboard, Map, Calendar } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
@@ -26,9 +26,8 @@ const HamburgerMenu = () => {
   const performSubItems = [
     { path: "/open-mics", icon: Search, label: "Find Mics" },
     { path: "/top-mics", icon: Flame, label: "Top Mics" },
-    ...(user ? [{ path: "/profile?tab=saved", icon: Bookmark, label: "Saved Mics" }] : []),
-    ...(user ? [{ path: "/profile?tab=playlists", icon: ListMusic, label: "My Playlists" }] : []),
     { path: "/growth", icon: Briefcase, label: "Growth" },
+    ...(user ? [{ path: "/shows", icon: Calendar, label: "Scheduler" }] : []),
     ...(user ? [{ path: "/host-dashboard", icon: MicVocal, label: "Host Dashboard" }] : []),
   ];
 
@@ -57,7 +56,7 @@ const HamburgerMenu = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="w-10 h-10 p-2 rounded-md bg-white/30 text-[#07111f] shadow-[0_12px_30px_rgba(2,10,30,0.16)] backdrop-blur-xl transition-colors hover:bg-white/46 dark:bg-[#07111f]/62 dark:text-white dark:shadow-[0_12px_30px_rgba(2,10,30,0.38)] dark:hover:bg-[#07111f]/78"
+          className="w-10 h-10 p-2 rounded-md bg-white/30 text-[#07111f] shadow-[0_12px_30px_rgba(2,10,30,0.16)] backdrop-blur-xl transition-colors hover:bg-white/50 dark:bg-[#07111f]/40 dark:text-white dark:shadow-[0_12px_30px_rgba(2,10,30,0.38)] dark:hover:bg-[#07111f]/80"
         >
           <Menu size={20} />
         </Button>
@@ -78,7 +77,7 @@ const HamburgerMenu = () => {
                 onClick={() => handleNavClick(path)}
                 className={`w-full flex items-center px-4 py-3 text-left rounded-md transition-colors ${
                   location.pathname === path
-                    ? "text-[#ffc72c] bg-white/12 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#ffc72c] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >
@@ -91,7 +90,7 @@ const HamburgerMenu = () => {
             <div className="space-y-1">
               <button
                 onClick={() => setExpandedNew(!expandedNew)}
-                className="w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors bg-[#07111f]/62 hover:bg-white/10 text-white shadow-[0_12px_30px_rgba(2,10,30,0.38)] backdrop-blur-xl transition-colors hover:bg-[#07111f]/78"
+                className="w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors hover:bg-white/10 text-white shadow-[0_12px_30px_rgba(2,10,30,0.38)] backdrop-blur-xl transition-colors"
               >
                 <div className="flex items-center">
                   <Sparkles size={18} className="mr-3 text-[#ffc72c]" />
@@ -111,7 +110,7 @@ const HamburgerMenu = () => {
                     <button
                       key={path}
                       onClick={() => handleNavClick(path)}
-                      className="w-full flex items-center justify-between px-4 py-2 text-left rounded-md transition-colors text-sm text-white/72 hover:text-white hover:bg-white/10"
+                      className="w-full flex items-center justify-between px-4 py-2 text-left rounded-md transition-colors text-sm text-white/70 hover:text-white hover:bg-white/10"
                     >
                       <div className="flex items-center">
                         <Icon size={16} className="mr-3" />
@@ -134,7 +133,7 @@ const HamburgerMenu = () => {
                 onClick={() => setExpandedPerform(!expandedPerform)}
                 className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors ${
                   isPerformActive
-                    ? "text-[#ffc72c] bg-white/12 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#ffc72c] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >
@@ -156,8 +155,8 @@ const HamburgerMenu = () => {
                       onClick={() => handleNavClick(path)}
                       className={`w-full flex items-center px-4 py-2 text-left rounded-md transition-colors text-sm ${
                         location.pathname === path
-                          ? "text-[#ffc72c] bg-white/12"
-                          : "text-white/68 hover:text-white hover:bg-white/10"
+                          ? "text-[#ffc72c] bg-white/10"
+                          : "text-white/70 hover:text-white hover:bg-white/10"
                       }`}
                     >
                       <Icon size={16} className="mr-3" />
@@ -174,7 +173,7 @@ const HamburgerMenu = () => {
                 onClick={() => setExpandedLaugh(!expandedLaugh)}
                 className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors ${
                   isLaughActive
-                    ? "text-[#ffc72c] bg-white/12 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#ffc72c] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >
@@ -196,8 +195,8 @@ const HamburgerMenu = () => {
                       onClick={() => handleNavClick(path)}
                       className={`w-full flex items-center px-4 py-2 text-left rounded-md transition-colors text-sm ${
                         isItemActive(path)
-                          ? "text-[#ffc72c] bg-white/12"
-                          : "text-white/68 hover:text-white hover:bg-white/10"
+                          ? "text-[#ffc72c] bg-white/10"
+                          : "text-white/70 hover:text-white hover:bg-white/10"
                       }`}
                     >
                       <Icon size={16} className="mr-3" />
@@ -215,7 +214,7 @@ const HamburgerMenu = () => {
                 onClick={() => handleNavClick(path)}
                 className={`w-full flex items-center px-4 py-3 text-left rounded-md transition-colors ${
                   location.pathname === path
-                    ? "text-[#ffc72c] bg-white/12 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#ffc72c] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >

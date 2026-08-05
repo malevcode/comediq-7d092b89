@@ -32,10 +32,10 @@ const SiteFooter = () => {
   );
 
   return (
-    <footer className="relative mt-0 border-t border-[#07111f]/10 bg-white/32 py-12 text-[#07111f] shadow-[0_-18px_60px_rgba(4,20,55,0.14)] backdrop-blur-xl dark:border-white/10 dark:bg-[#07111f]/62 dark:text-white dark:shadow-[0_-18px_60px_rgba(4,20,55,0.25)]">
+    <footer className="relative mt-0 border-t border-[#07111f]/10 bg-white/30 py-12 pt-8 text-[#07111f] shadow-[0_-18px_60px_rgba(4,20,55,0.14)] backdrop-blur-xl dark:border-white/10 dark:bg-[#07111f]/20 dark:text-white dark:shadow-[0_-18px_60px_rgba(4,20,55,0.25)]">
       {hasMounted ? createPortal(scrollTopButton, document.body) : null}
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 pl-6 gap-6 sm:gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 ml-6 gap-6 sm:gap-8 mr-6">
           {/* Browse by Day */}
           <div>
             <h3 className="font-bold mb-4 text-lg">Browse by Day</h3>
@@ -143,11 +143,11 @@ const SiteFooter = () => {
         </div>
         
         {/* Origin Story */}
-        <div className="mt-8 border-t border-[#07111f]/10 pt-6 dark:border-white/10">
-          <p className="text-xs text-[#07111f]/55 mb-2 dark:text-white/55">
+        <div className="mt-8 ml-6 mr-6 mb-8 border-t border-[#07111f]/10 pt-6 dark:border-white/10">
+          <p className="text-xs text-[#07111f]/60 mb-2 dark:text-white/60">
             Started as a Google Sheet tracking all of NYC's open mics, still publicly editable here
           </p>
-          <div className="flex flex-wrap items-center gap-3 text-xs text-[#07111f]/55 mb-2 dark:text-white/55">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-[#07111f]/60 mb-2 dark:text-white/60">
             <a
               href="https://docs.google.com/spreadsheets/d/1wROLFgLrbgP1aP_b9VIJn0QzbGzmifT9r7CV15Lw7Mw/edit?usp=drivesdk"
               target="_blank"
@@ -159,17 +159,17 @@ const SiteFooter = () => {
             <span>•</span>
             <span>Made by @malevcomedy</span>
           </div>
-          <p className="text-[10px] text-[#07111f]/42 leading-relaxed mb-4 dark:text-white/42">
+          <p className="text-[10px] text-[#07111f]/40 leading-relaxed mb-4 dark:text-white/40">
             ComediQ is not an AI comedy writer. Your comedy comes from your unique experience and performance personality.
           </p>
         </div>
         
         {/* Copyright */}
         <div className="border-t border-[#07111f]/10 pt-4 dark:border-white/10">
-          <p className="text-xs text-[#07111f]/55 dark:text-white/55">
+          <p className="text-xs text-[#07111f]/60 dark:text-white/60">
             © {new Date().getFullYear()} Comediq. All rights reserved.
           </p>
-          <p className="text-xs text-[#07111f]/55 mt-1 dark:text-white/55">
+          <p className="text-xs text-[#07111f]/60 mt-1 dark:text-white/60">
             By comedians, for comedians.
           </p>
         </div>

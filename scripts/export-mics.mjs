@@ -141,6 +141,9 @@ try {
   console.log(`[export-mics] ✓ ${mics.length} mics → public/mics.json (${sizeKB} KB)`);
 } catch (e) {
   console.warn(`[export-mics] ✗ Fetch failed: ${e.message}`);
+  if (process.env.REQUIRE_MIC_EXPORT === "true") {
+    process.exitCode = 1;
+  }
   const { readFileSync, existsSync } = await import("fs");
   if (existsSync(OUT_PATH)) {
     try {
