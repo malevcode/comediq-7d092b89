@@ -80,7 +80,7 @@ function SiteFooterWrapper() {
   if (isMicSignupPath(location.pathname)) return null;
 
   return (
-    <div className="relative z-10">
+    <div className="relative z-[1]">
       <SiteFooter />
     </div>
   );

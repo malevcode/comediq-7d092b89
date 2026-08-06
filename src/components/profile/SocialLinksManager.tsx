@@ -87,7 +87,7 @@ export default function SocialLinksManager({
   };
 
   return (
-    <Card className="border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5">
+    <Card className="border-0 bg-[#07111f]/10 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/10">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           Social Links
@@ -96,7 +96,7 @@ export default function SocialLinksManager({
               type="button"
               size="sm"
               variant="outline"
-              className="border-white/14 bg-white/8 text-white hover:bg-white/14 hover:text-white"
+              className="border-white/20 bg-white/10 text-white hover:bg-white/10 hover:text-white"
               onClick={() => setShowAddForm(true)}
             >
               <Plus className="h-4 w-4 mr-1" />
@@ -114,7 +114,7 @@ export default function SocialLinksManager({
         )}
 
         {socialLinks.map((link) => (
-          <div key={link.platform} className="flex items-center gap-3 p-3 rounded-lg bg-white/8">
+          <div key={link.platform} className="flex items-center gap-3 p-3 rounded-lg bg-white/10">
             <div className={link.platform === 'venmo' ? 'text-green-600' : 'text-primary'}>
               {getIcon(link.platform)}
             </div>
@@ -140,17 +140,17 @@ export default function SocialLinksManager({
 
         {/* Add new link form */}
         {showAddForm && (
-          <div className="space-y-3 p-4 rounded-lg bg-white/8">
+          <div className="space-y-3 p-4 rounded-lg bg-white/10">
             <div>
               <Label htmlFor="platform">Platform</Label>
               <Select value={newPlatform} onValueChange={(val) => {
                 setNewPlatform(val);
                 setNewHandle(''); // Reset handle when platform changes
               }}>
-                <SelectTrigger id="platform" className="border-white/14 bg-white/8 text-white">
+                <SelectTrigger id="platform" className="border-white/20 bg-white/10 text-white placeholder:text-white/40">
                   <SelectValue placeholder="Select platform" />
                 </SelectTrigger>
-                <SelectContent className="border-white/12 bg-[#102a53] text-white">
+                <SelectContent className="border-white/10 bg-[#102a53] text-white">
                   {availablePlatforms.map((platform) => (
                     <SelectItem key={platform.value} value={platform.value}>
                       <div className="flex items-center gap-2">
@@ -170,10 +170,10 @@ export default function SocialLinksManager({
                 value={newHandle}
                 onChange={(e) => setNewHandle(e.target.value)}
                 placeholder={newPlatform ? getPlaceholder(newPlatform) : 'username'}
-                className="border-white/14 bg-white/8 text-white placeholder:text-white/42"
+                className="border-white/20 bg-white/10 text-white placeholder:text-white/40"
               />
               {newPlatform && newPlatform !== 'website' && newHandle && (
-                <p className="text-xs text-white/58 mt-1">
+                <p className="text-xs text-white/60 mt-1">
                   URL: {generateUrl(newPlatform, newHandle)}
                 </p>
               )}

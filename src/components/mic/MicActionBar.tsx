@@ -1,4 +1,4 @@
-import { ChevronUp, ChevronDown, MapPin, Bookmark, Send, ExternalLink } from "lucide-react";
+import { ChevronUp, ChevronDown, MapPin, Bookmark, Send, ExternalLink, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMicRatings } from "@/hooks/useMicRatings";
@@ -87,6 +87,15 @@ export default function MicActionBar({
     }
   };
 
+  const handleLike = () => {
+    if (!requireAuth("like mics")) return;
+    if (isUpvoted) {
+      removeRating(micUniqueIdentifier);
+    } else {
+      rateMic({ micUniqueIdentifier, rating: "like" });
+    }
+  };
+
   const handleSave = async () => {
     if (!requireAuth("save mics")) return;
     try {
@@ -138,7 +147,7 @@ export default function MicActionBar({
       : "text-gray-800 dark:text-foreground";
 
   return (
-    <div className={cn("flex items-center justify-between border-t border-white/10 pt-1.5 mt-1 text-gray-700 dark:text-white/72", className)}>
+    <div className={cn("flex items-center justify-between border-t border-white/10 pt-1.5 mt-1 text-gray-700 dark:text-white/70", className)}>
       {/* Left: Reddit-style vote pill */}
       <div
         className={cn(
@@ -197,6 +206,16 @@ export default function MicActionBar({
           aria-label="Open in Google Maps"
         >
           <MapPin className="w-4 h-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleLike}
+          disabled={isRating}
+          className={cn("h-8 w-8 p-0 text-gray-700 hover:bg-[#1a5fb4]/10 disabled:opacity-50 dark:text-white dark:hover:bg-[hsl(var(--primary))]/20 dark:hover:text-white", isUpvoted && "text-[#1a5fb4] dark:text-[hsl(var(--primary))]")}
+          aria-label={isUpvoted ? "Unlike mic" : "Like mic"}
+        >
+          <Heart className={cn("w-4 h-4", isUpvoted && "fill-current")} />
         </Button>
         <Button
           variant="ghost"

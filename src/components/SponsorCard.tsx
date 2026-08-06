@@ -24,7 +24,7 @@ export function SponsorCard({ placement, className = '' }: SponsorCardProps) {
   return (
     <Card className={`border-border bg-card ${className}`}>
       <CardContent className="px-3 py-2 flex items-center gap-2.5">
-        <Badge variant="outline" className="text-[9px] text-white/64 border-white/18 bg-white/8 shrink-0 self-start mt-0.5">
+        <Badge variant="outline" className="text-[9px] text-white/60 border-white/20 bg-white/10 shrink-0 self-start mt-0.5">
           Ad
         </Badge>
         {sponsor.icon_url && (

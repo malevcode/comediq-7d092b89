@@ -42,7 +42,7 @@ export function RoleOpeningCard({ role }: RoleOpeningCardProps) {
           {isFilled ? (
             <Badge variant="secondary">Filled</Badge>
           ) : (
-            <Badge variant="outline" className="bg-primary/5">
+            <Badge variant="outline" className="bg-primary/10">
               {spotsRemaining} spot{spotsRemaining !== 1 ? 's' : ''} open
             </Badge>
           )}

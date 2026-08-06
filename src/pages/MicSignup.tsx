@@ -16,8 +16,8 @@ import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { generateVenueSlug } from '@/utils/slugify';
 
-const glassCardClass = "border-0 bg-white/42 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 dark:bg-[#07111f]/62 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.34)]";
-const glassPanelClass = "rounded-lg border-0 bg-white/34 p-4 text-[#07111f] shadow-[0_10px_30px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#07111f]/48 dark:text-white dark:shadow-[0_10px_30px_rgba(2,10,30,0.22)]";
+const glassCardClass = "border-0 bg-white/40 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 dark:bg-[#07111f]/60 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.34)]";
+const glassPanelClass = "rounded-lg border-0 bg-white/30 p-4 text-[#07111f] shadow-[0_10px_30px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#07111f]/50 dark:text-white dark:shadow-[0_10px_30px_rgba(2,10,30,0.22)]";
 
 interface SignupSheetProps {
   event: any;
@@ -109,17 +109,17 @@ function SignupSheet({ event, micId }: SignupSheetProps) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <CardTitle className="text-xl text-[#07111f] dark:text-white">Signup Sheet</CardTitle>
-            <CardDescription className="text-[#07111f]/62 dark:text-white/62">
+            <CardDescription className="text-[#07111f]/60 dark:text-white/60">
               {format(new Date(`${event.event_date}T00:00:00`), 'EEEE, MMMM d, yyyy')}
               {event.event_time ? ` at ${event.event_time}` : ''}
             </CardDescription>
           </div>
-          <Badge variant="outline" className="w-fit border-[#07111f]/12 bg-white/35 text-[#07111f] dark:border-white/14 dark:bg-white/12 dark:text-white">
+          <Badge variant="outline" className="w-fit border-[#07111f]/10 bg-white/40 text-[#07111f] dark:border-white/10 dark:bg-white/10 dark:text-white">
             {confirmedSignups.length} / {event.total_spots} spots
           </Badge>
         </div>
         {event.notes && (
-          <CardDescription className="pt-2 text-[#07111f]/62 dark:text-white/62">
+          <CardDescription className="pt-2 text-[#07111f]/60 dark:text-white/60">
             {event.notes}
           </CardDescription>
         )}
@@ -133,7 +133,7 @@ function SignupSheet({ event, micId }: SignupSheetProps) {
           {isLoading ? (
             <p className="text-sm text-[#07111f]/60 dark:text-white/60">Loading signups...</p>
           ) : confirmedSignups.length === 0 ? (
-            <div className={`${glassPanelClass} border border-dashed border-[#07111f]/12 text-sm dark:border-white/14`}>
+            <div className={`${glassPanelClass} border border-dashed border-[#07111f]/10 text-sm dark:border-white/10`}>
               No signups yet. Be the first on the list.
             </div>
           ) : (
@@ -141,7 +141,7 @@ function SignupSheet({ event, micId }: SignupSheetProps) {
               {confirmedSignups.map((signup: any, index: number) => (
                 <div
                   key={signup.id}
-                  className="flex items-center gap-3 rounded-lg border-0 bg-white/32 px-3 py-2 text-sm text-[#07111f] shadow-[0_8px_24px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:bg-[#07111f]/42 dark:text-white"
+                  className="flex items-center gap-3 rounded-lg border-0 bg-white/30 px-3 py-2 text-sm text-[#07111f] shadow-[0_8px_24px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:bg-[#07111f]/40 dark:text-white"
                 >
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#1a5fb4] text-xs font-bold text-white">
                     {index + 1}
@@ -239,44 +239,40 @@ export default function MicSignup() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
+  const [attemptedEventCreationFor, setAttemptedEventCreationFor] = useState<string | null>(null);
 
   const mic = mics?.find(m => generateVenueSlug(m) === slug);
 
   const { data: events, isLoading: eventsLoading, refetch: refetchEvents } = useSignupEvents(mic?.uniqueIdentifier || '');
 
-  // Auto-create event when page loads if user is authenticated and no events exist
   useEffect(() => {
-    const createEventIfNeeded = async () => {
+    const createComediqSlotEventIfNeeded = async () => {
       if (!mic || !user || isCreatingEvent) return;
-      
+      if (mic.signupMethod !== 'comediq_slots' && !mic.slotsEnabled) return;
+      if (attemptedEventCreationFor === mic.uniqueIdentifier) return;
+
       const activeEvents = events?.filter(e => e.is_active) || [];
-      if (activeEvents.length === 0 && !eventsLoading) {
-        setIsCreatingEvent(true);
-        try {
-          await getOrCreateNextEvent(mic.uniqueIdentifier, mic.day, mic.startTime);
-          await refetchEvents();
-          toast({
-            title: "Signup opened!",
-            description: `Sign up for ${mic.openMic} is now available.`,
-          });
-        } catch (error: any) {
-          console.error('Failed to create event:', error);
-          // Don't show error toast for permission issues - just means they need to sign in
-          if (!error.message?.includes('authenticated')) {
-            toast({
-              title: "Couldn't open signups",
-              description: error.message || "Please try again later.",
-              variant: "destructive",
-            });
-          }
-        } finally {
-          setIsCreatingEvent(false);
-        }
+      if (activeEvents.length > 0 || eventsLoading) return;
+
+      setAttemptedEventCreationFor(mic.uniqueIdentifier);
+      setIsCreatingEvent(true);
+      try {
+        await getOrCreateNextEvent(mic.uniqueIdentifier, mic.day, mic.startTime);
+        await refetchEvents();
+      } catch (error: any) {
+        console.error('Failed to open Comediq signup event:', error);
+        toast({
+          title: "Couldn't load signup sheet",
+          description: error.message || "Please try again later.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsCreatingEvent(false);
       }
     };
 
-    createEventIfNeeded();
-  }, [mic, user, events, eventsLoading]);
+    createComediqSlotEventIfNeeded();
+  }, [mic, user, events, eventsLoading, isCreatingEvent, attemptedEventCreationFor, refetchEvents, toast]);
 
   if (micsLoading || eventsLoading) {
     return (
@@ -298,7 +294,7 @@ export default function MicSignup() {
         title={`Sign Up - ${mic.openMic} at ${mic.venueName}`}
         description={`Sign up for spots at ${mic.openMic}`}
       />
-      <div className="container mx-auto px-4 sm:px-8 pt-10 space-y-4 pb-12">
+      <div className="container mx-auto px-4 sm:px-8 pt-4 space-y-4 pb-12">
         <Button
           type="button"
           variant="ghost"
@@ -320,23 +316,23 @@ export default function MicSignup() {
             <div className="flex items-start justify-between">
               <div>
                 <CardTitle className="text-3xl mb-2 text-[#07111f] dark:text-white">{mic.openMic}</CardTitle>
-                <CardDescription className="text-lg text-[#07111f]/62 dark:text-white/62">{mic.venueName}</CardDescription>
+                <CardDescription className="text-lg text-[#07111f]/60 dark:text-white/60">{mic.venueName}</CardDescription>
               </div>
-              <Badge variant="outline" className="border-[#07111f]/12 bg-white/35 text-sm text-[#07111f] dark:border-white/14 dark:bg-white/12 dark:text-white">
+              <Badge variant="outline" className="border-[#07111f]/10 bg-white/40 text-sm text-[#07111f] dark:border-white/10 dark:bg-white/10 dark:text-white">
                 {mic.borough}
               </Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div className="flex items-center gap-2 text-[#07111f]/64 dark:text-white/64">
+            <div className="flex items-center gap-2 text-[#07111f]/60 dark:text-white/60">
               <Calendar className="w-4 h-4" />
               <span>{mic.day}</span>
             </div>
-            <div className="flex items-center gap-2 text-[#07111f]/64 dark:text-white/64">
+            <div className="flex items-center gap-2 text-[#07111f]/60 dark:text-white/60">
               <Clock className="w-4 h-4" />
               <span>{mic.startTime} - {mic.latestEndTime}</span>
             </div>
-            <div className="flex items-center gap-2 text-[#07111f]/64 dark:text-white/64">
+            <div className="flex items-center gap-2 text-[#07111f]/60 dark:text-white/60">
               <MapPin className="w-4 h-4" />
               <span>{mic.location}</span>
             </div>
@@ -351,7 +347,7 @@ export default function MicSignup() {
                 <UserCheck className="w-5 h-5 text-primary" />
                 <div>
                   <p className="font-medium text-[#07111f] dark:text-white">Are you the host of this mic?</p>
-                  <p className="text-sm text-[#07111f]/62 dark:text-white/62">Claim it to manage signups and keep info updated</p>
+                  <p className="text-sm text-[#07111f]/60 dark:text-white/60">Claim it to manage signups and keep info updated</p>
                 </div>
               </div>
               <Button asChild variant="outline" size="sm">
@@ -368,10 +364,10 @@ export default function MicSignup() {
             <CardHeader>
               <div className="flex items-center gap-3">
                 <Loader2 className="h-5 w-5 animate-spin" />
-                <CardTitle className="text-[#07111f] dark:text-white">Setting up signups...</CardTitle>
+                <CardTitle className="text-[#07111f] dark:text-white">Loading signup sheet...</CardTitle>
               </div>
-              <CardDescription className="text-[#07111f]/62 dark:text-white/62">
-                Creating a signup event for the next occurrence of this mic.
+              <CardDescription className="text-[#07111f]/60 dark:text-white/60">
+                Preparing the active signup list for this mic.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -379,16 +375,16 @@ export default function MicSignup() {
           <Card className={glassCardClass}>
             <CardHeader>
               <CardTitle className="text-[#07111f] dark:text-white">No Active Signups</CardTitle>
-              <CardDescription className="text-[#07111f]/62 dark:text-white/62">
+              <CardDescription className="text-[#07111f]/60 dark:text-white/60">
                 {!user 
-                  ? "Sign in to open signups for this mic!"
+                  ? "No signup sheet is open for this mic yet."
                   : "Check back later for signup availability."}
               </CardDescription>
             </CardHeader>
             {!user && (
               <CardContent>
-                <Button asChild>
-                  <Link to="/auth">Sign In to Enable Signups</Link>
+                <Button asChild variant="outline">
+                  <Link to="/auth">Sign In</Link>
                 </Button>
               </CardContent>
             )}

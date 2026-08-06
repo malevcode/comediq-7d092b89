@@ -1,4 +1,4 @@
-import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, ChevronDown, ExternalLink, Navigation, ClipboardList } from "lucide-react";
+import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, ChevronDown, Navigation, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
 import { useState, useEffect, useRef } from "react";
@@ -209,7 +209,11 @@ function formatStageTime(stageTime: string): string {
   return formatted;
 }
 
-function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRow, flash }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void; forceExpanded?: boolean; onRegisterRow?: (id: string, el: HTMLDivElement | null) => void; flash?: boolean }) {
+function formatCost(cost?: string | null): string {
+  return cost?.trim() || 'Not specified';
+}
+
+function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, onRegisterRow, flash }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void; onOpenMic?: (mic: OpenMic) => void; forceExpanded?: boolean; onRegisterRow?: (id: string, el: HTMLDivElement | null) => void; flash?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   useEffect(() => { setExpanded(!!forceExpanded); }, [forceExpanded]);
   const [showComments, setShowComments] = useState(false);
@@ -256,10 +260,10 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
   }, [userLocation, mic.location, mic.latitude, mic.longitude]);
 
   
-  const isComediqPartner = mic.signupMethod === 'comediq_slots';
+  const isComediqPartner = mic.signupMethod === 'comediq_slots' || mic.slotsEnabled;
   const cardSurfaceClass = isComediqPartner
-    ? "border-white/8 border-l-4 bg-[#102a53]/44 text-white shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl"
-    : "border-white/8 border-l-4 bg-[#102a53]/38 text-white shadow-[0_12px_38px_rgba(2,10,30,0.22)] backdrop-blur-xl";
+    ? "border-[#07111f]/10 border-l-4 bg-white/80 text-[#07111f] shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-[#102a53]/40 dark:text-white dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]"
+    : "border-[#07111f]/10 border-l-4 bg-white/80 text-[#07111f] shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-[#102a53]/40 dark:text-white dark:shadow-[0_12px_38px_rgba(2,10,30,0.22)]";
   const cardStyle: React.CSSProperties = {
     borderLeftColor: isComediqPartner ? "#8ec5ff" : getBoroughOutline(mic.borough),
     ...(mic.coverImageUrl ? {
@@ -283,40 +287,37 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
           <div className="flex-1" />
           
           {/* Centered mic name with inline verified check */}
-          <a 
-            href={getMapUrl(mic.location, mic.venueName)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-base text-white hover:text-[#8ec5ff] hover:bg-white/10 hover:rounded px-0.5 cursor-pointer transition-all duration-200 flex items-center gap-1"
+          <button
+            type="button"
+            onClick={() => onOpenMic?.(mic)}
+            className="flex cursor-pointer items-center gap-1 px-0.5 text-base font-semibold text-[#07111f] transition-all duration-200 hover:rounded hover:bg-[#1a5fb4]/10 hover:text-[#1a5fb4] dark:text-white dark:hover:bg-white/10 dark:hover:text-[#8ec5ff]"
             title={mic.openMic}
           >
             {mic.openMic}
-            
-            <ExternalLink className="w-3 h-3 text-white/45" />
-          </a>
+          </button>
           
           {/* Right-aligned traffic light + frequency pill */}
           <div className="flex-1 flex justify-end items-center gap-1">
             {isComediqPartner && (
-              <span className="inline-flex items-center rounded-full bg-white/8 text-[#8ec5ff] border border-white/18 font-semibold text-[9px] px-1.5 py-0 whitespace-nowrap">
+              <span className="inline-flex items-center rounded-full border border-[#1a5fb4]/20 bg-[#1a5fb4]/10 px-1.5 py-0 text-[9px] font-semibold text-[#1a5fb4] whitespace-nowrap dark:border-white/20 dark:bg-white/10 dark:text-[#8ec5ff]">
                 Comediq
               </span>
             )}
             {mic.frequency && mic.frequency !== 'weekly' && (
-              <span className="inline-flex items-center rounded-full bg-white/10 text-white/64 border border-white/14 font-medium text-[10px] px-1.5 py-0 whitespace-nowrap">
+              <span className="inline-flex items-center rounded-full border border-[#07111f]/10 bg-[#07111f]/10 px-1.5 py-0 text-[10px] font-medium text-[#07111f]/60 whitespace-nowrap dark:border-white/10 dark:bg-white/10 dark:text-white/60">
                 {FREQUENCY_LABELS[mic.frequency]}
               </span>
             )}
           </div>
         </div>
-        <div className="text-xs text-white/64 mb-0.5">
+        <div className="mb-0.5 text-xs text-[#07111f]/60 dark:text-white/60">
           <span className="flex items-center gap-1 justify-center">
-            <MapPin className="w-3 h-3 flex-shrink-0 text-gray-400 dark:text-white/45" />
+            <MapPin className="w-3 h-3 flex-shrink-0 text-gray-400 dark:text-white/50" />
             <a
               href={getMapUrl(mic.location, mic.venueName)}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:underline truncate text-gray-500 dark:text-white/45"
+              className="hover:underline truncate text-gray-500 dark:text-white/50"
               title={`${mic.venueName}, ${mic.neighborhood}`}
             >
             {mic.venueName}, {mic.neighborhood}
@@ -328,14 +329,14 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
               </span>
             )}
             {distanceLoading && (
-              <span className="flex items-center gap-1 ml-1 text-white/45">
+              <span className="ml-1 flex items-center gap-1 text-[#07111f]/50 dark:text-white/50">
                 <Navigation className="w-3 h-3 animate-pulse" />
               </span>
             )}
           </span>
           <span className="flex flex-row md:flex-col gap-1.5 md:gap-0 justify-center">
-            <span className="flex items-center gap-1 justify-center text-gray-500 dark:text-white/45">
-              <Calendar className="w-3 h-3 flex-shrink-0 text-gray-400 dark:text-white/45" />
+            <span className="flex items-center gap-1 justify-center text-gray-500 dark:text-white/50">
+              <Calendar className="w-3 h-3 flex-shrink-0 text-gray-400 dark:text-white/50" />
               {mic.frequency === 'weekly' ? '' : `${FREQUENCY_LABELS[mic.frequency]} · `}{mic.day}
             </span>
             <span className="flex items-center gap-1 md:hidden justify-center">
@@ -357,19 +358,19 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
           aria-expanded={expanded}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpanded(x => !x); }}
         >
-          <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-gray-400 dark:text-white/45 flex-shrink-0" />{formatTimeRange(mic.startTime, mic.latestEndTime)}</span>
+          <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />{formatTimeRange(mic.startTime, mic.latestEndTime)}</span>
           <span className="flex items-center gap-1">
-            <Clock className="w-3 h-3 text-gray-400 dark:text-white/45 flex-shrink-0" />
+            <Clock className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
             {formatStageTime(mic.stageTime)}
           </span>
-          <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-gray-400 dark:text-white/45 flex-shrink-0" />{mic.cost}</span>
+          <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />{formatCost(mic.cost)}</span>
           <ChevronDown
             className={`w-4 h-4 text-[#8ec5ff] transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
           />
         </div>
         {/* Host info - only on desktop, stays outside clickable area */}
         <span className="hidden md:flex items-center gap-1 mt-0.5 justify-center">
-          <CircleUser className="w-3 h-3 flex-shrink-0 text-gray-400 dark:text-white/45" />
+          <CircleUser className="w-3 h-3 flex-shrink-0 text-gray-400 dark:text-white/50" />
           <span className="truncate text-xs text-gray-700 [&_a]:!text-blue-600 [&_a:hover]:!text-blue-900 dark:text-[#8ec5ff] dark:[&_a]:!text-[#8ec5ff] dark:[&_a:hover]:!text-blue-200">
             {mic.instagramHandle && mic.instagramHandle.trim() ? makeLinksClickable(mic.instagramHandle) : "No host"}
           </span>
@@ -378,7 +379,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
       {/* Right: Expanded Details & Actions */}
       <div className="w-full md:flex-[1.2] flex flex-col justify-center gap-0">
         {expanded && (
-          <div className="bg-white/7 rounded-md p-2 flex flex-col gap-1.5 text-white/72 mb-2 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_22px_80px_rgba(2,10,30,0.34)] backdrop-blur-xl">
+          <div className="mb-2 flex flex-col gap-1.5 rounded-md bg-white/70 p-2 text-[#07111f]/70 shadow-[0_10px_30px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:bg-white/10 dark:text-white/70 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_22px_80px_rgba(2,10,30,0.34)]">
             {/* Nominate for Mic of the Day — subtle inline text link */}
             <div onClick={(e) => e.stopPropagation()}>
               <NominateMotdButton
@@ -390,7 +391,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
 
             {mic.legacyTag && (
               <div className="flex items-center gap-1 text-[10px]">
-                  <span className="inline-flex items-center rounded-full bg-white/10 text-white/64 border border-white/10 font-medium px-1.5 py-0">
+                  <span className="inline-flex items-center rounded-full border border-[#07111f]/10 bg-[#07111f]/10 px-1.5 py-0 font-medium text-[#07111f]/60 dark:border-white/10 dark:bg-white/10 dark:text-white/60">
                   {mic.legacyTag}
                 </span>
               </div>
@@ -417,12 +418,12 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
               />
             </div>
             {mic.otherRules && (
-              <div className="text-xs mt-2 pt-2 border-t border-white/10">
+              <div className="mt-2 border-t border-[#07111f]/10 pt-2 text-xs dark:border-white/10">
                 <div className="flex items-start gap-2">
                   <ClipboardList className="w-3 h-3 mt-0.5 text-[#8ec5ff] flex-shrink-0" />
                   <div>
-                    <span className="font-medium text-white">House Rules:</span>
-                    <p className="text-white/64 mt-1 whitespace-pre-wrap">
+                    <span className="font-medium text-[#07111f] dark:text-white">House Rules:</span>
+                    <p className="mt-1 whitespace-pre-wrap text-[#07111f]/60 dark:text-white/60">
                       {mic.otherRules}
                     </p>
                   </div>
@@ -430,17 +431,19 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, forceExpanded, onRegisterRo
               </div>
             )}
             <div className="flex flex-col gap-2">
-              <Button
-                size="sm"
-                variant="default"
-                className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
-                asChild
-              >
-                <Link to={linkManager.micSignup(mic)}>
-                  <UserRoundCheck className="w-4 h-4" />
-                  Sign Up for Spots
-                </Link>
-              </Button>
+              {isComediqPartner && (
+                <Button
+                  size="sm"
+                  variant="default"
+                  className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
+                  asChild
+                >
+                  <Link to={linkManager.micSignup(mic)}>
+                    <UserRoundCheck className="w-4 h-4" />
+                    Sign Up for Spots
+                  </Link>
+                </Button>
+              )}
               {user && (
                 <Button
                   size="sm"
@@ -542,14 +545,14 @@ export default function OpenMicsDetailedList({
   setVisibleCount,
   showSponsor = true,
   showMicOfDay = false,
-  selectedMicId = null,
+  onOpenMic,
 }: {
   mics: OpenMic[];
   visibleCount: number;
   setVisibleCount: React.Dispatch<React.SetStateAction<number>>;
   showSponsor?: boolean;
   showMicOfDay?: boolean;
-  selectedMicId?: string | null;
+  onOpenMic?: (mic: OpenMic) => void;
 }) {
   const validMics = mics
     .filter(Boolean)
@@ -589,10 +592,6 @@ export default function OpenMicsDetailedList({
     }, 80);
   };
 
-  useEffect(() => {
-    if (selectedMicId) handleSelectMicOfDay(selectedMicId);
-  }, [selectedMicId]);
-
   const handleAddToCalendar = async (mic: OpenMic) => {
     if (!user) return;
     try {
@@ -621,7 +620,7 @@ export default function OpenMicsDetailedList({
           <MicOfTheDayCard variant="premium" onSelect={handleSelectMicOfDay} />
         ) : showSponsor ? (
           // Fallback to sponsor ad if no MOTD is set today
-          <SponsorCard placement="mic_list" className="border-white/12 bg-[#102a53]/78 text-white shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl" />
+          <SponsorCard placement="mic_list" className="border-white/10 bg-[#102a53]/80 text-white shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl" />
         ) : null
       )}
       {validMics.slice(0, visibleCount).map((mic) => (
@@ -629,6 +628,7 @@ export default function OpenMicsDetailedList({
           key={mic.id}
           mic={mic}
           onAddToCalendar={handleAddToCalendar}
+          onOpenMic={onOpenMic}
           forceExpanded={forceExpandedId === mic.uniqueIdentifier}
           onRegisterRow={registerRow}
           flash={flashId === mic.uniqueIdentifier}

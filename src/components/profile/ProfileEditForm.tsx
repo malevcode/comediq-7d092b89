@@ -30,8 +30,8 @@ export default function ProfileEditForm({
   isSaving,
   isUploading
 }: ProfileEditFormProps) {
-  const profileSurfaceClass = "border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5";
-  const inputClass = "border-white/14 bg-white/8 text-white placeholder:text-white/42";
+  const profileSurfaceClass = "border-0 bg-[#07111f]/10 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/10";
+  const inputClass = "border-white/10 bg-white/10 text-white placeholder:text-white/40";
 
   const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormData>({
     defaultValues: {
@@ -85,7 +85,7 @@ export default function ProfileEditForm({
               placeholder="As seen on Comedy Central, Netflix, etc."
               className={inputClass}
             />
-            <p className="text-xs text-white/58 mt-1">
+            <p className="text-xs text-white/60 mt-1">
               Your biggest credit or where audiences might recognize you from
             </p>
           </div>
@@ -127,7 +127,7 @@ export default function ProfileEditForm({
               rows={4}
               className={inputClass}
             />
-            <p className="text-xs text-white/58 mt-1">
+            <p className="text-xs text-white/60 mt-1">
               This will appear on show fliers and booking forms
             </p>
           </div>

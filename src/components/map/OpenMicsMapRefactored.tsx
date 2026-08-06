@@ -200,11 +200,15 @@ function escapeHtml(value: string): string {
 }
 
 function buildPopupHtml(mic: OpenMic): string {
+  const startTime = formatTime(mic.startTime);
+  const endTime = formatTime(mic.latestEndTime);
+  const timeLabel = endTime ? `${startTime} - ${endTime}` : startTime;
+
   return `
     <div style="min-width:180px;padding:8px;font-size:13px;color:#0f172a;">
       <div style="font-weight:800;font-size:15px;margin-bottom:3px;">${escapeHtml(mic.openMic)}</div>
       <div style="color:#475569;margin-bottom:6px;">${escapeHtml(mic.venueName)}</div>
-      <div>${escapeHtml(formatTime(mic.startTime))} - ${escapeHtml(formatTime(mic.latestEndTime))}</div>
+      <div>${escapeHtml(timeLabel)}</div>
       <div>${escapeHtml(formatCost(mic.cost))}</div>
       <div>Stage time: ${escapeHtml(formatStageTime(mic.stageTime))}</div>
     </div>
@@ -282,6 +286,7 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
   const [mapReady, setMapReady] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [legendOpen, setLegendOpen] = useState(false);
   const mapStyle = resolvedTheme === 'dark' ? DARK_MAP_STYLE : LIGHT_MAP_STYLE;
 
   useEffect(() => {
@@ -561,9 +566,24 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
 
     try {
       if (document.fullscreenElement === shell) {
-        await document.exitFullscreen();
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if (typeof (document as any).webkitExitFullscreen === 'function') {
+          await (document as any).webkitExitFullscreen();
+        }
       } else {
-        await shell.requestFullscreen();
+        const requestFullscreen =
+          shell.requestFullscreen ||
+          (shell as any).webkitRequestFullscreen ||
+          (shell as any).mozRequestFullScreen ||
+          (shell as any).msRequestFullscreen;
+
+        if (typeof requestFullscreen !== 'function') {
+          setError('Fullscreen is not supported by this browser.');
+          return;
+        }
+
+        await requestFullscreen.call(shell);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to toggle fullscreen.');
@@ -620,12 +640,21 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
       >
         {mapReady && (
           <>
-            <div className="absolute top-2 left-2 z-10 group">
+            <div className="absolute top-2 left-2 z-10">
               <div className="flex items-center gap-1 mb-1 text-xs text-muted-foreground opacity-100">
                 <Info className="w-3 h-3" />
-                <span>Legend</span>
+                <span
+                  tabIndex={0}
+                  onMouseEnter={() => setLegendOpen(true)}
+                  onMouseLeave={() => setLegendOpen(false)}
+                  onFocus={() => setLegendOpen(true)}
+                  onBlur={() => setLegendOpen(false)}
+                  className="cursor-help rounded-sm focus:outline-none focus:ring-2 focus:ring-[#1a5fb4]/40"
+                >
+                  Legend
+                </span>
               </div>
-              <div className="opacity-0 group-hover:opacity-90 transition-opacity duration-200">
+              <div className={`pointer-events-none transition-opacity duration-200 ${legendOpen ? 'opacity-90' : 'opacity-0'}`}>
                 <MapLegend />
               </div>
             </div>
@@ -654,10 +683,6 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
             isFullscreen={isFullscreen}
             error={error}
             onDismissError={() => setError(null)}
-            loadedMicCount={representativeMappedMics.length}
-            totalMicCount={mics.length}
-            countLabel="pins mapped"
-            backgroundLoading={false}
           />
         )}
       </div>

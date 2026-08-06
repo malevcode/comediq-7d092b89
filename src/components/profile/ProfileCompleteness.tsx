@@ -94,7 +94,7 @@ export default function ProfileCompleteness({ profile, onEditClick }: ProfileCom
   }
 
   return (
-    <Card className="border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5">
+    <Card className="border-0 bg-[#07111f]/10 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/10">
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center justify-between">
           <span>Profile Completeness</span>
