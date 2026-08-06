@@ -15,8 +15,19 @@ GRANT SELECT (user_id, username, stage_name)
 ON public.profiles
 TO anon, authenticated;
 
-CREATE POLICY IF NOT EXISTS "profiles_public_display_fields_select"
-ON public.profiles
-FOR SELECT
-TO anon, authenticated
-USING (true);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'profiles'
+      AND policyname = 'profiles_public_display_fields_select'
+  ) THEN
+    CREATE POLICY "profiles_public_display_fields_select"
+    ON public.profiles
+    FOR SELECT
+    TO anon, authenticated
+    USING (true);
+  END IF;
+END $$;
