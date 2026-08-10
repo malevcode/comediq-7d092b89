@@ -32,6 +32,7 @@ export interface OpenMic {
   borough: string;
   neighborhood: string;
   location: string;
+  venueType?: string;
   cost: string;
   stageTime: string;
   signUpInstructions: string;
@@ -45,9 +46,19 @@ export interface OpenMic {
   coverImageUrl?: string;
   status: MicStatus;
   frequency: MicFrequency;
+  verificationCount?: number;
   submissionDate?: string;
   legacyTag?: string;
+  creatorId?: string;
   signupMethod?: SignupMethod;
+  signupUrl?: string;
+  frequencyCustomText?: string;
   slotsEnabled: boolean;
   slotDurationMinutes: number;
+  latitude?: number | null;
+  longitude?: number | null;
+  geocodedAt?: string | null;
+  geocodingProvider?: string | null;
+  geocodingScore?: number | null;
+  geocodingMatchAddress?: string | null;
 }
