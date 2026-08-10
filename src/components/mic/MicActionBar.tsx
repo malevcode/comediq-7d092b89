@@ -1,4 +1,4 @@
-import { ChevronUp, ChevronDown, MapPin, Bookmark, Send, ExternalLink } from "lucide-react";
+import { ChevronUp, ChevronDown, MapPin, Bookmark, Send, ExternalLink, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMicRatings } from "@/hooks/useMicRatings";
@@ -87,6 +87,15 @@ export default function MicActionBar({
     }
   };
 
+  const handleLike = () => {
+    if (!requireAuth("like mics")) return;
+    if (isUpvoted) {
+      removeRating(micUniqueIdentifier);
+    } else {
+      rateMic({ micUniqueIdentifier, rating: "like" });
+    }
+  };
+
   const handleSave = async () => {
     if (!requireAuth("save mics")) return;
     try {
@@ -129,21 +138,21 @@ export default function MicActionBar({
   };
 
   // Comediq Blue / muted red / neutral — using arbitrary HSL values matching brand tokens
-  const upvoteColor = isUpvoted ? "text-[hsl(var(--primary))]" : "text-muted-foreground";
-  const downvoteColor = isDownvoted ? "text-red-400" : "text-muted-foreground";
+  const upvoteColor = isUpvoted ? "text-[#1a5fb4]" : "text-gray-600 dark:text-muted-foreground";
+  const downvoteColor = isDownvoted ? "text-red-500 dark:text-red-400" : "text-gray-600 dark:text-muted-foreground";
   const scoreColor = isUpvoted
-    ? "text-[hsl(var(--primary))]"
+    ? "text-[#1a5fb4]"
     : isDownvoted
-      ? "text-red-400"
-      : "text-foreground";
+      ? "text-red-500 dark:text-red-400"
+      : "text-gray-800 dark:text-foreground";
 
   return (
-    <div className={cn("flex items-center justify-between border-t border-border pt-1.5 mt-1", className)}>
+    <div className={cn("flex items-center justify-between border-t border-white/10 pt-1.5 mt-1 text-gray-700 dark:text-white/70", className)}>
       {/* Left: Reddit-style vote pill */}
       <div
         className={cn(
-          "flex items-center gap-0.5 rounded-full bg-muted/60 px-1 py-0.5",
-          (isUpvoted || isDownvoted) && "bg-muted"
+          "flex items-center gap-0.5 rounded-full bg-white/60 px-1 py-0.5 dark:bg-muted/40",
+          (isUpvoted || isDownvoted) && "bg-white/80 dark:bg-muted"
         )}
       >
         <button
@@ -152,7 +161,7 @@ export default function MicActionBar({
           disabled={isRating}
           aria-label="Upvote"
           className={cn(
-            "p-1 rounded-full hover:bg-background/80 transition-colors disabled:opacity-50",
+            "p-1 rounded-full hover:bg-background transition-colors disabled:opacity-50 dark:hover:bg-background/40",
             upvoteColor
           )}
         >
@@ -167,7 +176,7 @@ export default function MicActionBar({
           disabled={isRating}
           aria-label="Downvote"
           className={cn(
-            "p-1 rounded-full hover:bg-background/80 transition-colors disabled:opacity-50",
+            "p-1 rounded-full hover:bg-background transition-colors disabled:opacity-50 dark:hover:bg-background/40",
             downvoteColor
           )}
         >
@@ -182,10 +191,10 @@ export default function MicActionBar({
             variant="ghost"
             size="sm"
             onClick={handleSignUp}
-            className="h-8 px-2 gap-1 text-xs font-medium text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/10"
+            className="h-8 px-2 gap-1 text-xs font-medium text-gray-700 hover:bg-[#1a5fb4]/10 dark:text-white dark:hover:bg-[hsl(var(--primary))]/20 dark:hover:text-white"
             aria-label="Sign up online"
           >
-            <ExternalLink className="w-3.5 h-3.5" />
+            <ExternalLink className="w-3.5 h-3.5 text-gray-600 dark:text-white" />
             Sign Up
           </Button>
         )}
@@ -193,7 +202,7 @@ export default function MicActionBar({
           variant="ghost"
           size="sm"
           onClick={handleMap}
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 text-gray-700 hover:bg-[#1a5fb4]/10 dark:text-white dark:hover:bg-[hsl(var(--primary))]/20 dark:hover:text-white"
           aria-label="Open in Google Maps"
         >
           <MapPin className="w-4 h-4" />
@@ -201,9 +210,19 @@ export default function MicActionBar({
         <Button
           variant="ghost"
           size="sm"
+          onClick={handleLike}
+          disabled={isRating}
+          className={cn("h-8 w-8 p-0 text-gray-700 hover:bg-[#1a5fb4]/10 disabled:opacity-50 dark:text-white dark:hover:bg-[hsl(var(--primary))]/20 dark:hover:text-white", isUpvoted && "text-[#1a5fb4] dark:text-[hsl(var(--primary))]")}
+          aria-label={isUpvoted ? "Unlike mic" : "Like mic"}
+        >
+          <Heart className={cn("w-4 h-4", isUpvoted && "fill-current")} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={handleSave}
           disabled={isToggling}
-          className={cn("h-8 w-8 p-0", isSaved && "text-[hsl(var(--primary))]")}
+          className={cn("h-8 w-8 p-0 text-gray-700 hover:bg-[#1a5fb4]/10 dark:text-white dark:hover:bg-[hsl(var(--primary))]/20 dark:hover:text-white", isSaved && "text-[#1a5fb4] dark:text-[hsl(var(--primary))] ")}
           aria-label={isSaved ? "Remove from saved" : "Save mic"}
         >
           <Bookmark className={cn("w-4 h-4", isSaved && "fill-[hsl(var(--primary))]")} />
@@ -212,7 +231,7 @@ export default function MicActionBar({
           variant="ghost"
           size="sm"
           onClick={handleShare}
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 text-gray-700 hover:bg-[#1a5fb4]/10  dark:text-white dark:hover:bg-[hsl(var(--primary))]/20 dark:hover:text-white"
           aria-label="Share mic"
         >
           <Send className="w-4 h-4" />

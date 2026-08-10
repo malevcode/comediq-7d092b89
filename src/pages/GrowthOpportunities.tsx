@@ -95,10 +95,10 @@ const GrowthOpportunities = () => {
         description="Find booking opportunities, comedy festivals, podcasts, and training opportunities to grow your comedy career in NYC."
         keywords="comedy growth, booking opportunities, comedy festivals, comedy schools, comedy training, NYC comedy"
       />
-      <div className="min-h-screen bg-background pb-20">
+      <div className="min-h-screen bg-transparent pb-20">
         <PageHeader title="Growth" subtitle="Level up your comedy career" />
 
-        <div className="pt-28 px-4 max-w-4xl mx-auto pb-24">
+        <div className="page-content-offset px-4 max-w-4xl mx-auto pb-24">
           {/* Submit CTA */}
           <div className="mb-6 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">

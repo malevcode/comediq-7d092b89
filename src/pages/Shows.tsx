@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import BulkImportModal from "@/components/shows/BulkImportModal";
+import { useOpenMics } from "@/hooks/useOpenMics";
+import { OpenMic } from "@/types/openMic";
 
 interface ShowNote {
   id: string;
@@ -27,6 +29,12 @@ interface ShowNote {
   cost: string;
   stageTimeMinutes?: number;
 }
+
+const glassCardClass = "border border-[#07111f]/10 bg-white/30 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-[#07111f]/30 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.18)]";
+const glassButtonClass = "border border-[#07111f]/10 bg-white/30 text-[#07111f] shadow-[0_10px_30px_rgba(2,10,30,0.08)] backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:bg-white/50 hover:text-[#1a5fb4] dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 dark:hover:text-white";
+const primaryGlassButtonClass = "border border-[#1a5fb4]/20 bg-[#1a5fb4] text-white shadow-[0_10px_30px_rgba(2,10,30,0.12)] backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:bg-[#1550a0] hover:text-white dark:border-white/10 dark:bg-[#1a5fb4]/70 dark:hover:bg-[#1a5fb4]/90";
+const titleTextClass = "text-[#07111f] dark:text-white";
+const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
 
 const useUserShows = () => {
   const { user } = useAuth();
@@ -112,14 +120,23 @@ function getNextOccurrence(day, time) {
   return nextDate.toISOString();
 }
 
+function normalizeId(value?: string | null) {
+  return String(value || '').toLowerCase();
+}
+
 const Shows = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [refreshKey, setRefreshKey] = useState(0);
   const { shows: rawShows, loading } = useUserShows();
   const { customShows, loading: customLoading } = useUserCustomShows(refreshKey);
+  const { data: openMics = [] } = useOpenMics();
   const [allShowNotes, setAllShowNotes] = useState<ShowNote[]>([]);
   const [showBulkImport, setShowBulkImport] = useState(false);
+  const openMicById = useMemo(
+    () => new Map(openMics.map((mic) => [normalizeId(mic.uniqueIdentifier), mic])),
+    [openMics]
+  );
 
   // Calculate quick stats for the current year
   const quickStats = useMemo(() => {
@@ -157,29 +174,37 @@ const Shows = () => {
   useEffect(() => {
     // Map open mic shows
     const mappedOpenMicShows = rawShows
-      .filter(row => row.open_mics)
       .map(row => {
-        const dateISO = getNextOccurrence(row.open_mics["day"], row.open_mics["start_time"]);
+        const fallbackMic: OpenMic | undefined = openMicById.get(normalizeId(row.open_mic_id));
+        const mic = row.open_mics;
+        const title = mic?.["open_mic"] || fallbackMic?.openMic || "";
+        const day = mic?.["day"] || fallbackMic?.day || "";
+        const startTime = mic?.["start_time"] || fallbackMic?.startTime || "";
+
+        if (!title) return null;
+
+        const dateISO = getNextOccurrence(day, startTime);
         const time = dateISO ? new Date(dateISO).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : "";
         return {
           id: row.id,
-          title: row.open_mics["open_mic"] || "",
-          venue: row.open_mics["venue_name"] || "",
-          location: row.open_mics["location"] || "",
+          title,
+          venue: mic?.["venue_name"] || fallbackMic?.venueName || "",
+          location: mic?.["location"] || fallbackMic?.location || "",
           date: dateISO,
           time,
           status: row["schedule_type"] || "",
           notes: row["notes"] || "",
           audienceCount: "",
           rating: "",
-          borough: row.open_mics["borough"] || "",
+          borough: mic?.["borough"] || fallbackMic?.borough || "",
           createdAt: row["created_at"],
           type: "mic" as "mic",
-          stageTime: row.open_mics["stage_time"] || "",
-          cost: row.open_mics["cost"] || "",
+          stageTime: mic?.["stage_time"] || fallbackMic?.stageTime || "",
+          cost: mic?.["cost"] || fallbackMic?.cost || "",
           stageTimeMinutes: row["custom_stage_time"] || undefined,
         };
-      });
+      })
+      .filter(Boolean) as ShowNote[];
 
     // Map custom shows
     const mappedCustomShows = (customShows || []).map(show => ({
@@ -206,13 +231,7 @@ const Shows = () => {
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
     setAllShowNotes(merged);
-  }, [rawShows, customShows]);
-
-  const onAddShow = (newShow) => {
-    setAllShowNotes(shows =>
-      [...shows, newShow].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    );
-  };
+  }, [rawShows, customShows, openMicById]);
 
   const onUpdateShow = (id: string, updatedFields: Partial<ShowNote>) => {
     setAllShowNotes(shows =>
@@ -227,16 +246,16 @@ const Shows = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
+    <div className="min-h-screen bg-transparent pb-6">
       <PageHeader title="Scheduler" subtitle="Track your upcoming and past performances" />
-      <div className="max-w-6xl mx-auto px-4 pt-28">
+      <div className="max-w-6xl mx-auto px-4 page-content-offset">
         {user ? (
           <>
             {/* Quick Actions */}
             <div className="mb-6 flex flex-col sm:flex-row gap-3">
               <Button
                 onClick={() => navigate('/open-mics')}
-                className="flex-1 sm:flex-none bg-papaya hover:bg-papaya/90"
+                className={`flex-1 sm:flex-none ${primaryGlassButtonClass}`}
               >
                 <Mic className="w-4 h-4 mr-2" />
                 Find Open Mics
@@ -244,7 +263,7 @@ const Shows = () => {
               <Button
                 onClick={() => navigate('/job-board')}
                 variant="outline"
-                className="flex-1 sm:flex-none"
+                className={`flex-1 sm:flex-none ${glassButtonClass}`}
               >
                 <Calendar className="w-4 h-4 mr-2" />
                 Find Gigs
@@ -252,7 +271,7 @@ const Shows = () => {
               <Button
                 onClick={() => setShowBulkImport(true)}
                 variant="outline"
-                className="flex-1 sm:flex-none border-orange-300 text-orange-600 hover:bg-orange-50"
+                className={`flex-1 sm:flex-none ${glassButtonClass}`}
               >
                 <Upload className="w-4 h-4 mr-2" />
                 Bulk Import
@@ -266,30 +285,30 @@ const Shows = () => {
             />
 
             {/* Quick Stats Bar */}
-            <Card className="mb-6 bg-gradient-to-r from-orange-50 to-cyan-50 border-orange-200">
+            <Card className={`mb-6 ${glassCardClass}`}>
               <CardContent className="py-4">
-                <h3 className="font-semibold text-gray-700 text-sm mb-3">Your {new Date().getFullYear()} Stats</h3>
+                <h3 className={`mb-3 text-sm font-semibold ${titleTextClass}`}>Your {new Date().getFullYear()} Stats</h3>
                 <div className="grid grid-cols-3 gap-4 mt-3">
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1.5">
                       <Mic className="w-4 h-4 text-orange-500" />
-                      <span className="font-bold text-xl text-gray-900">{quickStats.totalMics}</span>
+                      <span className={`text-xl font-bold ${titleTextClass}`}>{quickStats.totalMics}</span>
                     </div>
-                    <p className="text-xs text-gray-500">Open Mics</p>
+                    <p className={`text-xs ${mutedTextClass}`}>Open Mics</p>
                   </div>
-                  <div className="text-center border-x border-gray-200">
+                  <div className="text-center border-x border-[#07111f]/10 dark:border-white/10">
                     <div className="flex items-center justify-center gap-1.5">
                       <Calendar className="w-4 h-4 text-cyan-500" />
-                      <span className="font-bold text-xl text-gray-900">{quickStats.totalShows}</span>
+                      <span className={`text-xl font-bold ${titleTextClass}`}>{quickStats.totalShows}</span>
                     </div>
-                    <p className="text-xs text-gray-500">Shows</p>
+                    <p className={`text-xs ${mutedTextClass}`}>Shows</p>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1.5">
                       <Clock className="w-4 h-4 text-purple-500" />
-                      <span className="font-bold text-xl text-gray-900">{quickStats.totalStageTime}</span>
+                      <span className={`text-xl font-bold ${titleTextClass}`}>{quickStats.totalStageTime}</span>
                     </div>
-                    <p className="text-xs text-gray-500">Min on Stage</p>
+                    <p className={`text-xs ${mutedTextClass}`}>Min on Stage</p>
                   </div>
                 </div>
               </CardContent>
@@ -297,15 +316,14 @@ const Shows = () => {
 
             <ShowNotepad 
               shows={allShowNotes}
-              onAddShow={onAddShow}
               onUpdateShow={onUpdateShow}
               onDeleteShow={onDeleteShow}
             />
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-12">
-            <p className="text-lg text-gray-700 mb-4">Sign in to view and manage your show schedule.</p>
-            <Button onClick={() => navigate('/auth')} className="bg-orange-500 hover:bg-orange-600 text-base px-6 py-2">
+            <p className={`mb-4 text-lg ${titleTextClass}`}>Sign in to view and manage your show schedule.</p>
+            <Button onClick={() => navigate('/auth')} className={`px-6 py-2 text-base ${primaryGlassButtonClass}`}>
               <LogIn className="h-4 w-4 mr-2" /> Sign In
             </Button>
           </div>

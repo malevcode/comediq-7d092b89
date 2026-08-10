@@ -22,6 +22,11 @@ import {
   LogIn 
 } from "lucide-react";
 
+const glassButtonClass = "gap-2 rounded-lg border border-[#07111f]/10 bg-white/30 text-[#07111f] shadow-[0_10px_30px_rgba(2,10,30,0.08)] backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:bg-white/50 hover:text-[#1a5fb4] dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 dark:hover:text-white";
+const primaryGlassButtonClass = "gap-2 rounded-lg border border-[#1a5fb4]/20 bg-[#1a5fb4]/90 text-white shadow-[0_10px_30px_rgba(2,10,30,0.12)] backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:bg-[#1550a0] hover:text-white dark:border-white/10 dark:bg-[#1a5fb4]/70 dark:hover:bg-[#1a5fb4]/90";
+const glassPanelClass = "rounded-lg border border-[#07111f]/10 bg-white/30 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-[#07111f]/30 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.18)]";
+const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
+
 // Helper to parse time string to hour (24h format)
 function parseTimeToHour(timeStr: string): number | null {
   if (!timeStr) return null;
@@ -122,7 +127,7 @@ export function PlaylistsTab() {
   // If viewing a playlist or smart filter, show the mic list
   if (selectedPlaylist) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="max-w-7xl mx-auto px-4 py-4 pt-0">
         <PlaylistMicList 
           playlist={selectedPlaylist} 
           onBack={() => {
@@ -138,7 +143,7 @@ export function PlaylistsTab() {
 
   if (activeSmartFilter && activeFilterData) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="max-w-7xl mx-auto px-4 py-4 pt-0">
         <PlaylistMicList 
           playlist={{ 
             id: activeSmartFilter, 
@@ -162,12 +167,12 @@ export function PlaylistsTab() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="text-center">
-          <Mic className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <Mic className={`mx-auto mb-4 h-12 w-12 ${mutedTextClass}`} />
           <h2 className="text-xl font-semibold mb-2">Create Mic Playlists</h2>
-          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+          <p className={`mx-auto mb-6 max-w-md ${mutedTextClass}`}>
             Organize your favorite mics into custom collections. Share with friends or keep them private.
           </p>
-          <Button asChild>
+          <Button asChild className={primaryGlassButtonClass}>
             <Link to="/auth">
               <LogIn className="h-4 w-4 mr-2" />
               Sign In to Get Started
@@ -176,7 +181,7 @@ export function PlaylistsTab() {
           
           {/* Still show smart filters for non-logged-in users */}
           <div className="mt-8">
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">QUICK FILTERS</h3>
+            <h3 className={`mb-3 text-sm font-medium ${mutedTextClass}`}>QUICK FILTERS</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {smartFilters.map((filter) => (
                 <SmartPlaylistCard
@@ -196,14 +201,18 @@ export function PlaylistsTab() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-4">
+    <div className="max-w-7xl mx-auto">
       {/* Header Actions */}
+      <h2 className="text-xl font-bold text-white mb-2">Your Playlists</h2>
       <div className="flex flex-wrap gap-3 mb-6">
-        <Button onClick={() => setShowCreateModal(true)} className="gap-2">
+        <Button
+          onClick={() => setShowCreateModal(true)}
+          className={primaryGlassButtonClass}
+        >
           <Plus className="h-4 w-4" />
           New Playlist
         </Button>
-        <Button variant="outline" asChild className="gap-2">
+        <Button variant="outline" asChild className={glassButtonClass}>
           <Link to="/saved">
             <Bookmark className="h-4 w-4" />
             View Saved Mics
@@ -213,7 +222,7 @@ export function PlaylistsTab() {
 
       {/* Smart Filters */}
       <div className="mb-8">
-        <h3 className="text-sm font-medium text-muted-foreground mb-3">QUICK FILTERS</h3>
+        <h3 className={`mb-3 text-sm font-medium ${mutedTextClass}`}>QUICK FILTERS</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {smartFilters.map((filter) => (
             <SmartPlaylistCard
@@ -230,19 +239,19 @@ export function PlaylistsTab() {
 
       {/* User Playlists */}
       <div>
-        <h3 className="text-sm font-medium text-muted-foreground mb-3">
+        <h3 className={`mb-3 text-sm font-medium ${mutedTextClass}`}>
           YOUR PLAYLISTS {playlists.length > 0 && `(${playlists.length})`}
         </h3>
         
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <Loader2 className={`h-6 w-6 animate-spin ${mutedTextClass}`} />
           </div>
         ) : playlists.length === 0 ? (
-          <div className="text-center py-12 bg-muted/30 rounded-lg">
-            <Mic className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-            <h4 className="font-semibold text-base mb-1">Build your mic rotation</h4>
-            <p className="text-sm text-muted-foreground mb-5 max-w-sm mx-auto">
+          <div className={`py-12 text-center ${glassPanelClass}`}>
+            <Mic className={`mx-auto mb-3 h-10 w-10 ${mutedTextClass}`} />
+            <h4 className="mb-1 text-base font-semibold text-[#07111f] dark:text-white">Build your mic rotation</h4>
+            <p className={`mx-auto mb-5 max-w-sm text-sm ${mutedTextClass}`}>
               Group mics by night, borough, or vibe — just like a Spotify playlist, but for open mics.
             </p>
             <div className="flex flex-wrap gap-2 justify-center mb-4">
@@ -251,7 +260,7 @@ export function PlaylistsTab() {
                   key={name}
                   variant="outline"
                   size="sm"
-                  className="text-xs gap-1"
+                  className={`${glassButtonClass} text-xs`}
                   onClick={async () => {
                     try {
                       const newPlaylist = await createPlaylist({ name });
@@ -279,7 +288,7 @@ export function PlaylistsTab() {
                 </Button>
               ))}
             </div>
-            <Button onClick={() => setShowCreateModal(true)} size="sm">
+            <Button className={primaryGlassButtonClass} onClick={() => setShowCreateModal(true)} size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Create Custom Playlist
             </Button>

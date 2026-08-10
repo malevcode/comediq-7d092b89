@@ -4,7 +4,7 @@ const STRIP_APP_URL = "https://strip.comediq.us";
 
 const Strip = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-transparent">
       <PageHeader title="Carouseler" subtitle="Turn any clip into a carousel" />
       <iframe
         src={STRIP_APP_URL}

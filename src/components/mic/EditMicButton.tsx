@@ -38,7 +38,7 @@ export default function EditMicButton({ micUniqueIdentifier, micName }: EditMicB
       <Button
         size="sm"
         variant="outline"
-        className="w-full flex items-center justify-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-100"
+        className="w-full flex items-center justify-center gap-2 border-blue-300 text-blue-700 bg-white hover:text-blue hover:bg-gray-200"
         onClick={handleClick}
       >
         {user ? <Pencil className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}

@@ -44,6 +44,12 @@ export interface AudienceShow {
   // Source tracking - null means submitted directly through Comediq
   source: string | null;
   source_event_id: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  geocoded_at: string | null;
+  geocoding_provider: string | null;
+  geocoding_score: number | null;
+  geocoding_match_address: string | null;
 }
 
 export interface ShowRsvp {

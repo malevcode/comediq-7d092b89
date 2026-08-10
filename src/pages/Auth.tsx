@@ -580,7 +580,7 @@ const Auth = () => {
 
   const TierComparison = () => (
     <div className="grid gap-3 sm:grid-cols-[1.18fr_0.82fr]">
-      <div className="relative rounded-2xl border-2 border-[#1a5fb4] bg-[#1a5fb4]/5 p-4 shadow-sm">
+      <div className="relative rounded-2xl border-2 border-[#1a5fb4] bg-[#1a5fb4]/10 p-4 shadow-sm">
         <div className="absolute right-3 top-3 rounded-full bg-[#1a5fb4] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
           Best value
         </div>
@@ -658,7 +658,7 @@ const Auth = () => {
       <button
         type="button"
         onClick={handleGoogleSignIn}
-        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl text-white text-sm font-semibold shadow-sm transition-colors"
+        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl text-white/100 text-sm font-semibold shadow-sm transition-colors"
         style={{ background: BRAND_BLUE }}
       >
         <GoogleIcon />
@@ -749,7 +749,7 @@ const Auth = () => {
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
+          className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-white text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
         >
           <GoogleIcon />
           Continue with Google
@@ -1032,7 +1032,7 @@ const Auth = () => {
           >
             "The best tool for tracking NYC open mics. I use it every week before I hit the road."
           </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/20 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/60" />
           <div className="relative z-10 flex items-center gap-3">
             <span className="font-semibold text-lg tracking-tight">Comediq</span>
           </div>
@@ -1047,7 +1047,7 @@ const Auth = () => {
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: BRAND_BLUE }}>
               <Mic className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="font-semibold text-lg">Comediq</span>
+            <span className="text-lg font-semibold text-gray-900">Comediq</span>
           </div>
           <div className={step === 'choose_plan' ? 'w-full max-w-2xl' : 'w-full max-w-sm'}>{stepContent}</div>
         </div>

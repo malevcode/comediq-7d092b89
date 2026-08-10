@@ -93,9 +93,9 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
         variant="outline"
         size="sm"
         className={`flex items-center justify-center text-[11px] font-bold px-2 py-1 h-7 relative transition-all ${
-          hasActiveFilters 
-            ? 'bg-cyan-50 border-cyan-300 text-cyan-800 hover:bg-cyan-100' 
-            : 'bg-cyan-50 border-cyan-200 text-cyan-700 hover:bg-cyan-100'
+          hasActiveFilters
+            ? 'bg-white/30 border-0 text-[#1a5fb4] hover:bg-white/40 shadow-[0_20px_70px_rgba(2,10,30,0.16),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl dark:bg-[#102a53]/30 dark:!text-white dark:hover:bg-white/20 dark:hover:!text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)]'
+            : 'bg-white/25 border-0 text-gray-600 hover:bg-white/35 shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:!text-white/90 dark:hover:bg-white/20 dark:hover:!text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)]'
         }`}
       >
         <span>Filter</span>
@@ -108,16 +108,16 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
 
       {showFilters && (
         <>
-          <div 
-            className="fixed inset-0 bg-black/30 z-50 md:hidden" 
+          <div
+            className="fixed inset-0 bg-black/30 z-50 md:hidden"
             onClick={() => setShowFilters(false)}
           />
-          
+
           <div className="fixed md:absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto top-20 md:top-full md:right-0 md:mt-2 z-[9999] w-[92vw] max-w-sm md:w-72">
-            <Card className="shadow-lg border rounded-lg">
+            <Card className="rounded-lg border-[#07111f]/10 bg-white/30 text-gray-800 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#102a53]/25 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-sm text-foreground">Filter Open Mics</h3>
+                  <h3 className="font-semibold text-sm text-gray-900 dark:text-white">Filter Open Mics</h3>
                   <Button
                     onClick={() => setShowFilters(false)}
                     variant="ghost"
@@ -132,11 +132,11 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                   {/* Frequency + City Row */}
                   <div className="flex gap-2 items-end">
                     <div>
-                      <label className="text-xs font-medium mb-1 block text-foreground">Frequency</label>
+                      <label className="text-xs font-medium mb-1 block text-gray-600 dark:text-white/70">Frequency</label>
                       <select
                         value={filters.frequency || 'all'}
                         onChange={(e) => onFiltersChange({ ...filters, frequency: e.target.value as MicFrequency | 'all' })}
-                        className="w-auto px-2 py-1 text-xs border border-border rounded-md bg-background"
+                        className="w-auto px-2 py-1 text-xs border border-gray-200 rounded-md bg-white text-gray-900 dark:border-white/10 dark:bg-[#102a53]/20 dark:text-white"
                       >
                         {FREQUENCY_OPTIONS.map(opt => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -144,11 +144,11 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs font-medium mb-1 block text-foreground">City</label>
+                      <label className="text-xs font-medium mb-1 block text-gray-600 dark:text-white/70">City</label>
                       <select
                         value={filters.city}
                         onChange={(e) => onFiltersChange({ ...filters, city: e.target.value })}
-                        className="w-auto px-2 py-1 text-xs border border-border rounded-md bg-background"
+                        className="w-auto px-2 py-1 text-xs border border-gray-200 rounded-md bg-white text-gray-900 dark:border-white/10 dark:bg-[#102a53]/20 dark:text-white"
                       >
                         {cities.map((city) => (
                           <option key={city} value={city}>{city}</option>
@@ -159,7 +159,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
 
                   {/* Cost Filter */}
                   <div>
-                    <label className="text-xs font-medium mb-2 block text-foreground">
+                    <label className="text-xs font-medium mb-2 block text-gray-600 dark:text-white/70">
                       Cost: {formatCostValue(filters.costRange[0])} - {formatCostValue(filters.costRange[1])}
                     </label>
                     <div className="px-1">
@@ -177,11 +177,11 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                   {/* Borough Filter — NYC only */}
                   {filters.city === "New York" && (
                   <div>
-                    <label className="text-xs font-medium mb-1 block text-foreground">Borough</label>
+                    <label className="text-xs font-medium mb-1 block text-gray-600 dark:text-white/70">Borough</label>
                     <select
                       value={filters.borough}
                       onChange={(e) => onFiltersChange({ ...filters, borough: e.target.value })}
-                      className="w-full px-2 py-1 text-xs border border-border rounded-md bg-background"
+                      className="w-full px-2 py-1 text-xs border border-gray-200 rounded-md bg-white text-gray-900 dark:border-white/10 dark:bg-[#102a53]/20 dark:text-white"
                     >
                       {boroughs.map((borough) => (
                         <option key={borough} value={borough}>{borough}</option>
@@ -192,7 +192,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
 
                   {/* Time of Day Filter */}
                   <div>
-                    <label className="text-xs font-medium mb-1 block text-foreground">Time of Day</label>
+                    <label className="text-xs font-medium mb-1 block text-gray-600 dark:text-white/70">Time of Day</label>
                     <div className="grid grid-cols-3 gap-1">
                       {timeSlots.map((slot) => {
                         const active = filters.timeOfDay.includes(slot.id);
@@ -205,8 +205,8 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                             size="sm"
                             className={`text-xs h-7 px-1 ${
                               active
-                                ? 'bg-blue-50 border-blue-400 text-blue-700 hover:bg-blue-100'
-                                : 'border-border hover:bg-muted'
+                                ? 'bg-[#1a5fb4]/10 border-[#1a5fb4]/30 text-[#1a5fb4] hover:bg-[#1a5fb4]/20 dark:bg-[#102a53]/30 dark:border-white/20 dark:text-white dark:hover:bg-white/20'
+                                : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10'
                             }`}
                           >
                             {short}

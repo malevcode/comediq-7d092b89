@@ -2,30 +2,40 @@ import React from 'react';
 
 interface MapControlsProps {
   onRecenter: () => void;
+  onToggleFullscreen?: () => void;
   locationLoading: boolean;
+  isFullscreen?: boolean;
   isLoading?: boolean;
   geocodingProgress?: { current: number; total: number } | null;
   error?: string | null;
   onDismissError?: () => void;
-  loadedMicCount?: number;
-  backgroundLoading?: boolean;
 }
 
 export const MapControls: React.FC<MapControlsProps> = ({
   onRecenter,
+  onToggleFullscreen,
   locationLoading,
+  isFullscreen,
   isLoading,
   geocodingProgress,
   error,
-  onDismissError,
-  loadedMicCount,
-  backgroundLoading
+  onDismissError
 }) => {
   return (
     <>
-      {/* Recenter button */}
-      <div className="absolute top-2 left-2">
+      {/* Map action buttons */}
+      <div className="absolute bottom-10 right-2 z-10 flex flex-col gap-2">
+        {onToggleFullscreen && (
+          <button
+            type="button"
+            onClick={onToggleFullscreen}
+            className="bg-white hover:bg-blue-50 text-slate-900 px-3 py-2 rounded-lg shadow-lg text-sm font-medium transition-colors duration-200 border border-blue-100"
+          >
+            {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+          </button>
+        )}
         <button 
+          type="button"
           onClick={onRecenter}
           disabled={locationLoading}
           className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-3 py-2 rounded-lg shadow-lg text-sm font-medium transition-colors duration-200"
@@ -59,12 +69,17 @@ export const MapControls: React.FC<MapControlsProps> = ({
       
       {/* Error indicator */}
       {error && (
-        <div className="absolute top-4 left-4 bg-red-100 border border-red-300 p-2 rounded-lg shadow-lg max-w-xs">
+        <div className="pointer-events-auto absolute top-4 left-4 z-30 max-w-xs rounded-lg border border-red-300 bg-red-100 p-2 shadow-lg">
           <div className="text-xs text-red-600">{error}</div>
           {onDismissError && (
             <button 
-              onClick={onDismissError}
-              className="text-xs text-red-500 underline mt-1"
+              type="button"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onDismissError();
+              }}
+              className="mt-1 rounded px-1 py-0.5 text-xs font-medium text-red-600 underline hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-400"
             >
               Dismiss
             </button>
@@ -72,19 +87,6 @@ export const MapControls: React.FC<MapControlsProps> = ({
         </div>
       )}
 
-      {/* Loaded mic count indicator */}
-      {loadedMicCount !== undefined && (
-        <div className="absolute bottom-4 left-4 bg-white p-2 rounded-lg shadow-lg">
-          <div className="text-xs text-gray-600">
-            {loadedMicCount} mics loaded
-            {backgroundLoading && (
-              <div className="text-xs text-blue-600 mt-1">
-                Loading more...
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </>
   );
 }; 

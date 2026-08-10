@@ -7,8 +7,9 @@ import { ExternalLink } from 'lucide-react';
 
 export default function SponsorSection() {
   const { data: sponsor, isLoading } = useSponsorAd();
-  const { user } = useAuth();
+  const { user, subscriptionPlan } = useAuth();
 
+  if (subscriptionPlan !== 'free') return null;
   if (isLoading || !sponsor) return null;
 
   const handleClick = () => {
@@ -16,14 +17,14 @@ export default function SponsorSection() {
   };
 
   return (
-    <section className="py-10 bg-gradient-to-b from-white to-blue-50/30">
+    <section className="px-4 py-8">
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="flex items-center justify-center gap-2 mb-4">
-          <Badge variant="outline" className="text-xs text-muted-foreground border-border">
+          <Badge variant="outline" className="border-white/50 bg-white/80 text-xs text-muted-foreground backdrop-blur">
             Sponsored
           </Badge>
         </div>
-        <Card className="border-border bg-card shadow-md hover:shadow-lg transition-shadow">
+        <Card className="border-white/50 bg-white/30 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl transition-shadow hover:bg-white/40 hover:shadow-[0_34px_110px_rgba(4,20,55,0.22),0_12px_36px_rgba(4,20,55,0.12)] dark:bg-[#102a53]/20 dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
           <CardContent className="flex flex-col sm:flex-row items-center gap-6 p-6 sm:p-8">
             {sponsor.icon_url && (
               <a

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Sparkles, X } from 'lucide-react';
+import { invokeSupabaseFunction } from '@/utils/supabaseFunctions';
 
 const SUCCESS_PARAMS = [
   ['subscription', 'success'],
@@ -12,20 +14,47 @@ const SUCCESS_PARAMS = [
   ['subscribed', 'true'],
 ];
 
+const SYNC_PARAMS = [
+  ...SUCCESS_PARAMS,
+  ['billing', 'portal'],
+];
+
 export default function SubscriptionSuccessBanner() {
   const location = useLocation();
+  const { user, refreshProfile } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
+  const [shouldSync, setShouldSync] = useState(false);
+  const [hasSynced, setHasSynced] = useState(false);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const hasSuccessParam = SUCCESS_PARAMS.some(
       ([key, value]) => searchParams.get(key)?.toLowerCase() === value,
     );
+    const hasSyncParam = SYNC_PARAMS.some(
+      ([key, value]) => searchParams.get(key)?.toLowerCase() === value,
+    );
 
     if (hasSuccessParam) {
       setIsVisible(true);
     }
+
+    if (hasSyncParam) {
+      setShouldSync(true);
+      setHasSynced(false);
+    }
   }, [location.search]);
+
+  useEffect(() => {
+    if (!shouldSync || !user || hasSynced) return;
+
+    setHasSynced(true);
+    invokeSupabaseFunction('sync-subscription-status')
+      .finally(() => {
+        refreshProfile();
+        window.setTimeout(refreshProfile, 2000);
+      });
+  }, [hasSynced, refreshProfile, shouldSync, user]);
 
   useEffect(() => {
     if (!isVisible) return;

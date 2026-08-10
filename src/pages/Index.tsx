@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
@@ -14,15 +12,6 @@ import { generateOrganizationSchema, generateWebSiteSchema } from "@/utils/struc
 
 const Index = () => {
   const { user } = useAuth();
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -40,7 +29,8 @@ const Index = () => {
         url="https://comediq.us"
         structuredData={structuredData}
       />
-      <div className="min-h-screen pb-20 overflow-x-hidden">
+      <div className="relative overflow-x-hidden bg-transparent">
+        <div className="relative z-10">
         <PageHeader title="Comediq" subtitle="Comedy Starts Here" />
         <div className="pt-0">
           {user ? (
@@ -48,19 +38,23 @@ const Index = () => {
           ) : (
             <>
               <Hero />
-              <AppWaitlistSection />
+              <div className="relative">
+                <AppWaitlistSection />
+              </div>
 
               {/* Social Proof Bar */}
-              <div className="bg-[#1a5fb4] py-3">
-                <div className="max-w-6xl mx-auto px-4 flex items-center justify-center gap-6 sm:gap-12 text-white">
+              <div
+                className="landing-glass-surface-soft mx-4 rounded-2xl border py-3 transition-transform duration-300 hover:scale-[1.04] sm:mx-8"
+              >
+                <div className="mx-auto flex max-w-6xl items-center justify-center gap-6 px-4 text-[#07111f] dark:text-white sm:gap-12">
                   <div className="text-center">
-                    <div className="text-2xl sm:text-3xl font-bold">1,250+</div>
-                    <div className="text-xs sm:text-sm text-blue-200">comedians visit weekly</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-blue-600">1,250+</div>
+                    <div className="text-xs text-[#07111f]/60 dark:text-white/60 sm:text-sm">comedians visit weekly</div>
                   </div>
-                  <div className="w-px h-8 bg-white/30" />
+                  <div className="h-8 w-px bg-[#07111f]/10 dark:bg-white/10" />
                   <div className="text-center">
-                    <div className="text-2xl sm:text-3xl font-bold">500+</div>
-                    <div className="text-xs sm:text-sm text-blue-200">open mics tracked</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-blue-600">500+</div>
+                    <div className="text-xs text-[#07111f]/60 dark:text-white/60 sm:text-sm">open mics tracked</div>
                   </div>
                 </div>
               </div>
@@ -71,6 +65,7 @@ const Index = () => {
               <ShowTNPromo />
             </>
           )}
+        </div>
         </div>
       </div>
     </>

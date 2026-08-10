@@ -14,6 +14,7 @@ import { awardPoints } from '@/services/pointsService';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const BOROUGHS = ['Manhattan', 'Brooklyn', 'Queens', 'Bronx', 'Staten Island'];
+const glassFieldClass = "border-[#07111f]/10 bg-white/40 text-[#07111f] placeholder:text-[#07111f]/50 shadow-sm backdrop-blur-xl hover:bg-white/50 focus-visible:ring-[#1a5fb4]/30 dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder:text-white/50 dark:hover:bg-white/20";
 
 interface HostMicEditFormProps {
   micUniqueIdentifier: string;
@@ -94,7 +95,7 @@ export default function HostMicEditForm({ micUniqueIdentifier, onClose }: HostMi
             new_value: form[field as keyof typeof form],
           }));
         if (historyRows.length > 0) {
-          const { error: historyError } = await supabase.from('mic_edit_history').insert(historyRows);
+          const { error: historyError } = await (supabase as any).from('mic_edit_history').insert(historyRows);
           if (historyError) console.error('Failed to record edit history:', historyError);
         }
       }
@@ -142,7 +143,7 @@ export default function HostMicEditForm({ micUniqueIdentifier, onClose }: HostMi
         <div>
           <Label className="text-xs">Day</Label>
           <Select value={form.day} onValueChange={v => update('day', v)}>
-            <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+            <SelectTrigger className={`h-9 ${glassFieldClass}`}><SelectValue /></SelectTrigger>
             <SelectContent>
               {DAYS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
             </SelectContent>
@@ -151,7 +152,7 @@ export default function HostMicEditForm({ micUniqueIdentifier, onClose }: HostMi
         <div>
           <Label className="text-xs">Borough</Label>
           <Select value={form.borough} onValueChange={v => update('borough', v)}>
-            <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+            <SelectTrigger className={`h-9 ${glassFieldClass}`}><SelectValue /></SelectTrigger>
             <SelectContent>
               {BOROUGHS.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
             </SelectContent>
@@ -159,50 +160,50 @@ export default function HostMicEditForm({ micUniqueIdentifier, onClose }: HostMi
         </div>
         <div>
           <Label className="text-xs">Start Time</Label>
-          <Input className="h-9" value={form.start_time} onChange={e => update('start_time', e.target.value)} placeholder="7:00 PM" />
+          <Input className={`h-9 ${glassFieldClass}`} value={form.start_time} onChange={e => update('start_time', e.target.value)} placeholder="7:00 PM" />
         </div>
         <div>
           <Label className="text-xs">End Time</Label>
-          <Input className="h-9" value={form.latest_end_time} onChange={e => update('latest_end_time', e.target.value)} placeholder="9:00 PM" />
+          <Input className={`h-9 ${glassFieldClass}`} value={form.latest_end_time} onChange={e => update('latest_end_time', e.target.value)} placeholder="9:00 PM" />
         </div>
         <div>
           <Label className="text-xs">Cost</Label>
-          <Input className="h-9" value={form.cost} onChange={e => update('cost', e.target.value)} placeholder="Free" />
+          <Input className={`h-9 ${glassFieldClass}`} value={form.cost} onChange={e => update('cost', e.target.value)} placeholder="Free" />
         </div>
         <div>
           <Label className="text-xs">Stage Time</Label>
-          <Input className="h-9" value={form.stage_time} onChange={e => update('stage_time', e.target.value)} placeholder="5 minutes" />
+          <Input className={`h-9 ${glassFieldClass}`} value={form.stage_time} onChange={e => update('stage_time', e.target.value)} placeholder="5 minutes" />
         </div>
       </div>
 
       <div>
         <Label className="text-xs">Venue Name</Label>
-        <Input className="h-9" value={form.venue_name} onChange={e => update('venue_name', e.target.value)} />
+        <Input className={`h-9 ${glassFieldClass}`} value={form.venue_name} onChange={e => update('venue_name', e.target.value)} />
       </div>
 
       <div>
         <Label className="text-xs">Address</Label>
-        <Input className="h-9" value={form.location} onChange={e => update('location', e.target.value)} />
+        <Input className={`h-9 ${glassFieldClass}`} value={form.location} onChange={e => update('location', e.target.value)} />
       </div>
 
       <div>
         <Label className="text-xs">Neighborhood</Label>
-        <Input className="h-9" value={form.neighborhood} onChange={e => update('neighborhood', e.target.value)} />
+        <Input className={`h-9 ${glassFieldClass}`} value={form.neighborhood} onChange={e => update('neighborhood', e.target.value)} />
       </div>
 
       <div>
         <Label className="text-xs">Host(s)</Label>
-        <Input className="h-9" value={form.hosts_organizers} onChange={e => update('hosts_organizers', e.target.value)} />
+        <Input className={`h-9 ${glassFieldClass}`} value={form.hosts_organizers} onChange={e => update('hosts_organizers', e.target.value)} />
       </div>
 
       <div>
         <Label className="text-xs">Sign-Up Instructions</Label>
-        <Textarea className="min-h-[60px]" value={form.sign_up_instructions} onChange={e => update('sign_up_instructions', e.target.value)} />
+        <Textarea className={`min-h-[60px] ${glassFieldClass}`} value={form.sign_up_instructions} onChange={e => update('sign_up_instructions', e.target.value)} />
       </div>
 
       <div>
         <Label className="text-xs">Other Rules</Label>
-        <Textarea className="min-h-[60px]" value={form.other_rules} onChange={e => update('other_rules', e.target.value)} />
+        <Textarea className={`min-h-[60px] ${glassFieldClass}`} value={form.other_rules} onChange={e => update('other_rules', e.target.value)} />
       </div>
 
       <div className="flex gap-2 pt-1">

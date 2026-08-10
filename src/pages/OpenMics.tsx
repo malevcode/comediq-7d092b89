@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Search, HelpCircle, LogIn, Plus } from "lucide-react";
+import { Search, HelpCircle, LogIn, Plus, Map, ChevronDown } from "lucide-react";
 import SEO from "@/components/SEO";
 import { generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,6 @@ import { useOpenMics } from "@/hooks/useOpenMics";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import MicDetailModal from "@/components/MicDetailModal";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import { MicRequestFormData } from "@/components/host/AddMicRequestForm";
 import { EditableMicCard } from "@/components/EditableMicCard";
@@ -21,6 +20,8 @@ import MicFilters, { MicFilters as MicFiltersType } from "@/components/MicFilter
 import PageHeader from "@/components/PageHeader";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import OpenMicsLoadingScreen from "@/components/OpenMicsLoadingScreen";
+import { OpenMicsMapRefactored } from "@/components/map";
+import MicDetailModal from "@/components/MicDetailModal";
 
 
 
@@ -36,6 +37,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const [showKey, setShowKey] = useState(false);
   const [visibleCount, setVisibleCount] = useState(100);
   const [showInlineCard, setShowInlineCard] = useState(false);
+  const [showMapView, setShowMapView] = useState(false);
 
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
@@ -350,13 +352,20 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       .sort((a, b) => new Date(b.submissionDate!).getTime() - new Date(a.submissionDate!).getTime());
   };
 
+  const getActiveTabMics = () => {
+    if (activeTab === "new") return getNewMics();
+    if (activeTab === "liked") return getFilteredMics("liked");
+    if (daysOfWeek.includes(activeTab)) return getFilteredMics("day", activeTab);
+    return getFilteredMics("next");
+  };
+
   const renderMicContent = (filteredMics: OpenMic[], tabName: string) => {
     const micsToShow = filteredMics;
 
     return (
       <>
-        <div className="mb-4">
-          <p className="text-xs text-gray-500">
+        <div className="mb-4 rounded-xl border border-[#07111f]/10 bg-white/25 px-3 py-2 text-[#07111f] shadow-[0_24px_80px_rgba(4,20,55,0.16),0_8px_28px_rgba(4,20,55,0.08)] backdrop-blur-2xl dark:border-0 dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34),0_8px_28px_rgba(2,10,30,0.2)]">
+          <p className="text-xs text-[#07111f]/70 dark:text-white/70">
             Showing {Math.min(visibleCount, micsToShow.length)} of {micsToShow.length}
             {tabName === "next" ? " upcoming" : tabName === "liked" ? " liked" : tabName === "new" ? " new" : ""} open mic
             {micsToShow.length !== 1 ? "s" : ""}
@@ -365,12 +374,19 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           </p>
         </div>
 
-        <OpenMicsDetailedList mics={micsToShow} visibleCount={visibleCount} setVisibleCount={setVisibleCount} showSponsor={activeTab === "next"} showMicOfDay={activeTab === "next"} />
+        <OpenMicsDetailedList
+          mics={micsToShow}
+          visibleCount={visibleCount}
+          setVisibleCount={setVisibleCount}
+          showSponsor={activeTab === "next"}
+          showMicOfDay={activeTab === "next"}
+          onOpenMic={setSelectedMic}
+        />
 
         {micsToShow.length === 0 && (
-          <div className="text-center py-12">
+          <div className="rounded-xl bg-white/10 px-4 py-12 text-center text-white shadow-[0_24px_80px_rgba(2,10,30,0.34),0_8px_28px_rgba(2,10,30,0.2)] backdrop-blur-2xl">
             <div className="text-4xl mb-3">🎤</div>
-            <p className="text-muted-foreground font-medium">
+            <p className="text-white/80 font-medium">
               {tabName === "liked"
                 ? "No liked open mics yet"
                 : tabName === "new"
@@ -381,7 +397,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                         tabName !== "next" && tabName !== "liked" ? ` for ${tabName}` : ""
                       }`}
             </p>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-white/60 mt-1">
               {tabName === "liked"
                 ? "Start liking mics to see them here!"
                 : tabName === "new"
@@ -516,7 +532,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
   if (error && openMics.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-transparent flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <div className="text-4xl mb-3">🎤</div>
           <p className="text-foreground font-semibold mb-1">Live mic data is temporarily unavailable</p>
@@ -531,7 +547,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     );
   }
 
-  const handleAddToSchedule = (_showData: any) => {};
+  const handleAddToSchedule = (_showData: unknown) => {};
 
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Home', url: 'https://comediq.us' },
@@ -545,6 +561,11 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const seoDescription = filters.borough !== "All"
     ? `Discover comedy open mics in ${filters.borough}. Real-time schedules, venue details, and comedian reviews.`
     : "Find every comedy open mic in NYC. Real-time schedules, venue details, comedian reviews, and set tracking.";
+  const tabListLayoutClass = user
+    ? "grid grid-cols-5 lg:grid-cols-10"
+    : "flex flex-wrap justify-center lg:grid lg:grid-cols-9";
+  const loggedOutMobileTabClass = !user ? "basis-[calc((100%_-_1rem)_/_5)] lg:basis-auto" : "";
+  const tabTriggerClass = `text-xs py-1 px-1 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white ${loggedOutMobileTabClass}`;
 
   return (
     <>
@@ -554,18 +575,18 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
         url="https://comediq.us/open-mics"
         structuredData={breadcrumbSchema}
       />
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
+      <div className="min-h-screen bg-transparent pb-8">
         {!embedded && <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />}
 
-      <div className={`max-w-7xl mx-auto px-4 ${embedded ? 'pt-3' : 'pt-32 sm:pt-36'} pb-0`}>
+      <div className={`max-w-7xl mx-auto px-4 ${embedded ? 'pt-3' : 'page-content-offset'} pb-0`}>
         {/* Key/Legend */}
         {showKey && (
             <div className="block mb-3">
-              <div className="bg-orange-50 p-3 border border-orange-200 rounded-lg">
+              <div className="rounded-xl bg-white/10 p-3 text-white shadow-[0_24px_80px_rgba(2,10,30,0.34),0_8px_28px_rgba(2,10,30,0.2)] backdrop-blur-2xl">
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
                   {/* Example Tile */}
                   <div>
-                    <p className="text-xs text-gray-600 mb-2 font-medium">Example:</p>
+                    <p className="text-xs text-white/70 mb-2 font-medium">Example:</p>
                     <Card className="border-l-4 border-l-cyan-500 bg-yellow-100 w-24 h-24">
                       <CardContent className="p-2 h-full flex flex-col justify-between">
                         <div className="flex flex-col h-full justify-between">
@@ -584,7 +605,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
                   {/* Borough Legend */}
                   <div>
-                    <p className="text-xs text-gray-600 mb-2 font-medium">Left border = Borough:</p>
+                    <p className="text-xs text-white/70 mb-2 font-medium">Left border = Borough:</p>
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="flex items-center gap-1">
                         <div className="w-2 h-3 bg-cyan-500 rounded-sm flex-shrink-0"></div>
@@ -609,14 +630,14 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                     </div>
                     
                     <div className="mt-3">
-                      <p className="text-xs text-gray-600 mb-1 font-medium">Format:</p>
+                      <p className="text-xs text-white/70 mb-1 font-medium">Format:</p>
                       <p className="text-xs">Name → Time Borough → <span className="text-green-700 font-bold">Cost</span> | <span className="text-orange-700 font-bold">Mins</span></p>
                     </div>
                   </div>
 
                   {/* Time Categories Legend */}
                   <div>
-                    <p className="text-xs text-gray-600 mb-2 font-medium">Time Categories:</p>
+                    <p className="text-xs text-white/70 mb-2 font-medium">Time Categories:</p>
                     <div className="space-y-1 text-xs">
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-3 bg-blue-50 rounded-sm border"></div>
@@ -640,15 +661,15 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
       <div className="max-w-7xl mx-auto px-4 py-0">
         {/* Search and Filters */}
-        <div className={`bg-white rounded-xl shadow-lg p-3 mb-3 block`}>
+        <div className="rounded-xl bg-white/25 p-3 mb-3 block text-gray-700 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
           <div className="flex flex-row gap-3 items-center">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray dark:text-white/40" />
               <Input
                 placeholder="Search venues, neighborhoods, or open mic names..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 py-2 text-sm"
+                className="pl-10 py-2 text-sm border-0 bg-white/10 text-gray-900 placeholder:text-gray-400 focus-visible:ring-gray-200 shadow-[0_12px_38px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:bg-[#102a53]/20 dark:text-white dark:placeholder:text-white/50 dark:focus-visible:ring-[#8ec5ff]/50 dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]"
               />
             </div>
 
@@ -657,14 +678,14 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                 <select
                   value={filters.city}
                   onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-                  className="appearance-none pl-2 pr-5 py-1 h-7 w-16 text-[11px] font-bold rounded-md bg-blue-600 text-white border border-blue-700 shadow-sm hover:bg-blue-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
+                  className="force-white-text appearance-none pl-2 pr-5 py-1 h-7 w-16 text-[11px] font-bold rounded-md bg-blue-600 border border-blue-400 shadow-sm hover:bg-blue-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
                   aria-label="Select city"
                 >
                   {cities.map((city) => (
                     <option key={city.value} value={city.value} className="bg-white text-gray-900">{city.label}</option>
                   ))}
                 </select>
-                <svg className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 text-white" fill="none" stroke="white" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
@@ -683,24 +704,48 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
         {/* Day Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full ${user ? "grid-cols-10" : "grid-cols-9"} mb-6 h-9 gap-1.5`}>
-            <TabsTrigger value="next" className="text-xs py-1 px-1">
+          <TabsList className={`mb-6 h-auto w-full gap-1 border-0 bg-white/25 p-2 text-gray-500 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-blue-600 dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)] ${tabListLayoutClass}`}>
+            <TabsTrigger value="next" className={tabTriggerClass}>
               Next
             </TabsTrigger>
-            <TabsTrigger value="new" className="text-xs py-1 px-0.5">
+            <TabsTrigger value="new" className={tabTriggerClass}>
               New
             </TabsTrigger>
             {user && (
-              <TabsTrigger value="liked" className="text-xs py-1 px-1">
+              <TabsTrigger value="liked" className={tabTriggerClass}>
                 ❤️
               </TabsTrigger>
             )}
             {daysOfWeek.map((day) => (
-              <TabsTrigger key={day} value={day} className="text-xs py-1 px-1">
+              <TabsTrigger key={day} value={day} className={tabTriggerClass}>
                 {day.slice(0, 3)}
               </TabsTrigger>
             ))}
           </TabsList>
+          
+          <div className="mb-4 rounded-xl bg-white/25 p-3 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white">
+            <button
+                type="button"
+                onClick={() => setShowMapView((open) => !open)}
+                className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-semibold hover:bg-white/20 dark:hover:bg-white/10"
+                aria-expanded={showMapView}
+            >
+                <span className="inline-flex items-center gap-2">
+                    <Map className="h-4 w-4" />
+                    Map View
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${showMapView ? "rotate-180" : ""}`} />
+            </button>
+          
+            {showMapView && (
+               <div className="mt-3">
+                    <OpenMicsMapRefactored
+                        mics={getActiveTabMics()}
+                        onMicSelect={setSelectedMic}
+                    />
+               </div>
+            )}
+          </div>
 
           <TabsContent value="next" className="mt-2">
             {showInlineCard && (
@@ -731,12 +776,14 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
         </Tabs>
       </div>
 
-      {/* Modal */}
-      {selectedMic && (
-        <MicDetailModal mic={selectedMic} onClose={() => setSelectedMic(null)} onAddToSchedule={handleAddToSchedule} />
-      )}
-
       </div>
+      {selectedMic && (
+        <MicDetailModal
+          mic={selectedMic}
+          onClose={() => setSelectedMic(null)}
+          onAddToSchedule={handleAddToSchedule}
+        />
+      )}
     </>
   );
 };

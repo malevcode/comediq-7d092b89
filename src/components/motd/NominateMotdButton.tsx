@@ -83,7 +83,7 @@ export default function NominateMotdButton({ micUniqueIdentifier, micName, varia
         type="button"
         onClick={handleClick}
         disabled={disabled}
-        className="inline-flex items-center gap-1 text-[11px] text-amber-700 hover:text-amber-900 hover:underline disabled:opacity-60 disabled:no-underline disabled:cursor-not-allowed"
+        className="inline-flex items-center gap-1 text-[11px] text-amber-700 dark:text-amber-600 hover:text-amber-900 dark:hover:text-amber-700 hover:underline disabled:opacity-60 disabled:no-underline disabled:cursor-not-allowed"
         title={
           alreadyNominated
             ? 'Already nominated today — go upvote it!'
@@ -109,7 +109,7 @@ export default function NominateMotdButton({ micUniqueIdentifier, micName, varia
       size="sm"
       variant="outline"
       disabled={nominate.isPending || alreadyNominated || userAlreadyUsedToday}
-      className="w-full flex items-center justify-center gap-2 border-amber-400 text-amber-700 hover:bg-amber-50"
+      className="w-full flex items-center justify-center gap-2 border-amber-400 text-amber-700 dark:text-amber-600 hover:bg-amber-50"
       title={
         alreadyNominated
           ? 'Already nominated today — go upvote it!'

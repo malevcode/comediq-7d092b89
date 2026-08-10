@@ -208,7 +208,7 @@ export function useMicPlaylists() {
 }
 
 // Hook for fetching items in a specific playlist
-export function usePlaylistItems(playlistId: string) {
+export function usePlaylistItems(playlistId: string, enabled = true) {
   const { user } = useAuth();
 
   const { data: items = [], isLoading, error } = useQuery({
@@ -223,7 +223,7 @@ export function usePlaylistItems(playlistId: string) {
       if (error) throw error;
       return data as MicPlaylistItem[];
     },
-    enabled: !!playlistId && !!user,
+    enabled: enabled && !!playlistId && !!user,
     staleTime: 10 * 60 * 1000,
   });
 

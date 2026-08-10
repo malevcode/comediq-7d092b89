@@ -2779,6 +2779,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_current_user_admin: { Args: never; Returns: boolean }
       resolve_motd_for: { Args: { target_date: string }; Returns: string }
     }
     Enums: {

@@ -55,7 +55,7 @@ export default function ClaimMicButton({ micUniqueIdentifier, micName, venueName
   // Verified host: show edit toggle
   if (isVerifiedHost) {
     return (
-      <Card className="border-primary/30 bg-primary/5">
+      <Card className="border-primary/30 bg-primary/10">
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-primary" />
@@ -95,13 +95,13 @@ export default function ClaimMicButton({ micUniqueIdentifier, micName, venueName
   // No claim yet
   return (
     <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-      <Shield className="w-3 h-3" />
-      <span>Are you the host?</span>
+      <Shield className="text-white/70 w-3 h-3" />
+      <span className="text-white/70">Are you the host?</span>
       <button
         type="button"
         onClick={handleClaim}
         disabled={claimMutation.isPending}
-        className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline disabled:opacity-60 disabled:no-underline disabled:cursor-not-allowed"
+        className="inline-flex items-center gap-1 text-[11px] text-primary text-white hover:underline disabled:opacity-60 disabled:no-underline disabled:cursor-not-allowed"
       >
         {claimMutation.isPending ? (
           'Submitting...'

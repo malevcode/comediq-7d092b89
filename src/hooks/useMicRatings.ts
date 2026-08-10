@@ -31,7 +31,7 @@ export const useMicRatings = (micUniqueIdentifier?: string) => {
   const { data: ratingCounts } = useQuery({
     queryKey: ['micRatingCounts', micUniqueIdentifier],
     queryFn: async () => {
-      if (!micUniqueIdentifier) return { likes: 0, dislikes: 0 };
+      if (!user || !micUniqueIdentifier) return { likes: 0, dislikes: 0 };
       
       const { data, error } = await supabase
         .from('mic_like_counts') // new VIEW
@@ -41,7 +41,7 @@ export const useMicRatings = (micUniqueIdentifier?: string) => {
       if (error) throw error;
       return data ?? { likes: 0, dislikes: 0 };
     },
-    enabled: !!micUniqueIdentifier,
+    enabled: !!user && !!micUniqueIdentifier,
   });
 
   // Rate a mic (like or dislike)

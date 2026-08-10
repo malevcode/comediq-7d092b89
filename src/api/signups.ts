@@ -56,6 +56,7 @@ export async function getOrCreateNextEvent(micId: string, micDay: string, micSta
     .rpc('get_or_create_system_host', { mic_id_param: micId });
 
   if (hostError) throw hostError;
+  if (!hostId) throw new Error('Could not find or create a signup host for this mic.');
 
   const nextDate = getNextOccurrence(micDay);
   const eventDate = nextDate.toISOString().split('T')[0];
@@ -156,7 +157,11 @@ export async function fetchSignupEvents(micId: string) {
 }
 
 // Sign up for a spot (authenticated)
-export async function signUpForEvent(eventId: string, notes?: string) {
+export async function signUpForEvent(eventId: string, signupInfo?: {
+  name?: string;
+  phone?: string;
+  notes?: string;
+}) {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) throw new Error('Must be authenticated');
@@ -166,7 +171,9 @@ export async function signUpForEvent(eventId: string, notes?: string) {
     .insert({
       event_id: eventId,
       user_id: user.id,
-      notes,
+      guest_name: signupInfo?.name?.trim() || null,
+      guest_phone: signupInfo?.phone?.trim() || null,
+      notes: signupInfo?.notes?.trim() || null,
       status: 'confirmed'
     })
     .select()

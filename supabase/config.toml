@@ -16,6 +16,10 @@ verify_jwt = false
 enabled = true
 verify_jwt = false
 
+[functions.sync-subscription-status]
+enabled = true
+verify_jwt = false
+
 [functions.get-mapbox-token]
 enabled = true
 verify_jwt = true

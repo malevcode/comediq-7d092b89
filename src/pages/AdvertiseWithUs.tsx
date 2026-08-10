@@ -40,7 +40,7 @@ const AdvertiseWithUs = () => {
   const [adMessage, setAdMessage] = useState("");
   const [colorTheme, setColorTheme] = useState<ColorTheme>("cream");
   const theme = colorThemes[colorTheme];
-  return <div className="min-h-screen bg-gradient-to-br from-[#f8f0e1] to-white pt-6 pb-24">
+  return <div className="min-h-screen bg-transparent pt-6 pb-24">
       <div className="max-w-2xl mx-auto px-4">
         {/* Back Button */}
         <Link to="/" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6">

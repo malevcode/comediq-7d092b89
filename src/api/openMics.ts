@@ -51,8 +51,7 @@ export async function fetchOpenMics(options: FetchOpenMicsOptions = {}) {
     return [];
   }
 
-  // Filter and transform data
-  let mics = data.filter((mic: any) => !activeOnly || mic.active);
+  const mics = data.filter((mic: any) => !activeOnly || mic.active);
 
   // Map to display format
   return mics.map((mic: any) => ({
@@ -99,7 +98,7 @@ export async function fetchAllMics() {
 export async function updateMic(uniqueId: string, updates: Partial<OpenMicDisplay>) {
   // Convert display format to database format
   const dbUpdates: any = {};
-  
+
   if (updates['Open Mic'] !== undefined) dbUpdates.open_mic = updates['Open Mic'];
   if (updates['Day'] !== undefined) dbUpdates.day = updates['Day'];
   if (updates['Start Time'] !== undefined) dbUpdates.start_time = updates['Start Time'];
