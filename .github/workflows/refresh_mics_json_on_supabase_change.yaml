@@ -1,45 +1,44 @@
-name: Refresh mics.json
+name: Refresh mics.json after Supabase change
 
 on:
-  schedule:
-    # 9 PM in New York. GitHub cron is UTC, so run during both daylight and
-    # standard time windows and let the first step keep only the true 9 PM run.
-    - cron: "0 1 * * *"
-    - cron: "0 2 * * *"
-  workflow_dispatch: {}
+  repository_dispatch:
+    types: [supabase-mics-changed]
+  workflow_dispatch:
+    inputs:
+      delay_seconds:
+        description: "Seconds to wait before exporting mics.json"
+        required: false
+        default: "150"
 
 permissions:
   contents: write
 
+concurrency:
+  group: refresh-mics-json-after-supabase-change
+  cancel-in-progress: false
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
-      - name: Check New York time
-        id: run_time
+      - name: Wait for Supabase changes to settle
         env:
-          TZ: America/New_York
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$(date +%H)" = "21" ]; then
-            echo "should_run=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "should_run=false" >> "$GITHUB_OUTPUT"
-          fi
+          DELAY_SECONDS: ${{ github.event.inputs.delay_seconds || '150' }}
+        run: sleep "$DELAY_SECONDS"
 
       - name: Checkout
-        if: steps.run_time.outputs.should_run == 'true'
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.client_payload.ref || github.ref_name }}
 
       - name: Set up Node
-        if: steps.run_time.outputs.should_run == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "22"
 
       - name: Export mics from Supabase
-        if: steps.run_time.outputs.should_run == 'true'
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -50,7 +49,6 @@ jobs:
         run: npm run export:mics
 
       - name: Commit updated mics.json
-        if: steps.run_time.outputs.should_run == 'true'
         run: |
           if git diff --quiet -- public/mics.json; then
             echo "public/mics.json is already up to date."
@@ -60,6 +58,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add public/mics.json
-          git commit -m "Refresh mics.json"
+          git commit -m "Refresh mics.json after Supabase change"
           git pull --rebase
           git push

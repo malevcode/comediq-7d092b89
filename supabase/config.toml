@@ -47,3 +47,7 @@ verify_jwt = true
 [functions.refresh-weekly-top-mics]
 enabled = true
 verify_jwt = false
+
+[functions.dispatch-mics-json-refresh]
+enabled = true
+verify_jwt = false
