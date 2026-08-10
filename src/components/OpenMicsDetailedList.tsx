@@ -222,6 +222,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
   const [distance, setDistance] = useState<string | null>(null);
   const [distanceLoading, setDistanceLoading] = useState(false);
   const isFinished = hasMicAlreadyHappenedToday(mic);
+  const [showMiniMap, setShowMiniMap] = useState(false);
 
   // Helper to get borough outline color
   const getBoroughOutline = (borough: string) => {
@@ -262,8 +263,8 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
   
   const isComediqPartner = mic.signupMethod === 'comediq_slots' || mic.slotsEnabled;
   const cardSurfaceClass = isComediqPartner
-    ? "border-[#07111f]/10 border-l-4 bg-white/80 text-[#07111f] shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-[#102a53]/40 dark:text-white dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]"
-    : "border-[#07111f]/10 border-l-4 bg-white/80 text-[#07111f] shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-[#102a53]/40 dark:text-white dark:shadow-[0_12px_38px_rgba(2,10,30,0.22)]";
+    ? "border-[#07111f]/10 border-l-4 bg-white/25 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]"
+    : "border-[#07111f]/10 border-l-4 bg-white/25 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.42),0_10px_32px_rgba(2,10,30,0.26)]";
   const cardStyle: React.CSSProperties = {
     borderLeftColor: isComediqPartner ? "#8ec5ff" : getBoroughOutline(mic.borough),
     ...(mic.coverImageUrl ? {
@@ -276,7 +277,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
   return (
     <div
       ref={(el) => onRegisterRow?.(mic.uniqueIdentifier, el)}
-      className={`flex pb-1 mb-0 flex-col md:flex-row w-full rounded-xl p-2.5 gap-0.5 md:gap-3 overflow-x-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_22px_80px_rgba(2,10,30,0.34)] backdrop-blur-xl transition-transform duration-300 hover:scale-[1.01] ${cardSurfaceClass} ${flash ? 'ring-2 ring-yellow-400 ring-offset-2' : ''}`}
+      className={`flex pb-1 mb-0 flex-col md:flex-row w-full rounded-xl p-2.5 gap-0.5 md:gap-3 overflow-x-hidden transition-transform duration-300 hover:scale-[1.01] hover:bg-white/35 hover:shadow-[0_34px_110px_rgba(4,20,55,0.22),0_12px_36px_rgba(4,20,55,0.12)] dark:hover:bg-white/16 dark:hover:shadow-[0_34px_110px_rgba(2,10,30,0.5),0_12px_36px_rgba(2,10,30,0.3)] ${cardSurfaceClass} ${flash ? 'ring-2 ring-yellow-400 ring-offset-2' : ''}`}
       id={mic.id}
       style={cardStyle}
     >
@@ -299,12 +300,12 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
           {/* Right-aligned traffic light + frequency pill */}
           <div className="flex-1 flex justify-end items-center gap-1">
             {isComediqPartner && (
-              <span className="inline-flex items-center rounded-full border border-[#1a5fb4]/20 bg-[#1a5fb4]/10 px-1.5 py-0 text-[9px] font-semibold text-[#1a5fb4] whitespace-nowrap dark:border-white/20 dark:bg-white/10 dark:text-[#8ec5ff]">
+              <span className="inline-flex items-center rounded-full border border-[#1a5fb4]/20 bg-[#1a5fb4]/10 px-1.5 py-0 text-[9px] font-semibold text-[#1a5fb4] whitespace-nowrap dark:border-white/20 dark:bg-[#102a53]/20 dark:text-[#8ec5ff]">
                 Comediq
               </span>
             )}
             {mic.frequency && mic.frequency !== 'weekly' && (
-              <span className="inline-flex items-center rounded-full border border-[#07111f]/10 bg-[#07111f]/10 px-1.5 py-0 text-[10px] font-medium text-[#07111f]/60 whitespace-nowrap dark:border-white/10 dark:bg-white/10 dark:text-white/60">
+              <span className="inline-flex items-center rounded-full border border-[#07111f]/10 bg-[#07111f]/10 px-1.5 py-0 text-[10px] font-medium text-[#07111f]/60 whitespace-nowrap dark:border-white/10 dark:bg-[#102a53]/20 dark:text-white/60">
                 {FREQUENCY_LABELS[mic.frequency]}
               </span>
             )}
@@ -379,7 +380,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
       {/* Right: Expanded Details & Actions */}
       <div className="w-full md:flex-[1.2] flex flex-col justify-center gap-0">
         {expanded && (
-          <div className="mb-2 flex flex-col gap-1.5 rounded-md bg-white/70 p-2 text-[#07111f]/70 shadow-[0_10px_30px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:bg-white/10 dark:text-white/70 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_22px_80px_rgba(2,10,30,0.34)]">
+          <div className="mb-2 flex flex-col gap-1.5 rounded-md bg-white/25 p-2 text-[#07111f]/70 shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white/70 dark:shadow-[0_24px_80px_rgba(2,10,30,0.34),0_8px_28px_rgba(2,10,30,0.2)]">
             {/* Nominate for Mic of the Day — subtle inline text link */}
             <div onClick={(e) => e.stopPropagation()}>
               <NominateMotdButton
@@ -391,7 +392,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
 
             {mic.legacyTag && (
               <div className="flex items-center gap-1 text-[10px]">
-                  <span className="inline-flex items-center rounded-full border border-[#07111f]/10 bg-[#07111f]/10 px-1.5 py-0 font-medium text-[#07111f]/60 dark:border-white/10 dark:bg-white/10 dark:text-white/60">
+                  <span className="inline-flex items-center rounded-full border border-[#07111f]/10 bg-[#07111f]/10 px-1.5 py-0 font-medium text-[#07111f]/60 dark:border-white/10 dark:bg-[#102a53]/20 dark:text-white/60">
                   {mic.legacyTag}
                 </span>
               </div>
@@ -410,12 +411,25 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
               <a href={getMapUrl(mic.location, mic.venueName)} target="_blank" rel="noopener noreferrer" className="flex flex-row gap-2 items-center hover:underline font-normal">
                 <MapPin className="w-3 h-3" /> {mic.location}
               </a>
-              <MicMiniMap
-                location={mic.location}
-                venueName={mic.venueName}
-                latitude={mic.latitude}
-                longitude={mic.longitude}
-              />
+                      
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowMiniMap((open) => !open)}
+                className="mt-2 h-7 w-fit text-xs"
+              >
+                {showMiniMap ? "Hide map" : "Show map"}
+              </Button>
+
+              {showMiniMap && (
+                <MicMiniMap
+                  location={mic.location}
+                  venueName={mic.venueName}
+                  latitude={mic.latitude}
+                  longitude={mic.longitude}
+                />
+              )}
             </div>
             {mic.otherRules && (
               <div className="mt-2 border-t border-[#07111f]/10 pt-2 text-xs dark:border-white/10">
@@ -620,7 +634,7 @@ export default function OpenMicsDetailedList({
           <MicOfTheDayCard variant="premium" onSelect={handleSelectMicOfDay} />
         ) : showSponsor ? (
           // Fallback to sponsor ad if no MOTD is set today
-          <SponsorCard placement="mic_list" className="border-white/10 bg-[#102a53]/80 text-white shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl" />
+          <SponsorCard placement="mic_list" className="border-white/10 bg-white/10 text-white shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)] backdrop-blur-2xl" />
         ) : null
       )}
       {validMics.slice(0, visibleCount).map((mic) => (

@@ -87,7 +87,7 @@ const AppWaitlistSection = () => {
       id="app-waitlist"
       className="px-4 py-8"
     >
-      <div className="mx-auto max-w-2xl rounded-2xl border border-[#07111f]/10 bg-white/80 p-5 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.14)] backdrop-blur-xl transition-transform duration-300 hover:scale-[1.01] dark:border-0 dark:bg-[#102a53]/80 dark:text-white dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_22px_80px_rgba(2,10,30,0.34)]">
+      <div className="landing-glass-surface mx-auto max-w-2xl rounded-2xl border p-5 text-[#07111f] transition-transform duration-300 hover:scale-[1.01] dark:text-white">
         <div className="text-center mb-5">
           <span className="inline-block text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">
             Coming Soon
@@ -102,7 +102,7 @@ const AppWaitlistSection = () => {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 rounded-2xl bg-[#1a5fb4]/10 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] dark:bg-white/10 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+          className="space-y-4 rounded-2xl bg-[#1a5fb4]/10 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] dark:bg-[#102a53]/20 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>

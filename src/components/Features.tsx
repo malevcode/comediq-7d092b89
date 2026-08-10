@@ -22,7 +22,7 @@ const Features = () => {
   return (
     <section className="px-4 py-8">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="grid grid-cols-2 gap-4 rounded-2xl border border-[#07111f]/10 bg-white/80 p-5 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.14)] backdrop-blur-xl transition-transform duration-300 hover:scale-[1.01] dark:border-0 dark:bg-[#102a53]/80 dark:text-white dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_22px_80px_rgba(2,10,30,0.34)] md:gap-10">
+        <div className="landing-glass-surface grid grid-cols-2 gap-4 rounded-2xl border p-5 text-[#07111f] transition-transform duration-300 hover:scale-[1.01] dark:text-white md:gap-10">
           {/* Comedians Column */}
           <div className="min-w-0">
             <h2 className="mb-4 text-base font-bold text-[#07111f] dark:text-white md:text-xl">
@@ -54,7 +54,7 @@ const Features = () => {
             <div className="space-y-2.5">
               {audienceFeatures.map((f, i) => (
                 <div key={i} className="flex items-start gap-2">
-                  <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-[#1a5fb4]/10 dark:bg-white/10">
+                  <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-[#1a5fb4]/10 dark:bg-[#102a53]/20">
                     {f.icon}
                   </div>
                   <div className="min-w-0">

@@ -5,7 +5,7 @@ const ShowTNPromo = () => {
     <section className="px-4 py-8 pt-0">
       <div className="max-w-4xl mx-auto px-4">
         <div
-          className="block rounded-3xl border border-[#07111f]/10 bg-white/80 p-6 shadow-[0_18px_60px_rgba(4,20,55,0.14)] backdrop-blur-xl transition-all duration-300 hover:scale-[1.01] dark:border-0 dark:bg-[#102a53]/80 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_22px_80px_rgba(2,10,30,0.34)] sm:p-10"
+          className="landing-glass-surface block rounded-3xl border p-6 transition-all duration-300 hover:scale-[1.01] sm:p-10"
         >
           <div className="flex flex-col items-center text-center text-[#07111f] dark:text-white">
             <h2 className="text-3xl sm:text-5xl font-bold mb-3">
@@ -15,7 +15,7 @@ const ShowTNPromo = () => {
               Your Laugh Pass to a Comedy Show Tonight
             </p>
 
-            <div className="mb-6 w-full max-w-xl rounded-2xl border border-[#07111f]/10 bg-[#1a5fb4]/10 p-5 dark:border-white/10 dark:bg-white/10 sm:p-6">
+            <div className="landing-glass-inner mb-6 w-full max-w-xl rounded-2xl border bg-[#1a5fb4]/10 p-5 dark:bg-[#102a53]/20 sm:p-6">
               <div className="flex items-center justify-center gap-3 mb-3">
                 <Tickets className="w-6 h-6 text-xs font-mono rounded-sm bg-destructive-foreground text-primary-foreground" />
                 <span className="text-2xl sm:text-3xl font-bold">
@@ -30,11 +30,11 @@ const ShowTNPromo = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-xl mb-6 text-left">
-              <div className="rounded-xl border border-[#07111f]/10 bg-white/60 p-3 dark:border-white/10 dark:bg-white/10 sm:p-4">
+              <div className="landing-glass-inner rounded-xl border p-3 sm:p-4">
                 <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#1a5fb4] dark:text-blue-200">Free Tier</p>
                 <p className="text-sm sm:text-base">Top open mics in your zip code</p>
               </div>
-              <div className="rounded-xl border border-[#07111f]/10 bg-white/60 p-3 dark:border-white/10 dark:bg-white/10 sm:p-4">
+              <div className="landing-glass-inner rounded-xl border p-3 sm:p-4">
                 <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#b7791f] dark:text-yellow-300">Paid Tier</p>
                 <p className="text-sm sm:text-base">Real tickets to pro shows monthly</p>
               </div>
