@@ -81,11 +81,11 @@ const MicDetailPage = () => {
   const titleTextClass = "text-[#07111f] dark:text-white";
   const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
   const descriptionTextClass = "text-[#07111f]/70 dark:text-white/80";
-  const panelClass = "border border-[#07111f]/10 bg-white/50 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-[#102a53]/60 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.24)]";
-  const chipClass = "rounded-full border border-[#07111f]/10 bg-white/50 px-3 py-1.5 text-[11px] uppercase tracking-[0.15em] text-[#07111f] shadow-[0_10px_30px_rgba(2,10,30,0.10)] backdrop-blur-xl transition hover:bg-white/70 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20";
+  const panelClass = "border border-[#07111f]/10 bg-white/25 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]";
+  const chipClass = "rounded-full border border-[#07111f]/10 bg-white/25 px-3 py-1.5 text-[11px] uppercase tracking-[0.15em] text-[#07111f] shadow-[0_18px_60px_rgba(2,10,30,0.14),0_6px_20px_rgba(2,10,30,0.08)] backdrop-blur-2xl transition hover:bg-white/35 dark:border-white/20 dark:bg-[#102a53]/20 dark:text-white dark:hover:bg-white/20 dark:shadow-[0_20px_70px_rgba(2,10,30,0.34)]";
 
   const Attr = ({ label, value }: { label: string; value: React.ReactNode }) => (
-    <div className="rounded-xl border border-[#07111f]/10 bg-white/40 p-3 shadow-[0_10px_30px_rgba(2,10,30,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/10">
+    <div className="rounded-xl border border-[#07111f]/10 bg-white/25 p-3 shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#102a53]/20 dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)]">
       <div className={`mb-1 text-[10px] uppercase tracking-[0.2em] ${mutedTextClass}`}>{label}</div>
       <div className={`break-words text-sm md:text-base ${titleTextClass}`}>{value}</div>
     </div>
@@ -224,7 +224,7 @@ const MicDetailPage = () => {
                   <Link
                     key={similarMic.uniqueIdentifier}
                     to={linkManager.micDetail(similarMic)}
-                    className="group block rounded-xl border border-[#07111f]/10 bg-white/40 p-3 shadow-[0_10px_30px_rgba(2,10,30,0.08)] transition hover:bg-white/60 dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/20"
+                    className="group block rounded-xl border border-[#07111f]/10 bg-white/25 p-3 shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl transition hover:bg-white/35 dark:border-white/10 dark:bg-[#102a53]/20 dark:hover:bg-white/20 dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)]"
                   >
                     <div className={`text-base font-medium transition group-hover:text-[#1a5fb4] dark:group-hover:text-[#8ec5ff] ${titleTextClass}`}>
                       {similarMic.openMic.toLowerCase()}

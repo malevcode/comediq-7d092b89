@@ -44,7 +44,7 @@ const Index = () => {
 
               {/* Social Proof Bar */}
               <div
-                className="mx-4 rounded-2xl border border-[#07111f]/10 bg-white/80 py-3 shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-sm transition-transform duration-300 hover:scale-[1.04] dark:border-0 dark:bg-[#07111f]/20 sm:mx-8"
+                className="landing-glass-surface-soft mx-4 rounded-2xl border py-3 transition-transform duration-300 hover:scale-[1.04] sm:mx-8"
               >
                 <div className="mx-auto flex max-w-6xl items-center justify-center gap-6 px-4 text-[#07111f] dark:text-white sm:gap-12">
                   <div className="text-center">

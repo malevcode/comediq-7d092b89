@@ -116,7 +116,7 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
     `border-0 border-b border-dashed bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none px-1 ${extraClass}`;
 
   return (
-    <div className="flex flex-col md:flex-row w-full border rounded-xl shadow-sm p-2.5 gap-1.5 md:gap-3 overflow-x-hidden bg-gradient-to-br from-green-50 to-white border-green-200 border-l-4 border-l-green-500 mb-3 ring-1 ring-green-200/60">
+    <div className="flex flex-col md:flex-row w-full border rounded-xl p-2.5 gap-1.5 md:gap-3 overflow-x-hidden bg-white/25 border-green-200/70 border-l-4 border-l-green-500 mb-3 ring-1 ring-green-200/50 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl transition-all duration-300 hover:bg-white/35 hover:shadow-[0_34px_110px_rgba(4,20,55,0.22),0_12px_36px_rgba(4,20,55,0.12)] dark:bg-[#102a53]/20 dark:border-white/10 dark:ring-white/10 dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
 
       {/* Left: Name, Venue, Day, Host */}
       <div className="flex-1 min-w-0 mr-1 text-center">
@@ -207,7 +207,7 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
 
       {/* Right: Details + Save */}
       <div className="w-full md:flex-[1.2] flex flex-col justify-center gap-0">
-        <div className="bg-green-50 border border-green-100 rounded-md p-2 flex flex-col gap-2">
+        <div className="bg-white/25 border border-green-100/70 rounded-md p-2 flex flex-col gap-2 shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#102a53]/20 dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)]">
           <div className="flex items-center gap-1 text-xs">
             <UserRoundCheck className="w-3 h-3 flex-shrink-0 text-gray-500" />
             <span className="whitespace-nowrap text-muted-foreground text-[11px]">Sign-Up:</span>

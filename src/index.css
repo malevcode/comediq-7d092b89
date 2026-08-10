@@ -133,6 +133,60 @@
     padding-top: 9rem;
   }
 
+  .landing-glass-surface {
+    background: rgba(255, 255, 255, 0.34);
+    -webkit-backdrop-filter: blur(28px) saturate(1.25);
+    backdrop-filter: blur(28px) saturate(1.25);
+    border-color: rgba(7, 17, 31, 0.08);
+    box-shadow: 0 30px 100px rgba(4, 20, 55, 0.18), 0 10px 32px rgba(4, 20, 55, 0.1);
+  }
+
+  .landing-glass-surface-soft {
+    background: rgba(255, 255, 255, 0.24);
+    -webkit-backdrop-filter: blur(26px) saturate(1.2);
+    backdrop-filter: blur(26px) saturate(1.2);
+    border-color: rgba(7, 17, 31, 0.08);
+    box-shadow: 0 24px 80px rgba(4, 20, 55, 0.16), 0 8px 28px rgba(4, 20, 55, 0.08);
+  }
+
+  .site-footer-glass {
+    background: rgba(255, 255, 255, 0.24);
+    -webkit-backdrop-filter: blur(26px) saturate(1.2);
+    backdrop-filter: blur(26px) saturate(1.2);
+    border-color: rgba(7, 17, 31, 0.08);
+    box-shadow: 0 -24px 80px rgba(4, 20, 55, 0.16), 0 -8px 28px rgba(4, 20, 55, 0.08);
+  }
+
+  .landing-glass-inner {
+    background: rgba(255, 255, 255, 0.34);
+    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+    backdrop-filter: blur(18px) saturate(1.15);
+    border-color: rgba(7, 17, 31, 0.08);
+  }
+
+  .dark .landing-glass-surface {
+    background: rgba(16, 42, 63, 0.18);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 30px 100px rgba(2, 10, 30, 0.44), 0 10px 32px rgba(2, 10, 30, 0.28);
+  }
+
+  .dark .landing-glass-surface-soft {
+    background: rgba(16, 42, 83, 0.12);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 80px rgba(2, 10, 30, 0.34), 0 8px 28px rgba(2, 10, 30, 0.2);
+  }
+
+  .dark .site-footer-glass {
+    background: rgba(16, 42, 83, 0.12);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -24px 80px rgba(2, 10, 30, 0.34), 0 -8px 28px rgba(2, 10, 30, 0.2);
+  }
+
+  .dark .landing-glass-inner {
+    background: rgba(16, 42, 83, 0.12);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
   @media (min-width: 640px) {
     .page-content-offset {
       padding-top: 9.5rem;

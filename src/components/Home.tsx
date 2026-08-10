@@ -193,15 +193,15 @@ export default function Home() {
   const displayUpcomingMics = upcomingMics.filter((mic) =>
     getProfileMicTitle(mic, openMicById).trim().length > 0
   );
-  const panelClass = "border border-[#07111f]/10 bg-white/30 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-xl transition-all duration-300 hover:bg-white/50 dark:border-0 dark:bg-[#07111f]/30 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.18)] dark:hover:bg-[#07111f]/10";
+  const panelClass = "border border-[#07111f]/10 bg-white/25 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl transition-all duration-300 hover:bg-white/35 hover:shadow-[0_34px_110px_rgba(4,20,55,0.22),0_12px_36px_rgba(4,20,55,0.12)] dark:border-0 dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)] dark:hover:bg-white/15";
   const panelHeaderClass = "border-b border-[#07111f]/10 bg-white/20 dark:border-white/10 dark:bg-[#102a53]/10";
-  const statCardClass = "border border-[#07111f]/10 bg-white/30 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-white/50 dark:border-0 dark:bg-[#07111f]/20 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.18)] dark:hover:bg-[#07111f]/10";
+  const statCardClass = "border border-[#07111f]/10 bg-white/25 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-white/35 hover:shadow-[0_34px_110px_rgba(4,20,55,0.22),0_12px_36px_rgba(4,20,55,0.12)] dark:border-0 dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.42),0_10px_32px_rgba(2,10,30,0.26)] dark:hover:bg-white/15";
   const iconTileClass = "bg-[#1a5fb4]/10 text-[#1a5fb4] dark:bg-[#8ec5ff]/20 dark:text-white";
   const metricClass = "text-[#1a5fb4] dark:text-[#8ec5ff]";
   const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
   const titleTextClass = "text-[#07111f] dark:text-white";
   const descriptionTextClass = "text-[#07111f]/70 dark:text-white/80";
-  const outlineActionClass = "border-0 w-full justify-start bg-white/30 text-[#07111f] hover:bg-white/50 hover:text-[#1a5fb4] hover:-translate-y-0.5 hover:scale-[1.03] shadow-[0_10px_30px_rgba(2,10,30,0.10)] backdrop-blur-xl transition-all duration-300 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 dark:hover:text-white";
+  const outlineActionClass = "border-0 w-full justify-start bg-white/25 text-[#07111f] hover:bg-white/35 hover:text-[#1a5fb4] hover:-translate-y-0.5 hover:scale-[1.03] shadow-[0_20px_70px_rgba(2,10,30,0.16),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl transition-all duration-300 dark:bg-[#102a53]/20 dark:text-white dark:hover:bg-white/20 dark:hover:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)]";
   const micOfTheWeekBanners = [
     {
       title: "Comediq Book Me Mic",
@@ -618,7 +618,7 @@ export default function Home() {
                                 type="button"
                                 aria-expanded={isExpanded}
                                 onClick={() => setExpandedBorough(isExpanded ? null : borough)}
-                                className="w-full rounded-lg bg-white/30 px-3 py-2 text-left text-xs shadow-[0_10px_30px_rgba(2,10,30,0.08)] transition-all duration-200 hover:bg-white/50 focus:outline-none focus:ring-2 focus:ring-[#1a5fb4]/30 dark:bg-white/10 dark:hover:bg-white/20 dark:focus:ring-white/20"
+                                className="w-full rounded-lg bg-white/30 px-3 py-2 text-left text-xs shadow-[0_10px_30px_rgba(2,10,30,0.08)] transition-all duration-200 hover:bg-white/50 focus:outline-none focus:ring-2 focus:ring-[#1a5fb4]/30 dark:bg-[#102a53]/20 dark:hover:bg-white/20 dark:focus:ring-white/20"
                               >
                                 <div className={`mb-1 flex items-center justify-between font-semibold ${titleTextClass}`}>
                                   <span className="inline-flex items-center gap-1.5">
@@ -675,7 +675,7 @@ export default function Home() {
                         </div>
                       </div>
                     ) : (
-                      <div className={`rounded-lg bg-white/30 p-4 text-sm font-medium dark:bg-white/10 ${descriptionTextClass}`}>
+                      <div className={`rounded-lg bg-white/30 p-4 text-sm font-medium dark:bg-[#102a53]/20 ${descriptionTextClass}`}>
                         Like or save mics to build your borough breakdown.
                       </div>
                     )}
@@ -702,7 +702,7 @@ export default function Home() {
                           key={day.dateKey}
                           className={`grid gap-2 rounded-lg p-3 shadow-[0_10px_30px_rgba(2,10,30,0.08)] sm:grid-cols-[92px_1fr] ${
                             hasTrackedMics
-                              ? "bg-white/30 dark:bg-white/10"
+                              ? "bg-white/30 dark:bg-[#102a53]/20"
                               : "bg-white/20 opacity-60 dark:bg-white/5"
                           }`}
                         >
@@ -714,22 +714,22 @@ export default function Home() {
                             {hasTrackedMics && (
                               <div className="mb-2 flex flex-wrap gap-1.5">
                                 {hasScheduledMics && (
-                                  <Badge variant="outline" className="border-[#a855f7]/20 bg-[#a855f7]/10 text-[10px] text-[#7e22ce] dark:border-white/20 dark:bg-white/10 dark:text-[#d8b4fe]">
+                                  <Badge variant="outline" className="border-[#a855f7]/20 bg-[#a855f7]/10 text-[10px] text-[#7e22ce] dark:border-white/20 dark:bg-[#102a53]/20 dark:text-[#d8b4fe]">
                                     {day.scheduledCount} scheduled
                                   </Badge>
                                 )}
                                 {hasLikedMics && (
-                                  <Badge variant="outline" className="border-[#1a5fb4]/20 bg-[#1a5fb4]/10 text-[10px] text-[#1a5fb4] dark:border-white/20 dark:bg-white/10 dark:text-[#8ec5ff]">
+                                  <Badge variant="outline" className="border-[#1a5fb4]/20 bg-[#1a5fb4]/10 text-[10px] text-[#1a5fb4] dark:border-white/20 dark:bg-[#102a53]/20 dark:text-[#8ec5ff]">
                                     {day.likedCount} liked
                                   </Badge>
                                 )}
                                 {hasSavedMics && (
-                                  <Badge variant="outline" className="border-[#f97316]/20 bg-[#f97316]/10 text-[10px] text-[#f97316] dark:border-white/20 dark:bg-white/10 dark:text-[#ffc72c]">
+                                  <Badge variant="outline" className="border-[#f97316]/20 bg-[#f97316]/10 text-[10px] text-[#f97316] dark:border-white/20 dark:bg-[#102a53]/20 dark:text-[#ffc72c]">
                                     {day.savedCount} saved
                                   </Badge>
                                 )}
                                 {hasSignups && (
-                                  <Badge variant="outline" className="border-[#22c55e]/20 bg-[#22c55e]/10 text-[10px] text-[#15803d] dark:border-white/20 dark:bg-white/10 dark:text-[#86efac]">
+                                  <Badge variant="outline" className="border-[#22c55e]/20 bg-[#22c55e]/10 text-[10px] text-[#15803d] dark:border-white/20 dark:bg-[#102a53]/20 dark:text-[#86efac]">
                                     {day.signedCount} signed up
                                   </Badge>
                                 )}
@@ -825,10 +825,10 @@ export default function Home() {
                       <Link
                         key={banner.title}
                         to={banner.href}
-                        className="group flex items-center justify-between gap-3 rounded-lg bg-white/30 p-4 text-[#07111f] shadow-[0_10px_30px_rgba(2,10,30,0.10)] transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-white/50 dark:bg-white/10 dark:text-white dark:shadow-[0_10px_30px_rgba(2,10,30,0.12)] dark:hover:bg-white/20"
+                        className="group flex items-center justify-between gap-3 rounded-lg bg-white/25 p-4 text-[#07111f] shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-white/35 hover:shadow-[0_24px_80px_rgba(2,10,30,0.18),0_10px_28px_rgba(2,10,30,0.10)] dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)] dark:hover:bg-white/20"
                       >
                         <div className="flex min-w-0 items-center gap-3">
-                          <div className="rounded-lg bg-[#1a5fb4]/10 p-2 text-[#1a5fb4] shadow-sm dark:bg-white/20 dark:text-[#8ec5ff]">
+                          <div className="rounded-lg bg-[#1a5fb4]/10 p-2 text-[#1a5fb4] shadow-sm dark:bg-[#102a53]/30 dark:text-[#8ec5ff]">
                             <Icon className="h-4 w-4" />
                           </div>
                           <div className="min-w-0">
@@ -843,7 +843,7 @@ export default function Home() {
                 </CardContent>
               </Card>
 
-              <SponsorCard placement="home_dashboard" className="border border-[#07111f]/10 bg-white/30 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-xl dark:border-0 dark:bg-[#07111f]/30 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.18)]" />
+              <SponsorCard placement="home_dashboard" className="border border-[#07111f]/10 bg-white/25 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-0 dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]" />
             </div>
           </div>
         </div>

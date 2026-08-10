@@ -32,7 +32,7 @@ const SiteFooter = () => {
   );
 
   return (
-    <footer className="relative mt-0 border-t border-[#07111f]/10 bg-white/30 py-12 pt-8 text-[#07111f] shadow-[0_-18px_60px_rgba(4,20,55,0.14)] backdrop-blur-xl dark:border-white/10 dark:bg-[#07111f]/20 dark:text-white dark:shadow-[0_-18px_60px_rgba(4,20,55,0.25)]">
+    <footer className="site-footer-glass relative mt-0 border-t py-12 pt-8 text-[#07111f] dark:text-white">
       {hasMounted ? createPortal(scrollTopButton, document.body) : null}
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 ml-6 gap-6 sm:gap-8 mr-6">
