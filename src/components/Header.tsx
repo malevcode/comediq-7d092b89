@@ -54,21 +54,21 @@ export default function Header({ className = "", showEmail = true, showLevel = t
   const level = subscriptionPlan !== "free" ? "Full Pass Subscriber" : "Rising Star";
 
   return (
-    <div className={`rounded-2xl border-0 bg-[#07111f]/26 p-4 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl duration-300 hover:bg-[#07111f]/5 ${className}`}>
-      <h1 className="text-3xl font-bold text-white">
+    <div className={`rounded-2xl border border-[#07111f]/10 bg-white/25 p-4 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl duration-300 hover:bg-white/35 hover:shadow-[0_34px_110px_rgba(4,20,55,0.22),0_12px_36px_rgba(4,20,55,0.12)] dark:border-0 dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)] dark:hover:bg-white/15 ${className}`}>
+      <h1 className="text-3xl font-bold text-[#07111f] dark:text-white">
         Welcome back, {displayName}!
       </h1>
       {showEmail && showLevel && (
-        <p className="text-white/66 text-lg">
-          {user?.email} • <span className="font-medium text-[#8ec5ff]">{level}</span>
+        <p className="text-lg text-[#07111f]/70 dark:text-white/70">
+          {user?.email} • <span className="font-medium text-[#1a5fb4] dark:text-[#8ec5ff]">{level}</span>
         </p>
       )}
       {showEmail && !showLevel && (
-        <p className="text-white/66 text-lg">{user?.email}</p>
+        <p className="text-lg text-[#07111f]/70 dark:text-white/70">{user?.email}</p>
       )}
       {!showEmail && showLevel && (
-        <p className="text-white/66 text-lg">
-          <span className="font-medium text-[#8ec5ff]">{level}</span>
+        <p className="text-lg text-[#07111f]/70 dark:text-white/70">
+          <span className="font-medium text-[#1a5fb4] dark:text-[#8ec5ff]">{level}</span>
         </p>
       )}
     </div>

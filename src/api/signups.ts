@@ -52,31 +52,11 @@ export async function getOrCreateNextEvent(micId: string, micDay: string, micSta
     return existingEvents[0];
   }
 
-  const { data: existingHost, error: existingHostError } = await supabase
-    .from('mic_hosts')
-    .select('id')
-    .eq('mic_id', micId)
-    .eq('user_id', user.id)
-    .maybeSingle();
+  const { data: hostId, error: hostError } = await (supabase as any)
+    .rpc('get_or_create_system_host', { mic_id_param: micId });
 
-  if (existingHostError) throw existingHostError;
-
-  let hostId = existingHost?.id;
-
-  if (!hostId) {
-    const { data: newHost, error: hostError } = await supabase
-      .from('mic_hosts')
-      .insert({
-        user_id: user.id,
-        mic_id: micId,
-        is_verified: false,
-      })
-      .select('id')
-      .single();
-
-    if (hostError) throw hostError;
-    hostId = newHost.id;
-  }
+  if (hostError) throw hostError;
+  if (!hostId) throw new Error('Could not find or create a signup host for this mic.');
 
   const nextDate = getNextOccurrence(micDay);
   const eventDate = nextDate.toISOString().split('T')[0];

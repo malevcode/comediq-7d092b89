@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Megaphone, Trophy, GraduationCap, Search, Clock, CheckCircle, XCircle, AlertCircle, Podcast } from "lucide-react";
+import { Megaphone, Trophy, GraduationCap, Search, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,7 +22,8 @@ const GrowthOpportunities = () => {
   const [tab, setTab] = useState("booking");
   const { user } = useAuth();
 
-  const typeMap = { booking: 'barking' as const, festivals: 'festival' as const, training: 'school_ad' as const, podcasts: 'podcast' as const };
+  const typeMap = { booking: 'barking' as const, festivals: 'festival' as const, training: 'school_ad' as const };
+
   const currentType = typeMap[tab as keyof typeof typeMap];
   const { data: opportunities, isLoading } = useGrowthOpportunities(currentType);
   const { data: mySubmissions } = useMyGrowthSubmissions(user?.id);
@@ -52,47 +53,20 @@ const GrowthOpportunities = () => {
     ...(opportunities ?? []),
   ];
 
-  const podcastOpportunities: GrowthOpportunity[] = [
-    {
-      id: 'likeable-with-david-stickle',
-      type: 'podcast',
-      title: 'Likeable with David Stickle',
-      description: "Stand-up comedy from an entry level perspective. Each week David Stickle sits down with comedians at every stage of the game for real, unfiltered conversations about the craft, the hustle, and what it actually takes to make people laugh. 40 episodes in and just getting started.",
-      venue_name: null,
-      borough: null,
-      date: null,
-      time: null,
-      compensation: 'New episodes every Wednesday',
-      contact_info: '@likeablepod',
-      external_url: 'https://youtube.com/@davidsticklecomedy?si=LvLAmg2NElpPN3qx',
-      external_label: 'Watch on YouTube',
-      image_url: null,
-      is_featured: true,
-      is_active: true,
-      status: 'approved',
-      submitted_by: null,
-      contact_id: null,
-      created_at: '2026-07-01T00:00:00.000Z',
-      updated_at: '2026-07-01T00:00:00.000Z',
-    },
-    ...(opportunities ?? []),
-  ];
-
   const visibleOpportunities =
-    tab === 'booking' ? bookingOpportunities : tab === 'podcasts' ? podcastOpportunities : opportunities;
+    tab === 'booking' ? bookingOpportunities : opportunities;
 
   const emptyMessages = {
     booking: { title: "No booking opportunities yet", sub: "Check back soon or post one yourself!" },
     festivals: { title: "No festivals listed yet", sub: "Know about a comedy festival? Submit it!" },
     training: { title: "No training opportunities yet", sub: "Comedy schools and coaches — advertise here!" },
-    podcasts: { title: "No podcasts listed yet", sub: "Know a great comedy podcast? Submit it!" },
   };
 
   return (
     <>
       <SEO
         title="Growth Opportunities - Level Up Your Comedy"
-        description="Find booking opportunities, comedy festivals, podcasts, and training opportunities to grow your comedy career in NYC."
+        description="Find booking opportunities, comedy festivals, and training opportunities to grow your comedy career in NYC."
         keywords="comedy growth, booking opportunities, comedy festivals, comedy schools, comedy training, NYC comedy"
       />
       <div className="min-h-screen bg-transparent pb-20">
@@ -102,18 +76,15 @@ const GrowthOpportunities = () => {
           {/* Submit CTA */}
           <div className="mb-6 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Booking opportunities, podcasts, festivals, and training resources for comedians.
+              Booking opportunities, festivals, and training resources for comedians.
             </p>
             <SubmitOpportunityForm />
           </div>
 
           <Tabs value={tab} onValueChange={setTab} className="w-full">
-            <TabsList className="w-full grid grid-cols-4">
+            <TabsList className="w-full grid grid-cols-3">
               <TabsTrigger value="booking" className="flex items-center gap-1 text-xs sm:text-sm">
                 <Megaphone className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Booking
-              </TabsTrigger>
-              <TabsTrigger value="podcasts" className="flex items-center gap-1 text-xs sm:text-sm">
-                <Podcast className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Podcasts
               </TabsTrigger>
               <TabsTrigger value="training" className="flex items-center gap-1 text-xs sm:text-sm">
                 <GraduationCap className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Training
@@ -124,7 +95,6 @@ const GrowthOpportunities = () => {
             </TabsList>
 
             <TabsContent value="training">
-              {/* Training opportunities */}
               {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                   {[...Array(4)].map((_, i) => (
@@ -146,9 +116,9 @@ const GrowthOpportunities = () => {
               )}
             </TabsContent>
 
-            {["booking", "festivals", "podcasts"].map((t) => (
+            {["booking", "festivals"].map((t) => (
               <TabsContent key={t} value={t}>
-                {isLoading && tab === t && t !== 'booking' && t !== 'podcasts' ? (
+                {isLoading && tab === t && t !== 'booking' ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     {[...Array(4)].map((_, i) => (
                       <Skeleton key={i} className="h-48 rounded-lg" />

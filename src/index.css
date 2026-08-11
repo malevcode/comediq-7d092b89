@@ -133,6 +133,60 @@
     padding-top: 9rem;
   }
 
+  .landing-glass-surface {
+    background: rgba(255, 255, 255, 0.34);
+    -webkit-backdrop-filter: blur(28px) saturate(1.25);
+    backdrop-filter: blur(28px) saturate(1.25);
+    border-color: rgba(7, 17, 31, 0.08);
+    box-shadow: 0 30px 100px rgba(4, 20, 55, 0.18), 0 10px 32px rgba(4, 20, 55, 0.1);
+  }
+
+  .landing-glass-surface-soft {
+    background: rgba(255, 255, 255, 0.24);
+    -webkit-backdrop-filter: blur(26px) saturate(1.2);
+    backdrop-filter: blur(26px) saturate(1.2);
+    border-color: rgba(7, 17, 31, 0.08);
+    box-shadow: 0 24px 80px rgba(4, 20, 55, 0.16), 0 8px 28px rgba(4, 20, 55, 0.08);
+  }
+
+  .site-footer-glass {
+    background: rgba(255, 255, 255, 0.24);
+    -webkit-backdrop-filter: blur(26px) saturate(1.2);
+    backdrop-filter: blur(26px) saturate(1.2);
+    border-color: rgba(7, 17, 31, 0.08);
+    box-shadow: 0 -24px 80px rgba(4, 20, 55, 0.16), 0 -8px 28px rgba(4, 20, 55, 0.08);
+  }
+
+  .landing-glass-inner {
+    background: rgba(255, 255, 255, 0.34);
+    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+    backdrop-filter: blur(18px) saturate(1.15);
+    border-color: rgba(7, 17, 31, 0.08);
+  }
+
+  .dark .landing-glass-surface {
+    background: rgba(16, 42, 63, 0.18);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 30px 100px rgba(2, 10, 30, 0.44), 0 10px 32px rgba(2, 10, 30, 0.28);
+  }
+
+  .dark .landing-glass-surface-soft {
+    background: rgba(16, 42, 83, 0.12);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 80px rgba(2, 10, 30, 0.34), 0 8px 28px rgba(2, 10, 30, 0.2);
+  }
+
+  .dark .site-footer-glass {
+    background: rgba(16, 42, 83, 0.12);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -24px 80px rgba(2, 10, 30, 0.34), 0 -8px 28px rgba(2, 10, 30, 0.2);
+  }
+
+  .dark .landing-glass-inner {
+    background: rgba(16, 42, 83, 0.12);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
   @media (min-width: 640px) {
     .page-content-offset {
       padding-top: 9.5rem;
@@ -145,39 +199,39 @@
     color: #07111f;
   }
 
-  .light .text-white\/84,
   .light .text-white\/80,
-  .light .text-white\/78,
-  .light .text-white\/72,
+  .light .text-white\/80,
+  .light .text-white\/80,
   .light .text-white\/70,
-  .light .text-white\/68,
-  .light .text-white\/66,
-  .light .text-white\/65,
-  .light .text-white\/64,
+  .light .text-white\/70,
+  .light .text-white\/70,
+  .light .text-white\/70,
+  .light .text-white\/70,
+  .light .text-white\/60,
   .light .text-white\/60 {
     color: rgba(7, 17, 31, 0.72);
   }
 
-  .light .text-white\/55,
-  .light .text-white\/52,
-  .light .text-white\/48,
-  .light .text-white\/42 {
+  .light .text-white\/60,
+  .light .text-white\/50,
+  .light .text-white\/50,
+  .light .text-white\/40 {
     color: rgba(7, 17, 31, 0.58);
   }
 
   .light .border-white\/20,
-  .light .border-white\/18,
-  .light .border-white\/14,
-  .light .border-white\/12,
+  .light .border-white\/20,
   .light .border-white\/10,
-  .light .border-white\/8 {
+  .light .border-white\/10,
+  .light .border-white\/10,
+  .light .border-white\/10 {
     border-color: rgba(7, 17, 31, 0.12);
   }
 
-  .light .bg-white\/12,
   .light .bg-white\/10,
-  .light .bg-white\/8,
-  .light .bg-white\/5 {
+  .light .bg-white\/10,
+  .light .bg-white\/10,
+  .light .bg-white\/10 {
     background-color: rgba(255, 255, 255, 0.42);
   }
 
@@ -201,7 +255,10 @@ html {
   100% { transform: translateX(0); }
 }
 .animate-marquee {
-  animation: marquee 150s linear infinite;
+  animation: marquee 200s linear infinite;
+}
+.animate-marquee-slow {
+  animation: marquee 360s linear infinite;
 }
 .animate-marquee-reverse {
   animation: marquee-reverse 150s linear infinite;
@@ -229,4 +286,45 @@ html {
 
 .page-content-offset {
   padding-top: var(--page-top-offset);
+}
+
+form :where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  textarea,
+  select,
+  button[role="combobox"]
+) {
+  border-width: 0 !important;
+  background-color: rgb(255 255 255 / 0.1) !important;
+  color: #111827 !important;
+  box-shadow: 0 12px 38px rgb(2 10 30 / 0.1) !important;
+  backdrop-filter: blur(24px);
+}
+
+form :where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  textarea
+)::placeholder {
+  color: #9ca3af !important;
+  opacity: 1;
+}
+
+.dark form :where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  textarea,
+  select,
+  button[role="combobox"]
+) {
+  background-color: rgb(255 255 255 / 0.1) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 38px rgb(2 10 30 / 0.24) !important;
+}
+
+.dark form :where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  textarea
+)::placeholder,
+.dark form :where(button[role="combobox"][data-placeholder]) {
+  color: rgb(255 255 255 / 0.45) !important;
+  opacity: 1;
 }

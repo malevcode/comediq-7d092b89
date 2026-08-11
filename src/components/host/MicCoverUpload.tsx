@@ -11,6 +11,10 @@ interface MicCoverUploadProps {
   currentCoverUrl?: string;
 }
 
+const glassCardClass = "border border-[#07111f]/10 bg-white/30 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-[#07111f]/30 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.18)]";
+const glassHeaderClass = "border-b border-[#07111f]/10 bg-white/20 dark:border-white/10 dark:bg-[#102a53]/10";
+const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
+
 export function MicCoverUpload({ micId, currentCoverUrl }: MicCoverUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentCoverUrl || null);
@@ -123,20 +127,20 @@ export function MicCoverUpload({ micId, currentCoverUrl }: MicCoverUploadProps) 
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className={glassCardClass}>
+      <CardHeader className={glassHeaderClass}>
         <CardTitle className="flex items-center gap-2">
           <ImageIcon className="w-5 h-5" />
           Customize Cover Image
         </CardTitle>
-        <CardDescription>
+        <CardDescription className={mutedTextClass}>
           Add a custom background image for your mic listing
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Preview */}
         <div 
-          className="w-full h-32 rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center overflow-hidden bg-muted/50"
+          className="flex h-32 w-full items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-[#07111f]/20 bg-white/30 dark:border-white/20 dark:bg-white/10"
           style={previewUrl ? {
             backgroundImage: `linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url(${previewUrl})`,
             backgroundSize: 'cover',
@@ -144,9 +148,9 @@ export function MicCoverUpload({ micId, currentCoverUrl }: MicCoverUploadProps) 
           } : undefined}
         >
           {previewUrl ? (
-            <span className="text-sm text-muted-foreground">Preview of cover image overlay</span>
+            <span className={`text-sm ${mutedTextClass}`}>Preview of cover image overlay</span>
           ) : (
-            <span className="text-sm text-muted-foreground">No cover image set</span>
+            <span className={`text-sm ${mutedTextClass}`}>No cover image set</span>
           )}
         </div>
 
@@ -182,7 +186,7 @@ export function MicCoverUpload({ micId, currentCoverUrl }: MicCoverUploadProps) 
           )}
         </div>
 
-        <p className="text-xs text-muted-foreground">
+        <p className={`text-xs ${mutedTextClass}`}>
           Recommended: 1200x400px, max 5MB. JPG, PNG, or WebP.
         </p>
       </CardContent>

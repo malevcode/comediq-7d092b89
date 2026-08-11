@@ -952,8 +952,6 @@ const Auth = () => {
     forgot_password: 'Reset Password | Comediq',
     reset_password: 'Set New Password | Comediq',
   }[step];
-  const shouldUseAuthPanel = step !== 'main' && step !== 'choose_plan';
-
   return (
     <>
       <SEO title={seoTitle} description="Sign in or create a free Comediq account to save open mics, track your comedy journey, and connect with the NYC comedy community." url="https://comediq.us/auth" noindex={true} />
@@ -968,7 +966,7 @@ const Auth = () => {
           >
             "The best tool for tracking NYC open mics. I use it every week before I hit the road."
           </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/20 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/60" />
           <div className="relative z-10 flex items-center gap-3">
             <span className="font-semibold text-lg tracking-tight text-[#fff]">Comediq</span>
           </div>
@@ -983,10 +981,10 @@ const Auth = () => {
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: BRAND_BLUE }}>
               <Mic className="w-3.5 h-3.5 text-[#fff]" />
             </div>
-            <span className="font-semibold text-lg text-[#fff]">Comediq</span>
+            <span className="font-semibold text-lg text-[#07111f] dark:text-[#fff]">Comediq</span>
           </div>
           <div
-            className={`${step === 'main' || step === 'choose_plan' ? 'w-full max-w-2xl' : 'w-full max-w-sm'} [&_h1]:text-[#07111f] [&_h2]:text-[#07111f] [&_p]:text-[#07111f]/60 [&_label]:text-[#07111f]/70 dark:[&_h1]:text-white dark:[&_h2]:text-white dark:[&_p]:text-white/60 dark:[&_label]:text-white/70`}
+            className={`${step === 'main' ? 'w-full max-w-2xl' : 'w-full max-w-sm'} [&_h1]:text-[#07111f] [&_h2]:text-[#07111f] [&_p]:text-[#07111f]/60 [&_label]:text-[#07111f]/70 dark:[&_h1]:text-white dark:[&_h2]:text-white dark:[&_p]:text-white/60 dark:[&_label]:text-white/70`}
           >
             {stepContent}
           </div>

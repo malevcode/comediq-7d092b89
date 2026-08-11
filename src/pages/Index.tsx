@@ -29,7 +29,7 @@ const Index = () => {
         url="https://comediq.us"
         structuredData={structuredData}
       />
-      <div className="relative min-h-screen pb-8 overflow-x-hidden bg-transparent">
+      <div className="relative overflow-x-hidden bg-transparent">
         <div className="relative z-10">
         <PageHeader title="Comediq" subtitle="Comedy Starts Here" />
         <div className="pt-0">
@@ -39,23 +39,22 @@ const Index = () => {
             <>
               <Hero />
               <div className="relative">
-                <div className="pointer-events-none absolute inset-x-0 -top-24 h-32 bg-gradient-to-b from-transparent via-[#f5f2eb]/24 to-[#f5f2eb]/46 dark:via-[#07111f]/34 dark:to-[#07111f]/76" />
                 <AppWaitlistSection />
               </div>
 
               {/* Social Proof Bar */}
               <div
-                className="mx-4 sm:mx-8 rounded-2xl bg-[#07111f]/22 py-3 shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-sm transition-transform duration-300 hover:scale-[1.04]"
+                className="landing-glass-surface-soft mx-4 rounded-2xl border py-3 transition-transform duration-300 hover:scale-[1.04] sm:mx-8"
               >
-                <div className="max-w-6xl mx-auto px-4 flex items-center justify-center gap-6 sm:gap-12 text-white">
+                <div className="mx-auto flex max-w-6xl items-center justify-center gap-6 px-4 text-[#07111f] dark:text-white sm:gap-12">
                   <div className="text-center">
                     <div className="text-2xl sm:text-3xl font-bold text-blue-600">1,250+</div>
-                    <div className="text-xs sm:text-sm text-white/64">comedians visit weekly</div>
+                    <div className="text-xs text-[#07111f]/60 dark:text-white/60 sm:text-sm">comedians visit weekly</div>
                   </div>
-                  <div className="w-px h-8 bg-white/14" />
+                  <div className="h-8 w-px bg-[#07111f]/10 dark:bg-white/10" />
                   <div className="text-center">
                     <div className="text-2xl sm:text-3xl font-bold text-blue-600">500+</div>
-                    <div className="text-xs sm:text-sm text-white/64">open mics tracked</div>
+                    <div className="text-xs text-[#07111f]/60 dark:text-white/60 sm:text-sm">open mics tracked</div>
                   </div>
                 </div>
               </div>

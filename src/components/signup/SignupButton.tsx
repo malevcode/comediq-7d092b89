@@ -40,7 +40,7 @@ export function SignupButton({ eventId, isFull }: SignupButtonProps) {
         });
         if (!ok) throw new Error('no_credits');
       }
-      return signUpForEvent(eventId, notes);
+      return signUpForEvent(eventId, { notes: notes.trim() || undefined });
     },
     onSuccess: () => {
       toast({ title: 'Signed up!', description: "You're on the list!" });
