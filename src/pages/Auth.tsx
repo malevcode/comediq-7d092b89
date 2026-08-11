@@ -13,6 +13,8 @@ const BRAND_BLUE = '#1a5fb4';
 const STRIPE_PAID_LINK = getValidStripePaymentLink(
   import.meta.env.VITE_STRIPE_PAID_LINK,
 );
+const AUTH_INPUT_CLASS = "h-12 rounded-xl border-gray-400 bg-white/30 px-3 py-3 text-sm text-gray-900 placeholder:text-gray-600 focus-visible:border-[#1a5fb4] focus-visible:ring-2 focus-visible:ring-[#1a5fb4] focus-visible:ring-offset-0 dark:border-gray-400 dark:bg-white/30 dark:text-[#fff] dark:placeholder:text-gray-700";
+const AUTH_PASSWORD_INPUT_CLASS = `${AUTH_INPUT_CLASS} pr-10`;
 
 const getErrorMessage = (error: unknown, fallback: string) => {
   if (error instanceof Error) return error.message;
@@ -38,11 +40,38 @@ const getEmailRateLimitSeconds = (error: unknown) => {
   return match ? Number(match[1]) : 60;
 };
 
+const getEmailRateLimitToast = (error: unknown) => {
+  const message = getErrorMessage(error, '').toLowerCase();
+  const hasExplicitCooldown = /after\s+\d+\s+seconds?/i.test(message);
+  const isHourlyEmailLimit = message.includes('email rate limit') && !hasExplicitCooldown;
+
+  if (isHourlyEmailLimit) {
+    return {
+      title: 'Hourly email limit reached',
+      description: 'Supabase has paused sending verification emails for this project. Please wait about an hour before requesting another code.',
+      cooldown: 60 * 60,
+    };
+  }
+
+  const seconds = getEmailRateLimitSeconds(error);
+  return {
+    title: 'Please wait before requesting another code',
+    description: `No new code was sent. Try again in about ${seconds} seconds. If no email arrives after that, the hourly email limit may be reached and you may need to wait about an hour.`,
+    cooldown: seconds,
+  };
+};
+
 const isDuplicateEmailError = (error: unknown) => {
   const message = getErrorMessage(error, '').toLowerCase();
   return message.includes('already registered')
     || message.includes('already exists')
     || message.includes('user already');
+};
+
+const isMissingEmailStatusRpcError = (error: unknown) => {
+  const message = getErrorMessage(error, '').toLowerCase();
+  return message.includes('email_account_status')
+    && (message.includes('schema cache') || message.includes('could not find the function'));
 };
 
 const isEmailConfirmationError = (error: unknown) => {
@@ -65,12 +94,11 @@ const GoogleIcon = () => (
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type AuthStep =
-  | 'main'             // Google + email OTP entry (sign in/up combined)
-  | 'sign_in_options'  // alias for main
-  | 'choose_plan'      // post-auth plan selection
+  | 'main'             // Google + Apple + email OTP entry
+  | 'sign_in_options'
   | 'email_otp_verify' // 6-digit email OTP
   | 'email_auth'       // email + password sign in
-  | 'email_signup'     // create account with email (legacy, still reachable)
+  | 'email_signup'     // create account with email
   | 'forgot_password'
   | 'reset_password';
 
@@ -92,7 +120,6 @@ const Auth = () => {
   const [resetConfirm, setResetConfirm] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [subscriptionRefreshRequested, setSubscriptionRefreshRequested] = useState(false);
 
   const otpRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null, null, null]);
   const signInHeadingRef = useRef<HTMLHeadingElement | null>(null);
@@ -100,12 +127,11 @@ const Auth = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn, user, refreshProfile, subscriptionPlan } = useAuth();
+  const { signIn, user, refreshProfile } = useAuth();
   const { toast } = useToast();
   const searchParams = new URLSearchParams(location.search);
   const nextPathParam = searchParams.get('next');
   const shouldShowPlans = searchParams.get('plans') === 'true';
-  const subscriptionSucceeded = searchParams.get('subscription') === 'success';
   const subscribeIntent = searchParams.get('subscribe') === 'true';
   const postAuthPath = nextPathParam?.startsWith('/') ? nextPathParam : '/';
   const authRedirectUrl = `${window.location.origin}/auth/sign-in?next=${encodeURIComponent(postAuthPath)}`;
@@ -113,38 +139,15 @@ const Auth = () => {
   const subscribeParam = subscribeIntent ? '&subscribe=true' : '';
   const signInOptionsPath = `/auth/sign-in?next=${encodeURIComponent(postAuthPath)}${plansParam}${subscribeParam}`;
   const createAccountPath = `/auth/create?next=${encodeURIComponent(postAuthPath)}${plansParam}${subscribeParam}`;
-  
+  const basicCreateAccountPath = `/auth/create?next=${encodeURIComponent(postAuthPath)}${plansParam}`;
   const authLandingPath = `/auth?next=${encodeURIComponent(postAuthPath)}${plansParam}${subscribeParam}`;
-  const checkoutReturnPath = '/';
+  const checkoutReturnPath = postAuthPath === '/book-me-mic' ? '/book-me-mic' : '/';
 
   // ── Redirect if already authed ────────────────────────────────────────────
 
   useEffect(() => {
-    if (user && subscriptionSucceeded && !subscriptionRefreshRequested) {
-      setSubscriptionRefreshRequested(true);
-      refreshProfile();
-      const retryId = window.setTimeout(refreshProfile, 2000);
-      return () => window.clearTimeout(retryId);
-    }
-  }, [refreshProfile, subscriptionRefreshRequested, subscriptionSucceeded, user]);
-
-  
-
-  useEffect(() => {
-    if (!user) return;
-    if (step === 'reset_password') return;
-    // Premium users — go straight to destination
-    if (subscriptionPlan !== 'free') {
-      navigate(postAuthPath);
-      return;
-    }
-    // Free users — show plan chooser once after sign-in (unless explicitly skipped)
-    if (step !== 'choose_plan' && !shouldShowPlans) {
-      setStep('choose_plan');
-    } else if (shouldShowPlans && step !== 'choose_plan') {
-      setStep('choose_plan');
-    }
-  }, [user, subscriptionPlan, navigate, postAuthPath, shouldShowPlans, step]);
+    if (user && step !== 'reset_password' && !shouldShowPlans) navigate(postAuthPath);
+  }, [user, navigate, postAuthPath, shouldShowPlans, step]);
 
   // ── Detect password-reset link ────────────────────────────────────────────
 
@@ -154,13 +157,15 @@ const Auth = () => {
   }, [location.hash]);
 
   useEffect(() => {
-    if (step === 'reset_password' || step === 'choose_plan') return;
-    if (user) return; // don't override step when authed
-    // All auth routes show the unified sign-in screen by default
-    if (step !== 'main' && step !== 'email_otp_verify' && step !== 'email_auth' && step !== 'email_signup' && step !== 'forgot_password') {
+    if (step === 'reset_password') return;
+    if (location.pathname === '/auth/create') {
+      if (step === 'main' || step === 'sign_in_options') setStep('email_signup');
+    } else if (location.pathname === '/auth/sign-in') {
+      if (step === 'main' || step === 'email_signup') setStep('sign_in_options');
+    } else if (location.pathname === '/auth' && (step === 'sign_in_options' || step === 'email_signup')) {
       setStep('main');
     }
-  }, [location.pathname, step, user]);
+  }, [location.pathname, step]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
@@ -264,9 +269,11 @@ const Auth = () => {
     setLoading(false);
     if (error) {
       if (isEmailRateLimitError(error)) {
+        const rateLimitToast = getEmailRateLimitToast(error);
+        setResendCooldown(rateLimitToast.cooldown);
         toast({
-          title: 'Error',
-          description: 'Email rate limit exceeded. Try again later.',
+          title: rateLimitToast.title,
+          description: rateLimitToast.description,
           variant: 'destructive',
         });
       } else {
@@ -294,9 +301,11 @@ const Auth = () => {
     setLoading(false);
     if (error) {
       if (isEmailRateLimitError(error)) {
+        const rateLimitToast = getEmailRateLimitToast(error);
+        setResendCooldown(rateLimitToast.cooldown);
         toast({
-          title: 'Error',
-          description: 'Email rate limit exceeded. Try again later.',
+          title: rateLimitToast.title,
+          description: rateLimitToast.description,
           variant: 'destructive',
         });
       } else {
@@ -370,28 +379,28 @@ const Auth = () => {
       setTimeout(() => otpRefs.current[0]?.focus(), 100);
     };
     const showRateLimitMessage = (error: unknown) => {
-      const seconds = getEmailRateLimitSeconds(error);
+      const rateLimitToast = getEmailRateLimitToast(error);
       setLoading(false);
-      setResendCooldown(seconds);
+      setResendCooldown(rateLimitToast.cooldown);
       toast({
-        title: 'Please wait before requesting another code',
-        description: `No new code was sent. Try again in about ${seconds} seconds.`,
+        title: rateLimitToast.title,
+        description: rateLimitToast.description,
         variant: 'destructive',
       });
     };
-    const sendVerificationCode = async () => supabase.auth.signInWithOtp({
+    const sendVerificationCode = async (shouldCreateUser = false) => supabase.auth.signInWithOtp({
       email: normalizedEmail,
       options: {
-        shouldCreateUser: false,
+        shouldCreateUser,
         emailRedirectTo: authRedirectUrl,
       },
     });
 
-    const { data: accountStatus, error: duplicateCheckError } = await supabase.rpc('email_account_status', {
+    const { data: accountStatusResult, error: duplicateCheckError } = await supabase.rpc('email_account_status', {
       p_email: normalizedEmail,
     });
 
-    if (duplicateCheckError) {
+    if (duplicateCheckError && !isMissingEmailStatusRpcError(duplicateCheckError)) {
       setLoading(false);
       toast({
         title: 'Error',
@@ -401,28 +410,13 @@ const Auth = () => {
       return;
     }
 
+    const accountStatus = duplicateCheckError ? null : accountStatusResult;
+
     if (accountStatus === 'confirmed') {
-      const { error } = await sendVerificationCode();
-
-      if (error) {
-        if (isEmailRateLimitError(error)) {
-          showRateLimitMessage(error);
-          return;
-        }
-
-        setLoading(false);
-        toast({
-          title: 'Error',
-          description: getErrorMessage(error, 'We could not send a verification code. Try signing in with email and code.'),
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      enterVerificationStep({
-        title: 'Verification code sent',
-        description: 'This email already has an account. Enter the code sent to your email to continue.',
-      });
+      routeToExistingAccountSignIn(
+        normalizedEmail,
+        'This email already has an account. Sign in with your password instead.',
+      );
       return;
     }
 
@@ -465,24 +459,7 @@ const Auth = () => {
       return;
     }
 
-    const { data: createAccountData, error: createAccountError } = await invokeSupabaseFunction('create-email-account', {
-      body: { email: normalizedEmail },
-    });
-
-    if (createAccountError || (createAccountData as { error?: unknown } | null)?.error) {
-      setLoading(false);
-      const message = (createAccountData as { error?: unknown } | null)?.error;
-      toast({
-        title: 'Error',
-        description: typeof message === 'string'
-          ? message
-          : getErrorMessage(createAccountError, 'Could not create account.'),
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const { error } = await sendVerificationCode();
+    const { error } = await sendVerificationCode(true);
 
     if (error) {
       if (isEmailRateLimitError(error)) {
@@ -543,7 +520,10 @@ const Auth = () => {
 
     setLoading(true);
     invokeSupabaseFunction<{ url?: string }>('create-checkout-session', {
-      body: { returnPath: checkoutReturnPath },
+      body: {
+        returnPath: checkoutReturnPath,
+        returnUrl: `${window.location.origin}${checkoutReturnPath}`,
+      },
     }).then(({ data, error }) => {
       setLoading(false);
 
@@ -570,53 +550,64 @@ const Auth = () => {
   const Divider = ({ label = 'or' }: { label?: string }) => (
     <div className="relative my-5">
       <div className="absolute inset-0 flex items-center">
-        <span className="w-full border-t border-gray-200" />
+        <span className="w-full border-t border-[#07111f]/10 dark:border-white/10" />
       </div>
       <div className="relative flex justify-center">
-        <span className="bg-white px-3 text-xs text-gray-400 uppercase tracking-wide">{label}</span>
+        <span className="px-3 text-xs text-[#07111f]/50 uppercase tracking-wide backdrop-blur-xl dark:text-white/50">{label}</span>
       </div>
     </div>
   );
 
   const TierComparison = () => (
     <div className="grid gap-3 sm:grid-cols-[1.18fr_0.82fr]">
-      <div className="relative rounded-2xl border-2 border-[#1a5fb4] bg-[#1a5fb4]/10 p-4 shadow-sm">
-        <div className="absolute right-3 top-3 rounded-full bg-[#1a5fb4] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+      <div className="relative rounded-2xl border border-[#1a5fb4]/50 bg-white/10 p-4 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:border-white/16 dark:bg-[#07111f]/42 dark:shadow-[0_12px_38px_rgba(2,10,30,0.22)]">
+        <div className="absolute right-3 top-3 rounded-full bg-[#1a5fb4] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#fff]">
           Best value
         </div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-[#1a5fb4]">Paid tier</p>
-        <h2 className="mt-1 text-xl font-semibold text-gray-950">Full Pass</h2>
-        <h2 className="mt-1 text-2xl font-bold text-gray-950">$20<span className="ml-1 text-base font-normal text-gray-700">/month</span></h2>
+        <p className="text-xs font-semibold uppercase tracking-wide text-blue-400">Paid tier</p>
+        <h2 className="mt-1 text-xl font-semibold text-[#07111f] dark:text-white">Full Pass</h2>
+        <h2 className="mt-1 text-2xl font-bold text-[#07111f] dark:text-white">$20<span className="ml-1 text-base font-normal text-[#07111f]/70 dark:text-white/70">/month</span></h2>
+        <div className="mt-2 inline-flex rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-yellow-800">
+          First 2 months free with promo code
+        </div>
         <button
           type="button"
           onClick={handleSubscribe}
           disabled={loading}
-          className="mt-4 w-full rounded-xl bg-[#1a5fb4] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1550a0]"
+          className="mt-4 w-full rounded-xl bg-[#1a5fb4] px-4 py-2.5 text-sm font-semibold text-[#fff] transition-colors hover:bg-[#1550a0]"
         >
           {loading ? 'Opening checkout...' : 'Subscribe'}
         </button>
-        <p className="mt-4 space-y-2 text-sm text-gray-700">Everything in Basic, plus:</p>
-        <ul className="mt-4 space-y-2 text-sm text-gray-700">
+        <p className="mt-4 space-y-2 text-sm text-[#07111f]/70 dark:text-white/70">Everything in Basic, plus:</p>
+        <ul className="mt-4 space-y-2 text-sm text-[#07111f]/70 dark:text-white/70">
           {[
             'No ads',
             'Free entry to the expanding network of Comediq open mics for you and 1 guest',
+            'Access to the Highline Comedy Club Book Me Mic, which gives comics a shot at stage time at a stronger club (3 comics every mic will be chosen to do the 8 pm show after)',
             'Show you support the best database of NYC open mic data and want to contribute to maintaining and growing comedy digital infrastructure',
           ].map((feature) => (
             <li key={feature} className="flex gap-2">
-              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#1a5fb4]" />
+              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-blue-400" />
               <span>{feature}</span>
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Free tier</p>
-        <h2 className="mt-1 text-xl font-semibold text-gray-950">Basic</h2>
-        <h2 className="mt-1 text-2xl font-bold text-gray-950">$0<span className="ml-1 text-base font-normal text-gray-700">/month</span></h2>
-        <p className="mt-4 space-y-2 text-sm text-gray-700">Basic Features:</p>
+      <div className="rounded-2xl border border-[#07111f]/20 bg-white/34 p-4 shadow-[0_12px_38px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:border-white/14 dark:bg-[#07111f]/38 dark:shadow-[0_12px_38px_rgba(2,10,30,0.20)]">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[#07111f]/52 dark:text-white/52">Free tier</p>
+        <h2 className="mt-1 text-xl font-semibold text-[#07111f] dark:text-white">Basic</h2>
+        <h2 className="mt-1 text-2xl font-bold text-[#07111f] dark:text-white">$0<span className="ml-1 text-base font-normal text-[#07111f]/70 dark:text-white/70">/month</span></h2>
+        <button
+          type="button"
+          onClick={() => navigate(basicCreateAccountPath)}
+          className="mt-4 w-full rounded-xl bg-white/50 px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-white/80 dark:text-black"
+        >
+          Create an Account
+        </button>
+        <p className="mt-4 space-y-2 text-sm text-white/70 dark:text-white/72">Basic Features:</p>
 
-        <ul className="mt-4 space-y-2 text-sm text-gray-600">
+        <ul className="mt-4 space-y-2 text-sm text-white/70 dark:text-white/64">
           {[
             'Browse open mics',
             'Save your favorite mics',
@@ -640,90 +631,26 @@ const Auth = () => {
       <button
         type="button"
         onClick={() => navigate('/')}
-        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
       </button>
 
-      <h1
-        ref={signInHeadingRef}
-        tabIndex={-1}
-        className="text-2xl font-semibold text-gray-900 mb-2 focus:outline-none"
-      >
-        Sign in to Comediq
-      </h1>
-      <p className="text-sm text-gray-500 mb-7">New here? Signing in with Google creates your account automatically.</p>
-
-      {/* Google — primary CTA */}
-      <button
-        type="button"
-        onClick={handleGoogleSignIn}
-        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl text-white/100 text-sm font-semibold shadow-sm transition-colors"
-        style={{ background: BRAND_BLUE }}
-      >
-        <GoogleIcon />
-        Continue with Google
-      </button>
-
-      <Divider label="or get a code emailed to you" />
-
-      <form onSubmit={handleSendEmailCode} className="space-y-3">
-        <div className="flex rounded-xl border border-gray-200 overflow-hidden focus-within:ring-2 focus-within:ring-[#1a5fb4] focus-within:border-[#1a5fb4]">
-          <span className="flex items-center pl-3.5 pr-2 text-gray-400">
-            <Mail className="w-4 h-4" />
-          </span>
-          <input
-            ref={signInEmailRef}
-            type="email"
-            placeholder="you@example.com"
-            value={otpEmail}
-            onChange={e => setOtpEmail(e.target.value)}
-            className="flex-1 py-3 pr-3 text-sm bg-white outline-none placeholder-gray-400"
-            required
-            autoComplete="email"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading || !otpEmail || resendCooldown > 0}
-          className="w-full py-3 rounded-xl border border-gray-300 bg-white text-gray-900 text-sm font-semibold transition-colors hover:bg-gray-50 disabled:opacity-50"
-        >
-          {loading ? 'Sending…' : resendCooldown > 0 ? `Try again in ${resendCooldown}s` : 'Email me a code'}
-        </button>
-      </form>
-
-      <p className="mt-6 text-center text-xs text-gray-500">
-        Have a password?{' '}
-        <button
-          type="button"
-          onClick={() => setStep('email_auth')}
-          className="font-medium hover:underline"
-          style={{ color: BRAND_BLUE }}
-        >
-          Sign in with email & password
-        </button>
-      </p>
-
-      <p className="mt-4 text-center text-[11px] text-gray-400 leading-relaxed">
-        By continuing you agree to our <a href="/privacy" className="underline hover:text-gray-600">Privacy Policy</a>.
-      </p>
-    </>
-  );
-
-  const renderChoosePlan = () => (
-    <>
-      <h1 className="text-2xl font-semibold text-gray-900 mb-1">You're signed in 🎉</h1>
-      <p className="text-sm text-gray-500 mb-6">Choose how you'd like to use Comediq.</p>
-      <div className="mb-6">
+      <h1 className="text-2xl font-semibold text-gray-900 mb-4">Create an Account</h1>
+      <div className="mb-8">
         <TierComparison />
       </div>
-      <button
-        type="button"
-        onClick={() => navigate(postAuthPath)}
-        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
-      >
-        Continue with Basic (free)
-      </button>
+
+      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Already Have an Account?</h2>
+      <div className="mx-auto w-full max-w-sm">
+        <button
+          type="button"
+          onClick={() => navigate(signInOptionsPath)}
+          className="w-full rounded-xl border border-gray-300 bg-white/50 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+        >
+          Sign in
+        </button>
+      </div>
     </>
   );
 
@@ -732,7 +659,7 @@ const Auth = () => {
       <button
         type="button"
         onClick={() => navigate(authLandingPath)}
-        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
@@ -749,7 +676,7 @@ const Auth = () => {
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white text-white text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
+          className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-800 text-sm font-semibold hover:bg-white/80 hover:border-gray-300 transition-colors shadow-sm"
         >
           <GoogleIcon />
           Continue with Google
@@ -759,9 +686,9 @@ const Auth = () => {
 
         {/* Email OTP — secondary */}
         <form onSubmit={handleSendEmailCode} className="space-y-3">
-          <div className="flex rounded-xl border border-gray-200 overflow-hidden focus-within:ring-2 focus-within:ring-[#1a5fb4] focus-within:border-[#1a5fb4]">
+          <div className="flex rounded-xl border border-gray-400 overflow-hidden focus-within:ring-2 focus-within:ring-[#1a5fb4] focus-within:border-[#1a5fb4]">
             <span className="flex items-center pl-3.5 pr-2 text-gray-400">
-              <Mail className="w-4 h-4" />
+              <Mail className="w-4 h-4 mr-1" />
             </span>
             <input
               ref={signInEmailRef}
@@ -769,7 +696,7 @@ const Auth = () => {
               placeholder="you@example.com"
               value={otpEmail}
               onChange={e => setOtpEmail(e.target.value)}
-              className="flex-1 py-3 pr-3 text-sm bg-white outline-none placeholder-gray-400"
+              className="pl-2 flex-1 py-3 pr-3 text-sm bg-white/30 outline-none placeholder-gray-600 dark:placeholder-gray-700"
               required
               autoComplete="email"
               autoFocus
@@ -778,7 +705,7 @@ const Auth = () => {
           <button
             type="submit"
             disabled={loading || !otpEmail || resendCooldown > 0}
-            className="w-full py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50"
+            className="w-full py-3 rounded-xl text-[#fff] text-sm font-medium transition-colors disabled:opacity-50"
             style={{ background: BRAND_BLUE }}
           >
             {loading ? 'Sending…' : resendCooldown > 0 ? `Try again in ${resendCooldown}s` : 'Send code'}
@@ -794,7 +721,7 @@ const Auth = () => {
               navigate(signInOptionsPath);
               setStep('email_auth');
             }}
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-center text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+            className="w-full rounded-xl border border-gray-300 bg-white/50 px-4 py-3 text-center text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
           >
             Sign in with password
           </button>
@@ -818,7 +745,7 @@ const Auth = () => {
             setStep('sign_in_options');
           }
         }}
-        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
@@ -826,9 +753,9 @@ const Auth = () => {
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">
         {isCreatingAccount ? 'Create your account' : 'Check your email'}
       </h1>
-      <p className="text-sm text-gray-500 mb-8">
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
         {isCreatingAccount ? 'Enter the verification code sent to ' : 'We sent a 6-digit code to '}
-        <span className="font-medium text-gray-700">{otpEmail}</span>
+        <span className="font-medium text-gray-600">{otpEmail}</span>
       </p>
 
       <div className="flex gap-2.5 mb-6 justify-center">
@@ -859,7 +786,7 @@ const Auth = () => {
         {loading ? 'Verifying…' : 'Verify code'}
       </button>
 
-      <p className="text-center text-sm text-gray-500">
+      <p className="text-center text-sm text-gray-500 dark:text-gray-600">
         Didn't get it?{' '}
         <button
           type="button"
@@ -883,26 +810,26 @@ const Auth = () => {
           navigate(signInOptionsPath);
           setStep('sign_in_options');
         }}
-        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">Sign in with email</h1>
-      <p className="text-sm text-gray-500 mb-7">Welcome back.</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-7">Welcome back.</p>
 
       <form onSubmit={handleEmailAuth} className="space-y-3">
-        <Input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" />
+        <Input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" className={AUTH_INPUT_CLASS} />
         <div className="relative">
-          <Input type={showPassword ? 'text' : 'password'} placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className="pr-10" autoComplete="current-password" />
-          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" tabIndex={-1}>
+          <Input type={showPassword ? 'text' : 'password'} placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className={AUTH_PASSWORD_INPUT_CLASS} autoComplete="current-password" />
+          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600" tabIndex={-1}>
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
         <div className="text-right">
-          <button type="button" onClick={() => setStep('forgot_password')} className="text-xs text-gray-500 hover:text-gray-700">Forgot password?</button>
+          <button type="button" onClick={() => setStep('forgot_password')} className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700">Forgot password?</button>
         </div>
-        <button type="submit" disabled={loading} className="w-full py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50" style={{ background: BRAND_BLUE }}>
+        <button type="submit" disabled={loading} className="w-full py-3 rounded-xl text-[#fff] text-sm font-medium transition-colors disabled:opacity-50" style={{ background: BRAND_BLUE }}>
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
@@ -914,13 +841,13 @@ const Auth = () => {
       <button
         type="button"
         onClick={() => navigate(authLandingPath)}
-        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">Create your account</h1>
-      <p className="text-sm text-gray-500 mb-7">Welcome to Comediq.</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-7">Welcome to Comediq.</p>
 
       {subscribeIntent && (
         <div className="mb-5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
@@ -941,15 +868,26 @@ const Auth = () => {
         </div>
       )}
 
+      <button
+        type="button"
+        onClick={handleGoogleSignIn}
+        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-800 text-sm font-semibold hover:bg-white/80 hover:border-gray-300 transition-colors shadow-sm"
+      >
+        <GoogleIcon />
+        Create account with Google
+      </button>
+
+      <Divider label="or create with email" />
+
       <form onSubmit={handleEmailSignup} className="space-y-3">
-        <Input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" />
+        <Input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" className={AUTH_INPUT_CLASS} />
         <div className="relative">
-          <Input type={showPassword ? 'text' : 'password'} placeholder="Password (6+ characters)" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className="pr-10" autoComplete="new-password" />
-          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" tabIndex={-1}>
+          <Input type={showPassword ? 'text' : 'password'} placeholder="Password (6+ characters)" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className={AUTH_PASSWORD_INPUT_CLASS} autoComplete="new-password" />
+          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600" tabIndex={-1}>
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
-        <button type="submit" disabled={loading} className="w-full py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50" style={{ background: BRAND_BLUE }}>
+        <button type="submit" disabled={loading} className="w-full py-3 rounded-xl text-[#fff] text-sm font-medium transition-colors disabled:opacity-50 hover:bg-[#1550a0]" style={{ background: BRAND_BLUE }}>
           {loading ? 'Creating account…' : 'Create account'}
         </button>
       </form>
@@ -964,15 +902,15 @@ const Auth = () => {
       <button
         type="button"
         onClick={() => setStep('email_auth')}
-        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">Reset password</h1>
-      <p className="text-sm text-gray-500 mb-7">We'll email you a link to reset it.</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-7">We'll email you a link to reset it.</p>
       <form onSubmit={handleForgotPassword} className="space-y-3">
-        <Input type="email" placeholder="Email address" value={resetEmail} onChange={e => setResetEmail(e.target.value)} required />
+        <Input type="email" placeholder="Email address" value={resetEmail} onChange={e => setResetEmail(e.target.value)} required className={AUTH_INPUT_CLASS} />
         <button type="submit" className="w-full py-3 rounded-xl text-white text-sm font-medium" style={{ background: BRAND_BLUE }}>Send reset link</button>
       </form>
     </>
@@ -984,12 +922,12 @@ const Auth = () => {
       <p className="text-sm text-gray-500 mb-7">Choose a strong password for your account.</p>
       <form onSubmit={handlePasswordReset} className="space-y-3">
         <div className="relative">
-          <Input type={showPassword ? 'text' : 'password'} placeholder="New password" value={resetPassword} onChange={e => setResetPassword(e.target.value)} required minLength={6} className="pr-10" />
-          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" tabIndex={-1}>
+          <Input type={showPassword ? 'text' : 'password'} placeholder="New password" value={resetPassword} onChange={e => setResetPassword(e.target.value)} required minLength={6} className={AUTH_PASSWORD_INPUT_CLASS} />
+          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600" tabIndex={-1}>
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
-        <Input type={showPassword ? 'text' : 'password'} placeholder="Confirm password" value={resetConfirm} onChange={e => setResetConfirm(e.target.value)} required minLength={6} />
+        <Input type={showPassword ? 'text' : 'password'} placeholder="Confirm password" value={resetConfirm} onChange={e => setResetConfirm(e.target.value)} required minLength={6} className={AUTH_INPUT_CLASS} />
         <button type="submit" className="w-full py-3 rounded-xl text-white text-sm font-medium" style={{ background: BRAND_BLUE }}>Update password</button>
       </form>
     </>
@@ -997,8 +935,7 @@ const Auth = () => {
 
   const stepContent = {
     main: renderMain,
-    sign_in_options: renderMain,
-    choose_plan: renderChoosePlan,
+    sign_in_options: renderSignInOptions,
     email_otp_verify: renderEmailOtpVerify,
     email_auth: renderEmailAuth,
     email_signup: renderEmailSignup,
@@ -1009,14 +946,12 @@ const Auth = () => {
   const seoTitle = {
     main: 'Sign In | Comediq',
     sign_in_options: 'Sign In | Comediq',
-    choose_plan: 'Choose Your Plan | Comediq',
     email_otp_verify: 'Check Your Email | Comediq',
     email_auth: 'Sign In | Comediq',
     email_signup: 'Join Comediq',
     forgot_password: 'Reset Password | Comediq',
     reset_password: 'Set New Password | Comediq',
   }[step];
-
   return (
     <>
       <SEO title={seoTitle} description="Sign in or create a free Comediq account to save open mics, track your comedy journey, and connect with the NYC comedy community." url="https://comediq.us/auth" noindex={true} />
@@ -1026,7 +961,6 @@ const Auth = () => {
             className="absolute inset-0 h-full w-full object-cover"
             src="/videos/sign-in-loop.mp4"
             autoPlay
-            loop
             muted
             playsInline
           >
@@ -1034,22 +968,26 @@ const Auth = () => {
           </video>
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/60" />
           <div className="relative z-10 flex items-center gap-3">
-            <span className="font-semibold text-lg tracking-tight">Comediq</span>
+            <span className="font-semibold text-lg tracking-tight text-[#fff]">Comediq</span>
           </div>
           <div className="relative z-10" />
-          <div className="relative z-10 grid grid-cols-2 gap-4 pt-4 border-t border-white/20">
-            <div><p className="text-2xl font-bold">1,250+</p><p className="text-white/60 text-sm">comedians per week</p></div>
-            <div><p className="text-2xl font-bold">500+</p><p className="text-white/60 text-sm">open mics tracked</p></div>
+          <div className="relative z-10 grid grid-cols-2 gap-4 pt-4 border-t border-[#fff]/20">
+            <div><p className="text-2xl font-bold text-[#fff]">1,250+</p><p className="text-[#fff] text-sm">comedians per week</p></div>
+            <div><p className="text-2xl font-bold text-[#fff]">500+</p><p className="text-[#fff] text-sm">open mics tracked</p></div>
           </div>
         </div>
-        <div className="flex-1 flex min-h-screen flex-col items-center justify-center overflow-y-auto bg-white px-6 py-12">
+        <div className="flex-1 flex min-h-screen flex-col items-center justify-center overflow-y-auto bg-transparent px-6 py-12">
           <div className="lg:hidden mb-8 flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: BRAND_BLUE }}>
-              <Mic className="w-3.5 h-3.5 text-white" />
+              <Mic className="w-3.5 h-3.5 text-[#fff]" />
             </div>
-            <span className="text-lg font-semibold text-gray-900">Comediq</span>
+            <span className="font-semibold text-lg text-[#07111f] dark:text-[#fff]">Comediq</span>
           </div>
-          <div className={step === 'choose_plan' ? 'w-full max-w-2xl' : 'w-full max-w-sm'}>{stepContent}</div>
+          <div
+            className={`${step === 'main' ? 'w-full max-w-2xl' : 'w-full max-w-sm'} [&_h1]:text-[#07111f] [&_h2]:text-[#07111f] [&_p]:text-[#07111f]/60 [&_label]:text-[#07111f]/70 dark:[&_h1]:text-white dark:[&_h2]:text-white dark:[&_p]:text-white/60 dark:[&_label]:text-white/70`}
+          >
+            {stepContent}
+          </div>
         </div>
       </div>
     </>

@@ -1,5 +1,3 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2?target=deno'
-
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
@@ -34,21 +32,44 @@ const isDuplicateEmailError = (error: unknown) => {
     || message.includes('user already')
 }
 
-async function findUserIdByEmail(
-  admin: ReturnType<typeof createClient>,
-  email: string,
-) {
+type AuthUser = {
+  id: string
+  email?: string
+}
+
+const authHeaders = {
+  apikey: serviceRoleKey,
+  Authorization: `Bearer ${serviceRoleKey}`,
+  'Content-Type': 'application/json',
+}
+
+async function parseAuthError(response: Response, fallback: string) {
+  const text = await response.text()
+  if (!text) return new Error(fallback)
+
+  try {
+    const body = JSON.parse(text) as { message?: string; error?: string; msg?: string }
+    return new Error(body.message ?? body.error ?? body.msg ?? text)
+  } catch {
+    return new Error(text)
+  }
+}
+
+async function findUserIdByEmail(email: string) {
   for (let page = 1; page <= 10; page += 1) {
-    const { data, error } = await admin.auth.admin.listUsers({
-      page,
-      perPage: 1000,
+    const response = await fetch(`${supabaseUrl}/auth/v1/admin/users?page=${page}&per_page=1000`, {
+      method: 'GET',
+      headers: authHeaders,
     })
 
-    if (error) throw error
+    if (!response.ok) throw await parseAuthError(response, 'Could not list users')
 
-    const match = data.users.find((user) => user.email?.toLowerCase() === email)
+    const data = await response.json() as { users?: AuthUser[] }
+    const users = data.users ?? []
+
+    const match = users.find((user) => user.email?.toLowerCase() === email)
     if (match) return match.id
-    if (data.users.length < 1000) break
+    if (users.length < 1000) break
   }
 
   return null
@@ -57,16 +78,20 @@ async function findUserIdByEmail(
 const createTemporaryPassword = () =>
   `${crypto.randomUUID()}-${crypto.randomUUID()}`
 
-async function confirmExistingUser(admin: ReturnType<typeof createClient>, email: string) {
-  const userId = await findUserIdByEmail(admin, email)
+async function confirmExistingUser(email: string) {
+  const userId = await findUserIdByEmail(email)
   if (!userId) return false
 
-  const { error } = await admin.auth.admin.updateUserById(userId, {
-    email_confirm: true,
-    password: createTemporaryPassword(),
+  const response = await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}`, {
+    method: 'PUT',
+    headers: authHeaders,
+    body: JSON.stringify({
+      email_confirm: true,
+      password: createTemporaryPassword(),
+    }),
   })
 
-  if (error) throw error
+  if (!response.ok) throw await parseAuthError(response, 'Could not prepare existing account')
   return true
 }
 
@@ -92,29 +117,29 @@ Deno.serve(async (req) => {
     return json({ error: 'A valid email is required' }, 400)
   }
 
-  const admin = createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
+  const response = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
+    method: 'POST',
+    headers: authHeaders,
+    body: JSON.stringify({
+      email: normalizedEmail,
+      email_confirm: true,
+      password: createTemporaryPassword(),
+    }),
   })
 
-  const { error } = await admin.auth.admin.createUser({
-    email: normalizedEmail,
-    email_confirm: true,
-    password: createTemporaryPassword(),
-  })
+  if (!response.ok) {
+    const error = await parseAuthError(response, 'Could not create account')
 
-  if (error) {
     if (isDuplicateEmailError(error)) {
       if (shouldPrepareExisting) {
-        await confirmExistingUser(admin, normalizedEmail)
+        await confirmExistingUser(normalizedEmail)
       }
       return json({ status: 'exists' })
     }
 
-    console.error('Create email account error:', error)
-    return json({ error: 'Could not create account' }, 500)
+    const message = getErrorMessage(error, 'Could not create account')
+    console.error('Create email account error:', message, error)
+    return json({ error: `Could not create account: ${message}` }, 500)
   }
 
   return json({ status: 'created' })
