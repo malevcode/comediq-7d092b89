@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type GrowthOpportunityType = 'barking' | 'festival' | 'school_ad';
+export type GrowthOpportunityType = 'barking' | 'festival' | 'school_ad' | 'podcast';
 export type GrowthOpportunityStatus = 'submitted' | 'in_review' | 'approved' | 'rejected';
 
 export interface GrowthOpportunity {
