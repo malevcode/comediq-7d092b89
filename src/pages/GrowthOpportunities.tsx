@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Megaphone, Trophy, GraduationCap, Search, Clock, CheckCircle, XCircle, AlertCircle, Podcast } from "lucide-react";
+import { Megaphone, Trophy, GraduationCap, Search, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,7 +22,8 @@ const GrowthOpportunities = () => {
   const [tab, setTab] = useState("booking");
   const { user } = useAuth();
 
-  const typeMap = { booking: 'barking' as const, festivals: 'festival' as const, training: 'school_ad' as const, podcasts: 'podcast' as const };
+  const typeMap = { booking: 'barking' as const, festivals: 'festival' as const, training: 'school_ad' as const };
+
   const currentType = typeMap[tab as keyof typeof typeMap];
   const { data: opportunities, isLoading } = useGrowthOpportunities(currentType);
   const { data: mySubmissions } = useMyGrowthSubmissions(user?.id);
