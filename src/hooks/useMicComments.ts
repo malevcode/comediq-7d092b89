@@ -30,8 +30,12 @@ export function useMicComments(micUniqueIdentifier: string) {
 
       // Fetch usernames for comments
       const userIds = [...new Set((data || []).map(c => c.user_id))];
+      if (userIds.length === 0) {
+        return [] as MicComment[];
+      }
+
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("profile_display")
         .select("user_id, username, stage_name")
         .in("user_id", userIds);
 

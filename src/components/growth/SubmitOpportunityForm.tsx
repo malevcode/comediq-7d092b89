@@ -27,15 +27,7 @@ export function SubmitOpportunityForm() {
     compensation: '',
     contact_info: '',
     external_url: '',
-    // Podcast-specific fields (mapped to existing DB columns)
-    podcast_name: '',
-    host_name: '',
-    episode_frequency: '',
-    instagram_handle: '',
-    youtube_link: '',
   });
-
-  const isPodcast = form.type === 'podcast';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,28 +42,20 @@ export function SubmitOpportunityForm() {
       title: form.title,
       submitted_by: user.id,
       description: form.description || undefined,
+      venue_name: form.venue_name || undefined,
+      borough: form.borough || undefined,
+      date: form.date || undefined,
+      time: form.time || undefined,
+      compensation: form.compensation || undefined,
+      contact_info: form.contact_info || undefined,
+      external_url: form.external_url || undefined,
     };
-
-    if (isPodcast) {
-      payload.venue_name = form.podcast_name || undefined;
-      payload.contact_info = form.instagram_handle ? `@${form.instagram_handle.replace(/^@/, '')}` : undefined;
-      payload.external_url = form.youtube_link || undefined;
-      payload.compensation = form.episode_frequency || undefined;
-    } else {
-      payload.venue_name = form.venue_name || undefined;
-      payload.borough = form.borough || undefined;
-      payload.date = form.date || undefined;
-      payload.time = form.time || undefined;
-      payload.compensation = form.compensation || undefined;
-      payload.contact_info = form.contact_info || undefined;
-      payload.external_url = form.external_url || undefined;
-    }
 
     try {
       await submitMutation.mutateAsync(payload);
       toast({ title: "Submitted!", description: "Your opportunity has been posted." });
       setOpen(false);
-      setForm({ type: 'barking', title: '', description: '', venue_name: '', borough: '', date: '', time: '', compensation: '', contact_info: '', external_url: '', podcast_name: '', host_name: '', episode_frequency: '', instagram_handle: '', youtube_link: '' });
+      setForm({ type: 'barking', title: '', description: '', venue_name: '', borough: '', date: '', time: '', compensation: '', contact_info: '', external_url: '' });
     } catch {
       toast({ title: "Error submitting", variant: "destructive" });
     }
@@ -105,7 +89,6 @@ export function SubmitOpportunityForm() {
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="barking">Booking Opportunity</SelectItem>
-                <SelectItem value="podcast">Podcast</SelectItem>
                 <SelectItem value="school_ad">Training / School</SelectItem>
                 <SelectItem value="festival">Festival / Event</SelectItem>
               </SelectContent>
@@ -113,61 +96,32 @@ export function SubmitOpportunityForm() {
           </div>
           <div>
             <Label>Title *</Label>
-              <Input value={form.title} onChange={e => update('title', e.target.value)} placeholder={isPodcast ? "e.g. Likeable with David Stickle" : "e.g. Comic needed for Saturday show"} />
+              <Input value={form.title} onChange={e => update('title', e.target.value)} placeholder="e.g. Comic needed for Saturday show" />
           </div>
           <div>
             <Label>Description</Label>
-            <Textarea value={form.description} onChange={e => update('description', e.target.value)} placeholder={isPodcast ? "What's the podcast about?" : "Details about the opportunity..."} rows={3} />
+            <Textarea value={form.description} onChange={e => update('description', e.target.value)} placeholder="Details about the opportunity..." rows={3} />
           </div>
 
-          {/* Podcast-specific fields */}
-          {isPodcast && (
-            <>
-              <div>
-                <Label>Podcast Name</Label>
-                <Input value={form.podcast_name} onChange={e => update('podcast_name', e.target.value)} placeholder="e.g. Likeable Pod" />
-              </div>
-              <div>
-                <Label>Host Name</Label>
-                <Input value={form.host_name} onChange={e => update('host_name', e.target.value)} placeholder="e.g. David Stickle" />
-              </div>
-              <div>
-                <Label>Episode Frequency</Label>
-                <Input value={form.episode_frequency} onChange={e => update('episode_frequency', e.target.value)} placeholder="e.g. Every Wednesday" />
-              </div>
-              <div>
-                <Label>Instagram Handle</Label>
-                <Input value={form.instagram_handle} onChange={e => update('instagram_handle', e.target.value)} placeholder="e.g. @likeablepod" />
-              </div>
-              <div>
-                <Label>YouTube Link</Label>
-                <Input value={form.youtube_link} onChange={e => update('youtube_link', e.target.value)} placeholder="https://youtube.com/..." />
-              </div>
-            </>
-          )}
-
-          {/* Venue & Borough — barking, school_ad, festival */}
-          {!isPodcast && (
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Venue</Label>
-                <Input value={form.venue_name} onChange={e => update('venue_name', e.target.value)} placeholder="Venue name" />
-              </div>
-              <div>
-                <Label>Borough</Label>
-                <Select value={form.borough} onValueChange={(v) => update('borough', v)}>
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Manhattan">Manhattan</SelectItem>
-                    <SelectItem value="Brooklyn">Brooklyn</SelectItem>
-                    <SelectItem value="Queens">Queens</SelectItem>
-                    <SelectItem value="Bronx">Bronx</SelectItem>
-                    <SelectItem value="Staten Island">Staten Island</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Venue</Label>
+              <Input value={form.venue_name} onChange={e => update('venue_name', e.target.value)} placeholder="Venue name" />
             </div>
-          )}
+            <div>
+              <Label>Borough</Label>
+              <Select value={form.borough} onValueChange={(v) => update('borough', v)}>
+                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Manhattan">Manhattan</SelectItem>
+                  <SelectItem value="Brooklyn">Brooklyn</SelectItem>
+                  <SelectItem value="Queens">Queens</SelectItem>
+                  <SelectItem value="Bronx">Bronx</SelectItem>
+                  <SelectItem value="Staten Island">Staten Island</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
           {/* Date — barking & festival */}
           {(form.type === 'barking' || form.type === 'festival') && (

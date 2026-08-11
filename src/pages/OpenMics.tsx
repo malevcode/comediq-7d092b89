@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Search, HelpCircle, LogIn, Plus } from "lucide-react";
+import { Search, HelpCircle, LogIn, Plus, Map, ChevronDown } from "lucide-react";
 import SEO from "@/components/SEO";
 import { generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const [showKey, setShowKey] = useState(false);
   const [visibleCount, setVisibleCount] = useState(100);
   const [showInlineCard, setShowInlineCard] = useState(false);
+  const [showMapView, setShowMapView] = useState(false);
 
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
@@ -363,7 +364,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
     return (
       <>
-        <div className="mb-4 rounded-xl border border-[#07111f]/10 bg-white/80 px-3 py-2 text-[#07111f] shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:border-0 dark:bg-[#102a53]/60 dark:text-white dark:shadow-[0_12px_38px_rgba(2,10,30,0.22)]">
+        <div className="mb-4 rounded-xl border border-[#07111f]/10 bg-white/25 px-3 py-2 text-[#07111f] shadow-[0_24px_80px_rgba(4,20,55,0.16),0_8px_28px_rgba(4,20,55,0.08)] backdrop-blur-2xl dark:border-0 dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34),0_8px_28px_rgba(2,10,30,0.2)]">
           <p className="text-xs text-[#07111f]/70 dark:text-white/70">
             Showing {Math.min(visibleCount, micsToShow.length)} of {micsToShow.length}
             {tabName === "next" ? " upcoming" : tabName === "liked" ? " liked" : tabName === "new" ? " new" : ""} open mic
@@ -383,7 +384,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
         />
 
         {micsToShow.length === 0 && (
-          <div className="rounded-xl bg-[#102a53]/60 px-4 py-12 text-center text-white shadow-[0_12px_38px_rgba(2,10,30,0.22)] backdrop-blur-xl">
+          <div className="rounded-xl bg-white/10 px-4 py-12 text-center text-white shadow-[0_24px_80px_rgba(2,10,30,0.34),0_8px_28px_rgba(2,10,30,0.2)] backdrop-blur-2xl">
             <div className="text-4xl mb-3">🎤</div>
             <p className="text-white/80 font-medium">
               {tabName === "liked"
@@ -561,9 +562,10 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     ? `Discover comedy open mics in ${filters.borough}. Real-time schedules, venue details, and comedian reviews.`
     : "Find every comedy open mic in NYC. Real-time schedules, venue details, comedian reviews, and set tracking.";
   const tabListLayoutClass = user
-    ? "grid grid-cols-5 lg:grid-cols-10"
-    : "flex flex-wrap justify-center lg:grid lg:grid-cols-9";
-  const loggedOutMobileTabClass = !user ? "basis-[calc((100%_-_1rem)_/_5)] lg:basis-auto" : "";
+    ? "grid grid-cols-10"
+    : "grid grid-cols-9";
+  const loggedOutMobileTabClass = "";
+
   const tabTriggerClass = `text-xs py-1 px-1 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white ${loggedOutMobileTabClass}`;
 
   return (
@@ -581,7 +583,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
         {/* Key/Legend */}
         {showKey && (
             <div className="block mb-3">
-              <div className="rounded-xl bg-[#102a53]/70 p-3 text-white shadow-[0_12px_38px_rgba(2,10,30,0.22)] backdrop-blur-xl">
+              <div className="rounded-xl bg-white/10 p-3 text-white shadow-[0_24px_80px_rgba(2,10,30,0.34),0_8px_28px_rgba(2,10,30,0.2)] backdrop-blur-2xl">
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
                   {/* Example Tile */}
                   <div>
@@ -660,7 +662,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
       <div className="max-w-7xl mx-auto px-4 py-0">
         {/* Search and Filters */}
-        <div className="relative z-[90] rounded-xl bg-white/50 p-3 mb-3 block text-gray-700 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#102a53]/70 dark:text-white dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]">
+        <div className="relative z-[90] rounded-xl bg-white/25 p-3 mb-3 block text-gray-700 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
           <div className="flex flex-row gap-3 items-center">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray dark:text-white/40" />
@@ -668,7 +670,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                 placeholder="Search venues, neighborhoods, or open mic names..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 py-2 text-sm border-0 bg-white/10 text-gray-900 placeholder:text-gray-400 focus-visible:ring-gray-200 shadow-[0_12px_38px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:bg-white/10 dark:text-white dark:placeholder:text-white/50 dark:focus-visible:ring-[#8ec5ff]/50 dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]"
+                className="pl-10 py-2 text-sm border-0 bg-white/10 text-gray-900 placeholder:text-gray-400 focus-visible:ring-gray-200 shadow-[0_12px_38px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:bg-[#102a53]/20 dark:text-white dark:placeholder:text-white/50 dark:focus-visible:ring-[#8ec5ff]/50 dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]"
               />
             </div>
 
@@ -703,7 +705,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
         {/* Day Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`mb-6 h-auto w-full gap-1 border-0 bg-white/50 p-2 text-gray-500 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#102a53]/70 dark:text-blue-600 dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)] ${tabListLayoutClass}`}>
+          <TabsList className={`mb-6 h-auto w-full gap-1 border-0 bg-white/25 p-2 text-gray-500 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-blue-600 dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)] ${tabListLayoutClass}`}>
             <TabsTrigger value="next" className={tabTriggerClass}>
               Next
             </TabsTrigger>
@@ -721,7 +723,6 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
               </TabsTrigger>
             ))}
           </TabsList>
-
           {showInlineCard && (
             <div className="mb-4">
               <EditableMicCard
@@ -732,11 +733,28 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
             </div>
           )}
 
-          <div className="mb-4">
-            <OpenMicsMapRefactored
-              mics={getActiveTabMics()}
-              onMicSelect={setSelectedMic}
-            />
+          <div className="mb-4 rounded-xl bg-white/25 p-3 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white">
+            <button
+                type="button"
+                onClick={() => setShowMapView((open) => !open)}
+                className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-semibold hover:bg-white/20 dark:hover:bg-white/10"
+                aria-expanded={showMapView}
+            >
+                <span className="inline-flex items-center gap-2">
+                    <Map className="h-4 w-4" />
+                    Map View
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${showMapView ? "rotate-180" : ""}`} />
+            </button>
+
+            {showMapView && (
+               <div className="mt-3">
+                    <OpenMicsMapRefactored
+                        mics={getActiveTabMics()}
+                        onMicSelect={setSelectedMic}
+                    />
+               </div>
+            )}
           </div>
 
           <TabsContent value="next" className="mt-2">

@@ -24,7 +24,7 @@ export default function SponsorSection() {
             Sponsored
           </Badge>
         </div>
-        <Card className="border-white/50 bg-white/90 shadow-[0_18px_60px_rgba(4,20,55,0.16)] backdrop-blur-xl hover:shadow-[0_22px_70px_rgba(4,20,55,0.2)] transition-shadow">
+        <Card className="border-white/50 bg-white/30 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl transition-shadow hover:bg-white/40 hover:shadow-[0_34px_110px_rgba(4,20,55,0.22),0_12px_36px_rgba(4,20,55,0.12)] dark:bg-[#102a53]/20 dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
           <CardContent className="flex flex-col sm:flex-row items-center gap-6 p-6 sm:p-8">
             {sponsor.icon_url && (
               <a

@@ -94,8 +94,8 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
         size="sm"
         className={`flex items-center justify-center text-[11px] font-bold px-2 py-1 h-7 relative transition-all ${
           hasActiveFilters
-            ? 'bg-white/80 border-0 text-[#1a5fb4] hover:bg-white/90 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-white/20 dark:!text-white dark:hover:bg-white/20 dark:hover:!text-white dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]'
-            : 'bg-white/70 border-0 text-gray-600 hover:bg-white/90 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-white/10 dark:!text-white/90 dark:hover:bg-white/20 dark:hover:!text-white dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]'
+            ? 'bg-white/30 border-0 text-[#1a5fb4] hover:bg-white/40 shadow-[0_20px_70px_rgba(2,10,30,0.16),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl dark:bg-[#102a53]/30 dark:!text-white dark:hover:bg-white/20 dark:hover:!text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)]'
+            : 'bg-white/25 border-0 text-gray-600 hover:bg-white/35 shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:!text-white/90 dark:hover:bg-white/20 dark:hover:!text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)]'
         }`}
       >
         <span>Filter</span>
@@ -114,7 +114,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
           />
 
           <div className="fixed md:absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto top-20 md:top-full md:right-0 md:mt-2 z-[9999] w-[92vw] max-w-sm md:w-72">
-            <Card className="rounded-2xl border-[#07111f]/10 bg-white text-gray-800 shadow-[0_18px_55px_rgba(2,10,30,0.16)] backdrop-blur-xl dark:border-white/10 dark:bg-[#102a53]/90 dark:text-white dark:shadow-[0_18px_55px_rgba(2,10,30,0.34)]">
+            <Card className="rounded-2xl border-[#07111f]/10 bg-white/30 text-gray-800 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#102a53]/25 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-sm text-gray-900 dark:text-white">Filter Open Mics</h3>
@@ -136,7 +136,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                       <select
                         value={filters.frequency || 'all'}
                         onChange={(e) => onFiltersChange({ ...filters, frequency: e.target.value as MicFrequency | 'all' })}
-                        className="w-auto px-2 py-1 text-xs border border-gray-200 rounded-md bg-white text-gray-900 dark:border-white/10 dark:bg-white/10 dark:text-white"
+                        className="w-auto px-2 py-1 text-xs border border-gray-200 rounded-md bg-white text-gray-900 dark:border-white/10 dark:bg-[#102a53]/20 dark:text-white"
                       >
                         {FREQUENCY_OPTIONS.map(opt => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -148,7 +148,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                       <select
                         value={filters.city}
                         onChange={(e) => onFiltersChange({ ...filters, city: e.target.value })}
-                        className="w-auto px-2 py-1 text-xs border border-gray-200 rounded-md bg-white text-gray-900 dark:border-white/10 dark:bg-white/10 dark:text-white"
+                        className="w-auto px-2 py-1 text-xs border border-gray-200 rounded-md bg-white text-gray-900 dark:border-white/10 dark:bg-[#102a53]/20 dark:text-white"
                       >
                         {cities.map((city) => (
                           <option key={city} value={city}>{city}</option>
@@ -181,7 +181,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                     <select
                       value={filters.borough}
                       onChange={(e) => onFiltersChange({ ...filters, borough: e.target.value })}
-                      className="w-full px-2 py-1 text-xs border border-gray-200 rounded-md bg-white text-gray-900 dark:border-white/10 dark:bg-white/10 dark:text-white"
+                      className="w-full px-2 py-1 text-xs border border-gray-200 rounded-md bg-white text-gray-900 dark:border-white/10 dark:bg-[#102a53]/20 dark:text-white"
                     >
                       {boroughs.map((borough) => (
                         <option key={borough} value={borough}>{borough}</option>
@@ -205,7 +205,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                             size="sm"
                             className={`text-xs h-7 px-1 ${
                               active
-                                ? 'bg-[#1a5fb4]/10 border-[#1a5fb4]/30 text-[#1a5fb4] hover:bg-[#1a5fb4]/20 dark:bg-white/20 dark:border-white/20 dark:text-white dark:hover:bg-white/20'
+                                ? 'bg-[#1a5fb4]/10 border-[#1a5fb4]/30 text-[#1a5fb4] hover:bg-[#1a5fb4]/20 dark:bg-[#102a53]/30 dark:border-white/20 dark:text-white dark:hover:bg-white/20'
                                 : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10'
                             }`}
                           >
