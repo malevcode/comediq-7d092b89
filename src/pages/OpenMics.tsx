@@ -562,9 +562,10 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     ? `Discover comedy open mics in ${filters.borough}. Real-time schedules, venue details, and comedian reviews.`
     : "Find every comedy open mic in NYC. Real-time schedules, venue details, comedian reviews, and set tracking.";
   const tabListLayoutClass = user
-    ? "grid grid-cols-5 lg:grid-cols-10"
-    : "flex flex-wrap justify-center lg:grid lg:grid-cols-9";
-  const loggedOutMobileTabClass = !user ? "basis-[calc((100%_-_1rem)_/_5)] lg:basis-auto" : "";
+    ? "grid grid-cols-10"
+    : "grid grid-cols-9";
+  const loggedOutMobileTabClass = "";
+
   const tabTriggerClass = `text-xs py-1 px-1 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white ${loggedOutMobileTabClass}`;
 
   return (

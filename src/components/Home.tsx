@@ -204,13 +204,6 @@ export default function Home() {
   const outlineActionClass = "border-0 w-full justify-start bg-white/25 text-[#07111f] hover:bg-white/35 hover:text-[#1a5fb4] hover:-translate-y-0.5 hover:scale-[1.03] shadow-[0_20px_70px_rgba(2,10,30,0.16),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl transition-all duration-300 dark:bg-[#102a53]/20 dark:text-white dark:hover:bg-white/20 dark:hover:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)]";
   const micOfTheWeekBanners = [
     {
-      title: "Comediq Book Me Mic",
-      description: "Highline Comedy Club stage-time opportunity",
-      href: "/book-me-mic",
-      icon: Sparkles,
-      accent: "from-amber-50 to-yellow-50 border-amber-200 text-amber-700",
-    },
-    {
       title: "This Week's Open Mics",
       description: "Find fresh rooms to get on stage",
       href: "/open-mics",
@@ -218,6 +211,7 @@ export default function Home() {
       accent: "from-blue-50 to-white border-[#1a5fb4]/20 text-[#1a5fb4]",
     },
   ];
+
 
 
 
