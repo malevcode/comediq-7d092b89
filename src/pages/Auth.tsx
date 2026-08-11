@@ -567,9 +567,6 @@ const Auth = () => {
         <p className="text-xs font-semibold uppercase tracking-wide text-blue-400">Paid tier</p>
         <h2 className="mt-1 text-xl font-semibold text-[#07111f] dark:text-white">Full Pass</h2>
         <h2 className="mt-1 text-2xl font-bold text-[#07111f] dark:text-white">$20<span className="ml-1 text-base font-normal text-[#07111f]/70 dark:text-white/70">/month</span></h2>
-        <div className="mt-2 inline-flex rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-yellow-800">
-          First 2 months free with promo code
-        </div>
         <button
           type="button"
           onClick={handleSubscribe}
