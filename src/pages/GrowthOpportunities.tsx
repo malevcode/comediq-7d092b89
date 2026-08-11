@@ -61,8 +61,8 @@ const GrowthOpportunities = () => {
     booking: { title: "No booking opportunities yet", sub: "Check back soon or post one yourself!" },
     festivals: { title: "No festivals listed yet", sub: "Know about a comedy festival? Submit it!" },
     training: { title: "No training opportunities yet", sub: "Comedy schools and coaches — advertise here!" },
-    podcasts: { title: "No podcasts listed yet", sub: "Know a great comedy podcast? Submit it!" },
   };
+
 
   return (
     <>
