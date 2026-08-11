@@ -1,4 +1,4 @@
-import { Calendar, MapPin, DollarSign, ExternalLink, Megaphone, Trophy, GraduationCap, Headphones, Clock, Instagram } from "lucide-react";
+import { Calendar, MapPin, DollarSign, ExternalLink, Megaphone, Trophy, GraduationCap, Headphones, Instagram } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
                 Featured
               </Badge>
             )}
-            {opportunity.type !== "podcast" && <Badge className={`text-xs ${config.color}`}>{config.label}</Badge>}
+            <Badge className={`text-xs ${config.color}`}>{config.label}</Badge>
           </div>
         </div>
       </CardHeader>
@@ -52,7 +52,7 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
               {opportunity.borough && `, ${opportunity.borough}`}
             </span>
           )}
-          {opportunity.type !== "podcast" && opportunity.date && (
+          {opportunity.date && (
             <span className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />{" "}
               {new Date(opportunity.date + "T00:00:00").toLocaleDateString("en-US", {
@@ -63,14 +63,9 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
               {opportunity.time && ` at ${opportunity.time}`}
             </span>
           )}
-          {opportunity.type !== "podcast" && opportunity.compensation && (
+          {opportunity.compensation && (
             <span className="flex items-center gap-1">
               <DollarSign className="h-3 w-3" /> {opportunity.compensation}
-            </span>
-          )}
-          {opportunity.type === "podcast" && opportunity.compensation && (
-            <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" /> {opportunity.compensation}
             </span>
           )}
         </div>
@@ -89,7 +84,6 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
             <Instagram className="h-3 w-3" /> Follow on Instagram
           </a>
         )}
-
         {opportunity.external_url && (
           <Button
             variant="outline"
@@ -99,7 +93,7 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
           >
             <a href={opportunity.external_url} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-3 w-3 mr-1" />
-              {opportunity.external_label ?? (opportunity.type === "podcast" ? "Watch on YouTube" : "Learn More")}
+              {opportunity.external_label ?? "Learn More"}
             </a>
           </Button>
         )}

@@ -69,7 +69,7 @@ const JobBoard = () => {
 
         <div className="page-content-offset px-4 max-w-7xl mx-auto pb-24">
           {/* Prominent CTA Card */}
-          <div className="mb-6 p-6 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20">
+          <div className="mb-6 p-6 rounded-xl bg-gradient-to-r from-primary/10 via-primary/10 to-transparent border border-primary/20">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-foreground mb-1">🎤 Have a show coming up?</h2>

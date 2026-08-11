@@ -139,7 +139,7 @@ const Onboarding = () => {
                 onClick={() => setSelected(r.id)}
                 className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all ${
                   selected === r.id
-                    ? 'border-[#1a5fb4] bg-[#1a5fb4]/5'
+                    ? 'border-[#1a5fb4] bg-[#1a5fb4]/10'
                     : 'border-gray-200 hover:border-gray-300 bg-white'
                 }`}
               >

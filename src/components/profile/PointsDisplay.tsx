@@ -17,7 +17,7 @@ export default function PointsDisplay() {
   const { data: history = [] } = usePointsHistory(10);
 
   return (
-    <Card className="border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5">
+    <Card className="border-0 bg-[#07111f]/10 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/10">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
           <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
@@ -42,7 +42,7 @@ export default function PointsDisplay() {
             <div className="space-y-1.5">
               {history.map((entry: any) => (
                 <div key={entry.id} className="flex items-center justify-between text-sm py-1.5 border-b border-white/10 last:border-0">
-                  <span className="text-white/64">
+                  <span className="text-white/60">
                     {ACTION_LABELS[entry.action_type] || entry.action_type}
                   </span>
                   <Badge

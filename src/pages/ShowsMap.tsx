@@ -23,7 +23,7 @@ const ShowsMap = () => {
   return (
     <div className="flex flex-col h-screen bg-transparent">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-[#07111f]/62 z-10 flex-shrink-0 text-white backdrop-blur-xl">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-[#07111f]/60 z-10 flex-shrink-0 text-white backdrop-blur-xl">
         <button
           onClick={() => navigate('/laugh?tab=find-shows')}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"

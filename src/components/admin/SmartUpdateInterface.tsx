@@ -234,7 +234,7 @@ export function SmartUpdateInterface() {
     <div className="space-y-6">
       {/* Input Step */}
       {step === 'input' && (
-        <Card className="border-2 border-dashed border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+        <Card className="border-2 border-dashed border-primary/30 bg-gradient-to-br from-primary/10 to-transparent">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Sparkles className="w-5 h-5 text-primary" />

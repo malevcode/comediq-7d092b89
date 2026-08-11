@@ -579,6 +579,13 @@ export type Database = {
             foreignKeyName: "comedian_social_links_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "profile_display"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "comedian_social_links_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
@@ -601,6 +608,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "gcal_clicks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile_display"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "gcal_clicks_user_id_fkey"
             columns: ["user_id"]
@@ -716,6 +730,13 @@ export type Database = {
           status?: Database["public"]["Enums"]["application_status"] | null
         }
         Relationships: [
+          {
+            foreignKeyName: "job_applications_applicant_id_fkey"
+            columns: ["applicant_id"]
+            isOneToOne: false
+            referencedRelation: "profile_display"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "job_applications_applicant_id_fkey"
             columns: ["applicant_id"]
@@ -883,6 +904,13 @@ export type Database = {
             foreignKeyName: "mic_hosts_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "profile_display"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "mic_hosts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
@@ -979,6 +1007,30 @@ export type Database = {
           is_public?: boolean
           name?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mic_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          mic_id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mic_id: string
+          reaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mic_id?: string
+          reaction_type?: string
           user_id?: string
         }
         Relationships: []
@@ -1103,6 +1155,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "mic_signup_events"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mic_signups_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile_display"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "mic_signups_user_id_fkey"
@@ -1248,6 +1307,7 @@ export type Database = {
       open_mics_historical: {
         Row: {
           active: boolean | null
+          aug_verification_status: string | null
           borough: string | null
           changes_updates: string | null
           city: string | null
@@ -1291,6 +1351,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean | null
+          aug_verification_status?: string | null
           borough?: string | null
           changes_updates?: string | null
           city?: string | null
@@ -1334,6 +1395,7 @@ export type Database = {
         }
         Update: {
           active?: boolean | null
+          aug_verification_status?: string | null
           borough?: string | null
           changes_updates?: string | null
           city?: string | null
@@ -1470,6 +1532,13 @@ export type Database = {
             foreignKeyName: "open_mics_requests_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "profile_display"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "open_mics_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
@@ -1562,6 +1631,13 @@ export type Database = {
             foreignKeyName: "points_ledger_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "profile_display"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "points_ledger_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
@@ -1608,6 +1684,13 @@ export type Database = {
           venue?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profile_custom_shows_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profile_display"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "profile_custom_shows_profile_id_fkey"
             columns: ["profile_id"]
@@ -1662,6 +1745,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "open_mics_historical"
             referencedColumns: ["unique_identifier"]
+          },
+          {
+            foreignKeyName: "profile_open_mics_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profile_display"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "profile_open_mics_profile_id_fkey"
@@ -1776,6 +1866,13 @@ export type Database = {
           venue_name?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "recordings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile_display"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "recordings_user_id_fkey"
             columns: ["user_id"]
@@ -1972,6 +2069,13 @@ export type Database = {
             foreignKeyName: "show_postings_producer_id_fkey"
             columns: ["producer_id"]
             isOneToOne: false
+            referencedRelation: "profile_display"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "show_postings_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
@@ -2129,6 +2233,13 @@ export type Database = {
           username?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "user_admin_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profile_display"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "user_admin_user_id_fkey"
             columns: ["user_id"]
@@ -2371,6 +2482,13 @@ export type Database = {
           visit_date?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "user_visits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile_display"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "user_visits_user_id_fkey"
             columns: ["user_id"]
@@ -2676,6 +2794,14 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_display: {
+        Row: {
+          stage_name: string | null
+          user_id: string | null
+          username: string | null
+        }
+        Relationships: []
+      }
       motd_nomination_tallies: {
         Row: {
           created_at: string | null
@@ -2768,10 +2894,32 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_display: {
+        Row: {
+          stage_name: string | null
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          stage_name?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          stage_name?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       email_account_status: { Args: { p_email: string }; Returns: string }
       email_exists: { Args: { p_email: string }; Returns: boolean }
+      get_or_create_system_host: {
+        Args: { mic_id_param: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2779,6 +2927,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_current_user_admin: { Args: never; Returns: boolean }
       resolve_motd_for: { Args: { target_date: string }; Returns: string }
     }
     Enums: {

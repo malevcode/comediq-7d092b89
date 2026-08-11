@@ -60,10 +60,10 @@ export default function ComedianCard({ comedian, variant = 'default' }: Comedian
   }
 
   return (
-    <Card className="border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5">
+    <Card className="border-0 bg-[#07111f]/10 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/10">
       <CardContent className="p-6">
         <div className="flex flex-col items-center text-center space-y-4">
-          <Avatar className="h-24 w-24 border-4 border-white/12">
+          <Avatar className="h-24 w-24 border-4 border-white/10">
             {comedian.headshot_url ? (
               <AvatarImage src={comedian.headshot_url} alt={stageName} />
             ) : (
@@ -75,7 +75,7 @@ export default function ComedianCard({ comedian, variant = 'default' }: Comedian
             <h3 className="text-xl font-bold">{stageName}</h3>
             
             {primaryLink && (
-            <p className="text-sm text-white/64">@{primaryLink.handle}</p>
+            <p className="text-sm text-white/60">@{primaryLink.handle}</p>
             )}
 
             {comedian.credit && (
@@ -93,7 +93,7 @@ export default function ComedianCard({ comedian, variant = 'default' }: Comedian
           </div>
 
           {comedian.bio && (
-            <p className="text-sm text-white/64 line-clamp-3">{comedian.bio}</p>
+            <p className="text-sm text-white/60 line-clamp-3">{comedian.bio}</p>
           )}
 
           {sortedLinks.length > 0 && (

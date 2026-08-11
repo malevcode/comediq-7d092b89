@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import type { FeatureCollection, Point } from 'geojson';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { format, parseISO } from 'date-fns';
@@ -27,7 +28,7 @@ type VenueFeatureProperties = {
 const NYC_CENTER: [number, number] = [-73.9352, 40.7308];
 const LIGHT_MAP_STYLE = 'mapbox://styles/mapbox/streets-v12';
 const DARK_MAP_STYLE = 'mapbox://styles/mapbox/dark-v11';
-const EMPTY_FEATURE_COLLECTION: GeoJSON.FeatureCollection<GeoJSON.Point, VenueFeatureProperties> = {
+const EMPTY_FEATURE_COLLECTION: FeatureCollection<Point, VenueFeatureProperties> = {
   type: 'FeatureCollection',
   features: [],
 };
@@ -97,7 +98,7 @@ const AudienceShowsMap: React.FC<AudienceShowsMapProps> = ({ shows }) => {
     [venueGroups],
   );
 
-  const features = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point, VenueFeatureProperties>>(
+  const features = useMemo<FeatureCollection<Point, VenueFeatureProperties>>(
     () => ({
       type: 'FeatureCollection',
       features: venueGroups.map((group) => ({
@@ -222,19 +223,19 @@ const AudienceShowsMap: React.FC<AudienceShowsMapProps> = ({ shows }) => {
           layerHandlersRegistered = true;
           map.on('click', 'audience-show-clusters', (event) => {
           const renderedFeatures = map.queryRenderedFeatures(event.point, { layers: ['audience-show-clusters'] });
-          const clusterId = renderedFeatures[0]?.properties?.cluster_id;
+          const clusterId = (renderedFeatures[0] as any)?.properties?.cluster_id;
           const source = getSource(map);
           if (clusterId === undefined || !source) return;
 
           source.getClusterExpansionZoom(clusterId, (zoomError, zoom) => {
             if (zoomError || zoom === undefined) return;
-            const coordinates = (renderedFeatures[0].geometry as GeoJSON.Point).coordinates as [number, number];
+            const coordinates = ((renderedFeatures[0] as any).geometry as Point).coordinates as [number, number];
             map.easeTo({ center: coordinates, zoom });
           });
           });
 
           map.on('click', 'audience-show-pins', (event) => {
-            const key = event.features?.[0]?.properties?.key;
+            const key = (event.features?.[0] as any)?.properties?.key;
             const group = typeof key === 'string' ? venueGroupLookup.get(key) : null;
             if (group) {
               setBottomSheet({ venueName: group.venueName, shows: group.shows });
@@ -285,7 +286,7 @@ const AudienceShowsMap: React.FC<AudienceShowsMapProps> = ({ shows }) => {
 
   return (
     <div className="relative w-full h-full">
-      <div className="hidden md:block absolute top-3 left-3 z-10 rounded-lg border border-border bg-white/95 px-3 py-2 text-xs shadow-sm space-y-1">
+      <div className="hidden md:block absolute top-3 left-3 z-10 rounded-lg border border-border bg-white/100 px-3 py-2 text-xs shadow-sm space-y-1">
         {SHOW_TYPE_COLORS.map(({ label, color }) => (
           <div key={label} className="flex items-center gap-2">
             <span
@@ -298,14 +299,14 @@ const AudienceShowsMap: React.FC<AudienceShowsMapProps> = ({ shows }) => {
       </div>
 
       {venueGroups.length > 0 && (
-        <div className="absolute bottom-8 left-3 z-10 rounded-lg border border-border bg-white/95 px-3 py-1.5 text-xs text-slate-700 shadow-sm">
+        <div className="absolute bottom-8 left-3 z-10 rounded-lg border border-border bg-white/100 px-3 py-1.5 text-xs text-slate-700 shadow-sm">
           {venueGroups.length} venue{venueGroups.length !== 1 ? 's' : ''} mapped · upcoming
         </div>
       )}
 
       {shows.length > 0 && venueGroups.length === 0 && mapReady && (
         <div className="absolute inset-x-4 top-20 z-10 flex justify-center pointer-events-none">
-          <div className="rounded-lg border border-border bg-white/95 px-3 py-2 text-center text-sm text-muted-foreground shadow-sm">
+          <div className="rounded-lg border border-border bg-white/100 px-3 py-2 text-center text-sm text-muted-foreground shadow-sm">
             {shows.length} upcoming show{shows.length !== 1 ? 's' : ''} found, but none have stored coordinates yet.
           </div>
         </div>

@@ -5,13 +5,13 @@ const Hero = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="px-4 pt-24 sm:pt-28 pb-6">
+    <section className="px-4 pt-24 sm:pt-28 pb-0">
       <div className="max-w-6xl mx-auto">
         <div
           aria-label="Landing media area"
           className="relative flex min-h-[360px] items-center justify-center overflow-hidden rounded-[2rem] bg-transparent sm:min-h-[440px]"
         >
-          <div className="relative z-10 flex w-full max-w-4xl flex-col items-center px-5 py-10 text-center">
+          <div className="relative z-10 flex w-full max-w-4xl flex-col items-center px-5 pt-10 text-center">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#ffc72c] sm:text-sm">
               NYC's Comedy Platform
             </p>
@@ -42,7 +42,7 @@ const Hero = () => {
               <Button
                 onClick={() => navigate("/auth")}
                 variant="outline"
-                className="w-full rounded-full border-2 border-[#ffc72c] bg-white/10 px-6 py-3 text-sm text-[#ffc72c] backdrop-blur transition-all duration-300 hover:scale-105 hover:bg-[#ffc72c]/12 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+                className="w-full rounded-full border-2 border-[#ffc72c] bg-white/10 px-6 py-3 text-sm text-[#ffc72c] backdrop-blur transition-all duration-300 hover:scale-105 hover:bg-[#ffc72c]/10 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
               >
                 😂 I Watch
               </Button>
@@ -53,7 +53,7 @@ const Hero = () => {
                 href="https://instagram.com/malevcomedy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-sm text-white/65 transition-colors hover:text-[#ffc72c]"
+                className="block text-sm text-white/70 transition-colors hover:text-[#ffc72c]"
               >
                 Made and maintained by Adam Malev @malevcomedy
               </a>
@@ -61,7 +61,7 @@ const Hero = () => {
                 href="https://instagram.com/comediq.us"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-sm text-white/65 transition-colors hover:text-[#ffc72c]"
+                className="block text-sm text-white/70 transition-colors hover:text-[#ffc72c]"
               >
                 Questions or new mics? DM @comediq.us
               </a>

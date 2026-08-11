@@ -1,11 +1,13 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mic2, TrendingUp, ArrowRight, Calendar, MapPin, Heart, Bookmark, Music, ListMusic, Sparkles, Megaphone, Headphones, ExternalLink } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Mic2, TrendingUp, ArrowRight, MapPin, Heart, Bookmark, Music, ListMusic, Sparkles, NotebookPen, Activity, Megaphone, Headphones, ExternalLink } from "lucide-react";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { SponsorCard } from "./SponsorCard";
 import { QuickNotes } from "./home/QuickNotes";
 import Header from "./Header";
@@ -14,6 +16,8 @@ import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useMicPlaylists } from "@/hooks/useMicPlaylists";
 import { useUserSignups } from "@/hooks/useUserSignups";
 import { featuredGrowthOpportunities } from "@/data/featuredGrowthOpportunities";
+import { useOpenMics } from "@/hooks/useOpenMics";
+import { OpenMic } from "@/types/openMic";
 
 // Custom hook to fetch user's upcoming shows (from Shows.tsx)
 function useUserShows(userId) {
@@ -97,8 +101,82 @@ function getVisitDateKey(visitDate: string) {
   return getLocalDateKey(new Date(visitDate));
 }
 
+const BOROUGH_COLORS = ["#1a5fb4", "#5dc8e2", "#ffc72c", "#f97316", "#22c55e", "#a855f7", "#ef4444"];
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+function normalizeId(value?: string | null) {
+  return String(value || '').toLowerCase();
+}
+
+function getMicByIdMap(openMics: OpenMic[]) {
+  return new Map(openMics.map((mic) => [normalizeId(mic.uniqueIdentifier), mic]));
+}
+
+function getTrackedMics(openMics: OpenMic[], ids: string[]) {
+  const micById = getMicByIdMap(openMics);
+  return Array.from(new Set(ids.map(normalizeId)))
+    .map((id) => micById.get(id))
+    .filter((mic): mic is OpenMic => Boolean(mic));
+}
+
+function getMicsByBorough(mics: OpenMic[]) {
+  return mics.reduce<Record<string, OpenMic[]>>((acc, mic) => {
+    const borough = mic.borough?.trim() || "Unknown";
+    acc[borough] = [...(acc[borough] || []), mic];
+    return acc;
+  }, {});
+}
+
+function getNextSevenDates() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() + index);
+    return {
+      date,
+      dateKey: getLocalDateKey(date),
+      dayName: DAY_NAMES[date.getDay()],
+      label: index === 0 ? "Today" : date.toLocaleDateString(undefined, { weekday: "short" }),
+      dateLabel: date.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+    };
+  });
+}
+
+function isMicOnDay(mic: OpenMic, dayName: string) {
+  return mic.day?.toLowerCase() === dayName.toLowerCase();
+}
+
+function getProfileMicTitle(profileMic, micById: Map<string, OpenMic>) {
+  return profileMic.open_mics?.["Open Mic"]
+    || profileMic.open_mics?.["open_mic"]
+    || micById.get(normalizeId(profileMic.open_mic_id))?.openMic
+    || "";
+}
+
+function getProfileMicVenue(profileMic, micById: Map<string, OpenMic>) {
+  return profileMic.open_mics?.["Venue Name"]
+    || profileMic.open_mics?.["venue_name"]
+    || profileMic.open_mics?.["Venue"]
+    || micById.get(normalizeId(profileMic.open_mic_id))?.venueName
+    || "";
+}
+
+function getProfileMicDay(profileMic, micById: Map<string, OpenMic>) {
+  return profileMic.open_mics?.["Day"]
+    || profileMic.open_mics?.["day"]
+    || micById.get(normalizeId(profileMic.open_mic_id))?.day
+    || "";
+}
+
+function isProfileMicOnDay(profileMic, dayName: string, micById: Map<string, OpenMic>) {
+  return String(getProfileMicDay(profileMic, micById)).toLowerCase() === dayName.toLowerCase();
+}
+
 export default function Home() {
   const { user, visitInserted, resetVisitInserted, subscriptionPlan } = useAuth();
+  const [expandedBorough, setExpandedBorough] = useState<string | null>(null);
   const { shows: upcomingMics, loading: showsLoading } = useUserShows(user?.id);
   const { completedShows, loading: completedLoading } = useUserCompletedShows(user?.id);
   const { visits, loading: visitsLoading, refetch } = useUserVisits(user?.id, visitInserted);
@@ -106,15 +184,25 @@ export default function Home() {
   const { data: likedMics = [] } = useUserLikedMics();
   const { playlists } = useMicPlaylists();
   const { data: userSignups = [] } = useUserSignups(user?.id);
+  const { data: openMics = [] } = useOpenMics();
   const navigate = useNavigate();
   const isSubscriber = subscriptionPlan !== 'free';
-  const displayUpcomingMics = upcomingMics.filter((mic) =>
-    mic.open_mics && String(mic.open_mics["Open Mic"] || '').trim().length > 0
+  const openMicById = useMemo(
+    () => getMicByIdMap(openMics),
+    [openMics]
   );
-  const panelClass = "border-0 bg-[#07111f]/26 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:bg-[#07111f]/5";
-  const panelHeaderClass = "border-b border-white/10 bg-[#102a53]/5";
-  const statCardClass = "border-0 bg-[#07111f]/2 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/5";
-  const outlineActionClass = "border-0 w-full justify-start bg-white/10 text-white hover:bg-white/20 hover:text-white hover:-translate-y-0.5 hover:scale-[1.03] backdrop-blur-xl transition-all duration-300";
+  const displayUpcomingMics = upcomingMics.filter((mic) =>
+    getProfileMicTitle(mic, openMicById).trim().length > 0
+  );
+  const panelClass = "border border-[#07111f]/10 bg-white/25 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl transition-all duration-300 hover:bg-white/35 hover:shadow-[0_34px_110px_rgba(4,20,55,0.22),0_12px_36px_rgba(4,20,55,0.12)] dark:border-0 dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)] dark:hover:bg-white/15";
+  const panelHeaderClass = "border-b border-[#07111f]/10 bg-white/20 dark:border-white/10 dark:bg-[#102a53]/10";
+  const statCardClass = "border border-[#07111f]/10 bg-white/25 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-white/35 hover:shadow-[0_34px_110px_rgba(4,20,55,0.22),0_12px_36px_rgba(4,20,55,0.12)] dark:border-0 dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.42),0_10px_32px_rgba(2,10,30,0.26)] dark:hover:bg-white/15";
+  const iconTileClass = "bg-[#1a5fb4]/10 text-[#1a5fb4] dark:bg-[#8ec5ff]/20 dark:text-white";
+  const metricClass = "text-[#1a5fb4] dark:text-[#8ec5ff]";
+  const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
+  const titleTextClass = "text-[#07111f] dark:text-white";
+  const descriptionTextClass = "text-[#07111f]/70 dark:text-white/80";
+  const outlineActionClass = "border-0 w-full justify-start bg-white/25 text-[#07111f] hover:bg-white/35 hover:text-[#1a5fb4] hover:-translate-y-0.5 hover:scale-[1.03] shadow-[0_20px_70px_rgba(2,10,30,0.16),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl transition-all duration-300 dark:bg-[#102a53]/20 dark:text-white dark:hover:bg-white/20 dark:hover:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)]";
   // Refetch visits when visitInserted is true, then reset the flag
   useEffect(() => {
     if (visitInserted) {
@@ -175,9 +263,138 @@ export default function Home() {
   }
   //console.log('Final streak:', streak);
 
+  const daysActiveThisMonth = useMemo(() => {
+    const now = new Date();
+    return new Set(
+      visits
+        .map(v => getVisitDateKey(v.visit_date))
+        .filter((dateKey) => {
+          const [year, month] = dateKey.split('-').map(Number);
+          return year === now.getFullYear() && month === now.getMonth() + 1;
+        })
+    ).size;
+  }, [visits]);
+
+  const savedMicIds = useMemo(
+    () => Array.from(new Set(savedMics.map((savedMic) => normalizeId(savedMic.mic_unique_identifier)))),
+    [savedMics]
+  );
+
+  const trackedLikedMics = useMemo(
+    () => getTrackedMics(openMics, likedMics),
+    [likedMics, openMics]
+  );
+
+  const trackedSavedMics = useMemo(
+    () => getTrackedMics(openMics, savedMicIds),
+    [openMics, savedMicIds]
+  );
+
+  const boroughAnalytics = useMemo(() => {
+    const likedDetailsByBorough = getMicsByBorough(trackedLikedMics);
+    const savedDetailsByBorough = getMicsByBorough(trackedSavedMics);
+    const boroughs = Array.from(new Set([
+      ...Object.keys(likedDetailsByBorough),
+      ...Object.keys(savedDetailsByBorough),
+    ])).sort((a, b) => {
+      const totalA = (likedDetailsByBorough[a]?.length || 0) + (savedDetailsByBorough[a]?.length || 0);
+      const totalB = (likedDetailsByBorough[b]?.length || 0) + (savedDetailsByBorough[b]?.length || 0);
+      return totalB - totalA;
+    });
+
+    return {
+      liked: boroughs.map((borough) => ({
+        name: borough,
+        value: likedDetailsByBorough[borough]?.length || 0,
+      })).filter((entry) => entry.value > 0),
+      saved: boroughs.map((borough) => ({
+        name: borough,
+        value: savedDetailsByBorough[borough]?.length || 0,
+      })).filter((entry) => entry.value > 0),
+      likedDetailsByBorough,
+      savedDetailsByBorough,
+      boroughs,
+    };
+  }, [trackedLikedMics, trackedSavedMics]);
+
+  const upcomingSevenDayAnalytics = useMemo(() => {
+    return getNextSevenDates().map((day) => {
+      const liked = trackedLikedMics.filter((mic) => isMicOnDay(mic, day.dayName));
+      const saved = trackedSavedMics.filter((mic) => isMicOnDay(mic, day.dayName));
+      const scheduled = displayUpcomingMics.filter((mic) => isProfileMicOnDay(mic, day.dayName, openMicById));
+      const signed = userSignups
+        .filter((signup) => signup.event?.event_date === day.dateKey)
+        .map((signup) => ({
+          name: signup.event?.mic?.open_mic || "Signup",
+          borough: signup.event?.mic?.borough || null,
+        }));
+
+      return {
+        ...day,
+        likedCount: liked.length,
+        savedCount: saved.length,
+        signedCount: signed.length,
+        scheduledCount: scheduled.length,
+        total: liked.length + saved.length + signed.length + scheduled.length,
+        micItems: [
+          {
+            label: "Scheduled",
+            names: Array.from(new Set(scheduled.map((mic) => getProfileMicTitle(mic, openMicById)).filter(Boolean))),
+            className: "text-[#7e22ce] dark:text-[#d8b4fe]",
+          },
+          {
+            label: "Signed up",
+            names: Array.from(new Set(signed.map((mic) => mic.name).filter(Boolean))),
+            className: "text-[#15803d] dark:text-[#86efac]",
+          },
+          {
+            label: "Liked",
+            names: Array.from(new Set(liked.map((mic) => mic.openMic).filter(Boolean))),
+            className: "text-[#1a5fb4] dark:text-[#8ec5ff]",
+          },
+          {
+            label: "Saved",
+            names: Array.from(new Set(saved.map((mic) => mic.openMic).filter(Boolean))),
+            className: "text-[#f97316] dark:text-[#ffc72c]",
+          },
+        ]
+          .filter((group) => group.names.length > 0)
+          .flatMap((group) => group.names.map((name) => ({ name, className: group.className }))),
+      };
+    });
+  }, [displayUpcomingMics, openMicById, trackedLikedMics, trackedSavedMics, userSignups]);
+
+  const favoriteVenue = useMemo(() => {
+    const venueScores = new Map<string, { name: string; score: number; interactions: number }>();
+    const addVenue = (venueName?: string | null, weight = 1) => {
+      const name = venueName?.trim();
+      if (!name) return;
+      const key = name.toLowerCase();
+      const current = venueScores.get(key) || { name, score: 0, interactions: 0 };
+      venueScores.set(key, {
+        name: current.name,
+        score: current.score + weight,
+        interactions: current.interactions + 1,
+      });
+    };
+
+    trackedLikedMics.forEach((mic) => addVenue(mic.venueName, 1));
+    trackedSavedMics.forEach((mic) => addVenue(mic.venueName, 1));
+    displayUpcomingMics.forEach((mic) => addVenue(getProfileMicVenue(mic, openMicById), 2));
+    completedShows.forEach((mic) => addVenue(getProfileMicVenue(mic, openMicById), 2));
+    userSignups.forEach((signup) => addVenue(signup.event?.mic?.venue_name, 2));
+
+    return Array.from(venueScores.values()).sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return b.interactions - a.interactions;
+    })[0] || null;
+  }, [completedShows, displayUpcomingMics, openMicById, trackedLikedMics, trackedSavedMics, userSignups]);
+
+  const hasBoroughAnalytics = boroughAnalytics.liked.length > 0 || boroughAnalytics.saved.length > 0;
+
   return (
     <div className="page-content-offset relative flex-col overflow-hidden bg-transparent">
-      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-12 pt-0">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-6 pt-0">
         <div>
           <section
             aria-label="Home media area"
@@ -191,22 +408,40 @@ export default function Home() {
             <div className="flex-1 space-y-6">
               {/* Quick Stats Bar */}
               <div className="space-y-3">
-                {/* Day Streak - prominent full-width */}
-                <Card className={statCardClass}>
-                  <CardContent className="p-3">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-[#8ec5ff]/20 rounded-lg">
-                        <TrendingUp className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-[#8ec5ff]">{visitsLoading ? "--" : streak}</div>
-                        <div className="text-xs text-white/64 font-medium whitespace-nowrap">
-                          Day Streak {streak > 4 ? '🔥' : ''}
+                {/* Activity stats */}
+                <div className="grid grid-cols-2 gap-3">
+                  <Card className={statCardClass}>
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`rounded-lg p-2 ${iconTileClass}`}>
+                          <TrendingUp className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className={`text-2xl font-bold ${metricClass}`}>{visitsLoading ? "--" : streak}</div>
+                          <div className={`text-xs font-medium ${mutedTextClass}`}>
+                            Day Streak {streak > 4 ? '🔥' : ''}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+
+                  <Card className={statCardClass}>
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`rounded-lg p-2 ${iconTileClass}`}>
+                          <Activity className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className={`text-2xl font-bold ${metricClass}`}>{visitsLoading ? "--" : daysActiveThisMonth}</div>
+                          <div className={`text-xs font-medium ${mutedTextClass}`}>
+                            Days Active This Month
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
 
                 {/* Saved + Liked + Signed Up - 3-column row */}
                 <div className="grid grid-cols-3 gap-3">
@@ -214,12 +449,12 @@ export default function Home() {
                     <Card className={`${statCardClass} cursor-pointer h-full`}>
                       <CardContent className="p-3">
                         <div className="flex items-center gap-2">
-                          <div className="p-1.5 bg-[#8ec5ff]/18 rounded-lg shrink-0">
-                            <Bookmark className="h-4 w-4 text-white" />
+                          <div className={`rounded-lg p-1.5 shrink-0 ${iconTileClass}`}>
+                            <Bookmark className="h-4 w-4" />
                           </div>
                           <div className="min-w-0">
-                            <div className="text-xl font-bold text-[#8ec5ff]">{savedMics.length}</div>
-                            <div className="text-xs text-white/64 font-medium whitespace-nowrap">Saved Mics</div>
+                            <div className={`text-xl font-bold ${metricClass}`}>{trackedSavedMics.length}</div>
+                            <div className={`text-xs font-medium ${mutedTextClass}`}>Saved Mics</div>
                           </div>
                         </div>
                       </CardContent>
@@ -229,62 +464,295 @@ export default function Home() {
                     <Card className={`${statCardClass} cursor-pointer h-full`}>
                       <CardContent className="p-3">
                         <div className="flex items-center gap-2">
-                          <div className="p-1.5 bg-[#8ec5ff]/18 rounded-lg shrink-0">
-                            <Heart className="h-4 w-4 text-white" />
+                          <div className={`rounded-lg p-1.5 shrink-0 ${iconTileClass}`}>
+                            <Heart className="h-4 w-4" />
                           </div>
                           <div className="min-w-0">
-                            <div className="text-xl font-bold text-[#8ec5ff]">{likedMics.length}</div>
-                            <div className="text-xs text-white/64 font-medium whitespace-nowrap">Liked Mics</div>
+                            <div className={`text-xl font-bold ${metricClass}`}>{trackedLikedMics.length}</div>
+                            <div className={`text-xs font-medium ${mutedTextClass}`}>Liked Mics</div>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                   </Link>
                   <Link to="/profile?tab=signups">
-                    <Card className="border-[#1a5fb4]/20 bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 hover:shadow-md transition-shadow cursor-pointer h-full">
+                    <Card className={`${statCardClass} cursor-pointer h-full`}>
                       <CardContent className="p-3">
                         <div className="flex items-center gap-2">
-                          <div className="p-1.5 bg-[#1a5fb4]/60 rounded-lg shrink-0">
-                            <Heart className="h-4 w-4 text-white" />
+                          <div className={`rounded-lg p-1.5 shrink-0 ${iconTileClass}`}>
+                            <NotebookPen className="h-4 w-4" />
                           </div>
                           <div className="min-w-0">
-                            <div className="text-xl font-bold text-[#1a5fb4]">{userSignups.length}</div>
-                            <div className="text-xs text-[#1a5fb4]/70 font-medium whitespace-nowrap">Signed Up Mics</div>
+                            <div className={`text-xl font-bold ${metricClass}`}>{userSignups.length}</div>
+                            <div className={`text-xs font-medium ${mutedTextClass}`}>Signed Up Mics</div>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                   </Link>
                 </div>
-
-                {/* Playlists card */}
-                <Link to="/profile?tab=playlists" className="block pt-0.9">
-                  <Card className={`${statCardClass} cursor-pointer`}>
-                    <CardContent className="p-3">
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-[#8ec5ff]/18 rounded-lg shrink-0">
-                          <ListMusic className="h-4 w-4 text-white" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Link to="/profile?tab=playlists" className="block">
+                    <Card className={`${statCardClass} cursor-pointer h-full`}>
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-2">
+                          <div className={`rounded-lg p-1.5 shrink-0 ${iconTileClass}`}>
+                            <ListMusic className="h-4 w-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className={`text-xl font-bold ${metricClass}`}>{playlists.length}</div>
+                            <div className={`text-xs font-medium ${mutedTextClass}`}>Playlists</div>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <div className="text-xl font-bold text-[#8ec5ff]">{playlists.length}</div>
-                          <div className="text-xs text-white/64 font-medium whitespace-nowrap">Playlists</div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+
+                <Card className={`${statCardClass} cursor-pointer h-full`}>
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-2">
+                      <div className={`rounded-lg p-1.5 shrink-0 ${iconTileClass}`}>
+                        <MapPin className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className={`truncate text-xl font-bold ${metricClass}`}>
+                          {favoriteVenue?.name || "No favorite yet"}
+                        </div>
+                        <div className={`text-xs font-medium ${mutedTextClass}`}>
+                          {favoriteVenue
+                            ? `Favorite Venue · ${favoriteVenue.interactions} interaction${favoriteVenue.interactions === 1 ? "" : "s"}`
+                            : "Favorite Venue"}
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+                </div>
+
+                <Card className={panelClass}>
+                  <CardHeader className={panelHeaderClass}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <CardTitle className={`text-lg ${titleTextClass}`}>Borough Mix</CardTitle>
+                        <CardDescription className={descriptionTextClass}>
+                          Outer ring liked, inner ring saved
+                        </CardDescription>
+                      </div>
+                      <div className="flex flex-col gap-1 text-[10px] font-medium">
+                        <span className={titleTextClass}>Outer: liked</span>
+                        <span className={titleTextClass}>Inner: saved</span>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    {hasBoroughAnalytics ? (
+                      <div className="grid gap-4 md:grid-cols-[180px_1fr]">
+                        <div className="h-44">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Tooltip
+                                formatter={(value, name) => [`${value} mics`, name]}
+                                contentStyle={{
+                                  borderRadius: 8,
+                                  border: "0",
+                                  boxShadow: "0 12px 38px rgba(2,10,30,0.18)",
+                                }}
+                              />
+                              <Pie
+                                data={boroughAnalytics.liked}
+                                dataKey="value"
+                                nameKey="name"
+                                innerRadius={48}
+                                outerRadius={68}
+                                paddingAngle={2}
+                              >
+                                {boroughAnalytics.liked.map((entry, index) => (
+                                  <Cell key={`liked-${entry.name}`} fill={BOROUGH_COLORS[boroughAnalytics.boroughs.indexOf(entry.name) % BOROUGH_COLORS.length]} />
+                                ))}
+                              </Pie>
+                              <Pie
+                                data={boroughAnalytics.saved}
+                                dataKey="value"
+                                nameKey="name"
+                                innerRadius={28}
+                                outerRadius={42}
+                                paddingAngle={2}
+                              >
+                                {boroughAnalytics.saved.map((entry, index) => (
+                                  <Cell key={`saved-${entry.name}`} fill={BOROUGH_COLORS[boroughAnalytics.boroughs.indexOf(entry.name) % BOROUGH_COLORS.length]} />
+                                ))}
+                              </Pie>
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                        <div className="space-y-2">
+                          {boroughAnalytics.boroughs.slice(0, 6).map((borough, index) => {
+                            const liked = boroughAnalytics.liked.find((entry) => entry.name === borough)?.value || 0;
+                            const saved = boroughAnalytics.saved.find((entry) => entry.name === borough)?.value || 0;
+                            const likedMicDetails = boroughAnalytics.likedDetailsByBorough[borough] || [];
+                            const savedMicDetails = boroughAnalytics.savedDetailsByBorough[borough] || [];
+                            const color = BOROUGH_COLORS[index % BOROUGH_COLORS.length];
+                            const isExpanded = expandedBorough === borough;
+
+                            return (
+                              <button
+                                key={borough}
+                                type="button"
+                                aria-expanded={isExpanded}
+                                onClick={() => setExpandedBorough(isExpanded ? null : borough)}
+                                className="w-full rounded-lg bg-white/30 px-3 py-2 text-left text-xs shadow-[0_10px_30px_rgba(2,10,30,0.08)] transition-all duration-200 hover:bg-white/50 focus:outline-none focus:ring-2 focus:ring-[#1a5fb4]/30 dark:bg-[#102a53]/20 dark:hover:bg-white/20 dark:focus:ring-white/20"
+                              >
+                                <div className={`mb-1 flex items-center justify-between font-semibold ${titleTextClass}`}>
+                                  <span className="inline-flex items-center gap-1.5">
+                                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
+                                    {borough}
+                                  </span>
+                                  <ArrowRight className={`h-3.5 w-3.5 text-[#1a5fb4] transition-transform duration-200 dark:text-[#8ec5ff] ${isExpanded ? "rotate-90" : ""}`} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className={mutedTextClass}>
+                                    {liked} liked
+                                  </div>
+                                  <div className={mutedTextClass}>
+                                    {saved} saved
+                                  </div>
+                                </div>
+                                {isExpanded && (
+                                  <div className="mt-2 space-y-2 border-t border-[#07111f]/10 pt-2 dark:border-white/10">
+                                    <div>
+                                      <div className={`mb-2 text-[11px] font-semibold uppercase tracking-wide ${titleTextClass}`}>Liked</div>
+                                      {likedMicDetails.length > 0 ? (
+                                        <div className="space-y-1">
+                                          {likedMicDetails.map((mic) => (
+                                            <div key={`liked-${mic.uniqueIdentifier}`} className={mutedTextClass}>
+                                              <span className={titleTextClass}>{mic.openMic}</span>
+                                              {mic.venueName ? ` at ${mic.venueName}` : ""}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      ) : (
+                                        <div className={mutedTextClass}>No liked mics here yet.</div>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <div className={`mb-2 text-[11px] font-semibold uppercase tracking-wide ${titleTextClass}`}>Saved</div>
+                                      {savedMicDetails.length > 0 ? (
+                                        <div className="space-y-1">
+                                          {savedMicDetails.map((mic) => (
+                                            <div key={`saved-${mic.uniqueIdentifier}`} className={mutedTextClass}>
+                                              <span className={titleTextClass}>{mic.openMic}</span>
+                                              {mic.venueName ? ` at ${mic.venueName}` : ""}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      ) : (
+                                        <div className={mutedTextClass}>No saved mics here yet.</div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={`rounded-lg bg-white/30 p-4 text-sm font-medium dark:bg-[#102a53]/20 ${descriptionTextClass}`}>
+                        Like or save mics to build your borough breakdown.
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card className={panelClass}>
+                  <CardHeader className={panelHeaderClass}>
+                    <CardTitle className={`text-lg ${titleTextClass}`}>Next 7 Days</CardTitle>
+                    <CardDescription className={descriptionTextClass}>
+                      Liked, saved, signed-up, and scheduled mics by day
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2 pt-4">
+                    {upcomingSevenDayAnalytics.map((day) => {
+                      const hasTrackedMics = day.total > 0;
+                      const hasLikedMics = day.likedCount > 0;
+                      const hasSavedMics = day.savedCount > 0;
+                      const hasSignups = day.signedCount > 0;
+                      const hasScheduledMics = day.scheduledCount > 0;
+
+                      return (
+                        <div
+                          key={day.dateKey}
+                          className={`grid gap-2 rounded-lg p-3 shadow-[0_10px_30px_rgba(2,10,30,0.08)] sm:grid-cols-[92px_1fr] ${
+                            hasTrackedMics
+                              ? "bg-white/30 dark:bg-[#102a53]/20"
+                              : "bg-white/20 opacity-60 dark:bg-white/5"
+                          }`}
+                        >
+                          <div>
+                            <div className={`text-sm font-bold ${titleTextClass}`}>{day.label}</div>
+                            <div className={`text-xs ${mutedTextClass}`}>{day.dateLabel}</div>
+                          </div>
+                          <div className="min-w-0">
+                            {hasTrackedMics && (
+                              <div className="mb-2 flex flex-wrap gap-1.5">
+                                {hasScheduledMics && (
+                                  <Badge variant="outline" className="border-[#a855f7]/20 bg-[#a855f7]/10 text-[10px] text-[#7e22ce] dark:border-white/20 dark:bg-[#102a53]/20 dark:text-[#d8b4fe]">
+                                    {day.scheduledCount} scheduled
+                                  </Badge>
+                                )}
+                                {hasLikedMics && (
+                                  <Badge variant="outline" className="border-[#1a5fb4]/20 bg-[#1a5fb4]/10 text-[10px] text-[#1a5fb4] dark:border-white/20 dark:bg-[#102a53]/20 dark:text-[#8ec5ff]">
+                                    {day.likedCount} liked
+                                  </Badge>
+                                )}
+                                {hasSavedMics && (
+                                  <Badge variant="outline" className="border-[#f97316]/20 bg-[#f97316]/10 text-[10px] text-[#f97316] dark:border-white/20 dark:bg-[#102a53]/20 dark:text-[#ffc72c]">
+                                    {day.savedCount} saved
+                                  </Badge>
+                                )}
+                                {hasSignups && (
+                                  <Badge variant="outline" className="border-[#22c55e]/20 bg-[#22c55e]/10 text-[10px] text-[#15803d] dark:border-white/20 dark:bg-[#102a53]/20 dark:text-[#86efac]">
+                                    {day.signedCount} signed up
+                                  </Badge>
+                                )}
+                              </div>
+                            )}
+                            {hasTrackedMics ? (
+                              <div className="text-xs leading-relaxed">
+                                {day.micItems.map((mic, index) => (
+                                  <span key={`${day.dateKey}-${mic.name}-${index}`}>
+                                    <span
+                                      className={`font-medium ${mic.className}`}
+                                    >
+                                      {mic.name}
+                                    </span>
+                                    {index < day.micItems.length - 1 && (
+                                      <span className={descriptionTextClass}> &bull; </span>
+                                    )}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className={`text-xs leading-relaxed ${descriptionTextClass}`}>
+                                No tracked mics
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </CardContent>
+                </Card>
               </div>
 
-              {/* Quick Notes Section */}
-              <QuickNotes className={panelClass} />
             </div>
 
-            {/* Right Column - Quick Actions and Next Open Mics */}
+            {/* Right Column - Quick Actions */}
             <div className="lg:w-1/3 space-y-6">
               <Card className={panelClass}>
                 <CardHeader className={panelHeaderClass}>
-                  <CardTitle className="text-lg text-white">⚡ Quick Actions</CardTitle>
-                  <CardDescription className="text-white/80">Common tasks</CardDescription>
+                  <CardTitle className={`text-lg ${titleTextClass}`}>⚡ Quick Actions</CardTitle>
+                  <CardDescription className={descriptionTextClass}>Common tasks</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2 pt-6">
                   {!isSubscriber && (
@@ -322,11 +790,13 @@ export default function Home() {
                 </CardContent>
               </Card>
 
+              <QuickNotes className={panelClass} />
+
               <Card className={panelClass}>
                 <CardHeader className={panelHeaderClass}>
                   <div>
-                    <CardTitle className="text-lg text-white">📌 Opportunities</CardTitle>
-                    <CardDescription className="text-white/80">Featured from Growth</CardDescription>
+                    <CardTitle className={`text-lg ${titleTextClass}`}>📌 Opportunities</CardTitle>
+                    <CardDescription className={descriptionTextClass}>Featured from Growth</CardDescription>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-6">
@@ -339,20 +809,20 @@ export default function Home() {
                     const content = (
                       <>
                         <div className="flex min-w-0 items-center gap-3">
-                          <div className="rounded-lg bg-white/16 p-2 text-[#8ec5ff] shadow-sm">
+                          <div className="rounded-lg bg-[#1a5fb4]/10 p-2 text-[#1a5fb4] shadow-sm dark:bg-[#102a53]/30 dark:text-[#8ec5ff]">
                             <Icon className="h-4 w-4" />
                           </div>
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-white">{opportunity.title}</p>
-                            {description && <p className="mt-0.5 text-xs text-white/66">{description}</p>}
+                            <p className={`truncate text-sm font-semibold ${titleTextClass}`}>{opportunity.title}</p>
+                            {description && <p className={`mt-0.5 text-xs ${descriptionTextClass}`}>{description}</p>}
                             {opportunity.contact_info && (
-                              <p className="mt-1 line-clamp-1 text-[11px] font-medium text-white/58">
+                              <p className={`mt-1 line-clamp-1 text-[11px] font-medium ${mutedTextClass}`}>
                                 {opportunity.contact_info}
                               </p>
                             )}
                           </div>
                         </div>
-                        <ExternalLink className="h-4 w-4 shrink-0 text-[#8ec5ff] transition-transform group-hover:translate-x-0.5" />
+                        <ExternalLink className="h-4 w-4 shrink-0 text-[#1a5fb4] transition-transform group-hover:translate-x-0.5 dark:text-[#8ec5ff]" />
                       </>
                     );
 
@@ -362,7 +832,7 @@ export default function Home() {
                         href={opportunity.external_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group flex items-center justify-between gap-3 rounded-lg bg-white/10 p-4 text-white shadow-[0_10px_30px_rgba(2,10,30,0.12)] transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-white/20"
+                        className="group flex items-center justify-between gap-3 rounded-lg bg-white/25 p-4 text-[#07111f] shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-white/35 hover:shadow-[0_24px_80px_rgba(2,10,30,0.18),0_10px_28px_rgba(2,10,30,0.10)] dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)] dark:hover:bg-white/20"
                       >
                         {content}
                       </a>
@@ -370,7 +840,7 @@ export default function Home() {
                       <Link
                         key={opportunity.id}
                         to="/growth"
-                        className="group flex items-center justify-between gap-3 rounded-lg bg-white/10 p-4 text-white shadow-[0_10px_30px_rgba(2,10,30,0.12)] transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-white/20"
+                        className="group flex items-center justify-between gap-3 rounded-lg bg-white/25 p-4 text-[#07111f] shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-white/35 hover:shadow-[0_24px_80px_rgba(2,10,30,0.18),0_10px_28px_rgba(2,10,30,0.10)] dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)] dark:hover:bg-white/20"
                       >
                         {content}
                       </Link>
@@ -385,60 +855,7 @@ export default function Home() {
                 </CardContent>
               </Card>
 
-              <Card className={panelClass}>
-                <CardHeader className={`flex flex-row items-center justify-between ${panelHeaderClass}`}>
-                  <div>
-                    <CardTitle className="text-lg text-white">🎭 Next Open Mics</CardTitle>
-                    <CardDescription className="text-white/80">
-                      Your upcoming performances • {showsLoading ? '--' : displayUpcomingMics.length} scheduled
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4 pt-6">
-                  {showsLoading ? (
-                    <div className="text-sm text-white/70">Loading upcoming mics...</div>
-                  ) : displayUpcomingMics.length === 0 ? (
-                    <div className="rounded-lg bg-white/10 p-4 text-sm font-medium text-white/74 shadow-[0_10px_30px_rgba(2,10,30,0.12)]">
-                      No upcoming performances
-                    </div>
-                  ) : (
-                    displayUpcomingMics.map((mic) => (
-                      <div
-                        key={mic.id}
-                        className="flex items-center justify-between p-4 rounded-lg bg-white/10 text-white shadow-[0_10px_30px_rgba(2,10,30,0.12)] transition-colors hover:bg-white/20"
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-medium text-sm text-white">{mic.open_mics["Open Mic"]}</h3>
-                          </div>
-                          <div className="flex items-center gap-4 mt-1 text-xs text-white/66">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3 text-[#8ec5ff]" />
-                              <span>
-                                {mic.open_mics["Day"]} at {mic.open_mics["Start Time"]}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3 text-[#8ec5ff]" />
-                              <span>{mic.open_mics["Neighborhood"]}, {mic.open_mics["Borough"]}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-[#8ec5ff] hover:bg-white/10 hover:text-white"
-                          onClick={() => navigate('/shows')}
-                        >
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))
-                  )}
-                </CardContent>
-              </Card>
-
-              <SponsorCard placement="home_dashboard" className="border-0 bg-[#07111f]/30 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl" />
+              <SponsorCard placement="home_dashboard" className="border border-[#07111f]/10 bg-white/25 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-0 dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]" />
             </div>
           </div>
         </div>

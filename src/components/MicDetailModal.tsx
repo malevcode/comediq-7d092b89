@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { X, Calendar, Clock, MapPin, User, DollarSign, Timer, Plus, Share, Heart, ThumbsDown, LogIn, ChevronDown, UserCheck } from "lucide-react";
-import { VerificationBadge } from "@/components/VerificationBadge";
+import { X, Calendar, MapPin, User, DollarSign, Plus, Heart, ThumbsDown, LogIn, ChevronDown } from "lucide-react";
+
 import { OpenMic, FREQUENCY_LABELS } from "@/types/openMic";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMicRatings, useUserLikedMics } from "@/hooks/useMicRatings";
+import { useMicRatings } from "@/hooks/useMicRatings";
 import { useNavigate } from "react-router-dom";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +13,7 @@ import { makeLinksClickable } from '@/utils/makeLinksClickable';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
 import { MicStatusBadge } from '@/components/mic/MicStatusBadge';
+
 import { createPortal } from 'react-dom';
 import { useEffect } from 'react';
 
@@ -198,47 +199,27 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
     }
   };
 
-  const getStatusBadgeColor = () => {
-    // if (mic.lastVerified.toLowerCase().includes("tediously")) {
-    //   return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    // } else if (mic.lastVerified.toLowerCase().includes("verified")) {
-    //   return "bg-green-100 text-green-800 border-green-200";
-    // } else {
-    //   return "bg-red-100 text-red-800 border-red-200";
-    // }
-    if (mic.lastVerified.toLowerCase().includes("unverified")) {
-      return "bg-red-100 text-red-800 border-red-200";
-    } else {
-      return "bg-green-100 text-green-800 border-green-200";
-    }
-  };
-
   return createPortal(
-    <div className="fixed inset-0 bg-black bg-opacity-50 p-4 z-[1200] overflow-y-auto overscroll-contain">
-      <div className="bg-white rounded-2xl max-w-2xl w-full mt-10 mb-4 mx-auto">
+    <div className="fixed inset-0 z-[1200] overflow-y-auto overscroll-contain bg-black/60 p-4">
+      <div className="mx-auto mb-4 mt-4 w-full max-w-2xl rounded-2xl border border-[#07111f]/10 bg-white/90 text-[#07111f] shadow-[0_24px_80px_rgba(2,10,30,0.24)] backdrop-blur-xl dark:border-white/10 dark:bg-[#102a53]/90 dark:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.50)]">
         {/* Header */}
-        <div className="sticky top-0 bg-background border-b border-border px-6 py-4 rounded-t-2xl">
+        <div className="border-b border-[#07111f]/10 bg-white/70 px-6 py-4 rounded-t-2xl dark:border-white/10 dark:bg-white/10">
           <div className="flex justify-between items-start">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 mb-1">
-                <h2 className="text-2xl font-bold text-foreground">{mic.openMic}</h2>
+                <h2 className="text-2xl font-bold text-[#07111f] dark:text-white">{mic.openMic}</h2>
                 <MicStatusBadge status={mic.status} legacyTag={mic.legacyTag} size="md" />
               </div>
-              <p className="text-muted-foreground">{mic.venueName}</p>
+              <p className="text-[#07111f]/60 dark:text-white/70">{mic.venueName}</p>
               <div className="flex items-center gap-3 mt-2 flex-wrap">
-                <div className="bg-muted/50 border border-border px-3 py-1 rounded-lg">
-                  <div className="text-sm font-semibold text-foreground">
+                <div className="rounded-lg border border-[#07111f]/10 bg-white/70 px-3 py-1 dark:border-white/10 dark:bg-white/10">
+                  <div className="text-sm font-semibold text-[#07111f] dark:text-white">
                     {mic.frequency !== 'weekly' ? `${FREQUENCY_LABELS[mic.frequency]} · ` : ''}{mic.day} • {mic.startTime} • {mic.stageTime} stage time
                   </div>
                 </div>
-                <VerificationBadge 
-                  micUniqueIdentifier={mic.uniqueIdentifier}
-                  lastVerified={mic.lastVerified === "Unverified" ? undefined : mic.lastVerified}
-                  size="sm"
-                />
               </div>
             </div>
-            <Button onClick={onClose} variant="ghost" size="sm" className="rounded-full">
+            <Button onClick={onClose} variant="ghost" size="sm" className="rounded-full text-[#07111f] hover:bg-[#07111f]/10 dark:text-white dark:hover:bg-white/10">
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -247,30 +228,30 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
         {/* Content */}
         <div className="p-6">
           {/* Quick Actions */}
-          <div className="mb-6 flex gap-3">
+          <div className="mb-6 flex flex-wrap gap-3">
             <Button
               asChild
-              className="bg-orange-600 hover:bg-orange-700 text-white text-sm flex-1"
+              className="min-w-[180px] flex-1 bg-orange-600 text-sm text-white hover:bg-orange-700"
             >
-              <Link to={linkManager.micSignup(mic)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Sign Up for Spots
+              <Link to={linkManager.micSignup(mic)} className="whitespace-normal text-center leading-tight">
+                <Plus className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span>Sign Up for Spots</span>
               </Link>
             </Button>
             {user && (
               <Button
                 onClick={handleAddToSchedule}
                 variant="outline"
-                className="text-sm flex-1"
+                className="min-w-[180px] flex-1 whitespace-normal border-[#07111f]/10 bg-white/70 text-center text-sm leading-tight text-[#07111f] hover:bg-white dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                My Schedule
+                <Plus className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span>My Schedule</span>
               </Button>
             )}
           </div>
 
           {/* Rating Section */}
-          <Card className="mb-6 bg-gray-50 border-gray-200">
+          <Card className="mb-6 border-[#07111f]/10 bg-white/70 shadow-[0_10px_30px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:border-white/10 dark:bg-white/10 dark:shadow-[0_18px_50px_rgba(2,10,30,0.26)]">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -279,7 +260,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
                     variant={userRating === 'like' ? 'default' : 'outline'}
                     size="sm"
                     disabled={isRating}
-                    className={userRating === 'like' ? 'bg-green-500 hover:bg-green-600' : ''}
+                    className={userRating === 'like' ? 'bg-green-500 text-white hover:bg-green-600' : 'border-[#07111f]/10 bg-white/70 text-[#07111f] hover:bg-white dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20'}
                   >
                     <Heart className={`h-4 w-4 mr-1 ${userRating === 'like' ? 'fill-current' : ''}`} />
                     {ratingCounts?.likes || 0}
@@ -290,7 +271,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
                     variant={userRating === 'dislike' ? 'default' : 'outline'}
                     size="sm"
                     disabled={isRating}
-                    className={userRating === 'dislike' ? 'bg-red-500 hover:bg-red-600' : ''}
+                    className={userRating === 'dislike' ? 'bg-red-500 text-white hover:bg-red-600' : 'border-[#07111f]/10 bg-white/70 text-[#07111f] hover:bg-white dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20'}
                   >
                     <ThumbsDown className={`h-4 w-4 mr-1 ${userRating === 'dislike' ? 'fill-current' : ''}`} />
                     {ratingCounts?.dislikes || 0}
@@ -298,7 +279,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
                 </div>
                 
                 {!user && (
-                  <Button onClick={() => navigate('/auth')} size="sm" className="bg-orange-500 hover:bg-orange-600">
+                  <Button onClick={() => navigate('/auth')} size="sm" className="bg-orange-500 text-white hover:bg-orange-600">
                     <LogIn className="h-4 w-4 mr-2" />
                     Sign In to Rate
                   </Button>
@@ -312,35 +293,35 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                  <MapPin className="w-5 h-5 text-[#1a5fb4] mt-0.5 flex-shrink-0 dark:text-[#8ec5ff]" />
                   <div>
-                    <p className="font-medium text-gray-900">Location</p>
-                    <p className="text-sm text-gray-600">{mic.neighborhood}, {mic.borough}</p>
-                    <p className="text-sm text-blue-600">{makeLinksClickable(mic.location)}</p>
+                    <p className="font-medium text-[#07111f] dark:text-white">Location</p>
+                    <p className="text-sm text-[#07111f]/60 dark:text-white/60">{mic.neighborhood}, {mic.borough}</p>
+                    <p className="text-sm text-[#1a5fb4] dark:text-[#8ec5ff]">{makeLinksClickable(mic.location)}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <DollarSign className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                  <DollarSign className="w-5 h-5 text-[#1a5fb4] mt-0.5 flex-shrink-0 dark:text-[#8ec5ff]" />
                   <div>
-                    <p className="font-medium text-gray-900">Cost</p>
-                    <p className="text-sm text-gray-600">{mic.cost}</p>
+                    <p className="font-medium text-[#07111f] dark:text-white">Cost</p>
+                    <p className="text-sm text-[#07111f]/60 dark:text-white/60">{mic.cost}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <User className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                  <User className="w-5 h-5 text-[#1a5fb4] mt-0.5 flex-shrink-0 dark:text-[#8ec5ff]" />
                   <div>
-                    <p className="font-medium text-gray-900">Host(s)</p>
-                    <p className="text-sm text-gray-600">{mic.hosts}</p>
+                    <p className="font-medium text-[#07111f] dark:text-white">Host(s)</p>
+                    <p className="text-sm text-[#07111f]/60 dark:text-white/60">{mic.hosts}</p>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <p className="font-medium text-gray-900 mb-2">Sign-Up Instructions</p>
-                  <div className="space-y-3 text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+                  <p className="font-medium text-[#07111f] mb-2 dark:text-white">Sign-Up Instructions</p>
+                  <div className="space-y-3 rounded-lg bg-[#1a5fb4]/10 p-3 text-sm text-[#07111f]/70 dark:bg-white/10 dark:text-white/70">
                     <div>{makeLinksClickable(mic.signUpInstructions)}</div>
                     <Button
                       asChild
@@ -359,21 +340,21 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
 
             {mic.instagramHandle && (
               <div>
-                <p className="font-medium text-gray-900 mb-2">Recent Updates</p>
-                <div className="text-sm text-gray-600 bg-orange-50 p-3 rounded-lg">
+                <p className="font-medium text-[#07111f] mb-2 dark:text-white">Recent Updates</p>
+                <div className="rounded-lg bg-orange-500/10 p-3 text-sm text-[#07111f]/70 dark:bg-orange-500/20 dark:text-white/70">
                   {makeLinksClickable(mic.instagramHandle)}
                 </div>
               </div>
             )}
 
             {/* Host Claim CTA */}
-            <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-transparent border border-primary/20 rounded-lg p-4">
+            <div className="rounded-lg border border-[#1a5fb4]/20 bg-[#1a5fb4]/10 p-4 dark:border-white/10 dark:bg-white/10">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="font-medium text-gray-900">Are you the host?</p>
-                  <p className="text-sm text-gray-600">Claim this mic to manage signups and keep info updated</p>
+                  <p className="font-medium text-[#07111f] dark:text-white">Are you the host?</p>
+                  <p className="text-sm text-[#07111f]/60 dark:text-white/60">Claim this mic to manage signups and keep info updated</p>
                 </div>
-                <Button asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm" className="border-[#07111f]/10 bg-white/70 text-[#07111f] hover:bg-white dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20">
                   <Link to={`/host-dashboard?claim=${mic.uniqueIdentifier}`}>
                     Claim Mic
                   </Link>
@@ -387,7 +368,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
             <CollapsibleTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-full justify-between p-0 h-auto font-normal text-left mt-4"
+                className="w-full justify-between p-0 h-auto font-normal text-left mt-4 text-[#07111f] hover:bg-transparent dark:text-white"
               >
                 <span className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
@@ -400,7 +381,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Button 
                   onClick={() => window.open(getGoogleCalendarUrl(), '_blank')}
-                  className="bg-white hover:bg-gray-200 text-white text-sm"
+                  className="bg-white text-[#07111f] hover:bg-gray-100 text-sm dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Google Calendar
@@ -408,7 +389,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
                 <Button 
                   onClick={generateICalFile}
                   variant="outline"
-                  className="border-green-300 hover:bg-green-50 text-sm"
+                  className="border-green-300 bg-white/70 text-green-700 hover:bg-green-50 text-sm dark:border-green-400/40 dark:bg-white/10 dark:text-green-200 dark:hover:bg-white/20"
                 >
                   <Calendar className="w-4 h-4 mr-2" />
                   Download iCal
