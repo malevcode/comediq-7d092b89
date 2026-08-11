@@ -82,7 +82,9 @@ const MarqueeBanner = () => {
 
   return (
     <>
-      <div className="fixed bottom-[4.75rem] left-0 right-0 z-[50] h-7 shrink-0 bg-white/10 overflow-x-hidden overflow-y-hidden flex items-center shadow-[0_-10px_35px_rgba(4,20,55,0.14)] backdrop-blur-xl dark:bg-[#07111f]/20 dark:shadow-[0_-10px_35px_rgba(4,20,55,0.24)]">
+      <div
+        className="keyboard-fixed-hide fixed bottom-[4.75rem] left-0 right-0 z-[50] h-7 shrink-0 bg-white/10 overflow-x-hidden overflow-y-hidden flex items-center shadow-[0_-10px_35px_rgba(4,20,55,0.14)] backdrop-blur-xl dark:bg-[#07111f]/20 dark:shadow-[0_-10px_35px_rgba(4,20,55,0.24)]"
+      >
         <div className="animate-marquee whitespace-nowrap flex w-max items-center">
           {renderRecurringAdStrip(bottomAds as AdBox[], getRepeatCount(bottomAds.length), user?.id)}
         </div>

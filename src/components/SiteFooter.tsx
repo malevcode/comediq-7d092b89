@@ -24,7 +24,7 @@ const SiteFooter = () => {
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       className={`fixed bottom-32 right-11 z-50 rounded-full bg-orange-500 p-2 text-white shadow-lg transition duration-300 hover:bg-orange-600 ${
         showScrollTop ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-full opacity-0'
-      }`}
+      } keyboard-fixed-hide`}
       aria-label="Scroll to top"
     >
       <ArrowUp className="w-5 h-5" />
@@ -32,7 +32,7 @@ const SiteFooter = () => {
   );
 
   return (
-    <footer className="relative mt-0 border-t border-[#07111f]/10 bg-white/30 py-12 pt-8 text-[#07111f] shadow-[0_-18px_60px_rgba(4,20,55,0.14)] backdrop-blur-xl dark:border-white/10 dark:bg-[#07111f]/20 dark:text-white dark:shadow-[0_-18px_60px_rgba(4,20,55,0.25)]">
+    <footer className="keyboard-fixed-hide relative mt-0 border-t border-[#07111f]/10 bg-white/30 py-12 pt-8 text-[#07111f] shadow-[0_-18px_60px_rgba(4,20,55,0.14)] backdrop-blur-xl dark:border-white/10 dark:bg-[#07111f]/20 dark:text-white dark:shadow-[0_-18px_60px_rgba(4,20,55,0.25)]">
       {hasMounted ? createPortal(scrollTopButton, document.body) : null}
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 ml-6 gap-6 sm:gap-8 mr-6">

@@ -660,7 +660,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
       <div className="max-w-7xl mx-auto px-4 py-0">
         {/* Search and Filters */}
-        <div className="rounded-xl bg-white/50 p-3 mb-3 block text-gray-700 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#102a53]/70 dark:text-white dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]">
+        <div className="relative z-[90] rounded-xl bg-white/50 p-3 mb-3 block text-gray-700 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#102a53]/70 dark:text-white dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]">
           <div className="flex flex-row gap-3 items-center">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray dark:text-white/40" />
@@ -722,6 +722,16 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
             ))}
           </TabsList>
 
+          {showInlineCard && (
+            <div className="mb-4">
+              <EditableMicCard
+                onSave={async (data) => { await handleRequestMic(data); setShowInlineCard(false); }}
+                onCancel={() => setShowInlineCard(false)}
+                isSubmitting={isSubmittingMic}
+              />
+            </div>
+          )}
+
           <div className="mb-4">
             <OpenMicsMapRefactored
               mics={getActiveTabMics()}
@@ -730,13 +740,6 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           </div>
 
           <TabsContent value="next" className="mt-2">
-            {showInlineCard && (
-              <EditableMicCard
-                onSave={async (data) => { await handleRequestMic(data); setShowInlineCard(false); }}
-                onCancel={() => setShowInlineCard(false)}
-                isSubmitting={isSubmittingMic}
-              />
-            )}
             {renderMicContent(getFilteredMics("next"), "next")}
           </TabsContent>
 

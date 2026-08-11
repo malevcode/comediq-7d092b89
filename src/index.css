@@ -185,6 +185,10 @@
   .force-white-text * {
     color: #ffffff !important;
   }
+
+  .keyboard-open .keyboard-fixed-hide {
+    display: none !important;
+  }
 }
 
 html {
