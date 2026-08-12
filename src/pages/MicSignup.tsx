@@ -1,6 +1,6 @@
 import { useParams, Navigate, Link, useNavigate } from 'react-router-dom';
 import { useOpenMics } from '@/hooks/useOpenMics';
-import { useEventSignups, useSignupEvents } from '@/hooks/useSignupEvents';
+import { useCurrentUserHostForMic, useEventSignups, useSignupEvents } from '@/hooks/useSignupEvents';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,9 +22,10 @@ const glassPanelClass = "rounded-lg border-0 bg-white/30 p-4 text-[#07111f] shad
 interface SignupSheetProps {
   event: any;
   micId: string;
+  isHost: boolean;
 }
 
-function SignupSheet({ event, micId }: SignupSheetProps) {
+function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
   const { data: signups, isLoading } = useEventSignups(event.id);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -39,11 +40,6 @@ function SignupSheet({ event, micId }: SignupSheetProps) {
   const currentUserSignup = user
     ? confirmedSignups.find((signup: any) => signup.user_id === user.id)
     : null;
-  const hostUserId = Array.isArray(event.mic_hosts)
-    ? event.mic_hosts[0]?.user_id
-    : event.mic_hosts?.user_id;
-  const isHost = !!user && hostUserId === user.id;
-
   const refreshSignupData = () => {
     queryClient.invalidateQueries({ queryKey: ['eventSignups', event.id] });
     queryClient.invalidateQueries({ queryKey: ['signupEvents', micId] });
@@ -244,6 +240,8 @@ export default function MicSignup() {
   const mic = mics?.find(m => generateVenueSlug(m) === slug);
 
   const { data: events, isLoading: eventsLoading, refetch: refetchEvents } = useSignupEvents(mic?.uniqueIdentifier || '');
+  const { data: currentUserHost } = useCurrentUserHostForMic(mic?.uniqueIdentifier || '', !!user);
+  const isHost = !!currentUserHost?.is_verified;
 
   useEffect(() => {
     const createComediqSlotEventIfNeeded = async () => {
@@ -393,7 +391,7 @@ export default function MicSignup() {
           <div className="space-y-6">
             {activeEvents.map(event => {
               return (
-                <SignupSheet key={event.id} event={event} micId={mic.uniqueIdentifier} />
+                <SignupSheet key={event.id} event={event} micId={mic.uniqueIdentifier} isHost={isHost} />
               );
             })}
           </div>
