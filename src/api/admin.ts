@@ -129,6 +129,7 @@ export async function requestMicsJsonRefresh() {
     dispatched: boolean;
     repository?: string;
     ref?: string;
+    workflow?: string;
   }>('admin-dispatch-mics-json-refresh', {
     body: { source: 'admin_dashboard' },
   });

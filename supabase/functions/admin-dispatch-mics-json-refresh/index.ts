@@ -2,6 +2,8 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
 
+const GITHUB_API_VERSION = "2022-11-28";
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -13,14 +15,14 @@ serve(async (req) => {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-  const refreshSecret = Deno.env.get("MICS_JSON_REFRESH_WEBHOOK_SECRET");
+  const githubToken = Deno.env.get("GITHUB_MICS_REFRESH_TOKEN");
 
   if (!supabaseUrl || !supabaseAnonKey) {
     return json({ error: "Supabase environment is not configured" }, 500);
   }
 
-  if (!refreshSecret) {
-    return json({ error: "MICS_JSON_REFRESH_WEBHOOK_SECRET is not configured" }, 500);
+  if (!githubToken) {
+    return json({ error: "GITHUB_MICS_REFRESH_TOKEN is not configured" }, 500);
   }
 
   const authorization = req.headers.get("Authorization");
@@ -59,19 +61,21 @@ serve(async (req) => {
     return json({ error: "Forbidden" }, 403);
   }
 
-  const payload = await readJson(req);
-  const dispatchResponse = await fetch(`${supabaseUrl}/functions/v1/dispatch-mics-json-refresh`, {
+  const repository = Deno.env.get("GITHUB_REPOSITORY") || "malevcode/comediq-7d092b89";
+  const ref = Deno.env.get("MICS_JSON_REFRESH_REF") || "main";
+  const workflow = Deno.env.get("MICS_JSON_REFRESH_WORKFLOW") || "refresh_mics_json.yaml";
+  const workflowUrl = `https://api.github.com/repos/${repository}/actions/workflows/${workflow}/dispatches`;
+
+  const dispatchResponse = await fetch(workflowUrl, {
     method: "POST",
     headers: {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${githubToken}`,
       "Content-Type": "application/json",
-      "x-mics-refresh-secret": refreshSecret,
+      "User-Agent": "comediq-admin-mics-json-refresh",
+      "X-GitHub-Api-Version": GITHUB_API_VERSION,
     },
-    body: JSON.stringify({
-      type: "MANUAL_ADMIN_REFRESH",
-      table: "open_mics_historical",
-      source: payload?.source ?? "admin_dashboard",
-      requested_by: userId,
-    }),
+    body: JSON.stringify({ ref }),
   });
 
   const bodyText = await dispatchResponse.text();
@@ -87,8 +91,8 @@ serve(async (req) => {
     return json(
       {
         error: detail
-          ? `GitHub refresh dispatch failed: ${detail}`
-          : "GitHub refresh dispatch failed",
+          ? `GitHub workflow dispatch failed: ${detail}`
+          : "GitHub workflow dispatch failed",
         status: dispatchResponse.status,
         body,
       },
@@ -96,16 +100,14 @@ serve(async (req) => {
     );
   }
 
-  return json(body);
+  return json({
+    ok: true,
+    dispatched: true,
+    repository,
+    ref,
+    workflow,
+  });
 });
-
-async function readJson(req: Request) {
-  try {
-    return await req.json();
-  } catch {
-    return {};
-  }
-}
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -124,6 +126,7 @@ function getDispatchFailureDetail(body: unknown) {
     error?: unknown;
     status?: unknown;
     body?: unknown;
+    message?: unknown;
   };
 
   const parts: string[] = [];
@@ -131,7 +134,9 @@ function getDispatchFailureDetail(body: unknown) {
     parts.push(`GitHub status ${upstream.status}`);
   }
 
-  if (typeof upstream.body === "string") {
+  if (typeof upstream.message === "string") {
+    parts.push(upstream.message);
+  } else if (typeof upstream.body === "string") {
     try {
       const parsed = JSON.parse(upstream.body);
       if (parsed && typeof parsed.message === "string") {

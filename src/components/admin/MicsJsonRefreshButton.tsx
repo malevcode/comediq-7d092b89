@@ -17,8 +17,8 @@ export function MicsJsonRefreshButton() {
       toast({
         title: "mics.json refresh requested",
         description: result?.ref
-          ? `GitHub will export and commit ${result.ref} after the workflow delay.`
-          : "GitHub will export and commit mics.json after the workflow delay.",
+          ? `GitHub will run ${result.workflow ?? "Refresh mics.json"} on ${result.ref}.`
+          : "GitHub will run the Refresh mics.json workflow.",
       });
     } catch (error) {
       toast({
