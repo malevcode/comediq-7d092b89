@@ -83,9 +83,12 @@ serve(async (req) => {
   }
 
   if (!dispatchResponse.ok) {
+    const detail = getDispatchFailureDetail(body);
     return json(
       {
-        error: "GitHub refresh dispatch failed",
+        error: detail
+          ? `GitHub refresh dispatch failed: ${detail}`
+          : "GitHub refresh dispatch failed",
         status: dispatchResponse.status,
         body,
       },
@@ -112,4 +115,41 @@ function json(body: unknown, status = 200) {
       "Content-Type": "application/json",
     },
   });
+}
+
+function getDispatchFailureDetail(body: unknown) {
+  if (!body || typeof body !== "object") return "";
+
+  const upstream = body as {
+    error?: unknown;
+    status?: unknown;
+    body?: unknown;
+  };
+
+  const parts: string[] = [];
+  if (typeof upstream.status === "number" || typeof upstream.status === "string") {
+    parts.push(`GitHub status ${upstream.status}`);
+  }
+
+  if (typeof upstream.body === "string") {
+    try {
+      const parsed = JSON.parse(upstream.body);
+      if (parsed && typeof parsed.message === "string") {
+        parts.push(parsed.message);
+      } else if (upstream.body.trim()) {
+        parts.push(upstream.body);
+      }
+    } catch {
+      if (upstream.body.trim()) parts.push(upstream.body);
+    }
+  } else if (upstream.body && typeof upstream.body === "object" && "message" in upstream.body) {
+    const message = (upstream.body as { message?: unknown }).message;
+    if (typeof message === "string") parts.push(message);
+  }
+
+  if (parts.length === 0 && typeof upstream.error === "string") {
+    parts.push(upstream.error);
+  }
+
+  return parts.join(" - ");
 }
