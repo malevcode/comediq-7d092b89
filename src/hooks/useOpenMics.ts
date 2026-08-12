@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic } from "@/types/openMic";
 import {
@@ -117,17 +118,21 @@ async function fetchFromSupabase(): Promise<OpenMic[]> {
 }
 
 export const useOpenMics = (_tableName: "open_mics_historical" = "open_mics_historical") => {
+  const { user } = useAuth();
+  const shouldUseLiveData = !!user;
   const cached = loadCachedOpenMics();
 
   return useQuery({
-    queryKey: ["openMics", "live"],
+    queryKey: ["openMics", shouldUseLiveData ? "live" : "static"],
     queryFn: async (): Promise<OpenMic[]> => {
-      try {
-        const rows = await fetchFromSupabase();
-        if (rows.length > 0) saveCachedOpenMics(rows);
-        return rows;
-      } catch (e) {
-        console.warn("[useOpenMics] Live Supabase fetch failed:", e);
+      if (shouldUseLiveData) {
+        try {
+          const rows = await fetchFromSupabase();
+          if (rows.length > 0) saveCachedOpenMics(rows);
+          return rows;
+        } catch (e) {
+          console.warn("[useOpenMics] Live Supabase fetch failed:", e);
+        }
       }
 
       try {
@@ -140,11 +145,11 @@ export const useOpenMics = (_tableName: "open_mics_historical" = "open_mics_hist
       }
     },
     placeholderData: cached ?? undefined,
-    staleTime: 60 * 1000,
+    staleTime: shouldUseLiveData ? 60 * 1000 : 5 * 60 * 1000,
     gcTime: Infinity,
     refetchOnMount: true,
     refetchOnReconnect: true,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: shouldUseLiveData,
     retry: 1,
   });
 };
