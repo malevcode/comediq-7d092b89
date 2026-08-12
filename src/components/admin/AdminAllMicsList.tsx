@@ -238,8 +238,10 @@ export default function AdminAllMicsList() {
       </div>
 
       {/* Results count */}
-      <div className="text-sm text-muted-foreground mb-4">
-        Showing {filteredMics.length} of {allMics.length} mics
+      <div className="flex items-center justify-between mb-4">
+        <div className="text-sm text-muted-foreground">
+          Showing {filteredMics.length} of {allMics.length} mics
+
       </div>
 
       {/* Mics Table */}
