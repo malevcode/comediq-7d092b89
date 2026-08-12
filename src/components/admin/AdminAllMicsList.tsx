@@ -153,15 +153,19 @@ export default function AdminAllMicsList() {
         [editingCell.field]: editingCell.value
       };
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('open_mics_historical')
         .update(dbUpdate)
-        .eq('unique_identifier', editingCell.micId);
-      
+        .eq('unique_identifier', editingCell.micId)
+        .select('unique_identifier');
+
       if (error) throw error;
-      
+      if (!data || data.length === 0) {
+        throw new Error('No row updated — you may not have admin permission on this mic.');
+      }
+
       toast({
-        title: 'Saved!',
+        title: 'Saved to database',
         description: `Updated ${editingCell.field}`,
       });
       
@@ -177,13 +181,14 @@ export default function AdminAllMicsList() {
       
       setEditingCell(null);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Save error:', error);
       toast({
         title: 'Error',
-        description: 'Failed to save changes',
+        description: error?.message || 'Failed to save changes',
         variant: 'destructive',
       });
+
     } finally {
       setSavingMicId(null);
     }
