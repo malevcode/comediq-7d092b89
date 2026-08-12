@@ -7,6 +7,8 @@ import { Search, X, Loader2, Check } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
+import { clearCachedOpenMics } from '@/utils/micDataCache';
 
 interface EditingCell {
   micId: string;
@@ -15,6 +17,7 @@ interface EditingCell {
 }
 
 export default function AdminAllMicsList() {
+  const queryClient = useQueryClient();
   const [allMics, setAllMics] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -128,6 +131,8 @@ export default function AdminAllMicsList() {
           ? { ...mic, ...updated }
           : mic
       ));
+      clearCachedOpenMics();
+      queryClient.invalidateQueries({ queryKey: ['openMics'] });
 
     } catch (error: any) {
       console.error('Toggle error:', error);
@@ -178,6 +183,8 @@ export default function AdminAllMicsList() {
           ? { ...mic, [editingCell.field]: editingCell.value }
           : mic
       ));
+      clearCachedOpenMics();
+      queryClient.invalidateQueries({ queryKey: ['openMics'] });
       
       setEditingCell(null);
       

@@ -9,6 +9,8 @@ import { Loader2, X, Download, Power, PowerOff, Trash2, Search } from 'lucide-re
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useBulkOperations } from './hooks/useBulkOperations';
+import { useQueryClient } from '@tanstack/react-query';
+import { clearCachedOpenMics } from '@/utils/micDataCache';
 
 interface AdminMicsSpreadsheetProps {
   mics: any[];
@@ -38,6 +40,7 @@ const COLUMN_CONFIG = [
 ];
 
 export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpreadsheetProps) => {
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<Record<string, string>>({
     hosts_organizers: '__all__',
@@ -137,6 +140,8 @@ export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpread
             ? { ...mic, [editingCell.field]: editingCell.value }
             : mic
         ));
+        clearCachedOpenMics();
+        queryClient.invalidateQueries({ queryKey: ['openMics'] });
       }
     } catch (error) {
       toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'destructive' });
@@ -162,6 +167,8 @@ export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpread
         setMics(mics.map(m =>
           m.unique_identifier === mic.unique_identifier ? { ...m, active: newValue } : m
         ));
+        clearCachedOpenMics();
+        queryClient.invalidateQueries({ queryKey: ['openMics'] });
       }
     } catch (error) {
       toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'destructive' });
