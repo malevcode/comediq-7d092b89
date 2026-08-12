@@ -2794,14 +2794,6 @@ export type Database = {
         }
         Relationships: []
       }
-      profile_display: {
-        Row: {
-          stage_name: string | null
-          user_id: string | null
-          username: string | null
-        }
-        Relationships: []
-      }
       motd_nomination_tallies: {
         Row: {
           created_at: string | null
