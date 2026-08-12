@@ -103,38 +103,44 @@ export default function AdminAllMicsList() {
 
   const handleToggle = async (micId: string, field: string, currentValue: boolean) => {
     setTogglingField({ micId, field });
-    
+
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('open_mics_historical')
         .update({ [field]: !currentValue })
-        .eq('unique_identifier', micId);
-      
+        .eq('unique_identifier', micId)
+        .select('unique_identifier, active, signup_enabled');
+
       if (error) throw error;
-      
+      if (!data || data.length === 0) {
+        throw new Error('No row updated — you may not have admin permission on this mic.');
+      }
+
       toast({
-        title: 'Updated!',
+        title: 'Saved to database',
         description: `${field} set to ${!currentValue ? 'ON' : 'OFF'}`,
       });
-      
-      // Optimistic update
-      setAllMics(prev => prev.map(mic => 
-        mic.unique_identifier === micId 
-          ? { ...mic, [field]: !currentValue }
+
+      // Sync from the row the database actually returned
+      const updated = data[0] as Record<string, any>;
+      setAllMics(prev => prev.map(mic =>
+        mic.unique_identifier === micId
+          ? { ...mic, ...updated }
           : mic
       ));
-      
-    } catch (error) {
+
+    } catch (error: any) {
       console.error('Toggle error:', error);
       toast({
         title: 'Error',
-        description: 'Failed to update',
+        description: error?.message || 'Failed to update',
         variant: 'destructive',
       });
     } finally {
       setTogglingField(null);
     }
   };
+
 
   const handleSave = async () => {
     if (!editingCell) return;
@@ -147,15 +153,19 @@ export default function AdminAllMicsList() {
         [editingCell.field]: editingCell.value
       };
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('open_mics_historical')
         .update(dbUpdate)
-        .eq('unique_identifier', editingCell.micId);
-      
+        .eq('unique_identifier', editingCell.micId)
+        .select('unique_identifier');
+
       if (error) throw error;
-      
+      if (!data || data.length === 0) {
+        throw new Error('No row updated — you may not have admin permission on this mic.');
+      }
+
       toast({
-        title: 'Saved!',
+        title: 'Saved to database',
         description: `Updated ${editingCell.field}`,
       });
       
@@ -171,13 +181,14 @@ export default function AdminAllMicsList() {
       
       setEditingCell(null);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Save error:', error);
       toast({
         title: 'Error',
-        description: 'Failed to save changes',
+        description: error?.message || 'Failed to save changes',
         variant: 'destructive',
       });
+
     } finally {
       setSavingMicId(null);
     }
@@ -227,9 +238,15 @@ export default function AdminAllMicsList() {
       </div>
 
       {/* Results count */}
-      <div className="text-sm text-muted-foreground mb-4">
-        Showing {filteredMics.length} of {allMics.length} mics
+      <div className="flex items-center justify-between mb-4">
+        <div className="text-sm text-muted-foreground">
+          Showing {filteredMics.length} of {allMics.length} mics
+        </div>
+        <Button variant="outline" size="sm" onClick={fetchAllMics} className="h-8">
+          Refresh from database
+        </Button>
       </div>
+
 
       {/* Mics Table */}
       <div className="space-y-4">
