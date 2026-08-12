@@ -103,38 +103,44 @@ export default function AdminAllMicsList() {
 
   const handleToggle = async (micId: string, field: string, currentValue: boolean) => {
     setTogglingField({ micId, field });
-    
+
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('open_mics_historical')
         .update({ [field]: !currentValue })
-        .eq('unique_identifier', micId);
-      
+        .eq('unique_identifier', micId)
+        .select('unique_identifier, active, signup_enabled');
+
       if (error) throw error;
-      
+      if (!data || data.length === 0) {
+        throw new Error('No row updated — you may not have admin permission on this mic.');
+      }
+
       toast({
-        title: 'Updated!',
+        title: 'Saved to database',
         description: `${field} set to ${!currentValue ? 'ON' : 'OFF'}`,
       });
-      
-      // Optimistic update
-      setAllMics(prev => prev.map(mic => 
-        mic.unique_identifier === micId 
-          ? { ...mic, [field]: !currentValue }
+
+      // Sync from the row the database actually returned
+      const updated = data[0] as Record<string, any>;
+      setAllMics(prev => prev.map(mic =>
+        mic.unique_identifier === micId
+          ? { ...mic, ...updated }
           : mic
       ));
-      
-    } catch (error) {
+
+    } catch (error: any) {
       console.error('Toggle error:', error);
       toast({
         title: 'Error',
-        description: 'Failed to update',
+        description: error?.message || 'Failed to update',
         variant: 'destructive',
       });
     } finally {
       setTogglingField(null);
     }
   };
+
 
   const handleSave = async () => {
     if (!editingCell) return;
