@@ -241,8 +241,12 @@ export default function AdminAllMicsList() {
       <div className="flex items-center justify-between mb-4">
         <div className="text-sm text-muted-foreground">
           Showing {filteredMics.length} of {allMics.length} mics
-
+        </div>
+        <Button variant="outline" size="sm" onClick={fetchAllMics} className="h-8">
+          Refresh from database
+        </Button>
       </div>
+
 
       {/* Mics Table */}
       <div className="space-y-4">
