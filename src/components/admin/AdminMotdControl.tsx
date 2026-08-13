@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lock, Unlock, Trophy, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import MotdNominationsList from '@/components/motd/MotdNominationsList';
+import { ComediqMicPicksManager } from '@/components/admin/ComediqMicPicksManager';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -249,6 +250,8 @@ export default function AdminMotdControl() {
           <MotdNominationsList limit={20} />
         </CardContent>
       </Card>
+
+      <ComediqMicPicksManager mics={mics} today={today} />
 
       {/* Weekly defaults */}
       <Card>
