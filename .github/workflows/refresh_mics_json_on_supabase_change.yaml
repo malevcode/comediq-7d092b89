@@ -14,7 +14,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: refresh-mics-json-after-supabase-change
+  group: refresh-mics-json
   cancel-in-progress: false
 
 jobs:
@@ -38,6 +38,9 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Update branch before export
+        run: git pull --rebase
+
       - name: Export mics from Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -59,5 +62,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add public/mics.json
           git commit -m "Refresh mics.json after Supabase change"
-          git pull --rebase
           git push
