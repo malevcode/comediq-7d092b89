@@ -2,12 +2,10 @@ name: Refresh mics.json
 
 on:
   schedule:
-    # TEMP: Run every 15 minutes while verifying the scheduled refresh path.
-    # Remove this after confirming the workflow succeeds on main.
-    - cron: "*/15 * * * *"
-    # Nightly refresh. GitHub cron is UTC and scheduled jobs can be delayed, so
-    # run once without an in-workflow wall-clock gate.
-    - cron: "0 2 * * *"
+    # Nightly refresh at 9 PM New York time during daylight saving time.
+    # GitHub cron is UTC and scheduled jobs can be delayed, so do not add an
+    # in-workflow wall-clock gate.
+    - cron: "0 1 * * *"
   workflow_dispatch: {}
 
 permissions:
