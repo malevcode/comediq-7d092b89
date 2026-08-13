@@ -81,6 +81,7 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const activeFeatureDate = pickType === 'daily' ? featureDate : weekStart;
+  const isDailyPick = pickType === 'daily';
   const selectedMic = mics.find((mic) => mic.uniqueIdentifier === selectedMicId);
 
   const picks = useQuery({
@@ -124,9 +125,9 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
       rank: normalizedRank,
       mic_unique_identifier: selectedMic.uniqueIdentifier,
       mic_snapshot: makeMicSnapshot(selectedMic),
-      headline: headline.trim() || null,
-      caption: caption.trim() || null,
-      notes: notes.trim() || null,
+      headline: isDailyPick ? headline.trim() || null : null,
+      caption: isDailyPick ? caption.trim() || null : null,
+      notes: isDailyPick ? notes.trim() || null : null,
       status,
     };
 
@@ -207,11 +208,11 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
           </div>
 
           <div className="space-y-1">
-            <Label className="text-xs">{pickType === 'daily' ? 'Posting date' : 'Week starts Sunday'}</Label>
+            <Label className="text-xs">{isDailyPick ? 'Posting date' : 'Week starts Sunday'}</Label>
             <Input
               type="date"
-              value={pickType === 'daily' ? featureDate : weekStart}
-              onChange={(e) => (pickType === 'daily' ? setFeatureDate(e.target.value) : setWeekStart(e.target.value))}
+              value={isDailyPick ? featureDate : weekStart}
+              onChange={(e) => (isDailyPick ? setFeatureDate(e.target.value) : setWeekStart(e.target.value))}
               className="h-9"
             />
           </div>
@@ -289,21 +290,31 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
           )}
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="space-y-1">
-            <Label className="text-xs">Headline</Label>
-            <Input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Optional short title" />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Caption</Label>
-            <Input value={caption} onChange={(e) => setCaption(e.target.value)} placeholder="Optional social caption" />
-          </div>
-        </div>
+        {isDailyPick && (
+          <>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Headline</Label>
+                <Input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Optional short title" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Caption</Label>
+                <Input value={caption} onChange={(e) => setCaption(e.target.value)} placeholder="Optional social caption" />
+              </div>
+            </div>
 
-        <div className="space-y-1">
-          <Label className="text-xs">Notes</Label>
-          <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Internal notes" rows={3} />
-        </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Notes</Label>
+              <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Internal notes" rows={3} />
+            </div>
+          </>
+        )}
+
+        {!isDailyPick && (
+          <div className="rounded-md border bg-muted/30 p-3 text-xs text-muted-foreground">
+            Weekly top mic posters use the selected mic, week start, rank, and status. Headline, caption, and notes are daily-only fields.
+          </div>
+        )}
 
         <Button type="button" onClick={savePick} disabled={saving}>
           {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
@@ -338,7 +349,7 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
                       <p className="truncate text-xs text-muted-foreground">
                         {venue} · {pick.status}
                       </p>
-                      {pick.headline && <p className="mt-1 text-xs">{pick.headline}</p>}
+                      {isDailyPick && pick.headline && <p className="mt-1 text-xs">{pick.headline}</p>}
                     </div>
                     <Button
                       type="button"
