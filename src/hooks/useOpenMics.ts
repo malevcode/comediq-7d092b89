@@ -118,7 +118,7 @@ async function fetchFromSupabase(): Promise<OpenMic[]> {
 }
 
 export const useOpenMics = (_tableName: "open_mics_historical" = "open_mics_historical") => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const shouldUseLiveData = !!user;
   const cached = loadCachedOpenMics();
 
@@ -145,6 +145,7 @@ export const useOpenMics = (_tableName: "open_mics_historical" = "open_mics_hist
       }
     },
     placeholderData: cached ?? undefined,
+    enabled: !loading,
     staleTime: shouldUseLiveData ? 60 * 1000 : 5 * 60 * 1000,
     gcTime: Infinity,
     refetchOnMount: true,
