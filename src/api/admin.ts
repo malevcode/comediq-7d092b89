@@ -4,6 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { invokeSupabaseFunction } from '@/utils/supabaseFunctions';
 
 export interface MicRequest {
   unique_identifier: string;
@@ -120,4 +121,19 @@ export async function disapproveMicRequest(requestId: string) {
   if (error) {
     throw error;
   }
+}
+
+export async function requestMicsJsonRefresh() {
+  const { data, error } = await invokeSupabaseFunction<{
+    ok: boolean;
+    dispatched: boolean;
+    repository?: string;
+    ref?: string;
+    workflow?: string;
+  }>('admin-dispatch-mics-json-refresh', {
+    body: { source: 'admin_dashboard' },
+  });
+
+  if (error) throw error;
+  return data;
 }
