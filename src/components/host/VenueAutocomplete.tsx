@@ -203,6 +203,7 @@ const VenueAutocomplete: React.FC<VenueAutocompleteProps> = ({ value, onChange, 
   const handleInputChange = (val: string) => {
     onChange(val);
     setSelectedLocation(null);
+    setIsManual(false);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => search(val), 300);
   };
