@@ -2,9 +2,6 @@ name: Scrape and ingest shows
 
 on:
   schedule:
-    # TEMP: Run every 15 minutes while verifying the scheduled scrape/ingest path.
-    # Remove this after confirming the workflow succeeds on main.
-    - cron: "*/15 * * * *"
     # Daily at 08:15 UTC (change as you like)
     - cron: "15 8 * * *"
   workflow_dispatch: {}
