@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 
 type PickType = 'daily' | 'weekly_top';
 type PickStatus = 'planned' | 'posted' | 'skipped';
+type GeneratedLink = { label: string; url: string };
 
 interface ComediqMicPick {
   id: string;
@@ -44,6 +45,36 @@ function getWeekStartSundayNY(today: string) {
 
 function getMonthSlug(date: string) {
   return date.slice(0, 7);
+}
+
+function canvaAutomationWorkflowUrl(workflow: CanvaAutomationWorkflow) {
+  return `https://github.com/xq675/comediq-canva-automation/actions/workflows/${workflow}`;
+}
+
+function canvaAutomationFolderUrl(path: string) {
+  return `https://github.com/xq675/comediq-canva-automation/tree/main/${path.split('/').map(encodeURIComponent).join('/')}`;
+}
+
+function getCanvaGeneratedLinks(workflow: CanvaAutomationWorkflow, inputs: Record<string, string>): GeneratedLink[] {
+  if (workflow === 'generate_instagram_daily_mic_pick_post.yaml') {
+    const date = inputs.date;
+    return [
+      { label: 'Daily blue/cream assets', url: canvaAutomationFolderUrl(`instagram-mic-picks/${date}-daily-blue-cream`) },
+      { label: 'Daily gradient assets', url: canvaAutomationFolderUrl(`instagram-mic-picks/${date}-daily-gradient`) },
+    ];
+  }
+
+  if (workflow === 'generate_instagram_mic_pick_posts.yaml') {
+    const week = inputs.week;
+    return [
+      { label: 'Weekly blue/cream assets', url: canvaAutomationFolderUrl(`instagram-mic-picks/${week}-week-blue-cream`) },
+      { label: 'Weekly gradient assets', url: canvaAutomationFolderUrl(`instagram-mic-picks/${week}-week-gradient`) },
+    ];
+  }
+
+  return [
+    { label: 'Weekly mics list assets', url: canvaAutomationFolderUrl(`instagram-open-mics/${inputs.month}-blue-cream`) },
+  ];
 }
 
 function makeMicSnapshot(mic: OpenMic) {
@@ -88,7 +119,7 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
   const [latestCanvaRun, setLatestCanvaRun] = useState<{
     label: string;
     workflowUrl?: string;
-    generatedLinks?: Array<{ label: string; url: string }>;
+    generatedLinks: GeneratedLink[];
   } | null>(null);
 
   const activeFeatureDate = pickType === 'daily' ? featureDate : weekStart;
@@ -205,8 +236,10 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
       const result = await requestCanvaAutomationRun(workflow, inputs);
       setLatestCanvaRun({
         label,
-        workflowUrl: result?.workflowUrl,
-        generatedLinks: result?.generatedLinks,
+        workflowUrl: result?.workflowUrl || canvaAutomationWorkflowUrl(workflow),
+        generatedLinks: result?.generatedLinks?.length
+          ? result.generatedLinks
+          : getCanvaGeneratedLinks(workflow, inputs),
       });
       toast({
         title: 'Canva automation started',
@@ -426,7 +459,7 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
                     </a>
                   </Button>
                 )}
-                {(latestCanvaRun.generatedLinks || []).map((link) => (
+                {latestCanvaRun.generatedLinks.map((link) => (
                   <Button key={link.url} type="button" size="sm" variant="outline" asChild>
                     <a href={link.url} target="_blank" rel="noreferrer">
                       <ExternalLink className="h-4 w-4" />
