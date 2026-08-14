@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { CalendarDays, Loader2, Save, Search, Trash2, Trophy } from 'lucide-react';
+import { CalendarDays, Loader2, Save, Search, Sparkles, Trash2, Trophy } from 'lucide-react';
+import { CanvaAutomationWorkflow, requestCanvaAutomationRun } from '@/api/admin';
 import { supabase } from '@/integrations/supabase/client';
 import { OpenMic } from '@/types/openMic';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,10 @@ function getWeekStartSundayNY(today: string) {
   return date.toISOString().slice(0, 10);
 }
 
+function getMonthSlug(date: string) {
+  return date.slice(0, 7);
+}
+
 function makeMicSnapshot(mic: OpenMic) {
   return {
     uniqueIdentifier: mic.uniqueIdentifier,
@@ -79,6 +84,7 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
   const [selectedMicId, setSelectedMicId] = useState('');
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [dispatchingWorkflow, setDispatchingWorkflow] = useState<string | null>(null);
 
   const activeFeatureDate = pickType === 'daily' ? featureDate : weekStart;
   const isDailyPick = pickType === 'daily';
@@ -181,6 +187,29 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
       });
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const dispatchCanvaAutomation = async (
+    label: string,
+    workflow: CanvaAutomationWorkflow,
+    inputs: Record<string, string>,
+  ) => {
+    setDispatchingWorkflow(workflow);
+    try {
+      await requestCanvaAutomationRun(workflow, inputs);
+      toast({
+        title: 'Canva automation started',
+        description: `${label} is running in GitHub Actions.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Canva automation failed',
+        description: error?.message || `Could not start ${label}.`,
+        variant: 'destructive',
+      });
+    } finally {
+      setDispatchingWorkflow(null);
     }
   };
 
@@ -320,6 +349,60 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
           {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
           Save Pick
         </Button>
+
+        <div className="rounded-md border p-3">
+          <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+            <Sparkles className="h-4 w-4 text-primary" />
+            Generate Canva Posts
+          </div>
+          <div className="grid gap-2 md:grid-cols-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => dispatchCanvaAutomation(
+                'Mic of the day post',
+                'generate_instagram_daily_mic_pick_post.yaml',
+                { date: featureDate },
+              )}
+              disabled={dispatchingWorkflow !== null}
+            >
+              {dispatchingWorkflow === 'generate_instagram_daily_mic_pick_post.yaml'
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : <Sparkles className="h-4 w-4" />}
+              Mic of the Day
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => dispatchCanvaAutomation(
+                'Mics of the week posts',
+                'generate_instagram_mic_pick_posts.yaml',
+                { week: weekStart },
+              )}
+              disabled={dispatchingWorkflow !== null}
+            >
+              {dispatchingWorkflow === 'generate_instagram_mic_pick_posts.yaml'
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : <Trophy className="h-4 w-4" />}
+              Mics of the Week
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => dispatchCanvaAutomation(
+                'Weekly mics list posts',
+                'generate_instagram_open_mic_posts.yaml',
+                { month: getMonthSlug(featureDate) },
+              )}
+              disabled={dispatchingWorkflow !== null}
+            >
+              {dispatchingWorkflow === 'generate_instagram_open_mic_posts.yaml'
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : <CalendarDays className="h-4 w-4" />}
+              Weekly Mics List
+            </Button>
+          </div>
+        </div>
 
         <div className="border-t pt-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
