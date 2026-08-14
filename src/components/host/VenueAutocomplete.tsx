@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
-import { MapPin, Loader2, Database, Globe } from 'lucide-react';
+import { MapPin, Loader2, Database, Globe, Plus } from 'lucide-react';
 import { getMapboxToken } from '@/components/map/MapInitializer';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -148,6 +148,8 @@ const VenueAutocomplete: React.FC<VenueAutocompleteProps> = ({ value, onChange, 
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<VenueLocation | null>(null);
+  const [isManual, setIsManual] = useState(false);
+  const [manualAddress, setManualAddress] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const containerRef = useRef<HTMLDivElement>(null);
   const tokenRef = useRef<string>('');
