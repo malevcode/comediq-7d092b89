@@ -137,3 +137,31 @@ export async function requestMicsJsonRefresh() {
   if (error) throw error;
   return data;
 }
+
+export type CanvaAutomationWorkflow =
+  | 'generate_instagram_daily_mic_pick_post.yaml'
+  | 'generate_instagram_mic_pick_posts.yaml'
+  | 'generate_instagram_open_mic_posts.yaml';
+
+export async function requestCanvaAutomationRun(
+  workflow: CanvaAutomationWorkflow,
+  inputs: Record<string, string>,
+) {
+  const { data, error } = await invokeSupabaseFunction<{
+    ok: boolean;
+    dispatched: boolean;
+    repository?: string;
+    ref?: string;
+    workflow?: string;
+    inputs?: Record<string, string>;
+  }>('admin-dispatch-canva-automation', {
+    body: {
+      source: 'admin_dashboard',
+      workflow,
+      inputs,
+    },
+  });
+
+  if (error) throw error;
+  return data;
+}
