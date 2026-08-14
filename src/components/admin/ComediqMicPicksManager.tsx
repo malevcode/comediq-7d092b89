@@ -73,7 +73,7 @@ function getCanvaGeneratedLinks(workflow: CanvaAutomationWorkflow, inputs: Recor
   }
 
   return [
-    { label: 'Monthly open mics list assets', url: canvaAutomationFolderUrl(`monthly-open-mics-list/${inputs.month}-blue-cream`) },
+    { label: 'Monthly mics list assets', url: canvaAutomationFolderUrl(`monthly-open-mics-list/${inputs.month}-blue-cream`) },
   ];
 }
 
@@ -442,7 +442,7 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
               {dispatchingWorkflow === 'generate_monthly_open_mics_list_posts.yaml'
                 ? <Loader2 className="h-4 w-4 animate-spin" />
                 : <CalendarDays className="h-4 w-4" />}
-              Monthly Open Mics List
+              Monthly Mics List
             </Button>
           </div>
           {latestCanvaRun && (
