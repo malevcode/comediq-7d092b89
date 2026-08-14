@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { CalendarDays, Loader2, Save, Search, Sparkles, Trash2, Trophy } from 'lucide-react';
+import { CalendarDays, ExternalLink, Loader2, Save, Search, Sparkles, Trash2, Trophy } from 'lucide-react';
 import { CanvaAutomationWorkflow, requestCanvaAutomationRun } from '@/api/admin';
 import { supabase } from '@/integrations/supabase/client';
 import { OpenMic } from '@/types/openMic';
@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 
 type PickType = 'daily' | 'weekly_top';
 type PickStatus = 'planned' | 'posted' | 'skipped';
+type GeneratedLink = { label: string; url: string };
 
 interface ComediqMicPick {
   id: string;
@@ -44,6 +45,36 @@ function getWeekStartSundayNY(today: string) {
 
 function getMonthSlug(date: string) {
   return date.slice(0, 7);
+}
+
+function canvaAutomationWorkflowUrl(workflow: CanvaAutomationWorkflow) {
+  return `https://github.com/xq675/comediq-canva-automation/actions/workflows/${workflow}`;
+}
+
+function canvaAutomationFolderUrl(path: string) {
+  return `https://github.com/xq675/comediq-canva-automation/tree/main/${path.split('/').map(encodeURIComponent).join('/')}`;
+}
+
+function getCanvaGeneratedLinks(workflow: CanvaAutomationWorkflow, inputs: Record<string, string>): GeneratedLink[] {
+  if (workflow === 'generate_motd_post.yaml') {
+    const date = inputs.date;
+    return [
+      { label: 'MOTD blue/cream assets', url: canvaAutomationFolderUrl(`motd-posts/${date}-blue-cream`) },
+      { label: 'MOTD gradient assets', url: canvaAutomationFolderUrl(`motd-posts/${date}-gradient`) },
+    ];
+  }
+
+  if (workflow === 'generate_motw_posts.yaml') {
+    const week = inputs.week;
+    return [
+      { label: 'MOTW blue/cream assets', url: canvaAutomationFolderUrl(`motw-posts/${week}-blue-cream`) },
+      { label: 'MOTW gradient assets', url: canvaAutomationFolderUrl(`motw-posts/${week}-gradient`) },
+    ];
+  }
+
+  return [
+    { label: 'Monthly mics list assets', url: canvaAutomationFolderUrl(`monthly-open-mics-list/${inputs.month}-blue-cream`) },
+  ];
 }
 
 function makeMicSnapshot(mic: OpenMic) {
@@ -85,6 +116,11 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [dispatchingWorkflow, setDispatchingWorkflow] = useState<string | null>(null);
+  const [latestCanvaRun, setLatestCanvaRun] = useState<{
+    label: string;
+    workflowUrl?: string;
+    generatedLinks: GeneratedLink[];
+  } | null>(null);
 
   const activeFeatureDate = pickType === 'daily' ? featureDate : weekStart;
   const isDailyPick = pickType === 'daily';
@@ -197,7 +233,14 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
   ) => {
     setDispatchingWorkflow(workflow);
     try {
-      await requestCanvaAutomationRun(workflow, inputs);
+      const result = await requestCanvaAutomationRun(workflow, inputs);
+      setLatestCanvaRun({
+        label,
+        workflowUrl: result?.workflowUrl || canvaAutomationWorkflowUrl(workflow),
+        generatedLinks: result?.generatedLinks?.length
+          ? result.generatedLinks
+          : getCanvaGeneratedLinks(workflow, inputs),
+      });
       toast({
         title: 'Canva automation started',
         description: `${label} is running in GitHub Actions.`,
@@ -361,12 +404,12 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
               variant="outline"
               onClick={() => dispatchCanvaAutomation(
                 'Mic of the day post',
-                'generate_instagram_daily_mic_pick_post.yaml',
+                'generate_motd_post.yaml',
                 { date: featureDate },
               )}
               disabled={dispatchingWorkflow !== null}
             >
-              {dispatchingWorkflow === 'generate_instagram_daily_mic_pick_post.yaml'
+              {dispatchingWorkflow === 'generate_motd_post.yaml'
                 ? <Loader2 className="h-4 w-4 animate-spin" />
                 : <Sparkles className="h-4 w-4" />}
               Mic of the Day
@@ -375,33 +418,58 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
               type="button"
               variant="outline"
               onClick={() => dispatchCanvaAutomation(
-                'Mics of the week posts',
-                'generate_instagram_mic_pick_posts.yaml',
+                'MOTW posts',
+                'generate_motw_posts.yaml',
                 { week: weekStart },
               )}
               disabled={dispatchingWorkflow !== null}
             >
-              {dispatchingWorkflow === 'generate_instagram_mic_pick_posts.yaml'
+              {dispatchingWorkflow === 'generate_motw_posts.yaml'
                 ? <Loader2 className="h-4 w-4 animate-spin" />
                 : <Trophy className="h-4 w-4" />}
-              Mics of the Week
+              MOTW
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => dispatchCanvaAutomation(
-                'Weekly mics list posts',
-                'generate_instagram_open_mic_posts.yaml',
+                'Monthly open mics list posts',
+                'generate_monthly_open_mics_list_posts.yaml',
                 { month: getMonthSlug(featureDate) },
               )}
               disabled={dispatchingWorkflow !== null}
             >
-              {dispatchingWorkflow === 'generate_instagram_open_mic_posts.yaml'
+              {dispatchingWorkflow === 'generate_monthly_open_mics_list_posts.yaml'
                 ? <Loader2 className="h-4 w-4 animate-spin" />
                 : <CalendarDays className="h-4 w-4" />}
-              Weekly Mics List
+              Monthly Mics List
             </Button>
           </div>
+          {latestCanvaRun && (
+            <div className="mt-3 rounded-md bg-muted/30 p-3">
+              <p className="mb-2 text-xs font-medium text-muted-foreground">
+                {latestCanvaRun.label} links will work after the GitHub Action finishes.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {latestCanvaRun.workflowUrl && (
+                  <Button type="button" size="sm" variant="secondary" asChild>
+                    <a href={latestCanvaRun.workflowUrl} target="_blank" rel="noreferrer">
+                      <ExternalLink className="h-4 w-4" />
+                      Workflow Runs
+                    </a>
+                  </Button>
+                )}
+                {latestCanvaRun.generatedLinks.map((link) => (
+                  <Button key={link.url} type="button" size="sm" variant="outline" asChild>
+                    <a href={link.url} target="_blank" rel="noreferrer">
+                      <ExternalLink className="h-4 w-4" />
+                      {link.label}
+                    </a>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="border-t pt-4">

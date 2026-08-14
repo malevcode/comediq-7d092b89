@@ -139,9 +139,9 @@ export async function requestMicsJsonRefresh() {
 }
 
 export type CanvaAutomationWorkflow =
-  | 'generate_instagram_daily_mic_pick_post.yaml'
-  | 'generate_instagram_mic_pick_posts.yaml'
-  | 'generate_instagram_open_mic_posts.yaml';
+  | 'generate_motd_post.yaml'
+  | 'generate_motw_posts.yaml'
+  | 'generate_monthly_open_mics_list_posts.yaml';
 
 export async function requestCanvaAutomationRun(
   workflow: CanvaAutomationWorkflow,
@@ -153,6 +153,8 @@ export async function requestCanvaAutomationRun(
     repository?: string;
     ref?: string;
     workflow?: string;
+    workflowUrl?: string;
+    generatedLinks?: Array<{ label: string; url: string }>;
     inputs?: Record<string, string>;
   }>('admin-dispatch-canva-automation', {
     body: {
