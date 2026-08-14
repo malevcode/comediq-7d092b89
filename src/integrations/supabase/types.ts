@@ -591,6 +591,51 @@ export type Database = {
           },
         ]
       }
+      comediq_mic_picks: {
+        Row: {
+          caption: string | null
+          created_at: string
+          feature_date: string
+          headline: string | null
+          id: string
+          mic_snapshot: Json
+          mic_unique_identifier: string
+          notes: string | null
+          pick_type: string
+          rank: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          feature_date: string
+          headline?: string | null
+          id?: string
+          mic_snapshot: Json
+          mic_unique_identifier: string
+          notes?: string | null
+          pick_type: string
+          rank?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          feature_date?: string
+          headline?: string | null
+          id?: string
+          mic_snapshot?: Json
+          mic_unique_identifier?: string
+          notes?: string | null
+          pick_type?: string
+          rank?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       gcal_clicks: {
         Row: {
           created_at: string
