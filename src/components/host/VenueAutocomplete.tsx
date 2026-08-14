@@ -186,13 +186,11 @@ const VenueAutocomplete: React.FC<VenueAutocompleteProps> = ({ value, onChange, 
       );
 
       const combined = [...dbResults, ...filteredMapbox];
-      if (combined.length > 0) {
-        setSuggestions(combined);
-        setIsOpen(true);
-      } else {
-        setSuggestions([]);
-        setIsOpen(false);
-      }
+      setSuggestions(combined);
+      // Always open so the "add this venue manually" option stays reachable,
+      // even when Mapbox is unavailable and the venue isn't in our database.
+      setIsOpen(true);
+
     } catch {
       setSuggestions([]);
     } finally {
