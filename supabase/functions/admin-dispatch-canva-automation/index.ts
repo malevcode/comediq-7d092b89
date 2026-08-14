@@ -7,15 +7,15 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const MONTH_RE = /^\d{4}-\d{2}$/;
 
 const WORKFLOWS = {
-  "generate_instagram_daily_mic_pick_post.yaml": {
+  "generate_motd_post.yaml": {
     requiredInput: "date",
     pattern: DATE_RE,
   },
-  "generate_instagram_mic_pick_posts.yaml": {
+  "generate_motw_posts.yaml": {
     requiredInput: "week",
     pattern: DATE_RE,
   },
-  "generate_instagram_open_mic_posts.yaml": {
+  "generate_monthly_open_mics_list_posts.yaml": {
     requiredInput: "month",
     pattern: MONTH_RE,
   },
@@ -177,25 +177,25 @@ function getGeneratedLinks(
 ) {
   const tree = (path: string) => `https://github.com/${repository}/tree/${encodeURIComponent(ref)}/${encodePath(path)}`;
 
-  if (workflow === "generate_instagram_daily_mic_pick_post.yaml") {
+  if (workflow === "generate_motd_post.yaml") {
     const date = inputs.date;
     return [
-      { label: "Daily blue/cream assets", url: tree(`instagram-mic-picks/${date}-daily-blue-cream`) },
-      { label: "Daily gradient assets", url: tree(`instagram-mic-picks/${date}-daily-gradient`) },
+      { label: "MOTD blue/cream assets", url: tree(`motd-posts/${date}-blue-cream`) },
+      { label: "MOTD gradient assets", url: tree(`motd-posts/${date}-gradient`) },
     ];
   }
 
-  if (workflow === "generate_instagram_mic_pick_posts.yaml") {
+  if (workflow === "generate_motw_posts.yaml") {
     const week = inputs.week;
     return [
-      { label: "Weekly blue/cream assets", url: tree(`instagram-mic-picks/${week}-week-blue-cream`) },
-      { label: "Weekly gradient assets", url: tree(`instagram-mic-picks/${week}-week-gradient`) },
+      { label: "MOTW blue/cream assets", url: tree(`motw-posts/${week}-blue-cream`) },
+      { label: "MOTW gradient assets", url: tree(`motw-posts/${week}-gradient`) },
     ];
   }
 
   const month = inputs.month;
   return [
-    { label: "Weekly mics list assets", url: tree(`instagram-open-mics/${month}-blue-cream`) },
+    { label: "Monthly open mics list assets", url: tree(`monthly-open-mics-list/${month}-blue-cream`) },
   ];
 }
 

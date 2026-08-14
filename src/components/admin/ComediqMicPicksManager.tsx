@@ -56,24 +56,24 @@ function canvaAutomationFolderUrl(path: string) {
 }
 
 function getCanvaGeneratedLinks(workflow: CanvaAutomationWorkflow, inputs: Record<string, string>): GeneratedLink[] {
-  if (workflow === 'generate_instagram_daily_mic_pick_post.yaml') {
+  if (workflow === 'generate_motd_post.yaml') {
     const date = inputs.date;
     return [
-      { label: 'Daily blue/cream assets', url: canvaAutomationFolderUrl(`instagram-mic-picks/${date}-daily-blue-cream`) },
-      { label: 'Daily gradient assets', url: canvaAutomationFolderUrl(`instagram-mic-picks/${date}-daily-gradient`) },
+      { label: 'MOTD blue/cream assets', url: canvaAutomationFolderUrl(`motd-posts/${date}-blue-cream`) },
+      { label: 'MOTD gradient assets', url: canvaAutomationFolderUrl(`motd-posts/${date}-gradient`) },
     ];
   }
 
-  if (workflow === 'generate_instagram_mic_pick_posts.yaml') {
+  if (workflow === 'generate_motw_posts.yaml') {
     const week = inputs.week;
     return [
-      { label: 'Weekly blue/cream assets', url: canvaAutomationFolderUrl(`instagram-mic-picks/${week}-week-blue-cream`) },
-      { label: 'Weekly gradient assets', url: canvaAutomationFolderUrl(`instagram-mic-picks/${week}-week-gradient`) },
+      { label: 'MOTW blue/cream assets', url: canvaAutomationFolderUrl(`motw-posts/${week}-blue-cream`) },
+      { label: 'MOTW gradient assets', url: canvaAutomationFolderUrl(`motw-posts/${week}-gradient`) },
     ];
   }
 
   return [
-    { label: 'Weekly mics list assets', url: canvaAutomationFolderUrl(`instagram-open-mics/${inputs.month}-blue-cream`) },
+    { label: 'Monthly open mics list assets', url: canvaAutomationFolderUrl(`monthly-open-mics-list/${inputs.month}-blue-cream`) },
   ];
 }
 
@@ -404,12 +404,12 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
               variant="outline"
               onClick={() => dispatchCanvaAutomation(
                 'Mic of the day post',
-                'generate_instagram_daily_mic_pick_post.yaml',
+                'generate_motd_post.yaml',
                 { date: featureDate },
               )}
               disabled={dispatchingWorkflow !== null}
             >
-              {dispatchingWorkflow === 'generate_instagram_daily_mic_pick_post.yaml'
+              {dispatchingWorkflow === 'generate_motd_post.yaml'
                 ? <Loader2 className="h-4 w-4 animate-spin" />
                 : <Sparkles className="h-4 w-4" />}
               Mic of the Day
@@ -418,31 +418,31 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
               type="button"
               variant="outline"
               onClick={() => dispatchCanvaAutomation(
-                'Mics of the week posts',
-                'generate_instagram_mic_pick_posts.yaml',
+                'MOTW posts',
+                'generate_motw_posts.yaml',
                 { week: weekStart },
               )}
               disabled={dispatchingWorkflow !== null}
             >
-              {dispatchingWorkflow === 'generate_instagram_mic_pick_posts.yaml'
+              {dispatchingWorkflow === 'generate_motw_posts.yaml'
                 ? <Loader2 className="h-4 w-4 animate-spin" />
                 : <Trophy className="h-4 w-4" />}
-              Mics of the Week
+              MOTW
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => dispatchCanvaAutomation(
-                'Weekly mics list posts',
-                'generate_instagram_open_mic_posts.yaml',
+                'Monthly open mics list posts',
+                'generate_monthly_open_mics_list_posts.yaml',
                 { month: getMonthSlug(featureDate) },
               )}
               disabled={dispatchingWorkflow !== null}
             >
-              {dispatchingWorkflow === 'generate_instagram_open_mic_posts.yaml'
+              {dispatchingWorkflow === 'generate_monthly_open_mics_list_posts.yaml'
                 ? <Loader2 className="h-4 w-4 animate-spin" />
                 : <CalendarDays className="h-4 w-4" />}
-              Weekly Mics List
+              Monthly Open Mics List
             </Button>
           </div>
           {latestCanvaRun && (
