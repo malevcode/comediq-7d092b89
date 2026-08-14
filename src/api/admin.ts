@@ -153,6 +153,8 @@ export async function requestCanvaAutomationRun(
     repository?: string;
     ref?: string;
     workflow?: string;
+    workflowUrl?: string;
+    generatedLinks?: Array<{ label: string; url: string }>;
     inputs?: Record<string, string>;
   }>('admin-dispatch-canva-automation', {
     body: {

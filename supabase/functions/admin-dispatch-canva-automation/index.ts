@@ -108,6 +108,8 @@ serve(async (req) => {
   const repository = Deno.env.get("CANVA_AUTOMATION_GITHUB_REPOSITORY") || "xq675/comediq-canva-automation";
   const ref = Deno.env.get("CANVA_AUTOMATION_REF") || "main";
   const workflowUrl = `https://api.github.com/repos/${repository}/actions/workflows/${workflow}/dispatches`;
+  const workflowPageUrl = `https://github.com/${repository}/actions/workflows/${workflow}`;
+  const generatedLinks = getGeneratedLinks(repository, ref, workflow, dispatchInputs);
 
   const dispatchResponse = await fetch(workflowUrl, {
     method: "POST",
@@ -149,6 +151,8 @@ serve(async (req) => {
     repository,
     ref,
     workflow,
+    workflowUrl: workflowPageUrl,
+    generatedLinks,
     inputs: dispatchInputs,
   });
 });
@@ -163,6 +167,40 @@ async function readJson(req: Request) {
 
 function isWorkflowName(value: unknown): value is WorkflowName {
   return typeof value === "string" && value in WORKFLOWS;
+}
+
+function getGeneratedLinks(
+  repository: string,
+  ref: string,
+  workflow: WorkflowName,
+  inputs: Record<string, string>,
+) {
+  const tree = (path: string) => `https://github.com/${repository}/tree/${encodeURIComponent(ref)}/${encodePath(path)}`;
+
+  if (workflow === "generate_instagram_daily_mic_pick_post.yaml") {
+    const date = inputs.date;
+    return [
+      { label: "Daily blue/cream assets", url: tree(`instagram-mic-picks/${date}-daily-blue-cream`) },
+      { label: "Daily gradient assets", url: tree(`instagram-mic-picks/${date}-daily-gradient`) },
+    ];
+  }
+
+  if (workflow === "generate_instagram_mic_pick_posts.yaml") {
+    const week = inputs.week;
+    return [
+      { label: "Weekly blue/cream assets", url: tree(`instagram-mic-picks/${week}-week-blue-cream`) },
+      { label: "Weekly gradient assets", url: tree(`instagram-mic-picks/${week}-week-gradient`) },
+    ];
+  }
+
+  const month = inputs.month;
+  return [
+    { label: "Weekly mics list assets", url: tree(`instagram-open-mics/${month}-blue-cream`) },
+  ];
+}
+
+function encodePath(path: string) {
+  return path.split("/").map(encodeURIComponent).join("/");
 }
 
 function json(body: unknown, status = 200) {
