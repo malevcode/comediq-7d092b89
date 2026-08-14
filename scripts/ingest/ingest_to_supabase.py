@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
@@ -18,6 +19,8 @@ import requests
 # Config
 # ------------------------
 TABLE = "audience_shows"
+UPSERT_MAX_ATTEMPTS = 5
+UPSERT_RETRY_STATUSES = {408, 429, 500, 502, 503, 504}
 
 HERE = Path(__file__).resolve()
 REPO_ROOT = HERE.parents[2]          # scripts/ingest/ -> scripts -> repo root
@@ -89,6 +92,12 @@ def iso_to_date_time(iso_str: str) -> Tuple[Optional[str], Optional[str]]:
 # ------------------------
 # Supabase upsert (PostgREST)
 # ------------------------
+def should_retry_upsert_response(response: requests.Response) -> bool:
+    return response.status_code in UPSERT_RETRY_STATUSES
+
+def retry_delay_seconds(attempt: int) -> float:
+    return min(60, 2 ** (attempt - 1) * 5)
+
 def supabase_upsert(rows: List[Dict[str, Any]], *, url: str, service_key: str) -> None:
     if not rows:
         return
@@ -109,9 +118,38 @@ def supabase_upsert(rows: List[Dict[str, Any]], *, url: str, service_key: str) -
     batch_size = 200
     for i in range(0, len(rows), batch_size):
         batch = rows[i : i + batch_size]
-        r = requests.post(endpoint, headers=headers, params=params, data=json.dumps(batch), timeout=60)
-        if r.status_code >= 400:
-            raise RuntimeError(f"Upsert failed ({r.status_code}): {r.text}")
+        batch_number = i // batch_size + 1
+        for attempt in range(1, UPSERT_MAX_ATTEMPTS + 1):
+            try:
+                r = requests.post(endpoint, headers=headers, params=params, data=json.dumps(batch), timeout=60)
+            except requests.RequestException as exc:
+                if attempt >= UPSERT_MAX_ATTEMPTS:
+                    raise RuntimeError(
+                        f"Upsert batch {batch_number} failed after {attempt} attempts: {exc}"
+                    ) from exc
+                delay = retry_delay_seconds(attempt)
+                print(
+                    f"Upsert batch {batch_number} request failed on attempt {attempt}/{UPSERT_MAX_ATTEMPTS}: {exc}. "
+                    f"Retrying in {delay:.0f}s.",
+                    flush=True,
+                )
+                time.sleep(delay)
+                continue
+
+            if r.status_code < 400:
+                break
+
+            if should_retry_upsert_response(r) and attempt < UPSERT_MAX_ATTEMPTS:
+                delay = retry_delay_seconds(attempt)
+                print(
+                    f"Upsert batch {batch_number} failed with retryable status {r.status_code} "
+                    f"on attempt {attempt}/{UPSERT_MAX_ATTEMPTS}: {r.text}. Retrying in {delay:.0f}s.",
+                    flush=True,
+                )
+                time.sleep(delay)
+                continue
+
+            raise RuntimeError(f"Upsert batch {batch_number} failed ({r.status_code}): {r.text}")
 
 # ------------------------
 # Scraper execution
