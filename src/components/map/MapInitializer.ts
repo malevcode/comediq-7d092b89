@@ -3,6 +3,8 @@
  * Browser map rendering uses a public Mapbox token; address geocoding stays in backend/offline jobs.
  */
 
+import { supabase } from '@/integrations/supabase/client';
+
 const PLACEHOLDER_TOKENS = new Set([
   '',
   'your_public_mapbox_token',
