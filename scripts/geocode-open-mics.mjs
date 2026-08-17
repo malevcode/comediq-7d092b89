@@ -1,4 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
 import { existsSync, readFileSync } from 'node:fs';
 
 // Backend-only/offline coordinate job. Do not run this from the browser.
@@ -37,17 +36,67 @@ const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL |
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const LIMIT = Number(process.env.GEOCODE_LIMIT || 500);
 const DRY_RUN = process.env.DRY_RUN === 'true';
+const REFRESH_ALL = process.env.GEOCODE_REFRESH_ALL === 'true' || process.env.FORCE_REGEOCODE === 'true';
 
 if (PLACEHOLDER_VALUES.has(SUPABASE_URL) || PLACEHOLDER_VALUES.has(SERVICE_ROLE_KEY)) {
   throw new Error('Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY before running the backend coordinate job.');
 }
 
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-  auth: {
-    persistSession: false,
-    autoRefreshToken: false,
-  },
-});
+const REST_URL = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1`;
+const SUPABASE_HEADERS = {
+  apikey: SERVICE_ROLE_KEY,
+  Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+};
+
+async function readJsonResponse(response) {
+  const text = await response.text();
+  const body = text ? JSON.parse(text) : null;
+
+  if (!response.ok) {
+    const error = new Error(body?.message || body?.error || `${response.status} ${response.statusText}`);
+    error.code = body?.code;
+    error.details = body?.details;
+    throw error;
+  }
+
+  return body;
+}
+
+async function fetchOpenMicRows() {
+  const params = new URLSearchParams({
+    select: 'unique_identifier,open_mic,venue_name,location,city,borough,latitude,longitude',
+    active: 'eq.true',
+    limit: String(LIMIT),
+  });
+
+  if (!REFRESH_ALL) {
+    params.set('or', '(latitude.is.null,longitude.is.null)');
+  }
+
+  const response = await fetch(`${REST_URL}/open_mics_historical?${params}`, {
+    headers: SUPABASE_HEADERS,
+  });
+
+  return readJsonResponse(response);
+}
+
+async function updateOpenMicCoordinates(uniqueIdentifier, update) {
+  const params = new URLSearchParams({
+    unique_identifier: `eq.${uniqueIdentifier}`,
+  });
+
+  const response = await fetch(`${REST_URL}/open_mics_historical?${params}`, {
+    method: 'PATCH',
+    headers: {
+      ...SUPABASE_HEADERS,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+    },
+    body: JSON.stringify(update),
+  });
+
+  await readJsonResponse(response);
+}
 
 const MANUAL_COORDINATE_OVERRIDES = [
   {
@@ -151,14 +200,11 @@ async function geocodeRow(row) {
   }
 }
 
-const { data: rows, error } = await supabase
-  .from('open_mics_historical')
-  .select('unique_identifier, open_mic, venue_name, location, city, borough, latitude, longitude')
-  .eq('active', true)
-  .or('latitude.is.null,longitude.is.null')
-  .limit(LIMIT);
+let rows;
 
-if (error) {
+try {
+  rows = await fetchOpenMicRows();
+} catch (error) {
   if (error.code === '42703') {
     throw new Error(
       'Coordinate columns are missing on open_mics_historical. Apply supabase/migrations/20260616000100_add_open_mic_coordinates.sql before running this job.',
@@ -168,7 +214,11 @@ if (error) {
   throw error;
 }
 
-console.log(`Found ${rows.length} active open mics missing coordinates.`);
+console.log(
+  REFRESH_ALL
+    ? `Found ${rows.length} active open mics to refresh coordinates.`
+    : `Found ${rows.length} active open mics missing coordinates.`,
+);
 
 let updated = 0;
 let skipped = 0;
@@ -194,12 +244,9 @@ for (const row of rows) {
   if (DRY_RUN) {
     console.log('dry-run', row.unique_identifier, update);
   } else {
-    const { error: updateError } = await supabase
-      .from('open_mics_historical')
-      .update(update)
-      .eq('unique_identifier', row.unique_identifier);
-
-    if (updateError) {
+    try {
+      await updateOpenMicCoordinates(row.unique_identifier, update);
+    } catch (updateError) {
       skipped += 1;
       console.warn(`update failed ${row.unique_identifier}:`, updateError.message);
       continue;
