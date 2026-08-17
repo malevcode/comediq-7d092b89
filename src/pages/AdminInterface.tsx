@@ -24,6 +24,7 @@ import { SmartUpdateInterface } from '@/components/admin/SmartUpdateInterface';
 import { AdminContributionsPanel } from '@/components/admin/AdminContributionsPanel';
 import AdminGrowthManager from '@/components/admin/AdminGrowthManager';
 import AdminMotdControl from '@/components/admin/AdminMotdControl';
+import { MicsJsonRefreshButton } from '@/components/admin/MicsJsonRefreshButton';
 import PageHeader from '@/components/PageHeader';
 import { approveMicRequest, type MicFormData } from '@/api/admin';
 import {
@@ -294,9 +295,12 @@ const AdminInterface = () => {
       <PageHeader />
 
       <div className="max-w-3xl mx-auto px-4 page-content-offset pb-20">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Manage open mic requests and content</p>
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+            <p className="text-sm text-muted-foreground">Manage open mic requests and content</p>
+          </div>
+          <MicsJsonRefreshButton />
         </div>
         <Tabs defaultValue="analytics" className="w-full" onValueChange={setTab}>
           <TabsList className="mb-8 w-full flex flex-wrap h-auto gap-1">

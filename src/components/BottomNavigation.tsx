@@ -28,7 +28,9 @@ const BottomNavigation = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/40 text-gray-500 shadow-[0_-18px_50px_rgba(4,20,55,0.16)] backdrop-blur-xl dark:bg-[#07111f]/40 dark:text-white dark:shadow-[0_-18px_50px_rgba(4,20,55,0.26)]">
+    <nav
+      className="keyboard-fixed-hide fixed bottom-0 left-0 right-0 z-50 bg-white/40 text-gray-500 shadow-[0_-18px_50px_rgba(4,20,55,0.16)] backdrop-blur-xl dark:bg-[#07111f]/40 dark:text-white dark:shadow-[0_-18px_50px_rgba(4,20,55,0.26)]"
+    >
       <div className="max-w-md mx-auto">
         <div className="flex justify-around py-2">
           {navItems.map(({ path, icon: Icon, label }) => {

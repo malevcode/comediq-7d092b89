@@ -34,7 +34,7 @@ const Hero = () => {
 
             <div className="flex w-full flex-col items-center justify-center gap-2 sm:w-auto sm:flex-row sm:gap-3">
               <Button
-                onClick={() => navigate("/auth")}
+                onClick={() => navigate("/perform")}
                 className="w-full rounded-full bg-[#ffc72c] px-6 py-3 text-sm font-bold text-[#07111f] transition-all duration-300 hover:scale-105 hover:bg-[#ffd95c] sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
               >
                 🎤 I Perform

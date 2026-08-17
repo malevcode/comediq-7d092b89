@@ -30,7 +30,7 @@ export const QuickNotes: React.FC<QuickNotesProps> = ({ className = "" }) => {
       .select("*")
       .eq("user_id", user.id)
       .eq("is_draft", true)
-      .single();
+      .maybeSingle();
 
     if (data) {
       setCurrentNote(data.content);
@@ -69,7 +69,7 @@ export const QuickNotes: React.FC<QuickNotesProps> = ({ className = "" }) => {
       .select("id")
       .eq("user_id", user.id)
       .eq("is_draft", true)
-      .single();
+      .maybeSingle();
 
     if (existingDraft) {
       await supabase
@@ -111,7 +111,7 @@ export const QuickNotes: React.FC<QuickNotesProps> = ({ className = "" }) => {
       .select("id")
       .eq("user_id", user.id)
       .eq("is_draft", true)
-      .single();
+      .maybeSingle();
 
     if (existingDraft) {
       await supabase

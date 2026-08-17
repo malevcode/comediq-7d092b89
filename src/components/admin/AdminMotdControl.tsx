@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lock, Unlock, Trophy, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import MotdNominationsList from '@/components/motd/MotdNominationsList';
+import { ComediqMicPicksManager } from '@/components/admin/ComediqMicPicksManager';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -64,7 +65,11 @@ export default function AdminMotdControl() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     // Upsert: delete today's row then insert with lock
-    await supabase.from('mic_of_the_day').delete().eq('claim_date', today);
+    const { error: deleteError } = await supabase.from('mic_of_the_day').delete().eq('claim_date', today);
+    if (deleteError) {
+      toast({ title: 'Lock failed', description: deleteError.message, variant: 'destructive' });
+      return;
+    }
     const { error } = await supabase.from('mic_of_the_day').insert({
       mic_unique_identifier: micId,
       claimed_by: user.id,
@@ -245,6 +250,8 @@ export default function AdminMotdControl() {
           <MotdNominationsList limit={20} />
         </CardContent>
       </Card>
+
+      <ComediqMicPicksManager mics={mics} today={today} />
 
       {/* Weekly defaults */}
       <Card>

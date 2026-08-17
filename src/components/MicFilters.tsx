@@ -109,12 +109,12 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
       {showFilters && (
         <>
           <div
-            className="fixed inset-0 bg-black/30 z-50 md:hidden"
+            className="fixed inset-3 rounded-md z-50 md:hidden"
             onClick={() => setShowFilters(false)}
           />
 
           <div className="fixed md:absolute left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto top-20 md:top-full md:right-0 md:mt-2 z-[9999] w-[92vw] max-w-sm md:w-72">
-            <Card className="rounded-lg border-[#07111f]/10 bg-white/30 text-gray-800 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#102a53]/25 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
+            <Card className="rounded-2xl border-[#07111f]/10 bg-white/30 text-gray-800 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#102a53]/25 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-sm text-gray-900 dark:text-white">Filter Open Mics</h3>

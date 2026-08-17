@@ -2,9 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic } from "@/types/openMic";
+import {
+  hasUsableCoordinateData,
+  loadCachedOpenMics,
+  saveCachedOpenMics,
+} from "@/utils/micDataCache";
 
-const CACHE_KEY = "comediq_open_mics_v7";
-const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days — static data
 const LIVE_COLUMNS = [
   "unique_identifier",
   "open_mic",
@@ -45,40 +48,8 @@ const LIVE_COLUMNS = [
   "geocoding_match_address",
 ].join(",");
 
-function hasCoordinates(mic: OpenMic): boolean {
-  return mic.latitude !== null
-    && mic.latitude !== undefined
-    && mic.longitude !== null
-    && mic.longitude !== undefined;
-}
-
-function hasUsableCoordinateData(data: OpenMic[]): boolean {
-  return data.length === 0 || data.some(hasCoordinates);
-}
-
-function loadCached(): OpenMic[] | null {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    const { data, savedAt } = JSON.parse(raw);
-    if (Date.now() - savedAt > CACHE_TTL_MS) return null;
-    if (!Array.isArray(data) || !hasUsableCoordinateData(data)) return null;
-    return data as OpenMic[];
-  } catch {
-    return null;
-  }
-}
-
-function saveCache(data: OpenMic[]) {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ data, savedAt: Date.now() }));
-  } catch {
-    // Ignore cache write failures; /mics.json remains the source of truth for public visitors.
-  }
-}
-
 async function fetchFromStaticJson(): Promise<OpenMic[]> {
-  const res = await fetch("/mics.json");
+  const res = await fetch("/mics.json", { cache: "no-cache" });
   if (!res.ok) throw new Error(`Failed to fetch /mics.json: ${res.status}`);
 
   const mics = await res.json();
@@ -147,9 +118,9 @@ async function fetchFromSupabase(): Promise<OpenMic[]> {
 }
 
 export const useOpenMics = (_tableName: "open_mics_historical" = "open_mics_historical") => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const shouldUseLiveData = !!user;
-  const cached = loadCached();
+  const cached = loadCachedOpenMics();
 
   return useQuery({
     queryKey: ["openMics", shouldUseLiveData ? "live" : "static"],
@@ -157,29 +128,28 @@ export const useOpenMics = (_tableName: "open_mics_historical" = "open_mics_hist
       if (shouldUseLiveData) {
         try {
           const rows = await fetchFromSupabase();
-          if (rows.length > 0) saveCache(rows);
+          if (rows.length > 0) saveCachedOpenMics(rows);
           return rows;
         } catch (e) {
           console.warn("[useOpenMics] Live Supabase fetch failed:", e);
         }
-      } else if (cached && cached.length > 0) {
-        return cached;
       }
 
       try {
         const rows = await fetchFromStaticJson();
-        if (rows.length > 0) saveCache(rows);
+        if (rows.length > 0) saveCachedOpenMics(rows);
         return rows;
       } catch (e) {
         console.warn("[useOpenMics] Static JSON fetch failed:", e);
-        return [];
+        return cached ?? [];
       }
     },
     placeholderData: cached ?? undefined,
-    staleTime: shouldUseLiveData ? 60 * 1000 : Infinity,
+    enabled: !loading,
+    staleTime: shouldUseLiveData ? 60 * 1000 : 5 * 60 * 1000,
     gcTime: Infinity,
-    refetchOnMount: false,
-    refetchOnReconnect: shouldUseLiveData,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
     refetchOnWindowFocus: shouldUseLiveData,
     retry: 1,
   });

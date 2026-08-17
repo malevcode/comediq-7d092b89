@@ -8,6 +8,7 @@ import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { HelmetProvider } from 'react-helmet-async';
 import { ThemeProvider } from "next-themes";
 import { usePointsSync } from '@/hooks/usePoints';
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import OpenMics from "./pages/OpenMics";
 import TrackSets from "./pages/TrackSets";
@@ -49,7 +50,7 @@ import TopMics from "./pages/TopMics";
 import Slots from "./pages/Slots";
 import ShowsMap from "./pages/ShowsMap";
 import Onboarding from "./pages/Onboarding";
-import BookMeMicSignup from "./pages/BookMeMicSignup";
+
 import Strip from "./pages/Strip";
 
 const queryClient = new QueryClient({
@@ -86,6 +87,43 @@ function SiteFooterWrapper() {
   );
 }
 
+function KeyboardViewportOffset() {
+  useEffect(() => {
+    const root = document.documentElement;
+    const keyboardTargetSelector = 'input, textarea, select, [contenteditable="true"]';
+
+    const updateKeyboardState = () => {
+      const activeElement = document.activeElement;
+      const isEditing =
+        activeElement instanceof HTMLElement &&
+        activeElement.matches(keyboardTargetSelector);
+      const isMobileLike =
+        window.matchMedia('(max-width: 768px)').matches ||
+        window.matchMedia('(pointer: coarse)').matches;
+
+      root.classList.toggle('keyboard-open', isEditing && isMobileLike);
+    };
+
+    const handleFocusOut = () => window.setTimeout(updateKeyboardState, 120);
+
+    updateKeyboardState();
+    window.visualViewport?.addEventListener('resize', updateKeyboardState);
+    window.visualViewport?.addEventListener('scroll', updateKeyboardState);
+    window.addEventListener('focusin', updateKeyboardState);
+    window.addEventListener('focusout', handleFocusOut);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', updateKeyboardState);
+      window.visualViewport?.removeEventListener('scroll', updateKeyboardState);
+      window.removeEventListener('focusin', updateKeyboardState);
+      window.removeEventListener('focusout', handleFocusOut);
+      root.classList.remove('keyboard-open');
+    };
+  }, []);
+
+  return null;
+}
+
 function AppShell() {
   const { subscriptionPlan } = useAuth();
   const isSubscriber = subscriptionPlan !== 'free';
@@ -93,6 +131,7 @@ function AppShell() {
   return (
     <BrowserRouter>
       <AnalyticsProvider>
+        <KeyboardViewportOffset />
         <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,199,44,0.58),transparent_30%),radial-gradient(circle_at_88%_8%,rgba(26,95,180,0.42),transparent_34%),linear-gradient(145deg,#fff7dc_0%,#f5f2eb_34%,#dbeafe_68%,#ffc72c_100%)] transition-colors duration-500 dark:bg-[radial-gradient(circle_at_12%_0%,rgba(255,199,44,0.72),transparent_30%),radial-gradient(circle_at_88%_8%,rgba(26,95,180,0.82),transparent_34%),linear-gradient(145deg,#07111f_0%,#1a5fb4_36%,#f5f2eb_62%,#ffc72c_100%)]" />
         <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(245,242,235,0.28)_45%,rgba(255,247,220,0.48)_100%)] transition-colors duration-500 dark:bg-[linear-gradient(180deg,rgba(7,17,31,0.16)_0%,rgba(7,17,31,0.48)_42%,rgba(7,17,31,0.74)_100%)]" />
         <ScrollToTop />
@@ -135,7 +174,7 @@ function AppShell() {
             <Route path="/dev-view" element={<TabProvider><DevView /></TabProvider>} />
             <Route path="/slots" element={<Slots />} />
             <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/book-me-mic" element={<BookMeMicSignup />} />
+            
             <Route path="/strip" element={<Strip />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -110,11 +110,6 @@ async function handleSubscriptionUpdated(sub: Stripe.Subscription) {
     return;
   }
 
-  if (sub.cancel_at_period_end) {
-    await handleSubscriptionDeleted(sub);
-    return;
-  }
-
   if (sub.status === 'active' || sub.status === 'trialing') {
     await updateCustomerUserMetadata(customerId, userId);
     await activateFullPass(userId, customerId, priceId, sub.id);

@@ -47,3 +47,15 @@ verify_jwt = true
 [functions.refresh-weekly-top-mics]
 enabled = true
 verify_jwt = false
+
+[functions.dispatch-mics-json-refresh]
+enabled = true
+verify_jwt = false
+
+[functions.admin-dispatch-mics-json-refresh]
+enabled = true
+verify_jwt = true
+
+[functions.admin-dispatch-canva-automation]
+enabled = true
+verify_jwt = true

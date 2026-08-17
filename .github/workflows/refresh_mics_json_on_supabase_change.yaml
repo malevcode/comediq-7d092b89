@@ -1,0 +1,65 @@
+name: Refresh mics.json after Supabase change
+
+on:
+  repository_dispatch:
+    types: [supabase-mics-changed]
+  workflow_dispatch:
+    inputs:
+      delay_seconds:
+        description: "Seconds to wait before exporting mics.json"
+        required: false
+        default: "150"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-mics-json
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Wait for Supabase changes to settle
+        env:
+          DELAY_SECONDS: ${{ github.event.inputs.delay_seconds || '150' }}
+        run: sleep "$DELAY_SECONDS"
+
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.client_payload.ref || github.ref_name }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Update branch before export
+        run: git pull --rebase
+
+      - name: Export mics from Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          REQUIRE_MIC_EXPORT: "true"
+        run: npm run export:mics
+
+      - name: Commit updated mics.json
+        run: |
+          if git diff --quiet -- public/mics.json; then
+            echo "public/mics.json is already up to date."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/mics.json
+          git commit -m "Refresh mics.json after Supabase change"
+          git push

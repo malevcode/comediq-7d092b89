@@ -562,9 +562,10 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     ? `Discover comedy open mics in ${filters.borough}. Real-time schedules, venue details, and comedian reviews.`
     : "Find every comedy open mic in NYC. Real-time schedules, venue details, comedian reviews, and set tracking.";
   const tabListLayoutClass = user
-    ? "grid grid-cols-5 lg:grid-cols-10"
-    : "flex flex-wrap justify-center lg:grid lg:grid-cols-9";
-  const loggedOutMobileTabClass = !user ? "basis-[calc((100%_-_1rem)_/_5)] lg:basis-auto" : "";
+    ? "grid grid-cols-10"
+    : "grid grid-cols-9";
+  const loggedOutMobileTabClass = "";
+
   const tabTriggerClass = `text-xs py-1 px-1 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white ${loggedOutMobileTabClass}`;
 
   return (
@@ -661,7 +662,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
       <div className="max-w-7xl mx-auto px-4 py-0">
         {/* Search and Filters */}
-        <div className="rounded-xl bg-white/25 p-3 mb-3 block text-gray-700 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
+        <div className="relative z-[90] rounded-xl bg-white/25 p-3 mb-3 block text-gray-700 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
           <div className="flex flex-row gap-3 items-center">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray dark:text-white/40" />
@@ -722,7 +723,16 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
               </TabsTrigger>
             ))}
           </TabsList>
-          
+          {showInlineCard && (
+            <div className="mb-4">
+              <EditableMicCard
+                onSave={async (data) => { await handleRequestMic(data); setShowInlineCard(false); }}
+                onCancel={() => setShowInlineCard(false)}
+                isSubmitting={isSubmittingMic}
+              />
+            </div>
+          )}
+
           <div className="mb-4 rounded-xl bg-white/25 p-3 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white">
             <button
                 type="button"
@@ -736,7 +746,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                 </span>
                 <ChevronDown className={`h-4 w-4 transition-transform ${showMapView ? "rotate-180" : ""}`} />
             </button>
-          
+
             {showMapView && (
                <div className="mt-3">
                     <OpenMicsMapRefactored
@@ -748,13 +758,6 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           </div>
 
           <TabsContent value="next" className="mt-2">
-            {showInlineCard && (
-              <EditableMicCard
-                onSave={async (data) => { await handleRequestMic(data); setShowInlineCard(false); }}
-                onCancel={() => setShowInlineCard(false)}
-                isSubmitting={isSubmittingMic}
-              />
-            )}
             {renderMicContent(getFilteredMics("next"), "next")}
           </TabsContent>
 

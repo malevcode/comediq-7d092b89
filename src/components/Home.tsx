@@ -6,7 +6,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic2, TrendingUp, Star, ArrowRight, Calendar, MapPin, Heart, Bookmark, Music, ListMusic, Sparkles, NotebookPen, Activity } from "lucide-react";
+import { Mic2, TrendingUp, ArrowRight, MapPin, Heart, Bookmark, Music, ListMusic, Sparkles, NotebookPen, Activity, Megaphone, Headphones, ExternalLink } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { SponsorCard } from "./SponsorCard";
 import { QuickNotes } from "./home/QuickNotes";
@@ -15,6 +15,7 @@ import { useSavedMics } from "@/hooks/useSavedMics";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useMicPlaylists } from "@/hooks/useMicPlaylists";
 import { useUserSignups } from "@/hooks/useUserSignups";
+import { featuredGrowthOpportunities } from "@/data/featuredGrowthOpportunities";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { OpenMic } from "@/types/openMic";
 
@@ -202,25 +203,6 @@ export default function Home() {
   const titleTextClass = "text-[#07111f] dark:text-white";
   const descriptionTextClass = "text-[#07111f]/70 dark:text-white/80";
   const outlineActionClass = "border-0 w-full justify-start bg-white/25 text-[#07111f] hover:bg-white/35 hover:text-[#1a5fb4] hover:-translate-y-0.5 hover:scale-[1.03] shadow-[0_20px_70px_rgba(2,10,30,0.16),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl transition-all duration-300 dark:bg-[#102a53]/20 dark:text-white dark:hover:bg-white/20 dark:hover:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)]";
-  const micOfTheWeekBanners = [
-    {
-      title: "Comediq Book Me Mic",
-      description: "Highline Comedy Club stage-time opportunity",
-      href: "/book-me-mic",
-      icon: Sparkles,
-      accent: "from-amber-50 to-yellow-50 border-amber-200 text-amber-700",
-    },
-    {
-      title: "This Week's Open Mics",
-      description: "Find fresh rooms to get on stage",
-      href: "/open-mics",
-      icon: Mic2,
-      accent: "from-blue-50 to-white border-[#1a5fb4]/20 text-[#1a5fb4]",
-    },
-  ];
-
-
-
   // Refetch visits when visitInserted is true, then reset the flag
   useEffect(() => {
     if (visitInserted) {
@@ -813,33 +795,63 @@ export default function Home() {
               <Card className={panelClass}>
                 <CardHeader className={panelHeaderClass}>
                   <div>
-                    <CardTitle className={`text-lg ${titleTextClass}`}>📌  Opportunities</CardTitle>
-                    <CardDescription className={descriptionTextClass}>Mics of the week</CardDescription>
+                    <CardTitle className={`text-lg ${titleTextClass}`}>📌 Opportunities</CardTitle>
+                    <CardDescription className={descriptionTextClass}>Featured from Growth</CardDescription>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-6">
-                  {micOfTheWeekBanners.map((banner) => {
-                    const Icon = banner.icon;
-
-                    return (
-                      <Link
-                        key={banner.title}
-                        to={banner.href}
-                        className="group flex items-center justify-between gap-3 rounded-lg bg-white/25 p-4 text-[#07111f] shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-white/35 hover:shadow-[0_24px_80px_rgba(2,10,30,0.18),0_10px_28px_rgba(2,10,30,0.10)] dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)] dark:hover:bg-white/20"
-                      >
+                  {featuredGrowthOpportunities.map((opportunity) => {
+                    const Icon = opportunity.type === "podcast" ? Headphones : Megaphone;
+                    const description =
+                      opportunity.type === "podcast"
+                        ? opportunity.compensation
+                        : [opportunity.venue_name, opportunity.borough].filter(Boolean).join(", ");
+                    const content = (
+                      <>
                         <div className="flex min-w-0 items-center gap-3">
                           <div className="rounded-lg bg-[#1a5fb4]/10 p-2 text-[#1a5fb4] shadow-sm dark:bg-[#102a53]/30 dark:text-[#8ec5ff]">
                             <Icon className="h-4 w-4" />
                           </div>
                           <div className="min-w-0">
-                            <p className={`truncate text-sm font-semibold ${titleTextClass}`}>{banner.title}</p>
-                            <p className={`mt-0.5 text-xs ${descriptionTextClass}`}>{banner.description}</p>
+                            <p className={`truncate text-sm font-semibold ${titleTextClass}`}>{opportunity.title}</p>
+                            {description && <p className={`mt-0.5 text-xs ${descriptionTextClass}`}>{description}</p>}
+                            {opportunity.contact_info && (
+                              <p className={`mt-1 line-clamp-1 text-[11px] font-medium ${mutedTextClass}`}>
+                                {opportunity.contact_info}
+                              </p>
+                            )}
                           </div>
                         </div>
-                        <ArrowRight className="h-4 w-4 shrink-0 text-[#1a5fb4] transition-transform group-hover:translate-x-0.5 dark:text-[#8ec5ff]" />
+                        <ExternalLink className="h-4 w-4 shrink-0 text-[#1a5fb4] transition-transform group-hover:translate-x-0.5 dark:text-[#8ec5ff]" />
+                      </>
+                    );
+
+                    return opportunity.external_url ? (
+                      <a
+                        key={opportunity.id}
+                        href={opportunity.external_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-center justify-between gap-3 rounded-lg bg-white/25 p-4 text-[#07111f] shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-white/35 hover:shadow-[0_24px_80px_rgba(2,10,30,0.18),0_10px_28px_rgba(2,10,30,0.10)] dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)] dark:hover:bg-white/20"
+                      >
+                        {content}
+                      </a>
+                    ) : (
+                      <Link
+                        key={opportunity.id}
+                        to="/growth"
+                        className="group flex items-center justify-between gap-3 rounded-lg bg-white/25 p-4 text-[#07111f] shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-white/35 hover:shadow-[0_24px_80px_rgba(2,10,30,0.18),0_10px_28px_rgba(2,10,30,0.10)] dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)] dark:hover:bg-white/20"
+                      >
+                        {content}
                       </Link>
                     );
                   })}
+                  <Button asChild variant="outline" className={outlineActionClass} size="sm">
+                    <Link to="/growth">
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      View All Opportunities
+                    </Link>
+                  </Button>
                 </CardContent>
               </Card>
 

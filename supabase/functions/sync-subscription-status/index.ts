@@ -52,7 +52,6 @@ function hasFullPassPrice(subscription: Stripe.Subscription) {
 function isCurrentFullPass(subscription: Stripe.Subscription) {
   return (
     (subscription.status === 'active' || subscription.status === 'trialing') &&
-    !subscription.cancel_at_period_end &&
     hasFullPassPrice(subscription)
   )
 }
