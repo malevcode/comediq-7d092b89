@@ -94,6 +94,10 @@ serve(async (req) => {
           ? `GitHub workflow dispatch failed: ${detail}`
           : "GitHub workflow dispatch failed",
         status: dispatchResponse.status,
+        repository,
+        ref,
+        workflow,
+        endpoint: workflowUrl,
         body,
       },
       502,
