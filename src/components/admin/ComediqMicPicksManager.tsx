@@ -73,8 +73,17 @@ function getCanvaGeneratedLinks(workflow: CanvaAutomationWorkflow, inputs: Recor
   }
 
   return [
-    { label: 'Monthly mics list assets', url: canvaAutomationFolderUrl(`monthly-open-mics-list/${inputs.month}-blue-cream`) },
+    { label: 'Monthly mics list blue/cream assets', url: canvaAutomationFolderUrl(`monthly-open-mics-list/${inputs.month}-blue-cream`) },
+    { label: 'Monthly mics list gradient assets', url: canvaAutomationFolderUrl(`monthly-open-mics-list/${inputs.month}-gradient`) },
   ];
+}
+
+function mergeGeneratedLinks(primary: GeneratedLink[] | undefined, fallback: GeneratedLink[]) {
+  const byUrl = new Map<string, GeneratedLink>();
+  for (const link of [...(primary || []), ...fallback]) {
+    byUrl.set(link.url, link);
+  }
+  return Array.from(byUrl.values());
 }
 
 function makeMicSnapshot(mic: OpenMic) {
@@ -234,12 +243,11 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
     setDispatchingWorkflow(workflow);
     try {
       const result = await requestCanvaAutomationRun(workflow, inputs);
+      const expectedLinks = getCanvaGeneratedLinks(workflow, inputs);
       setLatestCanvaRun({
         label,
         workflowUrl: result?.workflowUrl || canvaAutomationWorkflowUrl(workflow),
-        generatedLinks: result?.generatedLinks?.length
-          ? result.generatedLinks
-          : getCanvaGeneratedLinks(workflow, inputs),
+        generatedLinks: mergeGeneratedLinks(result?.generatedLinks, expectedLinks),
       });
       toast({
         title: 'Canva automation started',

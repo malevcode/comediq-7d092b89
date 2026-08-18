@@ -195,7 +195,8 @@ function getGeneratedLinks(
 
   const month = inputs.month;
   return [
-    { label: "Monthly open mics list assets", url: tree(`monthly-open-mics-list/${month}-blue-cream`) },
+    { label: "Monthly open mics list blue/cream assets", url: tree(`monthly-open-mics-list/${month}-blue-cream`) },
+    { label: "Monthly open mics list gradient assets", url: tree(`monthly-open-mics-list/${month}-gradient`) },
   ];
 }
 
