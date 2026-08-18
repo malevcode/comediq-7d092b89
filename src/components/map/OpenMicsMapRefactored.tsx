@@ -16,7 +16,6 @@ interface OpenMicsMapProps {
   onMicSelect: (mic: OpenMic) => void;
 }
 
-type MicPinStatus = 'verified' | 'warning' | 'error' | 'finished';
 type MicFeatureProperties = {
   micId: string;
   dotIcon: string;
@@ -24,20 +23,23 @@ type MicFeatureProperties = {
   pinLabel: string;
   timeLabel: string;
   timePeriod: string;
+  iconOpacity: number;
 };
 type MappedMic = { mic: OpenMic; latitude: number; longitude: number };
 
-const RECENT_VERIFICATION_DAYS = 60;
-const LONG_UNVERIFIED_DAYS = 120;
 const MINUTES_PER_DAY = 24 * 60;
 const NYC_CENTER: [number, number] = [-73.935242, 40.73061];
-const PIN_IMAGE_IDS: MicPinStatus[] = ['verified', 'warning', 'error', 'finished'];
+const LOGO_PIN_IMAGE_ID = 'mic-logo-pin';
+const LOGO_DOT_IMAGE_ID = 'mic-logo-dot';
+const LOGO_PIN_IMAGE_URL = '/map-pins/comediq_logo_pin.png';
+const LOGO_DOT_IMAGE_URL = '/map-pins/comediq_logo_pin.png';
+const LOGO_PIN_PIXEL_RATIO = 1.5;
+const LOGO_DOT_PIXEL_RATIO = 1.5;
 const PIN_ZOOM_THRESHOLD = 12.5;
 const EMPTY_FEATURE_COLLECTION: FeatureCollection<Point, MicFeatureProperties> = {
   type: 'FeatureCollection',
   features: [],
 };
-const COORDINATE_GROUP_PRECISION = 5;
 const LIGHT_MAP_STYLE = 'mapbox://styles/mapbox/streets-v12';
 const DARK_MAP_STYLE = 'mapbox://styles/mapbox/dark-v11';
 
@@ -50,54 +52,8 @@ function parseCoordinate(value: unknown): number | null {
   return null;
 }
 
-function parseLastVerifiedDate(value: unknown, currentYear = new Date().getFullYear()): Date | null {
-  if (typeof value !== 'string') return null;
-
-  const normalizedValue = value.trim();
-  if (!normalizedValue || /unverified/i.test(normalizedValue)) return null;
-
-  const isoMatch = normalizedValue.match(/\d{4}-\d{2}-\d{2}(?:t[^\s]+)?/i);
-  if (isoMatch) {
-    const parsed = new Date(isoMatch[0]);
-    return Number.isNaN(parsed.getTime()) ? null : parsed;
-  }
-
-  const dateMatch = normalizedValue.match(/(\d{1,2})[/.](\d{1,2})(?:[/.](\d{2,4}))?/);
-  if (!dateMatch) return null;
-
-  const month = Number(dateMatch[1]);
-  const day = Number(dateMatch[2]);
-  const rawYear = dateMatch[3] ? Number(dateMatch[3]) : currentYear;
-  const year = rawYear < 100 ? 2000 + rawYear : rawYear;
-  const parsed = new Date(year, month - 1, day);
-
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-}
-
-function getDaysSince(date: Date, now = new Date()): number {
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const startOfDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-  return Math.floor((startOfToday - startOfDate) / (MINUTES_PER_DAY * 60 * 1000));
-}
-
-function getMicPinStatus(mic: OpenMic): MicPinStatus {
-  if (hasMicAlreadyHappenedToday(mic)) {
-    return 'finished';
-  }
-
-  const status = mic.status?.toLowerCase();
-  const lastVerified = parseLastVerifiedDate(mic.lastVerified);
-  const daysSinceVerified = lastVerified ? getDaysSince(lastVerified) : null;
-
-  if (status === 'verified' && daysSinceVerified !== null && daysSinceVerified <= RECENT_VERIFICATION_DAYS) {
-    return 'verified';
-  }
-
-  if (daysSinceVerified !== null && daysSinceVerified <= LONG_UNVERIFIED_DAYS) {
-    return 'warning';
-  }
-
-  return 'error';
+function isVerifiedMicStatus(mic: OpenMic): boolean {
+  return mic.status?.toLowerCase() === 'verified';
 }
 
 function getMicWeekdayIndex(mic: OpenMic): number | null {
@@ -129,30 +85,41 @@ function parseMicStartMinutes(mic: OpenMic): number | null {
   return hour * 60 + minutes;
 }
 
-function hasMicAlreadyHappenedToday(mic: OpenMic, date = new Date()): boolean {
-  if (getMicWeekdayIndex(mic) !== date.getDay()) return false;
+function normalizeVenueGroupKey(mic: OpenMic): string {
+  const venueKey = [mic.venueName, mic.location, mic.city]
+    .map((value) => value?.trim().toLowerCase())
+    .filter(Boolean)
+    .join('|');
 
-  const startMinutes = parseMicStartMinutes(mic);
-  if (startMinutes === null) return false;
-
-  return startMinutes < date.getHours() * 60 + date.getMinutes();
-}
-
-function getCoordinateGroupKey({ latitude, longitude }: MappedMic): string {
-  return `${latitude.toFixed(COORDINATE_GROUP_PRECISION)}:${longitude.toFixed(COORDINATE_GROUP_PRECISION)}`;
+  return venueKey || mic.uniqueIdentifier;
 }
 
 function getMicPinSortMinutes(mic: OpenMic): number {
   return parseMicStartMinutes(mic) ?? Number.MAX_SAFE_INTEGER;
 }
 
+function getMinutesUntilNextMic(mic: OpenMic, date = new Date()): number {
+  const weekdayIndex = getMicWeekdayIndex(mic);
+  const startMinutes = parseMicStartMinutes(mic);
+
+  if (weekdayIndex === null || startMinutes === null) {
+    return Number.MAX_SAFE_INTEGER;
+  }
+
+  const currentMinutes = date.getHours() * 60 + date.getMinutes();
+  const daysUntil = (weekdayIndex - date.getDay() + 7) % 7;
+  const minutesUntil = daysUntil * MINUTES_PER_DAY + startMinutes - currentMinutes;
+
+  return minutesUntil >= 0 ? minutesUntil : minutesUntil + 7 * MINUTES_PER_DAY;
+}
+
 function getRepresentativeMappedMic(mics: MappedMic[]): MappedMic {
   const [representativeMic] = [...mics].sort((a, b) => {
-    const aIsFinished = hasMicAlreadyHappenedToday(a.mic);
-    const bIsFinished = hasMicAlreadyHappenedToday(b.mic);
+    const aMinutesUntilNext = getMinutesUntilNextMic(a.mic);
+    const bMinutesUntilNext = getMinutesUntilNextMic(b.mic);
 
-    if (aIsFinished !== bIsFinished) {
-      return aIsFinished ? 1 : -1;
+    if (aMinutesUntilNext !== bMinutesUntilNext) {
+      return aMinutesUntilNext - bMinutesUntilNext;
     }
 
     return getMicPinSortMinutes(a.mic) - getMicPinSortMinutes(b.mic);
@@ -162,20 +129,20 @@ function getRepresentativeMappedMic(mics: MappedMic[]): MappedMic {
 }
 
 function getRepresentativeMappedMics(mics: MappedMic[]): MappedMic[] {
-  const groupsByCoordinate = new Map<string, MappedMic[]>();
+  const groupsByVenue = new Map<string, MappedMic[]>();
 
   mics.forEach((mappedMic) => {
-    const key = getCoordinateGroupKey(mappedMic);
-    const groupedMics = groupsByCoordinate.get(key);
+    const key = normalizeVenueGroupKey(mappedMic.mic);
+    const groupedMics = groupsByVenue.get(key);
 
     if (groupedMics) {
       groupedMics.push(mappedMic);
     } else {
-      groupsByCoordinate.set(key, [mappedMic]);
+      groupsByVenue.set(key, [mappedMic]);
     }
   });
 
-  return Array.from(groupsByCoordinate.values()).map(getRepresentativeMappedMic);
+  return Array.from(groupsByVenue.values()).map(getRepresentativeMappedMic);
 }
 
 function getPinLabel(timeStr: string): string {
@@ -215,7 +182,12 @@ function buildPopupHtml(mic: OpenMic): string {
   `;
 }
 
-function loadMapImage(map: mapboxgl.Map, id: string, url: string): Promise<void> {
+function loadMapImage(
+  map: mapboxgl.Map,
+  id: string,
+  url: string,
+  options?: mapboxgl.StyleImageMetadata,
+): Promise<void> {
   return new Promise((resolve, reject) => {
     if (map.hasImage(id)) {
       resolve();
@@ -229,7 +201,7 @@ function loadMapImage(map: mapboxgl.Map, id: string, url: string): Promise<void>
       }
 
       if (!map.hasImage(id)) {
-        map.addImage(id, image);
+        map.addImage(id, image, options);
       }
       resolve();
     });
@@ -310,18 +282,19 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
     () => ({
       type: 'FeatureCollection',
       features: representativeMappedMics.map(({ mic, latitude, longitude }) => {
-        const pinStatus = getMicPinStatus(mic);
         const timeParts = getPinTimeParts(mic.startTime);
+        const iconOpacity = isVerifiedMicStatus(mic) ? 1 : 0.48;
         return {
           type: 'Feature',
           id: mic.uniqueIdentifier,
           properties: {
             micId: mic.uniqueIdentifier,
-            dotIcon: `mic-dot-${pinStatus}`,
-            pinIcon: `mic-pin-${pinStatus}`,
+            dotIcon: LOGO_DOT_IMAGE_ID,
+            pinIcon: LOGO_PIN_IMAGE_ID,
             pinLabel: getPinLabel(mic.startTime),
             timeLabel: timeParts.value,
             timePeriod: timeParts.period,
+            iconOpacity,
           },
           geometry: {
             type: 'Point',
@@ -369,12 +342,10 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
 
       const addOpenMicLayers = async () => {
         try {
-          await Promise.all(
-            PIN_IMAGE_IDS.flatMap((status) => [
-              loadMapImage(map, `mic-pin-${status}`, `/map-pins/pin-${status}.png`),
-              loadMapImage(map, `mic-dot-${status}`, `/map-pins/dot-${status}.png`),
-            ]),
-          );
+          await Promise.all([
+            loadMapImage(map, LOGO_PIN_IMAGE_ID, LOGO_PIN_IMAGE_URL, { pixelRatio: LOGO_PIN_PIXEL_RATIO }),
+            loadMapImage(map, LOGO_DOT_IMAGE_ID, LOGO_DOT_IMAGE_URL, { pixelRatio: LOGO_DOT_PIXEL_RATIO }),
+          ]);
         } catch (loadError) {
           console.warn('Failed to load map pin images:', loadError);
         }
@@ -394,9 +365,19 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
             maxzoom: PIN_ZOOM_THRESHOLD,
             layout: {
               'icon-image': ['get', 'dotIcon'],
-              'icon-size': 0.13,
+              'icon-size': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                6, 0.035,
+                10, 0.06,
+                12, 0.10
+              ],
               'icon-allow-overlap': true,
               'icon-ignore-placement': true,
+            },
+            paint: {
+              'icon-opacity': ['get', 'iconOpacity'],
             },
           });
         }
@@ -413,9 +394,9 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                12.5, 0.14,  // At 12.5 zoom, pins are slightly smaller (14%)
-                15.0, 0.18,  // At 15.0 zoom, pins reach standard display size (18%)
-                18.0, 0.26   // At maximum 18.0 zoom, pins grow comfortably larger (26%)
+                12.5, 0.18,
+                15.0, 0.28,
+                18.0, 0.40
             ],
             'icon-anchor': 'bottom',
             'icon-allow-overlap': true,
@@ -434,18 +415,29 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                12.5, 9,    // Scale down text slightly at the starting threshold to fit the smaller pin asset
-                15.0, 12,   // Standard readable font scale matching your middle zoom
-                18.0, 17    // Expand the font to match the larger asset when zoomed all th
+                12.5, 6.75,
+                13.5, 8,
+                15.0, 10.5,
+                18.0, 15
             ],
             'text-line-height': 1.25,
             'text-anchor': 'center',
-            'text-offset': [0, -1.9],
+            'text-justify': 'center',
+            'text-offset': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                12.5, ['literal', [0, -4.20]],
+                13.5, ['literal', [0, -4.25]],
+                15.0, ['literal', [0, -4.25]],
+                18.0, ['literal', [0, -4.25]]
+            ],
             'text-padding': 10,
             'text-allow-overlap': false,
             'text-ignore-placement': false,
             },
             paint: {
+              'icon-opacity': ['get', 'iconOpacity'],
               'text-color': '#111827',
               'text-halo-color': 'rgba(255,255,255,0.55)',
               'text-halo-width': 0.5,
