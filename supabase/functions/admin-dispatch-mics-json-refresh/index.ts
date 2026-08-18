@@ -88,11 +88,12 @@ serve(async (req) => {
 
   if (!dispatchResponse.ok) {
     const detail = getDispatchFailureDetail(body);
+    const target = `target ${repository}/${workflow} on ref ${ref}`;
     return json(
       {
         error: detail
-          ? `GitHub workflow dispatch failed: ${detail}`
-          : "GitHub workflow dispatch failed",
+          ? `GitHub workflow dispatch failed for ${target}: ${detail}`
+          : `GitHub workflow dispatch failed for ${target}`,
         status: dispatchResponse.status,
         repository,
         ref,
