@@ -1,4 +1,5 @@
 name: Refresh mics.json after Supabase change
+run-name: Refresh mics.json after Supabase change
 
 on:
   repository_dispatch:
@@ -14,8 +15,10 @@ permissions:
   contents: write
 
 concurrency:
-  group: refresh-mics-json
-  cancel-in-progress: false
+  # Debounce bursts of Supabase edits: newer dispatches cancel older runs while
+  # they are still in the 150-second settling delay, so only the latest run exports.
+  group: refresh-mics-json-after-supabase-change
+  cancel-in-progress: true
 
 jobs:
   refresh:
