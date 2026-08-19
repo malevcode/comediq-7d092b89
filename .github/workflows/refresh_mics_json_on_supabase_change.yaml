@@ -1,4 +1,5 @@
 name: Refresh mics.json after Supabase change
+run-name: Refresh mics.json after Supabase change
 
 on:
   repository_dispatch:
