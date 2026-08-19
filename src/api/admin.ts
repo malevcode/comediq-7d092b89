@@ -167,3 +167,57 @@ export async function requestCanvaAutomationRun(
   if (error) throw error;
   return data;
 }
+
+export async function requestInstagramCommentCollection(mediaId: string) {
+  const { data, error } = await invokeSupabaseFunction<{
+    ok: boolean;
+    dispatched: boolean;
+    repository?: string;
+    ref?: string;
+    workflow?: string;
+    workflowUrl?: string;
+    inputs?: Record<string, string>;
+  }>('admin-dispatch-instagram-comment-collection', {
+    body: {
+      source: 'admin_dashboard',
+      media_id: mediaId,
+    },
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function requestInstagramMonthlyVerification(
+  body:
+    | {
+        action: 'send_mics';
+        dry_run: boolean;
+        batch_size?: number;
+      }
+    | {
+        action: 'collect_responses';
+        amount: number;
+        missing_only: boolean;
+        dry_run: boolean;
+      },
+) {
+  const { data, error } = await invokeSupabaseFunction<{
+    ok: boolean;
+    action: string;
+    dispatched?: boolean;
+    repository?: string;
+    ref?: string;
+    workflow?: string;
+    workflowUrl?: string;
+    inputs?: Record<string, string>;
+  }>('admin-dispatch-instagram-monthly-verification', {
+    body: {
+      source: 'admin_dashboard',
+      ...body,
+    },
+  });
+
+  if (error) throw error;
+  return data;
+}
