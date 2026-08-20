@@ -24,6 +24,7 @@ import { SmartUpdateInterface } from '@/components/admin/SmartUpdateInterface';
 import { AdminContributionsPanel } from '@/components/admin/AdminContributionsPanel';
 import AdminGrowthManager from '@/components/admin/AdminGrowthManager';
 import AdminMotdControl from '@/components/admin/AdminMotdControl';
+import { AdminMicFlagsPanel } from '@/components/admin/AdminMicFlagsPanel';
 import { MicsJsonRefreshButton } from '@/components/admin/MicsJsonRefreshButton';
 import PageHeader from '@/components/PageHeader';
 import { approveMicRequest, type MicFormData } from '@/api/admin';
@@ -308,6 +309,7 @@ const AdminInterface = () => {
             <TabsTrigger value="users" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Users</TabsTrigger>
             <TabsTrigger value="all" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">All Mics</TabsTrigger>
             <TabsTrigger value="pending" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Pending</TabsTrigger>
+            <TabsTrigger value="flags" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Flags</TabsTrigger>
             <TabsTrigger value="reviewed" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Reviewed</TabsTrigger>
             <TabsTrigger value="ads" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Ads</TabsTrigger>
             <TabsTrigger value="site-analytics" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Site</TabsTrigger>
@@ -406,6 +408,13 @@ const AdminInterface = () => {
                     onMessageSubmitter={handleMessageSubmitter}
                   />
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="flags">
+            <Card className="mb-6 shadow-lg rounded-2xl border-0">
+              <CardContent className="p-4 md:p-8">
+                <AdminMicFlagsPanel />
               </CardContent>
             </Card>
           </TabsContent>

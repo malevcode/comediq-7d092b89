@@ -538,6 +538,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
         <MicActionBar
           micUniqueIdentifier={mic.uniqueIdentifier}
           micName={mic.openMic}
+          lastConfirmedAt={mic.lastConfirmedAt}
           signUpInstructions={mic.signUpInstructions}
           venueAddress={mic.location || mic.venueName}
         />

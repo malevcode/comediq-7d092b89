@@ -39,6 +39,7 @@ export interface OpenMic {
   hosts: string;
   instagramHandle: string;
   lastVerified: string;
+  lastConfirmedAt?: string | null;
   uniqueIdentifier: string;
   city: string;
   signupEnabled: boolean;
