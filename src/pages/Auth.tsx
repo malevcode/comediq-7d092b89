@@ -579,8 +579,8 @@ const Auth = () => {
         <ul className="mt-4 space-y-2 text-sm text-[#07111f]/70 dark:text-white/70">
           {[
             'No ads',
-            'Free entry to the expanding network of Comediq open mics for you and 1 guest',
-            'Access to the Highline Comedy Club Book Me Mic, which gives comics a shot at stage time at a stronger club (3 comics every mic will be chosen to do the 8 pm show after)',
+            'Access to the newest Comedic features first',
+            'Free entry to the expanding network of Comediq open mics\u00A0\n',
             'Show you support the best database of NYC open mic data and want to contribute to maintaining and growing comedy digital infrastructure',
           ].map((feature) => (
             <li key={feature} className="flex gap-2">
