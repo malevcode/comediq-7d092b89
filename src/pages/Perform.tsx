@@ -1,12 +1,11 @@
 import { useEffect, useRef } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import OpenMics from "./OpenMics";
 import Shows from "./Shows";
 import Slots from "./Slots";
 import { PlaylistsTab } from "@/components/playlists";
 import { useLocation } from 'react-router-dom';
 import { useTabContext } from "@/contexts/TabContext";
-import { ListMusic, Sheet, TicketCheck } from "lucide-react";
 import DevView from "./DevView";
 
 const Perform = () => {
