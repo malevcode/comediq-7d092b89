@@ -3,25 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
 
 const GITHUB_API_VERSION = "2022-11-28";
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-const MONTH_RE = /^\d{4}-\d{2}$/;
-
-const WORKFLOWS = {
-  "generate_motd_post.yaml": {
-    requiredInput: "date",
-    pattern: DATE_RE,
-  },
-  "generate_motw_posts.yaml": {
-    requiredInput: "week",
-    pattern: DATE_RE,
-  },
-  "generate_monthly_open_mics_list_posts.yaml": {
-    requiredInput: "month",
-    pattern: MONTH_RE,
-  },
-} as const;
-
-type WorkflowName = keyof typeof WORKFLOWS;
+const MEDIA_ID_RE = /^\d{5,}(?:_\d+)?$/;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -34,14 +16,14 @@ serve(async (req) => {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-  const githubToken = Deno.env.get("GITHUB_CANVA_AUTOMATION_TOKEN");
+  const githubToken = Deno.env.get("GITHUB_IG_API_TOKEN");
 
   if (!supabaseUrl || !supabaseAnonKey) {
     return json({ error: "Supabase environment is not configured" }, 500);
   }
 
   if (!githubToken) {
-    return json({ error: "GITHUB_CANVA_AUTOMATION_TOKEN is not configured" }, 500);
+    return json({ error: "GITHUB_IG_API_TOKEN is not configured" }, 500);
   }
 
   const authorization = req.headers.get("Authorization");
@@ -81,35 +63,18 @@ serve(async (req) => {
   }
 
   const body = await readJson(req);
-  if (!body || typeof body !== "object") {
-    return json({ error: "Invalid request body" }, 400);
+  const mediaId = typeof body?.media_id === "string" ? body.media_id.trim() : "";
+
+  if (!MEDIA_ID_RE.test(mediaId)) {
+    return json({ error: "media_id must be a valid Instagram Graph API media ID" }, 400);
   }
 
-  const workflow = (body as { workflow?: unknown }).workflow;
-  if (!isWorkflowName(workflow)) {
-    return json({ error: "Unsupported Canva automation workflow" }, 400);
-  }
-
-  const inputs = (body as { inputs?: unknown }).inputs;
-  if (!inputs || typeof inputs !== "object" || Array.isArray(inputs)) {
-    return json({ error: "Workflow inputs are required" }, 400);
-  }
-
-  const workflowConfig = WORKFLOWS[workflow];
-  const inputValue = (inputs as Record<string, unknown>)[workflowConfig.requiredInput];
-  if (typeof inputValue !== "string" || !workflowConfig.pattern.test(inputValue)) {
-    return json(
-      { error: `${workflowConfig.requiredInput} must match ${workflowConfig.pattern === DATE_RE ? "YYYY-MM-DD" : "YYYY-MM"}` },
-      400,
-    );
-  }
-  const dispatchInputs = { [workflowConfig.requiredInput]: inputValue };
-
-  const repository = Deno.env.get("CANVA_AUTOMATION_GITHUB_REPOSITORY") || "xq675/comediq-canva-automation";
-  const ref = Deno.env.get("CANVA_AUTOMATION_REF") || "main";
+  const repository = Deno.env.get("IG_API_GITHUB_REPOSITORY") || "malevcode/comediq-ig-api";
+  const ref = Deno.env.get("IG_API_REF") || "main";
+  const workflow = Deno.env.get("IG_COMMENT_COLLECTION_WORKFLOW") || "collect_instagram_comments.yaml";
   const workflowUrl = `https://api.github.com/repos/${repository}/actions/workflows/${workflow}/dispatches`;
   const workflowPageUrl = `https://github.com/${repository}/actions/workflows/${workflow}`;
-  const generatedLinks = getGeneratedLinks(repository, ref, workflow, dispatchInputs);
+  const inputs = { media_id: mediaId };
 
   const dispatchResponse = await fetch(workflowUrl, {
     method: "POST",
@@ -117,10 +82,10 @@ serve(async (req) => {
       Accept: "application/vnd.github+json",
       Authorization: `Bearer ${githubToken}`,
       "Content-Type": "application/json",
-      "User-Agent": "comediq-admin-canva-automation",
+      "User-Agent": "comediq-admin-instagram-comment-collection",
       "X-GitHub-Api-Version": GITHUB_API_VERSION,
     },
-    body: JSON.stringify({ ref, inputs: dispatchInputs }),
+    body: JSON.stringify({ ref, inputs }),
   });
 
   const bodyText = await dispatchResponse.text();
@@ -133,12 +98,17 @@ serve(async (req) => {
 
   if (!dispatchResponse.ok) {
     const detail = getDispatchFailureDetail(responseBody);
+    const target = `target ${repository}/${workflow} on ref ${ref}`;
     return json(
       {
         error: detail
-          ? `GitHub Canva automation dispatch failed: ${detail}`
-          : "GitHub Canva automation dispatch failed",
+          ? `GitHub workflow dispatch failed for ${target}: ${detail}`
+          : `GitHub workflow dispatch failed for ${target}`,
         status: dispatchResponse.status,
+        repository,
+        ref,
+        workflow,
+        endpoint: workflowUrl,
         body: responseBody,
       },
       502,
@@ -152,56 +122,19 @@ serve(async (req) => {
     ref,
     workflow,
     workflowUrl: workflowPageUrl,
-    generatedLinks,
-    inputs: dispatchInputs,
+    inputs,
   });
 });
 
 async function readJson(req: Request) {
   try {
-    return await req.json();
+    const body = await req.json();
+    return body && typeof body === "object" && !Array.isArray(body)
+      ? body as Record<string, unknown>
+      : null;
   } catch {
     return null;
   }
-}
-
-function isWorkflowName(value: unknown): value is WorkflowName {
-  return typeof value === "string" && value in WORKFLOWS;
-}
-
-function getGeneratedLinks(
-  repository: string,
-  ref: string,
-  workflow: WorkflowName,
-  inputs: Record<string, string>,
-) {
-  const tree = (path: string) => `https://github.com/${repository}/tree/${encodeURIComponent(ref)}/${encodePath(path)}`;
-
-  if (workflow === "generate_motd_post.yaml") {
-    const date = inputs.date;
-    return [
-      { label: "MOTD blue/cream assets", url: tree(`motd-posts/${date}-blue-cream`) },
-      { label: "MOTD gradient assets", url: tree(`motd-posts/${date}-gradient`) },
-    ];
-  }
-
-  if (workflow === "generate_motw_posts.yaml") {
-    const week = inputs.week;
-    return [
-      { label: "MOTW blue/cream assets", url: tree(`motw-posts/${week}-blue-cream`) },
-      { label: "MOTW gradient assets", url: tree(`motw-posts/${week}-gradient`) },
-    ];
-  }
-
-  const month = inputs.month;
-  return [
-    { label: "Monthly open mics list blue/cream assets", url: tree(`monthly-open-mics-list/${month}-blue-cream`) },
-    { label: "Monthly open mics list gradient assets", url: tree(`monthly-open-mics-list/${month}-gradient`) },
-  ];
-}
-
-function encodePath(path: string) {
-  return path.split("/").map(encodeURIComponent).join("/");
 }
 
 function json(body: unknown, status = 200) {

@@ -31,7 +31,8 @@ serve(async (req) => {
   const ref = Deno.env.get("MICS_JSON_REFRESH_REF") || "main";
   const payload = await readJson(req);
 
-  const response = await fetch(`https://api.github.com/repos/${repository}/dispatches`, {
+  const endpoint = `https://api.github.com/repos/${repository}/dispatches`;
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       Accept: "application/vnd.github+json",
@@ -52,11 +53,15 @@ serve(async (req) => {
   });
 
   if (!response.ok) {
+    const body = await response.text();
     return json(
       {
-        error: "GitHub repository dispatch failed",
+        error: `GitHub repository dispatch failed for target ${repository} on ref ${ref}: GitHub status ${response.status}${body ? ` - ${getGitHubMessage(body)}` : ""}`,
         status: response.status,
-        body: await response.text(),
+        repository,
+        ref,
+        endpoint,
+        body,
       },
       502,
     );
@@ -81,4 +86,15 @@ function json(body: unknown, status = 200) {
       "Content-Type": "application/json",
     },
   });
+}
+
+function getGitHubMessage(body: string) {
+  try {
+    const parsed = JSON.parse(body);
+    if (parsed && typeof parsed.message === "string") return parsed.message;
+  } catch {
+    // Fall through to the raw response body.
+  }
+
+  return body;
 }
