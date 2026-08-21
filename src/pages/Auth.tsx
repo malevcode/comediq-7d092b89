@@ -975,9 +975,7 @@ const Auth = () => {
         </div>
         <div className="flex-1 flex min-h-screen flex-col items-center justify-center overflow-y-auto bg-transparent px-6 py-12">
           <div className="lg:hidden mb-8 flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: BRAND_BLUE }}>
-              <Mic className="w-3.5 h-3.5 text-[#fff]" />
-            </div>
+            <img src="/comediq_logo.jpg" alt="Comediq" className="w-9 h-9 object-contain" />
             <span className="font-semibold text-lg text-[#07111f] dark:text-[#fff]">Comediq</span>
           </div>
           <div
