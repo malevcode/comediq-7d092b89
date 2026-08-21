@@ -905,6 +905,84 @@ export type Database = {
         }
         Relationships: []
       }
+      mic_confirmations: {
+        Row: {
+          created_at: string | null
+          id: string
+          mic_unique_identifier: string
+          month: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          mic_unique_identifier: string
+          month: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          mic_unique_identifier?: string
+          month?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mic_confirmations_mic_unique_identifier_fkey"
+            columns: ["mic_unique_identifier"]
+            isOneToOne: false
+            referencedRelation: "open_mics_display"
+            referencedColumns: ["unique_identifier"]
+          },
+          {
+            foreignKeyName: "mic_confirmations_mic_unique_identifier_fkey"
+            columns: ["mic_unique_identifier"]
+            isOneToOne: false
+            referencedRelation: "open_mics_historical"
+            referencedColumns: ["unique_identifier"]
+          },
+        ]
+      }
+      mic_flags: {
+        Row: {
+          created_at: string | null
+          id: string
+          mic_unique_identifier: string
+          month: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          mic_unique_identifier: string
+          month: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          mic_unique_identifier?: string
+          month?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mic_flags_mic_unique_identifier_fkey"
+            columns: ["mic_unique_identifier"]
+            isOneToOne: false
+            referencedRelation: "open_mics_display"
+            referencedColumns: ["unique_identifier"]
+          },
+          {
+            foreignKeyName: "mic_flags_mic_unique_identifier_fkey"
+            columns: ["mic_unique_identifier"]
+            isOneToOne: false
+            referencedRelation: "open_mics_historical"
+            referencedColumns: ["unique_identifier"]
+          },
+        ]
+      }
       mic_hosts: {
         Row: {
           created_at: string
@@ -1349,6 +1427,66 @@ export type Database = {
         }
         Relationships: []
       }
+      nyc_comedy_shows: {
+        Row: {
+          active: boolean
+          booker: string | null
+          borough: string | null
+          created_at: string
+          day: string | null
+          frequency: string
+          frequency_custom_text: string | null
+          id: string
+          import_batch: string
+          instagram_url: string | null
+          location_detail: string | null
+          notes: string | null
+          show_name: string
+          show_type: string | null
+          start_time: string | null
+          updated_at: string
+          venue_name: string | null
+        }
+        Insert: {
+          active?: boolean
+          booker?: string | null
+          borough?: string | null
+          created_at?: string
+          day?: string | null
+          frequency?: string
+          frequency_custom_text?: string | null
+          id?: string
+          import_batch: string
+          instagram_url?: string | null
+          location_detail?: string | null
+          notes?: string | null
+          show_name: string
+          show_type?: string | null
+          start_time?: string | null
+          updated_at?: string
+          venue_name?: string | null
+        }
+        Update: {
+          active?: boolean
+          booker?: string | null
+          borough?: string | null
+          created_at?: string
+          day?: string | null
+          frequency?: string
+          frequency_custom_text?: string | null
+          id?: string
+          import_batch?: string
+          instagram_url?: string | null
+          location_detail?: string | null
+          notes?: string | null
+          show_name?: string
+          show_type?: string | null
+          start_time?: string | null
+          updated_at?: string
+          venue_name?: string | null
+        }
+        Relationships: []
+      }
       open_mics_historical: {
         Row: {
           active: boolean | null
@@ -1368,6 +1506,7 @@ export type Database = {
           geocoding_score: number | null
           hosts_organizers: string | null
           july_verification_status: string | null
+          last_confirmed_at: string | null
           last_verified: string | null
           latest_end_time: string | null
           latitude: number | null
@@ -1412,6 +1551,7 @@ export type Database = {
           geocoding_score?: number | null
           hosts_organizers?: string | null
           july_verification_status?: string | null
+          last_confirmed_at?: string | null
           last_verified?: string | null
           latest_end_time?: string | null
           latitude?: number | null
@@ -1456,6 +1596,7 @@ export type Database = {
           geocoding_score?: number | null
           hosts_organizers?: string | null
           july_verification_status?: string | null
+          last_confirmed_at?: string | null
           last_verified?: string | null
           latest_end_time?: string | null
           latitude?: number | null
@@ -1642,6 +1783,48 @@ export type Database = {
           venue_name?: string | null
         }
         Relationships: []
+      }
+      point_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          mic_unique_identifier: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          mic_unique_identifier: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          mic_unique_identifier?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "point_transactions_mic_unique_identifier_fkey"
+            columns: ["mic_unique_identifier"]
+            isOneToOne: false
+            referencedRelation: "open_mics_display"
+            referencedColumns: ["unique_identifier"]
+          },
+          {
+            foreignKeyName: "point_transactions_mic_unique_identifier_fkey"
+            columns: ["mic_unique_identifier"]
+            isOneToOne: false
+            referencedRelation: "open_mics_historical"
+            referencedColumns: ["unique_identifier"]
+          },
+        ]
       }
       points_ledger: {
         Row: {
@@ -2486,6 +2669,24 @@ export type Database = {
           },
         ]
       }
+      user_points: {
+        Row: {
+          points: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          points?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          points?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -2951,6 +3152,20 @@ export type Database = {
       }
     }
     Functions: {
+      admin_deactivate_flagged_mic: {
+        Args: { p_mic_unique_identifier: string }
+        Returns: Json
+      }
+      award_mic_point: {
+        Args: {
+          p_amount: number
+          p_mic_unique_identifier: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
+      confirm_mic: { Args: { p_mic_unique_identifier: string }; Returns: Json }
       email_account_status: { Args: { p_email: string }; Returns: string }
       email_exists: { Args: { p_email: string }; Returns: boolean }
       get_or_create_system_host: {
@@ -2965,6 +3180,7 @@ export type Database = {
         Returns: boolean
       }
       is_current_user_admin: { Args: never; Returns: boolean }
+      report_mic: { Args: { p_mic_unique_identifier: string }; Returns: Json }
       resolve_motd_for: { Args: { target_date: string }; Returns: string }
     }
     Enums: {
