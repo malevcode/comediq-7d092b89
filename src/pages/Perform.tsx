@@ -6,6 +6,7 @@ import Slots from "./Slots";
 import { PlaylistsTab } from "@/components/playlists";
 import { useLocation } from 'react-router-dom';
 import { useTabContext } from "@/contexts/TabContext";
+import PageHeader from "@/components/PageHeader";
 import DevView from "./DevView";
 
 const Perform = () => {
