@@ -59,6 +59,7 @@ const Perform = () => {
 
   return (
     <div className="min-h-screen page-content-offset">
+      <PageHeader title="Perform" subtitle="Find open mics and manage your comedy career" />
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
         <TabsContent value="find-mics" className="mt-0">
