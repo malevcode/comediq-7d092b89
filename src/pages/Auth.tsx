@@ -594,7 +594,7 @@ const Auth = () => {
       <div className="rounded-2xl border border-[#07111f]/20 bg-white/34 p-4 shadow-[0_12px_38px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:border-white/14 dark:bg-[#07111f]/38 dark:shadow-[0_12px_38px_rgba(2,10,30,0.20)]">
         <p className="text-xs font-semibold uppercase tracking-wide text-[#07111f]/52 dark:text-white/52">Free tier</p>
         <h2 className="mt-1 text-xl font-semibold text-[#07111f] dark:text-white">Basic</h2>
-        <h2 className="mt-1 text-2xl font-bold text-[#07111f] dark:text-white">$0<span className="ml-1 text-base font-normal text-[#07111f]/70 dark:text-white/70">/month</span></h2>
+        <h2 className="mt-1 text-2xl font-bold text-[#07111f] dark:text-white">$0<span className="ml-1 text-base font-normal text-[#07111f]/70 dark:text-white/70">/month and pay per mic</span></h2>
         <button
           type="button"
           onClick={() => navigate(basicCreateAccountPath)}
