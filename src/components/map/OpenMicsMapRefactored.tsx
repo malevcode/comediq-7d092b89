@@ -186,7 +186,7 @@ function loadMapImage(
   map: mapboxgl.Map,
   id: string,
   url: string,
-  options?: mapboxgl.StyleImageMetadata,
+  options?: any,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     if (map.hasImage(id)) {
