@@ -6,6 +6,7 @@ import Slots from "./Slots";
 import { PlaylistsTab } from "@/components/playlists";
 import { useLocation } from 'react-router-dom';
 import { useTabContext } from "@/contexts/TabContext";
+import PageHeader from "@/components/PageHeader";
 import DevView from "./DevView";
 
 const Perform = () => {
@@ -58,6 +59,7 @@ const Perform = () => {
 
   return (
     <div className="min-h-screen page-content-offset">
+      <PageHeader title="Perform" subtitle="Find open mics and manage your comedy career" />
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
         <TabsContent value="find-mics" className="mt-0">
