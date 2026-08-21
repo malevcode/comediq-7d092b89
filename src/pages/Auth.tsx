@@ -585,7 +585,7 @@ const Auth = () => {
           ].map((feature) => (
             <li key={feature} className="flex gap-2">
               <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-blue-400" />
-              <span>{feature}</span>
+              <span className="whitespace-pre-wrap">{feature}</span>
             </li>
           ))}
         </ul>
