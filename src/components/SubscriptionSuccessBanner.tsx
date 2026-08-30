@@ -70,18 +70,18 @@ export default function SubscriptionSuccessBanner() {
 
   return (
     <div className="fixed left-4 right-4 top-4 z-[200] mx-auto max-w-4xl">
-      <Card className="relative overflow-hidden border border-yellow-300/60 border-l-4 border-l-yellow-500 bg-gradient-to-br from-yellow-50 via-amber-50 to-white shadow-lg">
+      <Card className="relative overflow-hidden border border-blue-300/60 border-l-4 border-l-blue-500 bg-gradient-to-br from-blue-50 via-blue-50 to-white shadow-lg">
         <CardContent className="p-4 sm:p-5">
           <div className="flex items-start gap-3 pr-9">
-            <div className="mt-0.5 rounded-full bg-yellow-100 p-2 text-yellow-700">
+            <div className="mt-0.5 rounded-full bg-blue-100 p-2 text-blue-700">
               <CheckCircle className="h-5 w-5" />
             </div>
             <div className="min-w-0 flex-1">
               <Badge
                 variant="outline"
-                className="mb-2 text-[10px] font-semibold text-yellow-800 border-yellow-500/60 bg-yellow-100/60 gap-1 px-2 py-0.5"
+                className="mb-2 text-[10px] font-semibold text-blue-800 border-blue-500/60 bg-blue-100/60 gap-1 px-2 py-0.5"
               >
-                <Sparkles className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                <Sparkles className="h-3 w-3 fill-blue-500 text-blue-500" />
                 FULL PASS ACTIVATED
               </Badge>
               <h2 className="text-base font-bold leading-tight text-foreground sm:text-lg">
@@ -97,7 +97,7 @@ export default function SubscriptionSuccessBanner() {
             variant="ghost"
             size="icon"
             onClick={() => setIsVisible(false)}
-            className="absolute right-2 top-2 h-8 w-8 text-yellow-900/70 hover:bg-yellow-100 hover:text-yellow-950"
+            className="absolute right-2 top-2 h-8 w-8 text-blue-900/70 hover:bg-blue-100 hover:text-blue-950"
             aria-label="Dismiss subscription congratulations"
           >
             <X className="h-4 w-4" />

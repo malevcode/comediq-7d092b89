@@ -38,7 +38,7 @@ const ACTION_CONFIG: Record<string, { label: string; icon: any; color: string }>
   update_time: { label: 'Time Change', icon: Clock, color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
   update_cost: { label: 'Cost Update', icon: DollarSign, color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
   update_stage_time: { label: 'Stage Time', icon: Clock, color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' },
-  add_new: { label: 'New Mic', icon: Plus, color: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' },
+  add_new: { label: 'New Mic', icon: Plus, color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
   deactivate: { label: 'Deactivate', icon: X, color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
   update_other: { label: 'Other', icon: Zap, color: 'bg-muted text-muted-foreground' },
 };
@@ -385,7 +385,7 @@ export function SmartUpdateInterface() {
                         {/* Match confidence */}
                         <div className="flex items-center gap-1 text-xs">
                           {update.action === 'add_new' ? (
-                            <span className="text-amber-600 flex items-center gap-1">
+                            <span className="text-blue-600 flex items-center gap-1">
                               <Plus className="w-3 h-3" /> Will create new record
                             </span>
                           ) : update.confidence === 'exact' ? (
@@ -393,7 +393,7 @@ export function SmartUpdateInterface() {
                               <Check className="w-3 h-3" /> Exact match: {update.matchedMic?.open_mic}
                             </span>
                           ) : update.confidence === 'fuzzy' ? (
-                            <span className="text-amber-600 flex items-center gap-1">
+                            <span className="text-blue-600 flex items-center gap-1">
                               <AlertTriangle className="w-3 h-3" /> Fuzzy match: {update.matchedMic?.open_mic} ({update.matchedMic?.start_time})
                             </span>
                           ) : (

@@ -82,7 +82,7 @@ export default function ProfileCompleteness({ profile, onEditClick }: ProfileCom
       return <X className="h-4 w-4 text-destructive" />;
     }
     if (item.priority === 'recommended') {
-      return <AlertCircle className="h-4 w-4 text-amber-500" />;
+      return <AlertCircle className="h-4 w-4 text-blue-500" />;
     }
     return <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30" />;
   };

@@ -101,8 +101,8 @@ export function SignupButton({ eventId, isFull }: SignupButtonProps) {
   if (noCredits && STRIPE_PAID_LINK) {
     return (
       <a href={STRIPE_PAID_LINK} target="_blank" rel="noopener noreferrer">
-        <Button size="sm" variant="outline" className="gap-1.5 border-amber-300 text-amber-700 hover:bg-amber-50">
-          <Zap className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+        <Button size="sm" variant="outline" className="gap-1.5 border-blue-300 text-blue-700 hover:bg-blue-50">
+          <Zap className="h-3.5 w-3.5 fill-blue-400 text-blue-400" />
           Subscribe
           <ExternalLink className="h-3 w-3" />
         </Button>

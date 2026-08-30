@@ -68,7 +68,7 @@ const WorkHistorySection = ({ userId }: WorkHistorySectionProps) => {
             </div>
             {stats.average_rating && (
               <div className="text-center p-4 bg-white/10 rounded-lg">
-                <p className="text-3xl font-bold text-yellow-600 flex items-center justify-center gap-1">
+                <p className="text-3xl font-bold text-blue-600 flex items-center justify-center gap-1">
                   {stats.average_rating.toFixed(1)} <Star className="h-5 w-5 fill-current" />
                 </p>
                 <p className="text-sm text-white/60">Avg Rating</p>
@@ -161,7 +161,7 @@ const WorkHistorySection = ({ userId }: WorkHistorySectionProps) => {
 
                   {work.producer_rating && (
                     <div className="flex items-center gap-1 text-sm">
-                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                      <Star className="h-4 w-4 text-blue-500 fill-current" />
                       <span className="font-medium">{work.producer_rating}</span>
                       <span className="text-white/60">/5</span>
                     </div>

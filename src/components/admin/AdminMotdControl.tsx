@@ -184,7 +184,7 @@ export default function AdminMotdControl() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
-            <Trophy className="w-4 h-4 text-amber-500" />
+            <Trophy className="w-4 h-4 text-blue-500" />
             Today's MOTD ({today})
           </CardTitle>
         </CardHeader>
@@ -194,10 +194,10 @@ export default function AdminMotdControl() {
               <Loader2 className="w-4 h-4 animate-spin mr-2" /> Loading…
             </div>
           ) : todayLock.data ? (
-            <div className="flex items-center justify-between gap-2 p-3 rounded-md bg-amber-50 border border-amber-200">
+            <div className="flex items-center justify-between gap-2 p-3 rounded-md bg-blue-50 border border-blue-200">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  {todayLock.data.is_admin_locked && <Lock className="w-3.5 h-3.5 text-amber-700" />}
+                  {todayLock.data.is_admin_locked && <Lock className="w-3.5 h-3.5 text-blue-700" />}
                   <p className="font-semibold text-sm truncate">{todayMic?.openMic || todayLock.data.mic_unique_identifier}</p>
                 </div>
                 {todayMic && (
@@ -232,7 +232,7 @@ export default function AdminMotdControl() {
                       <strong>{m.openMic}</strong>
                       <span className="text-muted-foreground"> — {m.venueName}</span>
                     </span>
-                    <Lock className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
+                    <Lock className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
                   </button>
                 ))}
               </div>

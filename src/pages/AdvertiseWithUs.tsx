@@ -23,10 +23,10 @@ const colorThemes: Record<ColorTheme, {
   },
   cream: {
     name: "Comediq Cream",
-    bg: "bg-gradient-to-br from-amber-50 to-yellow-50",
-    border: "border-l-4 border-l-amber-400 border border-amber-200",
-    badge: "bg-amber-100 text-amber-800 border-amber-200",
-    text: "text-amber-800"
+    bg: "bg-gradient-to-br from-blue-50 to-blue-50",
+    border: "border-l-4 border-l-blue-400 border border-blue-200",
+    badge: "bg-blue-100 text-blue-800 border-blue-200",
+    text: "text-blue-800"
   },
   orange: {
     name: "Comediq Orange",

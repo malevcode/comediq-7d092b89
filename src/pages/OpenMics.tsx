@@ -588,7 +588,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                   {/* Example Tile */}
                   <div>
                     <p className="text-xs text-white/70 mb-2 font-medium">Example:</p>
-                    <Card className="border-l-4 border-l-cyan-500 bg-yellow-100 w-24 h-24">
+                    <Card className="border-l-4 border-l-cyan-500 bg-blue-100 w-24 h-24">
                       <CardContent className="p-2 h-full flex flex-col justify-between">
                         <div className="flex flex-col h-full justify-between">
                           <h3 className="font-bold text-sm text-gray-900 line-clamp-2 leading-tight">
@@ -613,7 +613,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                         <span>Manhattan (M)</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <div className="w-2 h-3 bg-amber-800 rounded-sm flex-shrink-0"></div>
+                        <div className="w-2 h-3 bg-blue-800 rounded-sm flex-shrink-0"></div>
                         <span>Brooklyn (B)</span>
                       </div>
                       <div className="flex items-center gap-1">

@@ -277,7 +277,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
   return (
     <div
       ref={(el) => onRegisterRow?.(mic.uniqueIdentifier, el)}
-      className={`flex pb-1 mb-0 flex-col md:flex-row w-full rounded-xl p-2.5 gap-0.5 md:gap-3 overflow-x-hidden transition-transform duration-300 hover:scale-[1.01] hover:bg-white/35 hover:shadow-[0_34px_110px_rgba(4,20,55,0.22),0_12px_36px_rgba(4,20,55,0.12)] dark:hover:bg-white/16 dark:hover:shadow-[0_34px_110px_rgba(2,10,30,0.5),0_12px_36px_rgba(2,10,30,0.3)] ${cardSurfaceClass} ${flash ? 'ring-2 ring-yellow-400 ring-offset-2' : ''}`}
+      className={`flex pb-1 mb-0 flex-col md:flex-row w-full rounded-xl p-2.5 gap-0.5 md:gap-3 overflow-x-hidden transition-transform duration-300 hover:scale-[1.01] hover:bg-white/35 hover:shadow-[0_34px_110px_rgba(4,20,55,0.22),0_12px_36px_rgba(4,20,55,0.12)] dark:hover:bg-white/16 dark:hover:shadow-[0_34px_110px_rgba(2,10,30,0.5),0_12px_36px_rgba(2,10,30,0.3)] ${cardSurfaceClass} ${flash ? 'ring-2 ring-blue-400 ring-offset-2' : ''}`}
       id={mic.id}
       style={cardStyle}
     >

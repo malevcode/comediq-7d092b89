@@ -20,7 +20,7 @@ export default function PointsDisplay() {
     <Card className="border-0 bg-[#07111f]/10 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/10">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
-          <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+          <Star className="h-5 w-5 text-blue-500 fill-blue-500" />
           Comediq Points
         </CardTitle>
       </CardHeader>
@@ -30,7 +30,7 @@ export default function PointsDisplay() {
             <p className="text-3xl font-bold text-white">{balance}</p>
             <p className="text-xs text-white/60">Total Points</p>
           </div>
-          <Zap className="h-8 w-8 text-yellow-500" />
+          <Zap className="h-8 w-8 text-blue-500" />
         </div>
 
         {history.length > 0 && (

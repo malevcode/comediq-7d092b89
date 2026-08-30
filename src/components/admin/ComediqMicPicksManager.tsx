@@ -268,7 +268,7 @@ export function ComediqMicPicksManager({ mics, today }: ComediqMicPicksManagerPr
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
-          <Trophy className="w-4 h-4 text-amber-500" />
+          <Trophy className="w-4 h-4 text-blue-500" />
           Comediq Mic Picks
         </CardTitle>
       </CardHeader>

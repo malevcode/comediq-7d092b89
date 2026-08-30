@@ -27,7 +27,7 @@ export function MicStatusBadge({ status, legacyTag, frequency, showFrequency = f
         </span>
       )}
       {status === 'trial' && !isNewMic && (
-        <span className={`inline-flex items-center gap-0.5 rounded-full bg-amber-100/60 text-amber-700 border border-amber-200/50 font-medium ${isSmall ? 'text-[10px] px-1.5 py-0' : 'text-xs px-2 py-0.5'}`}>
+        <span className={`inline-flex items-center gap-0.5 rounded-full bg-blue-100/60 text-blue-700 border border-blue-200/50 font-medium ${isSmall ? 'text-[10px] px-1.5 py-0' : 'text-xs px-2 py-0.5'}`}>
           <Clock className={isSmall ? 'w-2.5 h-2.5' : 'w-3 h-3'} />
           Trial
         </span>

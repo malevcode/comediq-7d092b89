@@ -135,7 +135,7 @@ export function AudienceShowDetailModal({ show, isOpen, onClose }: AudienceShowD
             <div className="flex items-start gap-2 flex-1">
               <DialogTitle className="text-xl">{show.title}</DialogTitle>
               {show.is_featured && (
-                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
                   <Star className="w-3 h-3 mr-1" />
                   Featured
                 </Badge>
