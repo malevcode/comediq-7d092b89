@@ -35,7 +35,7 @@ const Hero = () => {
             <div className="flex w-full flex-col items-center justify-center gap-2 sm:w-auto sm:flex-row sm:gap-3">
               <Button
                 onClick={() => navigate("/perform")}
-                className="w-full rounded-full bg-[#1a5fb4] px-6 py-3 text-sm font-bold text-[#07111f] transition-all duration-300 hover:scale-105 hover:bg-[#3a7bd5] sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+                className="w-full rounded-full bg-[#1a5fb4] px-6 py-3 text-sm font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-[#3a7bd5] sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
               >
                 🎤 I Perform
               </Button>
