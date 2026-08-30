@@ -204,7 +204,7 @@ function ShowCard({ show, editingId, setEditingId, editValue, setEditValue, edit
                   </Button>
                   <Button
                     size="sm"
-                    className={`text-sm text-[#f97316] dark:text-[#ffc72c] ${glassButtonClass}`}
+                    className={`text-sm text-[#f97316] dark:text-[#1a5fb4] ${glassButtonClass}`}
                     onClick={() => handleDownloadICal(show)}
                   >
                     <Calendar className="w-4 h-4" />

@@ -220,7 +220,7 @@ export const QuickNotes: React.FC<QuickNotesProps> = ({ className = "" }) => {
       <CardContent className="pt-6">
         <div className="relative">
           <textarea
-            className="h-32 w-full resize-none rounded-lg border-0 bg-white/30 p-3 text-[#07111f] placeholder:text-[#07111f]/50 focus:border-transparent focus:ring-2 focus:ring-[#1a5fb4]/50 dark:bg-white/10 dark:text-white dark:placeholder:text-white/50 dark:focus:ring-[#ffc72c]/70"
+            className="h-32 w-full resize-none rounded-lg border-0 bg-white/30 p-3 text-[#07111f] placeholder:text-[#07111f]/50 focus:border-transparent focus:ring-2 focus:ring-[#1a5fb4]/50 dark:bg-white/10 dark:text-white dark:placeholder:text-white/50 dark:focus:ring-[#1a5fb4]/70"
             placeholder="Write down your comedy ideas, material, or notes here..."
             value={currentNote}
             onChange={handleNoteChange}

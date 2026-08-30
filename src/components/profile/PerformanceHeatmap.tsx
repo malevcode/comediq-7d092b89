@@ -78,7 +78,7 @@ export function PerformanceHeatmap() {
     <Card className="border-0 bg-[#07111f]/10 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-[#07111f]/10">
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <Flame className="h-4 w-4 text-[#ffc72c]" />
+          <Flame className="h-4 w-4 text-[#1a5fb4]" />
           Performance Heat Map
           <span className="text-xs font-normal text-white/60 ml-auto">
             {totalCheckins} sets this year

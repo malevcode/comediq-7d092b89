@@ -101,7 +101,7 @@ function getVisitDateKey(visitDate: string) {
   return getLocalDateKey(new Date(visitDate));
 }
 
-const BOROUGH_COLORS = ["#1a5fb4", "#5dc8e2", "#ffc72c", "#f97316", "#22c55e", "#a855f7", "#ef4444"];
+const BOROUGH_COLORS = ["#1a5fb4", "#5dc8e2", "#1a5fb4", "#f97316", "#22c55e", "#a855f7", "#ef4444"];
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 function normalizeId(value?: string | null) {
@@ -355,7 +355,7 @@ export default function Home() {
           {
             label: "Saved",
             names: Array.from(new Set(saved.map((mic) => mic.openMic).filter(Boolean))),
-            className: "text-[#f97316] dark:text-[#ffc72c]",
+            className: "text-[#f97316] dark:text-[#1a5fb4]",
           },
         ]
           .filter((group) => group.names.length > 0)
@@ -706,7 +706,7 @@ export default function Home() {
                                   </Badge>
                                 )}
                                 {hasSavedMics && (
-                                  <Badge variant="outline" className="border-[#f97316]/20 bg-[#f97316]/10 text-[10px] text-[#f97316] dark:border-white/20 dark:bg-[#102a53]/20 dark:text-[#ffc72c]">
+                                  <Badge variant="outline" className="border-[#f97316]/20 bg-[#f97316]/10 text-[10px] text-[#f97316] dark:border-white/20 dark:bg-[#102a53]/20 dark:text-[#1a5fb4]">
                                     {day.savedCount} saved
                                   </Badge>
                                 )}
