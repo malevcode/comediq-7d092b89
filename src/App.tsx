@@ -132,8 +132,8 @@ function AppShell() {
     <BrowserRouter>
       <AnalyticsProvider>
         <KeyboardViewportOffset />
-        <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,199,44,0.58),transparent_30%),radial-gradient(circle_at_88%_8%,rgba(26,95,180,0.42),transparent_34%),linear-gradient(145deg,#fff7dc_0%,#f5f2eb_34%,#dbeafe_68%,#ffc72c_100%)] transition-colors duration-500 dark:bg-[radial-gradient(circle_at_12%_0%,rgba(255,199,44,0.72),transparent_30%),radial-gradient(circle_at_88%_8%,rgba(26,95,180,0.82),transparent_34%),linear-gradient(145deg,#07111f_0%,#1a5fb4_36%,#f5f2eb_62%,#ffc72c_100%)]" />
-        <div className="pointer-events-none fixed inset-0 z-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(245,242,235,0.28)_45%,rgba(255,247,220,0.48)_100%)] transition-colors duration-500 dark:bg-[linear-gradient(180deg,rgba(7,17,31,0.16)_0%,rgba(7,17,31,0.48)_42%,rgba(7,17,31,0.74)_100%)]" />
+        <div className="pointer-events-none fixed inset-0 z-0 bg-[#f5f2eb] transition-colors duration-500 dark:bg-[#07111f]" />
+        <div className="pointer-events-none fixed inset-0 z-0 bg-white/5 dark:bg-black/40" />
         <ScrollToTop />
         <MarqueeBanner />
         <SubscriptionSuccessBanner />
