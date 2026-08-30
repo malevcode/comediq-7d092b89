@@ -12,7 +12,7 @@ const Hero = () => {
           className="relative flex min-h-[360px] items-center justify-center overflow-hidden rounded-[2rem] bg-transparent sm:min-h-[440px]"
         >
           <div className="relative z-10 flex w-full max-w-4xl flex-col items-center px-5 pt-10 text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#ffc72c] sm:text-sm">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#1a5fb4] sm:text-sm">
               NYC's Comedy Platform
             </p>
 
@@ -35,14 +35,14 @@ const Hero = () => {
             <div className="flex w-full flex-col items-center justify-center gap-2 sm:w-auto sm:flex-row sm:gap-3">
               <Button
                 onClick={() => navigate("/perform")}
-                className="w-full rounded-full bg-[#ffc72c] px-6 py-3 text-sm font-bold text-[#07111f] transition-all duration-300 hover:scale-105 hover:bg-[#ffd95c] sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+                className="w-full rounded-full bg-[#1a5fb4] px-6 py-3 text-sm font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-[#3a7bd5] sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
               >
                 🎤 I Perform
               </Button>
               <Button
                 onClick={() => navigate("/auth")}
                 variant="outline"
-                className="w-full rounded-full border-2 border-[#ffc72c] bg-white/10 px-6 py-3 text-sm text-[#ffc72c] backdrop-blur transition-all duration-300 hover:scale-105 hover:bg-[#ffc72c]/10 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+                className="w-full rounded-full border-2 border-[#1a5fb4] bg-white/10 px-6 py-3 text-sm text-[#1a5fb4] backdrop-blur transition-all duration-300 hover:scale-105 hover:bg-[#1a5fb4]/10 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
               >
                 😂 I Watch
               </Button>
@@ -53,7 +53,7 @@ const Hero = () => {
                 href="https://instagram.com/malevcomedy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-sm text-white/70 transition-colors hover:text-[#ffc72c]"
+                className="block text-sm text-white/70 transition-colors hover:text-[#1a5fb4]"
               >
                 Made and maintained by Adam Malev @malevcomedy
               </a>
@@ -61,7 +61,7 @@ const Hero = () => {
                 href="https://instagram.com/comediq.us"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-sm text-white/70 transition-colors hover:text-[#ffc72c]"
+                className="block text-sm text-white/70 transition-colors hover:text-[#1a5fb4]"
               >
                 Questions or new mics? DM @comediq.us
               </a>

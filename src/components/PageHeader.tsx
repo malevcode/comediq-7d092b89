@@ -56,7 +56,7 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
               <Button
                 onClick={() => navigate('/auth')}
                 size="sm"
-                className="h-8 rounded-md bg-[#ffc72c] px-4 text-xs font-semibold text-[#07111f] hover:bg-[#ffd95c]"
+                className="h-8 rounded-md bg-[#1a5fb4] px-4 text-xs font-semibold text-white hover:bg-[#3a7bd5]"
               >
                 Login
               </Button>

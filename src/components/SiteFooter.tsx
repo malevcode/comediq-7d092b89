@@ -44,7 +44,7 @@ const SiteFooter = () => {
                 <li key={day}>
                   <Link 
                     to={linkManager.openMicsFilteredByDay(day)} 
-                    className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#ffc72c]"
+                    className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#1a5fb4]"
                   >
                     {day} Mics
                   </Link>
@@ -61,7 +61,7 @@ const SiteFooter = () => {
                 <li key={borough}>
                   <Link 
                     to={linkManager.openMicsFilteredByBorough(borough)} 
-                    className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#ffc72c]"
+                    className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#1a5fb4]"
                   >
                     {borough} Open Mics
                   </Link>
@@ -77,7 +77,7 @@ const SiteFooter = () => {
               <li>
                 <Link 
                   to={linkManager.freeMics()} 
-                   className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#ffc72c]"
+                   className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#1a5fb4]"
                 >
                   Free Open Mics
                 </Link>
@@ -85,7 +85,7 @@ const SiteFooter = () => {
               <li>
                 <Link 
                   to={linkManager.beginnerMics()} 
-                   className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#ffc72c]"
+                   className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#1a5fb4]"
                 >
                   Beginner Mics
                 </Link>
@@ -93,7 +93,7 @@ const SiteFooter = () => {
               <li>
                 <Link 
                   to={linkManager.openMicsFilteredByBorough('Manhattan')} 
-                   className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#ffc72c]"
+                   className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#1a5fb4]"
                 >
                   Manhattan Mics
                 </Link>
@@ -101,7 +101,7 @@ const SiteFooter = () => {
               <li>
                 <Link 
                   to={linkManager.openMicsFilteredByBorough('Brooklyn')} 
-                   className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#ffc72c]"
+                   className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#1a5fb4]"
                 >
                   Brooklyn Mics
               </Link>
@@ -114,12 +114,12 @@ const SiteFooter = () => {
             <h3 className="font-bold mb-4 text-lg">Comediq</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#ffc72c]">
+                <Link to="/" className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#1a5fb4]">
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/open-mics" className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#ffc72c]">
+                <Link to="/open-mics" className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#1a5fb4]">
                   All Open Mics
                 </Link>
               </li>
@@ -128,13 +128,13 @@ const SiteFooter = () => {
                   href={PREMIUM_INTEREST_FORM_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#ffc72c]"
+                  className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#1a5fb4]"
                 >
                   Get Premium Free
                 </a>
               </li>
               <li>
-                <Link to="/privacy" className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#ffc72c]">
+                <Link to="/privacy" className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#1a5fb4]">
                   Privacy Policy & Terms
                 </Link>
               </li>
@@ -152,7 +152,7 @@ const SiteFooter = () => {
               href="https://docs.google.com/spreadsheets/d/1wROLFgLrbgP1aP_b9VIJn0QzbGzmifT9r7CV15Lw7Mw/edit?usp=drivesdk"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-[#1a5fb4] transition-colors underline dark:hover:text-[#ffc72c]"
+              className="hover:text-[#1a5fb4] transition-colors underline dark:hover:text-[#1a5fb4]"
             >
               View Open Mics Data
             </a>

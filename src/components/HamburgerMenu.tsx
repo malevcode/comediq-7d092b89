@@ -77,7 +77,7 @@ const HamburgerMenu = () => {
                 onClick={() => handleNavClick(path)}
                 className={`w-full flex items-center px-4 py-3 text-left rounded-md transition-colors ${
                   location.pathname === path
-                    ? "text-[#ffc72c] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#1a5fb4] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >
@@ -93,14 +93,14 @@ const HamburgerMenu = () => {
                 className="w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors hover:bg-white/10 text-white shadow-[0_12px_30px_rgba(2,10,30,0.38)] backdrop-blur-xl transition-colors"
               >
                 <div className="flex items-center">
-                  <Sparkles size={18} className="mr-3 text-[#ffc72c]" />
-                  <span className="font-bold text-[#ffc72c]">
+                  <Sparkles size={18} className="mr-3 text-[#1a5fb4]" />
+                  <span className="font-bold text-[#1a5fb4]">
                     NEW
                   </span>
                 </div>
                 <ChevronRight 
                   size={16} 
-                  className={`transition-transform text-[#ffc72c] ${expandedNew ? 'rotate-90' : ''}`}
+                  className={`transition-transform text-[#1a5fb4] ${expandedNew ? 'rotate-90' : ''}`}
                 />
               </button>
               
@@ -117,7 +117,7 @@ const HamburgerMenu = () => {
                         <span className="font-medium">{label}</span>
                       </div>
                       {isNew && (
-                        <span className="bg-[#ffc72c] text-[#07111f] text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+                        <span className="bg-[#1a5fb4] text-[#07111f] text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
                           NEW
                         </span>
                       )}
@@ -133,7 +133,7 @@ const HamburgerMenu = () => {
                 onClick={() => setExpandedPerform(!expandedPerform)}
                 className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors ${
                   isPerformActive
-                    ? "text-[#ffc72c] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#1a5fb4] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >
@@ -155,7 +155,7 @@ const HamburgerMenu = () => {
                       onClick={() => handleNavClick(path)}
                       className={`w-full flex items-center px-4 py-2 text-left rounded-md transition-colors text-sm ${
                         location.pathname === path
-                          ? "text-[#ffc72c] bg-white/10"
+                          ? "text-[#1a5fb4] bg-white/10"
                           : "text-white/70 hover:text-white hover:bg-white/10"
                       }`}
                     >
@@ -173,7 +173,7 @@ const HamburgerMenu = () => {
                 onClick={() => setExpandedLaugh(!expandedLaugh)}
                 className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors ${
                   isLaughActive
-                    ? "text-[#ffc72c] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#1a5fb4] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >
@@ -195,7 +195,7 @@ const HamburgerMenu = () => {
                       onClick={() => handleNavClick(path)}
                       className={`w-full flex items-center px-4 py-2 text-left rounded-md transition-colors text-sm ${
                         isItemActive(path)
-                          ? "text-[#ffc72c] bg-white/10"
+                          ? "text-[#1a5fb4] bg-white/10"
                           : "text-white/70 hover:text-white hover:bg-white/10"
                       }`}
                     >
@@ -214,7 +214,7 @@ const HamburgerMenu = () => {
                 onClick={() => handleNavClick(path)}
                 className={`w-full flex items-center px-4 py-3 text-left rounded-md transition-colors ${
                   location.pathname === path
-                    ? "text-[#ffc72c] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#1a5fb4] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >
