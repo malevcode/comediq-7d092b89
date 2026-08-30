@@ -24,7 +24,7 @@ const Index = () => {
   return (
     <>
       <SEO
-        title="Comediq — NYC's Comedy Platform for Performers & Audiences"
+        title="Comediq! Find Comedy in NYC"
         description="Find open mics, track your sets, discover comedy shows, and get monthly tickets with LaughPass. 1,250+ comedians use Comediq every week."
         url="https://comediq.us"
         structuredData={structuredData}
