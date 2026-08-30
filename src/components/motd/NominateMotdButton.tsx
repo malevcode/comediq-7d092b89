@@ -57,14 +57,14 @@ export default function NominateMotdButton({ micUniqueIdentifier, micName, varia
   if (userNominatedThisOne) {
     if (variant === 'inline') {
       return (
-        <span className="inline-flex items-center gap-1 text-[11px] text-amber-700">
+        <span className="inline-flex items-center gap-1 text-[11px] text-blue-700">
           <Check className="w-3 h-3" />
           You nominated this for Mic of the Day
         </span>
       );
     }
     return (
-      <div className="flex items-center justify-center gap-2 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+      <div className="flex items-center justify-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
         <Check className="w-3.5 h-3.5" />
         You nominated this for Mic of the Day
       </div>
@@ -83,7 +83,7 @@ export default function NominateMotdButton({ micUniqueIdentifier, micName, varia
         type="button"
         onClick={handleClick}
         disabled={disabled}
-        className="inline-flex items-center gap-1 text-[11px] text-amber-700 dark:text-amber-600 hover:text-amber-900 dark:hover:text-amber-700 hover:underline disabled:opacity-60 disabled:no-underline disabled:cursor-not-allowed"
+        className="inline-flex items-center gap-1 text-[11px] text-blue-700 dark:text-blue-600 hover:text-blue-900 dark:hover:text-blue-700 hover:underline disabled:opacity-60 disabled:no-underline disabled:cursor-not-allowed"
         title={
           alreadyNominated
             ? 'Already nominated today — go upvote it!'
@@ -109,7 +109,7 @@ export default function NominateMotdButton({ micUniqueIdentifier, micName, varia
       size="sm"
       variant="outline"
       disabled={nominate.isPending || alreadyNominated || userAlreadyUsedToday}
-      className="w-full flex items-center justify-center gap-2 border-amber-400 text-amber-700 dark:text-amber-600 hover:bg-amber-50"
+      className="w-full flex items-center justify-center gap-2 border-blue-400 text-blue-700 dark:text-blue-600 hover:bg-blue-50"
       title={
         alreadyNominated
           ? 'Already nominated today — go upvote it!'

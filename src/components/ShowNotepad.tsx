@@ -129,7 +129,7 @@ function ShowCard({ show, editingId, setEditingId, editValue, setEditValue, edit
     const cleanBorough = (borough || '').trim();
     const outlines: Record<string, string> = {
       Manhattan: "border-l-4 border-l-cyan-500",
-      Brooklyn: "border-l-4 border-l-amber-800",
+      Brooklyn: "border-l-4 border-l-blue-800",
       Queens: "border-l-4 border-l-purple-600",
       Bronx: "border-l-4 border-l-orange-600",
       "Staten Island": "border-l-4 border-l-gray-500"

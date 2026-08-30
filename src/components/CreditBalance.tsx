@@ -89,8 +89,8 @@ export function CreditBalance({ compact = false }: Props) {
 
   if (compact) {
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-600">
-        <Zap className="w-3 h-3 fill-amber-400 text-amber-400" />
+      <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-600">
+        <Zap className="w-3 h-3 fill-blue-400 text-blue-400" />
         {creditsBalance}
       </span>
     );
@@ -106,7 +106,7 @@ export function CreditBalance({ compact = false }: Props) {
         <div className="text-right">
           <p className="text-xs text-white/60 uppercase tracking-wide font-medium">Credits</p>
           <p className="text-2xl font-bold text-white flex items-center gap-1 justify-end">
-            <Zap className="w-5 h-5 fill-amber-400 text-amber-400" />
+            <Zap className="w-5 h-5 fill-blue-400 text-blue-400" />
             {creditsBalance}
           </p>
         </div>

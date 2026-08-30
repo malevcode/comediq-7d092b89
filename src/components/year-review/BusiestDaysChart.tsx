@@ -29,7 +29,7 @@ const BusiestDaysChart = ({ dayStats, animate = true }: BusiestDaysChartProps) =
             <div key={stat.day} className="flex flex-col items-center flex-1">
               <span className={cn(
                 "text-xs font-bold mb-1 text-comediq-cream",
-                isBusiest && "text-yellow-300"
+                isBusiest && "text-blue-300"
               )}>
                 {stat.count}
               </span>
@@ -38,7 +38,7 @@ const BusiestDaysChart = ({ dayStats, animate = true }: BusiestDaysChartProps) =
                   className={cn(
                     'w-full rounded-t-lg transition-all duration-1000 ease-out',
                     isBusiest 
-                      ? 'bg-gradient-to-t from-yellow-400 to-yellow-300' 
+                      ? 'bg-gradient-to-t from-blue-400 to-blue-300' 
                       : 'bg-gradient-to-t from-comediq-blue-light/80 to-comediq-cream/60'
                   )}
                   style={{
@@ -49,7 +49,7 @@ const BusiestDaysChart = ({ dayStats, animate = true }: BusiestDaysChartProps) =
               </div>
               <span className={cn(
                 "text-xs mt-2 text-comediq-cream/80",
-                isBusiest && "text-yellow-300 font-bold"
+                isBusiest && "text-blue-300 font-bold"
               )}>
                 {stat.day.slice(0, 3)}
               </span>

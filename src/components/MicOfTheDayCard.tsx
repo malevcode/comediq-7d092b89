@@ -78,7 +78,7 @@ export function MicOfTheDayCard({
                 variant="outline"
                 className="shrink-0 text-[9px] font-semibold text-[#ffc72c] border-[#ffc72c]/50 bg-white/10 gap-0.5 px-1.5 py-0"
               >
-                <Star className="h-2.5 w-2.5 fill-yellow-500 text-yellow-500" />
+                <Star className="h-2.5 w-2.5 fill-blue-500 text-blue-500" />
                 MIC OF THE DAY
               </Badge>
               <TooltipProvider delayDuration={150}>
@@ -103,7 +103,7 @@ export function MicOfTheDayCard({
             <Button
               size="sm"
               onClick={handleClick}
-              className="shrink-0 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white font-semibold shadow-sm gap-1 h-7 px-2.5 text-xs"
+              className="shrink-0 bg-gradient-to-r from-blue-500 to-blue-500 hover:from-blue-600 hover:to-blue-600 text-white font-semibold shadow-sm gap-1 h-7 px-2.5 text-xs"
             >
               Sign Up
               <ArrowRight className="h-3 w-3" />
@@ -129,7 +129,7 @@ export function MicOfTheDayCard({
             <button
               type="button"
               onClick={handleNominate}
-              className="shrink-0 inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 hover:text-amber-900 hover:underline"
+              className="shrink-0 inline-flex items-center gap-1 text-[11px] font-medium text-blue-700 hover:text-blue-900 hover:underline"
             >
               <Trophy className="h-3 w-3" />
               Nominate for tomorrow
@@ -173,7 +173,7 @@ export function MicOfTheDayCard({
           variant="outline"
           className="text-[9px] text-[#ffc72c] border-[#ffc72c]/50 bg-white/10 shrink-0 self-start mt-0.5 gap-0.5"
         >
-          <Star className="h-2.5 w-2.5 fill-yellow-500 text-yellow-500" />
+          <Star className="h-2.5 w-2.5 fill-blue-500 text-blue-500" />
           Mic of Day
         </Badge>
         <span className="min-w-0 flex-1 text-sm font-medium text-white truncate">

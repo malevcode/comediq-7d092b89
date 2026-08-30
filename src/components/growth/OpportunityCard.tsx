@@ -8,7 +8,7 @@ import type { GrowthOpportunity } from "@/api/growthOpportunities";
 const typeConfig = {
   barking: { icon: Megaphone, color: "bg-blue-100 text-blue-800 dark:bg-[#8ec5ff]/18 dark:text-[#8ec5ff]", label: "Booking" },
   festival: { icon: Trophy, color: "bg-purple-100 text-purple-800 dark:bg-purple-300/18 dark:text-purple-100", label: "Festival" },
-  school_ad: { icon: GraduationCap, color: "bg-amber-100 text-amber-800 dark:bg-[#f7c600]/18 dark:text-[#f7c600]", label: "Training" },
+  school_ad: { icon: GraduationCap, color: "bg-blue-100 text-blue-800 dark:bg-[#f7c600]/18 dark:text-[#f7c600]", label: "Training" },
   podcast: { icon: Headphones, color: "bg-green-100 text-green-800 dark:bg-emerald-300/18 dark:text-emerald-100", label: "Podcast" },
 };
 

@@ -28,10 +28,10 @@ const STATUS_CONFIG: Record<MicStatusType, {
   unverified: {
     label: 'Unverified',
     icon: HelpCircle,
-    bgColor: 'bg-amber-50',
-    borderColor: 'border-amber-400',
-    textColor: 'text-amber-700',
-    dotColor: 'bg-amber-500'
+    bgColor: 'bg-blue-50',
+    borderColor: 'border-blue-400',
+    textColor: 'text-blue-700',
+    dotColor: 'bg-blue-500'
   },
   cancelled: {
     label: 'Cancelled',

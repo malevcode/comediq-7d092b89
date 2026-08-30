@@ -10,7 +10,7 @@ interface DayTimeHeatmapCardProps {
 export const DayTimeHeatmapCard = ({ dayTimeStats }: DayTimeHeatmapCardProps) => {
   const timeSlots = [
     { key: 'morning', label: 'Morning', color: 'bg-blue-100 text-blue-800', icon: '🌅' },
-    { key: 'afternoon', label: 'Afternoon', color: 'bg-yellow-100 text-yellow-800', icon: '☀️' },
+    { key: 'afternoon', label: 'Afternoon', color: 'bg-blue-100 text-blue-800', icon: '☀️' },
     { key: 'evening', label: 'Evening', color: 'bg-orange-100 text-orange-800', icon: '🌆' },
     { key: 'lateNight', label: 'Late Night', color: 'bg-purple-100 text-purple-800', icon: '🌙' },
   ];

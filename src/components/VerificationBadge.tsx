@@ -112,10 +112,10 @@ export const VerificationBadge = ({
           'hover:bg-emerald-100 dark:hover:bg-emerald-900/40',
           'focus:ring-emerald-500',
         ] : isHovered ? [
-          'bg-amber-50 dark:bg-amber-950/30',
-          'border-amber-300 dark:border-amber-500',
-          'text-amber-700 dark:text-amber-300',
-          'focus:ring-amber-500',
+          'bg-blue-50 dark:bg-blue-950/30',
+          'border-blue-300 dark:border-blue-500',
+          'text-blue-700 dark:text-blue-300',
+          'focus:ring-blue-500',
         ] : [
           'bg-gray-50 dark:bg-gray-800/50',
           'border-gray-300 dark:border-gray-600',

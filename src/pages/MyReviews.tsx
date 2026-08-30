@@ -26,7 +26,7 @@ function renderStars(rating: number) {
           key={star}
           className={`w-4 h-4 ${
             star <= rating 
-              ? "fill-yellow-400 text-yellow-400" 
+              ? "fill-blue-400 text-blue-400" 
               : "text-muted-foreground"
           }`}
         />

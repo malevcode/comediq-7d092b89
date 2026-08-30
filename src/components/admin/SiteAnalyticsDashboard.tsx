@@ -118,7 +118,7 @@ export function SiteAnalyticsDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <Zap className="h-5 w-5 text-yellow-500" />
+              <Zap className="h-5 w-5 text-blue-500" />
               Feature Usage
             </CardTitle>
           </CardHeader>

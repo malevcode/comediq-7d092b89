@@ -35,7 +35,7 @@ const ShowTNPromo = () => {
                 <p className="text-sm sm:text-base">Top open mics in your zip code</p>
               </div>
               <div className="landing-glass-inner rounded-xl border p-3 sm:p-4">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#b7791f] dark:text-yellow-300">Paid Tier</p>
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#b7791f] dark:text-blue-300">Paid Tier</p>
                 <p className="text-sm sm:text-base">Real tickets to pro shows monthly</p>
               </div>
             </div>
@@ -44,7 +44,7 @@ const ShowTNPromo = () => {
               href="https://showtn.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 px-8 py-3 rounded-full font-bold text-base sm:text-lg hover:bg-yellow-300 transition-colors"
+              className="inline-flex items-center gap-2 bg-blue-400 text-gray-900 px-8 py-3 rounded-full font-bold text-base sm:text-lg hover:bg-blue-300 transition-colors"
             >
               Visit ShowTN.com →
             </a>

@@ -92,7 +92,7 @@ export function ShowReviewForm({
                   <Star
                     className={`w-8 h-8 ${
                       star <= displayRating
-                        ? "fill-yellow-400 text-yellow-400"
+                        ? "fill-blue-400 text-blue-400"
                         : "text-muted-foreground"
                     }`}
                   />

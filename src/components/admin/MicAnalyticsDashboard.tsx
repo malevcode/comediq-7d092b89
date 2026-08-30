@@ -97,7 +97,7 @@ export const MicAnalyticsDashboard = ({ mics }: MicAnalyticsDashboardProps) => {
               </Badge>
             )}
             {analytics.verificationStats.verifiedTediously > 0 && (
-              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
                 ⏰ {analytics.verificationStats.verifiedTediously} tediously verified (may need re-verification)
               </Badge>
             )}
