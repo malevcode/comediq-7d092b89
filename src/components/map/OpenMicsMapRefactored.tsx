@@ -12,6 +12,7 @@ import { formatCost, formatStageTime, formatTime } from './MapUtils';
 interface OpenMicsMapProps {
   mics: OpenMic[];
   onMicSelect: (mic: OpenMic) => void;
+  variant?: 'boxed' | 'full';
 }
 
 type MicPinStatus = 'verified' | 'warning' | 'error' | 'finished';
@@ -261,7 +262,7 @@ function fitMapToMappedMics(map: mapboxgl.Map, mics: MappedMic[]) {
   });
 }
 
-const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
+const OpenMicsMapRefactored = ({ mics, onMicSelect, variant = 'boxed' }: OpenMicsMapProps) => {
   const mapShellRef = useRef<HTMLDivElement | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -581,10 +582,14 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect }: OpenMicsMapProps) => {
   }, [mapReady, recenterOnUserLocation]);
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       <div
         ref={mapShellRef}
-        className="relative w-full h-96 rounded-lg overflow-hidden border border-border bg-white fullscreen:h-screen fullscreen:w-screen fullscreen:rounded-none fullscreen:border-0"
+        className={
+          variant === 'full'
+            ? "relative w-full h-full overflow-hidden bg-white fullscreen:h-screen fullscreen:w-screen fullscreen:rounded-none fullscreen:border-0"
+            : "relative w-full h-96 rounded-lg overflow-hidden border border-border bg-white fullscreen:h-screen fullscreen:w-screen fullscreen:rounded-none fullscreen:border-0"
+        }
       >
         {mapReady && (
           <>
