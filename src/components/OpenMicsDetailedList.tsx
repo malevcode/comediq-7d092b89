@@ -560,6 +560,7 @@ export default function OpenMicsDetailedList({
   setVisibleCount,
   showSponsor = true,
   showMicOfDay = false,
+  selectedMicId = null,
   onOpenMic,
 }: {
   mics: OpenMic[];
@@ -567,6 +568,7 @@ export default function OpenMicsDetailedList({
   setVisibleCount: React.Dispatch<React.SetStateAction<number>>;
   showSponsor?: boolean;
   showMicOfDay?: boolean;
+  selectedMicId?: string | null;
   onOpenMic?: (mic: OpenMic) => void;
 }) {
   const validMics = mics
@@ -606,6 +608,10 @@ export default function OpenMicsDetailedList({
       }
     }, 80);
   };
+
+  useEffect(() => {
+    if (selectedMicId) handleSelectMicOfDay(selectedMicId);
+  }, [selectedMicId]);
 
   const handleAddToCalendar = async (mic: OpenMic) => {
     if (!user) return;

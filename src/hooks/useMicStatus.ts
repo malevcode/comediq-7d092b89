@@ -91,10 +91,10 @@ export const useMicStatus = (micUniqueIdentifier?: string) => {
   });
 
   return {
-    status: query.data?.status || 'unverified',
-    updatedAt: query.data?.updatedAt,
-    isLoading: query.isLoading,
-    updateStatus: updateStatusMutation.mutate,
-    isUpdating: updateStatusMutation.isPending,
+    status: 'unverified' as MicStatusType,
+    updatedAt: undefined,
+    isLoading: false,
+    updateStatus: (_newStatus: MicStatusType) => {},
+    isUpdating: false,
   };
 };
