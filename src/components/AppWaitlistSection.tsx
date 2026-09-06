@@ -85,28 +85,28 @@ const AppWaitlistSection = () => {
   return (
     <section
       id="app-waitlist"
-      className="py-10 bg-gradient-to-br from-[#f5f0e6] via-white to-blue-50 px-4"
+      className="px-4 py-8"
     >
-      <div className="max-w-2xl mx-auto">
+      <div className="landing-glass-surface mx-auto max-w-2xl rounded-2xl border p-5 text-[#07111f] transition-transform duration-300 hover:scale-[1.01] dark:text-white">
         <div className="text-center mb-5">
-          <span className="inline-block text-xs font-semibold text-[#1a5fb4] uppercase tracking-wide mb-2">
+          <span className="inline-block text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">
             Coming Soon
           </span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="mb-2 text-2xl font-bold text-[#07111f] dark:text-white sm:text-3xl">
             Join the Comediq App Waitlist
           </h2>
-          <p className="text-sm sm:text-base text-gray-600">
+          <p className="text-sm text-[#07111f]/70 dark:text-white/70 sm:text-base">
             Be first in line when the app drops.
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl p-5 shadow-xl space-y-4"
+          className="space-y-4 rounded-2xl bg-[#1a5fb4]/10 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] dark:bg-[#102a53]/20 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="aw-email" className="text-sm">Email *</Label>
+              <Label htmlFor="aw-email" className="text-sm text-[#07111f]/80 dark:text-white/80">Email *</Label>
               <Input
                 id="aw-email"
                 type="email"
@@ -114,28 +114,28 @@ const AppWaitlistSection = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@email.com"
                 required
-                className="mt-1"
+                className="mt-1 bg-white text-gray-900 placeholder:text-gray-400"
               />
             </div>
             <div>
-              <Label htmlFor="aw-ig" className="text-sm">Instagram</Label>
+              <Label htmlFor="aw-ig" className="text-sm text-[#07111f]/80 dark:text-white/80">Instagram</Label>
               <Input
                 id="aw-ig"
                 value={instagram}
                 onChange={(e) => setInstagram(e.target.value)}
                 placeholder="@handle"
-                className="mt-1"
+                className="mt-1 bg-white text-gray-900 placeholder:text-gray-400"
               />
             </div>
           </div>
 
           <div>
-            <Label className="text-sm">Years doing comedy *</Label>
+            <Label className="text-sm text-[#07111f]/80 dark:text-white/80">Years doing comedy *</Label>
             <Select value={years} onValueChange={setYears}>
-              <SelectTrigger className="mt-1 h-10">
-                <SelectValue placeholder="Select" />
+              <SelectTrigger className="mt-1 h-10 bg-white text-[#07111f] data-[placeholder]:text-[#07111f]/60">
+                <SelectValue className="text-[#07111f]" placeholder="Select" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 <SelectItem value="0-1">0-1 years</SelectItem>
                 <SelectItem value="1-3">1-3 years</SelectItem>
                 <SelectItem value="3-5">3-5 years</SelectItem>
@@ -146,7 +146,7 @@ const AppWaitlistSection = () => {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm">I'm interested in...</Label>
+            <Label className="text-sm text-[#07111f]/80 dark:text-white/80">I'm interested in...</Label>
             {[
               { key: "affiliate" as const, label: "Being an affiliate comedian for Comediq" },
               { key: "beta" as const, label: "Being a Comediq beta tester" },
@@ -155,7 +155,7 @@ const AppWaitlistSection = () => {
             ].map((opt) => (
               <label
                 key={opt.key}
-                className="flex items-start gap-2 cursor-pointer text-sm text-gray-700"
+                className="flex cursor-pointer items-start gap-2 text-sm text-[#07111f]/70 dark:text-white/70"
               >
                 <Checkbox
                   checked={interests[opt.key]}
@@ -170,7 +170,7 @@ const AppWaitlistSection = () => {
           <Button
             type="submit"
             disabled={submitting}
-            className="w-full bg-[#1a5fb4] hover:bg-[#164d94] text-white py-3 rounded-full"
+            className="force-white-text w-full bg-[#1a5fb4] hover:bg-[#164d94] py-3 rounded-full"
           >
             {submitting ? "Joining..." : "Join the Waitlist"}
           </Button>

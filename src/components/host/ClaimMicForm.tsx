@@ -12,6 +12,11 @@ import { Check, ChevronsUpDown, Search, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AddMicForm } from './AddMicForm';
 
+const glassCardClass = "border border-[#07111f]/10 bg-white/30 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-[#07111f]/30 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.18)]";
+const glassHeaderClass = "border-b border-[#07111f]/10 bg-white/20 dark:border-white/10 dark:bg-[#102a53]/10";
+const glassFieldClass = "border-[#07111f]/10 bg-white/40 text-[#07111f] shadow-sm backdrop-blur-xl hover:bg-white/50 focus-visible:ring-[#1a5fb4]/30 dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20";
+const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
+
 export function ClaimMicForm() {
   const [selectedMic, setSelectedMic] = useState<{ id: string; name: string; venue: string } | null>(null);
   const [open, setOpen] = useState(false);
@@ -63,7 +68,7 @@ export function ClaimMicForm() {
   if (showAddForm) {
     return (
       <div className="space-y-4">
-        <Button variant="ghost" onClick={() => setShowAddForm(false)}>
+        <Button variant="ghost" onClick={() => setShowAddForm(false)} className="text-[#07111f] hover:bg-white/40 dark:text-white dark:hover:bg-white/10">
           ← Back to Claim Mic
         </Button>
         <AddMicForm onSuccess={() => setShowAddForm(false)} />
@@ -72,32 +77,32 @@ export function ClaimMicForm() {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className={glassCardClass}>
+      <CardHeader className={glassHeaderClass}>
         <CardTitle>Claim a Mic</CardTitle>
-        <CardDescription>
+        <CardDescription className={mutedTextClass}>
           Request to be verified as a host for an open mic
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 role="combobox"
                 aria-expanded={open}
-                className="w-full justify-between"
+                className={`w-full justify-between ${glassFieldClass}`}
               >
                 {selectedMic ? (
                   <span className="truncate">{selectedMic.name} at {selectedMic.venue}</span>
                 ) : (
-                  <span className="text-muted-foreground">Search for a mic...</span>
+                  <span className={mutedTextClass}>Search for a mic...</span>
                 )}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[400px] p-0" align="start">
+            <PopoverContent className="w-[400px] border border-[#07111f]/10 bg-white/90 p-0 shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl dark:border-white/10 dark:bg-[#07111f]/90" align="start">
               <Command shouldFilter={false}>
                 <CommandInput 
                   placeholder="Search by name, venue, day, or borough..." 
@@ -107,7 +112,7 @@ export function ClaimMicForm() {
                 <CommandList>
                   <CommandEmpty>
                     <div className="p-4 text-center">
-                      <p className="text-sm text-muted-foreground mb-2">No mics found</p>
+                      <p className={`mb-2 text-sm ${mutedTextClass}`}>No mics found</p>
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -143,7 +148,7 @@ export function ClaimMicForm() {
                         />
                         <div className="flex flex-col">
                           <span className="font-medium">{mic.openMic}</span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className={`text-xs ${mutedTextClass}`}>
                             {mic.venueName} • {mic.day} • {mic.borough}
                           </span>
                         </div>
@@ -163,21 +168,21 @@ export function ClaimMicForm() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+              <span className="w-full border-t border-[#07111f]/10 dark:border-white/10" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or</span>
+              <span className="px-2 text-[#07111f]/50 dark:text-white/50">Or</span>
             </div>
           </div>
 
           <Button 
             type="button" 
             variant="outline" 
-            className="w-full"
+            className={`h-auto min-h-10 w-full whitespace-normal px-3 py-2 text-center leading-snug ${glassFieldClass}`}
             onClick={() => setShowAddForm(true)}
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Don't see your mic? Add it to our database
+            <Plus className="mr-2 h-4 w-4 shrink-0" />
+            <span className="min-w-0 text-wrap">Don't see your mic? Add it to our database</span>
           </Button>
         </form>
       </CardContent>

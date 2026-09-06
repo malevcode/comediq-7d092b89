@@ -2,11 +2,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { HelmetProvider } from 'react-helmet-async';
+import { ThemeProvider } from "next-themes";
 import { usePointsSync } from '@/hooks/usePoints';
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import OpenMics from "./pages/OpenMics";
 import TrackSets from "./pages/TrackSets";
@@ -48,7 +50,6 @@ import TopMics from "./pages/TopMics";
 import Slots from "./pages/Slots";
 import ShowsMap from "./pages/ShowsMap";
 import Onboarding from "./pages/Onboarding";
-import BookMeMicSignup from "./pages/BookMeMicSignup";
 import Strip from "./pages/Strip";
 
 const queryClient = new QueryClient({
@@ -69,6 +70,59 @@ function PointsSyncWrapper({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function isMicSignupPath(pathname: string) {
+  return pathname === '/mic-signup' || /^\/mic\/[^/]+\/signup\/?$/.test(pathname);
+}
+
+function SiteFooterWrapper() {
+  const location = useLocation();
+
+  if (isMicSignupPath(location.pathname)) return null;
+
+  return (
+    <div className="relative z-[1]">
+      <SiteFooter />
+    </div>
+  );
+}
+
+function KeyboardViewportOffset() {
+  useEffect(() => {
+    const root = document.documentElement;
+    const keyboardTargetSelector = 'input, textarea, select, [contenteditable="true"]';
+
+    const updateKeyboardState = () => {
+      const activeElement = document.activeElement;
+      const isEditing =
+        activeElement instanceof HTMLElement &&
+        activeElement.matches(keyboardTargetSelector);
+      const isMobileLike =
+        window.matchMedia('(max-width: 768px)').matches ||
+        window.matchMedia('(pointer: coarse)').matches;
+
+      root.classList.toggle('keyboard-open', isEditing && isMobileLike);
+    };
+
+    const handleFocusOut = () => window.setTimeout(updateKeyboardState, 120);
+
+    updateKeyboardState();
+    window.visualViewport?.addEventListener('resize', updateKeyboardState);
+    window.visualViewport?.addEventListener('scroll', updateKeyboardState);
+    window.addEventListener('focusin', updateKeyboardState);
+    window.addEventListener('focusout', handleFocusOut);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', updateKeyboardState);
+      window.visualViewport?.removeEventListener('scroll', updateKeyboardState);
+      window.removeEventListener('focusin', updateKeyboardState);
+      window.removeEventListener('focusout', handleFocusOut);
+      root.classList.remove('keyboard-open');
+    };
+  }, []);
+
+  return null;
+}
+
 function AppShell() {
   const { subscriptionPlan } = useAuth();
   const isSubscriber = subscriptionPlan !== 'free';
@@ -76,10 +130,13 @@ function AppShell() {
   return (
     <BrowserRouter>
       <AnalyticsProvider>
+        <KeyboardViewportOffset />
+        <div className="pointer-events-none fixed inset-0 z-0 bg-[#f5f2eb] transition-colors duration-500 dark:bg-[#07111f]" />
+        <div className="pointer-events-none fixed inset-0 z-0 bg-white/5 dark:bg-black/40" />
         <ScrollToTop />
         <MarqueeBanner />
         <SubscriptionSuccessBanner />
-        <div className={isSubscriber ? "subscriber-layout pb-0" : "non-subscriber-layout pb-0"}>
+        <div className={isSubscriber ? "subscriber-layout relative z-10 pb-0" : "non-subscriber-layout relative z-10 pb-0"}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/perform" element={<TabProvider><Perform /></TabProvider>} />
@@ -116,12 +173,11 @@ function AppShell() {
             <Route path="/dev-view" element={<TabProvider><DevView /></TabProvider>} />
             <Route path="/slots" element={<Slots />} />
             <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/book-me-mic" element={<BookMeMicSignup />} />
             <Route path="/strip" element={<Strip />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
-        <SiteFooter />
+        <SiteFooterWrapper />
         <BottomNavigation />
       </AnalyticsProvider>
     </BrowserRouter>
@@ -134,9 +190,11 @@ const App = () => (
       <PointsSyncWrapper>
         <HelmetProvider>
           <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <AppShell />
+            <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+              <Toaster />
+              <Sonner />
+              <AppShell />
+            </ThemeProvider>
           </TooltipProvider>
         </HelmetProvider>
       </PointsSyncWrapper>

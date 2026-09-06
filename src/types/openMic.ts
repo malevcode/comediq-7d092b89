@@ -32,12 +32,14 @@ export interface OpenMic {
   borough: string;
   neighborhood: string;
   location: string;
+  venueType?: string;
   cost: string;
   stageTime: string;
   signUpInstructions: string;
   hosts: string;
   instagramHandle: string;
   lastVerified: string;
+  lastConfirmedAt?: string | null;
   uniqueIdentifier: string;
   city: string;
   signupEnabled: boolean;
@@ -45,9 +47,13 @@ export interface OpenMic {
   coverImageUrl?: string;
   status: MicStatus;
   frequency: MicFrequency;
+  verificationCount?: number;
   submissionDate?: string;
   legacyTag?: string;
+  creatorId?: string;
   signupMethod?: SignupMethod;
+  signupUrl?: string;
+  frequencyCustomText?: string;
   slotsEnabled: boolean;
   slotDurationMinutes: number;
   latitude?: number | null;

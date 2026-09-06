@@ -131,7 +131,11 @@ export function DiscoveryMicCard({ mic, forceExpanded, flash, onRegisterRow }: D
           </div>
 
           <div className="mt-2">
-            <ConfirmReportButtons micUniqueIdentifier={mic.uniqueIdentifier} micName={mic.openMic} />
+            <ConfirmReportButtons
+              micUniqueIdentifier={mic.uniqueIdentifier}
+              micName={mic.openMic}
+              lastConfirmedAt={mic.lastConfirmedAt}
+            />
           </div>
         </div>
       </div>

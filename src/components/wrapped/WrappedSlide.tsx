@@ -44,7 +44,7 @@ const WrappedSlide = ({
         {[...Array(6)].map((_, i) => (
           <div
             key={`mic-${i}`}
-            className="absolute text-comediq-cream/5 animate-float"
+            className="absolute text-comediq-cream/10 animate-float"
             style={{
               left: `${5 + (i * 18)}%`,
               top: `${15 + (i % 3) * 30}%`,
@@ -57,7 +57,7 @@ const WrappedSlide = ({
         ))}
         
         {/* Glowing orbs */}
-        <div className="absolute top-1/4 -left-20 w-64 h-64 bg-comediq-cream/5 rounded-full blur-3xl animate-pulse-glow" />
+        <div className="absolute top-1/4 -left-20 w-64 h-64 bg-comediq-cream/10 rounded-full blur-3xl animate-pulse-glow" />
         <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-comediq-blue-light/10 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: '1s' }} />
         
         {/* Subtle grid pattern */}

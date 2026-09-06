@@ -555,9 +555,9 @@ const BulkImportInterface = () => {
                       <p className="text-2xl font-bold text-red-600">{getValidationStats().errors}</p>
                       <p className="text-sm text-red-600">Errors</p>
                     </div>
-                    <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                      <p className="text-2xl font-bold text-yellow-600">{getValidationStats().pending}</p>
-                      <p className="text-sm text-yellow-600">Pending</p>
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <p className="text-2xl font-bold text-blue-600">{getValidationStats().pending}</p>
+                      <p className="text-sm text-blue-600">Pending</p>
                     </div>
                   </div>
                   

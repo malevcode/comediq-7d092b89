@@ -28,10 +28,10 @@ const STATUS_CONFIG: Record<MicStatusType, {
   unverified: {
     label: 'Unverified',
     icon: HelpCircle,
-    bgColor: 'bg-amber-50',
-    borderColor: 'border-amber-400',
-    textColor: 'text-amber-700',
-    dotColor: 'bg-amber-500'
+    bgColor: 'bg-blue-50',
+    borderColor: 'border-blue-400',
+    textColor: 'text-blue-700',
+    dotColor: 'bg-blue-500'
   },
   cancelled: {
     label: 'Cancelled',
@@ -110,7 +110,7 @@ export default function MicStatusDropdown({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute z-50 mt-1 right-0 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[140px]">
+        <div className="absolute mt-1 z-50 right-0 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[140px]">
           {(Object.keys(STATUS_CONFIG) as MicStatusType[]).map((statusKey) => {
             const config = STATUS_CONFIG[statusKey];
             const StatusIcon = config.icon;

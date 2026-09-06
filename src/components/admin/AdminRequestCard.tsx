@@ -109,13 +109,13 @@ const AdminRequestCard = ({
             <div className="mb-4 p-3 rounded-lg bg-muted/50 border border-border">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-semibold text-foreground">Data Completeness</span>
-                <span className={`text-sm font-bold ${completionPct >= 80 ? 'text-green-600' : completionPct >= 50 ? 'text-yellow-600' : 'text-red-500'}`}>
+                <span className={`text-sm font-bold ${completionPct >= 80 ? 'text-green-600' : completionPct >= 50 ? 'text-blue-600' : 'text-red-500'}`}>
                   {completionPct}%
                 </span>
               </div>
               <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                 <div 
-                  className={`h-full rounded-full transition-all ${completionPct >= 80 ? 'bg-green-500' : completionPct >= 50 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                  className={`h-full rounded-full transition-all ${completionPct >= 80 ? 'bg-green-500' : completionPct >= 50 ? 'bg-blue-500' : 'bg-red-500'}`}
                   style={{ width: `${completionPct}%` }}
                 />
               </div>
@@ -158,7 +158,7 @@ const AdminRequestCard = ({
                         <BoroughPicker value={formData['Borough'] || ''} onChange={v => handleFormChange('Borough', v)} />
                       ) : (
                         <input
-                          className={`border rounded px-2 py-1 text-sm ${errors[field] ? 'border-red-500' : isEmpty && isEssential ? 'border-yellow-400 bg-yellow-50' : ''}`}
+                          className={`border rounded px-2 py-1 text-sm ${errors[field] ? 'border-red-500' : isEmpty && isEssential ? 'border-blue-400 bg-blue-50' : ''}`}
                           value={formData[field] || ''}
                           onChange={e => handleFormChange(field, e.target.value)}
                         />

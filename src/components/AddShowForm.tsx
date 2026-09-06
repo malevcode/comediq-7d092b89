@@ -30,6 +30,12 @@ interface AddShowFormProps {
   };
 }
 
+const glassCardClass = "border border-[#07111f]/10 bg-white/80 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl dark:border-white/10 dark:bg-[#07111f]/90 dark:text-white";
+const glassHeaderClass = "border-b border-[#07111f]/10 bg-white/20 dark:border-white/10 dark:bg-[#102a53]/10";
+const glassFieldClass = "border-[#07111f]/10 bg-white/40 text-[#07111f] placeholder:text-[#07111f]/50 shadow-sm backdrop-blur-xl hover:bg-white/50 focus-visible:ring-[#1a5fb4]/30 dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder:text-white/50 dark:hover:bg-white/20";
+const primaryGlassButtonClass = "bg-[#1a5fb4] text-white hover:bg-[#1550a0] hover:text-white";
+const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
+
 function to24Hour(time: string) {
   // If already in 24-hour format, return as is
   if (!time.match(/am|pm/i)) return time;
@@ -76,15 +82,15 @@ const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black bg-opacity-50 flex items-center justify-center p-4 !p-0 !m-0">
-      <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <CardHeader>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 !m-0 !p-0">
+      <Card className={`max-h-[90vh] w-full max-w-md overflow-y-auto ${glassCardClass}`}>
+        <CardHeader className={glassHeaderClass}>
           <div className="flex justify-between items-center">
             <div>
               <CardTitle>Add a Show</CardTitle>
-              <CardDescription>Add a new show to your schedule</CardDescription>
+              <CardDescription className={mutedTextClass}>Add a new show to your schedule</CardDescription>
             </div>
-            <Button variant="ghost" size="sm" onClick={onCancel}>
+            <Button variant="ghost" size="sm" onClick={onCancel} className="hover:bg-white/40 dark:hover:bg-white/10">
               <X className="w-4 h-4" />
             </Button>
           </div>
@@ -95,6 +101,7 @@ const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
               <Label htmlFor="title">Show Title</Label>
               <Input
                 id="title"
+                className={glassFieldClass}
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="e.g., Comedy Night at The Laugh Track"
@@ -106,6 +113,7 @@ const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
               <Label htmlFor="venue">Venue</Label>
               <Input
                 id="venue"
+                className={glassFieldClass}
                 value={formData.venue}
                 onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
                 placeholder="e.g., The Comedy Cellar"
@@ -117,7 +125,7 @@ const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
               <Label htmlFor="borough">Borough</Label>
               <select
                 id="borough"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm bg-white"
+                className={`w-full rounded-md px-3 py-2 text-sm ${glassFieldClass}`}
                 value={formData.borough}
                 onChange={(e) => setFormData({ ...formData, borough: e.target.value })}
                 required
@@ -137,6 +145,7 @@ const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
                 <Input
                   id="date"
                   type="date"
+                  className={glassFieldClass}
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                   required
@@ -147,6 +156,7 @@ const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
                 <Input
                   id="time"
                   type="time"
+                  className={glassFieldClass}
                   value={formData.time}
                   onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                   required
@@ -161,11 +171,12 @@ const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
                 type="number"
                 min="1"
                 max="120"
+                className={glassFieldClass}
                 value={formData.stage_time_minutes}
                 onChange={(e) => setFormData({ ...formData, stage_time_minutes: parseInt(e.target.value) || 5 })}
                 placeholder="5"
               />
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className={`mt-1 text-xs ${mutedTextClass}`}>
                 How many minutes of stage time? (Default: 5 min)
               </p>
             </div>
@@ -174,6 +185,7 @@ const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
               <Label htmlFor="notes">Notes (Optional)</Label>
               <Textarea
                 id="notes"
+                className={glassFieldClass}
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 placeholder="Any additional notes about the show..."
@@ -182,7 +194,7 @@ const AddShowForm = ({ onSubmit, onCancel, initialData }: AddShowFormProps) => {
             </div>
 
             <div className="flex gap-2 pt-4 items-center">
-              <Button type="submit" className="flex-1 bg-orange-500 hover:bg-orange-600">
+              <Button type="submit" className={`flex-1 ${primaryGlassButtonClass}`}>
                 Add Show
               </Button>
             </div>

@@ -24,6 +24,9 @@ import { SmartUpdateInterface } from '@/components/admin/SmartUpdateInterface';
 import { AdminContributionsPanel } from '@/components/admin/AdminContributionsPanel';
 import AdminGrowthManager from '@/components/admin/AdminGrowthManager';
 import AdminMotdControl from '@/components/admin/AdminMotdControl';
+import { InstagramCommentCollector } from '@/components/admin/InstagramCommentCollector';
+import { AdminMicFlagsPanel } from '@/components/admin/AdminMicFlagsPanel';
+import { MicsJsonRefreshButton } from '@/components/admin/MicsJsonRefreshButton';
 import PageHeader from '@/components/PageHeader';
 import { approveMicRequest, type MicFormData } from '@/api/admin';
 import {
@@ -290,13 +293,16 @@ const AdminInterface = () => {
   if (!isAdmin) return <div>Not authorized. You are not an admin.</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+    <div className="min-h-screen bg-transparent">
       <PageHeader />
 
       <div className="max-w-3xl mx-auto px-4 page-content-offset pb-20">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Manage open mic requests and content</p>
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+            <p className="text-sm text-muted-foreground">Manage open mic requests and content</p>
+          </div>
+          <MicsJsonRefreshButton />
         </div>
         <Tabs defaultValue="analytics" className="w-full" onValueChange={setTab}>
           <TabsList className="mb-8 w-full flex flex-wrap h-auto gap-1">
@@ -304,6 +310,7 @@ const AdminInterface = () => {
             <TabsTrigger value="users" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Users</TabsTrigger>
             <TabsTrigger value="all" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">All Mics</TabsTrigger>
             <TabsTrigger value="pending" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Pending</TabsTrigger>
+            <TabsTrigger value="flags" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Flags</TabsTrigger>
             <TabsTrigger value="reviewed" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Reviewed</TabsTrigger>
             <TabsTrigger value="ads" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Ads</TabsTrigger>
             <TabsTrigger value="site-analytics" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Site</TabsTrigger>
@@ -315,6 +322,7 @@ const AdminInterface = () => {
             <TabsTrigger value="contributions" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Contrib</TabsTrigger>
             <TabsTrigger value="growth" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Growth</TabsTrigger>
             <TabsTrigger value="motd" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">MOTD</TabsTrigger>
+            <TabsTrigger value="instagram" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">IG</TabsTrigger>
           </TabsList>
           <TabsContent value="analytics">
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
@@ -405,6 +413,13 @@ const AdminInterface = () => {
               </CardContent>
             </Card>
           </TabsContent>
+          <TabsContent value="flags">
+            <Card className="mb-6 shadow-lg rounded-2xl border-0">
+              <CardContent className="p-4 md:p-8">
+                <AdminMicFlagsPanel />
+              </CardContent>
+            </Card>
+          </TabsContent>
           <TabsContent value="reviewed">
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
               <CardContent className="p-8 flex flex-col items-start">
@@ -473,6 +488,9 @@ const AdminInterface = () => {
                 <AdminMotdControl />
               </CardContent>
             </Card>
+          </TabsContent>
+          <TabsContent value="instagram">
+            <InstagramCommentCollector />
           </TabsContent>
         </Tabs>
       </div>

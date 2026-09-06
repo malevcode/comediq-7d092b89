@@ -3,6 +3,7 @@ import React from 'react';
 /**
  * Converts URLs, Instagram handles, and bare domains in text to clickable links.
  * Handles:
+ * - Email addresses (name@example.com)
  * - Full URLs (https://example.com)
  * - www URLs (www.example.com)
  * - Bare domain URLs (example.com)
@@ -15,11 +16,12 @@ export function makeLinksClickable(text: string) {
   if (!text) return null;
   
   // Combined regex to match all link types in order of priority
-  // 1. Full URLs (http:// or https://)
-  // 2. www. URLs
-  // 3. Instagram handles (@username)
-  // 4. Bare domains (domain.com, domain.org, etc.)
-  const combinedRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)|(@[a-zA-Z0-9_\.]+)|(\b[a-zA-Z0-9][-a-zA-Z0-9]*\.(com|org|net|io|co)\b[^\s]*)/gi;
+  // 1. Email addresses
+  // 2. Full URLs (http:// or https://)
+  // 3. www. URLs
+  // 4. Instagram handles (@username)
+  // 5. Bare domains (domain.com, domain.org, etc.)
+  const combinedRegex = /(\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b)|(https?:\/\/[^\s]+)|(www\.[^\s]+)|(@[a-zA-Z0-9_\.]+)|(\b[a-zA-Z0-9][-a-zA-Z0-9]*\.(com|org|net|io|co)\b[^\s]*)/gi;
   
   const parts: (string | React.ReactElement)[] = [];
   let lastIndex = 0;
@@ -36,16 +38,19 @@ export function makeLinksClickable(text: string) {
     let displayText: string = matchedText;
     
     if (match[1]) {
+      // Email address - open email composer
+      href = `mailto:${matchedText}`;
+    } else if (match[2]) {
       // Full URL (https:// or http://)
       href = matchedText;
-    } else if (match[2]) {
+    } else if (match[3]) {
       // www. URL - prepend https://
       href = `https://${matchedText}`;
-    } else if (match[3]) {
+    } else if (match[4]) {
       // Instagram handle - link to Instagram profile
       const username = matchedText.slice(1); // Remove @ symbol
       href = `https://instagram.com/${username}`;
-    } else if (match[4]) {
+    } else if (match[5]) {
       // Bare domain - prepend https://
       href = `https://${matchedText}`;
     } else {

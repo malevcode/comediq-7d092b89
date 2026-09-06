@@ -98,7 +98,7 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-semibold text-foreground truncate">{show.title}</h3>
                   {show.is_featured && (
-                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 text-xs">
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
                       <Star className="w-3 h-3 mr-1" />
                       Featured
                     </Badge>

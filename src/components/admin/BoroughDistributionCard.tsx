@@ -11,7 +11,7 @@ export const BoroughDistributionCard = ({ boroughStats }: BoroughDistributionCar
   const getBoroughColor = (borough: string) => {
     const colors = {
       'Manhattan': 'bg-cyan-500',
-      'Brooklyn': 'bg-amber-600',
+      'Brooklyn': 'bg-blue-600',
       'Queens': 'bg-purple-600',
       'Bronx': 'bg-orange-600',
       'Staten Island': 'bg-gray-500',

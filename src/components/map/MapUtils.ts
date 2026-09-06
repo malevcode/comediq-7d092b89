@@ -43,7 +43,7 @@ export const getBoroughColor = (borough: string): string => {
   const cleanBorough = borough.trim();
   const colors = {
     Manhattan: "#06b6d4", // cyan-500
-    Brooklyn: "#92400e", // amber-800  
+    Brooklyn: "#92400e", // blue-800  
     Queens: "#7c3aed", // purple-600
     Bronx: "#ea580c", // orange-600
     "Staten Island": "#6b7280" // gray-500
@@ -56,7 +56,7 @@ export const getVerificationColor = (lastVerified: string): string => {
   const verification = lastVerified?.toLowerCase() || '';
   
   // if (verification.includes('tediously verified') || verification.includes('tedious')) {
-  //   return "#fef3c7"; // yellow-100
+  //   return "#fef3c7"; // blue-100
   // } else if (verification.includes('verified') || verification.includes('confirm')) {
   //   return "#d1fae5"; // emerald-100
   // } else {
@@ -105,7 +105,7 @@ export const getBoroughInitial = (borough: string): string => {
 
 // Get marker color based on verification status
 export const getMarkerColor = (verified: string, tediouslyVerified: string): string => {
-  if (tediouslyVerified === 'true') return '#fef3c7'; // yellow-100
+  if (tediouslyVerified === 'true') return '#fef3c7'; // blue-100
   if (verified === 'true') return '#d1fae5'; // emerald-100
   return '#fee2e2'; // red-100
 };
@@ -114,9 +114,9 @@ export const getMarkerColor = (verified: string, tediouslyVerified: string): str
 export const getShowTypeColor = (showType: string | null): string => {
   const type = showType?.toLowerCase().trim() || '';
   const colors: Record<string, string> = {
-    'standup':      '#f59e0b', // amber
-    'stand-up':     '#f59e0b',
-    'stand up':     '#f59e0b',
+    'standup':      '#1a5fb4', // amber
+    'stand-up':     '#1a5fb4',
+    'stand up':     '#1a5fb4',
     'improv':       '#22c55e', // green
     'storytelling': '#a855f7', // purple
     'sketch':       '#3b82f6', // blue
@@ -126,7 +126,7 @@ export const getShowTypeColor = (showType: string | null): string => {
 };
 
 export const SHOW_TYPE_COLORS: { label: string; color: string }[] = [
-  { label: 'Stand-up',     color: '#f59e0b' },
+  { label: 'Stand-up',     color: '#1a5fb4' },
   { label: 'Improv',       color: '#22c55e' },
   { label: 'Storytelling', color: '#a855f7' },
   { label: 'Sketch',       color: '#3b82f6' },

@@ -8,6 +8,11 @@ import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import { ArrowLeft, Pencil, Check, X, Loader2, Plus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
+const glassPanelClass = "rounded-lg border border-[#07111f]/10 bg-white/30 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-[#07111f]/30 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.18)]";
+const glassFieldClass = "border-[#07111f]/10 bg-white/40 text-[#07111f] placeholder:text-[#07111f]/50 shadow-sm backdrop-blur-xl hover:bg-white/50 focus-visible:ring-[#1a5fb4]/30 dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder:text-white/50 dark:hover:bg-white/20";
+const glassButtonClass = "border border-[#07111f]/10 bg-white/30 text-[#07111f] shadow-[0_10px_30px_rgba(2,10,30,0.08)] backdrop-blur-xl hover:bg-white/50 hover:text-[#1a5fb4] dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 dark:hover:text-white";
+const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
+
 interface PlaylistMicListProps {
   playlist: MicPlaylist;
   onBack: () => void;
@@ -27,7 +32,7 @@ export function PlaylistMicList({ playlist, onBack, mics: propMics, isSmartPlayl
   const [visibleCount, setVisibleCount] = useState(50);
   const [addedMicIds, setAddedMicIds] = useState<Set<string>>(new Set());
   
-  const { items, isLoading: itemsLoading } = usePlaylistItems(playlist.id);
+  const { items, isLoading: itemsLoading } = usePlaylistItems(playlist.id, !isSmartPlaylist);
   const { data: fetchedMics = [], isLoading: micsLoading } = useOpenMics();
   const { updatePlaylist, removeFromPlaylist, addToPlaylist, isUpdating } = useMicPlaylists();
 
@@ -135,34 +140,35 @@ export function PlaylistMicList({ playlist, onBack, mics: propMics, isSmartPlayl
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
+        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1 text-[#07111f] hover:bg-white/40 hover:text-[#1a5fb4] dark:text-white dark:hover:bg-white/10 dark:hover:text-white">
           <ArrowLeft className="h-4 w-4" />
           Back
         </Button>
       </div>
 
       {/* Playlist Info */}
-      <div className="bg-muted/50 rounded-lg p-4">
+      <div className={`p-4 ${glassPanelClass}`}>
         {isEditing && !isSmartPlaylist ? (
           <div className="space-y-3">
             <Input
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
               placeholder="Playlist name"
-              className="text-lg font-semibold"
+              className={`text-lg font-semibold ${glassFieldClass}`}
               autoFocus
             />
             <Input
               value={editDescription}
               onChange={(e) => setEditDescription(e.target.value)}
               placeholder="Description (optional)"
+              className={glassFieldClass}
             />
             <div className="flex gap-2">
               <Button size="sm" onClick={handleSaveEdit} disabled={isUpdating}>
                 {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                 Save
               </Button>
-              <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>
+              <Button size="sm" variant="outline" onClick={() => setIsEditing(false)} className={glassButtonClass}>
                 <X className="h-4 w-4" />
                 Cancel
               </Button>
@@ -173,14 +179,14 @@ export function PlaylistMicList({ playlist, onBack, mics: propMics, isSmartPlayl
             <div>
               <h2 className="text-xl font-semibold">{playlist.name}</h2>
               {playlist.description && (
-                <p className="text-muted-foreground mt-1">{playlist.description}</p>
+                <p className={`mt-1 ${mutedTextClass}`}>{playlist.description}</p>
               )}
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className={`mt-2 text-sm ${mutedTextClass}`}>
                 {playlistMics.length + addedMicIds.size} mic{(playlistMics.length + addedMicIds.size) !== 1 ? 's' : ''}
               </p>
             </div>
             {!isSmartPlaylist && (
-              <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
+              <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)} className="hover:bg-white/40 hover:text-[#1a5fb4] dark:hover:bg-white/10 dark:hover:text-white">
                 <Pencil className="h-4 w-4" />
               </Button>
             )}
@@ -190,18 +196,18 @@ export function PlaylistMicList({ playlist, onBack, mics: propMics, isSmartPlayl
 
       {/* Suggested Mics Section */}
       {showSuggestions && suggestedMics.length > 0 && (
-        <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg p-4 border border-primary/20">
+        <div className={`p-4 ${glassPanelClass}`}>
           <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="h-4 w-4 text-primary" />
+            <Sparkles className="h-4 w-4 text-[#1a5fb4] dark:text-[#8ec5ff]" />
             <h3 className="font-semibold text-sm">Suggested Mics</h3>
-            <span className="text-xs text-muted-foreground">Based on "{playlist.name}"</span>
+            <span className={`text-xs ${mutedTextClass}`}>Based on "{playlist.name}"</span>
           </div>
           <div className="space-y-2">
             {suggestedMics.map((mic) => (
-              <div key={mic.uniqueIdentifier} className="flex items-center justify-between bg-background rounded-md p-3 shadow-sm">
+              <div key={mic.uniqueIdentifier} className="flex items-center justify-between rounded-md border border-[#07111f]/10 bg-white/30 p-3 shadow-sm dark:border-white/10 dark:bg-white/10">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm truncate">{mic.openMic}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className={`text-xs ${mutedTextClass}`}>
                     {mic.day} · {mic.startTime} · {mic.borough}
                     {mic.cost && ` · ${mic.cost}`}
                   </p>
@@ -209,7 +215,7 @@ export function PlaylistMicList({ playlist, onBack, mics: propMics, isSmartPlayl
                 <Button
                   size="sm"
                   variant="outline"
-                  className="ml-2 gap-1 shrink-0"
+                  className={`ml-2 shrink-0 gap-1 ${glassButtonClass}`}
                   onClick={() => handleAddSuggestedMic(mic)}
                 >
                   <Plus className="h-3 w-3" />
@@ -218,7 +224,7 @@ export function PlaylistMicList({ playlist, onBack, mics: propMics, isSmartPlayl
               </div>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground mt-3">
+          <p className={`mt-3 text-xs ${mutedTextClass}`}>
             💡 You can also add mics from the "Find Mics" tab using the playlist button on any mic card.
           </p>
         </div>
@@ -226,9 +232,9 @@ export function PlaylistMicList({ playlist, onBack, mics: propMics, isSmartPlayl
 
       {/* Empty state with guidance */}
       {!isLoading && playlistMics.length === 0 && addedMicIds.size === 0 && !showSuggestions && (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">No mics in this playlist yet.</p>
-          <p className="text-sm text-muted-foreground mt-1">
+        <div className={`py-12 text-center ${glassPanelClass}`}>
+          <p className={mutedTextClass}>No mics in this playlist yet.</p>
+          <p className={`mt-1 text-sm ${mutedTextClass}`}>
             Add mics from the "Find Mics" tab using the playlist button.
           </p>
         </div>
@@ -237,11 +243,11 @@ export function PlaylistMicList({ playlist, onBack, mics: propMics, isSmartPlayl
       {/* Mic List */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <Loader2 className={`h-6 w-6 animate-spin ${mutedTextClass}`} />
         </div>
       ) : playlistMics.length > 0 && (
         <div>
-          <h3 className="text-sm font-medium text-muted-foreground mb-3">PLAYLIST MICS</h3>
+          <h3 className={`mb-3 text-sm font-medium ${mutedTextClass}`}>PLAYLIST MICS</h3>
           <OpenMicsDetailedList 
             mics={playlistMics}
             visibleCount={visibleCount}

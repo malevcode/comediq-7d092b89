@@ -23,6 +23,9 @@ import { formatDistanceToNow } from "date-fns";
 import { Mic, Lock, Globe, MoreVertical, Pencil, Trash2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
+const glassCardClass = "group cursor-pointer border border-[#07111f]/10 bg-white/30 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/50 hover:shadow-[0_18px_60px_rgba(4,20,55,0.16)] dark:border-white/10 dark:bg-[#07111f]/30 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.18)] dark:hover:bg-white/10";
+const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
+
 interface PlaylistCardProps {
   playlist: MicPlaylist;
   onOpen: (playlist: MicPlaylist) => void;
@@ -49,24 +52,24 @@ export function PlaylistCard({ playlist, onOpen, onEdit }: PlaylistCardProps) {
   return (
     <>
       <Card 
-        className="group cursor-pointer hover:shadow-md transition-all duration-200 border-border/50"
+        className={glassCardClass}
         onClick={() => onOpen(playlist)}
       >
         <CardHeader className="pb-2">
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-base truncate group-hover:text-primary transition-colors">
+              <h3 className="truncate text-base font-semibold transition-colors group-hover:text-[#1a5fb4] dark:group-hover:text-[#8ec5ff]">
                 {playlist.name}
               </h3>
               {playlist.description && (
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                <p className={`mt-1 line-clamp-2 text-xs ${mutedTextClass}`}>
                   {playlist.description}
                 </p>
               )}
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 transition-opacity hover:bg-white/40 group-hover:opacity-100 dark:hover:bg-white/10">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -89,19 +92,19 @@ export function PlaylistCard({ playlist, onOpen, onEdit }: PlaylistCardProps) {
         <CardContent className="pt-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Badge variant="secondary" className="flex items-center gap-1">
+              <Badge variant="secondary" className="flex items-center gap-1 border border-[#07111f]/10 bg-white/40 text-[#07111f] dark:border-white/10 dark:bg-white/10 dark:text-white">
                 <Mic className="h-3 w-3" />
                 {playlist.item_count || 0} mics
               </Badge>
               {playlist.is_public ? (
-                <Globe className="h-3.5 w-3.5 text-muted-foreground" aria-label="Public" />
+                <Globe className={`h-3.5 w-3.5 ${mutedTextClass}`} aria-label="Public" />
               ) : (
-                <Lock className="h-3.5 w-3.5 text-muted-foreground" aria-label="Private" />
+                <Lock className={`h-3.5 w-3.5 ${mutedTextClass}`} aria-label="Private" />
               )}
             </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+            <ChevronRight className={`h-4 w-4 transition-colors group-hover:text-[#1a5fb4] dark:group-hover:text-[#8ec5ff] ${mutedTextClass}`} />
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
+          <p className={`mt-2 text-xs ${mutedTextClass}`}>
             Updated {timeAgo}
           </p>
         </CardContent>

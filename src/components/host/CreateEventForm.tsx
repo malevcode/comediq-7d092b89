@@ -14,6 +14,11 @@ interface CreateEventFormProps {
   micId: string;
 }
 
+const glassCardClass = "border border-[#07111f]/10 bg-white/30 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-[#07111f]/30 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.18)]";
+const glassHeaderClass = "border-b border-[#07111f]/10 bg-white/20 dark:border-white/10 dark:bg-[#102a53]/10";
+const glassFieldClass = "border-[#07111f]/10 bg-white/40 text-[#07111f] placeholder:text-[#07111f]/50 shadow-sm backdrop-blur-xl hover:bg-white/50 focus-visible:ring-[#1a5fb4]/30 dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder:text-white/50 dark:hover:bg-white/20";
+const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
+
 export function CreateEventForm({ hostId, micId }: CreateEventFormProps) {
   const [eventDate, setEventDate] = useState('');
   const [eventTime, setEventTime] = useState('');
@@ -60,10 +65,10 @@ export function CreateEventForm({ hostId, micId }: CreateEventFormProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className={glassCardClass}>
+      <CardHeader className={glassHeaderClass}>
         <CardTitle>Create Signup Event</CardTitle>
-        <CardDescription>
+        <CardDescription className={mutedTextClass}>
           Set up a new signup list for your mic
         </CardDescription>
       </CardHeader>
@@ -74,6 +79,7 @@ export function CreateEventForm({ hostId, micId }: CreateEventFormProps) {
             <Input
               id="eventDate"
               type="date"
+              className={glassFieldClass}
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
               required
@@ -85,6 +91,7 @@ export function CreateEventForm({ hostId, micId }: CreateEventFormProps) {
             <Input
               id="eventTime"
               type="time"
+              className={glassFieldClass}
               value={eventTime}
               onChange={(e) => setEventTime(e.target.value)}
             />
@@ -96,6 +103,7 @@ export function CreateEventForm({ hostId, micId }: CreateEventFormProps) {
               id="totalSpots"
               type="number"
               min={1}
+              className={glassFieldClass}
               value={totalSpots}
               onChange={(e) => setTotalSpots(parseInt(e.target.value))}
               required
@@ -105,7 +113,7 @@ export function CreateEventForm({ hostId, micId }: CreateEventFormProps) {
           <div>
             <Label htmlFor="signupMode">Signup Mode</Label>
             <Select value={signupMode} onValueChange={(value: any) => setSignupMode(value)}>
-              <SelectTrigger id="signupMode">
+              <SelectTrigger id="signupMode" className={glassFieldClass}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -120,6 +128,7 @@ export function CreateEventForm({ hostId, micId }: CreateEventFormProps) {
             <Label htmlFor="notes">Notes (optional)</Label>
             <Textarea
               id="notes"
+              className={glassFieldClass}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Any special instructions or rules..."

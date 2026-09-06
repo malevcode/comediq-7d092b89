@@ -52,11 +52,35 @@ const getSafeReturnUrl = (value: unknown) => {
     if (url.protocol === 'comediq:' || url.protocol === 'https:') {
       return url.toString()
     }
+
+    if (
+      url.protocol === 'http:' &&
+      (url.hostname === 'localhost' || url.hostname === '127.0.0.1')
+    ) {
+      return url.toString()
+    }
   } catch {
     return null
   }
 
   return null
+}
+
+const getRequestOriginReturnUrl = (req: Request, path: string) => {
+  const origin = req.headers.get('origin')
+  const safeOrigin = getSafeReturnUrl(origin)
+  if (safeOrigin) return new URL(path, safeOrigin).toString()
+
+  const referer = req.headers.get('referer')
+  if (!referer) return null
+
+  try {
+    const refererUrl = new URL(referer)
+    const refererOrigin = getSafeReturnUrl(refererUrl.origin)
+    return refererOrigin ? new URL(path, refererOrigin).toString() : null
+  } catch {
+    return null
+  }
 }
 
 Deno.serve(async (req) => {
@@ -121,10 +145,11 @@ Deno.serve(async (req) => {
       ? returnPath
       : '/profile'
     const safeReturnUrl = getSafeReturnUrl(returnUrl)
+    const inferredReturnUrl = getRequestOriginReturnUrl(req, safeReturnPath)
 
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: safeReturnUrl ?? `${siteUrl}${safeReturnPath}`,
+      return_url: safeReturnUrl ?? inferredReturnUrl ?? `${siteUrl}${safeReturnPath}`,
     })
 
     return json({ url: session.url })

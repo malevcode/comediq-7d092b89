@@ -33,7 +33,7 @@ export default function MotdNominationsList({ className, limit = 10 }: Props) {
   if (list.length === 0) {
     return (
       <div className={cn('text-center py-6 text-sm text-muted-foreground border border-dashed rounded-lg', className)}>
-        <Trophy className="w-5 h-5 mx-auto mb-2 text-amber-500" />
+        <Trophy className="w-5 h-5 mx-auto mb-2 text-blue-500" />
         No nominations yet today. Be the first to nominate a mic!
       </div>
     );
@@ -65,7 +65,7 @@ export default function MotdNominationsList({ className, limit = 10 }: Props) {
             key={nom.nomination_id}
             className={cn(
               'flex items-center gap-3 p-2 rounded-lg border bg-white',
-              isLeader && 'border-amber-400 bg-amber-50/50'
+              isLeader && 'border-blue-400 bg-blue-50/50'
             )}
           >
             <button
@@ -85,7 +85,7 @@ export default function MotdNominationsList({ className, limit = 10 }: Props) {
             </button>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
-                {isLeader && <Trophy className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />}
+                {isLeader && <Trophy className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />}
                 <p className="font-medium text-sm truncate">{mic?.openMic || 'Unknown mic'}</p>
               </div>
               {mic && (

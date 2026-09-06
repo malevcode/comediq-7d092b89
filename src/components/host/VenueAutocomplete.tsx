@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
-import { MapPin, Loader2, Database, Globe } from 'lucide-react';
+import { MapPin, Loader2, Database, Globe, Plus } from 'lucide-react';
 import { getMapboxToken } from '@/components/map/MapInitializer';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -148,6 +148,8 @@ const VenueAutocomplete: React.FC<VenueAutocompleteProps> = ({ value, onChange, 
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<VenueLocation | null>(null);
+  const [isManual, setIsManual] = useState(false);
+  const [manualAddress, setManualAddress] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const containerRef = useRef<HTMLDivElement>(null);
   const tokenRef = useRef<string>('');
@@ -186,13 +188,11 @@ const VenueAutocomplete: React.FC<VenueAutocompleteProps> = ({ value, onChange, 
       );
 
       const combined = [...dbResults, ...filteredMapbox];
-      if (combined.length > 0) {
-        setSuggestions(combined);
-        setIsOpen(true);
-      } else {
-        setSuggestions([]);
-        setIsOpen(false);
-      }
+      setSuggestions(combined);
+      // Always open so the "add this venue manually" option stays reachable,
+      // even when Mapbox is unavailable and the venue isn't in our database.
+      setIsOpen(true);
+
     } catch {
       setSuggestions([]);
     } finally {
@@ -203,17 +203,48 @@ const VenueAutocomplete: React.FC<VenueAutocompleteProps> = ({ value, onChange, 
   const handleInputChange = (val: string) => {
     onChange(val);
     setSelectedLocation(null);
+    setIsManual(false);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => search(val), 300);
   };
 
   const handleSelect = (item: SuggestionItem) => {
     setSelectedLocation(item.location);
+    setIsManual(false);
+    setManualAddress('');
     onChange(item.location.venueName || item.label);
     onSelect(item.location);
     setIsOpen(false);
     setSuggestions([]);
   };
+
+  const handleManualSelect = () => {
+    const name = value.trim();
+    if (!name) return;
+    const loc: VenueLocation = {
+      venueName: name,
+      address: '',
+      borough: '',
+      neighborhood: '',
+      city: 'New York',
+    };
+    setSelectedLocation(loc);
+    setIsManual(true);
+    setManualAddress('');
+    onSelect(loc);
+    setIsOpen(false);
+    setSuggestions([]);
+  };
+
+  const handleManualAddress = (addr: string) => {
+    setManualAddress(addr);
+    if (!selectedLocation) return;
+    const loc = { ...selectedLocation, address: addr };
+    setSelectedLocation(loc);
+    onSelect(loc);
+  };
+
+  const canAddManually = value.trim().length >= 2 && !selectedLocation;
 
   return (
     <div ref={containerRef} className="relative space-y-1.5">
@@ -222,6 +253,7 @@ const VenueAutocomplete: React.FC<VenueAutocompleteProps> = ({ value, onChange, 
           placeholder="Search venue name or address..."
           value={value}
           onChange={(e) => handleInputChange(e.target.value)}
+          onFocus={() => { if (suggestions.length > 0 || canAddManually) setIsOpen(true); }}
           className={error ? 'border-destructive' : ''}
           autoComplete="off"
         />
@@ -232,7 +264,7 @@ const VenueAutocomplete: React.FC<VenueAutocompleteProps> = ({ value, onChange, 
 
       {error && <p className="text-xs text-destructive">{error}</p>}
 
-      {isOpen && suggestions.length > 0 && (
+      {isOpen && (suggestions.length > 0 || canAddManually) && (
         <ul className="absolute z-50 mt-1 w-full bg-popover border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
           {suggestions.map((item, i) => {
             const isDb = item.type === 'database';
@@ -267,15 +299,39 @@ const VenueAutocomplete: React.FC<VenueAutocompleteProps> = ({ value, onChange, 
               </React.Fragment>
             );
           })}
+
+          {canAddManually && (
+            <li
+              className="px-3 py-2 text-sm cursor-pointer hover:bg-accent flex items-start gap-2 border-t border-border"
+              onMouseDown={handleManualSelect}
+            >
+              <Plus className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
+              <div className="min-w-0">
+                <p className="font-medium truncate">Use "{value.trim()}"</p>
+                <p className="text-xs text-muted-foreground">Add this venue manually</p>
+              </div>
+            </li>
+          )}
         </ul>
       )}
 
-      {selectedLocation && (
+      {isManual && (
+        <Input
+          placeholder="Street address (optional)"
+          value={manualAddress}
+          onChange={(e) => handleManualAddress(e.target.value)}
+          className="h-8 text-xs"
+          autoComplete="off"
+        />
+      )}
+
+      {selectedLocation && !isManual && (
         <p className="text-xs text-muted-foreground flex items-center gap-1">
           <MapPin className="h-3 w-3" />
           {[selectedLocation.address, selectedLocation.neighborhood, selectedLocation.borough].filter(Boolean).join(', ')}
         </p>
       )}
+
     </div>
   );
 };

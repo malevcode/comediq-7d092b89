@@ -12,7 +12,7 @@ import type { GrowthOpportunity, GrowthOpportunityStatus } from '@/api/growthOpp
 
 const statusColors: Record<GrowthOpportunityStatus, string> = {
   submitted: 'bg-muted text-muted-foreground',
-  in_review: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+  in_review: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
   approved: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
   rejected: 'bg-destructive/10 text-destructive',
 };
@@ -158,7 +158,7 @@ export default function AdminGrowthManager() {
                   <span className="text-xs text-muted-foreground">Active</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Switch checked={opp.is_featured} onCheckedChange={() => handleToggle(opp, 'is_featured')} className="data-[state=checked]:bg-yellow-500" />
+                  <Switch checked={opp.is_featured} onCheckedChange={() => handleToggle(opp, 'is_featured')} className="data-[state=checked]:bg-blue-500" />
                   <span className="text-xs text-muted-foreground">Featured</span>
                 </div>
 

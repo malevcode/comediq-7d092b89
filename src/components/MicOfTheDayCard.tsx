@@ -65,20 +65,20 @@ export function MicOfTheDayCard({
 
     const card = (
       <Card
-        className={`relative overflow-hidden border border-yellow-300/60 border-l-4 border-l-yellow-500 bg-gradient-to-br from-yellow-50 via-amber-50 to-white shadow-sm hover:shadow-md transition-all cursor-pointer ${className}`}
+        className={`relative overflow-hidden border border-white/10 bg-[#102a53]/80 text-white shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl hover:bg-[#102a53]/90 hover:shadow-[0_16px_48px_rgba(2,10,30,0.3)] transition-all cursor-pointer ${className}`}
       >
         <CardContent className="p-3 sm:p-3.5">
           {/* Row 1: Mic name • MOTD badge • Sign Up */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <h3 className="text-sm sm:text-base font-bold text-foreground leading-tight truncate">
+              <h3 className="text-sm sm:text-base font-bold text-white leading-tight truncate">
                 {label}
               </h3>
               <Badge
                 variant="outline"
-                className="shrink-0 text-[9px] font-semibold text-yellow-800 border-yellow-500/60 bg-yellow-100/60 gap-0.5 px-1.5 py-0"
+                className="shrink-0 text-[9px] font-semibold text-[#1a5fb4] border-[#1a5fb4]/50 bg-white/10 gap-0.5 px-1.5 py-0"
               >
-                <Star className="h-2.5 w-2.5 fill-yellow-500 text-yellow-500" />
+                <Star className="h-2.5 w-2.5 fill-blue-500 text-blue-500" />
                 MIC OF THE DAY
               </Badge>
               <TooltipProvider delayDuration={150}>
@@ -87,7 +87,7 @@ export function MicOfTheDayCard({
                     <button
                       type="button"
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                      className="shrink-0 inline-flex items-center text-yellow-700/80 hover:text-yellow-900"
+                      className="shrink-0 inline-flex items-center text-[#1a5fb4]/80 hover:text-[#1a5fb4]"
                       aria-label="Why this mic?"
                     >
                       <Info className="h-3 w-3" />
@@ -103,7 +103,7 @@ export function MicOfTheDayCard({
             <Button
               size="sm"
               onClick={handleClick}
-              className="shrink-0 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white font-semibold shadow-sm gap-1 h-7 px-2.5 text-xs"
+              className="shrink-0 bg-gradient-to-r from-blue-500 to-blue-500 hover:from-blue-600 hover:to-blue-600 text-white font-semibold shadow-sm gap-1 h-7 px-2.5 text-xs"
             >
               Sign Up
               <ArrowRight className="h-3 w-3" />
@@ -111,7 +111,7 @@ export function MicOfTheDayCard({
           </div>
 
           {/* Row 2: Location • Start time • Nominate link */}
-          <div className="mt-1 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+          <div className="mt-1 flex items-center justify-between gap-2 text-xs text-white/60">
             <div className="flex items-center gap-x-2 gap-y-0.5 min-w-0 flex-wrap">
               {mic.venueName && mic.openMic !== mic.venueName && (
                 <span className="flex items-center gap-1 min-w-0">
@@ -129,7 +129,7 @@ export function MicOfTheDayCard({
             <button
               type="button"
               onClick={handleNominate}
-              className="shrink-0 inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 hover:text-amber-900 hover:underline"
+              className="shrink-0 inline-flex items-center gap-1 text-[11px] font-medium text-blue-700 hover:text-blue-900 hover:underline"
             >
               <Trophy className="h-3 w-3" />
               Nominate for tomorrow
@@ -166,17 +166,17 @@ export function MicOfTheDayCard({
   // Compact variant (legacy)
   const inner = (
     <Card
-      className={`border-border bg-card border-l-4 border-l-yellow-500 hover:shadow-md transition-shadow cursor-pointer ${className}`}
+      className={`border-white/10 bg-[#102a53]/80 text-white shadow-[0_12px_38px_rgba(2,10,30,0.24)] backdrop-blur-xl hover:bg-[#102a53]/90 hover:shadow-[0_16px_48px_rgba(2,10,30,0.3)] transition-all cursor-pointer ${className}`}
     >
       <CardContent className="px-3 py-2 flex items-center gap-2.5">
         <Badge
           variant="outline"
-          className="text-[9px] text-yellow-700 border-yellow-500/50 shrink-0 self-start mt-0.5 gap-0.5"
+          className="text-[9px] text-[#1a5fb4] border-[#1a5fb4]/50 bg-white/10 shrink-0 self-start mt-0.5 gap-0.5"
         >
-          <Star className="h-2.5 w-2.5 fill-yellow-500 text-yellow-500" />
+          <Star className="h-2.5 w-2.5 fill-blue-500 text-blue-500" />
           Mic of Day
         </Badge>
-        <span className="min-w-0 flex-1 text-sm font-medium text-foreground truncate">
+        <span className="min-w-0 flex-1 text-sm font-medium text-white truncate">
           {label}
         </span>
       </CardContent>

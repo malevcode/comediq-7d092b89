@@ -12,7 +12,7 @@ interface FeatureCardProps {
 
 const FeatureCard = ({ emoji, title, description, mascotImage, link, comingSoon }: FeatureCardProps) => {
   const content = (
-    <div className={`bg-gradient-to-br from-blue-50 to-[#1a5fb4]/5 rounded-2xl p-6 hover:shadow-lg hover:shadow-[#1a5fb4]/10 transition-all duration-300 h-full ${comingSoon ? 'opacity-80' : 'transform hover:scale-105 cursor-pointer'}`}>
+    <div className={`bg-gradient-to-br from-blue-50 to-[#1a5fb4]/10 rounded-2xl p-6 hover:shadow-lg hover:shadow-[#1a5fb4]/10 transition-all duration-300 h-full ${comingSoon ? 'opacity-80' : 'transform hover:scale-105 cursor-pointer'}`}>
       <div className="flex items-start gap-4">
         {mascotImage && (
           <img

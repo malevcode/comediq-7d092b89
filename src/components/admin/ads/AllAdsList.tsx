@@ -47,7 +47,9 @@ export function AllAdsList() {
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['banner-ads'] });
     queryClient.invalidateQueries({ queryKey: ['banner-ads-all'] });
+    queryClient.invalidateQueries({ queryKey: ['banner-ads-active'] });
   };
+
 
   const saveEdit = async () => {
     if (!editingId) return;

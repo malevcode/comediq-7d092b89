@@ -52,7 +52,7 @@ const Pricing = () => {
 
           {/* LaughPass */}
           <div className="bg-gradient-to-br from-[#1a5fb4] to-[#164d94] rounded-2xl p-3 sm:p-6 text-white border-2 border-[#1a5fb4] relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-yellow-400 text-gray-900 px-3 py-0.5 rounded-bl-lg text-[10px] font-bold">
+            <div className="absolute top-0 right-0 bg-blue-400 text-gray-900 px-3 py-0.5 rounded-bl-lg text-[10px] font-bold">
               BEST VALUE
             </div>
             <div className="inline-block bg-white/20 px-2 py-1 rounded-full text-xs font-semibold mb-3">
@@ -62,18 +62,18 @@ const Pricing = () => {
             <p className="text-xs sm:text-sm text-blue-100 mb-4">For comedy fans who go out</p>
             <ul className="text-left space-y-1.5 mb-6">
               <li className="flex items-center text-xs sm:text-sm">
-                <span className="text-yellow-300 mr-1.5">✓</span>4 comedy show tix/month
+                <span className="text-blue-300 mr-1.5">✓</span>4 comedy show tix/month
               </li>
               <li className="flex items-center text-xs sm:text-sm">
-                <span className="text-yellow-300 mr-1.5">✓</span>
+                <span className="text-blue-300 mr-1.5">✓</span>
                 Show reviews & ratings
               </li>
               <li className="flex items-center text-xs sm:text-sm">
-                <span className="text-yellow-300 mr-1.5">✓</span>
+                <span className="text-blue-300 mr-1.5">✓</span>
                 Comedian tracking
               </li>
               <li className="flex items-center text-xs sm:text-sm">
-                <span className="text-yellow-300 mr-1.5">✓</span>
+                <span className="text-blue-300 mr-1.5">✓</span>
                 Personalized recs
               </li>
             </ul>

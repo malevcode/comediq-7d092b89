@@ -36,7 +36,7 @@ export default function SavedMics() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" />
       </div>
     );
@@ -53,7 +53,7 @@ export default function SavedMics() {
         description="View your bookmarked open mics in one place"
       />
       
-      <div className="min-h-screen bg-gray-50 pb-20">
+      <div className="min-h-screen bg-transparent pb-20">
         <PageHeader 
           title="Saved Mics" 
           subtitle="Your bookmarked open mics"

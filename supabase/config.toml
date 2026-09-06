@@ -16,6 +16,10 @@ verify_jwt = false
 enabled = true
 verify_jwt = false
 
+[functions.sync-subscription-status]
+enabled = true
+verify_jwt = false
+
 [functions.get-mapbox-token]
 enabled = true
 verify_jwt = true
@@ -43,3 +47,23 @@ verify_jwt = true
 [functions.refresh-weekly-top-mics]
 enabled = true
 verify_jwt = false
+
+[functions.dispatch-mics-json-refresh]
+enabled = true
+verify_jwt = false
+
+[functions.admin-dispatch-mics-json-refresh]
+enabled = true
+verify_jwt = true
+
+[functions.admin-dispatch-canva-automation]
+enabled = true
+verify_jwt = true
+
+[functions.admin-dispatch-instagram-comment-collection]
+enabled = true
+verify_jwt = true
+
+[functions.admin-dispatch-instagram-monthly-verification]
+enabled = true
+verify_jwt = true

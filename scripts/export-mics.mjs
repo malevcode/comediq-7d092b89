@@ -3,11 +3,11 @@
  * Run this in CI on a schedule, and optionally once per deploy. After this,
  * all visitors read static JSON from the CDN — zero Supabase egress.
  *
- * If the fetch fails, writes an empty array so the build still succeeds
- * and the app falls back to localStorage cache.
+ * CI must fail if the fetch fails; otherwise GitHub can show a green job while
+ * public/mics.json remains stale.
  */
 
-import { writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 const SUPABASE_URL =
@@ -15,9 +15,11 @@ const SUPABASE_URL =
   process.env.VITE_SUPABASE_URL ||
   "https://wwqoztrqprqksdubjwgj.supabase.co";
 const SUPABASE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_ANON_KEY ||
   process.env.VITE_SUPABASE_ANON_KEY ||
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3cW96dHJxcHJxa3NkdWJqd2dqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NDA5NzYsImV4cCI6MjA5MzUxNjk3Nn0.qYBpB5qHDyuHVfzwz6q7yzJgTUB0Xps6t_ezlh9kA9w";
+const REQUIRE_SUCCESS = process.env.CI === "true" || process.env.REQUIRE_MIC_EXPORT === "true";
 
 const COLUMNS = [
   "unique_identifier",
@@ -109,6 +111,7 @@ async function fetchPage(from, size) {
     select: COLUMNS,
     active: "eq.true",
     status: "neq.pending",
+    order: "unique_identifier.asc",
     offset: String(from),
     limit: String(size),
   });
@@ -130,18 +133,23 @@ try {
 
   for (let i = 0; i < 5; i++) {
     const rows = await fetchPage(i * pageSize, pageSize);
+    if (!Array.isArray(rows)) throw new Error("Supabase response was not an array");
     allRows.push(...rows);
     if (rows.length < pageSize) break;
   }
 
   const mics = allRows.map(mapRow);
+  if (mics.length === 0) throw new Error("Supabase export returned zero mics");
   writeFileSync(OUT_PATH, JSON.stringify(mics));
 
   const sizeKB = (Buffer.byteLength(JSON.stringify(mics)) / 1024).toFixed(1);
   console.log(`[export-mics] ✓ ${mics.length} mics → public/mics.json (${sizeKB} KB)`);
 } catch (e) {
   console.warn(`[export-mics] ✗ Fetch failed: ${e.message}`);
-  const { readFileSync, existsSync } = await import("fs");
+  if (REQUIRE_SUCCESS) {
+    process.exitCode = 1;
+  }
+
   if (existsSync(OUT_PATH)) {
     try {
       const existing = JSON.parse(readFileSync(OUT_PATH, "utf8"));

@@ -95,7 +95,7 @@ const YearInReview = () => {
             <h1 className="font-fredoka text-5xl md:text-6xl text-comediq-cream tracking-tight">
               Comediq
             </h1>
-            <div className="font-fredoka text-6xl md:text-7xl text-yellow-300 font-bold">
+            <div className="font-fredoka text-6xl md:text-7xl text-blue-300 font-bold">
               2025
             </div>
             <p className="font-nunito text-xl text-comediq-cream/80">
@@ -113,14 +113,14 @@ const YearInReview = () => {
         {/* Slide 1: Platform Reach - Site Visits */}
         <WrappedSlide slideIndex={1} isActive={currentSlide === 1}>
           <div className="text-center space-y-6 animate-fade-in">
-            <TrendingUp className="w-16 h-16 text-yellow-300 mx-auto mb-4" />
+            <TrendingUp className="w-16 h-16 text-blue-300 mx-auto mb-4" />
             <p className="font-nunito text-xl text-comediq-cream/80">
               NYC comedians visited
             </p>
             <div className="font-fredoka text-8xl md:text-9xl text-comediq-cream font-bold">
               <AnimatedCounter value={stats.totalVisits} duration={2000} />
             </div>
-            <p className="font-fredoka text-3xl text-yellow-300">
+            <p className="font-fredoka text-3xl text-blue-300">
               TIMES
             </p>
             <p className="font-nunito text-comediq-cream/70 max-w-xs mx-auto">
@@ -132,14 +132,14 @@ const YearInReview = () => {
         {/* Slide 2: NYC Coverage */}
         <WrappedSlide slideIndex={2} isActive={currentSlide === 2}>
           <div className="text-center space-y-6 animate-fade-in">
-            <Building2 className="w-14 h-14 text-yellow-300 mx-auto" />
+            <Building2 className="w-14 h-14 text-blue-300 mx-auto" />
             <p className="font-nunito text-lg text-comediq-cream/80">
               Every week we tracked
             </p>
             <div className="font-fredoka text-8xl md:text-9xl text-comediq-cream font-bold">
               <AnimatedCounter value={weeklyMics} duration={1500} />
             </div>
-            <p className="font-fredoka text-3xl text-yellow-300 mb-4">
+            <p className="font-fredoka text-3xl text-blue-300 mb-4">
               OPEN MICS
             </p>
             <div className="grid grid-cols-2 gap-4 mt-6 max-w-xs mx-auto">
@@ -169,7 +169,7 @@ const YearInReview = () => {
             <p className="font-nunito text-lg text-comediq-cream/80">
               {topBorough?.borough} led with
             </p>
-            <div className="font-fredoka text-7xl md:text-8xl text-yellow-300 font-bold">
+            <div className="font-fredoka text-7xl md:text-8xl text-blue-300 font-bold">
               <AnimatedCounter value={topBorough?.count || 0} duration={1500} />
             </div>
             <p className="font-fredoka text-2xl text-comediq-cream mb-6">
@@ -189,7 +189,7 @@ const YearInReview = () => {
             <p className="font-nunito text-lg text-comediq-cream/80">
               {busiestDay?.day} is NYC's mic night!
             </p>
-            <div className="font-fredoka text-7xl md:text-8xl text-yellow-300 font-bold">
+            <div className="font-fredoka text-7xl md:text-8xl text-blue-300 font-bold">
               <AnimatedCounter value={busiestDay?.count || 0} duration={1500} />
             </div>
             <p className="font-fredoka text-2xl text-comediq-cream mb-6">
@@ -205,11 +205,11 @@ const YearInReview = () => {
         {/* Slide 5: Community & CTA */}
         <WrappedSlide slideIndex={5} isActive={currentSlide === 5}>
           <div className="text-center space-y-6 animate-fade-in">
-            <Users className="w-14 h-14 text-yellow-300 mx-auto" />
+            <Users className="w-14 h-14 text-blue-300 mx-auto" />
             <div className="font-fredoka text-7xl md:text-8xl text-comediq-cream font-bold">
               <AnimatedCounter value={stats.totalUsers} duration={2000} />
             </div>
-            <p className="font-fredoka text-2xl text-yellow-300">
+            <p className="font-fredoka text-2xl text-blue-300">
               COMEDIANS
             </p>
             <p className="font-nunito text-xl text-comediq-cream/80">
@@ -243,7 +243,7 @@ const YearInReview = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link to="/auth">
-                  <Button className="bg-yellow-400 hover:bg-yellow-300 text-comediq-blue-dark font-bold px-8">
+                  <Button className="bg-blue-400 hover:bg-blue-300 text-comediq-blue-dark font-bold px-8">
                     Sign Up Free
                   </Button>
                 </Link>

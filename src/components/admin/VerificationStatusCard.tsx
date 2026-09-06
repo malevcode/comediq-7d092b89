@@ -13,7 +13,7 @@ export const VerificationStatusCard = ({ stats }: VerificationStatusCardProps) =
       case 'verified':
         return 'bg-green-100 text-green-800 border-green-200';
       case 'verified_tediously':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'unverified':
         return 'bg-red-100 text-red-800 border-red-200';
     }
@@ -48,7 +48,7 @@ export const VerificationStatusCard = ({ stats }: VerificationStatusCardProps) =
               <div className="text-xs text-gray-500">{stats.verifiedPercentage.toFixed(1)}%</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-600">{stats.verifiedTediously}</div>
+              <div className="text-2xl font-bold text-blue-600">{stats.verifiedTediously}</div>
               <div className="text-sm text-gray-600">Tediously Verified</div>
               <div className="text-xs text-gray-500">{stats.verifiedTediouslyPercentage.toFixed(1)}%</div>
             </div>
@@ -71,7 +71,7 @@ export const VerificationStatusCard = ({ stats }: VerificationStatusCardProps) =
                 style={{ width: `${stats.verifiedPercentage}%` }}
               />
               <div 
-                className="bg-yellow-500 h-2 rounded-full transition-all duration-300 -mt-2"
+                className="bg-blue-500 h-2 rounded-full transition-all duration-300 -mt-2"
                 style={{ width: `${stats.verifiedTediouslyPercentage}%`, marginLeft: `${stats.verifiedPercentage}%` }}
               />
             </div>
@@ -103,7 +103,7 @@ export const VerificationStatusCard = ({ stats }: VerificationStatusCardProps) =
             )}
             {stats.verifiedTediously > 0 && (
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-yellow-500" />
+                <Clock className="w-4 h-4 text-blue-500" />
                 <span>{stats.verifiedTediously} mics verified tediously (may need re-verification)</span>
               </div>
             )}

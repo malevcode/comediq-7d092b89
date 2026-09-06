@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
+import { clearCachedOpenMics } from '@/utils/micDataCache';
 
 export const useBulkOperations = (mics: any[], setMics: (mics: any[]) => void) => {
+  const queryClient = useQueryClient();
   const [selectedMics, setSelectedMics] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
 
@@ -64,21 +67,31 @@ export const useBulkOperations = (mics: any[], setMics: (mics: any[]) => void) =
 
     setBulkLoading(true);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('open_mics_historical')
         .update({ active: makeActive } as any)
-        .in('unique_identifier', micsToUpdate.map(mic => mic.unique_identifier));
+        .in('unique_identifier', micsToUpdate.map(mic => mic.unique_identifier))
+        .select('unique_identifier, active');
 
       if (error) {
         toast({ title: 'Error', description: 'Failed to update mics: ' + error.message, variant: 'destructive' });
+      } else if (!data || data.length !== micsToUpdate.length) {
+        toast({
+          title: 'Not saved',
+          description: `Supabase updated ${data?.length || 0} of ${micsToUpdate.length} selected mics. Check admin permissions or RLS policies.`,
+          variant: 'destructive',
+        });
       } else {
+        const updatedIds = new Set(data.map(row => row.unique_identifier));
         // Update local state
         setMics(mics.map(mic => 
-          micsToUpdate.some(m => m.unique_identifier === mic.unique_identifier)
+          updatedIds.has(mic.unique_identifier)
             ? { ...mic, active: makeActive }
             : mic
         ));
         setSelectedMics(new Set());
+        clearCachedOpenMics();
+        queryClient.invalidateQueries({ queryKey: ['openMics'] });
         
         const statusText = makeActive ? 'active' : 'inactive';
         const skippedCount = selectedMicObjects.length - micsToUpdate.length;
@@ -112,17 +125,28 @@ export const useBulkOperations = (mics: any[], setMics: (mics: any[]) => void) =
 
     setBulkLoading(true);
     try {
-      const { error } = await supabase
+      const selectedIds = Array.from(selectedMics);
+      const { data, error } = await supabase
         .from('open_mics_historical')
         .delete()
-        .in('unique_identifier', Array.from(selectedMics));
+        .in('unique_identifier', selectedIds)
+        .select('unique_identifier');
 
       if (error) {
         toast({ title: 'Error', description: 'Failed to delete mics: ' + error.message, variant: 'destructive' });
+      } else if (!data || data.length !== selectedIds.length) {
+        toast({
+          title: 'Not deleted',
+          description: `Supabase deleted ${data?.length || 0} of ${selectedIds.length} selected mics. Check admin permissions or RLS policies.`,
+          variant: 'destructive',
+        });
       } else {
+        const deletedIds = new Set(data.map(row => row.unique_identifier));
         // Update local state
-        setMics(mics.filter(mic => !selectedMics.has(mic.unique_identifier)));
+        setMics(mics.filter(mic => !deletedIds.has(mic.unique_identifier)));
         setSelectedMics(new Set());
+        clearCachedOpenMics();
+        queryClient.invalidateQueries({ queryKey: ['openMics'] });
         toast({ 
           title: 'Success', 
           description: `Deleted ${selectedMics.size} mic${selectedMics.size === 1 ? '' : 's'}.` 

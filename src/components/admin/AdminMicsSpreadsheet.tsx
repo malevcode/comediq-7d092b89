@@ -9,6 +9,8 @@ import { Loader2, X, Download, Power, PowerOff, Trash2, Search } from 'lucide-re
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useBulkOperations } from './hooks/useBulkOperations';
+import { useQueryClient } from '@tanstack/react-query';
+import { clearCachedOpenMics } from '@/utils/micDataCache';
 
 interface AdminMicsSpreadsheetProps {
   mics: any[];
@@ -38,6 +40,7 @@ const COLUMN_CONFIG = [
 ];
 
 export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpreadsheetProps) => {
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<Record<string, string>>({
     hosts_organizers: '__all__',
@@ -124,19 +127,29 @@ export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpread
 
     setSavingCellId(editingCell.id);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('open_mics_historical')
         .update({ [editingCell.field]: editingCell.value } as any)
-        .eq('unique_identifier', editingCell.id);
+        .eq('unique_identifier', editingCell.id)
+        .select(`unique_identifier, ${editingCell.field}`);
 
       if (error) {
         toast({ title: 'Error', description: 'Failed to save: ' + error.message, variant: 'destructive' });
+      } else if (!data || data.length === 0) {
+        toast({
+          title: 'Not saved',
+          description: 'Supabase did not update this mic. Check admin permissions or RLS policies.',
+          variant: 'destructive',
+        });
       } else {
+        const updated = data[0] as Record<string, any>;
         setMics(mics.map(mic =>
           mic.unique_identifier === editingCell.id
-            ? { ...mic, [editingCell.field]: editingCell.value }
+            ? { ...mic, [editingCell.field]: updated[editingCell.field] }
             : mic
         ));
+        clearCachedOpenMics();
+        queryClient.invalidateQueries({ queryKey: ['openMics'] });
       }
     } catch (error) {
       toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'destructive' });
@@ -151,17 +164,27 @@ export const AdminMicsSpreadsheet = ({ mics, setMics, loading }: AdminMicsSpread
     setSavingCellId(mic.unique_identifier);
     
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('open_mics_historical')
         .update({ active: newValue } as any)
-        .eq('unique_identifier', mic.unique_identifier);
+        .eq('unique_identifier', mic.unique_identifier)
+        .select('unique_identifier, active');
 
       if (error) {
         toast({ title: 'Error', description: 'Failed to update: ' + error.message, variant: 'destructive' });
+      } else if (!data || data.length === 0) {
+        toast({
+          title: 'Not saved',
+          description: 'Supabase did not update this mic. Check admin permissions or RLS policies.',
+          variant: 'destructive',
+        });
       } else {
+        const updated = data[0] as Record<string, any>;
         setMics(mics.map(m =>
-          m.unique_identifier === mic.unique_identifier ? { ...m, active: newValue } : m
+          m.unique_identifier === mic.unique_identifier ? { ...m, active: updated.active } : m
         ));
+        clearCachedOpenMics();
+        queryClient.invalidateQueries({ queryKey: ['openMics'] });
       }
     } catch (error) {
       toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'destructive' });

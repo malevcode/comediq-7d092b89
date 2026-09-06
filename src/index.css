@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 213 73% 40%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -30,7 +30,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 213 73% 40%;
 
     --radius: 0.5rem;
 
@@ -50,7 +50,7 @@
 
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    --color-papaya: 32 94% 55%;
+    --color-papaya: 213 60% 55%;
     --color-sky: 192 72% 64%;
 
     /* Comediq Brand Colors */
@@ -70,8 +70,8 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 213 60% 55%;
+    --primary-foreground: 210 40% 98%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -87,7 +87,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 213 60% 55%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -128,6 +128,123 @@
   }
 }
 
+@layer components {
+  .page-content-offset {
+    padding-top: 9rem;
+  }
+
+  .landing-glass-surface {
+    background: rgba(255, 255, 255, 0.34);
+    -webkit-backdrop-filter: blur(28px) saturate(1.25);
+    backdrop-filter: blur(28px) saturate(1.25);
+    border-color: rgba(7, 17, 31, 0.08);
+    box-shadow: 0 30px 100px rgba(4, 20, 55, 0.18), 0 10px 32px rgba(4, 20, 55, 0.1);
+  }
+
+  .landing-glass-surface-soft {
+    background: rgba(255, 255, 255, 0.24);
+    -webkit-backdrop-filter: blur(26px) saturate(1.2);
+    backdrop-filter: blur(26px) saturate(1.2);
+    border-color: rgba(7, 17, 31, 0.08);
+    box-shadow: 0 24px 80px rgba(4, 20, 55, 0.16), 0 8px 28px rgba(4, 20, 55, 0.08);
+  }
+
+  .site-footer-glass {
+    background: rgba(255, 255, 255, 0.24);
+    -webkit-backdrop-filter: blur(26px) saturate(1.2);
+    backdrop-filter: blur(26px) saturate(1.2);
+    border-color: rgba(7, 17, 31, 0.08);
+    box-shadow: 0 -24px 80px rgba(4, 20, 55, 0.16), 0 -8px 28px rgba(4, 20, 55, 0.08);
+  }
+
+  .landing-glass-inner {
+    background: rgba(255, 255, 255, 0.34);
+    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+    backdrop-filter: blur(18px) saturate(1.15);
+    border-color: rgba(7, 17, 31, 0.08);
+  }
+
+  .dark .landing-glass-surface {
+    background: rgba(16, 42, 63, 0.18);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 30px 100px rgba(2, 10, 30, 0.44), 0 10px 32px rgba(2, 10, 30, 0.28);
+  }
+
+  .dark .landing-glass-surface-soft {
+    background: rgba(16, 42, 83, 0.12);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 80px rgba(2, 10, 30, 0.34), 0 8px 28px rgba(2, 10, 30, 0.2);
+  }
+
+  .dark .site-footer-glass {
+    background: rgba(16, 42, 83, 0.12);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -24px 80px rgba(2, 10, 30, 0.34), 0 -8px 28px rgba(2, 10, 30, 0.2);
+  }
+
+  .dark .landing-glass-inner {
+    background: rgba(16, 42, 83, 0.12);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  @media (min-width: 640px) {
+    .page-content-offset {
+      padding-top: 9.5rem;
+    }
+  }
+}
+
+@layer utilities {
+  .light .text-white {
+    color: #07111f;
+  }
+
+  .light .text-white\/80,
+  .light .text-white\/80,
+  .light .text-white\/80,
+  .light .text-white\/70,
+  .light .text-white\/70,
+  .light .text-white\/70,
+  .light .text-white\/70,
+  .light .text-white\/70,
+  .light .text-white\/60,
+  .light .text-white\/60 {
+    color: rgba(7, 17, 31, 0.72);
+  }
+
+  .light .text-white\/60,
+  .light .text-white\/50,
+  .light .text-white\/50,
+  .light .text-white\/40 {
+    color: rgba(7, 17, 31, 0.58);
+  }
+
+  .light .border-white\/20,
+  .light .border-white\/20,
+  .light .border-white\/10,
+  .light .border-white\/10,
+  .light .border-white\/10,
+  .light .border-white\/10 {
+    border-color: rgba(7, 17, 31, 0.12);
+  }
+
+  .light .bg-white\/10,
+  .light .bg-white\/10,
+  .light .bg-white\/10,
+  .light .bg-white\/10 {
+    background-color: rgba(255, 255, 255, 0.42);
+  }
+
+  .force-white-text,
+  .force-white-text * {
+    color: #ffffff !important;
+  }
+
+  .keyboard-open .keyboard-fixed-hide {
+    display: none !important;
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -142,7 +259,10 @@ html {
   100% { transform: translateX(0); }
 }
 .animate-marquee {
-  animation: marquee 150s linear infinite;
+  animation: marquee 200s linear infinite;
+}
+.animate-marquee-slow {
+  animation: marquee 360s linear infinite;
 }
 .animate-marquee-reverse {
   animation: marquee-reverse 150s linear infinite;
@@ -161,13 +281,54 @@ html {
 
 /* Fixed header spacing: free users see ad bars, Full Pass users do not. */
 .non-subscriber-layout {
-  --page-top-offset: 5.75rem;
+  --page-top-offset: 7.5rem;
 }
 
 .subscriber-layout {
-  --page-top-offset: 7rem;
+  --page-top-offset: 6.5rem;
 }
 
 .page-content-offset {
   padding-top: var(--page-top-offset);
+}
+
+form :where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  textarea,
+  select,
+  button[role="combobox"]
+) {
+  border-width: 0 !important;
+  background-color: rgb(255 255 255 / 0.1) !important;
+  color: #111827 !important;
+  box-shadow: 0 12px 38px rgb(2 10 30 / 0.1) !important;
+  backdrop-filter: blur(24px);
+}
+
+form :where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  textarea
+)::placeholder {
+  color: #9ca3af !important;
+  opacity: 1;
+}
+
+.dark form :where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  textarea,
+  select,
+  button[role="combobox"]
+) {
+  background-color: rgb(255 255 255 / 0.1) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 38px rgb(2 10 30 / 0.24) !important;
+}
+
+.dark form :where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  textarea
+)::placeholder,
+.dark form :where(button[role="combobox"][data-placeholder]) {
+  color: rgb(255 255 255 / 0.45) !important;
+  opacity: 1;
 }

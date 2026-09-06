@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Search, HelpCircle, LogIn, Plus } from "lucide-react";
+import { Search, HelpCircle, LogIn, Plus, Map, ChevronDown } from "lucide-react";
 import SEO from "@/components/SEO";
 import { generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ import PageHeader from "@/components/PageHeader";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import OpenMicsLoadingScreen from "@/components/OpenMicsLoadingScreen";
 import { OpenMicsMapRefactored } from "@/components/map";
+import MicDetailModal from "@/components/MicDetailModal";
 import { DiscoverySheet } from "@/components/discovery/DiscoverySheet";
 import { DiscoveryFeed } from "@/components/discovery/DiscoveryFeed";
 
@@ -33,11 +34,13 @@ interface OpenMicsProps {
 
 const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedMicId, setSelectedMicId] = useState<string | null>(null);
+  const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [activeTab, setActiveTab] = useState("next");
   const [showKey, setShowKey] = useState(false);
   const [visibleCount, setVisibleCount] = useState(100);
   const [showInlineCard, setShowInlineCard] = useState(false);
+  const [showMapView, setShowMapView] = useState(false);
+  const [selectedMicId, setSelectedMicId] = useState<string | null>(null);
   const [sheetExpanded, setSheetExpanded] = useState(false);
 
   const { data: openMics = [], isLoading, error } = useOpenMics();
@@ -370,8 +373,8 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
     return (
       <>
-        <div className="mb-4">
-          <p className="text-xs text-gray-500">
+        <div className="mb-4 rounded-xl border border-[#07111f]/10 bg-white/25 px-3 py-2 text-[#07111f] shadow-[0_24px_80px_rgba(4,20,55,0.16),0_8px_28px_rgba(4,20,55,0.08)] backdrop-blur-2xl dark:border-0 dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_24px_80px_rgba(2,10,30,0.34),0_8px_28px_rgba(2,10,30,0.2)]">
+          <p className="text-xs text-[#07111f]/70 dark:text-white/70">
             Showing {Math.min(visibleCount, micsToShow.length)} of {micsToShow.length}
             {tabName === "next" ? " upcoming" : tabName === "liked" ? " liked" : tabName === "new" ? " new" : ""} open mic
             {micsToShow.length !== 1 ? "s" : ""}
@@ -380,12 +383,19 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           </p>
         </div>
 
-        <OpenMicsDetailedList mics={micsToShow} visibleCount={visibleCount} setVisibleCount={setVisibleCount} showSponsor={activeTab === "next"} showMicOfDay={activeTab === "next"} selectedMicId={selectedMicId} />
+        <OpenMicsDetailedList
+          mics={micsToShow}
+          visibleCount={visibleCount}
+          setVisibleCount={setVisibleCount}
+          showSponsor={activeTab === "next"}
+          showMicOfDay={activeTab === "next"}
+          onOpenMic={setSelectedMic}
+        />
 
         {micsToShow.length === 0 && (
-          <div className="text-center py-12">
+          <div className="rounded-xl bg-white/10 px-4 py-12 text-center text-white shadow-[0_24px_80px_rgba(2,10,30,0.34),0_8px_28px_rgba(2,10,30,0.2)] backdrop-blur-2xl">
             <div className="text-4xl mb-3">🎤</div>
-            <p className="text-muted-foreground font-medium">
+            <p className="text-white/80 font-medium">
               {tabName === "liked"
                 ? "No liked open mics yet"
                 : tabName === "new"
@@ -396,7 +406,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                         tabName !== "next" && tabName !== "liked" ? ` for ${tabName}` : ""
                       }`}
             </p>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-white/60 mt-1">
               {tabName === "liked"
                 ? "Start liking mics to see them here!"
                 : tabName === "new"
@@ -597,7 +607,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
   if (error && openMics.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-transparent flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <div className="text-4xl mb-3">🎤</div>
           <p className="text-foreground font-semibold mb-1">Live mic data is temporarily unavailable</p>
@@ -626,6 +636,12 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const seoDescription = filters.borough !== "All"
     ? `Discover comedy open mics in ${filters.borough}. Real-time schedules, venue details, and comedian reviews.`
     : "Find every comedy open mic in NYC. Real-time schedules, venue details, comedian reviews, and set tracking.";
+  const tabListLayoutClass = user
+    ? "grid grid-cols-10"
+    : "grid grid-cols-9";
+  const loggedOutMobileTabClass = "";
+
+  const tabTriggerClass = `text-xs py-1 px-1 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white ${loggedOutMobileTabClass}`;
 
   return (
     <>
@@ -635,191 +651,210 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
         url="https://comediq.us/open-mics"
         structuredData={breadcrumbSchema}
       />
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-20">
+      <div className="min-h-screen bg-transparent pb-8">
         {!embedded && <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />}
 
         {embedded ? (
           <>
-            <div className="max-w-7xl mx-auto px-4 pt-3 pb-0">
-              {/* Key/Legend */}
-              {showKey && (
-                  <div className="block mb-3">
-                    <div className="bg-orange-50 p-3 border border-orange-200 rounded-lg">
-                      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
-                        {/* Example Tile */}
-                        <div>
-                          <p className="text-xs text-gray-600 mb-2 font-medium">Example:</p>
-                          <Card className="border-l-4 border-l-cyan-500 bg-yellow-100 w-24 h-24">
-                            <CardContent className="p-2 h-full flex flex-col justify-between">
-                              <div className="flex flex-col h-full justify-between">
-                                <h3 className="font-bold text-sm text-gray-900 line-clamp-2 leading-tight">
-                                  Comedy Mic Name
-                                </h3>
-                                <div className="text-sm text-gray-800 font-semibold">8:00 PM M</div>
-                                <div className="flex justify-between items-center text-sm">
-                                  <span className="text-green-700 font-bold">Free</span>
-                                  <span className="text-orange-700 font-bold">5</span>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </div>
-
-                        {/* Borough Legend */}
-                        <div>
-                          <p className="text-xs text-gray-600 mb-2 font-medium">Left border = Borough:</p>
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div className="flex items-center gap-1">
-                              <div className="w-2 h-3 bg-cyan-500 rounded-sm flex-shrink-0"></div>
-                              <span>Manhattan (M)</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <div className="w-2 h-3 bg-amber-800 rounded-sm flex-shrink-0"></div>
-                              <span>Brooklyn (B)</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <div className="w-2 h-3 bg-purple-600 rounded-sm flex-shrink-0"></div>
-                              <span>Queens (Q)</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <div className="w-2 h-3 bg-orange-600 rounded-sm flex-shrink-0"></div>
-                              <span>Bronx (X)</span>
-                            </div>
-                            <div className="flex items-center gap-1 col-span-2">
-                              <div className="w-2 h-3 bg-gray-500 rounded-sm flex-shrink-0"></div>
-                              <span>Staten Island (S)</span>
-                            </div>
-                          </div>
-
-                          <div className="mt-3">
-                            <p className="text-xs text-gray-600 mb-1 font-medium">Format:</p>
-                            <p className="text-xs">Name → Time Borough → <span className="text-green-700 font-bold">Cost</span> | <span className="text-orange-700 font-bold">Mins</span></p>
+      <div className={`max-w-7xl mx-auto px-4 ${embedded ? 'pt-3' : 'page-content-offset'} pb-0`}>
+        {/* Key/Legend */}
+        {showKey && (
+            <div className="block mb-3">
+              <div className="rounded-xl bg-white/10 p-3 text-white shadow-[0_24px_80px_rgba(2,10,30,0.34),0_8px_28px_rgba(2,10,30,0.2)] backdrop-blur-2xl">
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
+                  {/* Example Tile */}
+                  <div>
+                    <p className="text-xs text-white/70 mb-2 font-medium">Example:</p>
+                    <Card className="border-l-4 border-l-cyan-500 bg-blue-100 w-24 h-24">
+                      <CardContent className="p-2 h-full flex flex-col justify-between">
+                        <div className="flex flex-col h-full justify-between">
+                          <h3 className="font-bold text-sm text-gray-900 line-clamp-2 leading-tight">
+                            Comedy Mic Name
+                          </h3>
+                          <div className="text-sm text-gray-800 font-semibold">8:00 PM M</div>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-green-700 font-bold">Free</span>
+                            <span className="text-orange-700 font-bold">5</span>
                           </div>
                         </div>
+                      </CardContent>
+                    </Card>
+                  </div>
 
-                        {/* Time Categories Legend */}
-                        <div>
-                          <p className="text-xs text-gray-600 mb-2 font-medium">Time Categories:</p>
-                          <div className="space-y-1 text-xs">
-                            <div className="flex items-center gap-2">
-                              <div className="w-4 h-3 bg-blue-50 rounded-sm border"></div>
-                              <span>Daytime (6:00 AM - 4:59 PM)</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-4 h-3 bg-orange-50 rounded-sm border"></div>
-                              <span>After Work (5:00 PM - 8:59 PM)</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-4 h-3 bg-purple-50 rounded-sm border"></div>
-                              <span>Late Night (9:00 PM - 5:59 AM)</span>
-                            </div>
-                          </div>
-                        </div>
+                  {/* Borough Legend */}
+                  <div>
+                    <p className="text-xs text-white/70 mb-2 font-medium">Left border = Borough:</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-cyan-500 rounded-sm flex-shrink-0"></div>
+                        <span>Manhattan (M)</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-blue-800 rounded-sm flex-shrink-0"></div>
+                        <span>Brooklyn (B)</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-purple-600 rounded-sm flex-shrink-0"></div>
+                        <span>Queens (Q)</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-3 bg-orange-600 rounded-sm flex-shrink-0"></div>
+                        <span>Bronx (X)</span>
+                      </div>
+                      <div className="flex items-center gap-1 col-span-2">
+                        <div className="w-2 h-3 bg-gray-500 rounded-sm flex-shrink-0"></div>
+                        <span>Staten Island (S)</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3">
+                      <p className="text-xs text-white/70 mb-1 font-medium">Format:</p>
+                      <p className="text-xs">Name → Time Borough → <span className="text-green-700 font-bold">Cost</span> | <span className="text-orange-700 font-bold">Mins</span></p>
+                    </div>
+                  </div>
+
+                  {/* Time Categories Legend */}
+                  <div>
+                    <p className="text-xs text-white/70 mb-2 font-medium">Time Categories:</p>
+                    <div className="space-y-1 text-xs">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-3 bg-blue-50 rounded-sm border"></div>
+                        <span>Daytime (6:00 AM - 4:59 PM)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-3 bg-orange-50 rounded-sm border"></div>
+                        <span>After Work (5:00 PM - 8:59 PM)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-3 bg-purple-50 rounded-sm border"></div>
+                        <span>Late Night (9:00 PM - 5:59 AM)</span>
                       </div>
                     </div>
                   </div>
-              )}
-            </div>
-
-            <div className="max-w-7xl mx-auto px-4 py-0">
-              {/* Search and Filters */}
-              <div className={`bg-white rounded-xl shadow-lg p-3 mb-3 block`}>
-                <div className="flex flex-row gap-3 items-center">
-                  <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder="Search venues, neighborhoods, or open mic names..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 py-2 text-sm"
-                    />
-                  </div>
-
-                  <div className="flex gap-1.5">
-                    <div className="relative">
-                      <select
-                        value={filters.city}
-                        onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-                        className="appearance-none pl-2 pr-5 py-1 h-7 w-16 text-[11px] font-bold rounded-md bg-blue-600 text-white border border-blue-700 shadow-sm hover:bg-blue-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
-                        aria-label="Select city"
-                      >
-                        {cities.map((city) => (
-                          <option key={city.value} value={city.value} className="bg-white text-gray-900">{city.label}</option>
-                        ))}
-                      </select>
-                      <svg className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                    <Button
-                      onClick={() => { setShowInlineCard(true); setActiveTab('next'); }}
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center justify-center px-2 py-1 h-7 w-12 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                    <MicFilters filters={filters} onFiltersChange={setFilters} maxCost={maxCost} boroughs={boroughs} cities={cities.map(c => c.value)}/>
-                  </div>
                 </div>
               </div>
-
-              {/* Day Tabs */}
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className={`grid w-full ${user ? "grid-cols-10" : "grid-cols-9"} mb-4 h-9 gap-1.5`}>
-                  <TabsTrigger value="next" className="text-xs py-1 px-1">
-                    Next
-                  </TabsTrigger>
-                  <TabsTrigger value="new" className="text-xs py-1 px-0.5">
-                    New
-                  </TabsTrigger>
-                  {user && (
-                    <TabsTrigger value="liked" className="text-xs py-1 px-1">
-                      ❤️
-                    </TabsTrigger>
-                  )}
-                  {daysOfWeek.map((day) => (
-                    <TabsTrigger key={day} value={day} className="text-xs py-1 px-1">
-                      {day.slice(0, 3)}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-
-                <div className="mb-4">
-                  <OpenMicsMapRefactored
-                    mics={getActiveTabMics()}
-                    onMicSelect={(mic) => setSelectedMicId(mic.uniqueIdentifier)}
-                  />
-                </div>
-
-                <TabsContent value="next" className="mt-2">
-                  {showInlineCard && (
-                    <EditableMicCard
-                      onSave={async (data) => { await handleRequestMic(data); setShowInlineCard(false); }}
-                      onCancel={() => setShowInlineCard(false)}
-                      isSubmitting={isSubmittingMic}
-                    />
-                  )}
-                  {renderMicContent(getFilteredMics("next"), "next")}
-                </TabsContent>
-
-                <TabsContent value="new" className="mt-2">
-                  {renderMicContent(getNewMics(), "new")}
-                </TabsContent>
-
-                {user && (
-                  <TabsContent value="liked" className="mt-2">
-                    {renderMicContent(getFilteredMics("liked"), "liked")}
-                  </TabsContent>
-                )}
-
-                {daysOfWeek.map((day) => (
-                  <TabsContent key={day} value={day} className="mt-2">
-                    {renderMicContent(getFilteredMics("day", day), day)}
-                  </TabsContent>
-                ))}
-              </Tabs>
             </div>
+        )}
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-0">
+        {/* Search and Filters */}
+        <div className="relative z-[90] rounded-xl bg-white/25 p-3 mb-3 block text-gray-700 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
+          <div className="flex flex-row gap-3 items-center">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray dark:text-white/40" />
+              <Input
+                placeholder="Search venues, neighborhoods, or open mic names..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 py-2 text-sm border-0 bg-white/10 text-gray-900 placeholder:text-gray-400 focus-visible:ring-gray-200 shadow-[0_12px_38px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:bg-[#102a53]/20 dark:text-white dark:placeholder:text-white/50 dark:focus-visible:ring-[#8ec5ff]/50 dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]"
+              />
+            </div>
+
+            <div className="flex gap-1.5">
+              <div className="relative">
+                <select
+                  value={filters.city}
+                  onChange={(e) => setFilters({ ...filters, city: e.target.value })}
+                  className="force-white-text appearance-none pl-2 pr-5 py-1 h-7 w-16 text-[11px] font-bold rounded-md bg-blue-600 border border-blue-400 shadow-sm hover:bg-blue-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
+                  aria-label="Select city"
+                >
+                  {cities.map((city) => (
+                    <option key={city.value} value={city.value} className="bg-white text-gray-900">{city.label}</option>
+                  ))}
+                </select>
+                <svg className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 text-white" fill="none" stroke="white" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <Button
+                onClick={() => { setShowInlineCard(true); setActiveTab('next'); }}
+                variant="outline"
+                size="sm"
+                className="flex items-center justify-center px-2 py-1 h-7 w-12 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+              <MicFilters filters={filters} onFiltersChange={setFilters} maxCost={maxCost} boroughs={boroughs} cities={cities.map(c => c.value)}/>
+            </div>
+          </div>
+        </div>
+
+        {/* Day Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className={`mb-6 h-auto w-full gap-1 border-0 bg-white/25 p-2 text-gray-500 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-blue-600 dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)] ${tabListLayoutClass}`}>
+            <TabsTrigger value="next" className={tabTriggerClass}>
+              Next
+            </TabsTrigger>
+            <TabsTrigger value="new" className={tabTriggerClass}>
+              New
+            </TabsTrigger>
+            {user && (
+              <TabsTrigger value="liked" className={tabTriggerClass}>
+                ❤️
+              </TabsTrigger>
+            )}
+            {daysOfWeek.map((day) => (
+              <TabsTrigger key={day} value={day} className={tabTriggerClass}>
+                {day.slice(0, 3)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {showInlineCard && (
+            <div className="mb-4">
+              <EditableMicCard
+                onSave={async (data) => { await handleRequestMic(data); setShowInlineCard(false); }}
+                onCancel={() => setShowInlineCard(false)}
+                isSubmitting={isSubmittingMic}
+              />
+            </div>
+          )}
+
+          <div className="mb-4 rounded-xl bg-white/25 p-3 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white">
+            <button
+                type="button"
+                onClick={() => setShowMapView((open) => !open)}
+                className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-semibold hover:bg-white/20 dark:hover:bg-white/10"
+                aria-expanded={showMapView}
+            >
+                <span className="inline-flex items-center gap-2">
+                    <Map className="h-4 w-4" />
+                    Map View
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${showMapView ? "rotate-180" : ""}`} />
+            </button>
+
+            {showMapView && (
+               <div className="mt-3">
+                    <OpenMicsMapRefactored
+                        mics={getActiveTabMics()}
+                        onMicSelect={setSelectedMic}
+                    />
+               </div>
+            )}
+          </div>
+
+          <TabsContent value="next" className="mt-2">
+            {renderMicContent(getFilteredMics("next"), "next")}
+          </TabsContent>
+
+          <TabsContent value="new" className="mt-2">
+            {renderMicContent(getNewMics(), "new")}
+          </TabsContent>
+
+          {user && (
+            <TabsContent value="liked" className="mt-2">
+              {renderMicContent(getFilteredMics("liked"), "liked")}
+            </TabsContent>
+          )}
+
+          {daysOfWeek.map((day) => (
+            <TabsContent key={day} value={day} className="mt-2">
+              {renderMicContent(getFilteredMics("day", day), day)}
+            </TabsContent>
+          ))}
+        </Tabs>
+      </div>
           </>
         ) : (
           <>
@@ -844,7 +879,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                         placeholder="Search venues, neighborhoods, or open mic names..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 py-2 text-sm"
+                        className="pl-10 py-2 text-sm bg-white dark:bg-white text-gray-900 dark:text-gray-900 placeholder:text-gray-400 dark:placeholder:text-gray-400"
                       />
                     </div>
 
@@ -935,6 +970,13 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           </>
         )}
       </div>
+      {selectedMic && (
+        <MicDetailModal
+          mic={selectedMic}
+          onClose={() => setSelectedMic(null)}
+          onAddToSchedule={handleAddToSchedule}
+        />
+      )}
     </>
   );
 };

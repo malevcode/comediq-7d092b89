@@ -4,6 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { invokeSupabaseFunction } from '@/utils/supabaseFunctions';
 
 export interface MicRequest {
   unique_identifier: string;
@@ -120,4 +121,103 @@ export async function disapproveMicRequest(requestId: string) {
   if (error) {
     throw error;
   }
+}
+
+export async function requestMicsJsonRefresh() {
+  const { data, error } = await invokeSupabaseFunction<{
+    ok: boolean;
+    dispatched: boolean;
+    repository?: string;
+    ref?: string;
+    workflow?: string;
+  }>('admin-dispatch-mics-json-refresh', {
+    body: { source: 'admin_dashboard' },
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export type CanvaAutomationWorkflow =
+  | 'generate_motd_post.yaml'
+  | 'generate_motw_posts.yaml'
+  | 'generate_monthly_open_mics_list_posts.yaml';
+
+export async function requestCanvaAutomationRun(
+  workflow: CanvaAutomationWorkflow,
+  inputs: Record<string, string>,
+) {
+  const { data, error } = await invokeSupabaseFunction<{
+    ok: boolean;
+    dispatched: boolean;
+    repository?: string;
+    ref?: string;
+    workflow?: string;
+    workflowUrl?: string;
+    generatedLinks?: Array<{ label: string; url: string }>;
+    inputs?: Record<string, string>;
+  }>('admin-dispatch-canva-automation', {
+    body: {
+      source: 'admin_dashboard',
+      workflow,
+      inputs,
+    },
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function requestInstagramCommentCollection(mediaId: string) {
+  const { data, error } = await invokeSupabaseFunction<{
+    ok: boolean;
+    dispatched: boolean;
+    repository?: string;
+    ref?: string;
+    workflow?: string;
+    workflowUrl?: string;
+    inputs?: Record<string, string>;
+  }>('admin-dispatch-instagram-comment-collection', {
+    body: {
+      source: 'admin_dashboard',
+      media_id: mediaId,
+    },
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function requestInstagramMonthlyVerification(
+  body:
+    | {
+        action: 'send_mics';
+        dry_run: boolean;
+        batch_size?: number;
+      }
+    | {
+        action: 'collect_responses';
+        amount: number;
+        missing_only: boolean;
+        dry_run: boolean;
+      },
+) {
+  const { data, error } = await invokeSupabaseFunction<{
+    ok: boolean;
+    action: string;
+    dispatched?: boolean;
+    repository?: string;
+    ref?: string;
+    workflow?: string;
+    workflowUrl?: string;
+    inputs?: Record<string, string>;
+  }>('admin-dispatch-instagram-monthly-verification', {
+    body: {
+      source: 'admin_dashboard',
+      ...body,
+    },
+  });
+
+  if (error) throw error;
+  return data;
 }

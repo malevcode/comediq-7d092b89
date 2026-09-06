@@ -39,8 +39,8 @@ export default function ClaimMicOfDayButton({ micUniqueIdentifier, micName }: Cl
 
   if (alreadyClaimedByThis) {
     return (
-      <div className="flex items-center justify-center gap-2 text-xs font-medium text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-md px-3 py-2">
-        <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
+      <div className="flex items-center justify-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
+        <Star className="w-3.5 h-3.5 fill-blue-500 text-blue-500" />
         You're today's Mic of the Day!
       </div>
     );
@@ -52,7 +52,7 @@ export default function ClaimMicOfDayButton({ micUniqueIdentifier, micName }: Cl
       disabled={claim.isPending || loadingCurrent || claimedByOther}
       size="sm"
       variant="outline"
-      className="w-full flex items-center justify-center gap-2 border-yellow-400 text-yellow-700 hover:bg-yellow-50"
+      className="w-full flex items-center justify-center gap-2 border-blue-400 text-blue-700 hover:bg-blue-50"
     >
       {claim.isPending ? (
         <Loader2 className="w-3.5 h-3.5 animate-spin" />

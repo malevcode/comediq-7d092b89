@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchSignupEvents, fetchEventSignups } from '@/api/signups';
+import { fetchCurrentUserHostForMic, fetchSignupEvents, fetchEventSignups } from '@/api/signups';
 
 export function useSignupEvents(micId: string) {
   return useQuery({
@@ -14,5 +14,13 @@ export function useEventSignups(eventId: string) {
     queryKey: ['eventSignups', eventId],
     queryFn: () => fetchEventSignups(eventId),
     enabled: !!eventId,
+  });
+}
+
+export function useCurrentUserHostForMic(micId: string, enabled = true) {
+  return useQuery({
+    queryKey: ['currentUserHostForMic', micId],
+    queryFn: () => fetchCurrentUserHostForMic(micId),
+    enabled: enabled && !!micId,
   });
 }

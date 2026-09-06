@@ -91,6 +91,13 @@ const getSafeReturnUrl = (value: unknown) => {
     if (url.protocol === 'comediq:' || url.protocol === 'https:') {
       return url.toString()
     }
+
+    if (
+      url.protocol === 'http:' &&
+      (url.hostname === 'localhost' || url.hostname === '127.0.0.1')
+    ) {
+      return url.toString()
+    }
   } catch {
     return null
   }
@@ -161,6 +168,15 @@ Deno.serve(async (req) => {
       customerId = customer.id
       console.log('Resolved Stripe customer', { userId: user.id, customerId })
 
+      if (customer.metadata?.supabase_user_id !== user.id) {
+        await stripe.customers.update(customerId, {
+          metadata: {
+            ...customer.metadata,
+            supabase_user_id: user.id,
+          },
+        })
+      }
+
       await admin
         .from('profiles')
         .upsert(
@@ -176,6 +192,7 @@ Deno.serve(async (req) => {
       mode: 'subscription',
       customer: customerId,
       client_reference_id: user.id,
+      allow_promotion_codes: true,
       line_items: [
         {
           price: fullPassPriceId,

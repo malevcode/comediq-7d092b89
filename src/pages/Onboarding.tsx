@@ -119,7 +119,7 @@ const Onboarding = () => {
   return (
     <>
       <SEO title="Welcome to Comediq" description="Tell us how you use Comediq." url="https://comediq.us/onboarding" noindex={true} />
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16 bg-white">
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16 bg-transparent">
         <div className="w-full max-w-md">
           <div className="flex items-center gap-2 mb-10 justify-center">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: BRAND_BLUE }}>
@@ -139,7 +139,7 @@ const Onboarding = () => {
                 onClick={() => setSelected(r.id)}
                 className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all ${
                   selected === r.id
-                    ? 'border-[#1a5fb4] bg-[#1a5fb4]/5'
+                    ? 'border-[#1a5fb4] bg-[#1a5fb4]/10'
                     : 'border-gray-200 hover:border-gray-300 bg-white'
                 }`}
               >

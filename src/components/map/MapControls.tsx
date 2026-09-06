@@ -9,10 +9,6 @@ interface MapControlsProps {
   geocodingProgress?: { current: number; total: number } | null;
   error?: string | null;
   onDismissError?: () => void;
-  loadedMicCount?: number;
-  totalMicCount?: number;
-  countLabel?: string;
-  backgroundLoading?: boolean;
 }
 
 export const MapControls: React.FC<MapControlsProps> = ({
@@ -23,16 +19,12 @@ export const MapControls: React.FC<MapControlsProps> = ({
   isLoading,
   geocodingProgress,
   error,
-  onDismissError,
-  loadedMicCount,
-  totalMicCount,
-  countLabel = 'mics mapped',
-  backgroundLoading
+  onDismissError
 }) => {
   return (
     <>
       {/* Map action buttons */}
-      <div className="absolute bottom-8 right-2 z-10 flex flex-col gap-2">
+      <div className="absolute bottom-10 right-2 z-10 flex flex-col gap-2">
         {onToggleFullscreen && (
           <button
             type="button"
@@ -77,12 +69,17 @@ export const MapControls: React.FC<MapControlsProps> = ({
       
       {/* Error indicator */}
       {error && (
-        <div className="absolute top-4 left-4 bg-red-100 border border-red-300 p-2 rounded-lg shadow-lg max-w-xs">
+        <div className="pointer-events-auto absolute top-4 left-4 z-30 max-w-xs rounded-lg border border-red-300 bg-red-100 p-2 shadow-lg">
           <div className="text-xs text-red-600">{error}</div>
           {onDismissError && (
             <button 
-              onClick={onDismissError}
-              className="text-xs text-red-500 underline mt-1"
+              type="button"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onDismissError();
+              }}
+              className="mt-1 rounded px-1 py-0.5 text-xs font-medium text-red-600 underline hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-400"
             >
               Dismiss
             </button>
@@ -90,20 +87,6 @@ export const MapControls: React.FC<MapControlsProps> = ({
         </div>
       )}
 
-      {/* Loaded mic count indicator */}
-      {loadedMicCount !== undefined && (
-        <div className="absolute bottom-8 left-2 bg-white p-2 rounded-lg shadow-lg">
-          <div className="text-xs text-gray-600">
-            {loadedMicCount}
-            {totalMicCount !== undefined ? ` out of ${totalMicCount}` : ''} {countLabel}
-            {backgroundLoading && (
-              <div className="text-xs text-blue-600 mt-1">
-                Loading more...
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </>
   );
 }; 

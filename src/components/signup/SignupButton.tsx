@@ -40,7 +40,7 @@ export function SignupButton({ eventId, isFull }: SignupButtonProps) {
         });
         if (!ok) throw new Error('no_credits');
       }
-      return signUpForEvent(eventId, notes);
+      return signUpForEvent(eventId, { notes: notes.trim() || undefined });
     },
     onSuccess: () => {
       toast({ title: 'Signed up!', description: "You're on the list!" });
@@ -101,8 +101,8 @@ export function SignupButton({ eventId, isFull }: SignupButtonProps) {
   if (noCredits && STRIPE_PAID_LINK) {
     return (
       <a href={STRIPE_PAID_LINK} target="_blank" rel="noopener noreferrer">
-        <Button size="sm" variant="outline" className="gap-1.5 border-amber-300 text-amber-700 hover:bg-amber-50">
-          <Zap className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+        <Button size="sm" variant="outline" className="gap-1.5 border-blue-300 text-blue-700 hover:bg-blue-50">
+          <Zap className="h-3.5 w-3.5 fill-blue-400 text-blue-400" />
           Subscribe
           <ExternalLink className="h-3 w-3" />
         </Button>
@@ -134,7 +134,7 @@ export function SignupButton({ eventId, isFull }: SignupButtonProps) {
                   id="guestName"
                   value={guestName}
                   onChange={(e) => setGuestName(e.target.value)}
-                  placeholder="Your name"
+                  placeholder="your name"
                   className="h-9"
                 />
               </div>
@@ -145,7 +145,7 @@ export function SignupButton({ eventId, isFull }: SignupButtonProps) {
                   type="email"
                   value={guestEmail}
                   onChange={(e) => setGuestEmail(e.target.value)}
-                  placeholder="you@email.com"
+                  placeholder="your email"
                   className="h-9"
                 />
               </div>
@@ -156,7 +156,7 @@ export function SignupButton({ eventId, isFull }: SignupButtonProps) {
                   type="tel"
                   value={guestPhone}
                   onChange={(e) => setGuestPhone(e.target.value)}
-                  placeholder="(555) 123-4567"
+                  placeholder="your phone number"
                   className="h-9"
                 />
               </div>

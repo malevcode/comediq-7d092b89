@@ -50,31 +50,6 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check for existing verification from same IP for this mic today
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const { data: existingVerification } = await supabase
-      .from('mic_verifications')
-      .select('id, verified_at')
-      .eq('mic_unique_identifier', mic_unique_identifier)
-      .eq('ip_hash', ipHash)
-      .gte('verified_at', today.toISOString())
-      .limit(1)
-      .single();
-
-    if (existingVerification) {
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          alreadyVerified: true,
-          verifiedAt: existingVerification.verified_at,
-          message: 'Already verified today!' 
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     // Get user ID if authenticated
     const authHeader = req.headers.get('Authorization');
     let userId = null;
@@ -85,6 +60,59 @@ Deno.serve(async (req) => {
       });
       const { data: { user } } = await userClient.auth.getUser();
       userId = user?.id || null;
+    }
+
+    // Check for existing verification from same IP for this mic today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const { data: existingVerification, error: existingError } = await supabase
+      .from('mic_verifications')
+      .select('id, verified_at, status')
+      .eq('mic_unique_identifier', mic_unique_identifier)
+      .eq('ip_hash', ipHash)
+      .gte('verified_at', today.toISOString())
+      .limit(1)
+      .maybeSingle();
+
+    if (existingError) {
+      console.error('Existing verification lookup error:', existingError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to check existing verification', details: existingError.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (existingVerification) {
+      const { data: updatedVerification, error: updateError } = await supabase
+        .from('mic_verifications')
+        .update({
+          status,
+          user_id: userId,
+          verified_at: new Date().toISOString(),
+        })
+        .eq('id', existingVerification.id)
+        .select('verified_at, status')
+        .single();
+
+      if (updateError) {
+        console.error('Update error:', updateError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to update verification', details: updateError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          updatedExisting: true,
+          verifiedAt: updatedVerification.verified_at,
+          status: updatedVerification.status,
+          message: 'Status updated!'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Insert new verification with status
