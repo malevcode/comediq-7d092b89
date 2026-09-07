@@ -66,6 +66,16 @@ export default function AddShow() {
       return;
     }
 
+    // A listing has to give people somewhere to go for anything we are missing.
+    if (!instagramHandle.trim() && !ticketUrl.trim()) {
+      toast({
+        title: 'Add an Instagram or a ticket link',
+        description: 'We need at least one so people can find your show details.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     submitMutation.mutate({
       title,
       venue_name: venueName,
@@ -90,7 +100,9 @@ export default function AddShow() {
       recurrence_day: null,
       parent_show_id: null,
       is_active: true,
-      source: 'user',
+      // Must stay null: the feed query and the RLS policy only admit
+      // source IS NULL or an approved venue_sources key.
+      source: null,
       source_event_id: null,
       latitude: null,
       longitude: null,
@@ -295,6 +307,10 @@ export default function AddShow() {
                   placeholder="https://..."
                   className={FIELD_CLASS}
                 />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Give us an Instagram handle or a ticket link. At least one is required
+                  so people have somewhere to go for more details.
+                </p>
               </div>
 
               <Button 

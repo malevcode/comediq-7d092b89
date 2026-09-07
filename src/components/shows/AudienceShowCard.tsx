@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Ticket, Star, ExternalLink, Users, Share2, Check } from "lucide-react";
+import { Calendar, Clock, Ticket, Star, ExternalLink, Users, Share2, Check, Instagram } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { AudienceShow } from "@/api/audienceShows";
 import { RsvpButton } from "./RsvpButton";
 import { TicketPurchaseButton } from "./TicketPurchaseButton";
 import { toast } from "@/hooks/use-toast";
+import { formatShowTime } from "@/utils/formatShowTime";
+import { instagramUrl } from "@/utils/instagramUrl";
 
 interface AudienceShowCardProps {
   show: AudienceShow;
@@ -18,15 +20,7 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
   const [copied, setCopied] = useState(false);
   const showDate = parseISO(show.show_date);
   const formattedDate = format(showDate, 'EEE, MMM d');
-  
-  // Format time from 24h to 12h
-  const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
-  };
+  const instagram = instagramUrl(show.instagram_handle);
 
   const handleExternalTickets = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -128,8 +122,20 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                {formatTime(show.show_time)}
+                {formatShowTime(show.show_time)}
               </span>
+              {instagram && (
+                <a
+                  href={instagram.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center gap-1 text-pink-500 hover:underline"
+                >
+                  <Instagram className="w-3 h-3" />
+                  {instagram.display}
+                </a>
+              )}
             </div>
             
             <div className="mt-2 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>

@@ -23,6 +23,7 @@ import {
   Check
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { formatShowTime } from "@/utils/formatShowTime";
 import { AudienceShow } from "@/api/audienceShows";
 import { makeLinksClickable } from "@/utils/makeLinksClickable";
 import { RsvpButton } from "./RsvpButton";
@@ -81,14 +82,6 @@ export function AudienceShowDetailModal({ show, isOpen, onClose }: AudienceShowD
   const showDate = parseISO(show.show_date);
   const formattedDate = format(showDate, 'EEEE, MMMM d, yyyy');
   
-  const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
-  };
-
   const handleOpenMaps = () => {
     if (show.venue_address) {
       const encoded = encodeURIComponent(show.venue_address);
@@ -177,12 +170,12 @@ export function AudienceShowDetailModal({ show, isOpen, onClose }: AudienceShowD
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-foreground">
               <Clock className="w-5 h-5 text-primary" />
-              <span>{formatTime(show.show_time)}</span>
+              <span>{formatShowTime(show.show_time)}</span>
             </div>
             {show.doors_time && (
               <div className="flex items-center gap-2 text-muted-foreground">
                 <DoorOpen className="w-4 h-4" />
-                <span className="text-sm">Doors {formatTime(show.doors_time)}</span>
+                <span className="text-sm">Doors {formatShowTime(show.doors_time)}</span>
               </div>
             )}
           </div>
