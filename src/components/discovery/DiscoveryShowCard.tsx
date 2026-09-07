@@ -4,17 +4,10 @@ import { Calendar, ExternalLink, MapPin, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AudienceShow } from "@/api/audienceShows";
+import { formatShowTime } from "@/utils/formatShowTime";
 
 interface DiscoveryShowCardProps {
   show: AudienceShow;
-}
-
-function formatShowTime(time: string): string {
-  const [hours, minutes] = time.split(":");
-  const hour = parseInt(hours, 10);
-  const ampm = hour >= 12 ? "PM" : "AM";
-  const hour12 = hour % 12 || 12;
-  return `${hour12}:${minutes} ${ampm}`;
 }
 
 function getMapUrl(address: string | null, venueName: string) {

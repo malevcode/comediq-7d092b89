@@ -42,14 +42,14 @@ function parseCoordinate(value: unknown): number | null {
   return null;
 }
 
-const formatShowDateTime = (dateStr: string, timeStr: string): string => {
+const formatShowDateTime = (dateStr: string, timeStr: string | null): string => {
   try {
     const date = parseISO(dateStr);
     const day = format(date, 'EEE, MMM d');
     const time = timeStr?.replace(/:\d{2}$/, '').trim() || '';
     return time ? `${day} · ${time}` : day;
   } catch {
-    return `${dateStr} · ${timeStr}`;
+    return timeStr ? `${dateStr} · ${timeStr}` : dateStr;
   }
 };
 
