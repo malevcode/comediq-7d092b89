@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Search, HelpCircle, LogIn, Plus, Map, ChevronDown } from "lucide-react";
+import { Search, HelpCircle, LogIn, Plus, Map, List } from "lucide-react";
 import SEO from "@/components/SEO";
 import { generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,8 @@ import HamburgerMenu from "@/components/HamburgerMenu";
 import OpenMicsLoadingScreen from "@/components/OpenMicsLoadingScreen";
 import { OpenMicsMapRefactored } from "@/components/map";
 import MicDetailModal from "@/components/MicDetailModal";
+import { DiscoverySheet } from "@/components/discovery/DiscoverySheet";
+import { DiscoveryFeed } from "@/components/discovery/DiscoveryFeed";
 
 
 
@@ -37,7 +39,11 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const [showKey, setShowKey] = useState(false);
   const [visibleCount, setVisibleCount] = useState(100);
   const [showInlineCard, setShowInlineCard] = useState(false);
-  const [showMapView, setShowMapView] = useState(false);
+  // List is the default on every mount. The toggle swaps the whole page over
+  // to the map-first view rather than expanding a panel inside the list.
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [selectedMicId, setSelectedMicId] = useState<string | null>(null);
+  const [sheetExpanded, setSheetExpanded] = useState(false);
 
   const { data: openMics = [], isLoading, error } = useOpenMics();
   const { user, signOut } = useAuth();
@@ -55,6 +61,11 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       setSearchParams(searchParams, { replace: true });
     }
   }, [searchParams, setSearchParams]);
+
+  // Expand the bottom sheet whenever the inline add-mic form opens so it's visible
+  useEffect(() => {
+    if (showInlineCard) setSheetExpanded(true);
+  }, [showInlineCard]);
 
   const boroughs = ["All", "Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island", "Inland Empire"];
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -425,6 +436,72 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   };
 
 
+  // Map-first home screen: same filtered lists as renderMicContent, segmented
+  // into dayparts (+ a Shows section) via DiscoveryFeed instead of a flat list.
+  const renderDiscoveryContent = (filteredMics: OpenMic[], tabName: string, allowShows = false) => {
+    const micsToShow = filteredMics;
+
+    return (
+      <>
+        <div className="mb-3">
+          <p className="text-xs text-gray-500">
+            Showing {Math.min(visibleCount, micsToShow.length)} of {micsToShow.length}
+            {tabName === "next" ? " upcoming" : tabName === "liked" ? " liked" : tabName === "new" ? " new" : ""} open mic
+            {micsToShow.length !== 1 ? "s" : ""}
+            {tabName !== "next" && tabName !== "liked" && tabName !== "new" ? ` on ${tabName}` : ""}
+            {tabName === "new" ? " added in the last 30 days" : ""}
+          </p>
+        </div>
+
+        <DiscoveryFeed
+          mics={micsToShow}
+          visibleCount={visibleCount}
+          setVisibleCount={setVisibleCount}
+          selectedMicId={selectedMicId}
+          showShows={allowShows}
+        />
+
+        {micsToShow.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-4xl mb-3">🎤</div>
+            <p className="text-muted-foreground font-medium">
+              {tabName === "liked"
+                ? "No liked open mics yet"
+                : tabName === "new"
+                  ? "No new mics added in the last 30 days"
+                  : filters.frequency && filters.frequency !== 'all'
+                    ? `No ${FREQUENCY_LABELS[filters.frequency as MicFrequency] || ''} mics scheduled right now`
+                    : `No ${tabName === "next" ? "upcoming " : ""}open mics found${
+                        tabName !== "next" && tabName !== "liked" ? ` for ${tabName}` : ""
+                      }`}
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {tabName === "liked"
+                ? "Start liking mics to see them here!"
+                : tabName === "new"
+                  ? "New mics appear here for 30 days after being added."
+                  : filters.frequency && filters.frequency !== 'all'
+                    ? "Try checking the Weekly list or clearing your filters."
+                    : "Try adjusting your filters."}
+            </p>
+            {tabName !== "liked" && (
+              <Button
+                onClick={() => {
+                  setSearchTerm("");
+                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", city: filters.city, frequency: 'all', micStatus: 'all' });
+                }}
+                variant="outline"
+                className="mt-4 text-sm"
+              >
+                Clear All Filters
+              </Button>
+            )}
+          </div>
+        )}
+      </>
+    );
+  };
+
   const [isSubmittingMic, setIsSubmittingMic] = useState(false);
 
   const handleRequestMic = async (formData: MicRequestFormData) => {
@@ -568,6 +645,24 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
   const tabTriggerClass = `text-xs py-1 px-1 data-[state=active]:bg-white/80 data-[state=active]:text-[#1a5fb4] data-[state=active]:shadow-none dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white ${loggedOutMobileTabClass}`;
 
+  // Defined once and rendered in both the list filter bar and the map's
+  // floating bar, so the two cannot drift apart.
+  const viewToggleButton = (
+    <Button
+      onClick={() => setViewMode((mode) => (mode === 'list' ? 'map' : 'list'))}
+      variant="outline"
+      size="sm"
+      aria-pressed={viewMode === 'map'}
+      aria-label={viewMode === 'list' ? 'Switch to map view' : 'Switch to list view'}
+      className="flex items-center justify-center gap-1 px-2 py-1 h-7 bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100"
+    >
+      {viewMode === 'list' ? <Map className="h-4 w-4" /> : <List className="h-4 w-4" />}
+      {/* Label hides on narrow screens so the search field keeps its width;
+          the icon plus aria-label still carry the meaning. */}
+      <span className="hidden sm:inline text-[11px] font-bold">{viewMode === 'list' ? 'Map' : 'List'}</span>
+    </Button>
+  );
+
   return (
     <>
       <SEO
@@ -579,6 +674,8 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       <div className="min-h-screen bg-transparent pb-8">
         {!embedded && <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />}
 
+        {viewMode === 'list' ? (
+          <>
       <div className={`max-w-7xl mx-auto px-4 ${embedded ? 'pt-3' : 'page-content-offset'} pb-0`}>
         {/* Key/Legend */}
         {showKey && (
@@ -675,6 +772,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
             </div>
 
             <div className="flex gap-1.5">
+              {viewToggleButton}
               <div className="relative">
                 <select
                   value={filters.city}
@@ -733,30 +831,6 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
             </div>
           )}
 
-          <div className="mb-4 rounded-xl bg-white/25 p-3 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white">
-            <button
-                type="button"
-                onClick={() => setShowMapView((open) => !open)}
-                className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-semibold hover:bg-white/20 dark:hover:bg-white/10"
-                aria-expanded={showMapView}
-            >
-                <span className="inline-flex items-center gap-2">
-                    <Map className="h-4 w-4" />
-                    Map View
-                </span>
-                <ChevronDown className={`h-4 w-4 transition-transform ${showMapView ? "rotate-180" : ""}`} />
-            </button>
-
-            {showMapView && (
-               <div className="mt-3">
-                    <OpenMicsMapRefactored
-                        mics={getActiveTabMics()}
-                        onMicSelect={setSelectedMic}
-                    />
-               </div>
-            )}
-          </div>
-
           <TabsContent value="next" className="mt-2">
             {renderMicContent(getFilteredMics("next"), "next")}
           </TabsContent>
@@ -778,7 +852,121 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           ))}
         </Tabs>
       </div>
+          </>
+        ) : (
+          <>
+            {/* Map-first home: full-bleed map behind a collapsible bottom sheet */}
+            <div className="fixed inset-x-0 z-0" style={{ top: 'var(--page-top-offset)', bottom: 0 }}>
+              <OpenMicsMapRefactored
+                variant="full"
+                mics={getActiveTabMics()}
+                onMicSelect={(mic) => {
+                  setSelectedMicId(mic.uniqueIdentifier);
+                  setSheetExpanded(true);
+                }}
+              />
 
+              {/* Floating search/filter bar over the map */}
+              <div className="absolute top-3 inset-x-3 z-10">
+                <div className="bg-white/95 backdrop-blur rounded-xl shadow-lg p-2.5">
+                  <div className="flex flex-row gap-3 items-center">
+                    <div className="flex-1 relative">
+                      <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search venues, neighborhoods, or open mic names..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 py-2 text-sm bg-white dark:bg-white text-gray-900 dark:text-gray-900 placeholder:text-gray-400 dark:placeholder:text-gray-400"
+                      />
+                    </div>
+
+                    <div className="flex gap-1.5">
+                      {viewToggleButton}
+                      <div className="relative">
+                        <select
+                          value={filters.city}
+                          onChange={(e) => setFilters({ ...filters, city: e.target.value })}
+                          className="appearance-none pl-2 pr-5 py-1 h-7 w-16 text-[11px] font-bold rounded-md bg-blue-600 text-white border border-blue-700 shadow-sm hover:bg-blue-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
+                          aria-label="Select city"
+                        >
+                          {cities.map((city) => (
+                            <option key={city.value} value={city.value} className="bg-white text-gray-900">{city.label}</option>
+                          ))}
+                        </select>
+                        <svg className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                      <Button
+                        onClick={() => { setShowInlineCard(true); setActiveTab('next'); setSheetExpanded(true); }}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center justify-center px-2 py-1 h-7 w-12 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                      <MicFilters filters={filters} onFiltersChange={setFilters} maxCost={maxCost} boroughs={boroughs} cities={cities.map(c => c.value)}/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <DiscoverySheet
+                expanded={sheetExpanded}
+                onToggleExpanded={() => setSheetExpanded((e) => !e)}
+                header={
+                  <TabsList className={`grid w-full ${user ? "grid-cols-10" : "grid-cols-9"} h-9 gap-1`}>
+                    <TabsTrigger value="next" className="text-xs py-1 px-1">
+                      Next
+                    </TabsTrigger>
+                    <TabsTrigger value="new" className="text-xs py-1 px-0.5">
+                      New
+                    </TabsTrigger>
+                    {user && (
+                      <TabsTrigger value="liked" className="text-xs py-1 px-1">
+                        ❤️
+                      </TabsTrigger>
+                    )}
+                    {daysOfWeek.map((day) => (
+                      <TabsTrigger key={day} value={day} className="text-xs py-1 px-1">
+                        {day.slice(0, 3)}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                }
+              >
+                <TabsContent value="next" className="mt-2">
+                  {showInlineCard && (
+                    <EditableMicCard
+                      onSave={async (data) => { await handleRequestMic(data); setShowInlineCard(false); }}
+                      onCancel={() => setShowInlineCard(false)}
+                      isSubmitting={isSubmittingMic}
+                    />
+                  )}
+                  {renderDiscoveryContent(getFilteredMics("next"), "next", true)}
+                </TabsContent>
+
+                <TabsContent value="new" className="mt-2">
+                  {renderDiscoveryContent(getNewMics(), "new")}
+                </TabsContent>
+
+                {user && (
+                  <TabsContent value="liked" className="mt-2">
+                    {renderDiscoveryContent(getFilteredMics("liked"), "liked")}
+                  </TabsContent>
+                )}
+
+                {daysOfWeek.map((day) => (
+                  <TabsContent key={day} value={day} className="mt-2">
+                    {renderDiscoveryContent(getFilteredMics("day", day), day)}
+                  </TabsContent>
+                ))}
+              </DiscoverySheet>
+            </Tabs>
+          </>
+        )}
       </div>
       {selectedMic && (
         <MicDetailModal

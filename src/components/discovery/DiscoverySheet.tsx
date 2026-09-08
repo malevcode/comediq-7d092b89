@@ -21,7 +21,11 @@ export function DiscoverySheet({ expanded, onToggleExpanded, header, children }:
         // (~28px, z-60, non-subscribers only) so the sheet's own content and its
         // drag handle never sit underneath either bar.
         bottom: "84px",
-        height: expanded ? "min(82vh, calc(100vh - var(--page-top-offset) - 84px - 1rem))" : "32vh",
+        // The 5rem also clears the floating search/filter/view-toggle bar over
+        // the map (12px inset + ~60px tall + a small gap). Without it the
+        // expanded sheet covers those controls, which strands the user in map
+        // view with no way to reach the toggle back to the list.
+        height: expanded ? "min(82vh, calc(100vh - var(--page-top-offset) - 84px - 5rem))" : "32vh",
       }}
     >
       <button
