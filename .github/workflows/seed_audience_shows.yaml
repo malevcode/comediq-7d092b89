@@ -1,0 +1,39 @@
+name: Seed audience shows
+
+# Manual only. Uploads the curated shows in
+# scripts/ingest/audience_shows_seed.json to the audience_shows table.
+# Safe to re-run: each show is looked up before it is inserted.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview only, write nothing"
+        type: boolean
+        default: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r scripts/requirements.txt
+
+      - name: Seed shows
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          python scripts/ingest/seed_audience_shows.py \
+            ${{ inputs.dry_run && '--dry-run' || '' }}
