@@ -129,7 +129,205 @@ One layout trap worth knowing. In map view the map and the drawer are both `posi
 
 ---
 
+## Working with no signal (offline mode)
+
+### The problem
+
+Comediq is used on the subway. You are on the L train with no bars, you want to
+check where tonight's mic is, and the site will not even load. Not because the
+mic list is missing, but because the browser could not download `index.html`.
+
+### The fix: a service worker
+
+A service worker is a small script the browser keeps running in the background,
+separate from the page. It sits between the app and the network, like a bouncer
+who also happens to keep a photocopy of everything that comes through the door.
+When the network is gone, it hands you the photocopy.
+
+Ours lives at `public/sw.js` and is registered by
+`src/utils/registerServiceWorker.ts` (called from `src/main.tsx`).
+
+It keeps three separate boxes of photocopies:
+
+| Cache | Holds | Why |
+|---|---|---|
+| `comediq-v1-shell` | `index.html`, the manifest, the logo | So the app can start with zero network |
+| `comediq-v1-data` | `mics.json` | The actual list of 400+ mics |
+| `comediq-v1-assets` | the hashed JS/CSS Vite builds, images | The code that makes the page work |
+
+Each box uses a different rule:
+
+- **The app shell** is *network first*. Online, you always get the newest
+  `index.html`. Offline, you get the saved one.
+- **`mics.json`** is *stale while revalidate*. You instantly get the saved list,
+  and a fresh copy downloads quietly in the background for next time. You never
+  wait on the network to see mics.
+- **Assets** are *cache first*. Vite puts a hash in each filename
+  (`index-BDvTmjBb.js`), so a changed file is a different filename. A cached one
+  can never be out of date.
+
+Anything that is a live read or write to Supabase (`/rest/v1/`, `/auth/v1/`,
+`/functions/v1/`, `/realtime/`) is deliberately never cached. Serving someone a
+stale login would be worse than serving them nothing.
+
+### What "installed" means
+
+`public/manifest.webmanifest` is what lets someone add Comediq to their home
+screen and have it open without browser chrome. It is also the file Capacitor
+and the app stores read for the app's name, colours, and icon.
+
+### The one thing to remember
+
+**Bump `VERSION` in `public/sw.js` when you change what gets cached.** The
+version string is the name of all three caches, so changing it throws the old
+ones away and starts clean. If you do not bump it and you change the caching
+rules, existing visitors keep the old rules until they clear their site data.
+
+### How you know it works
+
+Build, serve `dist/`, load the page once, turn the network off, reload. You
+should see the full mic list plus a black `OFFLINE · SHOWING SAVED MICS` strip
+at the top of the screen (`src/components/OfflineBanner.tsx`, driven by
+`src/hooks/useOnlineStatus.ts`). Verified on 2026-09-08: 407 mics rendered with
+the network fully disabled and no page errors.
+
+There is a second, older safety net underneath all this: `useOpenMics` also
+saves the mic list to `localStorage` for 30 days
+(`src/utils/micDataCache.ts`). The service worker is the belt; that is the braces.
+
+---
+
+## Mic check-in: proving you were actually there
+
+### What changed
+
+The "I Went Up" button used to be an honour system. You tapped it, a row was
+written, done. You could tap it from bed. That made the data useless for
+anything social or competitive, because none of it meant anything.
+
+Now a check-in has to pass two gates.
+
+### Gate 1: is the mic even happening? (the browser decides)
+
+`src/utils/micCheckin.ts` reads the mic's `day` and `startTime` and works out
+whether the check-in window is open. The window runs from **30 minutes before**
+the listed start time to **3 hours after** it.
+
+The tricky part is midnight. A Wednesday 11:00 PM mic is still the Wednesday mic
+when it is 12:30 AM on Thursday and you have finally been called up. So the code
+checks **both today and yesterday**, and takes whichever weekday matches.
+
+If a mic's schedule is unparseable free text (`"call ahead"`), the time gate is
+skipped rather than blocking someone from a mic they are genuinely standing in.
+
+### Gate 2: are you actually at the venue? (the database decides)
+
+This gate is in SQL on purpose. It is the `check_in_mic` function in
+`supabase/migrations/20260908160000_verified_mic_checkins.sql`.
+
+The browser sends its GPS reading. The database compares it against the
+coordinates it already has for that venue in `open_mics_historical`, using
+haversine distance, and decides.
+
+**Why not do the maths in the browser?** Because anything the browser decides,
+the person holding the browser can lie about. The browser could simply claim it
+was near the venue. The database cannot be argued with.
+
+The rule:
+
+```
+allowed distance = 150 metres + however much error the phone admits to (capped at 200m)
+```
+
+That second part matters. GPS in a basement bar is genuinely terrible, and a
+phone that honestly reports "you are here, give or take 120 metres" should not
+be punished for its honesty. The cap stops someone claiming 9,000 metres of
+error and checking in from New Jersey.
+
+### What gets written
+
+| Column | Meaning |
+|---|---|
+| `latitude` / `longitude` | Where the phone said you were |
+| `accuracy_meters` | How much error the phone admitted to |
+| `distance_meters` | How far that actually was from the venue |
+| `is_verified` | Whether it passed the distance test |
+
+A verified check-in is worth **1 point**, awarded through the same
+`award_mic_point` function that Confirm and Report already use. The unique index
+on `(user_id, mic_id, checkin_date)` means one check-in per mic per day, so
+tapping twice cannot farm points.
+
+### Two deliberate holes
+
+1. **The time gate is client-side.** `start_time` is free text typed by humans
+   ("9:30 PM", "call ahead"), which is not solid enough to hard-gate on in SQL.
+   The check-in timestamp is stored, so anything suspicious can be found later.
+2. **A handful of mics have no coordinates** (1 of 407 as of September 2026).
+   Those check-ins are accepted but stored with `is_verified = false` and earn
+   no point. Geocode the mic and the problem goes away.
+
+Direct `INSERT` into `user_mic_checkins` is no longer allowed. The RLS insert
+policy was dropped, so the RPC is the only door in. Users can still read and
+delete their own rows, which is what "undo my check-in" needs.
+
+---
+
 ## Summarize
+
+### Session: offline mode and real mic check-in
+
+**Where we started.** Adam asked what progress had been made toward putting
+Comediq in the Apple App Store and Google Play. Honest answer: none. A search of
+the codebase, the git history across all 40+ branches, and every pull request
+turned up no Capacitor, no React Native, no PWA manifest, no service worker, no
+store metadata. The only app-store-adjacent thing that existed was
+`AppWaitlistSection.tsx`, an email capture form on the landing page that says
+"Coming Soon" and writes to an `App_waitlist` table. So this was a start, not a
+continuation.
+
+**The three decisions.** Wrap the existing site in Capacitor rather than rewrite
+it natively. Gate check-ins on GPS radius *and* a time window rather than trusting
+the honour system. Do offline first, because being usable on the subway is the
+thing that makes the app worth installing at all.
+
+**What shipped.**
+
+1. *Offline mode.* A hand-rolled service worker (`public/sw.js`) plus a web
+   manifest, an `OfflineBanner`, and a `useOnlineStatus` hook. Three caches with
+   three different strategies, described in the section above. No build plugin
+   and no new dependency: the whole thing is about 120 lines of plain JavaScript
+   that any future reader can follow top to bottom.
+2. *Verified check-in.* `WentUpToggle` went from a one-tap honour-system toggle
+   to a two-gate check: the browser decides whether the mic is running, and the
+   `check_in_mic` database function decides whether you are standing at it. New
+   columns on `user_mic_checkins` record the reading, the claimed accuracy, the
+   real distance, and the verdict. The direct insert policy was dropped so the
+   function is the only way in.
+
+**How we knew it worked.** The offline path was driven in a real headless
+Chromium: load once online, cut the network, reload. All 407 mics rendered from
+cache with no page errors. The check-in gate logic got 22 assertions covering
+midnight rollover, wrong days, couch check-ins, and sloppy GPS. The SQL was run
+against a throwaway PostgreSQL 16 instance and exercised through eight cases,
+including the one where someone claims 9,000 metres of GPS error to check in from
+five kilometres away. It gets turned down.
+
+**Known gaps, listed so nobody is surprised.** `npm run lint` is broken on `main`
+and was already broken before this work: ESLint 9.39 and the installed
+`typescript-eslint` plugin disagree about the shape of the `no-unused-expressions`
+rule. It is a dependency version mismatch, not a code problem, and fixing it was
+out of scope here. Separately, the manifest currently points at a single 256px
+icon; the stores will want a proper 512px set with maskable variants before
+submission.
+
+**What is still ahead for the stores.** Capacitor itself is not installed yet.
+The remaining work is: add `@capacitor/core` and the iOS and Android platforms,
+swap the web geolocation call for the native one, add push notifications, produce
+the icon and splash sets, and enrol in the Apple Developer Program. The offline
+and check-in work done here is the substance that makes the wrapper worth
+reviewing, since Apple rejects webview wrappers that offer nothing a browser
+already does.
 
 ### Session: September 2026, adding host-submitted shows to the Laugh tab
 
