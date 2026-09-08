@@ -73,6 +73,16 @@ For everyone else, leave `is_paid = false` and put the cover charge in the free-
 
 There is no separate column for drink minimums or cover charge. They live in `ticket_price` and `description`.
 
+### Adding shows: the seed file
+
+The everyday way to add shows is `scripts/ingest/audience_shows_seed.json`. Add an entry, merge it, then run the **Seed audience shows** workflow in GitHub Actions. It has a "dry run" checkbox that defaults to on, so an accidental click previews rather than writes; untick it to actually upload.
+
+The script behind it (`scripts/ingest/seed_audience_shows.py`) looks each show up before inserting it, so running it twice adds nothing the second time. It reuses the same Supabase credentials the scraper already uses, so there is nothing new to configure.
+
+One limitation: the workflow talks to Supabase over PostgREST, which can insert rows but cannot change the shape of a table. If a show has no confirmed start time, the `show_time` column has to be nullable first. When it is not, that show is reported as BLOCKED with the exact SQL to run, every other show still uploads, and re-running the job afterwards picks up the stragglers.
+
+The SQL migrations in `supabase/migrations/` remain the historical record of what was added and when. They are not applied automatically by anything in this repo.
+
 ### The four ways a show gets added
 
 1. **The public form** at `/add-show` (`src/pages/AddShow.tsx`). Submits with `verified = false`, so an admin still has to approve it by flipping the flag in the database. There is no admin UI for this yet.
@@ -103,5 +113,19 @@ There is no separate column for drink minimums or cover charge. They live in `ti
 **The bug we found along the way.** The public submit form was setting `source: 'user'`. Because both the fetch query and the security policy only allow `source IS NULL`, **every show a host had ever submitted through the form was invisible**, even after being marked verified. One-word fix, but it meant the self-serve path had never actually worked.
 
 **What we deliberately did not do.** No shows with past dates were listed at all, not even as placeholders. Three of them exist only as outreach messages in `HOST_OUTREACH.md`, waiting on hosts to send a future date.
+
+### Session: rolling back the Open Mics redesign
+
+A merged PR (#106) had replaced the standalone `/open-mics` screen with a map-first, bottom-sheet design that wasn't wanted, and it could not be undone through Lovable's version history.
+
+It turned out to be an easy undo. The redesign never deleted the old screen; it wrapped it in a ternary keyed on the `embedded` prop, which is why `/perform` still looked normal while `/open-mics` did not. Deleting the ternary restored `OpenMics.tsx` byte-for-byte to its previous state. A full merge revert would have been worse, since it would have deleted files the Laugh tab now depends on.
+
+That PR had also quietly stubbed out `useMicStatus`, hardcoding every mic to "unverified" and making `updateStatus` do nothing. Nothing renders its consumer today, so it was dead code rather than visible breakage, but it was restored.
+
+The lesson worth keeping: because Lovable publishes the newest commit on `main`, rolling *forward* with a new commit is how you undo something. Do not go looking for a rollback button.
+
+### Session: making the shows uploadable
+
+The shows from the September batch were written as a SQL migration, and nothing in this repo runs migrations, so they never reached the database. Fixed by moving the show data into `scripts/ingest/audience_shows_seed.json` and adding a manual GitHub Actions workflow that uploads it using credentials the repo already had. The JSON was generated from the migration's own output, then verified to produce byte-identical rows.
 
 **Still open.** No cron job regenerates recurring instances, so The Girl Show is hand-seeded through March 2027. No admin UI for verifying submitted shows, still a manual database edit. And `npm run lint` is broken on this repo for an unrelated reason: an eslint / typescript-eslint version mismatch that fails on a clean checkout too.

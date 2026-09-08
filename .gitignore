@@ -31,3 +31,7 @@ scripts/backfill-neighborhoods-from-gemini.sql
 scripts/backfill-open-mics-metadata.mjs
 scripts/clean-open-mic-name-asterisks.mjs
 scripts/geocode-open-mics.mjs
+
+# Python
+__pycache__/
+*.pyc
