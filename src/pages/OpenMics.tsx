@@ -760,7 +760,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       <div className="max-w-7xl mx-auto px-4 py-0">
         {/* Search and Filters */}
         <div className="relative z-[90] rounded-xl bg-white/25 p-3 mb-3 block text-gray-700 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
-          <div className="flex flex-row gap-3 items-center">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-center">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray dark:text-white/40" />
               <Input
@@ -771,13 +771,13 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
               />
             </div>
 
-            <div className="flex gap-1.5">
+            <div className="flex gap-1.5 justify-end sm:justify-start">
               {viewToggleButton}
               <div className="relative">
                 <select
                   value={filters.city}
                   onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-                  className="force-white-text appearance-none pl-2 pr-5 py-1 h-7 w-16 text-[11px] font-bold rounded-md bg-blue-600 border border-blue-400 shadow-sm hover:bg-blue-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
+                  className="force-white-text appearance-none pl-1.5 pr-4 py-1 h-7 w-14 text-[11px] font-bold rounded-md bg-blue-600 border border-blue-400 shadow-sm hover:bg-blue-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
                   aria-label="Select city"
                 >
                   {cities.map((city) => (
@@ -792,7 +792,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                 onClick={() => { setShowInlineCard(true); setActiveTab('next'); }}
                 variant="outline"
                 size="sm"
-                className="flex items-center justify-center px-2 py-1 h-7 w-12 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+                className="flex items-center justify-center px-0 py-1 h-7 w-8 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -868,25 +868,25 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
               {/* Floating search/filter bar over the map */}
               <div className="absolute top-3 inset-x-3 z-10">
-                <div className="bg-white/95 backdrop-blur rounded-xl shadow-lg p-2.5">
-                  <div className="flex flex-row gap-3 items-center">
+                <div className="bg-white/90 text-gray-700 backdrop-blur rounded-xl shadow-lg p-2.5 dark:bg-[#102a53]/90 dark:text-white">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-center">
                     <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                      <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-white/40" />
                       <Input
                         placeholder="Search venues, neighborhoods, or open mic names..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 py-2 text-sm bg-white dark:bg-white text-gray-900 dark:text-gray-900 placeholder:text-gray-400 dark:placeholder:text-gray-400"
+                        className="pl-10 py-2 text-sm bg-white text-gray-900 placeholder:text-gray-400 dark:bg-[#102a53]/20 dark:text-white dark:placeholder:text-white/50"
                       />
                     </div>
 
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-1.5 justify-end sm:justify-start">
                       {viewToggleButton}
                       <div className="relative">
                         <select
                           value={filters.city}
                           onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-                          className="appearance-none pl-2 pr-5 py-1 h-7 w-16 text-[11px] font-bold rounded-md bg-blue-600 text-white border border-blue-700 shadow-sm hover:bg-blue-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
+                          className="appearance-none pl-1.5 pr-4 py-1 h-7 w-14 text-[11px] font-bold rounded-md bg-blue-600 text-white border border-blue-700 shadow-sm hover:bg-blue-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
                           aria-label="Select city"
                         >
                           {cities.map((city) => (
@@ -901,7 +901,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                         onClick={() => { setShowInlineCard(true); setActiveTab('next'); setSheetExpanded(true); }}
                         variant="outline"
                         size="sm"
-                        className="flex items-center justify-center px-2 py-1 h-7 w-12 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+                        className="flex items-center justify-center px-0 py-1 h-7 w-8 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
