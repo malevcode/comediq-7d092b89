@@ -108,6 +108,8 @@ Host responses normally get processed into mic edits automatically. When that jo
 
 The file has three sections: `edits` (matched by `unique_identifier`, so each change targets one known row), `removals`, and `new_mics`. Every entry carries a `note` with the host's original wording, so anyone reviewing can check the change against what was actually said.
 
+A venue's weekly cancellations calendar goes in `sign_up_instructions` as a full `https://` URL, not in `signup_url`. `signup_url` is written by the submit forms but no display component ever reads it, whereas `sign_up_instructions` is rendered through `makeLinksClickable` in both the mic list and the detail modal, so a URL there becomes a real link comics can tap.
+
 After applying: run **Refresh mics.json**, then `npm run geocode:open-mics` if any mic changed venue. Edits that change `location` deliberately null out the geocoding fields so the geocoder picks them up.
 
 ---
