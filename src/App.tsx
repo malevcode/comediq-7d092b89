@@ -24,6 +24,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import MarqueeBanner from "./components/MarqueeBanner";
 import SiteFooter from "./components/SiteFooter";
 import SubscriptionSuccessBanner from "./components/SubscriptionSuccessBanner";
+import OfflineBanner from "./components/OfflineBanner";
 import ProgressTrackerPage from "./pages/ProgressTracker";
 import Home from "./components/Home";
 import { TabProvider } from "@/contexts/TabContext";
@@ -134,6 +135,7 @@ function AppShell() {
         <div className="pointer-events-none fixed inset-0 z-0 bg-[#f5f2eb] transition-colors duration-500 dark:bg-[#07111f]" />
         <div className="pointer-events-none fixed inset-0 z-0 bg-white/5 dark:bg-black/40" />
         <ScrollToTop />
+        <OfflineBanner />
         <MarqueeBanner />
         <SubscriptionSuccessBanner />
         <div className={isSubscriber ? "subscriber-layout relative z-10 pb-0" : "non-subscriber-layout relative z-10 pb-0"}>
