@@ -114,6 +114,21 @@ After applying: run **Refresh mics.json**, then `npm run geocode:open-mics` if a
 
 ---
 
+## The Open Mics screen: list and map
+
+`/open-mics` and `/perform` are the same component (`src/pages/OpenMics.tsx`); Perform renders it with an `embedded` prop that only controls the page header and padding.
+
+The screen has two layouts, chosen by a `viewMode` state:
+
+- **List** (the default on every load) is the tabbed day-by-day list.
+- **Map** is a full-bleed map with a scroll-up drawer of cards grouped by daypart, built from `src/components/discovery/*`.
+
+A toggle button in the filter bar switches between them. The same button is rendered in the map's floating bar, defined once in the component so the two cannot drift apart. The choice is not remembered: every fresh load starts on the list.
+
+One layout trap worth knowing. In map view the map and the drawer are both `position: fixed`, so they escape whatever container they are in (which is why the map works the same on `/perform`, where the component sits inside a tab panel). The drawer's expanded height subtracts a fixed clearance for the bottom navigation, the ad strip, *and* the floating control bar at the top. Shrink that clearance and the expanded drawer covers the toggle, which strands the user in map view with no way back.
+
+---
+
 ## Summarize
 
 ### Session: September 2026, adding host-submitted shows to the Laugh tab
@@ -157,5 +172,13 @@ A backlog of host responses that the automatic processor missed, applied by hand
 Three things worth remembering. First, the mic named "PaulZach" is a Grisly Pear Midtown slot, so a name-based scan of the Midtown schedule looks like it is missing a 5:45 Tuesday when it is not. Testing against a full copy of the real 407 mics caught that before it created a duplicate. Second, the Secret Mic host answered a numbered list 1-5 with no questions attached, and it turned out to map cleanly onto the five records in day order. Third, "Feelings Wheelies" was never the mic's name, just the Instagram handle, which is a good reminder that the handle column and the name column drift apart.
 
 Left alone deliberately: a note moving a mic from Brooklyn to a Manhattan address, where the host handle did not match the record. Changing a borough on a guess is worse than leaving it stale.
+
+### Session: map view as a toggle
+
+The Map View dropdown inside the list was replaced with a toggle that swaps the whole page to the map-first layout from the reverted redesign. Keeping those components on disk during that rollback rather than deleting them turned this from a rebuild into a re-wire.
+
+The branch is now keyed on `viewMode` instead of `embedded`, which is what made the original redesign change `/open-mics` silently while leaving `/perform` alone. Now both routes behave the same and the user picks.
+
+Driving it in a real browser caught a bug a diff review would not have: with the drawer expanded, it covered the floating bar containing the toggle, so clicking back to list view was impossible. Measuring the actual boxes (bar 132-192, drawer starting at 136) gave the exact clearance needed rather than a guessed constant.
 
 **Still open.** No cron job regenerates recurring instances, so The Girl Show is hand-seeded through March 2027. No admin UI for verifying submitted shows, still a manual database edit. And `npm run lint` is broken on this repo for an unrelated reason: an eslint / typescript-eslint version mismatch that fails on a clean checkout too.
