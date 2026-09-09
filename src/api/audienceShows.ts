@@ -12,7 +12,7 @@ export interface AudienceShow {
   venue_address: string | null;
   borough: string | null;
   show_date: string;
-  show_time: string;
+  show_time: string | null;
   doors_time: string | null;
   description: string | null;
   lineup: string | null;

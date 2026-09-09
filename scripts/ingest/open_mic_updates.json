@@ -1,0 +1,442 @@
+{
+  "edits": [
+    {
+      "unique_identifier": "51495931-553e-44b2-846d-a643502ee193",
+      "note": "Sick Hat: going on hiatus; only 9/16 and 10/7 left (9/2 has passed)",
+      "set": {
+        "open_mic": "Sick Hat *Final: 9/16 & 10/7*",
+        "other_rules": "Going on hiatus after 10/7. The host has not decided whether it returns at a new venue."
+      }
+    },
+    {
+      "unique_identifier": "71459ec0-438e-4579-b429-ca4a00596b02",
+      "note": "Jake Lemonade hosts the Greenpoint Wednesday mic; 5pm signup, 5:30 start, free with a 1 item purchase",
+      "set": {
+        "hosts_organizers": "Jake Lemonade",
+        "cost": "Free with a 1 item purchase from the bar",
+        "sign_up_instructions": "Sign up 5PM, show starts 5:30PM. In person."
+      }
+    },
+    {
+      "unique_identifier": "566c7f42-f346-43ed-8827-b64993fa00e4",
+      "note": "Energizer Honeys is every OTHER Wednesday at 5:30pm, 4 minute sets, sign up ahead",
+      "set": {
+        "open_mic": "Energizer Honeys *Biweekly*",
+        "start_time": "5:30 PM",
+        "latest_end_time": "7:00 PM",
+        "frequency": "bi_weekly",
+        "stage_time": "4",
+        "sign_up_instructions": "Sign up ahead of time"
+      }
+    },
+    {
+      "unique_identifier": "b3f843a1-f2d8-4240-9236-582e3541c784",
+      "note": "Fun Mic at Freddy's now has a new Google form signup every week",
+      "set": {
+        "sign_up_instructions": "New Google form each week. Sign up via the form in their Instagram bio.",
+        "signup_method": "online"
+      }
+    },
+    {
+      "unique_identifier": "6e48fa02-a9c0-4729-8ff8-1d1409df5fad",
+      "note": "Comedy in Harlem Monday: 5pm signup, 5:30pm start",
+      "set": {
+        "sign_up_instructions": "Sign up 5PM, show starts 5:30PM."
+      }
+    },
+    {
+      "unique_identifier": "1e536831-cc9b-40b4-8bae-b20177756ea3",
+      "note": "Comedy in Harlem Tuesday: 5:30pm signup, 6pm start",
+      "set": {
+        "sign_up_instructions": "Sign up 5:30PM, show starts 6PM."
+      }
+    },
+    {
+      "unique_identifier": "ca61199d-9894-4325-aba2-5156e80840b6",
+      "note": "Secret Mic #5: changes to 4pm at NYCC 24th St",
+      "set": {
+        "start_time": "4:00 PM",
+        "latest_end_time": "5:30 PM",
+        "venue_name": "New York Comedy Club - Midtown",
+        "location": "241 East 24th Street, New York, NY",
+        "neighborhood": "Midtown",
+        "sign_up_instructions": "Sign up at the venue starting at 3:30 PM",
+        "latitude": null,
+        "longitude": null,
+        "geocoded_at": null,
+        "geocoding_provider": null,
+        "geocoding_score": null,
+        "geocoding_match_address": null
+      }
+    },
+    {
+      "unique_identifier": "14429d05-13d7-4f81-96b9-8c1926cab6d6",
+      "note": "Oddball Matt gave his mic to Thomas Purdy",
+      "set": {
+        "hosts_organizers": "Angel Contreras and Thomas Purdy"
+      }
+    },
+    {
+      "unique_identifier": "8e71ab7e-f562-4464-bcab-01112f3f3275",
+      "note": "Name is 'The Feelings Anonymous Mic', not the insta page. 1st and 3rd Saturday monthly",
+      "set": {
+        "open_mic": "The Feelings Anonymous Mic",
+        "frequency": "custom",
+        "frequency_custom_text": "1st & 3rd Saturday of each month"
+      }
+    },
+    {
+      "unique_identifier": "4f3c866e-7c45-4710-9839-e63550682f6b",
+      "note": "Have A Good Mic is 8:30pm not 7:30",
+      "set": {
+        "start_time": "8:30 PM",
+        "latest_end_time": "10:30 PM"
+      }
+    },
+    {
+      "unique_identifier": "7904df9c-8a37-48d3-a5f2-2e35ae7d5cdc",
+      "note": "Only one more mic at Partea Lab on Sep 10 due to venue closure",
+      "set": {
+        "open_mic": "Humor Section Comedy Open Mic *Final: 9/10*",
+        "other_rules": "English / Chinese-friendly. Produced by Humor Section. Final mic 9/10 - the venue is closing."
+      }
+    },
+    {
+      "unique_identifier": "f831f41f-09b0-4ac5-ae1c-b643b5380fee",
+      "note": "Grisly Pear Village Wednesday 6pm: @asapangry_ is the new host, now a 5 min + feedback mic | Grisly Pear Village: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "open_mic": "GP Village Feedback Mic",
+        "hosts_organizers": "@asapangry_",
+        "stage_time": "5 minutes + feedback",
+        "other_rules": "Feedback mic: 5 minutes plus feedback. Cash only, sign up in person.",
+        "venue_name": "Grisly Pear Village",
+        "signup_url": "https://bit.ly/pearvillage",
+        "sign_up_instructions": "Check https://bit.ly/pearvillage for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "ec491c87-12c1-43a2-8b10-187f22b73d73",
+      "note": "Thursdays at the Rib is biweekly not weekly",
+      "set": {
+        "open_mic": "Thursdays at the Rib *Biweekly*",
+        "frequency": "bi_weekly"
+      }
+    },
+    {
+      "unique_identifier": "3478fc7e-a23d-4d42-bee7-939ccd43cb19",
+      "note": "Buddha 1:30 @NYCC UWS is now 3:30. Both the name and the start time were wrong",
+      "set": {
+        "open_mic": "Buddha 3:30 @NYCC UWS",
+        "start_time": "3:30 PM",
+        "latest_end_time": "4:30 PM"
+      }
+    },
+    {
+      "unique_identifier": "4769d8a1-7c92-4b63-bf83-50e6731f9782",
+      "note": "Comedy Mob Thursday 5:30 is the 24th St location, NOT east 4th street",
+      "set": {
+        "open_mic": "Comedy Mob @NYCC Midtown",
+        "venue_name": "New York Comedy Club - Midtown",
+        "location": "241 East 24th Street, New York, NY",
+        "neighborhood": "Midtown",
+        "latitude": null,
+        "longitude": null,
+        "geocoded_at": null,
+        "geocoding_provider": null,
+        "geocoding_score": null,
+        "geocoding_match_address": null
+      }
+    },
+    {
+      "unique_identifier": "046b9a55-cc32-4fbc-8393-5eff7c70fef8",
+      "note": "Grisly Pear Midtown: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Midtown",
+        "signup_url": "https://bit.ly/pearmidtown",
+        "sign_up_instructions": "Check https://bit.ly/pearmidtown for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "0ce8b294-5b5d-4a6b-8885-e1dcc9a594cd",
+      "note": "Grisly Pear Village: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Village",
+        "signup_url": "https://bit.ly/pearvillage",
+        "sign_up_instructions": "Check https://bit.ly/pearvillage for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "322b2eb4-71a4-4f11-a983-e9ea212c16af",
+      "note": "Grisly Pear Village: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Village",
+        "signup_url": "https://bit.ly/pearvillage",
+        "sign_up_instructions": "Check https://bit.ly/pearvillage for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "4683b63e-c2ec-4724-bb04-58ea61cfbb95",
+      "note": "Grisly Pear Village: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Village",
+        "signup_url": "https://bit.ly/pearvillage",
+        "sign_up_instructions": "Check https://bit.ly/pearvillage for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "5444e091-b1bf-4ced-a337-a2b58e8f639a",
+      "note": "Grisly Pear Midtown: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Midtown",
+        "signup_url": "https://bit.ly/pearmidtown",
+        "sign_up_instructions": "Check https://bit.ly/pearmidtown for cancellations. $5 cash + 1 item. Show up, go up. The 5:45 and 7:00 mics are canceled every 4th Tuesday.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "559e6022-360c-4907-9ab8-7a1614db006f",
+      "note": "Grisly Pear Midtown: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Midtown",
+        "signup_url": "https://bit.ly/pearmidtown",
+        "sign_up_instructions": "Check https://bit.ly/pearmidtown for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "6f2320e7-6b40-4eac-b04d-9d78fa28ef25",
+      "note": "Grisly Pear Midtown: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Midtown",
+        "signup_url": "https://bit.ly/pearmidtown",
+        "sign_up_instructions": "Check https://bit.ly/pearmidtown for cancellations. $5 cash + 1 item. Show up, go up. The 5:45 and 7:00 mics are canceled every 4th Tuesday.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "77ee111c-294a-43d1-8471-3e00a12f2d9f",
+      "note": "Grisly Pear Midtown: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Midtown",
+        "signup_url": "https://bit.ly/pearmidtown",
+        "sign_up_instructions": "Check https://bit.ly/pearmidtown for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "835cdec2-8024-41bb-ba78-c7da968c4463",
+      "note": "Grisly Pear Village: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Village",
+        "signup_url": "https://bit.ly/pearvillage",
+        "sign_up_instructions": "Check https://bit.ly/pearvillage for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "8455bbfb-160d-4580-9426-4b93d63dcd86",
+      "note": "Grisly Pear Village: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Village",
+        "signup_url": "https://bit.ly/pearvillage",
+        "sign_up_instructions": "Check https://bit.ly/pearvillage for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "8d9f739e-315a-404f-ba63-4f8060bdeac0",
+      "note": "Grisly Pear Village: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Village",
+        "signup_url": "https://bit.ly/pearvillage",
+        "sign_up_instructions": "Check https://bit.ly/pearvillage for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "9d126e6f-9934-4aab-8bda-8b2a46e25c4a",
+      "note": "Grisly Pear Village: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Village",
+        "signup_url": "https://bit.ly/pearvillage",
+        "sign_up_instructions": "Check https://bit.ly/pearvillage for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "9d19c23c-4ee7-4b8c-9113-35c122dee271",
+      "note": "Grisly Pear Midtown: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Midtown",
+        "signup_url": "https://bit.ly/pearmidtown",
+        "sign_up_instructions": "Check https://bit.ly/pearmidtown for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "b33f945d-12f2-4f8a-baf5-533878af8ec9",
+      "note": "Grisly Pear Village: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Village",
+        "signup_url": "https://bit.ly/pearvillage",
+        "sign_up_instructions": "Check https://bit.ly/pearvillage for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "c02c0125-201d-4e7f-be27-59893b486d04",
+      "note": "Grisly Pear Village: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Village",
+        "signup_url": "https://bit.ly/pearvillage",
+        "sign_up_instructions": "Check https://bit.ly/pearvillage for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "c320a2ba-cb08-4807-bba0-268bbc6b5e4a",
+      "note": "Grisly Pear Midtown: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Midtown",
+        "signup_url": "https://bit.ly/pearmidtown",
+        "sign_up_instructions": "Check https://bit.ly/pearmidtown for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "c60a6512-6a41-4451-81f8-3a6c493b5c7a",
+      "note": "Grisly Pear Midtown: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Midtown",
+        "signup_url": "https://bit.ly/pearmidtown",
+        "sign_up_instructions": "Check https://bit.ly/pearmidtown for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "cff41a9e-605c-472f-9349-c76be5c82026",
+      "note": "Grisly Pear Village: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Village",
+        "signup_url": "https://bit.ly/pearvillage",
+        "sign_up_instructions": "Check https://bit.ly/pearvillage for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "dbedd99f-a036-4bbf-b409-668ffb0734f8",
+      "note": "Grisly Pear Midtown: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Midtown",
+        "signup_url": "https://bit.ly/pearmidtown",
+        "sign_up_instructions": "Check https://bit.ly/pearmidtown for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    },
+    {
+      "unique_identifier": "fb2c9bd5-51b5-4715-baf9-01470a18d2e4",
+      "note": "Grisly Pear Midtown: rename venue, add the weekly cancellations calendar and the 1 item minimum",
+      "set": {
+        "venue_name": "Grisly Pear Midtown",
+        "signup_url": "https://bit.ly/pearmidtown",
+        "sign_up_instructions": "Check https://bit.ly/pearmidtown for cancellations. $5 cash + 1 item. Show up, go up.",
+        "cost": "$5 cash + 1 item"
+      }
+    }
+  ],
+  "removals": [
+    {
+      "unique_identifier": "79d61feb-e9c6-48da-b824-c730cda652d4",
+      "note": "Chewsday mic hasn't been happening for a while"
+    },
+    {
+      "unique_identifier": "ec19a474-d901-4a43-8783-90ce6f109d00",
+      "note": "Secret Mic #4: no Thursday mics"
+    }
+  ],
+  "new_mics": [
+    {
+      "note": "New mic: GIRL DINNER, Tuesdays at Comedy Village",
+      "row": {
+        "open_mic": "Girl Dinner",
+        "day": "Tuesday",
+        "start_time": "7:30 PM",
+        "latest_end_time": "9:00 PM",
+        "venue_name": "Comedy Village",
+        "location": "352 W 44th St, New York, NY 10036",
+        "borough": "Manhattan",
+        "neighborhood": "Hell's Kitchen",
+        "venue_type": "Comedy Club",
+        "cost": "$5",
+        "stage_time": "5 minutes + 3 minutes feedback",
+        "sign_up_instructions": "Sign up 7PM, show starts 7:30PM.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "in_person",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "other_rules": ""
+      }
+    },
+    {
+      "note": "New mic: 4pm 'hot take (no material mic)' @ 24th st, listed alongside the Secret Mic answers. Day inferred as Monday",
+      "row": {
+        "open_mic": "Hot Take (No Material Mic)",
+        "day": "Monday",
+        "start_time": "4:00 PM",
+        "latest_end_time": "5:00 PM",
+        "venue_name": "New York Comedy Club - Midtown",
+        "location": "241 East 24th Street, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "Midtown",
+        "venue_type": "Comedy Club",
+        "cost": "$5",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up at the venue.",
+        "other_rules": "No material mic - hot takes only.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "in_person",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5
+      }
+    },
+    {
+      "note": "New Spanish-only mic at Grisly Pear Midtown, Sundays at 2:00",
+      "row": {
+        "open_mic": "Comedia Times Square (Spanish-Only Mic)",
+        "day": "Sunday",
+        "start_time": "2:00 PM",
+        "latest_end_time": "3:30 PM",
+        "venue_name": "Grisly Pear Midtown",
+        "location": "243 W 54th St, New York, NY 10019, USA",
+        "borough": "Manhattan",
+        "neighborhood": "Times Square",
+        "venue_type": "Comedy Club",
+        "cost": "$5 cash + 1 item",
+        "stage_time": "5",
+        "sign_up_instructions": "THIS MIC IS IN SPANISH ONLY. Check https://bit.ly/pearmidtown for cancellations. $5 cash + 1 item. Show up, go up.",
+        "signup_url": "https://bit.ly/pearmidtown",
+        "other_rules": "This mic is in Spanish only.",
+        "city": "New York",
+        "status": "verified",
+        "frequency": "weekly",
+        "signup_method": "in_person",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.764498198761,
+        "longitude": -73.983298118218
+      }
+    }
+  ]
+}
