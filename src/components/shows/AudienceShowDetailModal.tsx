@@ -221,9 +221,8 @@ export function AudienceShowDetailModal({ show, isOpen, onClose }: AudienceShowD
         {/* Action Buttons */}
         <div className="space-y-2">
           {showPaidButton && (
-            <TicketPurchaseButton 
-              showId={show.id}
-              priceCents={show.price_cents!}
+            <TicketPurchaseButton
+              show={show}
               size="lg"
               className="w-full"
             />

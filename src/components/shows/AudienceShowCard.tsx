@@ -140,9 +140,8 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
             
             <div className="mt-2 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
               {showPaidButton && (
-                <TicketPurchaseButton 
-                  showId={show.id}
-                  priceCents={show.price_cents!}
+                <TicketPurchaseButton
+                  show={show}
                   size="sm"
                   className="text-[10px] h-6 px-1.5"
                 />

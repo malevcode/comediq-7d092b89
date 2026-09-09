@@ -387,6 +387,81 @@ Not done yet, and worth being honest about:
 
 ---
 
+## The four buttons at the bottom
+
+### What changed and why
+
+The bottom bar used to be Home, Perform, Laugh, Profile, plus an Admin tab only Adam saw. It was a solid strip glued to the bottom edge. Two problems. Perform and Laugh were two doors into what is really one question ("what comedy is near me?"), and every page in the app was visible to anybody who typed the URL, so there was no reason to make an account.
+
+It is now four buttons in a floating rounded pill: **Home, Map, My Comedy, Profile**. Admin is a fifth button that only appears for admins.
+
+The pill is see-through, so the page scrolls underneath it. That is on purpose, it is how phone apps look now. It also means anything else stuck to the bottom of the screen has to be moved up out of its way, which is the boring part nobody remembers. There are three such things and they all had to be re-measured: the scrolling ad marquee, the drawer on the Open Mics page, and the unlock card on the map.
+
+### The three rules the nav follows
+
+1. **Which button lights up** is decided by a list of route prefixes per button, not a pile of if-statements. Map owns every mic and show page, so standing on `/open-mics` still lights Map. Add a new route to a section by adding one string to its `activeWhen` list in `src/components/BottomNavigation.tsx`.
+2. **Profile changes where it points.** Signed in it goes to `/profile`. Signed out it goes to `/auth`, so the button is never a dead end.
+3. **The nav hides itself** on the sign-in pages, on mic signup sheets, and whenever the phone keyboard is open.
+
+## Who you are, and what that unlocks
+
+### The one flag that matters
+
+There is a true/false column on your profile called `approved_comedian`. It is the only thing standing between the small map and the big one.
+
+- **Not approved** (nobody is logged in, or you signed up and are still waiting): the map shows **live comedy shows plus the five weekly top mics**. Enough to see the city is alive and buy a ticket tonight.
+- **Approved**: the map shows **every open mic**, around 500 of them, and My Comedy starts tracking your sets.
+
+Admins are always treated as approved. That is deliberate, so it is impossible to lock yourself out of your own map.
+
+### Nobody lost access when this shipped
+
+New columns start out false, and false means locked. If that had been left alone, every one of the 1,500 people who use Comediq each week would have opened the app and found the mic list gone.
+
+So the migration does two things in a row: it adds the column, then it immediately sets it to true for every profile that already existed. Only accounts created *after* that moment start out pending. This is the whole reason `update public.profiles set approved_comedian = true;` sits in `supabase/migrations/20260909120000_add_approved_comedian_flag.sql` with no `where` clause. It looks like a mistake. It is not.
+
+### Approving somebody
+
+Admin tab, Comedians. It lists everyone waiting, oldest first, with an Approve button. That is the whole tool.
+
+## The Map tab
+
+One page, `src/pages/UnifiedMap.tsx`, with a Shows / Mics toggle at the top. It is deliberately thin. It does not draw a map itself, it decides *what data to hand to* the two map components that already existed, and it remembers which toggle you picked in your browser.
+
+Where you land depends on who you are. Comedians open on Mics because that is their job. Everybody else opens on Shows, because that is the ticket.
+
+The audience version of the Mics view is not a different map. It is the same map handed a shorter list: all the mics, filtered down to just the ones in this week's top five. Under it sits a card explaining what is behind the door, and the card says different things depending on whether you are logged out (make an account) or logged in and waiting (you are under review).
+
+**The rule that never changes:** pins come from `latitude` and `longitude` columns already stored in the database. The browser never looks up an address. Geocoding happens ahead of time through the scripts in `scripts/`.
+
+## The My Comedy tab
+
+Three stacked lists in `src/pages/MyComedy.tsx`.
+
+1. **Tickets.** Shows you paid for. Reads `ticket_purchases` rows marked paid.
+2. **Upcoming.** Mics you said you are going to. Comedians only, hidden for everybody else because it would always be empty.
+3. **My history.** Three numbers across the top (sets, venues, stage time) then every set you have tracked, newest first.
+
+Logged out, this page does not bounce you anywhere. It shows a sign-in card. A tab that redirects the moment you tap it feels broken.
+
+The history numbers come from `useMyComedy`, which is a separate hook from the Wrapped one on purpose. Wrapped only ever looks at a single year, and My Comedy needs your whole career.
+
+## How buying a ticket works
+
+Five steps.
+
+1. You tap **Buy Tickets** on a show.
+2. The app calls the `create-checkout-session` function with `mode: 'ticket'` and the show id. **It does not send a price.**
+3. The function looks the price up itself, in the database, on the server. This is the important step. If the browser sent the price, anybody could edit it to one cent before hitting send.
+4. It writes a `ticket_purchases` row marked **pending** and sends you to Stripe.
+5. Stripe finishes, tells the webhook, and the webhook flips that row to **paid**. Now it shows up in My Comedy.
+
+Shows without a price in our database still work, they just open the venue's own ticket link in a new tab instead. Most shows are currently in that state.
+
+### Why this lives inside the subscription function
+
+`create-checkout-session` already ran the $20/month Full Pass billing, and putting ticket sales in the same file means the risk of breaking live billing is real. It is guarded: without `mode: 'ticket'` in the request, the function runs exactly the code it always ran, untouched. The ticket logic is an early exit that happens before the subscription path ever starts. If subscriptions ever break, that guard is the first place to look.
+
 ## Summarize
 
 ### Session: wrapping Comediq in Capacitor
@@ -590,3 +665,13 @@ The branch is now keyed on `viewMode` instead of `embedded`, which is what made 
 Driving it in a real browser caught a bug a diff review would not have: with the drawer expanded, it covered the floating bar containing the toggle, so clicking back to list view was impossible. Measuring the actual boxes (bar 132-192, drawer starting at 136) gave the exact clearance needed rather than a guessed constant.
 
 **Still open.** No cron job regenerates recurring instances, so The Girl Show is hand-seeded through March 2027. No admin UI for verifying submitted shows, still a manual database edit. And `npm run lint` is broken on this repo for an unrelated reason: an eslint / typescript-eslint version mismatch that fails on a clean checkout too.
+
+### Session: the bottom nav redesign and the audience view
+
+Four buttons instead of five sections, and the app split into two audiences: people who might buy a ticket, and comedians who need the whole mic list.
+
+The interesting decisions were not the visual ones. Gating the mic list behind a new `approved_comedian` flag meant the default value was going to silently lock out every existing weekly user, so the migration grandfathers everybody in the same breath that it creates the column. Putting ticket checkout inside the function that runs live subscription billing was a deliberate call with a real risk attached, so the ticket path is an early exit that leaves the subscription code untouched when `mode` is absent.
+
+Driving it in a browser earned its keep again. The floating pill is see-through, which looks right and immediately exposed that the marketing footer was showing through the full-bleed map, and that three separate bottom-anchored elements were all measured against the old 60px bar. The marquee, the Open Mics drawer, and the map unlock card all had to be re-measured against the new pill.
+
+**Still open.** The `mic_signups` table is not yet read into the Upcoming list, only `profile_open_mics` is, so mics you signed up for through a host sheet do not appear there yet. Ticket checkout has not been run against real Stripe test keys from this environment. And the Mapbox token is not available in the sandbox, so the map was verified as a layout and not as pins on tiles.

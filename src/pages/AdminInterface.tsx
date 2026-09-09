@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { CheckCircle, XCircle, Clock, FileText, UserCheck, UserX, Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import PendingComediansPanel from '@/components/admin/PendingComediansPanel';
 import AdminRequestList from '@/components/admin/AdminRequestList';
 import AdminAllMicsList from '@/components/admin/AdminAllMicsList';
 import { AdminMicsSpreadsheet } from '@/components/admin/AdminMicsSpreadsheet';
@@ -308,6 +309,7 @@ const AdminInterface = () => {
           <TabsList className="mb-8 w-full flex flex-wrap h-auto gap-1">
             <TabsTrigger value="analytics" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Mics</TabsTrigger>
             <TabsTrigger value="users" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Users</TabsTrigger>
+            <TabsTrigger value="comedians" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Comedians</TabsTrigger>
             <TabsTrigger value="all" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">All Mics</TabsTrigger>
             <TabsTrigger value="pending" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Pending</TabsTrigger>
             <TabsTrigger value="flags" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">Flags</TabsTrigger>
@@ -324,6 +326,9 @@ const AdminInterface = () => {
             <TabsTrigger value="motd" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">MOTD</TabsTrigger>
             <TabsTrigger value="instagram" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 py-2">IG</TabsTrigger>
           </TabsList>
+          <TabsContent value="comedians">
+            <PendingComediansPanel />
+          </TabsContent>
           <TabsContent value="analytics">
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
               <CardContent className="p-8 flex flex-col items-start">

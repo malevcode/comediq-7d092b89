@@ -83,6 +83,11 @@ const withSubscriptionSuccess = (path: string) => {
   return `${siteUrl}${path}${separator}subscription=success`
 }
 
+const withTicketSuccess = (path: string) => {
+  const separator = path.includes('?') ? '&' : '?'
+  return `${siteUrl}${path}${separator}ticket=success`
+}
+
 const getSafeReturnUrl = (value: unknown) => {
   if (typeof value !== 'string') return null
 
@@ -111,6 +116,12 @@ const withSubscriptionSuccessUrl = (url: string) => {
   return parsedUrl.toString()
 }
 
+const withTicketSuccessUrl = (url: string) => {
+  const parsedUrl = new URL(url)
+  parsedUrl.searchParams.set('ticket', 'success')
+  return parsedUrl.toString()
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -130,9 +141,17 @@ Deno.serve(async (req) => {
     if (!user?.email) return json({ error: 'Not authenticated' }, 401)
     console.log('Creating checkout session for user', user.id)
 
-    const { returnPath, returnUrl } = await req.json().catch(() => ({ returnPath: '/' }))
+    const body = await req.json().catch(() => ({ returnPath: '/' }))
+    const { mode, showId, quantity, returnPath, returnUrl } = body as {
+      mode?: string
+      showId?: string
+      quantity?: number
+      returnPath?: string
+      returnUrl?: string
+    }
     const safeReturnPath = getSafeReturnPath(returnPath)
     const safeReturnUrl = getSafeReturnUrl(returnUrl)
+    const isTicketCheckout = mode === 'ticket'
 
     const admin = createClient(supabaseUrl, serviceRoleKey, {
       auth: {
@@ -186,6 +205,85 @@ Deno.serve(async (req) => {
           },
           { onConflict: 'user_id' },
         )
+    }
+
+    if (isTicketCheckout) {
+      if (!showId || typeof showId !== 'string') {
+        return json({ error: 'showId is required for ticket checkout' }, 400)
+      }
+
+      // Price is always read server-side. Never trust an amount from the client.
+      const { data: show, error: showError } = await admin
+        .from('audience_shows')
+        .select('id, title, venue_name, price_cents, is_paid, show_date, status')
+        .eq('id', showId)
+        .maybeSingle()
+
+      if (showError) throw showError
+      if (!show) return json({ error: 'Show not found' }, 404)
+      if (!show.is_paid || !show.price_cents || show.price_cents <= 0) {
+        return json({ error: 'This show does not sell tickets through Comediq' }, 400)
+      }
+
+      const showDay = String(show.show_date).slice(0, 10)
+      const today = new Date().toISOString().slice(0, 10)
+      if (showDay < today) return json({ error: 'This show has already happened' }, 400)
+
+      const safeQuantity = Math.min(10, Math.max(1, Math.floor(Number(quantity) || 1)))
+      const totalCents = show.price_cents * safeQuantity
+
+      const ticketSession = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        customer: customerId,
+        client_reference_id: user.id,
+        line_items: [
+          {
+            price_data: {
+              currency: 'usd',
+              unit_amount: show.price_cents,
+              product_data: {
+                name: show.title,
+                description: `${show.venue_name} · ${showDay}`,
+              },
+            },
+            quantity: safeQuantity,
+          },
+        ],
+        payment_intent_data: {
+          metadata: {
+            supabase_user_id: user.id,
+            show_id: show.id,
+            quantity: String(safeQuantity),
+          },
+        },
+        metadata: {
+          supabase_user_id: user.id,
+          show_id: show.id,
+          quantity: String(safeQuantity),
+        },
+        success_url: safeReturnUrl
+          ? withTicketSuccessUrl(safeReturnUrl)
+          : withTicketSuccess(safeReturnPath),
+        cancel_url: safeReturnUrl ?? `${siteUrl}${safeReturnPath}`,
+      })
+
+      // Recorded as pending; the Stripe webhook flips it to paid.
+      const { error: purchaseError } = await admin.from('ticket_purchases').insert({
+        user_id: user.id,
+        show_id: show.id,
+        quantity: safeQuantity,
+        total_cents: totalCents,
+        status: 'pending',
+        stripe_checkout_id: ticketSession.id,
+        email: user.email,
+      })
+
+      if (purchaseError) {
+        console.error('Failed to record pending ticket purchase', purchaseError)
+      }
+
+      console.log('Created ticket checkout session', { userId: user.id, showId: show.id, sessionId: ticketSession.id })
+      return json({ url: ticketSession.url })
     }
 
     const session = await stripe.checkout.sessions.create({

@@ -1,37 +1,39 @@
 import { Button } from '@/components/ui/button';
-import { Ticket } from 'lucide-react';
-import { toast } from 'sonner';
+import { Loader2, Ticket } from 'lucide-react';
+import { useTicketCheckout } from '@/hooks/useTicketCheckout';
+import { AudienceShow } from '@/api/audienceShows';
 
 interface TicketPurchaseButtonProps {
-  showId: string;
-  priceCents: number;
+  show: AudienceShow;
   variant?: 'default' | 'outline' | 'secondary';
   size?: 'default' | 'sm' | 'lg';
   className?: string;
 }
 
-export function TicketPurchaseButton({ 
-  priceCents, 
+export function TicketPurchaseButton({
+  show,
   variant = 'default',
   size = 'default',
-  className = ''
+  className = '',
 }: TicketPurchaseButtonProps) {
-  const priceFormatted = `$${(priceCents / 100).toFixed(0)}`;
-
-  const handleClick = () => {
-    // Stripe integration coming soon
-    toast.info('Ticket purchasing coming soon! For now, contact the venue directly.');
-  };
+  const { buyTickets, loadingShowId } = useTicketCheckout();
+  const isLoading = loadingShowId === show.id;
+  const priceFormatted = show.price_cents ? `$${(show.price_cents / 100).toFixed(0)}` : '';
 
   return (
-    <Button 
+    <Button
       variant={variant}
       size={size}
-      onClick={handleClick}
+      disabled={isLoading}
+      onClick={() => buyTickets(show)}
       className={className}
     >
-      <Ticket className="w-4 h-4 mr-2" />
-      Buy Tickets ({priceFormatted})
+      {isLoading ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : (
+        <Ticket className="mr-2 h-4 w-4" />
+      )}
+      {isLoading ? 'Starting checkout...' : `Buy Tickets${priceFormatted ? ` (${priceFormatted})` : ''}`}
     </Button>
   );
 }
