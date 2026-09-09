@@ -281,6 +281,51 @@ delete their own rows, which is what "undo my check-in" needs.
 
 ## Summarize
 
+### Session: the second September host-update batch
+
+A second round of host replies arrived after the manual batch was staged. The
+useful part of this session was working out how little was actually left to do.
+
+**Most of it was already staged.** `scripts/ingest/open_mic_updates.json` already
+covered Sick Hat, Chewsday, Energizer Honeys, Freddy's, both Comedy in Harlem
+mics, the Secret Mic answers, Oddball Matt, Feelings Anonymous, Partea Lab,
+Thursdays at the Rib, Buddha, Comedy Mob, Girl Dinner and the Grisly Pear
+rename. Re-deriving those would have produced duplicate edits fighting the
+existing ones, so the batch was diffed against the live export first. Only three
+things were genuinely missing: the Eiffel Tower time, the Social Club address,
+and damonmillard1's two mics.
+
+**The batch is staged, not applied.** `mics.json` still shows the old values, and
+"Apply open mic updates" is `workflow_dispatch` only. Nothing reaches the
+database until someone runs it. That is easy to misread as "already done".
+
+**Migrations are the wrong tool here and this was the second time that bit.**
+The first pass of this work was written as a SQL migration, and nothing in this
+repo applies migrations, which is the same reason the September shows never
+landed. It was thrown away and rewritten as entries in the JSON batch. If a
+change needs to reach the open mics table, it goes through
+`open_mic_updates.json` and the workflow, which is the only path holding a
+service-role key.
+
+**Two mics were staged as `status = 'pending'`** rather than guessed at.
+damonmillard1 gave times, prices and signup rules but never named a venue, and
+the export filters `status = neq.pending`, so those rows sit in the database
+invisible until someone fills the venue in. Inventing an address would have been
+worse than leaving them hidden.
+
+**Left alone on purpose.** West Side Comedy Club's "no 2 5 or 7 this week" maps
+cleanly onto their ten rows, but those are one-week skips rather than closures
+and the week had already passed, so a dated note would have been stale on
+arrival. Golden Pen was reported cancelled on 7/5 for a Friday 6pm slot, but the
+only Golden Pen record is Sunday 5pm and was verified 8/4, a month after the
+report, so it stays. bjhealy23's "not running until September or October" never
+named a mic, and it is now September.
+
+**Still open.** Sick Hat and Partea Lab are carrying their final dates in their
+display names rather than an end date the system understands. After 10/7 and
+9/10 respectively, each needs a `removals` entry in the next batch. Nothing
+schedules that.
+
 ### Session: offline mode and real mic check-in
 
 **Where we started.** Adam asked what progress had been made toward putting
