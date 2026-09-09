@@ -166,27 +166,3 @@ export function formatMeters(meters: number): string {
   if (meters < 1000) return `${Math.round(meters)}m`;
   return `${(meters / 1000).toFixed(1)}km`;
 }
-
-/** Reads one high-accuracy GPS fix. Rejects with a message worth showing a human. */
-export function readPreciseLocation(): Promise<GeolocationPosition> {
-  return new Promise((resolve, reject) => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
-      reject(new Error("This device cannot share its location."));
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(resolve, (error) => {
-      const messages: Record<number, string> = {
-        1: "Location permission denied. Comediq needs it to prove you were at the mic.",
-        2: "Could not get a location fix. Step outside and try again.",
-        3: "Location request timed out. Try again.",
-      };
-      reject(new Error(messages[error.code] ?? "Could not get your location."));
-    }, {
-      enableHighAccuracy: true,
-      timeout: 15000,
-      // A fresh fix matters here, so accept nothing older than a minute.
-      maximumAge: 60000,
-    });
-  });
-}
