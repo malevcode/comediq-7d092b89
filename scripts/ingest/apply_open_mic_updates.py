@@ -37,7 +37,9 @@ from ingest_to_supabase import (  # noqa: E402  reuse the existing retry policy
     should_retry_upsert_response,
 )
 
-TABLE = "open_mics"
+# The mic listings live in open_mics_historical. There is no "open_mics" table:
+# pointing at that name made every lookup 404 with PGRST205.
+TABLE = "open_mics_historical"
 UPDATES_FILE = Path(__file__).resolve().parent / "open_mic_updates.json"
 
 
