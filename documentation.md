@@ -480,6 +480,12 @@ only Golden Pen record is Sunday 5pm and was verified 8/4, a month after the
 report, so it stays. bjhealy23's "not running until September or October" never
 named a mic, and it is now September.
 
+**Laughing Buddha dropped three slots.** The Saturday 3:00 PM and Saturday 11:30 PM
+mics at The Buddha Room, plus the 9:45 PM Buddha mic at Rodney's, are deactivated
+rather than deleted. Worth noting there is also a Saturday 9:45 PM mic at The Buddha
+Room that stays active: "the 9:45" is ambiguous across that host's 41 listings, and
+the one being dropped is the Rodney's slot, not the Saturday one.
+
 **Still open.** Sick Hat and Partea Lab are carrying their final dates in their
 display names rather than an end date the system understands. After 10/7 and
 9/10 respectively, each needs a `removals` entry in the next batch. Nothing
