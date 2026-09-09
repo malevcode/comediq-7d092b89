@@ -64,26 +64,39 @@ so a mic with a similar name can never be hit by accident.
 
 ### Session: September 2026 host-blast mic updates
 
-Took host replies from the September blast and turned them into reviewed SQL.
-Nothing was written to the live database — this session had no Supabase write
-credentials, so the output is SQL for review.
+Took two rounds of host replies from the September blast and turned them into one
+reviewed SQL migration. Nothing was written to the live database from here: this
+session has read access only, so the output is SQL you paste into the Supabase SQL
+editor. `public/mics.json` is deliberately untouched, because `prebuild` re-exports
+it from Supabase on every build and would overwrite a hand edit.
 
-**Verified, not assumed.** Every target was matched against the live export,
-then the migration was run against a throwaway PostgreSQL database built to
-match the real schema. All 12 updates hit exactly 1 row each, the insert
-guard survived a second run without duplicating, and the closures correctly
-dropped 4 rows out of the public export.
+**Verified, not assumed.** The migration was run against a throwaway PostgreSQL
+database built to match the real schema and seeded with **all 407 live rows**. Every
+single-row UPDATE matched exactly 1 row, the batch matched exactly 4, all 5 INSERTs
+are idempotent across a second full run, and the public export filter lands on 405
+visible rows with 7 correctly hidden.
 
-**Applied (13 changes):** closed Chewsdays Innit; hiatus notes on Sick Hat and
-Partea Lab; Energizer Honeys to biweekly 5:30 PM; Have A Good Mic to 8:30 PM;
-Last Stop Mic host to Thomas Purdy; Feelings Wheel renamed to The Feelings
-Anonymous Mic; Freddy's signup note; Greenpoint Wednesday host and cost;
-Comedy in Harlem Tuesday signup time; Social Club address; one new staged mic.
+**Two ambiguous host replies got decoded rather than guessed.**
+- `the_secret_mics` sent a bare numbered Y/N list. Their 5 rows are Mon to Fri, and
+  two independent anchors confirm the ordering: item 4 says "no thursday mics" and
+  position 4 is Thursday; item 5 says "24th st" and position 5 is the only 24th St row.
+- West Side Comedy Club's "no 2 5 or 7" maps one-for-one onto our 10 rows by name and
+  time. Those are one-week skips, not closures, and the week has passed, so nothing
+  was changed.
 
-**The useful finding:** five requested changes were already done, and three
-"new" mics already existed. Adding them would have created duplicates on a
-site 1500 people use weekly. Full detail is in the pull request.
+**The NYCC Midtown address came from this repo**, `scripts/scrapers/NYCC_scraper.py`,
+which maps Midtown to 241 East 24th Street. Three separate items needed it, and none
+of them required inventing an address.
 
-**Held back for Adam:** Golden Pen (report says Friday 6PM, database says
-Sunday 5PM), Grisly Pear Wednesday (@asapangry_ hosts an unrelated mic), and
-The Sunday Open Mic (no matching row) — all flagged rather than guessed.
+**Applied:** 3 closures, 2 hiatus notes, 11 edits in place, 4 verification bumps,
+3 new mics live (Girl Dinner, The Secret Mic @ Midtown, Hot Take) and 2 staged as
+`pending` because no venue was given.
+
+**The useful finding:** several "changes" were already correct in the database, and
+three "new" mics already existed. Rodney's Wednesday was already 6PM with Ellen
+Maloney, and both Pear schedules already matched kmehra's lists row for row. Inserting
+the duplicates would have put them in front of 1500 weekly users.
+
+**One thing still open:** Grisly Pear Wednesday (@asapangry_). That handle hosts an
+unrelated mic in our data, and there are three candidate Wednesday rows, so the
+"5 min + feedback" label waits rather than landing on the wrong mic.
