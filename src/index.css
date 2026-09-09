@@ -129,10 +129,6 @@
 }
 
 @layer components {
-  .page-content-offset {
-    padding-top: 9rem;
-  }
-
   .landing-glass-surface {
     background: rgba(255, 255, 255, 0.34);
     -webkit-backdrop-filter: blur(28px) saturate(1.25);
@@ -187,11 +183,6 @@
     border-color: rgba(255, 255, 255, 0.1);
   }
 
-  @media (min-width: 640px) {
-    .page-content-offset {
-      padding-top: 9.5rem;
-    }
-  }
 }
 
 @layer utilities {
@@ -279,13 +270,14 @@ html {
   border-bottom-color: white;
 }
 
-/* Fixed header spacing: free users see ad bars, Full Pass users do not. */
-.non-subscriber-layout {
-  --page-top-offset: 7.5rem;
-}
-
+/* Content clears the fixed header by its real height plus a small gap.
+   PageHeader measures itself into --nav-height; the fallbacks below apply only
+   before that first measurement. The old free/paid split reserved extra room
+   at the top for an ad bar, but MarqueeBanner is fixed to the *bottom*, so
+   there was nothing up here for it to clear. */
+.non-subscriber-layout,
 .subscriber-layout {
-  --page-top-offset: 6.5rem;
+  --page-top-offset: calc(var(--nav-height, 7.5rem) + 0.75rem);
 }
 
 .page-content-offset {

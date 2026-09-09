@@ -105,13 +105,12 @@ export function ConfirmReportButtons({ micUniqueIdentifier, micName, lastConfirm
         disabled={confirmedThisMonth || isConfirming}
         onClick={openConfirmDialog}
         className={cn(
-          "h-7 px-2 gap-1 text-xs",
+          "h-7 w-8 p-0",
           confirmedThisMonth && "border-green-300 bg-green-50 text-green-700 disabled:opacity-100",
         )}
         aria-label={confirmedThisMonth ? "Confirmed this month" : "Confirm mic is active"}
       >
         <Check className="w-3.5 h-3.5" />
-        {confirmedThisMonth ? "Confirmed this month" : "Confirm Active"}
       </Button>
       <Button
         size="sm"
@@ -119,13 +118,12 @@ export function ConfirmReportButtons({ micUniqueIdentifier, micName, lastConfirm
         disabled={alreadyReportedThisMonth || isReporting}
         onClick={openReportDialog}
         className={cn(
-          "h-7 px-2 gap-1 text-xs",
+          "h-7 w-8 p-0",
           alreadyReportedThisMonth && "border-red-300 bg-red-50 text-red-700 disabled:opacity-100",
         )}
         aria-label={alreadyReportedThisMonth ? "Reported this month" : "Report mic as inactive"}
       >
         <Flag className="w-3.5 h-3.5" />
-        {alreadyReportedThisMonth ? "Reported" : "Report Inactive"}
       </Button>
 
       <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
