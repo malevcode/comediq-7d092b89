@@ -279,8 +279,167 @@ delete their own rows, which is what "undo my check-in" needs.
 
 ---
 
+## Wrapping Comediq as a real app (Capacitor)
+
+### What Capacitor is, in one paragraph
+
+Capacitor takes the website you already built and puts it inside a real iOS and
+Android app. The app is a full-screen browser with no browser chrome, plus a
+bridge that lets JavaScript call native phone features. You do not rewrite
+anything. `dist/` (the normal Vite build) becomes the app's contents.
+
+That means there is exactly one codebase. A fix you ship to comediq.us is the
+same fix that goes in the app.
+
+### The pieces in this repo
+
+| File | Job |
+|---|---|
+| `capacitor.config.ts` | App name, bundle id (`us.comediq.app`), and that the app's contents come from `dist/` |
+| `src/utils/deviceLocation.ts` | Reads GPS. Uses the native plugin inside the app, the browser API on the web |
+| `scripts/capacitor-permissions.mjs` | Writes the location permission entries into the native projects |
+
+The native project folders, `ios/` and `android/`, are **not in the repo yet**.
+They get generated once, on a Mac, by the commands below.
+
+### First-time setup (do this once, on a Mac)
+
+```bash
+npm install
+npx cap add ios          # needs Xcode
+npx cap add android      # needs Android Studio
+npm run cap:permissions  # writes the location permissions into both projects
+```
+
+Then commit the generated `ios/` and `android/` folders. They hold signing
+config and app icons, so they belong in git. Their *build output* does not, and
+`.gitignore` already excludes it.
+
+### Every time after that
+
+```bash
+npm run cap:ios       # build the web app, copy it in, open Xcode
+npm run cap:android   # same, opens Android Studio
+```
+
+`npm run cap:sync` does the build-and-copy without opening anything.
+
+The rule to remember: **editing `src/` changes nothing in the app until you
+sync.** If a change is not showing up on the device, you skipped the sync.
+
+### Why there is a permissions script
+
+Capacitor generates the native projects from a template that knows nothing about
+what Comediq does. Location permission has to be declared per platform, in two
+different files, in two different formats:
+
+- **iOS** wants `NSLocationWhenInUseUsageDescription` in `Info.plist`, with a
+  sentence explaining why. Apple shows that sentence in the permission prompt and
+  rejects apps that leave it vague.
+- **Android** wants `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION` in
+  `AndroidManifest.xml`.
+
+Forgetting either one produces the same confusing symptom: the permission prompt
+never appears and location silently fails. `npm run cap:permissions` writes both,
+and is safe to run repeatedly. It only ever adds what is missing.
+
+### How location works in each place
+
+`readPreciseLocation()` in `src/utils/deviceLocation.ts` has two paths and one
+return shape, so nothing calling it needs to care which it got:
+
+- **Inside the app**, `Capacitor.isNativePlatform()` is true, so it goes through
+  the native plugin. That asks for the real OS permission and reads real GPS.
+- **In a browser**, it falls back to `navigator.geolocation`.
+
+The check-in gate logic in `src/utils/micCheckin.ts` deliberately does **not**
+import Capacitor. It is pure functions over numbers and dates, which keeps it
+testable in plain Node with no browser and no phone.
+
+### Offline in the native app
+
+The service worker (see the offline section above) is a web mechanism. Inside
+the native app it is mostly beside the point, because the app's HTML, JavaScript
+and `mics.json` are **bundled into the app itself**. They load from local storage
+on the device whether or not there is signal. The subway case is handled by
+Capacitor for free on native, and by the service worker on the web.
+
+One consequence worth knowing: because `mics.json` is bundled at build time, the
+app ships with a snapshot of the mic list. A logged-in user still fetches live
+data from Supabase when they have signal. A user with no signal sees whatever
+was current when that app version was built, until they get online once.
+
+### Before submitting to the stores
+
+Not done yet, and worth being honest about:
+
+- **Icons.** `public/manifest.webmanifest` currently points at one 256px logo.
+  Both stores want a full icon set, and iOS wants a launch screen.
+- **Apple Developer Program**, $99/year, required before anything reaches
+  TestFlight or the App Store.
+- **Google Play Console**, $25 one time.
+- **Privacy labels.** Both stores ask what data the app collects. Comediq
+  collects location (for check-in), email (for accounts), and usage analytics.
+- **The rejection risk.** Apple rejects apps that are only a website in a
+  wrapper. The defence is native capability the browser does not give you: the
+  GPS check-in is the strongest one, offline use is second, and push
+  notifications would be third once built.
+
+---
+
 ## Summarize
 
+### Session: wrapping Comediq in Capacitor
+
+**Where this picked up.** The previous session shipped offline mode and
+GPS-verified check-in (PR #114, merged). This one adds the native shell that
+turns comediq.us into an actual iOS and Android app.
+
+**What shipped.** Capacitor 7 (`@capacitor/core`, `@capacitor/cli`,
+`@capacitor/geolocation`), a deliberately minimal `capacitor.config.ts`, a
+`deviceLocation.ts` module that reads GPS natively inside the app and through
+the browser API on the web, three npm scripts, and a permissions script that
+writes the iOS and Android location entries so nobody has to remember two
+different file formats.
+
+**One decision worth recording.** The first version of `capacitor.config.ts`
+overrode the iOS and Android URL schemes to force `https://localhost`, on the
+theory that a secure context was needed for geolocation. That reasoning was
+wrong: on native, location comes from the plugin calling CoreLocation and the
+Android location services directly, not from the web geolocation API, so the
+scheme is irrelevant to it. Overriding a default that cannot be tested from CI
+is a bad trade, so the override came out. The config is now defaults plus a
+background colour.
+
+**A structural choice.** `readPreciseLocation` moved out of `micCheckin.ts` into
+its own `deviceLocation.ts`. That keeps `micCheckin.ts` free of any Capacitor
+import, so the window and proximity logic stays pure functions over numbers and
+dates, testable in plain Node with no browser and no phone. Everything native
+lives behind one small module.
+
+**How we knew it worked.** The permissions script was run against realistic
+Capacitor-generated `Info.plist` and `AndroidManifest.xml` templates: both came
+out valid (parsed back with `plistlib` and `ElementTree`), existing keys
+survived, and a second run correctly changed nothing. The Capacitor web
+geolocation path was driven in real Chromium with the browser's location spoofed
+to a real venue from `mics.json`: 8 assertions covering platform detection, the
+reading itself, accuracy passthrough, the proximity verdict at the venue, 55m
+away and 5km away, and a denied permission producing a readable message. The
+offline test from last session was re-run against the new build and still shows
+all 407 mics with the network cut. `tsc --noEmit` and `vite build` pass clean.
+
+**What is NOT done, stated plainly.** The `ios/` and `android/` folders do not
+exist yet and cannot be generated here: they need Xcode and Android Studio on a
+Mac. Nothing in this PR has ever been compiled into an actual app binary or run
+on a real device. It is the wiring, verified as far as a Linux CI box can verify
+it, and the first `npx cap add ios` is the moment that claim gets tested for
+real. Icons, the Apple Developer Program enrolment, and push notifications all
+remain ahead.
+
+**Still outstanding from last session.** The check-in migration
+(`supabase/migrations/20260908160000_verified_mic_checkins.sql`) has not been
+applied to the live database yet. Until it is, `check_in_mic` does not exist and
+the check-in button fails with an error toast. Nothing else is affected.
 ### Session: the second September host-update batch
 
 A second round of host replies arrived after the manual batch was staged. The

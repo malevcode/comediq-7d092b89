@@ -5,11 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { OpenMic } from '@/types/openMic';
-import {
-  evaluateCheckinWindow,
-  formatMeters,
-  readPreciseLocation,
-} from '@/utils/micCheckin';
+import { evaluateCheckinWindow, formatMeters } from '@/utils/micCheckin';
+import { readPreciseLocation } from '@/utils/deviceLocation';
 
 interface WentUpToggleProps {
   mic: Pick<OpenMic, 'uniqueIdentifier' | 'day' | 'startTime' | 'openMic'>;
@@ -71,14 +68,13 @@ export function WentUpToggle({ mic }: WentUpToggleProps) {
 
   const checkInMutation = useMutation({
     mutationFn: async (): Promise<CheckinResult> => {
-      const position = await readPreciseLocation();
-      const { latitude, longitude, accuracy } = position.coords;
+      const { latitude, longitude, accuracy } = await readPreciseLocation();
 
       const { data, error } = await (supabase as any).rpc('check_in_mic', {
         p_mic_unique_identifier: micId,
         p_latitude: latitude,
         p_longitude: longitude,
-        p_accuracy_meters: accuracy ?? null,
+        p_accuracy_meters: accuracy,
       });
 
       if (error) throw error;
