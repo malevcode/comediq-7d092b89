@@ -154,7 +154,45 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   }
 }
 
+/**
+ * One-off ticket purchases. Identified by payment mode plus the show_id we set
+ * as metadata in create-checkout-session, so subscription sessions never match.
+ */
+async function handleTicketCheckout(session: Stripe.Checkout.Session) {
+  const showId = session.metadata?.show_id
+  if (!showId) return false
+
+  if (session.payment_status !== 'paid') {
+    console.warn(`Ignoring unpaid ticket session ${session.id}`)
+    return true
+  }
+
+  const paymentIntentId = typeof session.payment_intent === 'string' ? session.payment_intent : null
+
+  const { error } = await supabase
+    .from('ticket_purchases')
+    .update({
+      status: 'paid',
+      stripe_payment_id: paymentIntentId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('stripe_checkout_id', session.id)
+
+  if (error) {
+    console.error('Failed to mark ticket purchase paid', { sessionId: session.id, error })
+    throw error
+  }
+
+  console.log('Ticket purchase marked paid', { sessionId: session.id, showId })
+  return true
+}
+
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+  if (session.mode === 'payment') {
+    const handled = await handleTicketCheckout(session)
+    if (handled) return
+  }
+
   const priceId = await getPriceIdFromCheckoutSession(session)
   if (priceId !== fullPassPriceId) {
     console.warn(`Ignoring checkout session ${session.id} for unknown price ${priceId}`)

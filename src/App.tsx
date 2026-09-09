@@ -52,6 +52,8 @@ import Slots from "./pages/Slots";
 import ShowsMap from "./pages/ShowsMap";
 import Onboarding from "./pages/Onboarding";
 import Strip from "./pages/Strip";
+import UnifiedMap from "./pages/UnifiedMap";
+import MyComedy from "./pages/MyComedy";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -75,13 +77,19 @@ function isMicSignupPath(pathname: string) {
   return pathname === '/mic-signup' || /^\/mic\/[^/]+\/signup\/?$/.test(pathname);
 }
 
+// Full-bleed app surfaces own the whole viewport; a marketing footer under them
+// bleeds through the fixed map layer.
+const FULL_BLEED_PATHS = ['/map'];
+
 function SiteFooterWrapper() {
   const location = useLocation();
 
   if (isMicSignupPath(location.pathname)) return null;
+  if (FULL_BLEED_PATHS.includes(location.pathname)) return null;
 
+  // Bottom padding clears the floating nav pill, which is translucent.
   return (
-    <div className="relative z-[1]">
+    <div className="relative z-[1] pb-24">
       <SiteFooter />
     </div>
   );
@@ -143,6 +151,8 @@ function AppShell() {
             <Route path="/" element={<Index />} />
             <Route path="/perform" element={<TabProvider><Perform /></TabProvider>} />
             <Route path="/laugh" element={<LaughTabProvider><Laugh /></LaughTabProvider>} />
+            <Route path="/map" element={<UnifiedMap />} />
+            <Route path="/my-comedy" element={<MyComedy />} />
             <Route path="/open-mics" element={<OpenMics />} />
             <Route path="/track-sets" element={<ProgressTrackerPage />} />
             <Route path="/shows" element={<TabProvider><Shows /></TabProvider>} />

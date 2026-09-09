@@ -1992,6 +1992,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          approved_comedian: boolean
           bio: string | null
           created_at: string
           credit: string | null
@@ -2011,6 +2012,7 @@ export type Database = {
           years_performing: number | null
         }
         Insert: {
+          approved_comedian?: boolean
           bio?: string | null
           created_at?: string
           credit?: string | null
@@ -2030,6 +2032,7 @@ export type Database = {
           years_performing?: number | null
         }
         Update: {
+          approved_comedian?: boolean
           bio?: string | null
           created_at?: string
           credit?: string | null

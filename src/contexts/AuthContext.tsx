@@ -14,6 +14,7 @@ type SubscriptionPlan = 'free' | 'premium';
 
 interface ProfileAccessFields {
   isadmin: boolean;
+  approved_comedian: boolean;
   subscription_plan: SubscriptionPlan;
   credits_balance: number;
 }
@@ -31,6 +32,11 @@ interface AuthContextType {
   visitInserted: boolean;
   resetVisitInserted: () => void;
   isAdmin: boolean;
+  /**
+   * Gates the full open mic catalog. Everyone else (logged out, or signed up
+   * but not yet approved) gets the audience view: shows plus the weekly top mics.
+   */
+  isApprovedComedian: boolean;
   role: UserRole;
   subscriptionPlan: SubscriptionPlan;
   creditsBalance: number;
@@ -70,6 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profileChecked, setProfileChecked] = useState(false);
   const [visitInserted, setVisitInserted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isApprovedComedian, setIsApprovedComedian] = useState(false);
   const [role, setRole] = useState<UserRole>(null);
   const [subscriptionPlan, setSubscriptionPlan] = useState<SubscriptionPlan>('free');
   const [creditsBalance, setCreditsBalance] = useState(0);
@@ -97,6 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfileLoading(false);
       setProfileChecked(true);
       setIsAdmin(false);
+      setIsApprovedComedian(false);
       setRole(null);
       setSubscriptionPlan('free');
       setCreditsBalance(0);
@@ -107,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     Promise.all([
       supabase
       .from('profiles')
-      .select('isadmin, subscription_plan, credits_balance')
+      .select('isadmin, approved_comedian, subscription_plan, credits_balance')
       .eq('user_id', user.id)
         .maybeSingle<ProfileAccessFields>(),
       supabase
@@ -118,8 +126,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const roles = ((rolesResult.data || []) as UserRoleRow[]).map(row => row.role);
       const primaryRole = roles.find(r => r !== 'admin') ?? null;
 
+      const admin = !!profileResult.data?.isadmin || roles.includes('admin');
+
       setRole(primaryRole);
-      setIsAdmin(!!profileResult.data?.isadmin || roles.includes('admin'));
+      setIsAdmin(admin);
+      // Admins are always comedians so you can never lock yourself out of the map.
+      setIsApprovedComedian(!!profileResult.data?.approved_comedian || admin);
       setSubscriptionPlan(profileResult.data?.subscription_plan ?? 'free');
       setCreditsBalance(profileResult.data?.credits_balance ?? 0);
     }).finally(() => {
@@ -174,7 +186,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const needsOnboarding = false;
 
   return (
-    <AuthContext.Provider value={{ user, session, signIn, signOut, loading: loading || profileLoading || (!!user && !profileChecked), visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, creditsBalance, needsOnboarding, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, signIn, signOut, loading: loading || profileLoading || (!!user && !profileChecked), visitInserted, resetVisitInserted, isAdmin, isApprovedComedian, role, subscriptionPlan, creditsBalance, needsOnboarding, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
