@@ -380,6 +380,18 @@
     {
       "unique_identifier": "ec19a474-d901-4a43-8783-90ce6f109d00",
       "note": "Secret Mic #4: no Thursday mics"
+    },
+    {
+      "unique_identifier": "ce1fe866-698c-4504-bd52-396fcadb925a",
+      "note": "@laughingbuddhacomedy no longer runs the Saturday 3:00 PM mic at The Buddha Room"
+    },
+    {
+      "unique_identifier": "779e0f79-537b-481f-8f04-56bcef2b3c82",
+      "note": "@laughingbuddhacomedy no longer runs the Saturday 11:30 PM mic at The Buddha Room"
+    },
+    {
+      "unique_identifier": "3701d276-93c0-44a5-9741-57e8622bc781",
+      "note": "@laughingbuddhacomedy no longer runs the 9:45 PM Buddha mic at Rodney's"
     }
   ],
   "new_mics": [
