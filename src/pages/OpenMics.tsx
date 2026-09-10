@@ -297,11 +297,13 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     } else if (tabType === "liked") {
       filtered = openMics.filter((mic) => likedMics.includes(mic.uniqueIdentifier));
     } else if (dayFilter) {
-      // Day tabs list everything that runs on that weekday. No frequency or
-      // week-of-month narrowing here: a monthly mic belongs on its day tab
-      // every week, and the card shows its frequency label. The "Next" tab
-      // above is the one that filters down to genuinely upcoming occurrences.
-      filtered = openMics.filter((mic) => mic.day === dayFilter);
+      // Day tab: also apply calendar-aware filtering for today/this week
+      filtered = openMics.filter((mic) => {
+        if (mic.day !== dayFilter) return false;
+        // Find the next occurrence on this day and check frequency
+        const nextOcc = getNextOccurrence(mic);
+        return micMatchesDate(mic, nextOcc);
+      });
     }
 
     // Apply search, borough, cost, and time filters
@@ -758,18 +760,18 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       <div className="max-w-7xl mx-auto px-4 py-0">
         {/* Search and Filters */}
         <div className="relative z-[90] rounded-xl bg-white/25 p-3 mb-3 block text-gray-700 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
-          <div className="flex flex-row gap-3 items-center">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-center">
             <div className="flex-1 relative">
-              <Search className="absolute left-2 top-3 h-4 w-4 text-gray dark:text-white/40" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray dark:text-white/40" />
               <Input
-                placeholder="Search venues..."
+                placeholder="Search venues, neighborhoods, or open mic names..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 py-2 text-sm border-0 bg-white/10 text-gray-900 placeholder:text-gray-400 focus-visible:ring-gray-200 shadow-[0_12px_38px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:bg-[#102a53]/20 dark:text-white dark:placeholder:text-white/50 dark:focus-visible:ring-[#8ec5ff]/50 dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]"
+                className="pl-10 py-2 text-sm border-0 bg-white/10 text-gray-900 placeholder:text-gray-400 focus-visible:ring-gray-200 shadow-[0_12px_38px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:bg-[#102a53]/20 dark:text-white dark:placeholder:text-white/50 dark:focus-visible:ring-[#8ec5ff]/50 dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]"
               />
             </div>
 
-            <div className="flex gap-1.5">
+            <div className="flex gap-1.5 justify-end sm:justify-start">
               {viewToggleButton}
               <div className="relative">
                 <select
@@ -867,18 +869,18 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
               {/* Floating search/filter bar over the map */}
               <div className="absolute top-3 inset-x-3 z-10">
                 <div className="bg-white/90 text-gray-700 backdrop-blur rounded-xl shadow-lg p-2.5 dark:bg-[#102a53]/90 dark:text-white">
-                  <div className="flex flex-row gap-3 items-center">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-center">
                     <div className="flex-1 relative">
-                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400 dark:text-white/40" />
+                      <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-white/40" />
                       <Input
-                        placeholder="Search venues..."
+                        placeholder="Search venues, neighborhoods, or open mic names..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-8 py-2 text-sm bg-white text-gray-900 placeholder:text-gray-400 dark:bg-[#102a53]/20 dark:text-white dark:placeholder:text-white/50"
+                        className="pl-10 py-2 text-sm bg-white text-gray-900 placeholder:text-gray-400 dark:bg-[#102a53]/20 dark:text-white dark:placeholder:text-white/50"
                       />
                     </div>
 
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-1.5 justify-end sm:justify-start">
                       {viewToggleButton}
                       <div className="relative">
                         <select

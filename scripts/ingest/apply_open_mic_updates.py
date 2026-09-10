@@ -10,10 +10,6 @@ known row. A removal sets active = false rather than deleting: export-mics.mjs
 filters on active = eq.true, so that drops the mic from mics.json while keeping
 its history, ratings and comments intact.
 
-New mics are matched on open_mic + day + start_time. A match is re-asserted
-rather than skipped, so the file stays the declared state of the batch and a
-row that was written incompletely gets corrected on the next run.
-
 After this runs, the "Refresh mics.json" workflow regenerates the public cache,
 and `npm run geocode:open-mics` fills coordinates for any mic whose location
 changed (those edits null out the geocoding fields so it picks them up).
@@ -41,9 +37,7 @@ from ingest_to_supabase import (  # noqa: E402  reuse the existing retry policy
     should_retry_upsert_response,
 )
 
-# The mic listings live in open_mics_historical. There is no "open_mics" table:
-# pointing at that name made every lookup 404 with PGRST205.
-TABLE = "open_mics_historical"
+TABLE = "open_mics"
 UPDATES_FILE = Path(__file__).resolve().parent / "open_mic_updates.json"
 
 
@@ -154,12 +148,7 @@ def main() -> None:
 
     print("\nNew mics:")
     for n in data.get("new_mics", []):
-        row = dict(n["row"])
-        # active has no column default, so a spec that omits it inserts NULL and
-        # export-mics.mjs (active=eq.true) silently drops the mic from the site.
-        # A batch adding a mic always means it should be listed, so default it
-        # here rather than relying on every future entry to remember.
-        row.setdefault("active", True)
+        row = n["row"]
         label = f"{row['open_mic']} ({row['day']} {row['start_time']})"
         try:
             existing = client.select(
@@ -170,21 +159,8 @@ def main() -> None:
                 }
             )
             if existing:
-                if len(existing) > 1:
-                    print(f"  FAILED    {label}: matched {len(existing)} rows, expected 1")
-                    failed += 1
-                    continue
-                # Present already, but not necessarily correct. Skipping here
-                # once hid a real bug: these specs used to omit `active`, which
-                # has no column default, so the rows inserted as NULL and
-                # export-mics.mjs (active=eq.true) dropped them from the site
-                # while a re-run reported a clean skip. Re-assert the spec so
-                # the batch is idempotent and a half-written row self-heals.
-                uid = existing[0]["unique_identifier"]
-                count = client.patch(uid, row)
-                verb = "would sync" if client.dry_run else "synced   "
-                print(f"  {verb} {label} ({count} row) - already present, re-asserted")
-                applied += 1
+                print(f"  skip      {label} (already present)")
+                skipped += 1
                 continue
             client.insert(row)
             print(f"  {'would add' if client.dry_run else 'added    '} {label} - {n['note']}")

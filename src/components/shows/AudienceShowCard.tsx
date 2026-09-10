@@ -177,7 +177,7 @@ export function AudienceShowCard({ show, onClick }: AudienceShowCardProps) {
                   e.stopPropagation();
                   toast({
                     title: "LaughPass",
-                    description: "Subscribe for $20/month and get 2 comedy show tickets every month. Coming soon!",
+                    description: "Subscribe for $40/mo — 4 free weeknight tix + half off weekends. Coming soon!",
                   });
                 }}
                 className="text-[10px] h-6 px-1.5 bg-foreground text-background hover:bg-foreground/90"

@@ -8,7 +8,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { DistanceService } from '@/services/distanceService';
 import { makeLinksClickable } from '@/utils/makeLinksClickable';
-import { formatTimeRange, formatStageTime, formatCost } from '@/utils/micFormat';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
 import MicActionBar from '@/components/mic/MicActionBar';
@@ -179,6 +178,41 @@ function truncateMicName(name: string, maxLength: number = 15): string {
 }
 
 // Helper to format time compactly (e.g., "5:00 PM" → "5 PM", "5:30 PM" → "5:30 PM")
+function formatTimeCompact(time: string): string {
+  if (!time) return '';
+  // Remove :00 when on the hour (e.g., "5:00 PM" → "5 PM")
+  return time.replace(/:00/g, '').replace(/\b(am|pm)\b/gi, (period) => period.toUpperCase());
+}
+
+// Helper to format time range compactly
+function formatTimeRange(startTime: string, endTime: string): string {
+  const start = formatTimeCompact(startTime);
+  const end = formatTimeCompact(endTime);
+  // If both are PM or AM, can simplify (e.g., "5 PM - 7 PM" → "5-7 PM")
+  const startMatch = start.match(/^(\d+(?::\d+)?)\s*(AM|PM)$/i);
+  const endMatch = end.match(/^(\d+(?::\d+)?)\s*(AM|PM)$/i);
+  if (startMatch && endMatch && startMatch[2].toUpperCase() === endMatch[2].toUpperCase()) {
+    return `${startMatch[1]}-${endMatch[1]} ${endMatch[2].toUpperCase()}`;
+  }
+  return `${start} - ${end}`;
+}
+
+// Helper to format stage time compactly (e.g., "5 minutes" → "5 min")
+function formatStageTime(stageTime: string): string {
+  if (!stageTime) return 'Not specified';
+  // Replace "minutes" with "min"
+  let formatted = stageTime.replace(/minutes?/gi, 'min');
+  // If it's just a number, add "min"
+  if (/^\d+$/.test(formatted.trim())) {
+    formatted = `${formatted.trim()} min`;
+  }
+  return formatted;
+}
+
+function formatCost(cost?: string | null): string {
+  return cost?.trim() || 'Not specified';
+}
+
 function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, onRegisterRow, flash }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void; onOpenMic?: (mic: OpenMic) => void; forceExpanded?: boolean; onRegisterRow?: (id: string, el: HTMLDivElement | null) => void; flash?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   useEffect(() => { setExpanded(!!forceExpanded); }, [forceExpanded]);

@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, ChevronDown, CircleUser, Clock, DollarSign, ExternalLink, MapPin, Mic, Navigation } from "lucide-react";
+import { ChevronDown, ExternalLink, MapPin, Mic, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FREQUENCY_LABELS, MicFrequency, OpenMic } from "@/types/openMic";
-import { formatTimeRange, formatStageTime, formatCost } from "@/utils/micFormat";
+import { OpenMic } from "@/types/openMic";
 import { formatTime } from "@/components/map/MapUtils";
 import { DistanceService } from "@/services/distanceService";
 import { useUserLocation } from "@/hooks/useUserLocation";
@@ -104,45 +103,6 @@ export function DiscoveryMicCard({ mic, forceExpanded, flash, onRegisterRow }: D
             )}
           </div>
 
-          <div
-            className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground cursor-pointer"
-            onClick={() => setExpanded((e) => !e)}
-            role="button"
-            tabIndex={0}
-            aria-expanded={expanded}
-            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setExpanded((x) => !x); }}
-          >
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3 flex-shrink-0" />
-              {formatTimeRange(mic.startTime, mic.latestEndTime)}
-            </span>
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3 flex-shrink-0" />
-              {formatStageTime(mic.stageTime)}
-            </span>
-            <span className="flex items-center gap-1">
-              <DollarSign className="w-3 h-3 flex-shrink-0" />
-              {formatCost(mic.cost)}
-            </span>
-            <span className="flex items-center gap-1">
-              <Calendar className="w-3 h-3 flex-shrink-0" />
-              {mic.frequency && mic.frequency !== "weekly"
-                ? `${FREQUENCY_LABELS[mic.frequency as MicFrequency] || ""} \u00b7 ${mic.day}`
-                : mic.day}
-            </span>
-            <span
-              className="flex items-center gap-1 min-w-0 [&_a]:!text-comediq-blue [&_a:hover]:underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <CircleUser className="w-3 h-3 flex-shrink-0" />
-              <span className="truncate">
-                {mic.instagramHandle && mic.instagramHandle.trim()
-                  ? makeLinksClickable(mic.instagramHandle)
-                  : "No host"}
-              </span>
-            </span>
-          </div>
-
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <Button size="sm" variant="outline" className="h-7 px-2 gap-1 text-xs" asChild>
               <a href={mapUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
@@ -158,14 +118,9 @@ export function DiscoveryMicCard({ mic, forceExpanded, flash, onRegisterRow }: D
                 </a>
               </Button>
             )}
-            <ConfirmReportButtons
-              micUniqueIdentifier={mic.uniqueIdentifier}
-              micName={mic.openMic}
-              lastConfirmedAt={mic.lastConfirmedAt}
-            />
             <button
               type="button"
-              className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-comediq-blue transition-colors"
+              className="ml-auto flex items-center gap-0.5 text-xs text-muted-foreground hover:text-comediq-blue transition-colors"
               onClick={() => setExpanded((e) => !e)}
               aria-expanded={expanded}
               aria-label="Toggle details"
@@ -174,11 +129,24 @@ export function DiscoveryMicCard({ mic, forceExpanded, flash, onRegisterRow }: D
               <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", expanded && "rotate-180")} />
             </button>
           </div>
+
+          <div className="mt-2">
+            <ConfirmReportButtons
+              micUniqueIdentifier={mic.uniqueIdentifier}
+              micName={mic.openMic}
+              lastConfirmedAt={mic.lastConfirmedAt}
+            />
+          </div>
         </div>
       </div>
 
       {expanded && (
         <div className="border-t border-border bg-muted/30 px-3 py-2.5 text-xs space-y-1.5">
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-foreground">
+            <span>{formatTime(mic.startTime)} - {formatTime(mic.latestEndTime)}</span>
+            <span>{mic.cost}</span>
+            {mic.stageTime && <span>Stage: {mic.stageTime}</span>}
+          </div>
           {mic.signUpInstructions && (
             <p className="text-muted-foreground break-words">{makeLinksClickable(mic.signUpInstructions)}</p>
           )}

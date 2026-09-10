@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import { TopAdBar } from "@/components/TopAdBar";
-import { ReactNode, useLayoutEffect, useRef } from "react";
+import { ReactNode } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
 
 interface PageHeaderProps {
@@ -17,26 +17,8 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
-  // The nav is not a fixed height: the title and subtitle wrap, so it ranges
-  // from ~76px on a wide screen to ~124px at 320px. Publishing the measured
-  // height lets --page-top-offset be exactly "nav + a small gap" everywhere,
-  // instead of one static number that is either wasteful when wide or too
-  // short when narrow.
-  const navRef = useRef<HTMLElement | null>(null);
-  useLayoutEffect(() => {
-    const el = navRef.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const publish = () => {
-      document.documentElement.style.setProperty('--nav-height', `${el.getBoundingClientRect().height}px`);
-    };
-    publish();
-    const ro = new ResizeObserver(publish);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
   return (
-    <nav ref={navRef} className="fixed top-0 left-0 right-0 z-[100] border-b border-[#07111f]/10 bg-white/20 text-[#07111f] shadow-[0_12px_40px_rgba(4,20,55,0.10)] backdrop-blur-md dark:border-white/10 dark:bg-white/10 dark:text-white">
+    <nav className="fixed top-0 left-0 right-0 z-[100] border-b border-[#07111f]/10 bg-white/20 text-[#07111f] shadow-[0_12px_40px_rgba(4,20,55,0.10)] backdrop-blur-md dark:border-white/10 dark:bg-white/10 dark:text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex min-h-[4.75rem] items-center justify-between py-2">
           {/* Left: hamburger + wordmark */}

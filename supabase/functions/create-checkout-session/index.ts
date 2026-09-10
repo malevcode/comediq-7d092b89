@@ -193,16 +193,6 @@ Deno.serve(async (req) => {
       customer: customerId,
       client_reference_id: user.id,
       allow_promotion_codes: true,
-      // Skip card collection when nothing is owed today. The affiliate promo is
-      // a 100% off coupon for 12 months, so its first invoice is $0 and those
-      // comedians get the year without entering a card. Everyone paying the
-      // normal price still has an amount due, so they are still asked for one.
-      //
-      // The tradeoff is deliberate: with no card on file, the month 13 invoice
-      // fails and Stripe moves the subscription to past_due and then unpaid,
-      // which stripe-webhook already treats as a deactivation. They have to come
-      // back and add a card to keep Premium.
-      payment_method_collection: 'if_required',
       line_items: [
         {
           price: fullPassPriceId,

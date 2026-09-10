@@ -58,11 +58,11 @@ const Pricing = () => {
             <div className="inline-block bg-white/20 px-2 py-1 rounded-full text-xs font-semibold mb-3">
               🎟️ LaughPass
             </div>
-            <h3 className="text-lg sm:text-2xl font-bold mb-1">$20/month</h3>
+            <h3 className="text-lg sm:text-2xl font-bold mb-1">$29/month</h3>
             <p className="text-xs sm:text-sm text-blue-100 mb-4">For comedy fans who go out</p>
             <ul className="text-left space-y-1.5 mb-6">
               <li className="flex items-center text-xs sm:text-sm">
-                <span className="text-blue-300 mr-1.5">✓</span>2 comedy show tix/month
+                <span className="text-blue-300 mr-1.5">✓</span>4 comedy show tix/month
               </li>
               <li className="flex items-center text-xs sm:text-sm">
                 <span className="text-blue-300 mr-1.5">✓</span>
