@@ -5,9 +5,10 @@ name: Apply open mic updates
 #
 # Two ways to run:
 #   - Manually, where dry run defaults to on, for previewing a batch.
-#   - Automatically, when a push to main changes the batch or this workflow.
-#     A push carries no inputs, so `inputs.dry_run` is empty and the run
-#     WRITES. Review happens on the pull request; merging is the apply.
+#   - Automatically, when a push to main changes the batch, the applier script,
+#     or this workflow. A push carries no inputs, so `inputs.dry_run` is empty
+#     and the run WRITES. Review happens on the pull request; merging is the
+#     apply.
 #
 # Afterwards the open_mics_historical trigger regenerates public/mics.json.
 on:
@@ -21,6 +22,7 @@ on:
     branches: [main]
     paths:
       - scripts/ingest/open_mic_updates.json
+      - scripts/ingest/apply_open_mic_updates.py
       - .github/workflows/apply_open_mic_updates.yaml
 
 # This job writes to the database, so never let two runs overlap.
