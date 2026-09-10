@@ -123,6 +123,53 @@
                 "2027-02-07",
                 "2027-03-07"
             ]
+        },
+        {
+            "template": {
+                "title": "Malev & Friends Comedy Show",
+                "source": null,
+                "status": "active",
+                "borough": "Brooklyn",
+                "is_paid": false,
+                "verified": true,
+                "is_active": true,
+                "show_date": "2026-09-12",
+                "show_time": "21:00",
+                "doors_time": "20:30",
+                "show_type": "standup",
+                "venue_name": "Brooklyn Art Haus",
+                "allows_rsvp": true,
+                "description": "Weekly Saturday night comedy show in Williamsburg featuring Malev and rotating special guests.",
+                "image_url": "/images/malev-friends-flier.png",
+                "is_featured": false,
+                "price_cents": null,
+                "ticket_price": null,
+                "is_recurring": true,
+                "external_ticket_url": "https://www.eventbrite.com/e/malevfriends-comedy-show-tickets-1976414851023",
+                "venue_address": "24 Marcy Avenue, Brooklyn, NY 11211",
+                "recurrence_day": "saturday",
+                "age_restriction": null,
+                "instagram_handle": null,
+                "recurrence_pattern": "weekly"
+            },
+            "instance_dates": [
+                "2026-09-12",
+                "2026-09-19",
+                "2026-09-26",
+                "2026-10-03",
+                "2026-10-10",
+                "2026-10-17",
+                "2026-10-24",
+                "2026-10-31",
+                "2026-11-07",
+                "2026-11-14",
+                "2026-11-21",
+                "2026-11-28",
+                "2026-12-05",
+                "2026-12-12",
+                "2026-12-19",
+                "2026-12-26"
+            ]
         }
     ]
 }
