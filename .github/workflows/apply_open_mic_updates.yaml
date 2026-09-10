@@ -1,8 +1,15 @@
 name: Apply open mic updates
 
-# Manual only. Applies the curated batch in
-# scripts/ingest/open_mic_updates.json to the open_mics table.
-# Afterwards run "Refresh mics.json" to regenerate the public cache.
+# Applies the curated batch in scripts/ingest/open_mic_updates.json to the
+# open_mics_historical table.
+#
+# Two ways to run:
+#   - Manually, where dry run defaults to on, for previewing a batch.
+#   - Automatically, when a push to main changes the batch or this workflow.
+#     A push carries no inputs, so `inputs.dry_run` is empty and the run
+#     WRITES. Review happens on the pull request; merging is the apply.
+#
+# Afterwards the open_mics_historical trigger regenerates public/mics.json.
 on:
   workflow_dispatch:
     inputs:
@@ -10,6 +17,16 @@ on:
         description: "Preview only, write nothing"
         type: boolean
         default: true
+  push:
+    branches: [main]
+    paths:
+      - scripts/ingest/open_mic_updates.json
+      - .github/workflows/apply_open_mic_updates.yaml
+
+# This job writes to the database, so never let two runs overlap.
+concurrency:
+  group: apply-open-mic-updates
+  cancel-in-progress: false
 
 jobs:
   run:
