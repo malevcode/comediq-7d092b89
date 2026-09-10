@@ -154,7 +154,12 @@ def main() -> None:
 
     print("\nNew mics:")
     for n in data.get("new_mics", []):
-        row = n["row"]
+        row = dict(n["row"])
+        # active has no column default, so a spec that omits it inserts NULL and
+        # export-mics.mjs (active=eq.true) silently drops the mic from the site.
+        # A batch adding a mic always means it should be listed, so default it
+        # here rather than relying on every future entry to remember.
+        row.setdefault("active", True)
         label = f"{row['open_mic']} ({row['day']} {row['start_time']})"
         try:
             existing = client.select(
