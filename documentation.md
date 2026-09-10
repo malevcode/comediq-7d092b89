@@ -389,6 +389,51 @@ Not done yet, and worth being honest about:
 
 ---
 
+## Premium, and the affiliate free year
+
+### How someone becomes Premium
+
+`create-checkout-session` opens a Stripe Checkout session in `subscription` mode
+for the price in `STRIPE_PRICE_PAID`. `stripe-webhook` then decides access:
+
+- It matches on **price id, not amount**, so a fully discounted subscription is
+  still recognised as Premium.
+- It grants access while the subscription is `active` or `trialing`.
+- It revokes on `canceled`, `unpaid` or `incomplete_expired`. **`past_due` is
+  deliberately absent**, so a failed payment keeps access during Stripe's retry
+  window rather than cutting someone off on the first decline.
+
+### The 100 affiliate comedians
+
+The goal is a free year with no card, that turns into a paying subscription only
+if they choose to continue. Two halves make that work, and both are required.
+
+**In the code:** `payment_method_collection: 'if_required'` on the Checkout
+session. Stripe only asks for a card when something is owed today. The promo
+makes the first invoice $0, so those comedians never see a card field. Everyone
+paying full price still owes $20, so they are still asked.
+
+**In the Stripe dashboard**, which is not in this repo and has to be set by hand:
+
+| Setting | Value |
+| --- | --- |
+| Coupon, percent off | 100 |
+| Coupon, duration | Repeating, 12 months |
+| Coupon, applies to | the Full Pass product |
+| Promotion code, max redemptions | **100** |
+
+`max_redemptions` is the only thing enforcing the cap. Nothing in this codebase
+counts redemptions, so if that field is left blank the offer is unlimited.
+
+### What happens at month 13
+
+The invoice becomes $20, there is no card on file, and it fails. Stripe moves
+the subscription to `past_due`, then to `unpaid` once retries are exhausted, and
+the webhook revokes Premium at that point. The comedian keeps access through the
+retry window and has to add a card to stay.
+
+---
+
 ## Summarize
 
 ### Session: wrapping Comediq in Capacitor
