@@ -166,6 +166,7 @@ function AppShell() {
             <Route path="/advertise" element={<AdvertiseWithUs />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/add-show" element={<AddShow />} />
+            <Route path="/add-mic" element={<AddMic />} />
             <Route path="/shows/map" element={<ShowsMap />} />
             <Route path="/saved" element={<SavedMics />} />
             <Route path="/liked" element={<LikedMics />} />
