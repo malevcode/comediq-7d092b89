@@ -24,7 +24,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import AddMic from "./pages/AddMic";
 import SiteFooter from "./components/SiteFooter";
 import SubscriptionSuccessBanner from "./components/SubscriptionSuccessBanner";
-import OfflineBanner from "./components/OfflineBanner";
+
 import ProgressTrackerPage from "./pages/ProgressTracker";
 import Home from "./components/Home";
 import { TabProvider } from "@/contexts/TabContext";
