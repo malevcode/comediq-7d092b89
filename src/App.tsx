@@ -135,8 +135,6 @@ function AppShell() {
         <div className="pointer-events-none fixed inset-0 z-0 bg-[#f5f2eb] transition-colors duration-500 dark:bg-[#07111f]" />
         <div className="pointer-events-none fixed inset-0 z-0 bg-white/5 dark:bg-black/40" />
         <ScrollToTop />
-        <OfflineBanner />
-        <MarqueeBanner />
         <SubscriptionSuccessBanner />
         <div className={isSubscriber ? "subscriber-layout relative z-10 pb-0" : "non-subscriber-layout relative z-10 pb-0"}>
           <Routes>
