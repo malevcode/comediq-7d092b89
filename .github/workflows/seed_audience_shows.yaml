@@ -1,8 +1,18 @@
 name: Seed audience shows
 
-# Manual only. Uploads the curated shows in
-# scripts/ingest/audience_shows_seed.json to the audience_shows table.
-# Safe to re-run: each show is looked up before it is inserted.
+# Uploads the curated shows in scripts/ingest/audience_shows_seed.json to the
+# audience_shows table. Safe to re-run: each show is looked up before it is
+# inserted, so nothing is duplicated or overwritten.
+#
+# Two ways to run:
+#   - Manually, where dry run defaults to on, for previewing a batch.
+#   - Automatically, when a push to main changes the seed file, the seed script,
+#     or this workflow. A push carries no inputs, so `inputs.dry_run` is empty
+#     and the run WRITES. Review happens on the pull request; merging is the
+#     upload.
+#
+# Manual-only was why the September shows never reached the database: the batch
+# was committed and nobody ever clicked Run.
 on:
   workflow_dispatch:
     inputs:
@@ -10,6 +20,17 @@ on:
         description: "Preview only, write nothing"
         type: boolean
         default: true
+  push:
+    branches: [main]
+    paths:
+      - scripts/ingest/audience_shows_seed.json
+      - scripts/ingest/seed_audience_shows.py
+      - .github/workflows/seed_audience_shows.yaml
+
+# This job writes to the database, so never let two runs overlap.
+concurrency:
+  group: seed-audience-shows
+  cancel-in-progress: false
 
 jobs:
   run:
