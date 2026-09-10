@@ -10,6 +10,10 @@ known row. A removal sets active = false rather than deleting: export-mics.mjs
 filters on active = eq.true, so that drops the mic from mics.json while keeping
 its history, ratings and comments intact.
 
+New mics are matched on open_mic + day + start_time. A match is re-asserted
+rather than skipped, so the file stays the declared state of the batch and a
+row that was written incompletely gets corrected on the next run.
+
 After this runs, the "Refresh mics.json" workflow regenerates the public cache,
 and `npm run geocode:open-mics` fills coordinates for any mic whose location
 changed (those edits null out the geocoding fields so it picks them up).
@@ -161,8 +165,21 @@ def main() -> None:
                 }
             )
             if existing:
-                print(f"  skip      {label} (already present)")
-                skipped += 1
+                if len(existing) > 1:
+                    print(f"  FAILED    {label}: matched {len(existing)} rows, expected 1")
+                    failed += 1
+                    continue
+                # Present already, but not necessarily correct. Skipping here
+                # once hid a real bug: these specs used to omit `active`, which
+                # has no column default, so the rows inserted as NULL and
+                # export-mics.mjs (active=eq.true) dropped them from the site
+                # while a re-run reported a clean skip. Re-assert the spec so
+                # the batch is idempotent and a half-written row self-heals.
+                uid = existing[0]["unique_identifier"]
+                count = client.patch(uid, row)
+                verb = "would sync" if client.dry_run else "synced   "
+                print(f"  {verb} {label} ({count} row) - already present, re-asserted")
+                applied += 1
                 continue
             client.insert(row)
             print(f"  {'would add' if client.dry_run else 'added    '} {label} - {n['note']}")
