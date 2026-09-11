@@ -2,22 +2,26 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAudienceShows } from "@/hooks/useAudienceShows";
 import { AudienceShowCard } from "@/components/shows/AudienceShowCard";
-import { AudienceShowFilters } from "@/components/shows/AudienceShowFilters";
 import { AudienceShowDetailModal } from "@/components/shows/AudienceShowDetailModal";
+import AudienceShowsMap from "@/components/map/AudienceShowsMap";
 import { AudienceShow } from "@/api/audienceShows";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Ticket, Calendar, Plus, Map } from "lucide-react";
+import { Ticket, Calendar, Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { createPortal } from "react-dom";
 
-export default function AudienceShows() {
+interface AudienceShowsProps {
+  searchTerm: string;
+  borough: string;
+  showType: string;
+  viewMode: "list" | "map";
+}
+
+export default function AudienceShows({ searchTerm, borough, showType, viewMode }: AudienceShowsProps) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [borough, setBorough] = useState("all");
-  const [showType, setShowType] = useState("all");
   const [selectedShow, setSelectedShow] = useState<AudienceShow | null>(null);
   const [hasMounted, setHasMounted] = useState(false);
 
@@ -72,28 +76,56 @@ export default function AudienceShows() {
     );
   }
 
+  const addShowButton = hasMounted && createPortal(
+    <Button
+      onClick={handleAddShow}
+      className="fixed bottom-[11rem] right-10 z-[1200] rounded-full bg-orange-500 p-2 text-white shadow-lg transition duration-300 hover:bg-orange-600"
+      size="icon"
+    >
+      <Plus className="h-6 w-6" />
+    </Button>,
+    document.body
+  );
+
+  // Map view is an inline toggle rather than its own route, mirroring the
+  // Perform tab. AudienceShowsMap brings its own pin drawer.
+  if (viewMode === 'map') {
+    return (
+      <div className="space-y-4">
+        <div
+          className="relative overflow-hidden rounded-xl"
+          style={{ height: 'calc(100dvh - var(--nav-height, 7.5rem) - 8.5rem)', minHeight: '20rem' }}
+        >
+          {isLoading ? (
+            <Skeleton className="h-full w-full rounded-xl" />
+          ) : (
+            <>
+              <AudienceShowsMap shows={shows ?? []} />
+              {(!shows || shows.length === 0) && (
+                <div className="absolute inset-x-4 top-4 z-10 flex justify-center pointer-events-none">
+                  <div className="flex items-center gap-2 rounded-lg border border-border bg-background/90 px-3 py-2 text-sm text-muted-foreground shadow-sm">
+                    <Ticket className="w-4 h-4 opacity-50" />
+                    <span>No shows match these filters.</span>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        <AudienceShowDetailModal
+          show={selectedShow}
+          isOpen={!!selectedShow}
+          onClose={handleModalClose}
+        />
+
+        {addShowButton}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => navigate('/shows/map')}
-          className="flex items-center gap-1.5 text-xs border-0 bg-white/10 text-white shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 hover:bg-white/20 hover:text-white"
-        >
-          <Map className="w-3.5 h-3.5" />
-          Map View
-        </Button>
-      </div>
-      <AudienceShowFilters
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        borough={borough}
-        onBoroughChange={setBorough}
-        showType={showType}
-        onShowTypeChange={setShowType}
-      />
-
       {isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
@@ -134,16 +166,7 @@ export default function AudienceShows() {
         onClose={handleModalClose}
       />
 
-      {hasMounted && createPortal(
-        <Button
-          onClick={handleAddShow}
-          className="fixed bottom-[11rem] right-10 z-[1200] rounded-full bg-orange-500 p-2 text-white shadow-lg transition duration-300 hover:bg-orange-600"
-          size="icon"
-        >
-          <Plus className="h-6 w-6" />
-        </Button>,
-        document.body
-      )}
+      {addShowButton}
     </div>
   );
 }

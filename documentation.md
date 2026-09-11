@@ -15,6 +15,45 @@ It has two sub-tabs:
 - **Find Shows** — a list of upcoming comedy shows
 - **My Reviews** — reviews the logged-in user has written
 
+### The control row
+
+Everything you can do to the list lives in one row across the top: the two
+sub-tabs, a search box, a map toggle, and a filter button. That row sits
+directly under the fixed site header with nothing above it.
+
+It used to be four stacked things: the page title and subtitle, a gap, a tall
+tab bar, then a full-width "Map View" button on its own row, then a search box,
+then two dropdowns on another row. That ate the top third of a phone screen and
+you could barely see one show without scrolling. Now three to four show cards
+fit above the fold on an iPhone.
+
+Three changes bought that space:
+
+- The page subtitle is gone, which shrinks the fixed header (the header
+  measures its own height, so removing a line of text genuinely gives the
+  space back).
+- The page uses `page-content-offset-flush` instead of `page-content-offset`.
+  Both clear the fixed header; the flush one skips the extra 0.75rem gap that
+  pages with a heading need.
+- The two dropdowns (borough and show type) moved behind the filter icon. A
+  small dot on the icon tells you a filter is currently narrowing the list.
+
+Because the tabs and the search live in the same row, the search, borough and
+type state had to move up into `src/pages/Laugh.tsx`. `AudienceShows` no longer
+owns them; it receives them as props and just renders the result.
+
+### Map view
+
+The map is a toggle, not a page. Pressing the map icon swaps the list for a map
+in the same spot, and pressing it again swaps back. You stay on `/laugh` the
+whole time, so your search and filters survive the trip. Tapping a pin opens a
+drawer from the bottom with every show at that venue.
+
+This mirrors how Perform already did it. Before, the button called
+`navigate('/shows/map')`, which threw you onto a separate page and lost your
+filters. That page (`/shows/map`) still exists and still works if you have it
+bookmarked; nothing links to it any more.
+
 ### How a show gets from a database row onto your screen
 
 Think of it like a relay race with four runners.
@@ -126,6 +165,26 @@ The screen has two layouts, chosen by a `viewMode` state:
 - **Map** is a full-bleed map with a scroll-up drawer of cards grouped by daypart, built from `src/components/discovery/*`.
 
 A toggle button in the filter bar switches between them. The same button is rendered in the map's floating bar, defined once in the component so the two cannot drift apart. The choice is not remembered: every fresh load starts on the list.
+
+**Perform is open mics only.** The map drawer used to render a "Shows" section
+above the mics, which meant audience shows appeared on the comedian side of the
+app. Shows belong on Laugh. `DiscoveryFeed` no longer has a `showShows` prop and
+no longer queries audience shows at all.
+
+**Perform has a visible tab row.** It did not before: the tabs existed, but you
+could only switch them by URL parameter or by whatever localStorage remembered,
+so there was no way to reach them from the screen. There are now two visible
+tabs, styled to match Laugh's row and sitting flush under the header:
+
+- **Find Mics**: the existing open mics screen
+- **My Mics**: everything you have marked: mics you liked, mics you saved, and
+  mics you have a confirmed signup for, merged into one list with duplicates
+  removed
+
+My Mics (`src/components/mic/MyMicsTab.tsx`) invents no new database query. It
+reads the same hooks the standalone `/liked` and `/saved` pages already use, plus
+the existing signups hook, and filters the full mic list down to the union of
+those three sets.
 
 Two more layout traps worth knowing.
 
@@ -434,7 +493,101 @@ retry window and has to add a card to stay.
 
 ---
 
+## Button text colour, and why it kept going wrong
+
+The app is designed dark-first. Most surfaces are translucent panels over a dark
+background, and components write `text-white` on them freely. Light mode then
+has to undo that, so `src/index.css` carries a blunt rule:
+
+```css
+.light .text-white { color: #07111f; }
+```
+
+Every `text-white` in light mode silently becomes dark navy. That is correct for
+a label on a pale translucent panel and wrong for a label on a solid blue button,
+where the background stays saturated in both themes.
+
+There was a matching bug on the dark side. The default button variant read:
+
+```
+bg-primary text-[#fff] hover:bg-primary/90 dark:text-[#000]
+```
+
+The `dark:text-[#000]` put black text on every blue primary button in dark mode.
+Worse, it could not be overridden from outside: a consumer passing plain
+`text-white` does not remove a `dark:` variant through twMerge, so even buttons
+that explicitly asked for white text went black. The Login button in
+`PageHeader` was the visible symptom.
+
+Both sides are fixed now:
+
+- `dark:text-[#000]` is gone from the button variant.
+- A narrow exception in `index.css` keeps `text-white` white in light mode when
+  it sits on a solid button fill (`bg-primary`, the blue family, and the orange,
+  green and red fills used for the same kind of button). It is a more specific
+  selector, so it beats the remap without touching it.
+
+The broad `.light .text-white` remap stays. Removing it would need every
+translucent panel in the app audited, and that is a much larger job than this.
+
+If you add a new solid-fill button colour, add it to that exception list or its
+label will turn navy in light mode.
+
+---
+
 ## Summarize
+
+### Session: recovering from the Lovable sync, then the UI cleanup
+
+**The part that had to come first.** A commit on `main` called "Added mic data
+to database" (912acc1) was a merge of a Lovable branch that had forked from an
+older point, before PRs #114 through #124. The merge resolved every conflict in
+favour of the stale Lovable side, so it quietly reverted 2,684 lines of shipped
+work. Nothing about the commit message said so.
+
+What it had undone, all of it now restored:
+
+| Thing | What the merge did |
+| --- | --- |
+| `TABLE` in the mic apply script | Reset to `open_mics`, a table that does not exist, so every mic batch was a silent no-op |
+| LaughPass copy | Reverted to the old "$40/mo, 4 free weeknight tix" |
+| Affiliate promo | Lost its skip-card-collection path |
+| Malev & Friends | Dropped from the audience shows seed |
+| Offline mode | Deleted (`sw.js`, service worker registration, offline banner, web manifest) |
+| Capacitor app wrapper | Deleted (`capacitor.config.ts`, permissions script, dependencies) |
+| Mic check-in | Deleted (`micCheckin.ts`, `deviceLocation.ts`, its migration, most of `WentUpToggle`) |
+| `documentation.md` | Cut from 645 lines to 184 |
+
+**How it was fixed.** Reverting the merge against its first parent brought all
+of it back in one commit, with no conflicts. The two edits Lovable actually
+meant to make were then re-applied on top: the `/add-mic` route pointing at the
+existing `AddMic` page, and dropping `MarqueeBanner` from the app shell.
+
+**Worth knowing for next time.** A Lovable branch that forked before recent PRs
+will clobber them on merge, and the commit message will not mention it. Check
+the merge base before trusting a Lovable sync.
+
+**Then the UI work.** Five changes:
+
+1. **Laugh tab header condensed.** Tabs, search, map toggle and filters collapsed
+   into one row flush under the site header. Measured at iPhone width (390px):
+   four show cards now sit fully above the bottom navigation with a fifth
+   peeking, against roughly one before.
+2. **Perform got a visible tab row** (it had none) plus a new **My Mics** tab
+   showing liked, saved and confirmed mics, and the same flush top padding.
+3. **Perform is mics only.** The "Shows" section is gone from the mic feed.
+4. **Laugh's map is an inline toggle** with a pin drawer, matching Perform,
+   instead of navigating to a separate page.
+5. **Blue buttons are white-on-blue in both themes**, fixing both the dark-mode
+   `dark:text-[#000]` bug and the light-mode `.light .text-white` remap that
+   nobody had noticed.
+
+**How it was checked.** Both themes, at 390x844, in a real browser with the
+shows API stubbed: card counts and element positions measured rather than eyeballed,
+computed button colours read back from the DOM, and the map toggle driven by
+clicking it to confirm it does not leave the page. Typecheck and production
+build both clean. ESLint is broken repo-wide on an unrelated
+`@typescript-eslint` version mismatch, which predates this work.
 
 ### Session: wrapping Comediq in Capacitor
 

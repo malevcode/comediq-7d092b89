@@ -15,6 +15,7 @@ export interface UserSignup {
     total_spots: number;
     spots_remaining: number;
     mic: {
+      unique_identifier: string;
       open_mic: string;
       venue_name: string;
       borough: string;
@@ -46,6 +47,7 @@ export function useUserSignups(userId?: string) {
             total_spots,
             spots_remaining,
             open_mics_historical (
+              unique_identifier,
               open_mic,
               venue_name,
               borough,

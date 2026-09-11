@@ -435,8 +435,8 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
 
   // Map-first home screen: same filtered lists as renderMicContent, segmented
-  // into dayparts (+ a Shows section) via DiscoveryFeed instead of a flat list.
-  const renderDiscoveryContent = (filteredMics: OpenMic[], tabName: string, allowShows = false) => {
+  // into dayparts via DiscoveryFeed instead of a flat list.
+  const renderDiscoveryContent = (filteredMics: OpenMic[], tabName: string) => {
     const micsToShow = filteredMics;
 
     return (
@@ -456,7 +456,6 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           visibleCount={visibleCount}
           setVisibleCount={setVisibleCount}
           selectedMicId={selectedMicId}
-          showShows={allowShows}
         />
 
         {micsToShow.length === 0 && (
@@ -674,7 +673,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
         {viewMode === 'list' ? (
           <>
-      <div className={`max-w-7xl mx-auto px-4 ${embedded ? 'pt-3' : 'page-content-offset'} pb-0`}>
+      <div className={`max-w-7xl mx-auto px-4 ${embedded ? 'pt-0' : 'page-content-offset'} pb-0`}>
         {/* Key/Legend */}
         {showKey && (
             <div className="block mb-3">
@@ -943,7 +942,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                       isSubmitting={isSubmittingMic}
                     />
                   )}
-                  {renderDiscoveryContent(getFilteredMics("next"), "next", true)}
+                  {renderDiscoveryContent(getFilteredMics("next"), "next")}
                 </TabsContent>
 
                 <TabsContent value="new" className="mt-2">

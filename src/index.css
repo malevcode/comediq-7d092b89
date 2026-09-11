@@ -186,8 +186,28 @@
 }
 
 @layer utilities {
+  /* The app is dark-first, so light mode remaps the many `text-white` labels
+     that sit on translucent panels to dark navy. */
   .light .text-white {
     color: #07111f;
+  }
+
+  /* Solid-fill buttons are the exception: their background stays saturated in
+     both themes, so white is the only legible label colour. Without this the
+     remap above turns every blue button's text near-black in light mode, the
+     light-mode twin of the `dark:text-[#000]` bug in the button variant. */
+  .light .bg-primary.text-white,
+  .light .bg-\[\#1a5fb4\].text-white,
+  .light .bg-\[\#3a7bd5\].text-white,
+  .light .bg-blue-500.text-white,
+  .light .bg-blue-600.text-white,
+  .light .bg-blue-700.text-white,
+  .light .bg-comediq-blue.text-white,
+  .light .bg-orange-500.text-white,
+  .light .bg-orange-600.text-white,
+  .light .bg-green-600.text-white,
+  .light .bg-red-600.text-white {
+    color: #ffffff;
   }
 
   .light .text-white\/80,
@@ -282,6 +302,12 @@ html {
 
 .page-content-offset {
   padding-top: var(--page-top-offset);
+}
+
+/* Laugh and Perform open with their own control row, so they clear the fixed
+   nav exactly and skip the extra gap that other pages need above a heading. */
+.page-content-offset-flush {
+  padding-top: var(--nav-height, 7.5rem);
 }
 
 form :where(
