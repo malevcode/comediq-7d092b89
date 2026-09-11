@@ -370,6 +370,41 @@
         "geocoding_score": null,
         "geocoding_match_address": null
       }
+    },
+    {
+      "unique_identifier": "fec8594e-b3a6-4200-888d-0633477b838b",
+      "note": "The Buddha Room 4 Hour Mic: cancelled Sat 9/12 only, private buyout of the venue. REVERT the name after 9/12; the mic is unchanged otherwise.",
+      "set": {
+        "open_mic": "The Buddha Room 4 Hour Mic *No mic 9/12*"
+      }
+    },
+    {
+      "unique_identifier": "1687893c-43a4-480a-ae2f-83ddbffbaa82",
+      "note": "The Buddha Room 5 Hour Mic: cancelled Sat 9/12 only, private buyout of the venue. REVERT the name after 9/12; the mic is unchanged otherwise.",
+      "set": {
+        "open_mic": "The Buddha Room 5 Hour Mic *No mic 9/12*"
+      }
+    },
+    {
+      "unique_identifier": "1d43e906-ec86-4880-91ae-f16343a228a4",
+      "note": "The Buddha Room 6 Mic Show: cancelled Sat 9/12 only, private buyout of the venue. REVERT the name after 9/12; the mic is unchanged otherwise.",
+      "set": {
+        "open_mic": "The Buddha Room 6 Mic Show *No mic 9/12*"
+      }
+    },
+    {
+      "unique_identifier": "cced8fb3-f5d9-45c6-a869-cc3cad6a95a6",
+      "note": "The Buddha Room 8 Mic Show: cancelled Sat 9/12 only, private buyout of the venue. REVERT the name after 9/12; the mic is unchanged otherwise.",
+      "set": {
+        "open_mic": "The Buddha Room 8 Mic Show *No mic 9/12*"
+      }
+    },
+    {
+      "unique_identifier": "bdfa44ef-5039-4a95-ba50-171da916f352",
+      "note": "The Buddha Room 9:45 Mic Show: cancelled Sat 9/12 only, private buyout of the venue. REVERT the name after 9/12; the mic is unchanged otherwise.",
+      "set": {
+        "open_mic": "The Buddha Room 9:45 Mic Show *No mic 9/12*"
+      }
     }
   ],
   "removals": [
