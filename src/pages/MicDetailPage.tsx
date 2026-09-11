@@ -130,7 +130,7 @@ const MicDetailPage = () => {
                 {mic.cost?.toLowerCase() === 'free' ? 'free' : mic.cost?.toLowerCase() || 'cost not specified'} · {mic.day?.toLowerCase()} · {mic.venueName?.toLowerCase()}{mic.stageTime ? ` · ${mic.stageTime} on stage` : ''}
               </p>
               <div className="flex flex-wrap gap-2">
-                <WentUpToggle micId={mic.uniqueIdentifier} />
+                <WentUpToggle mic={mic} />
                 {user && (
                   <button
                     onClick={() => {
