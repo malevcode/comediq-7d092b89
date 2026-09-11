@@ -48,3 +48,6 @@ __pycache__/
 /android/build
 /android/.gradle
 /android/local.properties
+
+# tsc -b incremental build cache
+*.tsbuildinfo

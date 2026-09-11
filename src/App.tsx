@@ -25,6 +25,7 @@ import AddMic from "./pages/AddMic";
 import SiteFooter from "./components/SiteFooter";
 import SubscriptionSuccessBanner from "./components/SubscriptionSuccessBanner";
 import OfflineBanner from "./components/OfflineBanner";
+import MicOfTheMonthBar from "./components/MicOfTheMonthBar";
 import ProgressTrackerPage from "./pages/ProgressTracker";
 import Home from "./components/Home";
 import { TabProvider } from "@/contexts/TabContext";
@@ -47,7 +48,7 @@ import AddShow from "./pages/AddShow";
 import SavedMics from "./pages/SavedMics";
 import DevView from "./pages/DevView";
 import LikedMics from "./pages/LikedMics";
-import TopMics from "./pages/TopMics";
+import Leaderboard from "./pages/Leaderboard";
 import Slots from "./pages/Slots";
 import ShowsMap from "./pages/ShowsMap";
 import Onboarding from "./pages/Onboarding";
@@ -136,6 +137,7 @@ function AppShell() {
         <div className="pointer-events-none fixed inset-0 z-0 bg-white/5 dark:bg-black/40" />
         <ScrollToTop />
         <OfflineBanner />
+        <MicOfTheMonthBar />
         <SubscriptionSuccessBanner />
         <div className={isSubscriber ? "subscriber-layout relative z-10 pb-0" : "non-subscriber-layout relative z-10 pb-0"}>
           <Routes>
@@ -171,7 +173,8 @@ function AppShell() {
             <Route path="/shows/map" element={<ShowsMap />} />
             <Route path="/saved" element={<SavedMics />} />
             <Route path="/liked" element={<LikedMics />} />
-            <Route path="/top-mics" element={<TopMics />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/top-mics" element={<Leaderboard />} />
             <Route path="/dev-view" element={<TabProvider><DevView /></TabProvider>} />
             <Route path="/slots" element={<Slots />} />
             <Route path="/onboarding" element={<Onboarding />} />

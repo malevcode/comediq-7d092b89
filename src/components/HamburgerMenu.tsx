@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Home, MicVocal, Eye, User, Book, Search, Menu, ChevronRight, Briefcase, Ticket, Star, Sparkles, Flame, Clapperboard, Map, Calendar } from "lucide-react";
+import { Home, MicVocal, Eye, User, Book, Search, Menu, ChevronRight, Briefcase, Ticket, Star, Sparkles, Trophy, Clapperboard, Map, Calendar } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
@@ -25,7 +25,7 @@ const HamburgerMenu = () => {
 
   const performSubItems = [
     { path: "/open-mics", icon: Search, label: "Find Mics" },
-    { path: "/top-mics", icon: Flame, label: "Top Mics" },
+    { path: "/leaderboard", icon: Trophy, label: "Leaderboard" },
     { path: "/growth", icon: Briefcase, label: "Growth" },
     ...(user ? [{ path: "/shows", icon: Calendar, label: "Scheduler" }] : []),
     ...(user ? [{ path: "/host-dashboard", icon: MicVocal, label: "Host Dashboard" }] : []),
