@@ -28,7 +28,7 @@ const rowClass =
   "group flex items-center gap-3 rounded-2xl border border-[#07111f]/10 bg-white/50 p-3 text-[#07111f] shadow-[0_14px_44px_rgba(4,20,55,0.10)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/70 dark:border-white/10 dark:bg-[#102a53]/50 dark:text-white dark:hover:bg-[#102a53]/70 md:p-4";
 
 export default function Leaderboard() {
-  const { rows, isLoading, totalVotes } = useMicLeaderboard();
+  const { rows, isLoading, error, totalVotes } = useMicLeaderboard();
 
   return (
     <>
@@ -73,6 +73,14 @@ export default function Leaderboard() {
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="h-16 animate-pulse rounded-2xl bg-white/40 dark:bg-white/5" />
                 ))}
+              </div>
+            ) : error ? (
+              <div className="py-12 text-center">
+                <Trophy className={`mx-auto mb-3 h-8 w-8 ${mutedTextClass}`} />
+                <p className={`font-medium ${titleTextClass}`}>Could not load the rankings</p>
+                <p className={`mt-1 text-sm ${mutedTextClass}`}>
+                  The upvote counts did not come back. Try again in a moment.
+                </p>
               </div>
             ) : rows.length === 0 ? (
               <div className="py-12 text-center">

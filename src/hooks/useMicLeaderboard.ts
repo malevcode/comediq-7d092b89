@@ -42,6 +42,7 @@ export function useMicLeaderboard(limit = 50) {
     },
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    retry: 1,
   });
 
   const byId = new Map((mics ?? []).map((m) => [m.uniqueIdentifier, m]));
