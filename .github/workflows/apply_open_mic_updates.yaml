@@ -10,7 +10,16 @@ name: Apply open mic updates
 #     and the run WRITES. Review happens on the pull request; merging is the
 #     apply.
 #
-# Afterwards the open_mics_historical trigger regenerates public/mics.json.
+# This workflow then exports public/mics.json itself, in the same run, so a
+# merged batch is live on the site when the run goes green. It used to stop at
+# the database write and leave publishing to the open_mics_historical trigger,
+# which dispatches a separate refresh workflow. That trigger is a silent single
+# point of failure: it stopped firing after 2026-09-10 and three successful
+# applies published nothing, so the site served stale mics while every run
+# reported success. The nightly job was the only thing still publishing.
+#
+# Exporting here does not replace that trigger or the nightly job. It just
+# means a hand-made batch no longer depends on either one.
 on:
   workflow_dispatch:
     inputs:
@@ -24,6 +33,9 @@ on:
       - scripts/ingest/open_mic_updates.json
       - scripts/ingest/apply_open_mic_updates.py
       - .github/workflows/apply_open_mic_updates.yaml
+
+permissions:
+  contents: write
 
 # This job writes to the database, so never let two runs overlap.
 concurrency:
@@ -56,3 +68,49 @@ jobs:
         run: |
           python scripts/ingest/apply_open_mic_updates.py \
             ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      # Everything below publishes the write to the site. A dry run changed
+      # nothing, so it has nothing to publish and stops here.
+      - name: Set up Node
+        if: ${{ !inputs.dry_run }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      # Be explicit about the branch. actions/checkout leaves a detached HEAD
+      # for some event types, and a bare `git pull --rebase` fails there.
+      - name: Update branch before export
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git checkout "$GITHUB_REF_NAME"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+
+      - name: Export mics.json from Supabase
+        if: ${{ !inputs.dry_run }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          REQUIRE_MIC_EXPORT: "true"
+        run: npm run export:mics
+
+      # Printed into the run summary so a batch can be checked without
+      # opening the site or diffing the commit by hand.
+      - name: Report what changed in mics.json
+        if: ${{ !inputs.dry_run }}
+        run: |
+          python scripts/ingest/report_mics_json_change.py >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit updated mics.json
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/mics.json
+          git commit -m "Refresh mics.json after applying the open mic batch" || {
+            echo "mics.json unchanged, nothing to commit"
+            exit 0
+          }
+          git push origin "HEAD:$GITHUB_REF_NAME"
