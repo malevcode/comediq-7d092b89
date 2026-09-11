@@ -125,11 +125,11 @@
     },
     {
       "unique_identifier": "3478fc7e-a23d-4d42-bee7-939ccd43cb19",
-      "note": "Buddha 1:30 @NYCC UWS is now 3:30. Both the name and the start time were wrong",
+      "note": "Buddha @NYCC UWS Sunday is 1:30 PM. This entry previously moved it 1:30 -> 3:30; Adam confirmed 1:30 is correct, so it is rewritten rather than a second entry added for the same row. The end time follows the one-hour duration this entry already asserted (3:30 -> 4:30).",
       "set": {
-        "open_mic": "Buddha 3:30 @NYCC UWS",
-        "start_time": "3:30 PM",
-        "latest_end_time": "4:30 PM"
+        "open_mic": "Buddha 1:30 @NYCC UWS",
+        "start_time": "1:30 PM",
+        "latest_end_time": "2:30 PM"
       }
     },
     {
@@ -404,6 +404,22 @@
       "note": "The Buddha Room 9:45 Mic Show: cancelled Sat 9/12 only, private buyout of the venue. REVERT the name after 9/12; the mic is unchanged otherwise.",
       "set": {
         "open_mic": "The Buddha Room 9:45 Mic Show *No mic 9/12*"
+      }
+    },
+    {
+      "unique_identifier": "12d96cea-21b0-4147-94e3-ac97c1d6928c",
+      "note": "Buddha Room Friday 9:45 PM is actually 9:00 PM. Renamed to match. The stored 10:30 PM end time is still after the new start, so it is left as is rather than guessed at.",
+      "set": {
+        "open_mic": "The Buddha Room 9 Mic Show",
+        "start_time": "9:00 PM"
+      }
+    },
+    {
+      "unique_identifier": "b05066a7-b776-40ba-b1d1-560cb86d833f",
+      "note": "Buddha Room Friday 11:30 PM is actually 10:30 PM. Renamed to match. The stored 12:30 AM end time is still after the new start, so it is left as is.",
+      "set": {
+        "open_mic": "The Buddha Room 10:30 Mic Show",
+        "start_time": "10:30 PM"
       }
     }
   ],
