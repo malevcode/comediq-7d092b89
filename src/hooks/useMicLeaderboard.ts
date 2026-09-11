@@ -22,23 +22,39 @@ interface LikeCountRow {
  * so this pulls one small aggregate rather than every vote row.
  *
  * Mic details come from useOpenMics, which reads the static mics.json, so the
- * only database traffic is the count query. That also means the leaderboard
+ * only database traffic is one RPC call returning at most FETCH_BUFFER rows. That also means the leaderboard
  * lists active, non-pending mics only: a mic the site does not show cannot
  * appear on a board of the site's mics.
  */
+// Fetched with headroom above the displayed limit: a counted mic can be absent
+// from mics.json (deactivated, or still pending) and get dropped below, so
+// asking for exactly `limit` rows would quietly short the board.
+const FETCH_BUFFER = 120;
+
 export function useMicLeaderboard(limit = 50) {
   const { data: mics, isLoading: micsLoading } = useOpenMics();
 
   const counts = useQuery({
-    queryKey: ["micLeaderboardCounts"],
+    queryKey: ["micLeaderboardCounts", limit],
     queryFn: async (): Promise<LikeCountRow[]> => {
-      const { data, error } = await supabase
-        .from("mic_like_counts")
-        .select("mic_unique_identifier, likes")
-        .order("likes", { ascending: false })
-        .limit(500);
+      // Read through the security definer RPC rather than the view directly.
+      // mic_like_counts is security_invoker and inherits RLS on
+      // user_mic_ratings, where anonymous visitors have no select policy, so
+      // querying the view failed for exactly the signed-out audience a public
+      // voting contest sends here.
+      //
+      // The RPC filters to mics with at least one upvote and caps the rows
+      // server-side, so the response carries what the board shows instead of
+      // every mic in the database.
+      // Cast because src/integrations/supabase/types.ts is generated and does
+      // not know this function yet. Same pattern useMicConfirmReport already
+      // uses for tables that postdate the last type generation.
+      const { data, error } = await (supabase as any).rpc("get_mic_like_counts", {
+        min_likes: 1,
+        row_limit: FETCH_BUFFER,
+      });
       if (error) throw error;
-      return (data ?? []) as LikeCountRow[];
+      return ((data ?? []) as unknown) as LikeCountRow[];
     },
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
