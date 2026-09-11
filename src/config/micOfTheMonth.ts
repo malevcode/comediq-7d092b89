@@ -9,7 +9,8 @@
 
 // Paste the public voting form URL here (https://forms.gle/... or
 // https://docs.google.com/forms/...). Empty means "not set yet".
-export const MIC_OF_THE_MONTH_FORM_URL = "";
+export const MIC_OF_THE_MONTH_FORM_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSexId47ECtWzFs7hGrpprTf7Klk9-8BhNvyP3D7x37l1JdOmA/viewform?usp=header";
 
 export const MIC_OF_THE_MONTH_LABEL = "Mic of the Month";
 export const MIC_OF_THE_MONTH_CTA = "Vote for your favorite";

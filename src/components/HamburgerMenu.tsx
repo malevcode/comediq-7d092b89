@@ -18,6 +18,7 @@ const HamburgerMenu = () => {
   ];
 
   const newFeatureItems = [
+    { path: "/leaderboard", icon: Trophy, label: "Leaderboard", isNew: true },
     { path: "/open-mics", icon: Map, label: "Open Mics Map", isNew: true },
     { path: "/growth", icon: Briefcase, label: "Growth", isNew: true },
     { path: "/strip", icon: Clapperboard, label: "Carouseler", isNew: true },
