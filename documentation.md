@@ -493,6 +493,63 @@ retry window and has to add a card to stay.
 
 ---
 
+## Mic of the Month, and the Leaderboard
+
+### The contest bar
+
+A single static bar sits just above the bottom navigation, linking to the
+public voting form. It is `src/components/MicOfTheMonthBar.tsx`.
+
+Two things make it different from the ad strip it replaced
+(`MarqueeBanner`, still in the repo but no longer rendered):
+
+- **It does not move.** The ad strip scrolled its items as a marquee. This one
+  is one fixed row with one destination.
+- **Everyone sees it.** The ad strip hid itself from paying subscribers, since
+  it carried ads. A community contest is not an ad, and subscribers should get
+  to vote, so there is no subscription check.
+
+It still hides on the auth screens and inside a mic signup flow, where a
+floating bar would compete with the thing the page is asking you to do.
+
+### Where the voting link lives
+
+`src/config/micOfTheMonth.ts`, one constant:
+
+```ts
+export const MIC_OF_THE_MONTH_FORM_URL = "";
+```
+
+Paste the Google Form URL there and the bar points at it and opens in a new
+tab. Leave it empty and the bar points at the leaderboard instead, and the
+leaderboard's button reads "voting opens soon". The contest never advertises a
+link that goes nowhere, which is the only reason the fallback exists.
+
+### The Leaderboard
+
+`/leaderboard` ranks open mics by **upvotes**: the up arrow on a mic card,
+stored as a `like` in `user_mic_ratings`.
+
+Counting happens in the `mic_like_counts` database view rather than in the
+browser, so the page pulls one small aggregate instead of every vote row. Mic
+details (name, venue, borough, day, time) come from the static `mics.json`
+that the rest of the site already reads, so the only database traffic the
+leaderboard causes is that one count query.
+
+Two consequences of building it that way, both intended:
+
+- A mic that is not on the site cannot appear on the leaderboard. Deactivated
+  mics and mics still marked `pending` are absent from `mics.json`, so their
+  votes are counted by the view and then dropped here.
+- Mics with zero upvotes are not listed. The board shows what people voted
+  for, not every mic in the city.
+
+`/top-mics` now renders this same page. It used to be a hand-written list of
+five mics frozen at `WEEK_START = '2026-07-06'`, which had been stale for
+months. The route is kept so old links and shares still work.
+
+---
+
 ## Button text colour, and why it kept going wrong
 
 The app is designed dark-first. Most surfaces are translucent panels over a dark
@@ -536,6 +593,32 @@ label will turn navy in light mode.
 ---
 
 ## Summarize
+
+### Session: Mic of the Month contest and the upvote leaderboard
+
+**What shipped.** A static bottom bar linking to the public voting form, and a
+real `/leaderboard` ranking mics by upvotes, replacing the frozen Top Mics
+list. "Top Mics" in the hamburger menu is now "Leaderboard".
+
+**The metric is upvotes, not uploads.** The first reading of the request was
+file uploads per mic, which would have meant a new table, a storage bucket and
+moderation. It is the up arrow already on every mic card, which was already
+being collected and already aggregated by the `mic_like_counts` view. The
+build went from weeks to hours on that one clarification.
+
+**A check that was checking nothing.** `npx tsc --noEmit` had been the
+typecheck all session. The root `tsconfig.json` uses project references with
+`"files": []`, so that command compiles zero files and always passes. The
+correct command here is `npx tsc -b`. This was caught by an undefined `Trophy`
+icon that the passing typecheck ignored and that `vite build` also ignored,
+since esbuild transpiles without checking types. It would have crashed the
+hamburger menu on every page in production.
+
+**Still open.** The voting form URL is not set, so the bar falls back to the
+leaderboard. Anonymous read access to `mic_like_counts` was not verifiable
+from the repo, because the RLS policies on `user_mic_ratings` were created in
+the Supabase dashboard rather than in a migration. If the leaderboard is empty
+when signed out but populated when signed in, that is the cause.
 
 ### Session: recovering from the Lovable sync, then the UI cleanup
 
