@@ -106,6 +106,36 @@ function mapRow(row) {
   };
 }
 
+// Record that an export happened, so v_data_freshness can answer "is my change
+// live yet?" without waiting to eyeball the site. data_exports has RLS on and no
+// policies, so this only works with the service-role key CI provides; locally it
+// is skipped. A failure here must never fail the export.
+async function logExport(rowCount) {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) {
+    console.log("[export-mics] (no service-role key, skipping the export heartbeat)");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/data_exports`, {
+      method: "POST",
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({ source: "export-mics", row_count: rowCount }),
+    });
+
+    if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`);
+    console.log("[export-mics] ✓ logged the export heartbeat");
+  } catch (e) {
+    console.warn(`[export-mics] ⚠ Could not log the export heartbeat: ${e.message}`);
+  }
+}
+
 async function fetchPage(from, size) {
   const params = new URLSearchParams({
     select: COLUMNS,
@@ -144,6 +174,8 @@ try {
 
   const sizeKB = (Buffer.byteLength(JSON.stringify(mics)) / 1024).toFixed(1);
   console.log(`[export-mics] ✓ ${mics.length} mics → public/mics.json (${sizeKB} KB)`);
+
+  await logExport(mics.length);
 } catch (e) {
   console.warn(`[export-mics] ✗ Fetch failed: ${e.message}`);
   if (REQUIRE_SUCCESS) {

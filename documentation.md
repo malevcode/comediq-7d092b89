@@ -129,7 +129,162 @@ One layout trap worth knowing. In map view the map and the drawer are both `posi
 
 ---
 
+## Knowing what changed, and whether it is live
+
+### The problem this solves
+
+Mic and show edits arrive from four different places: the Supabase SQL editor,
+the admin tab's Smart Update, the `apply_open_mic_updates.py` batch, and host
+submission forms. None of them kept a record. So after an evening of edits there
+was no way to answer three basic questions: what did I change, did it actually
+save, and is it on the site yet.
+
+Worse, open mics are served from `public/mics.json`, which only changes when an
+export runs. A perfectly good edit looks identical to a failed edit until the
+next export. That is how a whole batch once applied nothing and nobody noticed
+for a day.
+
+### The fix, in one file
+
+`scripts/sql/001_change_tracking.sql`. Paste the whole thing into the Supabase
+SQL editor and run it once. It is safe to run again, including after the file has
+been edited.
+
+It adds no columns to mics or shows and changes no mic or show data. It only
+records what happened.
+
+**Why a database trigger and not app code.** A trigger sits under all four entry
+points at once. Logging in the admin tab would miss the SQL editor; logging in
+the batch script would miss the admin tab. The database sees every write, so it
+is the only place one piece of code can catch all of them.
+
+### The three things to look at
+
+Run these in the SQL editor. That is the whole interface, there is no new UI.
+
+**1. What did I just change?**
+
+```sql
+select * from v_recent_changes limit 30;
+```
+
+One row per change, newest first, reading like a sentence:
+
+```
+changed_at  | table_name           | label        | op     | made_from  | what_changed
+2026-09-10  | open_mics_historical | Sick Hat     | UPDATE | SQL editor | start_time: 8:00 PM -> 8:15 PM | venue_name: Cobra Club -> Cobra Club Annex
+```
+
+`made_from` says which door the edit came through: **SQL editor**, **script**
+(the batch or an edge function), or **app** (someone signed in). `what_changed`
+lists only the fields that actually moved, old value then new value.
+
+Everything in one batch shares a timestamp, so the view breaks ties by insert
+order. Without that a 40-edit batch displayed in a scrambled order.
+
+**2. Is my change live on the site yet?**
+
+```sql
+select * from v_data_freshness;
+```
+
+This is the important one. It compares the newest mic change against the newest
+export and tells you in plain words:
+
+| `mic_status` | What it means |
+| --- | --- |
+| `live` | An export has run since your last edit. It is on the site. |
+| `waiting for export` | Your edit saved but the site is still serving the old JSON. Run **Refresh mics.json**. |
+| `no export logged yet, run Refresh mics.json` | Nothing has written a heartbeat yet. Normal right after installing this. |
+
+`show_status` is always `live` once anything has changed, because the Laugh tab
+reads shows straight from the database with no export in between. Shows are live
+the instant you save. Mics are not. That asymmetry was the single most confusing
+thing about the old setup.
+
+**3. Which mics are going stale?**
+
+```sql
+select * from v_mic_staleness limit 40;
+```
+
+Oldest first, never-confirmed at the very top. `days_since_confirmed` is the
+number that matters. `on_the_site` is false for `pending` mics, which are in the
+database but filtered out of the export, so you can stop wondering why an edit to
+one never shows up. `last_verified` is shown raw and unparsed because it is free
+text in four different formats (`08/10/26`, `07/23`, `Unverified`, empty) and
+guessing at it would be worse than not showing it.
+
+### The export heartbeat
+
+`v_data_freshness` can only compare against an export if exports announce
+themselves. `scripts/export-mics.mjs` now writes one row to `data_exports` after
+a successful export, with the row count. It needs the service-role key, so it
+happens in CI and is skipped when you run the export locally with the anon key. A
+heartbeat failure prints a warning and never fails the export.
+
+### Three things that had to be got right
+
+These are recorded because each one was a silent bug found by testing the file
+against a real PostgreSQL, and each would have quietly ruined the log.
+
+**The trigger must not use `current_user`.** It runs `security definer`, which
+means `current_user` is the function's owner (`postgres`) no matter who made the
+change. Every row would have said "SQL editor". The real caller shows up in the
+`role` setting, which PostgREST sets and which survives the switch.
+
+**The views must be `security_invoker`.** By default a view runs with its
+owner's permissions, which would have let any signed-in user read the whole
+change log through it, snapshots included. With `security_invoker` the log's own
+row-level security applies to whoever is asking, and app users get nothing.
+
+**No-op updates are dropped.** Re-running an already-applied batch writes the
+same values back. Without a check, that fills the log with hundreds of rows
+recording nothing, which is exactly the noise that makes a log go unread.
+
+### What is deliberately not here
+
+No email or Slack alert when a mic goes stale, and no automatic export after an
+edit. Both are worth doing later, but the first job was making the current state
+visible. A log nobody can read is the problem being fixed, so adding
+notifications on top of an unproven log would be backwards.
+
+---
+
 ## Summarize
+
+### Session: change tracking for mics and shows
+
+The complaint that started this: "I don't even know if the changes that I make on
+Supabase are actually changing the database until the next day, and if they
+didn't, then I did all that work yesterday for nothing. I don't even remember
+exactly what I did because I don't document it well."
+
+Both halves of that are now answerable in the SQL editor, which is where the
+edits already happen. See "Knowing what changed, and whether it is live" above.
+
+**One system covers both tables.** Mics and shows get the same trigger, the same
+log and the same views, because the questions are identical and two systems would
+mean two things to remember.
+
+**Shows are live immediately, mics are not.** The Laugh tab reads
+`audience_shows` straight from the database. Open mics come from the exported
+`mics.json`. So a show edit is on the site the instant it saves, and a mic edit is
+not on the site until an export runs. `v_data_freshness` now says which state a
+mic edit is in rather than leaving it to be guessed.
+
+**Testing found three bugs that a code review would not have.** The file was run
+against a real PostgreSQL with a copy of both table schemas, and role switching
+was simulated the way PostgREST does it. That caught `current_user` reporting the
+trigger's owner instead of the real editor, the views leaking the log past
+row-level security, and `create or replace view` refusing to add a column, which
+would have made the file fail on its second run. All three were invisible on the
+page and obvious the moment real SQL ran.
+
+**The heartbeat is the load-bearing piece.** Without `export-mics.mjs` recording
+that it ran, "is my change live" is unanswerable, because the log knows when an
+edit happened but nothing knew when the site last caught up.
+
 
 ### Session: September 2026, adding host-submitted shows to the Laugh tab
 
