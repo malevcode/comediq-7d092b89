@@ -1,10 +1,9 @@
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 
 interface AudienceShowFiltersProps {
-  searchTerm: string;
-  onSearchChange: (value: string) => void;
   borough: string;
   onBoroughChange: (value: string) => void;
   showType: string;
@@ -30,32 +29,48 @@ const showTypes = [
   { value: 'Storytelling', label: 'Storytelling' },
 ];
 
+const selectTriggerClass =
+  "h-9 border-0 bg-white/80 text-xs text-gray-900 data-[placeholder]:text-gray-400 dark:bg-white/10 dark:text-white";
+const selectContentClass =
+  "z-[120] border-gray-200 bg-white text-gray-900 dark:border-white/10 dark:bg-[#102a53] dark:text-white";
+
+/**
+ * The two show filters live behind one icon button so they never claim a row
+ * of their own on the Laugh tab. The dot marks that a filter is narrowing the
+ * list while the popover is shut.
+ */
 export function AudienceShowFilters({
-  searchTerm,
-  onSearchChange,
   borough,
   onBoroughChange,
   showType,
   onShowTypeChange,
 }: AudienceShowFiltersProps) {
+  const activeCount = (borough !== 'all' ? 1 : 0) + (showType !== 'all' ? 1 : 0);
+
   return (
-    <div className="space-y-3 mb-6 rounded-xl bg-white/50 p-3 text-gray-700 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#102a53]/70 dark:text-white dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)]">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 dark:text-white/50" />
-        <Input
-          placeholder="Search shows, venues, comedians..."
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 border-0 bg-white/80 text-gray-900 placeholder:text-gray-400 focus-visible:ring-gray-200 dark:bg-white/10 dark:text-white dark:placeholder:text-white/50 dark:focus-visible:ring-[#8ec5ff]/50"
-        />
-      </div>
-      
-      <div className="flex gap-2">
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          aria-label={activeCount > 0 ? `Filter shows, ${activeCount} active` : 'Filter shows'}
+          className="relative h-8 w-8 shrink-0 border-0 bg-white/70 p-0 text-gray-700 hover:bg-white/90 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+        >
+          <SlidersHorizontal className="h-3.5 w-3.5" />
+          {activeCount > 0 && (
+            <span className="absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full bg-[#1a5fb4] dark:bg-[#8ec5ff]" />
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        className="w-52 space-y-2 border-gray-200 bg-white p-2 text-gray-900 dark:border-white/10 dark:bg-[#102a53] dark:text-white"
+      >
         <Select value={borough} onValueChange={onBoroughChange}>
-          <SelectTrigger className="flex-1 border-0 bg-white/80 text-gray-900 data-[placeholder]:text-gray-400 dark:border-white/10 dark:bg-white/10 dark:text-white">
+          <SelectTrigger className={selectTriggerClass}>
             <SelectValue placeholder="Borough" />
           </SelectTrigger>
-          <SelectContent className="z-50 border-gray-200 bg-white text-gray-900 dark:border-white/10 dark:bg-[#102a53] dark:text-white">
+          <SelectContent className={selectContentClass}>
             {boroughs.map((b) => (
               <SelectItem key={b.value} value={b.value}>
                 {b.label}
@@ -63,12 +78,12 @@ export function AudienceShowFilters({
             ))}
           </SelectContent>
         </Select>
-        
+
         <Select value={showType} onValueChange={onShowTypeChange}>
-          <SelectTrigger className="flex-1 border-0 bg-white/80 text-gray-900 data-[placeholder]:text-gray-400 dark:border-white/10 dark:bg-white/10 dark:text-white">
+          <SelectTrigger className={selectTriggerClass}>
             <SelectValue placeholder="Show Type" />
           </SelectTrigger>
-          <SelectContent className="z-50 border-gray-200 bg-white text-gray-900 dark:border-white/10 dark:bg-[#102a53] dark:text-white">
+          <SelectContent className={selectContentClass}>
             {showTypes.map((t) => (
               <SelectItem key={t.value} value={t.value}>
                 {t.label}
@@ -76,7 +91,7 @@ export function AudienceShowFilters({
             ))}
           </SelectContent>
         </Select>
-      </div>
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 }

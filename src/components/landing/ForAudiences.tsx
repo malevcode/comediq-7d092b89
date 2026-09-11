@@ -10,7 +10,7 @@ const ForAudiences = () => {
     {
       icon: <Ticket className="w-5 h-5 text-[#1a5fb4]" />,
       title: "Show Discovery",
-      description: "Browse upcoming comedy shows across NYC — from basement showcases to club headliners.",
+      description: "Browse upcoming comedy shows across NYC, from basement showcases to club headliners.",
     },
     {
       icon: <Star className="w-5 h-5 text-[#1a5fb4]" />,
@@ -20,12 +20,12 @@ const ForAudiences = () => {
     {
       icon: <Heart className="w-5 h-5 text-[#1a5fb4]" />,
       title: "Comedian Tracking",
-      description: "Remember who made you laugh — build your favorites list of comedians seen live.",
+      description: "Remember who made you laugh. Build your favorites list of comedians seen live.",
     },
     {
       icon: <BookOpen className="w-5 h-5 text-[#1a5fb4]" />,
       title: "Post-Show Recall",
-      description: "\"What was that joke?\" — show playbills with full lineups and comedian details so you never forget.",
+      description: "\"What was that joke?\" Show playbills with full lineups and comedian details so you never forget.",
     },
     {
       icon: <Sparkles className="w-5 h-5 text-[#1a5fb4]" />,
@@ -53,16 +53,16 @@ const ForAudiences = () => {
             <div className="inline-block bg-white/20 px-3 py-1 rounded-full text-sm font-semibold mb-4">
               🎟️ LaughPass
             </div>
-            <h3 className="text-3xl font-bold mb-2">$29/month</h3>
+            <h3 className="text-3xl font-bold mb-2">$20/month</h3>
             <p className="text-lg text-blue-100 mb-6">
-              4 free comedy show tickets every month.
+              2 free comedy show tickets every month.
             </p>
             <div className="bg-white/10 rounded-xl p-4 mb-6">
               <p className="text-2xl font-bold text-center">
-                Less than $8 per show
+                Just $10 per show
               </p>
               <p className="text-sm text-blue-200 text-center mt-1">
-                Most NYC comedy shows cost $20–$35
+                Most NYC comedy shows cost $20 to $35
               </p>
             </div>
             <Button
