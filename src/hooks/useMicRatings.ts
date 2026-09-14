@@ -31,17 +31,17 @@ export const useMicRatings = (micUniqueIdentifier?: string) => {
   const { data: ratingCounts } = useQuery({
     queryKey: ['micRatingCounts', micUniqueIdentifier],
     queryFn: async () => {
-      if (!user || !micUniqueIdentifier) return { likes: 0, dislikes: 0 };
+      if (!micUniqueIdentifier) return { likes: 0, dislikes: 0 };
       
       const { data, error } = await supabase
-        .from('mic_like_counts') // new VIEW
+        .from('mic_rating_totals')
         .select('likes, dislikes')
         .eq('mic_unique_identifier', micUniqueIdentifier)
         .maybeSingle(); // get back one row or null
       if (error) throw error;
       return data ?? { likes: 0, dislikes: 0 };
     },
-    enabled: !!user && !!micUniqueIdentifier,
+    enabled: !!micUniqueIdentifier,
   });
 
   // Rate a mic (like or dislike)
@@ -65,6 +65,7 @@ export const useMicRatings = (micUniqueIdentifier?: string) => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['micRating', variables.micUniqueIdentifier] });
       queryClient.invalidateQueries({ queryKey: ['micRatingCounts', variables.micUniqueIdentifier] });
+      queryClient.invalidateQueries({ queryKey: ['micLeaderboardCounts'] });
       queryClient.invalidateQueries({ queryKey: ['userLikedMics', user?.id] });
       toast({
         title: variables.rating === 'like' ? 'Liked!' : 'Disliked!',
@@ -96,6 +97,7 @@ export const useMicRatings = (micUniqueIdentifier?: string) => {
     onSuccess: (_, micUniqueIdentifier) => {
       queryClient.invalidateQueries({ queryKey: ['micRating', micUniqueIdentifier] });
       queryClient.invalidateQueries({ queryKey: ['micRatingCounts', micUniqueIdentifier] });
+      queryClient.invalidateQueries({ queryKey: ['micLeaderboardCounts'] });
       queryClient.invalidateQueries({ queryKey: ['userLikedMics', user?.id] });
       toast({
         title: 'Rating removed',

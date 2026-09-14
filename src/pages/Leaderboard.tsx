@@ -4,11 +4,7 @@ import PageHeader from "@/components/PageHeader";
 import SEO from "@/components/SEO";
 import { useMicLeaderboard } from "@/hooks/useMicLeaderboard";
 import { slugify } from "@/utils/slugify";
-import {
-  MIC_OF_THE_MONTH_LABEL,
-  isExternalVotingLink,
-  votingHref,
-} from "@/config/micOfTheMonth";
+import { MIC_OF_THE_MONTH_LABEL } from "@/config/micOfTheMonth";
 
 // Card left-border colours, matching getBoroughOutline in OpenMicsDetailedList
 // so a mic reads the same colour here as it does on the Perform tab.
@@ -55,18 +51,13 @@ export default function Leaderboard() {
               {totalVotes > 0 && ` ${totalVotes} upvotes counted.`}
             </p>
 
-            <a
-              href={isExternalVotingLink() ? votingHref() : undefined}
-              {...(isExternalVotingLink()
-                ? { target: "_blank", rel: "noopener noreferrer" }
-                : {})}
-              className="mb-5 flex items-center gap-2 rounded-xl bg-[#1a5fb4] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#3a7bd5]"
+            <Link
+              to="/perform"
+              className="mb-5 flex items-center gap-2 rounded-xl bg-contest-live px-4 py-2.5 text-sm font-semibold text-contest-live-foreground transition-opacity hover:opacity-90"
             >
               <Trophy className="h-4 w-4" />
-              {isExternalVotingLink()
-                ? `Vote in ${MIC_OF_THE_MONTH_LABEL}`
-                : `${MIC_OF_THE_MONTH_LABEL} voting opens soon`}
-            </a>
+              {`${MIC_OF_THE_MONTH_LABEL} voting is live — upvote a mic`}
+            </Link>
 
             {isLoading ? (
               <div className="space-y-2">

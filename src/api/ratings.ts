@@ -35,7 +35,7 @@ export async function fetchUserRating(userId: string, micId: string): Promise<Ra
  */
 export async function fetchRatingCounts(micId: string): Promise<RatingCounts> {
   const { data, error } = await supabase
-    .from('mic_like_counts')
+    .from('mic_rating_totals')
     .select('likes, dislikes')
     .eq('mic_unique_identifier', micId)
     .maybeSingle();

@@ -34,16 +34,16 @@ const MicOfTheMonthBar = () => {
       <Trophy className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
       <span className="font-bold">{MIC_OF_THE_MONTH_LABEL}</span>
       <span className="opacity-80">{MIC_OF_THE_MONTH_CTA}</span>
-      <span className="ml-1 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
-        Vote
+      <span className="ml-1 rounded-full bg-background/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+        Upvote
       </span>
     </>
   );
 
   const className =
     "keyboard-fixed-hide fixed bottom-[4.75rem] left-0 right-0 z-[50] flex h-8 items-center justify-center gap-2 " +
-    "bg-[#1a5fb4] px-4 text-[11px] leading-none text-white shadow-[0_-10px_35px_rgba(4,20,55,0.18)] " +
-    "transition-colors hover:bg-[#3a7bd5]";
+    "bg-contest-live px-4 text-[11px] leading-none text-contest-live-foreground shadow-lg " +
+    "transition-opacity hover:opacity-90";
 
   if (isExternalVotingLink()) {
     return (
