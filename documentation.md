@@ -550,6 +550,51 @@ months. The route is kept so old links and shares still work.
 
 ---
 
+## Why shows were missing from the Laugh map
+
+The map itself was never broken. `AudienceShowsMap` plots a show from its
+`latitude` and `longitude`, and every show in the database had neither, so it
+showed the honest message it was written to show: "25 upcoming shows found, but
+none have stored coordinates yet."
+
+`scripts/geocode-audience-shows.mjs` existed to fill those columns and **nothing
+ever ran it**. Same failure the seed workflow's own header warns about: a script
+that runs only when somebody remembers to click Run is a script that does not
+run.
+
+`.github/workflows/geocode_audience_shows.yaml` now runs it three ways:
+
+- after "Seed audience shows" finishes, so a freshly seeded batch gets
+  coordinates immediately (chained on completion, not on the same push, so it
+  cannot race the insert)
+- every three hours, which is what catches shows added through the /add-show
+  form or a scraper
+- manually, with dry run defaulted on
+
+No new secrets. The geocoder uses the free public ArcGIS endpoint and the
+Supabase credentials the other workflows already use. Shows are read live from
+`audience_shows`, not from a static export, so there is nothing to publish
+afterwards: the map is right as soon as the job writes.
+
+### Why a missing pin beats a wrong one
+
+Two guards were added, because the job as written would happily invent
+locations.
+
+A show whose venue is "Venue TBA" with no address is not a place. Geocoding it
+returns the centre of New York City, and the show then appears pinned to a real
+spot somebody could walk to. Placeholder venue names with no address are
+skipped.
+
+ArcGIS also returns coarse matches: `Locality`, `Postal`, `Region`. Those mean
+it resolved the city, not the venue, and they frequently score *higher* than the
+real street match. Coarse types are now dropped before the best candidate is
+chosen, so a city-centroid hit can never win. If nothing specific matches, the
+show keeps null coordinates and stays off the map, which is the correct answer
+for a listing people navigate by.
+
+---
+
 ## Button text colour, and why it kept going wrong
 
 The app is designed dark-first. Most surfaces are translucent panels over a dark
