@@ -93,6 +93,17 @@ const AudienceShowsMap: React.FC<AudienceShowsMapProps> = ({ shows }) => {
     return Array.from(map.values());
   }, [shows]);
 
+  // Shows the map cannot plot. They are skipped silently rather than blocking
+  // the map with a banner; this count only feeds the small corner badge.
+  const unmappedCount = useMemo(
+    () =>
+      shows.filter(
+        (show) =>
+          parseCoordinate(show.latitude) === null || parseCoordinate(show.longitude) === null,
+      ).length,
+    [shows],
+  );
+
   const venueGroupLookup = useMemo(
     () => new Map(venueGroups.map((group) => [group.key, group])),
     [venueGroups],
@@ -298,17 +309,22 @@ const AudienceShowsMap: React.FC<AudienceShowsMapProps> = ({ shows }) => {
         ))}
       </div>
 
-      {venueGroups.length > 0 && (
+      {/* One small badge in the corner, never a banner across the map.
+          A show without coordinates is simply not plotted: it is skipped, not
+          announced. The old centre overlay shouted about the missing ones and
+          sat over the map itself, which read as the map being broken even once
+          other shows were plotting fine. The count is kept, quietly, so an
+          empty-looking map is still explicable. */}
+      {mapReady && (venueGroups.length > 0 || unmappedCount > 0) && (
         <div className="absolute bottom-8 left-3 z-10 rounded-lg border border-border bg-white/100 px-3 py-1.5 text-xs text-slate-700 shadow-sm">
-          {venueGroups.length} venue{venueGroups.length !== 1 ? 's' : ''} mapped · upcoming
-        </div>
-      )}
-
-      {shows.length > 0 && venueGroups.length === 0 && mapReady && (
-        <div className="absolute inset-x-4 top-20 z-10 flex justify-center pointer-events-none">
-          <div className="rounded-lg border border-border bg-white/100 px-3 py-2 text-center text-sm text-muted-foreground shadow-sm">
-            {shows.length} upcoming show{shows.length !== 1 ? 's' : ''} found, but none have stored coordinates yet.
-          </div>
+          {venueGroups.length > 0
+            ? `${venueGroups.length} venue${venueGroups.length !== 1 ? 's' : ''} mapped · upcoming`
+            : 'Upcoming shows are still being located'}
+          {unmappedCount > 0 && (
+            <span className="text-slate-500">
+              {venueGroups.length > 0 ? ` · ${unmappedCount} not located yet` : ''}
+            </span>
+          )}
         </div>
       )}
 
