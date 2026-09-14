@@ -1134,6 +1134,27 @@ export type Database = {
         }
         Relationships: []
       }
+      mic_rating_totals: {
+        Row: {
+          dislikes: number
+          likes: number
+          mic_unique_identifier: string
+          updated_at: string
+        }
+        Insert: {
+          dislikes?: number
+          likes?: number
+          mic_unique_identifier: string
+          updated_at?: string
+        }
+        Update: {
+          dislikes?: number
+          likes?: number
+          mic_unique_identifier?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       mic_reactions: {
         Row: {
           created_at: string
@@ -3188,6 +3209,10 @@ export type Database = {
         Returns: boolean
       }
       is_current_user_admin: { Args: never; Returns: boolean }
+      refresh_mic_rating_total: {
+        Args: { p_mic_unique_identifier: string }
+        Returns: undefined
+      }
       report_mic: { Args: { p_mic_unique_identifier: string }; Returns: Json }
       resolve_motd_for: { Args: { target_date: string }; Returns: string }
     }
