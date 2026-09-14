@@ -3168,6 +3168,14 @@ export type Database = {
       confirm_mic: { Args: { p_mic_unique_identifier: string }; Returns: Json }
       email_account_status: { Args: { p_email: string }; Returns: string }
       email_exists: { Args: { p_email: string }; Returns: boolean }
+      get_mic_like_counts: {
+        Args: { min_likes?: number; row_limit?: number }
+        Returns: {
+          dislikes: number
+          likes: number
+          mic_unique_identifier: string
+        }[]
+      }
       get_or_create_system_host: {
         Args: { mic_id_param: string }
         Returns: string
