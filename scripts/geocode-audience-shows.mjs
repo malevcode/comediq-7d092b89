@@ -35,6 +35,10 @@ const PLACEHOLDER_VALUES = new Set([
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const LIMIT = Number(process.env.GEOCODE_LIMIT || 500);
+// ArcGIS match types that mean "somewhere in this city" rather than a venue.
+const COARSE_MATCH_TYPES = new Set([
+  'Locality', 'Postal', 'PostalLoc', 'PostalExt', 'Region', 'Subregion', 'Country', 'Zone',
+]);
 const DRY_RUN = process.env.DRY_RUN === 'true';
 
 if (PLACEHOLDER_VALUES.has(SUPABASE_URL) || PLACEHOLDER_VALUES.has(SERVICE_ROLE_KEY)) {
@@ -92,15 +96,29 @@ async function geocodeWithArcgis(row) {
       provider: 'arcgis',
       score: scoreCandidate(row, candidate.address ?? '', (candidate.score ?? 0) / 100),
       matchAddress: candidate.address ?? null,
+      addrType: candidate.attributes?.Addr_type ?? null,
     }))
     .filter((candidate) => candidate.latitude !== null && candidate.longitude !== null)
+    // A Locality or Postal match resolved the city, not the venue, and would
+    // drop a pin on the middle of New York as if it were the door. For a
+    // listing people navigate by, no pin beats a confidently wrong one.
+    .filter((candidate) => !COARSE_MATCH_TYPES.has(candidate.addrType))
     .sort((a, b) => b.score - a.score)[0];
 
   return best ?? null;
 }
 
+function isPlaceholderVenue(name) {
+  const n = String(name ?? '').trim().toLowerCase();
+  if (!n) return true;
+  return /^(venue\s*)?(tba|tbd|tbc)$/.test(n) || n === 'venue tba' || n === 'to be announced';
+}
+
 async function geocodeRow(row) {
   if (!row.venue_address && !row.venue_name) return null;
+  // "Venue TBA" with no address is not a place. Without this it geocodes to
+  // the city centroid and the show appears pinned to a real location.
+  if (!row.venue_address && isPlaceholderVenue(row.venue_name)) return null;
 
   try {
     return await geocodeWithArcgis(row);

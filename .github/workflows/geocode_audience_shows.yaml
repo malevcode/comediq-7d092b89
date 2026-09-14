@@ -1,0 +1,91 @@
+name: Geocode audience shows
+
+# Fills latitude and longitude on audience_shows so the Laugh tab map can plot
+# them. Without coordinates a show is invisible on the map: AudienceShowsMap
+# renders "N upcoming shows found, but none have stored coordinates yet."
+#
+# The job existed as scripts/geocode-audience-shows.mjs but nothing ever ran it,
+# so every show ever added was unmapped. This is the same failure the seed
+# workflow's own header describes: a script that only runs when somebody
+# remembers to click Run is a script that does not run.
+#
+# Three ways in:
+#   - After "Seed audience shows" finishes, so a freshly seeded batch gets
+#     coordinates in the same breath instead of waiting for a schedule. Chained
+#     on completion rather than on the same push, so it cannot race the insert.
+#   - Every three hours, which is what catches shows added through the
+#     /add-show form or a scraper rather than through the seed file.
+#   - Manually, where dry run defaults to on, for previewing.
+#
+# No new secrets. The geocoder uses the free public ArcGIS endpoint and needs
+# only the Supabase credentials the other workflows already use.
+#
+# Shows are read live from audience_shows by the app, not from a static export,
+# so there is nothing to publish afterwards: the map is correct as soon as this
+# writes.
+
+on:
+  workflow_run:
+    workflows: ["Seed audience shows"]
+    types: [completed]
+  schedule:
+    - cron: "0 */3 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview only, write nothing"
+        type: boolean
+        default: true
+
+# Writes to the database, so never let two runs overlap.
+concurrency:
+  group: geocode-audience-shows
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # A failed seed has nothing worth geocoding, and chaining off it regardless
+    # would mask the seed's own failure behind a green run here.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Geocode shows missing coordinates
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+        run: |
+          set -o pipefail
+          npm run geocode:audience-shows 2>&1 | tee geocode.log
+
+      # Surfaced in the run summary so a glance says whether shows became
+      # mappable, rather than needing the site opened to find out.
+      - name: Report
+        if: always()
+        run: |
+          {
+            echo "## Audience show geocoding"
+            echo
+            if [ -f geocode.log ]; then
+              echo '```'
+              grep -E '^(Found|Done\.)' geocode.log || tail -5 geocode.log
+              echo '```'
+            else
+              echo "The geocoder produced no log."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
