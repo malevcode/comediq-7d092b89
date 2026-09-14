@@ -58,6 +58,8 @@
     --comediq-blue-light: 213 60% 55%;
     --comediq-blue-dark: 213 80% 25%;
     --comediq-cream: 40 33% 94%;
+    --contest-live: 160 84% 27%;
+    --contest-live-foreground: 0 0% 100%;
   }
 
   .dark {
@@ -96,6 +98,8 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --contest-live: 158 64% 42%;
+    --contest-live-foreground: 222.2 84% 4.9%;
   }
 }
 

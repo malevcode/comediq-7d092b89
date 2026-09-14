@@ -317,7 +317,7 @@ export type Database = {
           recurrence_pattern: string | null
           rsvp_count: number | null
           show_date: string
-          show_time: string
+          show_time: string | null
           show_type: string | null
           showtn_discount_code: string | null
           showtn_discount_type: string | null
@@ -368,7 +368,7 @@ export type Database = {
           recurrence_pattern?: string | null
           rsvp_count?: number | null
           show_date: string
-          show_time: string
+          show_time?: string | null
           show_type?: string | null
           showtn_discount_code?: string | null
           showtn_discount_type?: string | null
@@ -419,7 +419,7 @@ export type Database = {
           recurrence_pattern?: string | null
           rsvp_count?: number | null
           show_date?: string
-          show_time?: string
+          show_time?: string | null
           show_type?: string | null
           showtn_discount_code?: string | null
           showtn_discount_type?: string | null
@@ -1131,6 +1131,27 @@ export type Database = {
           name?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      mic_rating_totals: {
+        Row: {
+          dislikes: number
+          likes: number
+          mic_unique_identifier: string
+          updated_at: string
+        }
+        Insert: {
+          dislikes?: number
+          likes?: number
+          mic_unique_identifier: string
+          updated_at?: string
+        }
+        Update: {
+          dislikes?: number
+          likes?: number
+          mic_unique_identifier?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -3168,6 +3189,14 @@ export type Database = {
       confirm_mic: { Args: { p_mic_unique_identifier: string }; Returns: Json }
       email_account_status: { Args: { p_email: string }; Returns: string }
       email_exists: { Args: { p_email: string }; Returns: boolean }
+      get_mic_like_counts: {
+        Args: { min_likes?: number; row_limit?: number }
+        Returns: {
+          dislikes: number
+          likes: number
+          mic_unique_identifier: string
+        }[]
+      }
       get_or_create_system_host: {
         Args: { mic_id_param: string }
         Returns: string
@@ -3180,6 +3209,10 @@ export type Database = {
         Returns: boolean
       }
       is_current_user_admin: { Args: never; Returns: boolean }
+      refresh_mic_rating_total: {
+        Args: { p_mic_unique_identifier: string }
+        Returns: undefined
+      }
       report_mic: { Args: { p_mic_unique_identifier: string }; Returns: Json }
       resolve_motd_for: { Args: { target_date: string }; Returns: string }
     }
