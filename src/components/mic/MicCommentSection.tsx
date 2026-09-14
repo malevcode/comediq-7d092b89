@@ -34,7 +34,7 @@ export default function MicCommentSection({
     deleteComment,
     isAddingComment,
     isDeletingComment 
-  } = useMicComments(micUniqueIdentifier);
+  } = useMicComments(micUniqueIdentifier, isExpanded);
 
   const handleSubmit = async () => {
     if (!user) {

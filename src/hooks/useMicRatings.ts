@@ -3,7 +3,68 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
-export const useMicRatings = (micUniqueIdentifier?: string) => {
+
+export interface SharedMicRatingData {
+  totals: Record<string, { likes: number; dislikes: number }>;
+  myRatings: Record<string, string>;
+}
+
+/**
+ * Every mic's vote totals, and this user's own votes, in two requests.
+ *
+ * A list screen renders one MicActionBar per card, and each one used to fetch
+ * its own counts. At 100 visible cards that is 100 requests per page load, and
+ * since the counts query is no longer gated on being signed in, signed-out
+ * visitors pay it too. A voting contest promoted by a public form sends mostly
+ * signed-out traffic, which made this the largest single consumer of the
+ * database egress budget by an order of magnitude.
+ *
+ * Call this once in a list and hand the result to each row. Screens showing a
+ * single mic should not use it: they are better served by the per-mic query in
+ * useMicRatings, which fetches one row instead of all of them.
+ */
+export const useSharedMicRatingData = (): SharedMicRatingData => {
+  const { user } = useAuth();
+
+  const { data: totals } = useQuery({
+    queryKey: ['micRatingTotalsAll'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('mic_rating_totals')
+        .select('mic_unique_identifier, likes, dislikes');
+      if (error) throw error;
+      const out: Record<string, { likes: number; dislikes: number }> = {};
+      (data ?? []).forEach((r: any) => {
+        out[r.mic_unique_identifier] = { likes: r.likes ?? 0, dislikes: r.dislikes ?? 0 };
+      });
+      return out;
+    },
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: myRatings } = useQuery({
+    queryKey: ['myMicRatings', user?.id],
+    queryFn: async () => {
+      if (!user) return {};
+      const { data, error } = await supabase
+        .from('user_mic_ratings')
+        .select('mic_unique_identifier, rating')
+        .eq('user_id', user.id);
+      if (error) throw error;
+      const out: Record<string, string> = {};
+      (data ?? []).forEach((r: any) => { out[r.mic_unique_identifier] = r.rating; });
+      return out;
+    },
+    enabled: !!user,
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  return { totals: totals ?? {}, myRatings: myRatings ?? {} };
+};
+
+export const useMicRatings = (micUniqueIdentifier?: string, shared?: SharedMicRatingData) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -24,7 +85,8 @@ export const useMicRatings = (micUniqueIdentifier?: string) => {
       if (error) throw error;
       return data?.rating || null;
     },
-    enabled: !!user && !!micUniqueIdentifier,
+    // Skipped when a list already fetched every rating this user has.
+    enabled: !!user && !!micUniqueIdentifier && !shared,
   });
 
   // Get rating counts for a mic
@@ -41,7 +103,8 @@ export const useMicRatings = (micUniqueIdentifier?: string) => {
       if (error) throw error;
       return data ?? { likes: 0, dislikes: 0 };
     },
-    enabled: !!micUniqueIdentifier,
+    // Skipped when a list already fetched totals for every mic.
+    enabled: !!micUniqueIdentifier && !shared,
   });
 
   // Rate a mic (like or dislike)
@@ -106,9 +169,12 @@ export const useMicRatings = (micUniqueIdentifier?: string) => {
     },
   });
 
+  const sharedCounts = shared && micUniqueIdentifier ? shared.totals[micUniqueIdentifier] : undefined;
+  const sharedRating = shared && micUniqueIdentifier ? shared.myRatings[micUniqueIdentifier] : undefined;
+
   return {
-    userRating,
-    ratingCounts: ratingCounts ?? { likes: 0, dislikes: 0 },
+    userRating: shared ? (sharedRating ?? null) : userRating,
+    ratingCounts: (shared ? sharedCounts : ratingCounts) ?? { likes: 0, dislikes: 0 },
     rateMic: rateMicMutation.mutate,
     removeRating: removeRatingMutation.mutate,
     isRating: rateMicMutation.isPending || removeRatingMutation.isPending,

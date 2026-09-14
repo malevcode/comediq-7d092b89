@@ -12,7 +12,13 @@ export interface MicComment {
   username?: string;
 }
 
-export function useMicComments(micUniqueIdentifier: string) {
+/**
+ * @param enabled Pass false while the comment list is not on screen. The card's
+ * comment section renders nothing until it is expanded, but hooks run
+ * regardless, so without this every visible card fetched every comment body for
+ * its mic to display nothing: 100 requests and 100 full result sets per page.
+ */
+export function useMicComments(micUniqueIdentifier: string, enabled = true) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -48,7 +54,7 @@ export function useMicComments(micUniqueIdentifier: string) {
         username: profileMap.get(comment.user_id) || "Anonymous"
       })) as MicComment[];
     },
-    enabled: !!micUniqueIdentifier,
+    enabled: !!micUniqueIdentifier && enabled,
     staleTime: 5 * 60 * 1000,
   });
 
