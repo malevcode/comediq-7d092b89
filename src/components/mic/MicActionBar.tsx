@@ -1,7 +1,7 @@
 import { ChevronUp, ChevronDown, MapPin, Send, ExternalLink, Check, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMicRatings } from "@/hooks/useMicRatings";
+import { useMicRatings, type SharedMicRatingData } from "@/hooks/useMicRatings";
 import { useMicConfirmReport } from "@/hooks/useMicConfirmReport";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +26,12 @@ interface MicActionBarProps {
   onCommentClick?: () => void;
   showCommentSection?: boolean;
   className?: string;
+  /**
+   * Vote totals and the user's own votes, fetched once by the surrounding list.
+   * Supplying this stops every row from fetching its own counts, which is the
+   * difference between one request per page and one per visible mic.
+   */
+  sharedRatings?: SharedMicRatingData;
 }
 
 // Extracts the first URL-like string from text. Supports:
@@ -65,6 +71,7 @@ export default function MicActionBar({
   signUpInstructions,
   venueAddress,
   className,
+  sharedRatings,
 }: MicActionBarProps) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -72,7 +79,7 @@ export default function MicActionBar({
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
 
-  const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(micUniqueIdentifier);
+  const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(micUniqueIdentifier, sharedRatings);
   const {
     confirmedThisMonth,
     alreadyReportedThisMonth,
