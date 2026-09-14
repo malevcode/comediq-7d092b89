@@ -317,7 +317,7 @@ export type Database = {
           recurrence_pattern: string | null
           rsvp_count: number | null
           show_date: string
-          show_time: string
+          show_time: string | null
           show_type: string | null
           showtn_discount_code: string | null
           showtn_discount_type: string | null
@@ -368,7 +368,7 @@ export type Database = {
           recurrence_pattern?: string | null
           rsvp_count?: number | null
           show_date: string
-          show_time: string
+          show_time?: string | null
           show_type?: string | null
           showtn_discount_code?: string | null
           showtn_discount_type?: string | null
@@ -419,7 +419,7 @@ export type Database = {
           recurrence_pattern?: string | null
           rsvp_count?: number | null
           show_date?: string
-          show_time?: string
+          show_time?: string | null
           show_type?: string | null
           showtn_discount_code?: string | null
           showtn_discount_type?: string | null
