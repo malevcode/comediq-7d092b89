@@ -421,6 +421,13 @@
         "open_mic": "The Buddha Room 10:30 Mic Show",
         "start_time": "10:30 PM"
       }
+    },
+    {
+      "unique_identifier": "6a2a3632-ad32-4dc9-a2e6-62c028262dc5",
+      "note": "Listen Up Queers! at Flop House runs to 6:30 PM, not 6:00. Start time 4:30 PM was already correct and is unchanged.",
+      "set": {
+        "latest_end_time": "6:30 PM"
+      }
     }
   ],
   "removals": [
