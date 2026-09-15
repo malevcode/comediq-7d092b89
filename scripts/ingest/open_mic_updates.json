@@ -577,11 +577,12 @@
       }
     },
     {
-      "note": "New mic: No Ragrets Open Mic, Tuesdays 6PM at Eastville Comedy Club. Source is the @noragretsmic Instagram bio: 6pm Tuesday at Eastville, hosted by @you.go.glen.loco, 1 drink for 5 min, signups 5:30, 15 person cap. No end time given anywhere, so latest_end_time is deliberately omitted rather than guessed. Address, borough, neighborhood, venue_type and coordinates inherited from the six existing Eastville Comedy Club rows, not supplied by the source.",
+      "note": "New mic: No Ragrets Open Mic, Tuesdays 6PM at Eastville Comedy Club. Source is the @noragretsmic Instagram bio: 6pm Tuesday at Eastville, hosted by @you.go.glen.loco, 1 drink for 5 min, signups 5:30, 15 person cap. The bio gives no end time; Adam set it as 90 minutes after the 6PM start, so 7:30 PM. Address, borough, neighborhood, venue_type and coordinates inherited from the six existing Eastville Comedy Club rows, not supplied by the source.",
       "row": {
         "open_mic": "No Ragrets Open Mic",
         "day": "Tuesday",
         "start_time": "6:00 PM",
+        "latest_end_time": "7:30 PM",
         "venue_name": "Eastville Comedy Club",
         "location": "487 Atlantic Ave, Brooklyn, NY 11217, USA",
         "borough": "Brooklyn",
