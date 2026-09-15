@@ -46,9 +46,10 @@
     },
     {
       "unique_identifier": "1e536831-cc9b-40b4-8bae-b20177756ea3",
-      "note": "Comedy in Harlem Tuesday: 5:30pm signup, 6pm start",
+      "note": "Paid by the Bell Open Mic (Comedy in Harlem, Tuesday 6PM, host Rashad Bashir): off the site from 9/15 through 10/27. Every Tuesday in that window is a pre-selected audition for the New York Comedy Festival, so a comic cannot show up and get on. Announced by the host in the New York Comedy Scene Facebook group. active=false rather than a label, because this is not an open mic during the window. TO REVERSE ON 10/27: set active back to true in THIS entry, do not delete it. Deleting leaves active=false in the database forever and the mic never comes back. Keeps the existing 5:30PM signup / 6PM start correction, which still applies when it resumes.",
       "set": {
-        "sign_up_instructions": "Sign up 5:30PM, show starts 6PM."
+        "sign_up_instructions": "Sign up 5:30PM, show starts 6PM.",
+        "active": false
       }
     },
     {
