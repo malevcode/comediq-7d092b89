@@ -428,6 +428,13 @@
       "set": {
         "latest_end_time": "6:30 PM"
       }
+    },
+    {
+      "unique_identifier": "3a3fbd37-f5f8-4e7a-ac14-c5a11b1bd1e5",
+      "note": "Skin Tag (McCarren Parkhouse, Monday 7:15 PM) cancelled 9/14, announced on Instagram @skintag_openmic. One skipped night, not a closure: active, day and times stay as they are. STALE LABEL, 9/14 has passed. Rewrite this same entry back to \"Skin Tag\" to clear it, do not delete it.",
+      "set": {
+        "open_mic": "Skin Tag *SKIPS 9/14*"
+      }
     }
   ],
   "removals": [
