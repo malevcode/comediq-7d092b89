@@ -637,6 +637,68 @@ label will turn navy in light mode.
 
 ---
 
+## Cleaning non-NYC mics out of the public Google Sheet
+
+The public sheet linked from the site footer (`src/components/SiteFooter.tsx`) is
+a hand-kept Google Sheet, not an export of the database. That distinction matters
+and it trips people up.
+
+The database in Supabase has a `city` column and an `active` column. The export
+script reads both (see `scripts/export-mics.mjs`, which asks Supabase for
+`active: "eq.true"`). So in the database, "only New York mics that are active" is
+a one-line filter.
+
+The Google Sheet has neither column. Its tabs are one per weekday, and the header
+row is:
+
+```
+Open Mic | Day | Start Time | Latest End Time | Venue Name | Borough |
+Neighborhood | Location | Venue type | Cost | Stage time |
+Sign-Up Instructions | Host(s) / Organizer | Changes/updates | Last verified |
+This Month's Changes | Other Rules | Reviews | unique identifier
+```
+
+There is no city column and no active flag anywhere in it. A filter written
+against those names would quietly match nothing and look like it worked.
+
+### So what tells you a sheet row is out of town
+
+Only the `Location` text. A row for a Los Angeles mic reads
+`2106 Hyperion Ave Los Angeles CA`, and a New York one reads
+`17 Essex St, New York, NY 10002, USA`. That is the whole signal.
+
+`scripts/apps-script/archive-non-nyc-mics.gs` is a Google Apps Script that uses
+it. The rule is deliberately lopsided:
+
+- If the location names a borough, "New York", "NYC", or the `NY` state code,
+  the row stays. An NYC marker always wins.
+- Otherwise, the row moves only on a clear out-of-town hit: another metro name
+  like Los Angeles or Burbank, or another state code like `CA`, `PA` or `SC`.
+- Anything else stays.
+
+That last point is the important one. Rows like `242 East 14th Street 10003`,
+`50 Avenue B` and `Secret location` name no city and no state. They are all real
+NYC mics, and defaulting to "keep" is what saves them. A script that deleted
+whatever it could not confirm would take all three.
+
+Matched rows are appended to an `Archive - Non NYC` tab before they are deleted,
+with the tab they came from in the first column, so a wrong match can be pasted
+back. Deletion runs bottom-up so earlier row numbers stay valid as rows are
+removed.
+
+The script has two entry points. `previewNonNycMics` only logs what it would
+take. `archiveNonNycMics` does the move. Run the preview first.
+
+### Why this is not run from CI
+
+Nothing in this repo has write access to that spreadsheet, and the deploy
+environment cannot reach Google directly. The script is pasted into the sheet's
+own Apps Script editor (Extensions > Apps Script) and run from there, by the
+sheet's owner. Keeping it in the repo is just so the rule lives next to the
+export script it complements, rather than only in a browser tab.
+
+---
+
 ## Summarize
 
 ### Session: Mic of the Month contest and the upvote leaderboard
@@ -924,3 +986,27 @@ The branch is now keyed on `viewMode` instead of `embedded`, which is what made 
 Driving it in a real browser caught a bug a diff review would not have: with the drawer expanded, it covered the floating bar containing the toggle, so clicking back to list view was impossible. Measuring the actual boxes (bar 132-192, drawer starting at 136) gave the exact clearance needed rather than a guessed constant.
 
 **Still open.** No cron job regenerates recurring instances, so The Girl Show is hand-seeded through March 2027. No admin UI for verifying submitted shows, still a manual database edit. And `npm run lint` is broken on this repo for an unrelated reason: an eslint / typescript-eslint version mismatch that fails on a clean checkout too.
+
+### Session: pruning the public mic sheet down to New York
+
+The ask was to strip every row from the public Google Sheet that was not a New
+York mic with `Active = TRUE`. Reading the sheet first turned up the catch: it
+has no `city` column and no `Active` column. Those are Supabase column names,
+and the sheet is kept by hand. Filtering on them would have matched nothing.
+
+What the sheet does have is a `Location` column, so the filter was rewritten
+against that. Checked against the live sheet, it flags 22 out-of-town rows:
+nineteen around Los Angeles, plus Burbank, Rancho Cucamonga and Riverside in
+California, one in Isle of Palms SC and one in Irwin PA. It leaves every row
+carrying an NYC marker alone, and it also leaves the rows that name no city at
+all, which are NYC mics that would otherwise have been lost.
+
+Added `scripts/apps-script/archive-non-nyc-mics.gs`, which moves matched rows to
+an `Archive - Non NYC` tab instead of deleting them outright, and has a
+preview-only mode. It is run from the sheet's own Apps Script editor, because
+nothing in this repo can write to that spreadsheet.
+
+The `Active = TRUE` half of the request has no equivalent in the sheet and was
+left alone rather than guessed at. The nearest thing the sheet has is the
+`Last verified` column, which is free text.
+
