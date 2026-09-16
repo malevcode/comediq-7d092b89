@@ -436,6 +436,13 @@
       "set": {
         "open_mic": "Skin Tag *SKIPS 9/14*"
       }
+    },
+    {
+      "unique_identifier": "146319a4-5add-449a-bed0-377c1d000453",
+      "note": "SkyBox (SkyBox Sports Bar & Grill, 2241 1st Ave) moves from Monday to Sunday. Host Ying said so directly by Instagram DM: \"It changed to Sunday again\", \"Sunday, 7pm\", \"Not Monday anymore\", with a flyer for Sunday September 20 at 7pm. Day is the only field that changes: 7:00 PM start already matches, and the host said nothing about cost, stage time, signup or end time, so none of those are touched. Kept weekly, since \"not Monday anymore\" is a standing change and the flyer date is just the next occurrence. Note the word \"again\": this mic has moved day before and may move back.",
+      "set": {
+        "day": "Sunday"
+      }
     }
   ],
   "removals": [
