@@ -23,6 +23,7 @@ import ClaimMicButton from '@/components/host/ClaimMicButton';
 import ClaimMicOfDayButton from '@/components/host/ClaimMicOfDayButton';
 import NominateMotdButton from '@/components/motd/NominateMotdButton';
 import { MicMiniMap } from '@/components/map/MicMiniMap';
+import { getBoroughOutline } from "@/utils/boroughColors";
 
 // Helper function to get map URL based on device
 function getMapUrl(location: string, venueName: string) {
@@ -190,19 +191,6 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
   const [distanceLoading, setDistanceLoading] = useState(false);
   const isFinished = hasMicAlreadyHappenedToday(mic);
   const [showMiniMap, setShowMiniMap] = useState(false);
-
-  // Helper to get borough outline color
-  const getBoroughOutline = (borough: string) => {
-    const cleanBorough = (borough || '').trim();
-    const outlines: Record<string, string> = {
-      Manhattan: "#1a5fb4",
-      Brooklyn: "#92400e",
-      Queens: "#9333ea",
-      Bronx: "#ea580c",
-      "Staten Island": "#6b7280"
-    };
-    return outlines[cleanBorough] || "#9ca3af";
-  };
 
   // Calculate distance when user location changes
   useEffect(() => {
