@@ -639,78 +639,83 @@ label will turn navy in light mode.
 
 ## The mic popup: one card, two ways to read it
 
-When you tap a mic's name anywhere on the site, a popup slides up over the
-page. It used to be a flat list: a name, one grey strip of details, then
-Location, Cost, Host, Sign-Up Instructions stacked on top of each other. Every
-piece of information was the same size, so nothing told you what to do first.
+Tap a mic's name anywhere on the site and a sheet slides up over the page.
 
-The popup now answers the two questions people actually arrive with, and it
-asks you which one you are asking.
+The layout is copied, deliberately and closely, from MicMap, a site that
+republishes Comediq's mic data and credits Comediq as its source. They had
+arranged the same facts better than Comediq did. The arrangement was worth
+taking. The data and the colours are Comediq's.
+
+### Reading down the sheet
+
+1. **Top bar.** Close, a grab handle, share, and a heart that saves the mic.
+2. **Pills.** The borough, in that borough's colour, then the verification badge.
+3. **Title**, then one flowing grey line: `at **Venue** · address · neighborhood · Every Friday`.
+4. **Audience / Performer**, a small pill switch sized to its own text.
+5. **The Next card**, tinted blue. The date, the headline facts, a rule, the
+   sign-up note, and the action pills, all inside the one card.
+6. **Three buttons**: check in, add to calendar, get directions.
+7. Then plain sections, separated by hairlines, no boxes: the facts for your
+   view, UPCOMING, ABOUT THIS MIC, WHERE.
+8. A footer: when it was last verified, and a link for the host to claim it.
 
 ### The Performer / Audience switch
 
-At the top there are two buttons. **Performer** is the default, because most
-people on Comediq are comics. **Audience** is for people who want to watch.
-
-The switch does not load anything new. It is the same mic, sorted differently:
+**Performer** is the default, because most people on Comediq are comics. The
+switch loads nothing new. It is the same mic, sorted differently:
 
 | | Performer | Audience |
 | --- | --- | --- |
-| The blue "Next" card says | how long your set is and what it costs you | what it costs to get in |
-| The section below is called | BEFORE YOU SIGN UP | KNOW BEFORE YOU GO |
-| That section lists | how to sign up, stage time, cost, house rules | doors, cost, how fast the lineup moves, house rules |
-| The big orange button | Sign Up for Spots | (hidden, there is nothing to sign up for) |
-
-### The blue "Next" card
-
-Right under the switch, in Comediq blue, is the very next time this mic runs.
-It says "Today", "Tomorrow", or a date like "Thu, Sep 25". This is the one
-thing most people open the popup to find out, so it is the biggest thing on
-the screen after the name.
-
-### The three small buttons
-
-Under the main button sit three small ones, side by side:
-
-- **I Went Up** checks you in, but only if your phone says you are actually at
-  the venue. Signed out, this button says "Sign in" instead.
-- **Calendar** drops the next date into Google Calendar.
-- **Directions** opens Maps at the venue.
+| Under the date | `5 min sets · paid to play` | `7:30 PM - 9:00 PM · $5 cash` |
+| The note in the card | how to sign up | that no ticket is needed |
+| Action pills | Sign up for spots, I'm going | I'm going |
+| Section title | BEFORE YOU SIGN UP | KNOW BEFORE YOU GO |
+| Facts | set length, cost to play, house rules | cover, doors, house rules |
 
 ### The UPCOMING row
 
-A row of little date pills showing the next five times the mic runs.
+The next five dates this mic runs, the first one highlighted.
 
-These dates are worked out, not stored, so the code only shows them when the
-schedule is genuinely predictable:
+These are worked out, not stored, so the code only shows them when the
+schedule genuinely pins them down:
 
 - **Weekly** mics get the next five same-weekday dates.
-- **"2nd Thursday of the month"** style mics get the next five of those.
-- **Bi-weekly** mics get *nothing*. To know which Tuesday is the "on" Tuesday
-  you need a starting date, and we do not store one. Guessing would be worse
-  than staying quiet.
-- **One-off** and **custom** mics get nothing either, for the same reason.
+- **"2nd Thursday of the month"** mics get the next five of those.
+- **Bi-weekly** mics get *nothing*. Knowing which Tuesday is the live one needs
+  a starting date, and we do not store one. Guessing is worse than silence.
+- **One-off** and **custom** mics get nothing, for the same reason.
 
 This lives in `src/utils/micOccurrences.ts`.
 
 ### Also at this venue
 
-At the bottom, under WHERE, the popup lists the other mics at the same venue.
-Four maximum. It finds them by matching the venue name against the mic list
-already loaded in the browser, so it costs no extra database requests.
+Under WHERE, the other mics at the same venue, six maximum, as inline links.
 
-### The colours
+Many venues run several mics under one name, so a list of six identical links
+would be useless. When the other mic shares this mic's name it is labelled by
+when it runs (`Wed 5:00 PM`); when it has its own name, that name is used with
+the day after it (`BibbleBash 2 (Fri)`).
 
-The stripe across the top of the popup, and the pill with the borough name on
-it, use the same colour as the left edge of that mic's card in the list.
-Manhattan blue, Brooklyn brown, Queens purple, Bronx orange, Staten Island
-grey. That colour table used to live inside `OpenMicsDetailedList.tsx` where
-only the cards could reach it. It now lives in `src/utils/boroughColors.ts`
-so the card and the popup can never drift apart.
+It matches on venue name against the mic list already in the browser, so it
+costs no extra database requests.
 
-Everything else is the house palette: cream `#f5f2eb` behind light mode, navy
-`#0d2244` behind dark, Comediq blue `#1a5fb4` on the buttons, orange kept only
-for "Sign Up for Spots" so it stays the one thing that shouts.
+### One accent, plus a borough label
+
+MicMap runs a single red through its whole sheet. Comediq's single colour is
+blue `#1a5fb4`: the switch, the Next card, the sign-up pill, the first date
+chip, every link. In dark mode links lighten to `#8ec5ff` so they stay
+readable on navy.
+
+The borough colour is a **label, not a theme**. It appears in exactly two
+places: the stripe across the top of the sheet, and the pill with the borough
+name in it. This matters. An earlier pass ran the borough colour through
+everything, which turned every Brooklyn mic brown.
+
+That colour table used to live inside `OpenMicsDetailedList.tsx` where only
+the cards could reach it. It now lives in `src/utils/boroughColors.ts` so the
+card stripe and the popup can never drift apart.
+
+Backgrounds are cream `#f5f2eb` in light mode and navy `#0d2244` in dark.
 
 ---
 
@@ -780,36 +785,42 @@ export script it complements, rather than only in a browser tab.
 
 ### Session: the mic popup, rebuilt
 
-**What shipped.** `MicDetailModal.tsx` rewritten as a single-column sheet with
-a Performer / Audience switch, a blue "Next" card, a three-button row for
-check-in, calendar and directions, a strip of upcoming dates, and cross-links
-to the other mics at the same venue. Same props, so the two pages that open it
-(`OpenMics.tsx` and `Profile.tsx`) were not touched.
+**What shipped.** `MicDetailModal.tsx` rewritten as a mobile sheet copying
+MicMap's layout: a Performer / Audience switch, a Next card holding the date,
+the sign-up note and the action pills together, three check-in / calendar /
+directions buttons, hairline-separated fact sections, an upcoming-dates row,
+and cross-links to other mics at the venue. Same props, so `OpenMics.tsx` and
+`Profile.tsx` were not touched.
 
-**Where the shape came from.** Another site that republishes Comediq's mic
-data, crediting Comediq as the source, had arranged the same facts far better
-than Comediq did. The arrangement was worth taking. The data and the palette
-are Comediq's.
+**The first attempt was an interpretation, not a copy.** It kept Comediq's
+habit of wrapping every section in its own bordered card, made the switch a
+full-width 50/50 grid, and promoted "I'm going" to a large standalone button.
+The result read as generic. The fix was to copy the structure literally:
+sections separated by hairlines rather than boxed, the switch sized to its own
+text, the action pills demoted into the Next card, facts as icon plus bold
+line plus quiet sub-line, and the three buttons carrying their full two-line
+labels.
 
-**Nothing new had to be built.** Every feature the new layout shows was already
-in the codebase and just not surfaced: GPS check-in (`WentUpToggle`), the
-signup route, ratings, the calendar builders, the mic list. The one genuinely
-new piece is `micOccurrences.ts`, about eighty lines that work out future
-dates.
+**Nothing new had to be built.** GPS check-in, the signup route, ratings, the
+calendar builders and the mic list all already existed and were simply buried.
+The one new piece is `micOccurrences.ts`, about eighty lines of date maths.
 
-**The rule that kept it honest.** The upcoming-dates strip only appears for
-schedules the data actually pins down. Bi-weekly mics have no stored anchor
-date, so they get no strip rather than a plausible-looking wrong one.
+**Two rules that kept it honest.** The upcoming-dates row only appears for
+schedules the data pins down, so bi-weekly mics get no strip rather than a
+plausible wrong one. And the borough colour is confined to the top stripe and
+its pill, after a pass that ran it through every element and turned Brooklyn
+mics brown.
 
 **Verified.** `npx tsc -b` (the real typecheck, not `--noEmit`), a production
-build, and screenshots of both views in both light and dark mode against live
-`mics.json`. The occurrence maths was checked separately against known 2026
-calendar dates, including month boundaries and "last weekday of the month".
+build, and screenshots of both views in both themes against live `mics.json`,
+including a Brooklyn mic to prove the accent split holds. The occurrence maths
+was checked separately against known 2026 dates, including month boundaries
+and "last weekday of the month".
 
 **Note.** `npx eslint` is broken repo-wide, on untouched files too: a version
 mismatch between ESLint 9.39 and the TypeScript plugin's
-`no-unused-expressions` rule. Not caused by this change, but it means lint is
-not currently a usable check.
+`no-unused-expressions` rule. Not caused by this change, but lint is not
+currently a usable check.
 
 ### Session: Mic of the Month contest and the upvote leaderboard
 
