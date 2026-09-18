@@ -46,9 +46,10 @@
     },
     {
       "unique_identifier": "1e536831-cc9b-40b4-8bae-b20177756ea3",
-      "note": "Comedy in Harlem Tuesday: 5:30pm signup, 6pm start",
+      "note": "Paid by the Bell Open Mic (Comedy in Harlem, Tuesday 6PM, host Rashad Bashir): off the site from 9/15 through 10/27. Every Tuesday in that window is a pre-selected audition for the New York Comedy Festival, so a comic cannot show up and get on. Announced by the host in the New York Comedy Scene Facebook group. active=false rather than a label, because this is not an open mic during the window. TO REVERSE ON 10/27: set active back to true in THIS entry, do not delete it. Deleting leaves active=false in the database forever and the mic never comes back. Keeps the existing 5:30PM signup / 6PM start correction, which still applies when it resumes.",
       "set": {
-        "sign_up_instructions": "Sign up 5:30PM, show starts 6PM."
+        "sign_up_instructions": "Sign up 5:30PM, show starts 6PM.",
+        "active": false
       }
     },
     {
@@ -428,6 +429,20 @@
       "set": {
         "latest_end_time": "6:30 PM"
       }
+    },
+    {
+      "unique_identifier": "3a3fbd37-f5f8-4e7a-ac14-c5a11b1bd1e5",
+      "note": "Skin Tag (McCarren Parkhouse, Monday 7:15 PM) cancelled 9/14, announced on Instagram @skintag_openmic. One skipped night, not a closure: active, day and times stay as they are. STALE LABEL, 9/14 has passed. Rewrite this same entry back to \"Skin Tag\" to clear it, do not delete it.",
+      "set": {
+        "open_mic": "Skin Tag *SKIPS 9/14*"
+      }
+    },
+    {
+      "unique_identifier": "146319a4-5add-449a-bed0-377c1d000453",
+      "note": "SkyBox (SkyBox Sports Bar & Grill, 2241 1st Ave) moves from Monday to Sunday. Host Ying said so directly by Instagram DM: \"It changed to Sunday again\", \"Sunday, 7pm\", \"Not Monday anymore\", with a flyer for Sunday September 20 at 7pm. Day is the only field that changes: 7:00 PM start already matches, and the host said nothing about cost, stage time, signup or end time, so none of those are touched. Kept weekly, since \"not Monday anymore\" is a standing change and the flyer date is just the next occurrence. Note the word \"again\": this mic has moved day before and may move back.",
+      "set": {
+        "day": "Sunday"
+      }
     }
   ],
   "removals": [
@@ -567,6 +582,35 @@
         "signup_enabled": false,
         "slots_enabled": false,
         "slot_duration_minutes": 5
+      }
+    },
+    {
+      "note": "New mic: No Ragrets Open Mic, Tuesdays 6PM at Eastville Comedy Club. Source is the @noragretsmic Instagram bio: 6pm Tuesday at Eastville, hosted by @you.go.glen.loco, 1 drink for 5 min, signups 5:30, 15 person cap. The bio gives no end time; Adam set it as 90 minutes after the 6PM start, so 7:30 PM. Address, borough, neighborhood, venue_type and coordinates inherited from the six existing Eastville Comedy Club rows, not supplied by the source.",
+      "row": {
+        "open_mic": "No Ragrets Open Mic",
+        "day": "Tuesday",
+        "start_time": "6:00 PM",
+        "latest_end_time": "7:30 PM",
+        "venue_name": "Eastville Comedy Club",
+        "location": "487 Atlantic Ave, Brooklyn, NY 11217, USA",
+        "borough": "Brooklyn",
+        "neighborhood": "Downtown Brooklyn",
+        "venue_type": "Comedy Club",
+        "cost": "1 drink",
+        "stage_time": "5",
+        "sign_up_instructions": "Sign up 5:30PM, show starts 6PM. In person.",
+        "other_rules": "15 person cap.",
+        "hosts_organizers": "@you.go.glen.loco",
+        "changes_updates": "@noragretsmic",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "in_person",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.685869073815,
+        "longitude": -73.981649984597
       }
     }
   ]
