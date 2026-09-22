@@ -54,7 +54,7 @@
     },
     {
       "unique_identifier": "ca61199d-9894-4325-aba2-5156e80840b6",
-      "note": "Secret Mic #5: changes to 4pm at NYCC 24th St",
+      "note": "Secret Mic #5: changes to 4pm at NYCC 24th St | Cost is $5 CASH ONLY per the same post. The 3:30 PM signup this entry already asserts matches the stated 30-minutes-before rule, so it stands.",
       "set": {
         "start_time": "4:00 PM",
         "latest_end_time": "5:30 PM",
@@ -67,7 +67,8 @@
         "geocoded_at": null,
         "geocoding_provider": null,
         "geocoding_score": null,
-        "geocoding_match_address": null
+        "geocoding_match_address": null,
+        "cost": "$5 cash only"
       }
     },
     {
@@ -451,6 +452,27 @@
         "active": false,
         "cost": "$10 (includes a free item)"
       }
+    },
+    {
+      "unique_identifier": "14ecf40f-20e8-4ffe-b510-b2393d117391",
+      "note": "The Secret Mic Monday 5PM at NYCC East Village: cost is $5 CASH ONLY. Source: the @the_secret_mics carousel, \"New Saturday mic! Now 6 mics a week... Signups start 30 min before for weekday mics. For the Saturday mic you must dm for a spot. $5 cash only.\" Signup already reads 4:30 PM, which is the 30-minutes-before rule, so it is unchanged. Day, time and venue all already match the post.",
+      "set": {
+        "cost": "$5 cash only"
+      }
+    },
+    {
+      "unique_identifier": "8826a9af-d3c3-4b4f-8437-571628b489fb",
+      "note": "The Secret Mic Tuesday 5PM at NYCC East Village: cost is $5 CASH ONLY. Source: the @the_secret_mics carousel, \"New Saturday mic! Now 6 mics a week... Signups start 30 min before for weekday mics. For the Saturday mic you must dm for a spot. $5 cash only.\" Signup already reads 4:30 PM, which is the 30-minutes-before rule, so it is unchanged. Day, time and venue all already match the post.",
+      "set": {
+        "cost": "$5 cash only"
+      }
+    },
+    {
+      "unique_identifier": "b48e2406-12e3-440e-8cab-5c1d05fe6c3b",
+      "note": "The Secret Mic Wednesday 5PM at NYCC East Village: cost is $5 CASH ONLY. Source: the @the_secret_mics carousel, \"New Saturday mic! Now 6 mics a week... Signups start 30 min before for weekday mics. For the Saturday mic you must dm for a spot. $5 cash only.\" Signup already reads 4:30 PM, which is the 30-minutes-before rule, so it is unchanged. Day, time and venue all already match the post.",
+      "set": {
+        "cost": "$5 cash only"
+      }
     }
   ],
   "removals": [
@@ -502,7 +524,7 @@
       }
     },
     {
-      "note": "New mic: 4pm 'hot take (no material mic)' @ 24th st, listed alongside the Secret Mic answers. Day inferred as Monday",
+      "note": "New mic: 4pm 'hot take (no material mic)' @ 24th st, listed alongside the Secret Mic answers. Day inferred as Monday | Source: the @the_secret_mics carousel, \"New Saturday mic! Now 6 mics a week... Signups start 30 min before for weekday mics. For the Saturday mic you must dm for a spot. $5 cash only.\" The post lists this as one of their six, so: cost $5 cash only, signup 30 minutes before the 4PM start, and the account recorded as @the_secret_mics. Amended in place rather than adding an edits entry, since the row is still asserted here.",
       "row": {
         "open_mic": "Hot Take (No Material Mic)",
         "day": "Monday",
@@ -513,9 +535,9 @@
         "borough": "Manhattan",
         "neighborhood": "Midtown",
         "venue_type": "Comedy Club",
-        "cost": "$5",
+        "cost": "$5 cash only",
         "stage_time": "5 minutes",
-        "sign_up_instructions": "Sign up at the venue.",
+        "sign_up_instructions": "Sign up at the venue starting at 3:30 PM",
         "other_rules": "No material mic - hot takes only.",
         "city": "New York",
         "status": "trial",
@@ -523,7 +545,8 @@
         "signup_method": "in_person",
         "signup_enabled": false,
         "slots_enabled": false,
-        "slot_duration_minutes": 5
+        "slot_duration_minutes": 5,
+        "changes_updates": "@the_secret_mics"
       }
     },
     {
@@ -744,6 +767,31 @@
         "slot_duration_minutes": 5,
         "latitude": 40.729000922632,
         "longitude": -73.98931355867
+      }
+    },
+    {
+      "note": "New mic: the Saturday 1PM Secret Mic at Pioneers Bar, 138 W 29th. Source: the @the_secret_mics carousel, \"New Saturday mic! Now 6 mics a week... Signups start 30 min before for weekday mics. For the Saturday mic you must dm for a spot. $5 cash only.\" Saturday is the one of the six with no row at all; the other five already exist and matched. Saturday signup is by DM, not the weekday 30-minutes-before rule. neighborhood 'Midtown' follows the existing 156 W. 29th Street row rather than being guessed. stage_time 5 minutes is INHERITED from the same operator's other five mics, not stated. latest_end_time omitted: no end time was given. No coordinates set: this is a new address, so the geocoder should fill them.",
+      "row": {
+        "open_mic": "The Secret Mic",
+        "day": "Saturday",
+        "start_time": "1:00 PM",
+        "venue_name": "Pioneers Bar",
+        "location": "138 W 29th St, New York, NY 10001",
+        "borough": "Manhattan",
+        "neighborhood": "Midtown",
+        "venue_type": "Bar",
+        "cost": "$5 cash only",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "DM @the_secret_mics for a spot. $5 cash only.",
+        "other_rules": "You must DM for a spot; this one is not a walk-up signup.",
+        "changes_updates": "@the_secret_mics",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "online",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5
       }
     }
   ]
