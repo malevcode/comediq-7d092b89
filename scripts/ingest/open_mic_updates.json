@@ -620,6 +620,131 @@
         "latitude": 40.685869073815,
         "longitude": -73.981649984597
       }
+    },
+    {
+      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
+      "row": {
+        "open_mic": "Mark's Monday Mic",
+        "day": "Monday",
+        "start_time": "6:00 PM",
+        "venue_name": "St. Marks Comedy Club",
+        "location": "12 St. Marks Place, New York, NY 10003",
+        "borough": "Manhattan",
+        "neighborhood": "East Village",
+        "venue_type": "Comedy Club",
+        "cost": "$10 (includes a free item)",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up at sendyouravails.com",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "online",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.729000922632,
+        "longitude": -73.98931355867
+      }
+    },
+    {
+      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
+      "row": {
+        "open_mic": "Mark's Tuesday Mic",
+        "day": "Tuesday",
+        "start_time": "6:00 PM",
+        "venue_name": "St. Marks Comedy Club",
+        "location": "12 St. Marks Place, New York, NY 10003",
+        "borough": "Manhattan",
+        "neighborhood": "East Village",
+        "venue_type": "Comedy Club",
+        "cost": "$10 (includes a free item)",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up at sendyouravails.com",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "online",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.729000922632,
+        "longitude": -73.98931355867
+      }
+    },
+    {
+      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
+      "row": {
+        "open_mic": "Mark's Wednesday Mic",
+        "day": "Wednesday",
+        "start_time": "6:00 PM",
+        "venue_name": "St. Marks Comedy Club",
+        "location": "12 St. Marks Place, New York, NY 10003",
+        "borough": "Manhattan",
+        "neighborhood": "East Village",
+        "venue_type": "Comedy Club",
+        "cost": "$10 (includes a free item)",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up at sendyouravails.com",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "online",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.729000922632,
+        "longitude": -73.98931355867
+      }
+    },
+    {
+      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
+      "row": {
+        "open_mic": "Mark's Thursday Mic",
+        "day": "Thursday",
+        "start_time": "5:00 PM",
+        "venue_name": "St. Marks Comedy Club",
+        "location": "12 St. Marks Place, New York, NY 10003",
+        "borough": "Manhattan",
+        "neighborhood": "East Village",
+        "venue_type": "Comedy Club",
+        "cost": "$10 (includes a free item)",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up at sendyouravails.com",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "online",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.729000922632,
+        "longitude": -73.98931355867
+      }
+    },
+    {
+      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
+      "row": {
+        "open_mic": "Mark's Friday Mic",
+        "day": "Friday",
+        "start_time": "5:00 PM",
+        "venue_name": "St. Marks Comedy Club",
+        "location": "12 St. Marks Place, New York, NY 10003",
+        "borough": "Manhattan",
+        "neighborhood": "East Village",
+        "venue_type": "Comedy Club",
+        "cost": "$10 (includes a free item)",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up at sendyouravails.com",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "online",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.729000922632,
+        "longitude": -73.98931355867
+      }
     }
   ]
 }
