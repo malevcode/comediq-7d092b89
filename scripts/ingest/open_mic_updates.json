@@ -443,6 +443,14 @@
       "set": {
         "day": "Sunday"
       }
+    },
+    {
+      "unique_identifier": "bfec3020-7b82-44c4-913a-b63d61969260",
+      "note": "Get It Goin Mic (St. Marks Comedy Club, Wednesday 5:30 PM): temporarily inactive per Adam, and repriced. St. Marks Comedy Club no longer runs $5 mics; they are $10 including a free item, venue-wide. The row said $5, which would have been wrong the moment it came back. Moved out of removals and into edits because removals hardcodes {active: False} and ignores every other field, so the price could not ride along there. One entry per row is kept. TEMPORARY: to bring the mic back, set active true in THIS entry rather than deleting it; deleting leaves active=false in the database and the mic never returns. This is St. Marks Comedy Club's only row, so the venue is off the site until the five replacement mics are named and added.",
+      "set": {
+        "active": false,
+        "cost": "$10 (includes a free item)"
+      }
     }
   ],
   "removals": [
@@ -465,10 +473,6 @@
     {
       "unique_identifier": "3701d276-93c0-44a5-9741-57e8622bc781",
       "note": "@laughingbuddhacomedy no longer runs the 9:45 PM Buddha mic at Rodney's"
-    },
-    {
-      "unique_identifier": "bfec3020-7b82-44c4-913a-b63d61969260",
-      "note": "Get It Goin Mic (St. Marks Comedy Club, Wednesday 5:30 PM): temporarily inactive per Adam. TEMPORARY, not ended. To bring it back, set active back to true in THIS entry rather than deleting it: deleting leaves active=false in the database and the mic never returns. This is the only row St. Marks Comedy Club has, so the venue drops off the site entirely until the five replacement mics are named and added."
     }
   ],
   "new_mics": [
