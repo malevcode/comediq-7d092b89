@@ -1,0 +1,23 @@
+# Comediq
+
+> Comediq is NYC's comedy platform: find comedy open mics, track your sets, and discover live comedy shows across New York City.
+
+## Pages
+
+- [Home](/): What Comediq is, for comedians and comedy fans.
+- [Open Mics](/open-mics): Searchable list and map of NYC comedy open mics with day, time, cost, and sign-up details.
+- [Perform](/perform): Tools for comedians — mic of the day, playlists, and sign-ups.
+- [Laugh](/laugh): Comedy shows in NYC for audiences.
+- [Shows](/shows): Upcoming NYC comedy shows.
+- [Free Mics](/free-mics): Open mics in NYC with no cost to perform.
+- [Beginner Friendly Mics](/beginner-friendly): Mics that are welcoming to new comedians.
+- [Top Mics](/top-mics): Community-ranked NYC open mics based on comedian upvotes.
+- [Growth Opportunities](/growth): Festivals, contests, and booking opportunities for comedians.
+- [Add a Mic](/add-mic): Submit a new open mic to the Comediq database.
+- [Advertise](/advertise): Advertising and sponsorship with Comediq.
+- [Privacy Policy](/privacy): How Comediq handles user data.
+
+## Optional
+
+- [Mics by Borough](/boroughs/manhattan): Example borough listing page.
+- [Mics by Day](/days/monday): Example weekday listing page.

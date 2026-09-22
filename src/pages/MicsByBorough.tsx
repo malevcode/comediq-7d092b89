@@ -34,7 +34,7 @@ const MicsByBorough = () => {
   return (
     <>
       <SEO
-        title={`${boroughName} Comedy Open Mics - Find Shows in ${boroughName} | Comediq`}
+        title={`${boroughName} Comedy Open Mics | Comediq`}
         description={`Discover ${filteredMics?.length || 0} comedy open mics in ${boroughName}, NYC. From stand-up to improv, find the perfect stage for your comedy. Updated daily with schedules, costs, and reviews.`}
         keywords={`${boroughName} open mic, ${boroughName} comedy, stand up comedy ${boroughName}, NYC ${boroughName} comedy clubs`}
         url={`https://comediq.us/boroughs/${borough}`}

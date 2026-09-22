@@ -152,8 +152,8 @@ const Profile = () => {
   return (
     <>
       <SEO
-        title="My Profile | Comediq"
-        description="View your comedy profile, liked open mics, and track your progress as a comedian in NYC."
+        title="Your Comedian Profile & Stats | Comediq"
+        description="Your Comediq comedian profile: sets logged, mics visited, credits, and the links other NYC comedians and bookers see."
         url="https://comediq.us/profile"
         noindex={true}
       />

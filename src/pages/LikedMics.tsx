@@ -42,8 +42,10 @@ export default function LikedMics() {
   return (
     <>
       <SEO
-        title="Liked Mics | Comediq"
-        description="View your liked open mics in one place"
+        title="Open Mics You Upvoted | Comediq"
+        description="A running list of the NYC comedy open mics you upvoted on Comediq, so you can get back to the rooms you liked most."
+        url="https://comediq.us/liked"
+        noindex={true}
       />
 
       <div className="min-h-screen bg-transparent pb-20">
