@@ -57,6 +57,7 @@ const HamburgerMenu = () => {
         <Button
           variant="ghost"
           size="sm"
+          aria-label="Open menu"
           className="w-10 h-10 p-2 rounded-md bg-white/30 text-[#07111f] shadow-[0_12px_30px_rgba(2,10,30,0.16)] backdrop-blur-xl transition-colors hover:bg-white/50 dark:bg-[#07111f]/40 dark:text-white dark:shadow-[0_12px_30px_rgba(2,10,30,0.38)] dark:hover:bg-[#07111f]/80"
         >
           <Menu size={20} />

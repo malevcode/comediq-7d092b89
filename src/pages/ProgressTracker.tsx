@@ -16,8 +16,8 @@ export default function ProgressTrackerPage() {
   return (
     <>
       <SEO
-        title="Track Your Sets & Progress | Comediq"
-        description="Track your comedy sets, analyze performance metrics, and improve your craft. Monitor your progress as a comedian with detailed analytics."
+        title="Set Log & Performance Tracker | Comediq"
+        description="Log every set you do in NYC, rate how it went, and watch your stage time and streaks add up over the year."
         url="https://comediq.us/track-sets"
         noindex={true}
       />
