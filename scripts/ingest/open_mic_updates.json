@@ -465,6 +465,10 @@
     {
       "unique_identifier": "3701d276-93c0-44a5-9741-57e8622bc781",
       "note": "@laughingbuddhacomedy no longer runs the 9:45 PM Buddha mic at Rodney's"
+    },
+    {
+      "unique_identifier": "bfec3020-7b82-44c4-913a-b63d61969260",
+      "note": "Get It Goin Mic (St. Marks Comedy Club, Wednesday 5:30 PM): temporarily inactive per Adam. TEMPORARY, not ended. To bring it back, set active back to true in THIS entry rather than deleting it: deleting leaves active=false in the database and the mic never returns. This is the only row St. Marks Comedy Club has, so the venue drops off the site entirely until the five replacement mics are named and added."
     }
   ],
   "new_mics": [
