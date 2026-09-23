@@ -621,6 +621,68 @@ const Auth = () => {
     </div>
   );
 
+  /**
+   * Google, an emailed code, or a password. The code path runs with
+   * shouldCreateUser, so one email box both makes an account and signs an
+   * existing one in. Nothing here needs a plan chosen first.
+   */
+  const renderAuthMethods = () => (
+    <>
+      <button
+        type="button"
+        onClick={handleGoogleSignIn}
+        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-800 text-sm font-semibold hover:bg-white/80 hover:border-gray-300 transition-colors shadow-sm dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:border-white/30 dark:hover:bg-white/20"
+      >
+        <GoogleIcon />
+        Continue with Google
+      </button>
+
+      <Divider label="or get a code emailed to you" />
+
+      <form onSubmit={handleSendEmailCode} className="space-y-3">
+        <div className="flex rounded-xl border border-gray-400 overflow-hidden focus-within:ring-2 focus-within:ring-[#1a5fb4] focus-within:border-[#1a5fb4]">
+          <span className="flex items-center pl-3.5 pr-2 text-gray-400">
+            <Mail className="w-4 h-4 mr-1" />
+          </span>
+          <input
+            ref={signInEmailRef}
+            type="email"
+            placeholder="you@example.com"
+            value={otpEmail}
+            onChange={e => setOtpEmail(e.target.value)}
+            className="pl-2 flex-1 py-3 pr-3 text-sm bg-white/30 outline-none placeholder-gray-600 dark:placeholder-gray-700"
+            required
+            autoComplete="email"
+            autoFocus
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={loading || !otpEmail || resendCooldown > 0}
+          className="w-full py-3 rounded-xl text-[#fff] text-sm font-medium transition-colors disabled:opacity-50"
+          style={{ background: BRAND_BLUE }}
+        >
+          {loading ? 'Sending…' : resendCooldown > 0 ? `Try again in ${resendCooldown}s` : 'Send code'}
+        </button>
+      </form>
+
+      <Divider label="or use a password" />
+
+      <div className="w-full flex items-center justify-center">
+        <button
+          type="button"
+          onClick={() => {
+            navigate(signInOptionsPath);
+            setStep('email_auth');
+          }}
+          className="w-full rounded-xl border border-gray-300 bg-white/50 px-4 py-3 text-center text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+        >
+          Sign in with password
+        </button>
+      </div>
+    </>
+  );
+
   // ─── Step renderers ────────────────────────────────────────────────────────
 
   const renderMain = () => (
@@ -633,21 +695,42 @@ const Auth = () => {
         <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
       </button>
 
-      <h1 className="text-2xl font-semibold text-gray-900 mb-4">Create an Account</h1>
-      <div className="mb-8">
-        <TierComparison />
-      </div>
+      {shouldShowPlans ? (
+        <>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-4">Choose your plan</h1>
+          <div className="mb-8">
+            <TierComparison />
+          </div>
+          <div className="mx-auto w-full max-w-sm">
+            <button
+              type="button"
+              onClick={() => navigate(signInOptionsPath)}
+              className="w-full rounded-xl border border-gray-300 bg-white/50 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+            >
+              Skip for now, just sign in
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-1">Sign in to Comediq</h1>
+          <p className="mb-7 text-sm text-gray-500 dark:text-gray-400">
+            New here? Entering your email makes your free account. No card needed.
+          </p>
 
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Already Have an Account?</h2>
-      <div className="mx-auto w-full max-w-sm">
-        <button
-          type="button"
-          onClick={() => navigate(signInOptionsPath)}
-          className="w-full rounded-xl border border-gray-300 bg-white/50 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
-        >
-          Sign in
-        </button>
-      </div>
+          {renderAuthMethods()}
+
+          <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
+            <button
+              type="button"
+              onClick={() => navigate(`/auth?next=${encodeURIComponent(postAuthPath)}&plans=true`)}
+              className="underline underline-offset-2 hover:text-gray-700"
+            >
+              See Full Pass
+            </button>
+          </p>
+        </>
+      )}
     </>
   );
 
@@ -669,60 +752,7 @@ const Auth = () => {
         Sign in to Comediq
       </h1>
 
-        {/* Google — primary CTA */}
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-800 text-sm font-semibold hover:bg-white/80 hover:border-gray-300 transition-colors shadow-sm"
-        >
-          <GoogleIcon />
-          Continue with Google
-        </button>
-
-        <Divider label="or get a code emailed to you" />
-
-        {/* Email OTP — secondary */}
-        <form onSubmit={handleSendEmailCode} className="space-y-3">
-          <div className="flex rounded-xl border border-gray-400 overflow-hidden focus-within:ring-2 focus-within:ring-[#1a5fb4] focus-within:border-[#1a5fb4]">
-            <span className="flex items-center pl-3.5 pr-2 text-gray-400">
-              <Mail className="w-4 h-4 mr-1" />
-            </span>
-            <input
-              ref={signInEmailRef}
-              type="email"
-              placeholder="you@example.com"
-              value={otpEmail}
-              onChange={e => setOtpEmail(e.target.value)}
-              className="pl-2 flex-1 py-3 pr-3 text-sm bg-white/30 outline-none placeholder-gray-600 dark:placeholder-gray-700"
-              required
-              autoComplete="email"
-              autoFocus
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading || !otpEmail || resendCooldown > 0}
-            className="w-full py-3 rounded-xl text-[#fff] text-sm font-medium transition-colors disabled:opacity-50"
-            style={{ background: BRAND_BLUE }}
-          >
-            {loading ? 'Sending…' : resendCooldown > 0 ? `Try again in ${resendCooldown}s` : 'Send code'}
-          </button>
-        </form>
-
-        <Divider label="or use a password" />
-
-        <div className="w-full flex items-center justify-center">
-          <button
-            type="button"
-            onClick={() => {
-              navigate(signInOptionsPath);
-              setStep('email_auth');
-            }}
-            className="w-full rounded-xl border border-gray-300 bg-white/50 px-4 py-3 text-center text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
-          >
-            Sign in with password
-          </button>
-        </div>
+        {renderAuthMethods()}
     </>
   );
 
@@ -868,7 +898,7 @@ const Auth = () => {
       <button
         type="button"
         onClick={handleGoogleSignIn}
-        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-800 text-sm font-semibold hover:bg-white/80 hover:border-gray-300 transition-colors shadow-sm"
+        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-800 text-sm font-semibold hover:bg-white/80 hover:border-gray-300 transition-colors shadow-sm dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:border-white/30 dark:hover:bg-white/20"
       >
         <GoogleIcon />
         Create account with Google
@@ -979,7 +1009,7 @@ const Auth = () => {
             <span className="font-semibold text-lg text-[#07111f] dark:text-[#fff]">Comediq</span>
           </div>
           <div
-            className={`${step === 'main' ? 'w-full max-w-2xl' : 'w-full max-w-sm'} [&_h1]:text-[#07111f] [&_h2]:text-[#07111f] [&_p]:text-[#07111f]/60 [&_label]:text-[#07111f]/70 dark:[&_h1]:text-white dark:[&_h2]:text-white dark:[&_p]:text-white/60 dark:[&_label]:text-white/70`}
+            className={`${step === 'main' && shouldShowPlans ? 'w-full max-w-2xl' : 'w-full max-w-sm'} [&_h1]:text-[#07111f] [&_h2]:text-[#07111f] [&_p]:text-[#07111f]/60 [&_label]:text-[#07111f]/70 dark:[&_h1]:text-white dark:[&_h2]:text-white dark:[&_p]:text-white/60 dark:[&_label]:text-white/70`}
           >
             {stepContent}
           </div>

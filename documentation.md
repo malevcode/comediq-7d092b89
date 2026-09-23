@@ -823,7 +823,76 @@ export script it complements, rather than only in a browser tab.
 
 ---
 
+## Signing up: no plan to choose first
+
+`/auth` used to open on a plan comparison. Full Pass at $20 a month on the
+left, Basic at $0 on the right, and a small "Sign in" button underneath. To
+make a free account you first had to read two pricing cards and work out that
+the quieter one was the free one.
+
+It now opens on the actual sign-in form. Three ways in, all of them free:
+
+1. **Continue with Google.**
+2. **Get a code emailed to you.** This one both signs you in and makes the
+   account, because the code is sent with `shouldCreateUser: true`. There is
+   no separate "sign up" to find.
+3. **Sign in with a password**, for people who already set one.
+
+### The plans did not disappear
+
+They moved behind a link instead of standing in the doorway.
+
+- `/auth?plans=true` still shows the comparison, now headed "Choose your plan"
+  with a "Skip for now, just sign in" button under it.
+- The two upgrade buttons that deliberately link there, on the home page and
+  on the credit balance, still work exactly as before.
+- A small "See Full Pass" link sits at the bottom of the sign-in page.
+
+So anyone who wants to pay still can. Nobody has to decide about it before
+making an account.
+
+### One bug worth remembering
+
+The shared block of sign-in controls was first written as a component declared
+inside the `Auth` component. React treats a component declared during render
+as a brand new type every time the parent renders, so it unmounts and remounts
+the whole subtree. The email input would have been destroyed and rebuilt on
+every keystroke, losing focus each time, which would have made the box
+impossible to type in.
+
+The fix is that it is a plain function returning JSX, called as
+`{renderAuthMethods()}`. That inlines the elements into the parent's tree, so
+React reconciles them normally and the input survives. The existing `Divider`
+and `TierComparison` are declared the same risky way and get away with it only
+because neither holds a cursor.
+
+---
+
 ## Summarize
+
+### Session: taking the paywall out of the front door
+
+**What shipped.** `/auth` lands on the sign-in form instead of a $20 vs $0
+plan comparison. Google, an emailed code, or a password, all free, with the
+code path creating the account on the spot. The plan comparison still lives at
+`/auth?plans=true`, which is where the home page and credit balance upgrade
+buttons already pointed, so the paid path is untouched.
+
+**Also.** The Google and password buttons were styled for a light card and
+rendered grey-on-grey in dark mode. They were only on `/auth/sign-in` before,
+which few people saw. They are the front door now, so they got dark variants.
+
+**The bug caught before it shipped.** The shared sign-in controls were first
+written as a component declared inside `Auth`. React remounts a
+render-declared component's whole subtree on every parent render, so the email
+input would have lost focus on every keystroke. Rewritten as a plain render
+function. Verified by driving a real browser: typed sixteen characters and
+asserted the input was still `document.activeElement`.
+
+**Verified.** `npx tsc -b`, a production build, and Playwright runs over
+`/auth`, `/auth?plans=true` and `/auth/sign-in` in both themes, checking the
+headings, the buttons on each, and that the plan cards appear only where they
+should.
 
 ### Session: the mic popup, rebuilt
 
