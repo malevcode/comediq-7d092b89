@@ -634,6 +634,51 @@
       "set": {
         "open_mic": "6:30 Buddha Room"
       }
+    },
+    {
+      "unique_identifier": "291a39b4-ae7d-4104-b631-ed3d99f1479a",
+      "note": "Mark's Monday Mic -> 6 Mark's Monday Mic. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. Renamed onto the comediq convention (start time first). It is now load-bearing here: Monday, Tuesday and Wednesday each have two St. Marks mics, so \"Mark's Monday Mic\" no longer identifies one of them. End time set to 7:30 PM: 90 minutes, the comediq default, since nothing says this is a one hour mic. It had no end time at all before. Cost gains the detail that the free item is specifically a drink. Moved out of new_mics and into edits because renaming inside new_mics changes its open_mic+day+start_time match key, which would stop matching this row and insert a duplicate instead of renaming it.",
+      "set": {
+        "open_mic": "6 Mark's Monday Mic",
+        "latest_end_time": "7:30 PM",
+        "cost": "$10 (includes a free drink)"
+      }
+    },
+    {
+      "unique_identifier": "f7ea74eb-5d9c-4858-943e-cb16fdb7de03",
+      "note": "Mark's Tuesday Mic -> 6 Mark's Tuesday Mic. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. Renamed onto the comediq convention (start time first). It is now load-bearing here: Monday, Tuesday and Wednesday each have two St. Marks mics, so \"Mark's Monday Mic\" no longer identifies one of them. End time set to 7:30 PM: 90 minutes, the comediq default, since nothing says this is a one hour mic. It had no end time at all before. Cost gains the detail that the free item is specifically a drink. Moved out of new_mics and into edits because renaming inside new_mics changes its open_mic+day+start_time match key, which would stop matching this row and insert a duplicate instead of renaming it.",
+      "set": {
+        "open_mic": "6 Mark's Tuesday Mic",
+        "latest_end_time": "7:30 PM",
+        "cost": "$10 (includes a free drink)"
+      }
+    },
+    {
+      "unique_identifier": "b7dc902d-257b-43a8-9e90-c2ac23d5a5fb",
+      "note": "Mark's Wednesday Mic -> 6 Mark's Wednesday Mic. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. Renamed onto the comediq convention (start time first). It is now load-bearing here: Monday, Tuesday and Wednesday each have two St. Marks mics, so \"Mark's Monday Mic\" no longer identifies one of them. End time set to 7:30 PM: 90 minutes, the comediq default, since nothing says this is a one hour mic. It had no end time at all before. Cost gains the detail that the free item is specifically a drink. Moved out of new_mics and into edits because renaming inside new_mics changes its open_mic+day+start_time match key, which would stop matching this row and insert a duplicate instead of renaming it.",
+      "set": {
+        "open_mic": "6 Mark's Wednesday Mic",
+        "latest_end_time": "7:30 PM",
+        "cost": "$10 (includes a free drink)"
+      }
+    },
+    {
+      "unique_identifier": "c0c14030-606e-44d6-a687-f5784670c4ed",
+      "note": "Mark's Thursday Mic -> 5 Mark's Thursday Mic. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. Renamed onto the comediq convention (start time first). It is now load-bearing here: Monday, Tuesday and Wednesday each have two St. Marks mics, so \"Mark's Monday Mic\" no longer identifies one of them. End time set to 6:30 PM: 90 minutes, the comediq default, since nothing says this is a one hour mic. It had no end time at all before. Cost gains the detail that the free item is specifically a drink. Moved out of new_mics and into edits because renaming inside new_mics changes its open_mic+day+start_time match key, which would stop matching this row and insert a duplicate instead of renaming it.",
+      "set": {
+        "open_mic": "5 Mark's Thursday Mic",
+        "latest_end_time": "6:30 PM",
+        "cost": "$10 (includes a free drink)"
+      }
+    },
+    {
+      "unique_identifier": "bf580cdc-95c7-47bf-b17a-5bc30041e77b",
+      "note": "Mark's Friday Mic -> 5 Mark's Friday Mic. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. Renamed onto the comediq convention (start time first). It is now load-bearing here: Monday, Tuesday and Wednesday each have two St. Marks mics, so \"Mark's Monday Mic\" no longer identifies one of them. End time set to 6:30 PM: 90 minutes, the comediq default, since nothing says this is a one hour mic. It had no end time at all before. Cost gains the detail that the free item is specifically a drink. Moved out of new_mics and into edits because renaming inside new_mics changes its open_mic+day+start_time match key, which would stop matching this row and insert a duplicate instead of renaming it.",
+      "set": {
+        "open_mic": "5 Mark's Friday Mic",
+        "latest_end_time": "6:30 PM",
+        "cost": "$10 (includes a free drink)"
+      }
     }
   ],
   "removals": [
@@ -814,131 +859,6 @@
       }
     },
     {
-      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
-      "row": {
-        "open_mic": "Mark's Monday Mic",
-        "day": "Monday",
-        "start_time": "6:00 PM",
-        "venue_name": "St. Marks Comedy Club",
-        "location": "12 St. Marks Place, New York, NY 10003",
-        "borough": "Manhattan",
-        "neighborhood": "East Village",
-        "venue_type": "Comedy Club",
-        "cost": "$10 (includes a free item)",
-        "stage_time": "5 minutes",
-        "sign_up_instructions": "Sign up at sendyouravails.com",
-        "city": "New York",
-        "status": "trial",
-        "frequency": "weekly",
-        "signup_method": "online",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "slot_duration_minutes": 5,
-        "latitude": 40.729000922632,
-        "longitude": -73.98931355867
-      }
-    },
-    {
-      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
-      "row": {
-        "open_mic": "Mark's Tuesday Mic",
-        "day": "Tuesday",
-        "start_time": "6:00 PM",
-        "venue_name": "St. Marks Comedy Club",
-        "location": "12 St. Marks Place, New York, NY 10003",
-        "borough": "Manhattan",
-        "neighborhood": "East Village",
-        "venue_type": "Comedy Club",
-        "cost": "$10 (includes a free item)",
-        "stage_time": "5 minutes",
-        "sign_up_instructions": "Sign up at sendyouravails.com",
-        "city": "New York",
-        "status": "trial",
-        "frequency": "weekly",
-        "signup_method": "online",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "slot_duration_minutes": 5,
-        "latitude": 40.729000922632,
-        "longitude": -73.98931355867
-      }
-    },
-    {
-      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
-      "row": {
-        "open_mic": "Mark's Wednesday Mic",
-        "day": "Wednesday",
-        "start_time": "6:00 PM",
-        "venue_name": "St. Marks Comedy Club",
-        "location": "12 St. Marks Place, New York, NY 10003",
-        "borough": "Manhattan",
-        "neighborhood": "East Village",
-        "venue_type": "Comedy Club",
-        "cost": "$10 (includes a free item)",
-        "stage_time": "5 minutes",
-        "sign_up_instructions": "Sign up at sendyouravails.com",
-        "city": "New York",
-        "status": "trial",
-        "frequency": "weekly",
-        "signup_method": "online",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "slot_duration_minutes": 5,
-        "latitude": 40.729000922632,
-        "longitude": -73.98931355867
-      }
-    },
-    {
-      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
-      "row": {
-        "open_mic": "Mark's Thursday Mic",
-        "day": "Thursday",
-        "start_time": "5:00 PM",
-        "venue_name": "St. Marks Comedy Club",
-        "location": "12 St. Marks Place, New York, NY 10003",
-        "borough": "Manhattan",
-        "neighborhood": "East Village",
-        "venue_type": "Comedy Club",
-        "cost": "$10 (includes a free item)",
-        "stage_time": "5 minutes",
-        "sign_up_instructions": "Sign up at sendyouravails.com",
-        "city": "New York",
-        "status": "trial",
-        "frequency": "weekly",
-        "signup_method": "online",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "slot_duration_minutes": 5,
-        "latitude": 40.729000922632,
-        "longitude": -73.98931355867
-      }
-    },
-    {
-      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
-      "row": {
-        "open_mic": "Mark's Friday Mic",
-        "day": "Friday",
-        "start_time": "5:00 PM",
-        "venue_name": "St. Marks Comedy Club",
-        "location": "12 St. Marks Place, New York, NY 10003",
-        "borough": "Manhattan",
-        "neighborhood": "East Village",
-        "venue_type": "Comedy Club",
-        "cost": "$10 (includes a free item)",
-        "stage_time": "5 minutes",
-        "sign_up_instructions": "Sign up at sendyouravails.com",
-        "city": "New York",
-        "status": "trial",
-        "frequency": "weekly",
-        "signup_method": "online",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "slot_duration_minutes": 5,
-        "latitude": 40.729000922632,
-        "longitude": -73.98931355867
-      }
-    },
-    {
       "note": "New mic: the Saturday 1PM Secret Mic at Pioneers Bar, 138 W 29th. Source: the @the_secret_mics carousel, \"New Saturday mic! Now 6 mics a week... Signups start 30 min before for weekday mics. For the Saturday mic you must dm for a spot. $5 cash only.\" Saturday is the one of the six with no row at all; the other five already exist and matched. Saturday signup is by DM, not the weekday 30-minutes-before rule. neighborhood 'Midtown' follows the existing 156 W. 29th Street row rather than being guessed. stage_time 5 minutes is INHERITED from the same operator's other five mics, not stated. latest_end_time omitted: no end time was given. No coordinates set: this is a new address, so the geocoder should fill them.",
       "row": {
         "open_mic": "The Secret Mic",
@@ -961,6 +881,84 @@
         "signup_enabled": false,
         "slots_enabled": false,
         "slot_duration_minutes": 5
+      }
+    },
+    {
+      "note": "New mic: the 5 PM St. Marks mic on Monday, which was missing. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. END TIME 6:00 PM, NOT the usual 90 minutes: this venue starts another mic at 6 PM on this day, and one room cannot run two mics at once, so the 5 PM has to finish by then. That is the schedule saying it is a one hour mic without using the words. Everything else inherits the venue's existing rows.",
+      "row": {
+        "open_mic": "5 Mark's Monday Mic",
+        "day": "Monday",
+        "start_time": "5:00 PM",
+        "latest_end_time": "6:00 PM",
+        "venue_name": "St. Marks Comedy Club",
+        "location": "12 St. Marks Place, New York, NY 10003",
+        "borough": "Manhattan",
+        "neighborhood": "East Village",
+        "venue_type": "Comedy Club",
+        "cost": "$10 (includes a free drink)",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up at sendyouravails.com",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "online",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.729000922632,
+        "longitude": -73.98931355867
+      }
+    },
+    {
+      "note": "New mic: the 5 PM St. Marks mic on Tuesday, which was missing. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. END TIME 6:00 PM, NOT the usual 90 minutes: this venue starts another mic at 6 PM on this day, and one room cannot run two mics at once, so the 5 PM has to finish by then. That is the schedule saying it is a one hour mic without using the words. Everything else inherits the venue's existing rows.",
+      "row": {
+        "open_mic": "5 Mark's Tuesday Mic",
+        "day": "Tuesday",
+        "start_time": "5:00 PM",
+        "latest_end_time": "6:00 PM",
+        "venue_name": "St. Marks Comedy Club",
+        "location": "12 St. Marks Place, New York, NY 10003",
+        "borough": "Manhattan",
+        "neighborhood": "East Village",
+        "venue_type": "Comedy Club",
+        "cost": "$10 (includes a free drink)",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up at sendyouravails.com",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "online",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.729000922632,
+        "longitude": -73.98931355867
+      }
+    },
+    {
+      "note": "New mic: the 5 PM St. Marks mic on Wednesday, which was missing. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. END TIME 6:00 PM, NOT the usual 90 minutes: this venue starts another mic at 6 PM on this day, and one room cannot run two mics at once, so the 5 PM has to finish by then. That is the schedule saying it is a one hour mic without using the words. Everything else inherits the venue's existing rows.",
+      "row": {
+        "open_mic": "5 Mark's Wednesday Mic",
+        "day": "Wednesday",
+        "start_time": "5:00 PM",
+        "latest_end_time": "6:00 PM",
+        "venue_name": "St. Marks Comedy Club",
+        "location": "12 St. Marks Place, New York, NY 10003",
+        "borough": "Manhattan",
+        "neighborhood": "East Village",
+        "venue_type": "Comedy Club",
+        "cost": "$10 (includes a free drink)",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up at sendyouravails.com",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "online",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.729000922632,
+        "longitude": -73.98931355867
       }
     }
   ]
