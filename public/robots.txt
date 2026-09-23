@@ -4,4 +4,4 @@ Disallow: /admintest
 Disallow: /profile
 Disallow: /home
 
-Sitemap: https://comediq.us/sitemap.xml
+Sitemap: https://comediq.lovable.app/sitemap.xml
