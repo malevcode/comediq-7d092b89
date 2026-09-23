@@ -376,55 +376,56 @@
     },
     {
       "unique_identifier": "fec8594e-b3a6-4200-888d-0633477b838b",
-      "note": "The Buddha Room 4 Hour Mic: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal. | SATURDAY 4:00 PM IS CANCELLED. Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. active=false keeps the row, its history and ratings. Set here rather than in removals because this uid already had an entry and removals discards every field but the id, so the name restore above would have been lost. To bring it back, set active true in THIS entry, do not delete it.",
+      "note": "The Buddha Room 4 Hour Mic: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal. | SATURDAY 4:00 PM IS CANCELLED. Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. active=false keeps the row, its history and ratings. Set here rather than in removals because this uid already had an entry and removals discards every field but the id, so the name restore above would have been lost. To bring it back, set active true in THIS entry, do not delete it. | Name also brought onto the new convention ('The Buddha Room 4 Hour Mic' -> '4 Buddha Room Hour Mic') so reviving this row does not resurrect the old style.",
       "set": {
-        "open_mic": "The Buddha Room 4 Hour Mic",
+        "open_mic": "4 Buddha Room Hour Mic",
         "active": false
       }
     },
     {
       "unique_identifier": "1687893c-43a4-480a-ae2f-83ddbffbaa82",
-      "note": "The Buddha Room 5 Hour Mic: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal.",
+      "note": "The Buddha Room 5 Hour Mic: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal. | RENAMED to '5 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
       "set": {
-        "open_mic": "The Buddha Room 5 Hour Mic"
+        "open_mic": "5 Buddha Room Hour Mic"
       }
     },
     {
       "unique_identifier": "1d43e906-ec86-4880-91ae-f16343a228a4",
-      "note": "The Buddha Room 6 Mic Show: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal. | SATURDAY 6:00 PM MOVES TO 6:30 PM. Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. The name carries the time, so it is renamed to match, following this repo's precedent for the Friday 9:45->9:00 move; leaving '6 Mic Show' on a 6:30 mic is a stale label. The stored 7:30 PM end time is still after the new start, so it is left as is rather than guessed at.",
+      "note": "The Buddha Room 6 Mic Show: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal. | SATURDAY 6:00 PM MOVES TO 6:30 PM. Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. The name carries the time, so it is renamed to match, following this repo's precedent for the Friday 9:45->9:00 move; leaving '6 Mic Show' on a 6:30 mic is a stale label. The stored 7:30 PM end time is still after the new start, so it is left as is rather than guessed at. | RENAMED to '6:30 Buddha Room Mic Show'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | END TIME CORRECTED to 8:00 PM. Adam's rule: when a start time moves the end moves with it, and a mic is 90 minutes unless it is specifically a one hour mic. Moving this to 6:30 while leaving the 7:30 end had silently shortened it to 60 minutes.",
       "set": {
-        "open_mic": "The Buddha Room 6:30 Mic Show",
-        "start_time": "6:30 PM"
+        "open_mic": "6:30 Buddha Room Mic Show",
+        "start_time": "6:30 PM",
+        "latest_end_time": "8:00 PM"
       }
     },
     {
       "unique_identifier": "cced8fb3-f5d9-45c6-a869-cc3cad6a95a6",
-      "note": "The Buddha Room 8 Mic Show: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal.",
+      "note": "The Buddha Room 8 Mic Show: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal. | RENAMED to '8 Buddha Room Mic Show'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
       "set": {
-        "open_mic": "The Buddha Room 8 Mic Show"
+        "open_mic": "8 Buddha Room Mic Show"
       }
     },
     {
       "unique_identifier": "bdfa44ef-5039-4a95-ba50-171da916f352",
-      "note": "The Buddha Room 9:45 Mic Show: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal. | SATURDAY 9:45 PM IS CANCELLED. Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. Same reasoning as the 4:00 PM: set here, not in removals, because this uid already had an entry. Reverse by setting active true in THIS entry.",
+      "note": "The Buddha Room 9:45 Mic Show: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal. | SATURDAY 9:45 PM IS CANCELLED. Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. Same reasoning as the 4:00 PM: set here, not in removals, because this uid already had an entry. Reverse by setting active true in THIS entry. | Name also brought onto the new convention ('The Buddha Room 9:45 Mic Show' -> '9:45 Buddha Room Mic Show') so reviving this row does not resurrect the old style.",
       "set": {
-        "open_mic": "The Buddha Room 9:45 Mic Show",
+        "open_mic": "9:45 Buddha Room Mic Show",
         "active": false
       }
     },
     {
       "unique_identifier": "12d96cea-21b0-4147-94e3-ac97c1d6928c",
-      "note": "Buddha Room Friday 9:45 PM is actually 9:00 PM. Renamed to match. The stored 10:30 PM end time is still after the new start, so it is left as is rather than guessed at.",
+      "note": "Buddha Room Friday 9:45 PM is actually 9:00 PM. Renamed to match. The stored 10:30 PM end time is still after the new start, so it is left as is rather than guessed at. | RENAMED to '9 Buddha Room Mic Show'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
       "set": {
-        "open_mic": "The Buddha Room 9 Mic Show",
+        "open_mic": "9 Buddha Room Mic Show",
         "start_time": "9:00 PM"
       }
     },
     {
       "unique_identifier": "b05066a7-b776-40ba-b1d1-560cb86d833f",
-      "note": "Buddha Room Friday 11:30 PM is actually 10:30 PM. Renamed to match. The stored 12:30 AM end time is still after the new start, so it is left as is.",
+      "note": "Buddha Room Friday 11:30 PM is actually 10:30 PM. Renamed to match. The stored 12:30 AM end time is still after the new start, so it is left as is. | RENAMED to '10:30 Buddha Room Mic Show'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
       "set": {
-        "open_mic": "The Buddha Room 10:30 Mic Show",
+        "open_mic": "10:30 Buddha Room Mic Show",
         "start_time": "10:30 PM"
       }
     },
@@ -480,10 +481,158 @@
     },
     {
       "unique_identifier": "97ec746d-3328-4eee-958a-e4d9eee9a97d",
-      "note": "SUNDAY 5:30 PM MOVES TO 5:00 PM. Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. Renamed to match, since the name carries the time and '5:30 Hour Mic' on a 5:00 mic is a stale label. The stored 6:30 PM end time is still after the new start, so it is left as is rather than guessed at; the mic simply runs 90 minutes now instead of 60.",
+      "note": "SUNDAY 5:30 PM MOVES TO 5:00 PM. Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. Renamed to match, since the name carries the time and '5:30 Hour Mic' on a 5:00 mic is a stale label. The stored 6:30 PM end time is still after the new start, so it is left as is rather than guessed at; the mic simply runs 90 minutes now instead of 60. | RENAMED to '5 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | End time asserted explicitly at 6:30 PM: 5:00 PM plus 90 minutes, which is what the row already held.",
       "set": {
-        "open_mic": "The Buddha Room 5 Hour Mic",
-        "start_time": "5:00 PM"
+        "open_mic": "5 Buddha Room Hour Mic",
+        "start_time": "5:00 PM",
+        "latest_end_time": "6:30 PM"
+      }
+    },
+    {
+      "unique_identifier": "081397c0-c536-44f7-a9df-7671b1119dcb",
+      "note": "Renamed 'The Buddha Room 8' to '8 Buddha Room'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "8 Buddha Room"
+      }
+    },
+    {
+      "unique_identifier": "11b6f83a-cd7f-4668-b4d1-5c5df5943fee",
+      "note": "Renamed 'The Buddha Room 5:30 Hour Mic' to '5:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "5:30 Buddha Room Hour Mic"
+      }
+    },
+    {
+      "unique_identifier": "19aec36f-9dc0-4b52-9e3f-df1791d7abe6",
+      "note": "Renamed 'The Buddha Room 4:30 Hour Mic' to '4:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "4:30 Buddha Room Hour Mic"
+      }
+    },
+    {
+      "unique_identifier": "1a4a8e7c-46ce-4f29-99ec-70d342786a83",
+      "note": "Renamed 'The Buddha Room 4:30 Hour' to '4:30 Buddha Room Hour'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "4:30 Buddha Room Hour"
+      }
+    },
+    {
+      "unique_identifier": "1feac9e8-39a9-4910-a48e-f2922781935b",
+      "note": "Renamed 'The Buddha Room 9:30 Hour Mic' to '9:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "9:30 Buddha Room Hour Mic"
+      }
+    },
+    {
+      "unique_identifier": "20ff5c59-6bb8-45c2-aea0-190fa6fd34a8",
+      "note": "Renamed 'The Buddha Room 4:30 Hour' to '4:30 Buddha Room Hour'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "4:30 Buddha Room Hour"
+      }
+    },
+    {
+      "unique_identifier": "31f01924-6f04-4f82-a82c-0d5d8321078c",
+      "note": "Renamed 'The Buddha Room 10:30' to '10:30 Buddha Room'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "10:30 Buddha Room"
+      }
+    },
+    {
+      "unique_identifier": "3a438c58-2574-4da4-9c3e-8d2133d7b5a9",
+      "note": "Renamed 'The Buddha Room 8 Show Mic' to '8 Buddha Room Show Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "8 Buddha Room Show Mic"
+      }
+    },
+    {
+      "unique_identifier": "4c07341c-c141-4bd0-be8a-7b08986327c6",
+      "note": "Renamed 'The Buddha Room 4:30 Hour Mic' to '4:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "4:30 Buddha Room Hour Mic"
+      }
+    },
+    {
+      "unique_identifier": "5007dfb0-02e9-477c-aee7-52e55ed6ef8f",
+      "note": "Renamed 'The Buddha Room 4:30 Hour Mic' to '4:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "4:30 Buddha Room Hour Mic"
+      }
+    },
+    {
+      "unique_identifier": "5185351c-0199-41d1-a976-92c7b6977d5e",
+      "note": "Renamed 'The Buddha Room 5:30 Hour' to '5:30 Buddha Room Hour'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "5:30 Buddha Room Hour"
+      }
+    },
+    {
+      "unique_identifier": "922aeca4-2e23-4db6-a33e-8bd45f1be9ac",
+      "note": "Renamed 'The Buddha Room 9:30 Hour Mic' to '9:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "9:30 Buddha Room Hour Mic"
+      }
+    },
+    {
+      "unique_identifier": "98f9d16f-b72e-4a5c-9bde-ad24baccfc3d",
+      "note": "Renamed 'The Buddha Room 6:30' to '6:30 Buddha Room'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "6:30 Buddha Room"
+      }
+    },
+    {
+      "unique_identifier": "a9188177-d8a4-490a-aad6-1506ffdfa824",
+      "note": "Renamed 'The Buddha Room 9:45 Mic Show' to '9:45 Buddha Room Mic Show'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "9:45 Buddha Room Mic Show"
+      }
+    },
+    {
+      "unique_identifier": "acc2eae9-b950-4c21-b135-e6bc2164b20e",
+      "note": "Renamed 'The Buddha Room 6:30' to '6:30 Buddha Room'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "6:30 Buddha Room"
+      }
+    },
+    {
+      "unique_identifier": "b01b725b-3f73-4f70-bbb9-9ed0e26845b2",
+      "note": "Renamed 'The Buddha Room 6:30 Mic Show' to '6:30 Buddha Room Mic Show'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "6:30 Buddha Room Mic Show"
+      }
+    },
+    {
+      "unique_identifier": "b85a9359-cbb8-42d5-9fa0-7748c4a53137",
+      "note": "Renamed 'The Buddha Room 5:30 Hour' to '5:30 Buddha Room Hour'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "5:30 Buddha Room Hour"
+      }
+    },
+    {
+      "unique_identifier": "bc9c9987-c813-4582-86e7-1a966742b343",
+      "note": "Renamed 'The Buddha Room 5:30 Hour Mic' to '5:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "5:30 Buddha Room Hour Mic"
+      }
+    },
+    {
+      "unique_identifier": "d27644b7-c3e3-4f4d-906b-9b7ab85494be",
+      "note": "Renamed 'The Buddha Room 5:30 Hour Mic' to '5:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "5:30 Buddha Room Hour Mic"
+      }
+    },
+    {
+      "unique_identifier": "e9e8c956-308d-4a13-8003-443f7738e0d2",
+      "note": "Renamed 'The Buddha Room 6:30' to '6:30 Buddha Room'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "6:30 Buddha Room"
+      }
+    },
+    {
+      "unique_identifier": "f6b4a30b-be4f-45b0-a1e5-029c7ee301bf",
+      "note": "Renamed 'The Buddha Room 6:30' to '6:30 Buddha Room'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "set": {
+        "open_mic": "6:30 Buddha Room"
       }
     }
   ],

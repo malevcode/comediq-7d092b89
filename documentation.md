@@ -143,6 +143,48 @@ Two column names are traps. `hosts_organizers` is the host field, and **`changes
 
 A mic is hidden from the site by setting `active = false`, not by deleting it. The export filters on `active = eq.true`, so this drops it from the listings while keeping its history, ratings and comments.
 
+### Naming a mic: the time goes first
+
+**Convention: when a mic's name contains its start time, the time leads.**
+
+`5 Buddha Room Hour Mic`, not `The Buddha Room 5 Hour Mic`.
+
+The reason is that a number sitting after the venue name reads as a duration.
+"The Buddha Room 5 Hour Mic" looks like a mic that runs for five hours. It is a
+mic that starts at 5. Moving the time to the front removes the ambiguity
+without losing any information, because a name like "6:30 Buddha Room Mic Show"
+cannot be misread as a length.
+
+The shape is:
+
+```
+<start time> <venue> <whatever the room calls it>
+```
+
+So `The Buddha Room 9:45 Mic Show` became `9:45 Buddha Room Mic Show`, and
+`The Buddha Room 6:30` became `6:30 Buddha Room`.
+
+Two related rules that come from the same problem, names that carry information
+which can go out of date:
+
+- **If a mic's start time changes, its name changes with it.** Leaving
+  `5:30 Buddha Room Hour Mic` on a mic that now starts at 5:00 is a listing that
+  lies. Rename in the same edit that moves the time.
+- **A status label in a name has to be cleared by hand.** Nothing expires
+  `*SKIPS 9/14*` or `*Resumes 8/27*`, so those names keep announcing a date
+  after it has passed. `scripts/ingest/report_stale_labels.py` reads
+  `public/mics.json` and prints the ones whose date is in the past. Run it
+  before shipping a batch. It only reports; deciding whether a mic actually
+  came back is a human call.
+
+### How long is a mic?
+
+**Assume 90 minutes unless the room specifically says it is a one hour mic.**
+
+This matters most when a start time moves, because the end time has to move with
+it. Changing a 6:00 to 6:30 and leaving the 7:30 end silently turns a 90 minute
+mic into a 60 minute one, and nobody asked for that. Shift both.
+
 ### Applying a batch of host updates
 
 Host responses normally get processed into mic edits automatically. When that job does not run, the batch goes into `scripts/ingest/open_mic_updates.json` by hand and ships through the **Apply open mic updates** workflow (dry run defaults to on).
