@@ -1,78 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://comediq.lovable.app/</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
+    <loc>https://comediq.us/</loc>
+    <lastmod>2026-08-30</lastmod>
   </url>
   <url>
-    <loc>https://comediq.lovable.app/open-mics</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <loc>https://comediq.us/open-mics</loc>
+    <lastmod>2026-09-11</lastmod>
   </url>
   <url>
-    <loc>https://comediq.lovable.app/perform</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <loc>https://comediq.us/perform</loc>
+    <lastmod>2026-09-11</lastmod>
   </url>
   <url>
-    <loc>https://comediq.lovable.app/laugh</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <loc>https://comediq.us/laugh</loc>
+    <lastmod>2026-09-11</lastmod>
   </url>
   <url>
-    <loc>https://comediq.lovable.app/shows</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
+    <loc>https://comediq.us/shows</loc>
+    <lastmod>2026-08-05</lastmod>
   </url>
   <url>
-    <loc>https://comediq.lovable.app/free-mics</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://comediq.us/free-mics</loc>
+    <lastmod>2025-11-24</lastmod>
   </url>
   <url>
-    <loc>https://comediq.lovable.app/beginner-friendly</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://comediq.us/beginner-friendly</loc>
+    <lastmod>2025-11-24</lastmod>
   </url>
   <url>
-    <loc>https://comediq.lovable.app/top-mics</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://comediq.us/top-mics</loc>
+    <lastmod>2026-09-14</lastmod>
   </url>
   <url>
-    <loc>https://comediq.lovable.app/leaderboard</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
+    <loc>https://comediq.us/leaderboard</loc>
+    <lastmod>2026-09-14</lastmod>
   </url>
   <url>
-    <loc>https://comediq.lovable.app/growth</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
+    <loc>https://comediq.us/growth</loc>
+    <lastmod>2026-08-30</lastmod>
   </url>
   <url>
-    <loc>https://comediq.lovable.app/add-mic</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://comediq.us/add-mic</loc>
+    <lastmod>2026-09-06</lastmod>
   </url>
   <url>
-    <loc>https://comediq.lovable.app/add-show</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://comediq.us/add-show</loc>
+    <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://comediq.lovable.app/advertise</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://comediq.us/advertise</loc>
+    <lastmod>2026-08-30</lastmod>
   </url>
   <url>
-    <loc>https://comediq.lovable.app/privacy</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://comediq.lovable.app/auth</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
+    <loc>https://comediq.us/privacy</loc>
+    <lastmod>2026-07-24</lastmod>
   </url>
 </urlset>

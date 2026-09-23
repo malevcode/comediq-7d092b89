@@ -53,6 +53,7 @@ import Slots from "./pages/Slots";
 import ShowsMap from "./pages/ShowsMap";
 import Onboarding from "./pages/Onboarding";
 import Strip from "./pages/Strip";
+import CanonicalTag from "@/components/CanonicalTag";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -140,6 +141,7 @@ function AppShell() {
         <MicOfTheMonthBar />
         <SubscriptionSuccessBanner />
         <div className={isSubscriber ? "subscriber-layout relative z-10 pb-0" : "non-subscriber-layout relative z-10 pb-0"}>
+          <CanonicalTag />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/perform" element={<TabProvider><Perform /></TabProvider>} />
