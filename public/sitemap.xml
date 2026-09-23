@@ -1,77 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://comediq.us/</loc>
+    <loc>https://comediq.lovable.app/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://comediq.us/open-mics</loc>
+    <loc>https://comediq.lovable.app/open-mics</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://comediq.us/perform</loc>
+    <loc>https://comediq.lovable.app/perform</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://comediq.us/laugh</loc>
+    <loc>https://comediq.lovable.app/laugh</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://comediq.us/shows</loc>
+    <loc>https://comediq.lovable.app/shows</loc>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://comediq.us/free-mics</loc>
+    <loc>https://comediq.lovable.app/free-mics</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://comediq.us/beginner-friendly</loc>
+    <loc>https://comediq.lovable.app/beginner-friendly</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://comediq.us/top-mics</loc>
+    <loc>https://comediq.lovable.app/top-mics</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://comediq.us/leaderboard</loc>
+    <loc>https://comediq.lovable.app/leaderboard</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://comediq.us/growth</loc>
+    <loc>https://comediq.lovable.app/growth</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://comediq.us/add-mic</loc>
+    <loc>https://comediq.lovable.app/add-mic</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://comediq.us/add-show</loc>
+    <loc>https://comediq.lovable.app/add-show</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://comediq.us/advertise</loc>
+    <loc>https://comediq.lovable.app/advertise</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://comediq.us/privacy</loc>
+    <loc>https://comediq.lovable.app/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://comediq.us/auth</loc>
+    <loc>https://comediq.lovable.app/auth</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
