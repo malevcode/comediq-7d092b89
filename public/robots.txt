@@ -3,5 +3,6 @@ Allow: /
 Disallow: /admintest
 Disallow: /profile
 Disallow: /home
+Disallow: /auth
 
-Sitemap: https://comediq.lovable.app/sitemap.xml
+Sitemap: https://comediq.us/sitemap.xml
