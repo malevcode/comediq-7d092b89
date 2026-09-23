@@ -127,11 +127,12 @@
     },
     {
       "unique_identifier": "3478fc7e-a23d-4d42-bee7-939ccd43cb19",
-      "note": "Buddha @NYCC UWS Sunday is 1:30 PM. This entry previously moved it 1:30 -> 3:30; Adam confirmed 1:30 is correct, so it is rewritten rather than a second entry added for the same row. The end time follows the one-hour duration this entry already asserted (3:30 -> 4:30).",
+      "note": "Buddha @NYCC UWS Sunday is 1:30 PM. This entry previously moved it 1:30 -> 3:30; Adam confirmed 1:30 is correct, so it is rewritten rather than a second entry added for the same row. The end time follows the one-hour duration this entry already asserted (3:30 -> 4:30). | SUNDAY 1:30 PM AT NYCC UWS IS CANCELLED. Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. This row has flip-flopped between 1:30 and 3:30 before, so note that this is a cancellation of the 1:30 slot, not another retime. The 1:30 start asserted above stays correct for the row's history; it is simply no longer listed.",
       "set": {
         "open_mic": "Buddha 1:30 @NYCC UWS",
         "start_time": "1:30 PM",
-        "latest_end_time": "2:30 PM"
+        "latest_end_time": "2:30 PM",
+        "active": false
       }
     },
     {
@@ -375,9 +376,10 @@
     },
     {
       "unique_identifier": "fec8594e-b3a6-4200-888d-0633477b838b",
-      "note": "The Buddha Room 4 Hour Mic: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal.",
+      "note": "The Buddha Room 4 Hour Mic: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal. | SATURDAY 4:00 PM IS CANCELLED. Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. active=false keeps the row, its history and ratings. Set here rather than in removals because this uid already had an entry and removals discards every field but the id, so the name restore above would have been lost. To bring it back, set active true in THIS entry, do not delete it.",
       "set": {
-        "open_mic": "The Buddha Room 4 Hour Mic"
+        "open_mic": "The Buddha Room 4 Hour Mic",
+        "active": false
       }
     },
     {
@@ -389,9 +391,10 @@
     },
     {
       "unique_identifier": "1d43e906-ec86-4880-91ae-f16343a228a4",
-      "note": "The Buddha Room 6 Mic Show: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal.",
+      "note": "The Buddha Room 6 Mic Show: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal. | SATURDAY 6:00 PM MOVES TO 6:30 PM. Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. The name carries the time, so it is renamed to match, following this repo's precedent for the Friday 9:45->9:00 move; leaving '6 Mic Show' on a 6:30 mic is a stale label. The stored 7:30 PM end time is still after the new start, so it is left as is rather than guessed at.",
       "set": {
-        "open_mic": "The Buddha Room 6 Mic Show"
+        "open_mic": "The Buddha Room 6:30 Mic Show",
+        "start_time": "6:30 PM"
       }
     },
     {
@@ -403,9 +406,10 @@
     },
     {
       "unique_identifier": "bdfa44ef-5039-4a95-ba50-171da916f352",
-      "note": "The Buddha Room 9:45 Mic Show: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal.",
+      "note": "The Buddha Room 9:45 Mic Show: restore the name now that 9/12 has passed. The private buyout cancelled that one Saturday only; the mic runs as normal. | SATURDAY 9:45 PM IS CANCELLED. Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. Same reasoning as the 4:00 PM: set here, not in removals, because this uid already had an entry. Reverse by setting active true in THIS entry.",
       "set": {
-        "open_mic": "The Buddha Room 9:45 Mic Show"
+        "open_mic": "The Buddha Room 9:45 Mic Show",
+        "active": false
       }
     },
     {
@@ -473,6 +477,14 @@
       "set": {
         "cost": "$5 cash only"
       }
+    },
+    {
+      "unique_identifier": "97ec746d-3328-4eee-958a-e4d9eee9a97d",
+      "note": "SUNDAY 5:30 PM MOVES TO 5:00 PM. Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. Renamed to match, since the name carries the time and '5:30 Hour Mic' on a 5:00 mic is a stale label. The stored 6:30 PM end time is still after the new start, so it is left as is rather than guessed at; the mic simply runs 90 minutes now instead of 60.",
+      "set": {
+        "open_mic": "The Buddha Room 5 Hour Mic",
+        "start_time": "5:00 PM"
+      }
     }
   ],
   "removals": [
@@ -495,6 +507,14 @@
     {
       "unique_identifier": "3701d276-93c0-44a5-9741-57e8622bc781",
       "note": "@laughingbuddhacomedy no longer runs the 9:45 PM Buddha mic at Rodney's"
+    },
+    {
+      "unique_identifier": "abd640a2-8fa6-4471-b9fc-c22af4b26174",
+      "note": "SUNDAY 4:30 PM IS CANCELLED (The Buddha Room 4:30 Hour Mic). Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. removals sets active=false and keeps the row with its history, ratings and comments."
+    },
+    {
+      "unique_identifier": "013bf709-f274-46c0-8364-53f884e19a53",
+      "note": "SUNDAY 9:30 PM IS CANCELLED (The Buddha Room 9:30 Hour Mic). Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. removals sets active=false and keeps the row with its history, ratings and comments."
     }
   ],
   "new_mics": [
