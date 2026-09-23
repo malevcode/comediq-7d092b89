@@ -1,4 +1,6 @@
 import { Helmet } from 'react-helmet-async';
+import { useLocation } from 'react-router-dom';
+import { canonicalUrlFor, isNonCanonicalHost } from '@/components/CanonicalTag';
 
 interface SEOProps {
   title?: string;
@@ -16,12 +18,17 @@ const SEO = ({
   description = 'Find every comedy open mic in NYC. Real-time schedules, venue details, comedian reviews, and set tracking. By comedians, for comedians.',
   keywords = 'NYC comedy open mics, New York comedy venues, stand up comedy NYC, open mic night, comedy shows NYC, comedian networking',
   image = 'https://comediq.us/comediq_logo.jpg',
-  url = 'https://comediq.us',
+  url,
   type = 'website',
   structuredData,
   noindex = false,
 }: SEOProps) => {
-  const canonicalUrl = url.endsWith('/') ? url.slice(0, -1) : url;
+  const { pathname } = useLocation();
+  // Always an absolute comediq.us URL — never the preview host, never relative.
+  const canonicalUrl = url
+    ? canonicalUrlFor(new URL(url, 'https://comediq.us').pathname)
+    : canonicalUrlFor(pathname);
+  const shouldNoindex = noindex || isNonCanonicalHost();
   
   return (
     <Helmet>
@@ -29,10 +36,10 @@ const SEO = ({
       <title>{title}</title>
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords} />
-      <link rel="canonical" href={canonicalUrl} />
-      
+      {/* Canonical link is owned by <CanonicalTag /> so there is exactly one. */}
+
       {/* Robots */}
-      {noindex && <meta name="robots" content="noindex,nofollow" />}
+      {shouldNoindex && <meta name="robots" content="noindex,nofollow" />}
       
       {/* Open Graph */}
       <meta property="og:title" content={title} />
