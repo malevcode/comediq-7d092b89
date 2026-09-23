@@ -4,13 +4,14 @@
  * Runs before `vite dev` and `vite build` (predev/prebuild hooks).
  * Base host is always the canonical domain, never a *.lovable.app URL.
  *
- * <lastmod> comes from the real last-modified time of the source file that
- * renders the route (page-specific, not the sitemap generation time).
+ * <lastmod> comes from the date of the last commit that touched the source
+ * file rendering the route (page-specific, never the build/generation time).
  * Routes with no reliable timestamp ship without <lastmod>.
  * No <changefreq> / <priority> — search engines ignore them.
  */
 
-import { statSync, writeFileSync, existsSync } from "fs";
+import { execFileSync } from "child_process";
+import { writeFileSync, existsSync } from "fs";
 import { resolve } from "path";
 
 const BASE_URL = "https://comediq.us";
@@ -35,10 +36,13 @@ const routes = [
 
 function lastmodFor(source) {
   if (!source) return null;
-  const file = resolve(source);
-  if (!existsSync(file)) return null;
+  if (!existsSync(resolve(source))) return null;
   try {
-    return statSync(file).mtime.toISOString().slice(0, 10);
+    const date = execFileSync("git", ["log", "-1", "--format=%cs", "--", source], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null;
   } catch {
     return null;
   }
