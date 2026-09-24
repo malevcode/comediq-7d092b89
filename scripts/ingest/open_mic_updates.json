@@ -716,6 +716,10 @@
     {
       "unique_identifier": "013bf709-f274-46c0-8364-53f884e19a53",
       "note": "SUNDAY 9:30 PM IS CANCELLED (The Buddha Room 9:30 Hour Mic). Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. removals sets active=false and keeps the row with its history, ratings and comments."
+    },
+    {
+      "unique_identifier": "35f0ad79-fab1-4b34-8df0-ced4b7379eef",
+      "note": "Otto's Shrunken Head Mic (538 E 14th St), listed Wednesday 5:00 PM to 10:30 PM. Removed at Adam's call: he doubts it really runs 5 to 10:30 and cannot confirm anyone who hosts it. NOTE THE DAY: Adam called it the Sunday mic, but the row is WEDNESDAY. It is still the right row. It is the only Otto's row in the database, the only row at that address, and the only mic anywhere starting 5:00 PM and ending 10:30 PM, which is the window he described. The row corroborates the doubt: status trial, verification_count 0, and no host, no signup instructions, no stage time, no lastVerified and no submission date. It is a 330 minute listing nobody has ever confirmed. removals sets active=false and keeps the row, so if it turns out to be real it comes back by setting active true in THIS entry, not by re-adding it."
     }
   ],
   "new_mics": [
