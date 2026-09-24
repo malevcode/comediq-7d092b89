@@ -14,9 +14,9 @@ interface SEOProps {
 }
 
 const SEO = ({
-  title = 'NYC Comedy Open Mics - Complete Guide 2025 | Comediq',
-  description = 'Find every comedy open mic in NYC. Real-time schedules, venue details, comedian reviews, and set tracking. By comedians, for comedians.',
-  keywords = 'NYC comedy open mics, New York comedy venues, stand up comedy NYC, open mic night, comedy shows NYC, comedian networking',
+  title = 'Comedy Open Mics in NYC, Hudson Valley, LA & Austin | Comediq',
+  description = 'Find comedy open mics across NYC, the Hudson Valley, Los Angeles and Austin. Real-time schedules, venue details, comedian reviews, and set tracking. By comedians, for comedians.',
+  keywords = 'comedy open mics, NYC open mics, Hudson Valley comedy, Los Angeles open mics, Austin comedy, stand up comedy, open mic night, comedian networking',
   image = 'https://comediq.us/comediq_logo.jpg',
   url,
   type = 'website',
