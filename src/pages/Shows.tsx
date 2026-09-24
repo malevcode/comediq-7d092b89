@@ -247,7 +247,13 @@ const Shows = () => {
 
   return (
     <div className="min-h-screen bg-transparent pb-6">
+      <SEO
+        title="Set Scheduler: Plan Your Comedy Calendar | Comediq"
+        description="Plan upcoming sets, log past performances, and keep notes on every comedy show you book with the Comediq scheduler."
+        noindex
+      />
       <PageHeader title="Scheduler" subtitle="Track your upcoming and past performances" />
+      <h1 className="sr-only">Comedy set scheduler</h1>
       <div className="max-w-6xl mx-auto px-4 page-content-offset">
         {user ? (
           <>

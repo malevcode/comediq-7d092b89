@@ -5,9 +5,14 @@ import PageHeader from "@/components/PageHeader";
 const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-transparent pb-20">
+      <SEO
+        title="Privacy Policy & Terms of Service | Comediq"
+        description="How Comediq collects, uses and protects comedian data, our SMS notification disclosure, and the terms of service for using the platform."
+      />
       <PageHeader title="Privacy Policy & Terms" subtitle="Last updated: January 2025" />
       
       <div className="max-w-3xl mx-auto px-4 page-content-offset">
+        <h1 className="sr-only">Comediq privacy policy and terms of service</h1>
         <Link 
           to="/" 
           className="inline-flex items-center text-orange-600 hover:text-orange-700 mb-6 text-sm"

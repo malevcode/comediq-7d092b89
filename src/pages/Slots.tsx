@@ -20,7 +20,12 @@ const Slots = () => {
 
   return (
     <div className="min-h-screen pb-20">
+      <SEO
+        title="Comediq Slots: One-Click Open Mic Signups | Comediq"
+        description="Grab a spot at tonight's open mic in one tap. See remaining slots, join waitlists, and run your own signup list as a host."
+      />
       <PageHeader title="Slots" subtitle="One-click mic signups" />
+      <h1 className="sr-only">Comediq Slots: one-click open mic signups</h1>
 
       <div className="max-w-4xl mx-auto px-4 page-content-offset pb-6 space-y-5">
         {/* Header row */}

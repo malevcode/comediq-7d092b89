@@ -115,12 +115,17 @@ export default function AddShow() {
 
   return (
     <div className="min-h-screen bg-transparent pb-2 pt-20">
+      <SEO
+        title="Submit a Comedy Show to Comediq | Comediq"
+        description="List your stand-up comedy show on Comediq. Add the venue, date, line-up and ticket link so audiences and comedians can find it."
+      />
       <PageHeader
         title="Submit a Show"
         subtitle="Add your comedy show to our listings"
       />
       
       <div className="max-w-2xl mx-auto px-4 mt-10 pb-10">
+        <h1 className="sr-only">Submit a comedy show</h1>
         <Button
           variant="ghost" 
           onClick={() => navigate(returnPath)}
