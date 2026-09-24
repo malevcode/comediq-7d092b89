@@ -629,12 +629,12 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   ]);
 
   const seoTitle = filters.borough !== "All" 
-    ? `Comedy Open Mics in ${filters.borough} - NYC | Comediq`
-    : "Find Comedy Open Mics in NYC | Comediq";
+    ? `Comedy Open Mics in ${filters.borough} | Comediq`
+    : "Find Comedy Open Mics: NYC, Hudson Valley, LA & Austin | Comediq";
   
   const seoDescription = filters.borough !== "All"
     ? `Discover comedy open mics in ${filters.borough}. Real-time schedules, venue details, and comedian reviews.`
-    : "Find every comedy open mic in NYC. Real-time schedules, venue details, comedian reviews, and set tracking.";
+    : "Find every comedy open mic in NYC, the Hudson Valley, Los Angeles and Austin. Real-time schedules, venue details, comedian reviews, and set tracking.";
   const tabListLayoutClass = user
     ? "grid grid-cols-10"
     : "grid grid-cols-9";
