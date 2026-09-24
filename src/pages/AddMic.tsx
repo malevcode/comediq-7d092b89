@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import PageHeader from '@/components/PageHeader';
+import SEO from '@/components/SEO';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { FREQUENCY_LABELS, SIGNUP_METHOD_LABELS, type MicFrequency, type SignupMethod } from '@/types/openMic';
 

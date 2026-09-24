@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Trash2, MapPin, Calendar, Clock, DollarSign, Music, GripVertical } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import SEO from '@/components/SEO';
 import { Link } from "react-router-dom";
 import { slugify } from "@/utils/slugify";
 

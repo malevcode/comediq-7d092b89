@@ -11,6 +11,7 @@ import { useMutation } from '@tanstack/react-query';
 import { submitAudienceShow } from '@/api/audienceShows';
 import { useAuth } from '@/contexts/AuthContext';
 import PageHeader from '@/components/PageHeader';
+import SEO from '@/components/SEO';
 import { ArrowLeft } from 'lucide-react';
 
 const BOROUGHS = ['Manhattan', 'Brooklyn', 'Queens', 'Bronx', 'Staten Island'];

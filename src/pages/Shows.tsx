@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
+import SEO from '@/components/SEO';
 import BulkImportModal from "@/components/shows/BulkImportModal";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { OpenMic } from "@/types/openMic";

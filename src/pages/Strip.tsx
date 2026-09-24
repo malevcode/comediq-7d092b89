@@ -1,4 +1,5 @@
 import PageHeader from "@/components/PageHeader";
+import SEO from '@/components/SEO';
 
 const STRIP_APP_URL = "https://strip.comediq.us";
 

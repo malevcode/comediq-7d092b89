@@ -11,6 +11,7 @@ import { CalendarDays, MapPin, Clock, Users, Plus, Sparkles, TicketCheck, Chevro
 import { format } from 'date-fns';
 import { CreateSlotForm } from '@/components/slots/CreateSlotForm';
 import PageHeader from '@/components/PageHeader';
+import SEO from '@/components/SEO';
 
 const Slots = () => {
   const { data: events, isLoading } = useAllSignupEvents();
