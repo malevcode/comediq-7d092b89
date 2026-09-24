@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLaughTabContext } from "@/contexts/LaughTabContext";
 import PageHeader from "@/components/PageHeader";
+import SEO from "@/components/SEO";
 import { AudienceShowFilters } from "@/components/shows/AudienceShowFilters";
 import AudienceShows from "./AudienceShows";
 import MyReviews from "./MyReviews";

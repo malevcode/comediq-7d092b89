@@ -7,6 +7,7 @@ import { PlaylistsTab } from "@/components/playlists";
 import { useLocation } from 'react-router-dom';
 import { useTabContext } from "@/contexts/TabContext";
 import PageHeader from "@/components/PageHeader";
+import SEO from "@/components/SEO";
 import DevView from "./DevView";
 import MyMicsTab from "@/components/mic/MyMicsTab";
 
