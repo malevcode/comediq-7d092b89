@@ -64,7 +64,12 @@ const Perform = () => {
 
   return (
     <div className="min-h-screen page-content-offset-flush">
+      <SEO
+        title="Perform: Find Open Mics & Track Your Sets | Comediq"
+        description="Browse tonight's comedy open mics, save the rooms you run, and keep track of every set you perform across NYC, the Hudson Valley, LA and Austin."
+      />
       <PageHeader title="Perform" />
+      <h1 className="sr-only">Perform: find comedy open mics and track your sets</h1>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* Perform had no visible tab row at all: tabs were switched only by
             URL param and localStorage. This mirrors the Laugh tab's row. */}

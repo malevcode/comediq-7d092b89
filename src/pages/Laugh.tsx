@@ -67,7 +67,12 @@ export default function Laugh() {
 
   return (
     <div className="bg-transparent">
+      <SEO
+        title="Comedy Shows Near You: Tickets & Reviews | Comediq"
+        description="Find stand-up comedy shows to watch tonight in NYC, the Hudson Valley, Los Angeles and Austin. Browse line-ups, grab tickets, and read comedian reviews."
+      />
       <PageHeader title="Shows" />
+      <h1 className="sr-only">Comedy shows to watch near you</h1>
 
       <div className="max-w-4xl mx-auto px-4 page-content-offset-flush pb-6">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
