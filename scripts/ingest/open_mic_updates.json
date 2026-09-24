@@ -679,6 +679,13 @@
         "latest_end_time": "6:30 PM",
         "cost": "$10 (includes a free drink)"
       }
+    },
+    {
+      "unique_identifier": "ff5a9210-1be3-4c87-9060-57f2468492a5",
+      "note": "ADHD Comedy (Commune BK, 415 Classon Ave) moves from Thursday to Tuesday. The host wrote to Adam directly: \"our mic is no longer 6pm Thursdays, it's now 6pm TUESDAYS\". Day is the only field that changes. The 6 PM start is explicitly unchanged in their own message, so per the comediq convention neither the name nor the end time moves: that rule fires on a start time change, and this is a day change. The name carries no day or time, so it needs no rename either. Cost, stage time and the slotted.co signup were not mentioned and are untouched. Commune BK has no other row, and nothing else sat on that Tuesday slot.",
+      "set": {
+        "day": "Tuesday"
+      }
     }
   ],
   "removals": [
