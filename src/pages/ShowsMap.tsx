@@ -22,6 +22,10 @@ const ShowsMap = () => {
 
   return (
     <div className="flex flex-col h-screen bg-transparent">
+      <SEO
+        title="Comedy Shows Map: Next 5 Days | Comediq"
+        description="See every comedy show happening in the next five days on an interactive map, with venues, times and ticket links."
+      />
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-[#07111f]/60 z-10 flex-shrink-0 text-white backdrop-blur-xl">
         <button
