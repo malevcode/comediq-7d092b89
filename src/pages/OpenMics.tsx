@@ -670,6 +670,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       />
       <div className="min-h-screen bg-transparent pb-8">
         {!embedded && <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />}
+        {!embedded && <h1 className="sr-only">Comedy open mics in NYC, the Hudson Valley, LA and Austin</h1>}
 
         {viewMode === 'list' ? (
           <>

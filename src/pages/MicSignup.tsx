@@ -293,6 +293,7 @@ export default function MicSignup() {
         description={`Sign up for spots at ${mic.openMic}`}
       />
       <div className="container mx-auto px-4 sm:px-8 pt-4 space-y-4 pb-12">
+        <h1 className="sr-only">{`Sign up for ${mic.openMic} at ${mic.venueName}`}</h1>
         <Button
           type="button"
           variant="ghost"
