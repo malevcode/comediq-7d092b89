@@ -53,6 +53,7 @@ const GrowthOpportunities = () => {
         <PageHeader title="Growth" subtitle="Level up your comedy career" />
 
         <div className="page-content-offset px-4 max-w-4xl mx-auto pb-24">
+          <h1 className="sr-only">Comedy growth opportunities</h1>
           {/* Submit CTA */}
           <div className="mb-6 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">

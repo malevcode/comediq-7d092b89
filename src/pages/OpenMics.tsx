@@ -629,12 +629,12 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   ]);
 
   const seoTitle = filters.borough !== "All" 
-    ? `Comedy Open Mics in ${filters.borough} - NYC | Comediq`
-    : "Find Comedy Open Mics in NYC | Comediq";
+    ? `Comedy Open Mics in ${filters.borough} | Comediq`
+    : "Find Comedy Open Mics: NYC, Hudson Valley, LA & Austin | Comediq";
   
   const seoDescription = filters.borough !== "All"
     ? `Discover comedy open mics in ${filters.borough}. Real-time schedules, venue details, and comedian reviews.`
-    : "Find every comedy open mic in NYC. Real-time schedules, venue details, comedian reviews, and set tracking.";
+    : "Find every comedy open mic in NYC, the Hudson Valley, Los Angeles and Austin. Real-time schedules, venue details, comedian reviews, and set tracking.";
   const tabListLayoutClass = user
     ? "grid grid-cols-10"
     : "grid grid-cols-9";
@@ -670,6 +670,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       />
       <div className="min-h-screen bg-transparent pb-8">
         {!embedded && <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />}
+        {!embedded && <h1 className="sr-only">Comedy open mics in NYC, the Hudson Valley, LA and Austin</h1>}
 
         {viewMode === 'list' ? (
           <>

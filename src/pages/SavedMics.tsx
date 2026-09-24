@@ -62,6 +62,7 @@ export default function SavedMics() {
         />
 
         <main className="container mx-auto px-4 page-content-offset pb-4">
+          <h1 className="sr-only">Your saved comedy open mics</h1>
           <Button
             variant="ghost"
             size="sm"

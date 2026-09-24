@@ -39,6 +39,7 @@ export default function HostDashboard() {
       />
       <PageHeader title="Host Dashboard" subtitle="Manage your open mic signup events" />
       <div className="container mx-auto space-y-8 px-4 pb-8 page-content-offset sm:px-8">
+        <h1 className="sr-only">Open mic host dashboard</h1>
 
         {pendingHosts.length > 0 && (
           <Card className={glassCardClass}>
