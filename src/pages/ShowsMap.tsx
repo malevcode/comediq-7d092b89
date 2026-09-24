@@ -4,6 +4,7 @@ import { ArrowLeft, Ticket } from 'lucide-react';
 import { useAudienceShows } from '@/hooks/useAudienceShows';
 import AudienceShowsMap from '@/components/map/AudienceShowsMap';
 import { Skeleton } from '@/components/ui/skeleton';
+import SEO from '@/components/SEO';
 
 const ShowsMap = () => {
   const navigate = useNavigate();

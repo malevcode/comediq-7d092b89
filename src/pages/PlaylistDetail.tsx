@@ -68,8 +68,14 @@ export default function PlaylistDetail() {
 
   return (
     <div className="min-h-screen bg-transparent">
+      <SEO
+        title={`${playlist.name} – Open Mic Playlist | Comediq`}
+        description={playlist.description || `${playlistMics.length} open mics saved in the "${playlist.name}" playlist on Comediq.`}
+        noindex
+      />
       <PageHeader title={playlist.name} subtitle={playlist.description || "Your curated mic collection"} />
       <main className="max-w-7xl mx-auto px-8 page-content-offset pb-10">
+        <h1 className="sr-only">{playlist.name} open mic playlist</h1>
         <Button variant="ghost" onClick={() => navigate("/playlists")} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Playlists
         </Button>
