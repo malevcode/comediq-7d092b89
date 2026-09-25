@@ -720,6 +720,10 @@
     {
       "unique_identifier": "35f0ad79-fab1-4b34-8df0-ced4b7379eef",
       "note": "Otto's Shrunken Head Mic (538 E 14th St), listed Wednesday 5:00 PM to 10:30 PM. Removed at Adam's call: he doubts it really runs 5 to 10:30 and cannot confirm anyone who hosts it. NOTE THE DAY: Adam called it the Sunday mic, but the row is WEDNESDAY. It is still the right row. It is the only Otto's row in the database, the only row at that address, and the only mic anywhere starting 5:00 PM and ending 10:30 PM, which is the window he described. The row corroborates the doubt: status trial, verification_count 0, and no host, no signup instructions, no stage time, no lastVerified and no submission date. It is a 330 minute listing nobody has ever confirmed. removals sets active=false and keeps the row, so if it turns out to be real it comes back by setting active true in THIS entry, not by re-adding it."
+    },
+    {
+      "unique_identifier": "28ab9f17-e0d5-4d65-818b-5578e550f87b",
+      "note": "The Spins Mic (Rodney's, Wednesday 6:00-8:30 PM) is no longer running. Rodney's Mic w/ Ellen Maloney, same venue same Wednesday 6 PM, is the only live one in that slot, and the site was showing both. Ellen's row is untouched. removals sets active=false and keeps this row with its history; reviving it means setting active true in THIS entry, not re-adding it."
     }
   ],
   "new_mics": [
@@ -970,6 +974,35 @@
         "slot_duration_minutes": 5,
         "latitude": 40.729000922632,
         "longitude": -73.98931355867
+      }
+    },
+    {
+      "note": "New mic: Rodney's Wednesday 9:45 PM, hosted by Adam Thomas (@adamthomascomedy). Adam asked for the same details as the Thursday 9:45 mic, so cost, stage time, signup, the venue rules boilerplate, coordinates and the 9:45-11:15 window are all COPIED from that row (uid df641def), not invented. Address uses the version carrying the 10065 zip, which three other Rodney's rows have and the Thursday row lacks. NAME: follows the venue's own \"Rodney's Mic w/ <host>\" shape rather than the comediq time-first convention. That convention exists so a number in a name cannot be read as a duration, and this name has no number; the host's name is what distinguishes it from the Thursday 9:45. Say the word and it becomes \"9:45 Rodney's Mic w/ Adam Thomas\". This is the same Wednesday 9:45 slot Laughing Buddha vacated (uid 3701d276, already inactive), so the two do not collide and the slot is simply being re-used by the venue.",
+      "row": {
+        "open_mic": "Rodney's Mic w/ Adam Thomas",
+        "day": "Wednesday",
+        "start_time": "9:45 PM",
+        "latest_end_time": "11:15 PM",
+        "venue_name": "Rodney's",
+        "location": "1118 1st Ave, New York, NY 10065",
+        "borough": "Manhattan",
+        "neighborhood": "UES",
+        "venue_type": "Comedy Club",
+        "cost": "1 drink min",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Show up go up",
+        "other_rules": "No guests are required to perform at our open mics. There is a one-item minimum for all comics and guests. You must purchase your item and check in with the host before your name is added to the lineup. Spots are 5 minutes; you may have extra time if we are not full. You must be 18 and older to register, or 16 accompanied by a parent or guardian. Please note, the venue does receive last-minute bookings, which can interfere with our mics. If this happens, we will let you know beforehand. Phone/Notes: You may use your phone or notes on stage. Please do not use your phone while in the audience. You may record your performance. All sales are final. No refunds or exchanges are permitted.",
+        "hosts_organizers": "Adam Thomas",
+        "changes_updates": "@adamthomascomedy",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "in_person",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.761020924319,
+        "longitude": -73.960579388757
       }
     }
   ]
