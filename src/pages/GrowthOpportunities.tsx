@@ -45,7 +45,7 @@ const GrowthOpportunities = () => {
   return (
     <>
       <SEO
-        title="Growth Opportunities - Level Up Your Comedy"
+        title="Comedy Growth Opportunities: Bookings & Festivals | Comediq"
         description="Find booking opportunities, comedy festivals, and training opportunities to grow your comedy career in NYC."
         keywords="comedy growth, booking opportunities, comedy festivals, comedy schools, comedy training, NYC comedy"
       />
