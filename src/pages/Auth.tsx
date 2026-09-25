@@ -5,7 +5,7 @@ import SEO from '@/components/SEO';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Eye, EyeOff, Mic, ArrowLeft, Mail, CheckCircle, User } from 'lucide-react';
+import { Eye, EyeOff, Mic, ArrowLeft, Mail, CheckCircle, User, Eye as EyeIcon } from 'lucide-react';
 import { getValidStripePaymentLink } from '@/utils/stripeLinks';
 import { Slider } from '@/components/ui/slider';
 import {
@@ -114,6 +114,9 @@ const yearsLabel = (years: number) => {
 const spendLabel = (dollars: number) =>
   dollars >= 150 ? '$150+/wk' : `$${dollars}/wk`;
 
+/** Same idea: the top notch at 20 means "20 or more". */
+const showsLabel = (shows: number) => (shows >= 20 ? '20+ a year' : `${shows} a year`);
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type AuthStep =
@@ -139,8 +142,11 @@ const Auth = () => {
   const [pendingSignupPassword, setPendingSignupPassword] = useState('');
   const [signupName, setSignupName] = useState('');
   const [signupInstagram, setSignupInstagram] = useState('');
+  const [signupIsComedian, setSignupIsComedian] = useState(true);
   const [signupYears, setSignupYears] = useState(2);
   const [signupSpend, setSignupSpend] = useState(30);
+  const [signupAffiliate, setSignupAffiliate] = useState(false);
+  const [signupShowsPerYear, setSignupShowsPerYear] = useState(6);
   const [showPassword, setShowPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetPassword, setResetPassword] = useState('');
@@ -274,6 +280,12 @@ const Auth = () => {
       // get written here. A failure never blocks the way in: they are signed in
       // already and every field is editable on the profile page.
       const pendingProfile = readPendingSignupProfile();
+      // Someone who signed up to watch has no use for the open mic list. Send
+      // them to the shows instead, unless a link asked for somewhere specific.
+      const destination =
+        pendingProfile && !pendingProfile.isComedian && !nextPathParam
+          ? '/laugh'
+          : postAuthPath;
       if (pendingProfile) {
         const { data: sessionData } = await supabase.auth.getUser();
         const userId = sessionData.user?.id;
@@ -290,9 +302,9 @@ const Auth = () => {
       }
 
       setLoading(false);
-      navigate(postAuthPath);
+      navigate(destination);
     }
-  }, [navigate, otpDigits, otpEmail, otpVerificationType, pendingSignupPassword, postAuthPath, toast]);
+  }, [navigate, nextPathParam, otpDigits, otpEmail, otpVerificationType, pendingSignupPassword, postAuthPath, toast]);
 
   // ── Auto-submit when all OTP digits filled ────────────────────────────────
 
@@ -309,12 +321,20 @@ const Auth = () => {
    * verified, which is where handleVerifyOtp picks them back up.
    */
   const handleSignupSubmit = async (e: React.FormEvent) => {
-    const profile: PendingSignupProfile = {
-      name: signupName,
-      instagram: signupInstagram,
-      yearsPerforming: signupYears,
-      weeklyMicSpendUsd: signupSpend,
-    };
+    const profile: PendingSignupProfile = signupIsComedian
+      ? {
+          name: signupName,
+          isComedian: true,
+          instagram: signupInstagram,
+          yearsPerforming: signupYears,
+          weeklyMicSpendUsd: signupSpend,
+          affiliateInterested: signupAffiliate,
+        }
+      : {
+          name: signupName,
+          isComedian: false,
+          showsSeenPerYear: signupShowsPerYear,
+        };
     stashPendingSignupProfile(profile);
     await handleSendEmailCode(e);
   };
@@ -778,7 +798,7 @@ const Auth = () => {
         <>
           <h1 className="text-2xl font-semibold text-gray-900 mb-1">Make your free account</h1>
           <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-            Four answers. No card, no password to invent.
+            No card, no password to invent.
           </p>
 
           <button
@@ -791,6 +811,34 @@ const Auth = () => {
           </button>
 
           <Divider label="or sign up with your email" />
+
+          <div className="mb-3 grid grid-cols-2 gap-2">
+            {([
+              { comedian: true, icon: Mic, label: 'Comedian', hint: 'I perform' },
+              { comedian: false, icon: EyeIcon, label: 'Audience', hint: 'I watch' },
+            ] as const).map(({ comedian, icon: Icon, label, hint }) => {
+              const active = signupIsComedian === comedian;
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => setSignupIsComedian(comedian)}
+                  aria-pressed={active}
+                  className={`flex items-center gap-2.5 rounded-xl border-2 px-3 py-2.5 text-left transition-colors ${
+                    active
+                      ? 'border-[#1a5fb4] bg-[#1a5fb4]/10'
+                      : 'border-gray-300 hover:bg-gray-500/5 dark:border-white/15 dark:hover:bg-white/5'
+                  }`}
+                >
+                  <Icon className={`h-4 w-4 shrink-0 ${active ? 'text-[#1a5fb4] dark:text-[#8ec5ff]' : 'text-gray-400'}`} />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold leading-tight">{label}</span>
+                    <span className="block text-[11px] leading-tight text-gray-500 dark:text-white/50">{hint}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
           <form onSubmit={handleSignupSubmit} className="space-y-3">
             <div className={FIELD_WRAP_CLASS}>
@@ -807,7 +855,7 @@ const Auth = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className={signupIsComedian ? 'grid grid-cols-1 gap-3 sm:grid-cols-2' : ''}>
               <div className={FIELD_WRAP_CLASS}>
                 <Mail className="ml-3.5 h-4 w-4 shrink-0 text-gray-400" />
                 <input
@@ -821,58 +869,97 @@ const Auth = () => {
                   required
                 />
               </div>
-              <div className={FIELD_WRAP_CLASS}>
-                <span className="ml-3.5 shrink-0 text-sm text-gray-400">@</span>
-                <input
-                  type="text"
-                  placeholder="instagram"
-                  value={signupInstagram}
-                  onChange={e => setSignupInstagram(e.target.value)}
-                  className={BARE_INPUT_CLASS}
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  maxLength={60}
-                />
-              </div>
+              {/* Only comedians are asked. Reaching them is the point of it. */}
+              {signupIsComedian && (
+                <div className={FIELD_WRAP_CLASS}>
+                  <span className="ml-3.5 shrink-0 text-sm text-gray-400">@</span>
+                  <input
+                    type="text"
+                    placeholder="instagram"
+                    value={signupInstagram}
+                    onChange={e => setSignupInstagram(e.target.value)}
+                    className={BARE_INPUT_CLASS}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    maxLength={60}
+                  />
+                </div>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 gap-x-5 gap-y-4 rounded-xl border border-gray-300 p-4 sm:grid-cols-2 dark:border-white/15">
-              <div>
+            {signupIsComedian ? (
+              <div className="grid grid-cols-1 gap-x-5 gap-y-4 rounded-xl border border-gray-300 p-4 sm:grid-cols-2 dark:border-white/15">
+                <div>
+                  <div className="flex items-baseline justify-between gap-2">
+                    <label className="text-xs font-medium text-gray-600 dark:text-white/70">Doing comedy</label>
+                    <span className="text-sm font-bold" style={{ color: BRAND_BLUE }}>{yearsLabel(signupYears)}</span>
+                  </div>
+                  <Slider
+                    value={[signupYears]}
+                    onValueChange={([next]) => setSignupYears(next)}
+                    min={0}
+                    max={10}
+                    step={1}
+                    className="mt-2.5"
+                    aria-label="Years doing comedy"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-baseline justify-between gap-2">
+                    <label className="text-xs font-medium text-gray-600 dark:text-white/70">Spent on mics</label>
+                    <span className="text-sm font-bold" style={{ color: BRAND_BLUE }}>{spendLabel(signupSpend)}</span>
+                  </div>
+                  <Slider
+                    value={[signupSpend]}
+                    onValueChange={([next]) => setSignupSpend(next)}
+                    min={0}
+                    max={150}
+                    step={5}
+                    className="mt-2.5"
+                    aria-label="Weekly spend on open mics"
+                  />
+                </div>
+
+                <p className="text-[11px] leading-snug text-gray-500 sm:col-span-2 dark:text-white/45">
+                  Spend means covers, drinks, the whole night. A rough week is fine.
+                </p>
+
+                <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-gray-300 p-2.5 sm:col-span-2 dark:border-white/15">
+                  <input
+                    type="checkbox"
+                    checked={signupAffiliate}
+                    onChange={e => setSignupAffiliate(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-[#1a5fb4]"
+                  />
+                  <span className="min-w-0">
+                    <span className="block text-xs font-semibold">Affiliate comedian</span>
+                    <span className="block text-[11px] leading-snug text-gray-500 dark:text-white/45">
+                      I will post one Comediq story a month, to be considered for shows and bookings.
+                    </span>
+                  </span>
+                </label>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-gray-300 p-4 dark:border-white/15">
                 <div className="flex items-baseline justify-between gap-2">
-                  <label className="text-xs font-medium text-gray-600 dark:text-white/70">Doing comedy</label>
-                  <span className="text-sm font-bold" style={{ color: BRAND_BLUE }}>{yearsLabel(signupYears)}</span>
+                  <label className="text-xs font-medium text-gray-600 dark:text-white/70">Comedy shows you see</label>
+                  <span className="text-sm font-bold" style={{ color: BRAND_BLUE }}>{showsLabel(signupShowsPerYear)}</span>
                 </div>
                 <Slider
-                  value={[signupYears]}
-                  onValueChange={([next]) => setSignupYears(next)}
+                  value={[signupShowsPerYear]}
+                  onValueChange={([next]) => setSignupShowsPerYear(next)}
                   min={0}
-                  max={10}
+                  max={20}
                   step={1}
                   className="mt-2.5"
-                  aria-label="Years doing comedy"
+                  aria-label="Comedy shows seen per year"
                 />
+                <p className="mt-2 text-[11px] leading-snug text-gray-500 dark:text-white/45">
+                  Roughly, over a year. It tunes what we put in front of you.
+                </p>
               </div>
-
-              <div>
-                <div className="flex items-baseline justify-between gap-2">
-                  <label className="text-xs font-medium text-gray-600 dark:text-white/70">Spent on mics</label>
-                  <span className="text-sm font-bold" style={{ color: BRAND_BLUE }}>{spendLabel(signupSpend)}</span>
-                </div>
-                <Slider
-                  value={[signupSpend]}
-                  onValueChange={([next]) => setSignupSpend(next)}
-                  min={0}
-                  max={150}
-                  step={5}
-                  className="mt-2.5"
-                  aria-label="Weekly spend on open mics"
-                />
-              </div>
-
-              <p className="text-[11px] leading-snug text-gray-500 sm:col-span-2 dark:text-white/45">
-                Spend means covers, drinks, the whole night. A rough week is fine.
-              </p>
-            </div>
+            )}
 
             <button
               type="submit"
