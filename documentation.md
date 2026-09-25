@@ -941,51 +941,76 @@ forever. The page and its route were removed.
 
 ---
 
-## Signing up: comedian or audience
+## Signing up: a bare door, then one questionnaire
 
-The first thing the signup form asks is which one you are. The rest of the
-form changes to match, because the two have almost nothing useful in common.
+There are two screens and they do different jobs.
 
-### Comedian
+### The door: `/auth`
 
-| Asked | Stored |
+**Continue with Google**, or an email box and *Send me a code*. That is the
+whole page. No name, no role, no sliders.
+
+The emailed code runs with `shouldCreateUser`, so the one box both makes an
+account and signs an existing one back in. There is no separate signup to
+find.
+
+Anything more here is a reason to leave. Someone who has not decided to join
+yet should not be looking at a wall of questions.
+
+### The questionnaire: a dialog on the first signed-in load
+
+Once there is an account, one dialog asks everything, then never comes back.
+
+It lives here rather than on the door for two reasons. Signing in with Google
+never touches the signup form, so anyone arriving that way was skipping every
+question. And the questions only make sense once someone has actually joined.
+
+The name box and the Comedian / Audience choice show first. **Nothing else
+appears until they pick**, so the dialog opens short.
+
+| Picks | Then asked | Lands on |
+| --- | --- | --- |
+| Comedian | Instagram, years doing comedy 0 to 10+, weekly mic spend $0 to $150+, affiliate opt-in | `/perform` |
+| Audience | Comedy shows a year, 0 to 20+ | `/laugh` |
+
+Affiliate reads: *I will post one Comediq story a month, to be considered for
+shows and bookings.* Off by default.
+
+Audience members are never asked for Instagram, years or spend. They have no
+answer to give, and reaching comedians is the point of collecting a handle.
+
+### What makes it appear, exactly once
+
+`profiles.is_comedian` being NULL. Nothing else.
+
+Answer it, either way, and the column is no longer NULL, so a returning user
+signs in and goes straight into the site. Closing the dialog without
+answering hides it for that browser session only.
+
+Each path writes only its own columns, so `shows_seen_per_year` stays NULL for
+every comedian and `years_performing` stays NULL for every audience member.
+NULL means never asked, which is not a zero somebody gave.
+
+### Where the answers live
+
+| Answer | Column |
 | --- | --- |
 | Name | `profiles.stage_name` |
-| Email | the login itself |
+| Comedian or audience | `profiles.is_comedian` |
 | Instagram | `comedian_social_links`, `platform: 'instagram'` |
-| Years doing comedy, 0 to 10+ | `profiles.years_performing` |
-| Weekly spend on mics, $0 to $150+ | `profiles.weekly_mic_spend_usd` |
+| Years doing comedy | `profiles.years_performing` |
+| Weekly mic spend | `profiles.weekly_mic_spend_usd` |
 | Affiliate opt-in | `profiles.affiliate_interested` |
+| Shows seen a year | `profiles.shows_seen_per_year` |
 
-The affiliate checkbox reads: *I will post one Comediq story a month, to be
-considered for shows and bookings.* It is off by default.
+The write is an upsert, not an update. AuthContext creates the profile row in
+its own effect, and an update against a row that does not exist yet matches
+nothing and reports no error, so the answers would vanish and the Instagram
+row would fail its foreign key.
 
-Lands on `/perform`, the mic list.
+### Three migrations, none optional
 
-### Audience
-
-| Asked | Stored |
-| --- | --- |
-| Name | `profiles.stage_name` |
-| Email | the login itself |
-| Comedy shows a year, 0 to 20+ | `profiles.shows_seen_per_year` |
-
-No Instagram, no mic spend, no years. Somebody who came to watch has no
-answer to give for any of them, and we have no use for their handle. Reaching
-comedians is the point of collecting one.
-
-Lands on `/laugh`, the shows list, not the open mic list. An explicit `next`
-in the link still wins over both defaults.
-
-### What stays NULL
-
-Each path writes only its own columns. `shows_seen_per_year` is NULL for every
-comedian and `years_performing` is NULL for every audience member, and NULL
-reads as never asked, which is not the same as a zero somebody typed.
-
-### Three migrations, one feature
-
-| File | Column |
+| File | Columns |
 | --- | --- |
 | `20260925000000_profiles_is_comedian.sql` | `is_comedian` |
 | `20260925120000_profiles_weekly_mic_spend.sql` | `weekly_mic_spend_usd` |
@@ -994,15 +1019,45 @@ reads as never asked, which is not the same as a zero somebody typed.
 None needs new RLS: "Users can update their own profile (except admin
 status)" already covers any column that is not `isadmin`.
 
-**Until they are applied the form still works and still creates accounts, but
-the answers go nowhere.** `fetchProfileAccess` in `AuthContext.tsx` is built
-to survive a missing column, which is what stops a late migration from
-stripping admin rights and downgrading subscribers, but the same guard means
-the failure is silent. Nothing on screen will say the data was dropped.
+**Until `is_comedian` exists the dialog never appears at all.**
+`fetchProfileAccess` in `AuthContext.tsx` retries without the column and
+reports it as answered, which is deliberate: a missing column fails the whole
+row, and that row also carries `isadmin`, `subscription_plan` and
+`credits_balance`, so without the guard a late migration would strip admin
+rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ---
 
 ## Summarize
+
+### Session: moving the questions to after the door
+
+**The feedback.** The signup page opened on a role picker, a name box, two
+sliders and a checkbox. Intimidating for someone who has not joined yet.
+
+**What shipped.** `/auth` is now Google plus an email box, nothing else. Every
+question moved into one dialog that appears on the first signed-in load and
+never again.
+
+**This also closed a hole.** Signing in with Google never passed through the
+signup form, so anyone arriving that way answered nothing at all. Both routes
+land in the same dialog now, because the trigger is `profiles.is_comedian`
+being NULL rather than anything about how they signed in.
+
+**The dialog opens short.** Name and the Comedian / Audience choice only.
+Everything else is hidden until they pick, so nobody sees sliders they will
+not be asked about.
+
+**Deleted.** The sessionStorage stash that carried answers from the pre-auth
+form through code verification. The account exists before any question is
+asked now, so there is nothing to hold.
+
+**Verified.** Four cases driven in a browser against a stubbed Supabase: the
+signed-out door has one input, no sliders and no role buttons; a new comedian
+writes name, is_comedian, years, spend, affiliate and an Instagram row and
+lands on /perform; a new audience member writes only name, is_comedian and
+shows_seen_per_year with no social row and lands on /laugh; and a user whose
+is_comedian is already set sees no dialog at all.
 
 ### Session: splitting signup into comedian and audience
 
