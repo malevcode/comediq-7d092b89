@@ -92,9 +92,11 @@ const GoogleIcon = () => (
 
 
 const FIELD_WRAP_CLASS =
-  'flex items-center overflow-hidden rounded-xl border border-gray-400 bg-white/10 focus-within:border-[#1a5fb4] focus-within:ring-2 focus-within:ring-[#1a5fb4] dark:border-white/20';
+  'relative overflow-hidden rounded-xl border border-gray-400 focus-within:border-[#1a5fb4] focus-within:ring-2 focus-within:ring-[#1a5fb4] dark:border-white/20';
+const FIELD_ICON_CLASS =
+  'pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 text-gray-400';
 const BARE_INPUT_CLASS =
-  'w-full min-w-0 bg-transparent py-3 pl-2 pr-3 text-sm outline-none placeholder-gray-600 dark:placeholder-white/40';
+  'w-full bg-white/10 py-3 pl-10 pr-3 text-sm outline-none placeholder-gray-600 dark:placeholder-white/40';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -740,7 +742,7 @@ const Auth = () => {
 
           <form onSubmit={handleSendEmailCode} className="space-y-3">
             <div className={FIELD_WRAP_CLASS}>
-              <Mail className="ml-3.5 h-4 w-4 shrink-0 text-gray-400" />
+              <Mail className={`${FIELD_ICON_CLASS} h-4 w-4`} />
               <input
                 ref={signInEmailRef}
                 type="email"
