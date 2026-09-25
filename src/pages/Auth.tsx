@@ -5,8 +5,16 @@ import SEO from '@/components/SEO';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Eye, EyeOff, Mic, ArrowLeft, Mail, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Mic, ArrowLeft, Mail, CheckCircle, User } from 'lucide-react';
 import { getValidStripePaymentLink } from '@/utils/stripeLinks';
+import { Slider } from '@/components/ui/slider';
+import {
+  clearPendingSignupProfile,
+  readPendingSignupProfile,
+  saveSignupProfile,
+  stashPendingSignupProfile,
+  type PendingSignupProfile,
+} from '@/utils/signupProfile';
 import { invokeSupabaseFunction } from '@/utils/supabaseFunctions';
 
 const BRAND_BLUE = '#1a5fb4';
@@ -91,6 +99,21 @@ const GoogleIcon = () => (
 );
 
 
+const FIELD_WRAP_CLASS =
+  'flex items-center overflow-hidden rounded-xl border border-gray-400 bg-white/10 focus-within:border-[#1a5fb4] focus-within:ring-2 focus-within:ring-[#1a5fb4] dark:border-white/20';
+const BARE_INPUT_CLASS =
+  'w-full min-w-0 bg-transparent py-3 pl-2 pr-3 text-sm outline-none placeholder-gray-600 dark:placeholder-white/40';
+
+const yearsLabel = (years: number) => {
+  if (years === 0) return 'Just started';
+  if (years >= 10) return '10+ yrs';
+  return `${years} ${years === 1 ? 'yr' : 'yrs'}`;
+};
+
+/** The slider tops out at 150, where the top notch means "150 or more". */
+const spendLabel = (dollars: number) =>
+  dollars >= 150 ? '$150+/wk' : `$${dollars}/wk`;
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type AuthStep =
@@ -114,6 +137,10 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [pendingSignupPassword, setPendingSignupPassword] = useState('');
+  const [signupName, setSignupName] = useState('');
+  const [signupInstagram, setSignupInstagram] = useState('');
+  const [signupYears, setSignupYears] = useState(2);
+  const [signupSpend, setSignupSpend] = useState(30);
   const [showPassword, setShowPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetPassword, setResetPassword] = useState('');
@@ -243,6 +270,25 @@ const Auth = () => {
         }
         setPendingSignupPassword('');
       }
+      // The signup answers were collected before this account existed, so they
+      // get written here. A failure never blocks the way in: they are signed in
+      // already and every field is editable on the profile page.
+      const pendingProfile = readPendingSignupProfile();
+      if (pendingProfile) {
+        const { data: sessionData } = await supabase.auth.getUser();
+        const userId = sessionData.user?.id;
+        if (userId) {
+          const result = await saveSignupProfile(userId, pendingProfile);
+          if (!result.ok) {
+            toast({
+              title: 'Account made, details were not saved',
+              description: 'You can add them on your profile.',
+            });
+          }
+        }
+        clearPendingSignupProfile();
+      }
+
       setLoading(false);
       navigate(postAuthPath);
     }
@@ -256,6 +302,22 @@ const Auth = () => {
     }
   }, [handleVerifyOtp, otpDigits, step]);
 
+
+  /**
+   * Holds the four answers, then falls through to the normal code send. They
+   * cannot be saved yet because the account does not exist until the code is
+   * verified, which is where handleVerifyOtp picks them back up.
+   */
+  const handleSignupSubmit = async (e: React.FormEvent) => {
+    const profile: PendingSignupProfile = {
+      name: signupName,
+      instagram: signupInstagram,
+      yearsPerforming: signupYears,
+      weeklyMicSpendUsd: signupSpend,
+    };
+    stashPendingSignupProfile(profile);
+    await handleSendEmailCode(e);
+  };
 
   const handleSendEmailCode = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -714,18 +776,130 @@ const Auth = () => {
         </>
       ) : (
         <>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-1">Sign in to Comediq</h1>
-          <p className="mb-7 text-sm text-gray-500 dark:text-gray-400">
-            New here? Entering your email makes your free account. No card needed.
+          <h1 className="text-2xl font-semibold text-gray-900 mb-1">Make your free account</h1>
+          <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+            Four answers. No card, no password to invent.
           </p>
 
-          {renderAuthMethods()}
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-800 text-sm font-semibold hover:bg-white/80 hover:border-gray-300 transition-colors shadow-sm dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:border-white/30 dark:hover:bg-white/20"
+          >
+            <GoogleIcon />
+            Continue with Google
+          </button>
 
-          <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
+          <Divider label="or sign up with your email" />
+
+          <form onSubmit={handleSignupSubmit} className="space-y-3">
+            <div className={FIELD_WRAP_CLASS}>
+              <User className="ml-3.5 h-4 w-4 shrink-0 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Your name"
+                value={signupName}
+                onChange={e => setSignupName(e.target.value)}
+                className={BARE_INPUT_CLASS}
+                autoComplete="name"
+                maxLength={80}
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className={FIELD_WRAP_CLASS}>
+                <Mail className="ml-3.5 h-4 w-4 shrink-0 text-gray-400" />
+                <input
+                  ref={signInEmailRef}
+                  type="email"
+                  placeholder="you@example.com"
+                  value={otpEmail}
+                  onChange={e => setOtpEmail(e.target.value)}
+                  className={BARE_INPUT_CLASS}
+                  autoComplete="email"
+                  required
+                />
+              </div>
+              <div className={FIELD_WRAP_CLASS}>
+                <span className="ml-3.5 shrink-0 text-sm text-gray-400">@</span>
+                <input
+                  type="text"
+                  placeholder="instagram"
+                  value={signupInstagram}
+                  onChange={e => setSignupInstagram(e.target.value)}
+                  className={BARE_INPUT_CLASS}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  maxLength={60}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-x-5 gap-y-4 rounded-xl border border-gray-300 p-4 sm:grid-cols-2 dark:border-white/15">
+              <div>
+                <div className="flex items-baseline justify-between gap-2">
+                  <label className="text-xs font-medium text-gray-600 dark:text-white/70">Doing comedy</label>
+                  <span className="text-sm font-bold" style={{ color: BRAND_BLUE }}>{yearsLabel(signupYears)}</span>
+                </div>
+                <Slider
+                  value={[signupYears]}
+                  onValueChange={([next]) => setSignupYears(next)}
+                  min={0}
+                  max={10}
+                  step={1}
+                  className="mt-2.5"
+                  aria-label="Years doing comedy"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-baseline justify-between gap-2">
+                  <label className="text-xs font-medium text-gray-600 dark:text-white/70">Spent on mics</label>
+                  <span className="text-sm font-bold" style={{ color: BRAND_BLUE }}>{spendLabel(signupSpend)}</span>
+                </div>
+                <Slider
+                  value={[signupSpend]}
+                  onValueChange={([next]) => setSignupSpend(next)}
+                  min={0}
+                  max={150}
+                  step={5}
+                  className="mt-2.5"
+                  aria-label="Weekly spend on open mics"
+                />
+              </div>
+
+              <p className="text-[11px] leading-snug text-gray-500 sm:col-span-2 dark:text-white/45">
+                Spend means covers, drinks, the whole night. A rough week is fine.
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || !otpEmail || !signupName.trim() || resendCooldown > 0}
+              className="w-full py-3 rounded-xl text-[#fff] text-sm font-medium transition-colors disabled:opacity-50"
+              style={{ background: BRAND_BLUE }}
+            >
+              {loading ? 'Sending…' : resendCooldown > 0 ? `Try again in ${resendCooldown}s` : 'Send me a code'}
+            </button>
+          </form>
+
+          <p className="mt-5 text-center text-sm text-gray-500 dark:text-gray-400">
+            Already have an account?{' '}
+            <button
+              type="button"
+              onClick={() => navigate(signInOptionsPath)}
+              className="font-semibold underline underline-offset-2 hover:text-gray-700 dark:hover:text-white"
+            >
+              Sign in
+            </button>
+          </p>
+
+          <p className="mt-2 text-center text-xs text-gray-400 dark:text-white/35">
             <button
               type="button"
               onClick={() => navigate(`/auth?next=${encodeURIComponent(postAuthPath)}&plans=true`)}
-              className="underline underline-offset-2 hover:text-gray-700"
+              className="underline underline-offset-2"
             >
               See Full Pass
             </button>
@@ -1010,7 +1184,7 @@ const Auth = () => {
             <span className="font-semibold text-lg text-[#07111f] dark:text-[#fff]">Comediq</span>
           </div>
           <div
-            className={`${step === 'main' && shouldShowPlans ? 'w-full max-w-2xl' : 'w-full max-w-sm'} [&_h1]:text-[#07111f] [&_h2]:text-[#07111f] [&_p]:text-[#07111f]/60 [&_label]:text-[#07111f]/70 dark:[&_h1]:text-white dark:[&_h2]:text-white dark:[&_p]:text-white/60 dark:[&_label]:text-white/70`}
+            className={`${step === 'main' ? (shouldShowPlans ? 'w-full max-w-2xl' : 'w-full max-w-lg') : 'w-full max-w-sm'} [&_h1]:text-[#07111f] [&_h2]:text-[#07111f] [&_p]:text-[#07111f]/60 [&_label]:text-[#07111f]/70 dark:[&_h1]:text-white dark:[&_h2]:text-white dark:[&_p]:text-white/60 dark:[&_label]:text-white/70`}
           >
             {stepContent}
           </div>
