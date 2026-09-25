@@ -133,7 +133,8 @@ const Auth = () => {
   const nextPathParam = searchParams.get('next');
   const shouldShowPlans = searchParams.get('plans') === 'true';
   const subscribeIntent = searchParams.get('subscribe') === 'true';
-  const postAuthPath = nextPathParam?.startsWith('/') ? nextPathParam : '/';
+  // The mic list is what people came for, so that is where auth lands them.
+  const postAuthPath = nextPathParam?.startsWith('/') ? nextPathParam : '/perform';
   const authRedirectUrl = `${window.location.origin}/auth/sign-in?next=${encodeURIComponent(postAuthPath)}`;
   const plansParam = shouldShowPlans ? '&plans=true' : '';
   const subscribeParam = subscribeIntent ? '&subscribe=true' : '';

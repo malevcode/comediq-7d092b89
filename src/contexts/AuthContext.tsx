@@ -16,6 +16,7 @@ interface ProfileAccessFields {
   isadmin: boolean;
   subscription_plan: SubscriptionPlan;
   credits_balance: number;
+  is_comedian: boolean | null;
 }
 
 interface UserRoleRow {
@@ -34,8 +35,40 @@ interface AuthContextType {
   role: UserRole;
   subscriptionPlan: SubscriptionPlan;
   creditsBalance: number;
+  /** null until they answer at signup, which is what the prompt keys off. */
+  isComedian: boolean | null;
   needsOnboarding: boolean;
   refreshProfile: () => void;
+}
+
+const PROFILE_COLUMNS = 'isadmin, subscription_plan, credits_balance, is_comedian';
+const PROFILE_COLUMNS_WITHOUT_COMEDIAN = 'isadmin, subscription_plan, credits_balance';
+
+/**
+ * One request normally. If it fails, try again without is_comedian.
+ *
+ * That column arrives in a migration, and this app has shipped ahead of its
+ * database before. Selecting a column Postgres does not have fails the whole
+ * row, which would quietly drop admin rights and subscription state for
+ * everyone. Losing the onboarding prompt until the migration lands is the far
+ * cheaper failure, so the fallback reports is_comedian as answered.
+ */
+async function fetchProfileAccess(userId: string): Promise<ProfileAccessFields | null> {
+  const full = await supabase
+    .from('profiles')
+    .select(PROFILE_COLUMNS)
+    .eq('user_id', userId)
+    .maybeSingle<ProfileAccessFields>();
+
+  if (!full.error) return full.data;
+
+  const legacy = await supabase
+    .from('profiles')
+    .select(PROFILE_COLUMNS_WITHOUT_COMEDIAN)
+    .eq('user_id', userId)
+    .maybeSingle<Omit<ProfileAccessFields, 'is_comedian'>>();
+
+  return legacy.data ? { ...legacy.data, is_comedian: false } : null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -74,6 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [subscriptionPlan, setSubscriptionPlan] = useState<SubscriptionPlan>('free');
   const [creditsBalance, setCreditsBalance] = useState(0);
   const [profileFetchKey, setProfileFetchKey] = useState(0);
+  const [isComedian, setIsComedian] = useState<boolean | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -100,28 +134,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setRole(null);
       setSubscriptionPlan('free');
       setCreditsBalance(0);
+      setIsComedian(null);
       return;
     }
     setProfileLoading(true);
     setProfileChecked(false);
     Promise.all([
-      supabase
-      .from('profiles')
-      .select('isadmin, subscription_plan, credits_balance')
-      .eq('user_id', user.id)
-        .maybeSingle<ProfileAccessFields>(),
+      fetchProfileAccess(user.id),
       supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id),
-    ]).then(([profileResult, rolesResult]) => {
+    ]).then(([profile, rolesResult]) => {
       const roles = ((rolesResult.data || []) as UserRoleRow[]).map(row => row.role);
       const primaryRole = roles.find(r => r !== 'admin') ?? null;
 
       setRole(primaryRole);
-      setIsAdmin(!!profileResult.data?.isadmin || roles.includes('admin'));
-      setSubscriptionPlan(profileResult.data?.subscription_plan ?? 'free');
-      setCreditsBalance(profileResult.data?.credits_balance ?? 0);
+      setIsAdmin(!!profile?.isadmin || roles.includes('admin'));
+      setSubscriptionPlan(profile?.subscription_plan ?? 'free');
+      setCreditsBalance(profile?.credits_balance ?? 0);
+      setIsComedian(profile?.is_comedian ?? null);
     }).finally(() => {
       setProfileLoading(false);
       setProfileChecked(true);
@@ -171,10 +203,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfileFetchKey(k => k + 1);
   };
 
-  const needsOnboarding = false;
+  // Asked once, on the first signed-in load where the answer is still missing.
+  // profileChecked gates it so a slow fetch does not flash the prompt at people
+  // who already answered.
+  const needsOnboarding = !!user && profileChecked && isComedian === null;
 
   return (
-    <AuthContext.Provider value={{ user, session, signIn, signOut, loading: loading || profileLoading || (!!user && !profileChecked), visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, creditsBalance, needsOnboarding, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, signIn, signOut, loading: loading || profileLoading || (!!user && !profileChecked), visitInserted, resetVisitInserted, isAdmin, role, subscriptionPlan, creditsBalance, isComedian, needsOnboarding, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
