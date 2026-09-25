@@ -686,6 +686,20 @@
       "set": {
         "day": "Tuesday"
       }
+    },
+    {
+      "unique_identifier": "ea37784d-b08f-45fa-8eea-ae9005d3f1d7",
+      "note": "Bent Over Laughing: the address was WRONG and sent Adam to the wrong place. It said 268 Lenox Ave (Harlem, ~123rd St). The real address is 2048 Amsterdam Ave, New York, NY 10032 (Washington Heights, ~160th St), about forty blocks north. ALL SIX GEOCODING FIELDS ARE NULLED, not just the address text. The stored coordinates pinned to Lenox Ave, so changing only the location string would have left the map pointing at the wrong corner, which is the exact failure that burned him. Nulling them makes the geocoder re-resolve from the corrected address. neighborhood also moves Harlem -> Washington Heights, since 2048 Amsterdam at 160th is not Harlem and a wrong neighbourhood is its own way of sending someone to the wrong part of town. Worth noting the old row's geocoding_score was 1.1677, the kind of weak match that is worth distrusting.",
+      "set": {
+        "location": "2048 Amsterdam Ave, New York, NY 10032",
+        "neighborhood": "Washington Heights",
+        "latitude": null,
+        "longitude": null,
+        "geocoded_at": null,
+        "geocoding_provider": null,
+        "geocoding_score": null,
+        "geocoding_match_address": null
+      }
     }
   ],
   "removals": [
