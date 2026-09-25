@@ -941,7 +941,95 @@ forever. The page and its route were removed.
 
 ---
 
+## Signing up: comedian or audience
+
+The first thing the signup form asks is which one you are. The rest of the
+form changes to match, because the two have almost nothing useful in common.
+
+### Comedian
+
+| Asked | Stored |
+| --- | --- |
+| Name | `profiles.stage_name` |
+| Email | the login itself |
+| Instagram | `comedian_social_links`, `platform: 'instagram'` |
+| Years doing comedy, 0 to 10+ | `profiles.years_performing` |
+| Weekly spend on mics, $0 to $150+ | `profiles.weekly_mic_spend_usd` |
+| Affiliate opt-in | `profiles.affiliate_interested` |
+
+The affiliate checkbox reads: *I will post one Comediq story a month, to be
+considered for shows and bookings.* It is off by default.
+
+Lands on `/perform`, the mic list.
+
+### Audience
+
+| Asked | Stored |
+| --- | --- |
+| Name | `profiles.stage_name` |
+| Email | the login itself |
+| Comedy shows a year, 0 to 20+ | `profiles.shows_seen_per_year` |
+
+No Instagram, no mic spend, no years. Somebody who came to watch has no
+answer to give for any of them, and we have no use for their handle. Reaching
+comedians is the point of collecting one.
+
+Lands on `/laugh`, the shows list, not the open mic list. An explicit `next`
+in the link still wins over both defaults.
+
+### What stays NULL
+
+Each path writes only its own columns. `shows_seen_per_year` is NULL for every
+comedian and `years_performing` is NULL for every audience member, and NULL
+reads as never asked, which is not the same as a zero somebody typed.
+
+### Three migrations, one feature
+
+| File | Column |
+| --- | --- |
+| `20260925000000_profiles_is_comedian.sql` | `is_comedian` |
+| `20260925120000_profiles_weekly_mic_spend.sql` | `weekly_mic_spend_usd` |
+| `20260925180000_signup_audience_and_affiliate.sql` | `shows_seen_per_year`, `affiliate_interested` |
+
+None needs new RLS: "Users can update their own profile (except admin
+status)" already covers any column that is not `isadmin`.
+
+**Until they are applied the form still works and still creates accounts, but
+the answers go nowhere.** `fetchProfileAccess` in `AuthContext.tsx` is built
+to survive a missing column, which is what stops a late migration from
+stripping admin rights and downgrading subscribers, but the same guard means
+the failure is silent. Nothing on screen will say the data was dropped.
+
+---
+
 ## Summarize
+
+### Session: splitting signup into comedian and audience
+
+**Why.** The first cut asked every new account how many years they had been
+doing comedy and what they spend on open mics. An audience member has no
+answer to either, and their Instagram is of no use to us.
+
+**What shipped.** The form opens on a Comedian / Audience choice, defaulting
+to Comedian, and swaps its fields. Comedians get Instagram, two sliders and an
+affiliate opt-in. Audience members get one slider, shows seen a year. Each
+path writes only its own columns and lands on the page that suits it,
+`/perform` for comedians and `/laugh` for audience.
+
+**The affiliate opt-in** is a checkbox reading "I will post one Comediq story
+a month, to be considered for shows and bookings", stored on
+`profiles.affiliate_interested`.
+
+**Verified.** Drove a browser through both paths against a stubbed Supabase
+and read the request bodies. The audience path sends no Instagram row at all
+and no `years_performing`, `weekly_mic_spend_usd` or `affiliate_interested`;
+the comedian path sends all four plus the social link. Both at phone and
+desktop widths. `npx tsc -b` and `npm run build` clean.
+
+**Still needs applying.** All three signup migrations are on main and none has
+reached the database. Until they do, the answers are dropped silently, by
+design, because the guard that keeps a late migration from wrecking admin and
+subscription state also swallows the error.
 
 ### Session: landing on the mics, and asking who is a comedian
 

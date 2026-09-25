@@ -9,9 +9,14 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export interface PendingSignupProfile {
   name: string;
-  instagram: string;
-  yearsPerforming: number;
-  weeklyMicSpendUsd: number;
+  isComedian: boolean;
+  /** Comedian only. An audience member is never asked for these. */
+  instagram?: string;
+  yearsPerforming?: number;
+  weeklyMicSpendUsd?: number;
+  affiliateInterested?: boolean;
+  /** Audience only. */
+  showsSeenPerYear?: number;
 }
 
 const STORAGE_KEY = "comediq-pending-signup-profile";
@@ -65,7 +70,20 @@ export async function saveSignupProfile(
   profile: PendingSignupProfile,
 ): Promise<{ ok: boolean; message?: string }> {
   const name = profile.name.trim();
-  const handle = normalizeInstagramHandle(profile.instagram);
+
+  // Each path writes only what it asked. The other side's columns stay NULL,
+  // which reads as "never asked" rather than a zero someone actually gave.
+  const answers = profile.isComedian
+    ? {
+        is_comedian: true,
+        years_performing: profile.yearsPerforming ?? 0,
+        weekly_mic_spend_usd: profile.weeklyMicSpendUsd ?? 0,
+        affiliate_interested: profile.affiliateInterested ?? false,
+      }
+    : {
+        is_comedian: false,
+        shows_seen_per_year: profile.showsSeenPerYear ?? 0,
+      };
 
   // Upsert, not update. AuthContext creates the profile row in its own effect,
   // which may not have run yet this soon after verification. An update against
@@ -78,9 +96,7 @@ export async function saveSignupProfile(
       {
         user_id: userId,
         ...(name ? { stage_name: name } : {}),
-        is_comedian: true,
-        years_performing: profile.yearsPerforming,
-        weekly_mic_spend_usd: profile.weeklyMicSpendUsd,
+        ...answers,
       },
       { onConflict: "user_id" },
     );
@@ -89,9 +105,12 @@ export async function saveSignupProfile(
     return { ok: false, message: profileError.message };
   }
 
+  // Instagram is only asked of comedians, because reaching them is the point.
+  if (!profile.isComedian) return { ok: true };
+
+  const handle = normalizeInstagramHandle(profile.instagram ?? "");
   if (!handle) return { ok: true };
 
-  // Instagram lives with the other socials, not as a column of its own.
   const { error: socialError } = await supabase
     .from("comedian_social_links")
     .upsert(
