@@ -868,7 +868,114 @@ because neither holds a cursor.
 
 ---
 
+## Where you land after signing in, and the one question we ask
+
+A comedian tried Comediq and said: after you sign up, the first thing you
+should see is the mic list. The page he got instead meant nothing to him.
+
+So two changes.
+
+### Signing in lands on the mic list
+
+`/auth` used to send people to `/` when nothing said otherwise. It now sends
+them to `/perform`, which is the Find Mics list.
+
+Only the default moved. When a link carries a `next` (a mic signup page
+bouncing you through sign-in, say), that destination still wins.
+
+### One question, over the top of the mics
+
+New accounts get a small dialog: **Are you a comedian?** Answer yes and a
+slider asks how long you have been doing it, 0 to 10, where 10 means 10 or
+more. Answer no and that is the end of it.
+
+It is a dialog rather than a page on purpose. The mic list is already loaded
+behind it, so answering costs no navigation and nobody gets parked on a form.
+
+Where the answers go:
+
+| Answer | Column on `profiles` |
+| --- | --- |
+| Not asked yet | `is_comedian` is `NULL` |
+| Yes | `is_comedian` true, `years_performing` 0 to 10 |
+| No | `is_comedian` false |
+
+`years_performing` already existed and already shows on comedian cards and the
+profile editor, so the slider fills a field the app was using.
+
+**The prompt is driven entirely by `is_comedian` being NULL.** Answer it once,
+either way, and it never comes back. "Not now" hides it for the browser
+session only, so it asks again next visit.
+
+### Two things worth knowing
+
+**The migration has to be applied.** The column arrives in
+`supabase/migrations/20260925000000_profiles_is_comedian.sql`. No new RLS is
+needed, because "Users can update their own profile (except admin status)"
+already covers a column that is not `isadmin`.
+
+**The app survives that migration being late.** Asking Postgres for a column
+it does not have fails the whole row, and that row also carries `isadmin`,
+`subscription_plan` and `credits_balance`. Without a guard, shipping this
+before the migration would have silently stripped admin rights and downgraded
+every subscriber. So `fetchProfileAccess` in `AuthContext.tsx` retries without
+`is_comedian` when the first select errors, and reports the answer as already
+given. One request normally, two only while the database is behind, and the
+worst case is the prompt staying hidden instead of everyone losing their plan.
+
+### A stray slider thumb, fixed
+
+`src/components/ui/slider.tsx` hardcoded two thumbs. That is right for the
+cost range filter in `MicFilters`, which passes two values, and wrong for any
+single-value slider: a second thumb sat parked at the minimum. It now renders
+one thumb per value, so both work.
+
+### The old onboarding page is gone
+
+`src/pages/Onboarding.tsx` asked a three-way role question and wrote to
+`user_onboarding_responses`. It could never be reached: `needsOnboarding` was
+hardcoded `false`, so the page bounced every visitor on arrival. Making that
+flag mean something would have exposed a stale flow that asks different
+questions and never sets `is_comedian`, leaving the new prompt nagging
+forever. The page and its route were removed.
+
+---
+
 ## Summarize
+
+### Session: landing on the mics, and asking who is a comedian
+
+**Why.** A comedian's feedback after trying the site: the first thing you see
+after signing up should be the mic list.
+
+**What shipped.** `/auth` now defaults to `/perform` instead of `/`, honouring
+an explicit `next` as before. And a one-question dialog over that page asks
+whether you are a comedian, with a 0 to 10+ slider if you are. Answers land on
+`profiles.is_comedian` and the existing `profiles.years_performing`.
+
+**The guard that mattered most.** The new column is read in the same select
+that carries `isadmin`, `subscription_plan` and `credits_balance`. Postgres
+fails the whole row for one unknown column, so shipping the code before the
+migration would have stripped admin rights and downgraded every subscriber.
+`fetchProfileAccess` retries without the column and treats the question as
+answered, so the only casualty is a hidden prompt. Proved by stubbing a 42703
+error and checking a premium account still rendered `subscriber-layout`.
+
+**Two bugs found on the way.** The shared `Slider` hardcoded two thumbs, so
+every single-value slider had a stray one parked at zero; it now renders one
+per value, which keeps the two-thumb cost filter working. And making
+`needsOnboarding` real would have un-buried `pages/Onboarding.tsx`, a
+three-way role form that bounced every visitor while the flag was hardcoded
+false and that never sets `is_comedian`; it was removed.
+
+**Verified.** `npx tsc -b`, a production build, and a browser driven against a
+stubbed Supabase across three profile states (never asked, already answered,
+column missing) plus both redirect cases. Checked the slider reads "Just
+started", "2 years" and "10+ years" at its ends, and that the dialog renders
+dark on dark.
+
+**Needs applying.** `supabase/migrations/20260925000000_profiles_is_comedian.sql`
+has to reach the database before the prompt can appear.
 
 ### Session: taking the paywall out of the front door
 

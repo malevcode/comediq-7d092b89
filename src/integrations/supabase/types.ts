@@ -2018,6 +2018,7 @@ export type Database = {
           credit: string | null
           credits_balance: number
           headshot_url: string | null
+          is_comedian: boolean | null
           id: string
           isadmin: boolean
           phone: string | null
@@ -2037,6 +2038,7 @@ export type Database = {
           credit?: string | null
           credits_balance?: number
           headshot_url?: string | null
+          is_comedian?: boolean | null
           id?: string
           isadmin?: boolean
           phone?: string | null
@@ -2056,6 +2058,7 @@ export type Database = {
           credit?: string | null
           credits_balance?: number
           headshot_url?: string | null
+          is_comedian?: boolean | null
           id?: string
           isadmin?: boolean
           phone?: string | null

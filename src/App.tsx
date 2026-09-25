@@ -51,7 +51,7 @@ import LikedMics from "./pages/LikedMics";
 import Leaderboard from "./pages/Leaderboard";
 import Slots from "./pages/Slots";
 import ShowsMap from "./pages/ShowsMap";
-import Onboarding from "./pages/Onboarding";
+import ComedianOnboardingDialog from "@/components/ComedianOnboardingDialog";
 import Strip from "./pages/Strip";
 import CanonicalTag from "@/components/CanonicalTag";
 
@@ -140,6 +140,7 @@ function AppShell() {
         <OfflineBanner />
         <MicOfTheMonthBar />
         <SubscriptionSuccessBanner />
+        <ComedianOnboardingDialog />
         <div className={isSubscriber ? "subscriber-layout relative z-10 pb-0" : "non-subscriber-layout relative z-10 pb-0"}>
           <CanonicalTag />
           <Routes>
@@ -179,7 +180,6 @@ function AppShell() {
             <Route path="/top-mics" element={<Leaderboard />} />
             <Route path="/dev-view" element={<TabProvider><DevView /></TabProvider>} />
             <Route path="/slots" element={<Slots />} />
-            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/strip" element={<Strip />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
