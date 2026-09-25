@@ -2030,6 +2030,7 @@ export type Database = {
           updated_at: string | null
           user_id: string
           username: string | null
+          weekly_mic_spend_usd: number | null
           years_performing: number | null
         }
         Insert: {
@@ -2050,6 +2051,7 @@ export type Database = {
           updated_at?: string | null
           user_id: string
           username?: string | null
+          weekly_mic_spend_usd?: number | null
           years_performing?: number | null
         }
         Update: {
@@ -2070,6 +2072,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           username?: string | null
+          weekly_mic_spend_usd?: number | null
           years_performing?: number | null
         }
         Relationships: []
