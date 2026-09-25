@@ -1008,6 +1008,40 @@ its own effect, and an update against a row that does not exist yet matches
 nothing and reports no error, so the answers would vanish and the Instagram
 row would fail its foreign key.
 
+### Why the input fields have no icon box
+
+An input inside a `<form>` gets its background forced by a global rule in
+`index.css`:
+
+```css
+form :where(input:not([type="checkbox"])…) {
+  border-width: 0 !important;
+  background-color: rgb(255 255 255 / 0.1) !important;
+}
+```
+
+The fields used to be a flex row: a wrapper painted `bg-white/10` with an icon
+sitting in it, then the input beside it. Both layers painted the same
+translucent white, so the input area stacked to roughly 0.19 while the icon
+gutter stayed at 0.10. The result was a visible darker square under the icon,
+on a field that should read as one surface.
+
+`bg-transparent` on the input could not fix it, because that global rule wins
+on `!important`.
+
+So there is no gutter any more. The wrapper is transparent and carries only
+the border and the focus ring. The input paints the whole width. The icon is
+positioned absolutely on top of it with `pointer-events-none`, so clicking it
+still lands in the input.
+
+Sampling real pixels across a field now gives `28,34,42` the whole way, give
+or take one unit at the rounded corners.
+
+The same shape is used on the door's email box and on the name and Instagram
+boxes in the onboarding dialog. The dialog's inputs are not inside a `<form>`,
+so nothing forces their background; `bg-white/10` on the input gives the same
+value either way, which is why one set of classes covers both.
+
 ### Three migrations, none optional
 
 | File | Columns |
@@ -1029,6 +1063,31 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 ---
 
 ## Summarize
+
+### Session: the seam under the email icon
+
+**What it was.** The icon sat in its own flex cell on a `bg-white/10` wrapper,
+and the input beside it painted `bg-white/10` again on top. Two translucent
+layers where there should have been one, so the icon's cell read as a darker
+square against the rest of the field.
+
+**Why the obvious fix did not work.** `index.css` forces the background of any
+input inside a `<form>` with `!important`, so `bg-transparent` on the input
+was ignored.
+
+**The fix.** No gutter. The wrapper is transparent and holds only the border
+and focus ring, the input paints the full width, and the icon is absolutely
+positioned over it with `pointer-events-none`.
+
+**Verified by sampling pixels, not by looking.** Screenshotted the field,
+decoded it in the page with a canvas, and read 24 points across a row clear of
+the placeholder text: `28,34,42` all the way, with a one-unit drift only at
+the rounded corners.
+
+**Also.** The affiliate checkbox was a native control, which paints a pale
+square on navy when unchecked. Swapped to the app's own `Checkbox`, and
+re-ran the signup flow to confirm `affiliate_interested: true` still reaches
+the database.
 
 ### Session: moving the questions to after the door
 

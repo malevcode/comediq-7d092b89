@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Eye, Mic, User } from "lucide-react";
 
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -19,9 +20,11 @@ const spendLabel = (d: number) => (d >= 150 ? "$150+/wk" : `$${d}/wk`);
 const showsLabel = (n: number) => (n >= 20 ? "20+ a year" : `${n} a year`);
 
 const FIELD_WRAP =
-  "flex items-center overflow-hidden rounded-xl border border-gray-400 bg-white/10 focus-within:border-[#1a5fb4] focus-within:ring-2 focus-within:ring-[#1a5fb4] dark:border-white/20";
+  "relative overflow-hidden rounded-xl border border-gray-400 focus-within:border-[#1a5fb4] focus-within:ring-2 focus-within:ring-[#1a5fb4] dark:border-white/20";
+const FIELD_ICON =
+  "pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 text-gray-400";
 const BARE_INPUT =
-  "w-full min-w-0 bg-transparent py-3 pl-2 pr-3 text-sm outline-none placeholder-gray-600 dark:placeholder-white/40";
+  "w-full bg-white/10 py-3 pl-10 pr-3 text-sm outline-none placeholder-gray-600 dark:placeholder-white/40";
 
 const SliderRow = ({
   label,
@@ -144,7 +147,7 @@ export default function ComedianOnboardingDialog() {
           </p>
 
           <div className={`${FIELD_WRAP} mt-5`}>
-            <User className="ml-3.5 h-4 w-4 shrink-0 text-gray-400" />
+            <User className={`${FIELD_ICON} h-4 w-4`} />
             <input
               type="text"
               placeholder="Your name"
@@ -194,7 +197,7 @@ export default function ComedianOnboardingDialog() {
           {isComedian === true && (
             <div className="mt-2.5 space-y-4 rounded-xl border border-[#07111f]/15 p-4 dark:border-white/15">
               <div className={FIELD_WRAP}>
-                <span className="ml-3.5 shrink-0 text-sm text-gray-400">@</span>
+                <span className={`${FIELD_ICON} text-sm`}>@</span>
                 <input
                   type="text"
                   placeholder="instagram"
@@ -229,11 +232,10 @@ export default function ComedianOnboardingDialog() {
               </p>
 
               <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-[#07111f]/15 p-2.5 dark:border-white/15">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={affiliate}
-                  onChange={(e) => setAffiliate(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 shrink-0 accent-[#1a5fb4]"
+                  onCheckedChange={(next) => setAffiliate(next === true)}
+                  className="mt-0.5"
                 />
                 <span className="min-w-0">
                   <span className="block text-xs font-semibold">Affiliate comedian</span>
