@@ -1,13 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * What the signup form collects before the account exists.
- *
- * The answers are gathered in one screen, but they cannot be written until the
- * emailed code is verified and there is a user id to hang them on. So they are
- * held here in between.
+ * The answers asked once, on the first signed-in load, whichever way they
+ * signed in. Google and the emailed code both land here.
  */
-export interface PendingSignupProfile {
+export interface SignupAnswers {
   name: string;
   isComedian: boolean;
   /** Comedian only. An audience member is never asked for these. */
@@ -17,34 +14,6 @@ export interface PendingSignupProfile {
   affiliateInterested?: boolean;
   /** Audience only. */
   showsSeenPerYear?: number;
-}
-
-const STORAGE_KEY = "comediq-pending-signup-profile";
-
-/** Survives a reload of the verify step, which is the same tab, same session. */
-export function stashPendingSignupProfile(profile: PendingSignupProfile) {
-  try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-  } catch {
-    /* private mode: the in-memory copy still covers the normal path */
-  }
-}
-
-export function readPendingSignupProfile(): PendingSignupProfile | null {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as PendingSignupProfile) : null;
-  } catch {
-    return null;
-  }
-}
-
-export function clearPendingSignupProfile() {
-  try {
-    sessionStorage.removeItem(STORAGE_KEY);
-  } catch {
-    /* nothing to clear */
-  }
 }
 
 /** "@Adam_Malev " and "instagram.com/adam_malev" both become "adam_malev". */
@@ -67,7 +36,7 @@ export function normalizeInstagramHandle(raw: string): string {
  */
 export async function saveSignupProfile(
   userId: string,
-  profile: PendingSignupProfile,
+  profile: SignupAnswers,
 ): Promise<{ ok: boolean; message?: string }> {
   const name = profile.name.trim();
 
