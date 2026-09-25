@@ -31,7 +31,6 @@ export default function Leaderboard() {
       <SEO
         title="Open Mic Leaderboard | Comediq"
         description="NYC open mics ranked by comedian upvotes. See which rooms the city actually rates."
-        url="https://comediq.us/leaderboard"
       />
       <PageHeader title="Leaderboard" />
 
