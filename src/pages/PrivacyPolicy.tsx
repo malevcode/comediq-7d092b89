@@ -10,7 +10,7 @@ const PrivacyPolicy = () => {
         title="Privacy Policy & Terms of Service | Comediq"
         description="How Comediq collects, uses and protects comedian data, our SMS notification disclosure, and the terms of service for using the platform."
       />
-      <PageHeader title="Privacy Policy & Terms" subtitle="Last updated: January 2025" />
+      <PageHeader title="Privacy Policy & Terms" subtitle="Last updated: September 2026" />
       
       <div className="max-w-3xl mx-auto px-4 page-content-offset">
         <h1 className="sr-only">Comediq privacy policy and terms of service</h1>
@@ -111,6 +111,11 @@ const PrivacyPolicy = () => {
               <p className="text-sm">
                 Your phone number will never be sold or shared with third parties for marketing purposes.
               </p>
+
+              <p className="text-sm leading-relaxed">
+                If you are under 18, a parent or guardian must agree to these SMS terms
+                before you give us a phone number.
+              </p>
             </div>
           </section>
 
@@ -133,9 +138,35 @@ const PrivacyPolicy = () => {
                 <ul className="list-disc list-inside text-sm space-y-1 ml-2">
                   <li>You must provide accurate information when creating an account</li>
                   <li>You are responsible for maintaining the security of your account</li>
-                  <li>You must be at least 18 years old to use our services</li>
+                  <li>You must be at least 13 years old to use Comediq</li>
                   <li>One account per person; accounts are non-transferable</li>
                 </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Age, and the venues themselves</h3>
+                <p className="text-sm leading-relaxed mb-2">
+                  Comediq is open to anyone 13 or older. If you are under 18, a parent or
+                  guardian should review these terms with you, and we ask that they agree to
+                  them on your behalf.
+                </p>
+                <p className="text-sm leading-relaxed mb-2">
+                  The venues are a separate matter, and their rules are theirs, not ours.
+                  Every room sets its own age policy and it is on you to meet it before you
+                  turn up:
+                </p>
+                <ul className="list-disc list-inside text-sm space-y-1 ml-2 mb-2">
+                  <li>Bars usually require you to be 21 or older, even to perform</li>
+                  <li>
+                    Comedy clubs, cafes, bookshops and community rooms vary, and some welcome
+                    younger performers
+                  </li>
+                  <li>A venue can refuse entry regardless of anything listed on Comediq</li>
+                </ul>
+                <p className="text-sm leading-relaxed">
+                  A listing on Comediq is not permission to enter a venue. Check the room's
+                  own policy, and if you are underage, contact the host before you travel.
+                </p>
               </div>
 
               <div>
