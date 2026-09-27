@@ -2013,18 +2013,15 @@ export type Database = {
       }
       profiles: {
         Row: {
-          affiliate_interested: boolean | null
           bio: string | null
           created_at: string
           credit: string | null
           credits_balance: number
           headshot_url: string | null
-          is_comedian: boolean | null
           id: string
           isadmin: boolean
           phone: string | null
           points_balance: number
-          shows_seen_per_year: number | null
           stage_name: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -2032,22 +2029,18 @@ export type Database = {
           updated_at: string | null
           user_id: string
           username: string | null
-          weekly_mic_spend_usd: number | null
           years_performing: number | null
         }
         Insert: {
-          affiliate_interested?: boolean | null
           bio?: string | null
           created_at?: string
           credit?: string | null
           credits_balance?: number
           headshot_url?: string | null
-          is_comedian?: boolean | null
           id?: string
           isadmin?: boolean
           phone?: string | null
           points_balance?: number
-          shows_seen_per_year?: number | null
           stage_name?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -2055,22 +2048,18 @@ export type Database = {
           updated_at?: string | null
           user_id: string
           username?: string | null
-          weekly_mic_spend_usd?: number | null
           years_performing?: number | null
         }
         Update: {
-          affiliate_interested?: boolean | null
           bio?: string | null
           created_at?: string
           credit?: string | null
           credits_balance?: number
           headshot_url?: string | null
-          is_comedian?: boolean | null
           id?: string
           isadmin?: boolean
           phone?: string | null
           points_balance?: number
-          shows_seen_per_year?: number | null
           stage_name?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -2078,7 +2067,6 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           username?: string | null
-          weekly_mic_spend_usd?: number | null
           years_performing?: number | null
         }
         Relationships: []
