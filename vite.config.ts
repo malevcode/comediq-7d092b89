@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => ({
     componentTagger(),
     {
       name: 'prerender-head',
-      apply: 'build',
+      apply: 'build' as const,
       closeBundle: () => prerenderHeads(path.resolve(__dirname, 'dist')),
     },
   ].filter(Boolean),
