@@ -66,6 +66,7 @@ const JobBoard = () => {
       />
       <div className="min-h-screen bg-transparent pb-20">
         <PageHeader title="Find Gigs" subtitle="Find comedy gigs and crew work" />
+        <h1 className="sr-only">Comedy gigs and crew opportunities in NYC</h1>
 
         <div className="page-content-offset px-4 max-w-7xl mx-auto pb-24">
           {/* Prominent CTA Card */}

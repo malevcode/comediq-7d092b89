@@ -792,6 +792,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                 onClick={() => { setShowInlineCard(true); setActiveTab('next'); }}
                 variant="outline"
                 size="sm"
+                aria-label="Add new open mic"
                 className="flex items-center justify-center px-0 py-1 h-7 w-8 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
               >
                 <Plus className="h-4 w-4" />
@@ -901,6 +902,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                         onClick={() => { setShowInlineCard(true); setActiveTab('next'); setSheetExpanded(true); }}
                         variant="outline"
                         size="sm"
+                        aria-label="Add new open mic"
                         className="flex items-center justify-center px-0 py-1 h-7 w-8 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
                       >
                         <Plus className="h-4 w-4" />
