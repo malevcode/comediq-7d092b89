@@ -59,6 +59,7 @@ const CreatePosting = () => {
       />
       <div className="min-h-screen bg-transparent pb-20">
         <PageHeader title="Create Posting" subtitle="Post a comedy opportunity" />
+        <h1 className="sr-only">Post a comedy gig opportunity</h1>
 
         <div className="page-content-offset px-4 max-w-4xl mx-auto">
           <Button
