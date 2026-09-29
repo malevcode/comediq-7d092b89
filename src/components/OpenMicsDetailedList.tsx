@@ -524,6 +524,7 @@ export default function OpenMicsDetailedList({
   showMicOfDay = false,
   selectedMicId = null,
   onOpenMic,
+  sinkFinishedToday = true,
 }: {
   mics: OpenMic[];
   visibleCount: number;
@@ -532,19 +533,27 @@ export default function OpenMicsDetailedList({
   showMicOfDay?: boolean;
   selectedMicId?: string | null;
   onOpenMic?: (mic: OpenMic) => void;
+  /**
+   * Push mics that already ran today to the bottom. Right for a list of what
+   * is coming up. Wrong for a weekday tab, where someone asked for everything
+   * that runs on that day and expects it in time order.
+   */
+  sinkFinishedToday?: boolean;
 }) {
   // Fetched once for the whole list and handed to every row, so a screen of
   // 100 cards costs two requests instead of one per card.
   const sharedRatings = useSharedMicRatingData();
 
-  const validMics = mics
-    .filter(Boolean)
-    .map((mic, index) => ({ mic, index, isFinished: hasMicAlreadyHappenedToday(mic) }))
-    .sort((a, b) => {
-      if (a.isFinished !== b.isFinished) return a.isFinished ? 1 : -1;
-      return a.index - b.index;
-    })
-    .map(({ mic }) => mic);
+  const validMics = sinkFinishedToday
+    ? mics
+        .filter(Boolean)
+        .map((mic, index) => ({ mic, index, isFinished: hasMicAlreadyHappenedToday(mic) }))
+        .sort((a, b) => {
+          if (a.isFinished !== b.isFinished) return a.isFinished ? 1 : -1;
+          return a.index - b.index;
+        })
+        .map(({ mic }) => mic)
+    : mics.filter(Boolean);
   const [forceExpandedId, setForceExpandedId] = useState<string | null>(null);
   const [flashId, setFlashId] = useState<string | null>(null);
   const rowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
