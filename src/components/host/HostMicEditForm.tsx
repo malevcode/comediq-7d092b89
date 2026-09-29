@@ -68,7 +68,7 @@ export default function HostMicEditForm({ micUniqueIdentifier, onClose }: HostMi
     setSaving(true);
     try {
       // Save the old value of every changed field before overwriting it
-      // (revert foundation — see EDITING_MODEL_PLAN.md). Best-effort: a
+      // (revert foundation, see EDITING_MODEL_PLAN.md). Best-effort: a
       // failure here must never block the edit itself.
       if (mic) {
         const oldValues: Record<string, string> = {

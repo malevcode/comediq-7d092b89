@@ -51,7 +51,7 @@ const { data: authData, error: authErr } = await supabase.auth.admin.createUser(
 
 if (authErr) {
   if (authErr.message.includes('already registered')) {
-    console.log('Auth user already exists — looking up by email...')
+    console.log('Auth user already exists, looking up by email...')
     // Find existing user
     const { data: users } = await supabase.auth.admin.listUsers()
     const existing = users?.users?.find(u => u.email === email)

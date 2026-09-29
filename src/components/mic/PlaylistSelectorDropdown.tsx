@@ -112,7 +112,7 @@ export default function PlaylistSelectorDropdown({
               <Music className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />
               <p className="font-medium text-sm mb-1">No playlists yet</p>
               <p className="text-xs text-muted-foreground mb-4">
-                Build your mic rotation — create a playlist to get started
+                Build your mic rotation, create a playlist to get started
               </p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {SUGGESTED_NAMES.map(name => (

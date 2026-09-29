@@ -208,7 +208,7 @@ export default function MicActionBar({
     }
   };
 
-  // Comediq Blue / muted red / neutral — using arbitrary HSL values matching brand tokens
+  // Comediq Blue / muted red / neutral, using arbitrary HSL values matching brand tokens
   const upvoteColor = isUpvoted ? "text-[#1a5fb4]" : "text-gray-600 dark:text-muted-foreground";
   const downvoteColor = isDownvoted ? "text-red-500 dark:text-red-400" : "text-gray-600 dark:text-muted-foreground";
   const scoreColor = isUpvoted

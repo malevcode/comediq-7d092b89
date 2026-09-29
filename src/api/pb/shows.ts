@@ -37,7 +37,7 @@ export async function fetchCompletedShows(userId: string) {
     filter: `profile_id = "${userId}" && schedule_type = "completed"`,
   });
 
-  // Fetch stage_time for each mic (PocketBase doesn't support joins — batch fetch)
+  // Fetch stage_time for each mic (PocketBase doesn't support joins, batch fetch)
   const micIds = [...new Set(profileMics.map(r => r.open_mic_id as string).filter(Boolean))];
   if (micIds.length === 0) return profileMics;
 

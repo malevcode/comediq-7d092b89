@@ -1,6 +1,6 @@
 import { pb } from '@/integrations/pocketbase/client';
 
-// In PocketBase there is no RPC — getOrCreateSystemHost is implemented in app code.
+// In PocketBase there is no RPC, getOrCreateSystemHost is implemented in app code.
 // A "system host" is just the first mic_hosts record for the mic.
 // If none exists, we create one using the current user as host.
 async function getOrCreateSystemHost(micId: string): Promise<string> {

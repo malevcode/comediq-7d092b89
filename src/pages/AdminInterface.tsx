@@ -279,7 +279,7 @@ const AdminInterface = () => {
       await navigator.clipboard.writeText(messageText);
       toast({ 
         title: 'Message copied to clipboard', 
-        description: `User ID: ${messageTarget.req.user_id?.slice(0, 8)}... — Paste this in your preferred messaging channel.` 
+        description: `User ID: ${messageTarget.req.user_id?.slice(0, 8)}... Paste this in your preferred messaging channel.` 
       });
     } catch {
       toast({ title: 'Message ready', description: 'Copy the message manually.' });

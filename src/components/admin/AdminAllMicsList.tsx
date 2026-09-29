@@ -116,7 +116,7 @@ export default function AdminAllMicsList() {
 
       if (error) throw error;
       if (!data || data.length === 0) {
-        throw new Error('No row updated — you may not have admin permission on this mic.');
+        throw new Error('No row updated, you may not have admin permission on this mic.');
       }
 
       toast({
@@ -166,7 +166,7 @@ export default function AdminAllMicsList() {
 
       if (error) throw error;
       if (!data || data.length === 0) {
-        throw new Error('No row updated — you may not have admin permission on this mic.');
+        throw new Error('No row updated, you may not have admin permission on this mic.');
       }
 
       toast({

@@ -8,7 +8,7 @@ export async function fetchAllActiveEvents() {
     sort: '+event_date',
   });
 
-  // Batch-fetch related mic data (PocketBase has no join — manual expand)
+  // Batch-fetch related mic data (PocketBase has no join, manual expand)
   const micIds = [...new Set(events.map(e => e.mic_id as string).filter(Boolean))];
   const mics = micIds.length > 0
     ? await pb.collection('open_mics_historical').getFullList({

@@ -336,7 +336,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
       <div className="w-full md:flex-[1.2] flex flex-col justify-center gap-0">
         {expanded && (
           <div className="mb-2 flex flex-col gap-1.5 rounded-md bg-white/25 p-2 text-[#07111f]/70 shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white/70 dark:shadow-[0_24px_80px_rgba(2,10,30,0.34),0_8px_28px_rgba(2,10,30,0.2)]">
-            {/* Nominate for Mic of the Day — subtle inline text link */}
+            {/* Nominate for Mic of the Day, subtle inline text link */}
             <div onClick={(e) => e.stopPropagation()}>
               <NominateMotdButton
                 micUniqueIdentifier={mic.uniqueIdentifier}

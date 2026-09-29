@@ -7,7 +7,7 @@
  * <lastmod> comes from the date of the last commit that touched the source
  * file rendering the route (page-specific, never the build/generation time).
  * Routes with no reliable timestamp ship without <lastmod>.
- * No <changefreq> / <priority> — search engines ignore them.
+ * No <changefreq> / <priority>, search engines ignore them.
  */
 
 import { execFileSync } from "child_process";

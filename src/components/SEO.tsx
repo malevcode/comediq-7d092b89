@@ -24,7 +24,7 @@ const SEO = ({
   noindex = false,
 }: SEOProps) => {
   const { pathname } = useLocation();
-  // Always an absolute comediq.us URL — never the preview host, never relative.
+  // Always an absolute comediq.us URL, never the preview host, never relative.
   const canonicalUrl = url
     ? canonicalUrlFor(new URL(url, 'https://comediq.us').pathname)
     : canonicalUrlFor(pathname);
