@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OpenMic, MicFrequency, FREQUENCY_LABELS } from "@/types/openMic";
+import { parseStartTimeToMinutes } from '@/utils/micCheckin';
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
@@ -153,15 +154,8 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     setTimeout(scrollToHash, 50);
   }, [visibleCount]);
 
-  // Helper: 12h time string -> minutes
-  const timeToMinutes = (timeStr: string) => {
-    const [time, period] = timeStr.split(" ");
-    const [hours, minutes] = time.split(":").map(Number);
-    let hour24 = hours;
-    if (period === "PM" && hours !== 12) hour24 += 12;
-    else if (period === "AM" && hours === 12) hour24 = 0;
-    return hour24 * 60 + (minutes || 0);
-  };
+  // Helper: 12h time string -> minutes. Unparseable reads as null.
+  const timeToMinutes = (timeStr: string) => parseStartTimeToMinutes(timeStr);
 
   // Current time & day
   const now = new Date();
@@ -176,15 +170,18 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     if (micDayIndex === -1) return Infinity;
 
     const micStartMinutes = timeToMinutes(mic.startTime);
-    const maxTimeWindow = 168 * 60; // 48 hours in minutes
+    if (micStartMinutes === null) return Infinity;
+    const maxTimeWindow = 168 * 60; // seven days
     
     if (micDayIndex === currentDayIndex) {
       // Same day - check if mic hasn't started yet
       if (micStartMinutes > currentTimeMinutes) {
         return micStartMinutes - currentTimeMinutes;
       }
-      // Mic already started today, don't show it in "next"
-      return Infinity;
+      // Already ran today, so its next occurrence is this weekday next week.
+      // Returning Infinity here is what made "Next" cover six days and the
+      // rest of today rather than a full seven.
+      return 7 * 24 * 60 + micStartMinutes - currentTimeMinutes;
     } else {
       // Different day - calculate days until mic
       let daysUntil = micDayIndex - currentDayIndex;
@@ -212,7 +209,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
   const matchesTimeOfDay = (mic: OpenMic, timeSlots: string[]) => {
     if (timeSlots.length === 0) return true;
-    const startHour = timeToMinutes(mic.startTime) / 60;
+    const startHour = (timeToMinutes(mic.startTime) ?? 0) / 60;
     return timeSlots.some((slot) => {
       switch (slot) {
         case "daytime":
@@ -329,15 +326,18 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       return matchesSearch && matchesBorough && matchesCost && matchesTime && matchesCity && matchesFrequency && matchesMicStatus;
     });
 
-    // Sort by next occurrence (like OpenMicsDetailedList)
-    filtered.sort((a, b) => {
-      const aDate = getNextOccurrence(a);
-      const bDate = getNextOccurrence(b);
-      const comparison = aDate.getTime() - bDate.getTime();
-
-      
-      return comparison;
-    });
+    if (dayFilter) {
+      // A weekday tab is a timetable for that day, so order it by clock time.
+      // Sorting by next occurrence would put whatever already ran today a week
+      // out and bury it at the far end of the list.
+      filtered.sort(
+        (a, b) =>
+          (timeToMinutes(a.startTime) ?? Number.MAX_SAFE_INTEGER) -
+          (timeToMinutes(b.startTime) ?? Number.MAX_SAFE_INTEGER),
+      );
+    } else {
+      filtered.sort((a, b) => getNextOccurrence(a).getTime() - getNextOccurrence(b).getTime());
+    }
 
     
     return filtered;
@@ -389,6 +389,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           setVisibleCount={setVisibleCount}
           showSponsor={activeTab === "next"}
           showMicOfDay={activeTab === "next"}
+          sinkFinishedToday={!daysOfWeek.includes(tabName)}
           onOpenMic={setSelectedMic}
         />
 
