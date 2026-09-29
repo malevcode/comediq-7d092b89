@@ -129,7 +129,7 @@ const GrowthOpportunities = () => {
           {/* My Submissions */}
           {user && mySubmissions && mySubmissions.length > 0 && (
             <div className="mt-8">
-              <h3 className="text-sm font-semibold text-foreground mb-3">My Submissions</h3>
+              <h2 className="text-sm font-semibold text-foreground mb-3">My Submissions</h2>
               <div className="space-y-2">
                 {mySubmissions.map((sub) => {
                   const config = statusConfig[(sub.status as GrowthOpportunityStatus) || 'submitted'];

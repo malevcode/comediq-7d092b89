@@ -179,7 +179,7 @@ const MicDetailPage = () => {
 
           {/* Sign up */}
           <div className={`${panelClass} mt-6 rounded-2xl p-5 md:p-6`}>
-            <div className={`mb-2 text-[10px] uppercase tracking-[0.25em] ${mutedTextClass}`}>how to sign up</div>
+            <h2 className={`mb-2 text-[10px] font-normal uppercase tracking-[0.25em] ${mutedTextClass}`}>how to sign up</h2>
             <p className={`whitespace-pre-wrap text-base leading-relaxed md:text-lg ${descriptionTextClass}`}>
               {mic.signUpInstructions || 'Contact venue for details.'}
             </p>
@@ -218,7 +218,7 @@ const MicDetailPage = () => {
           {/* You might also like */}
           {similarMics && similarMics.length > 0 && (
             <section className={`${panelClass} mt-10 rounded-3xl p-5 md:p-6`}>
-              <div className={`mb-4 text-[10px] uppercase tracking-[0.25em] ${mutedTextClass}`}>you might also like</div>
+              <h2 className={`mb-4 text-[10px] font-normal uppercase tracking-[0.25em] ${mutedTextClass}`}>you might also like</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
                 {similarMics.map(similarMic => (
                   <Link

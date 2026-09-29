@@ -130,6 +130,7 @@ export default function SocialLinksManager({
               type="button"
               size="icon"
               variant="ghost"
+              aria-label={`Remove ${link.platform} link`}
               onClick={() => onRemove(link.platform)}
               disabled={isLoading}
             >

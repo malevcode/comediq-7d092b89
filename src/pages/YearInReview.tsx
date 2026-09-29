@@ -267,6 +267,7 @@ const YearInReview = () => {
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Previous slide"
               onClick={prevSlide}
               disabled={currentSlide === 0}
               className="text-comediq-cream/80 hover:text-comediq-cream hover:bg-white/10 disabled:opacity-30"
@@ -283,6 +284,7 @@ const YearInReview = () => {
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Next slide"
               onClick={nextSlide}
               disabled={currentSlide === totalSlides - 1}
               className="text-comediq-cream/80 hover:text-comediq-cream hover:bg-white/10 disabled:opacity-30"

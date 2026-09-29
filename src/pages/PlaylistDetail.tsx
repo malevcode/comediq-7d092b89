@@ -149,6 +149,7 @@ export default function PlaylistDetail() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      aria-label="Remove mic from playlist"
                       onClick={() => handleRemoveFromPlaylist(item.mic_unique_identifier)}
                       className="text-red-600 hover:text-red-800 hover:bg-red-50"
                     >

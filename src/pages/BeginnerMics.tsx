@@ -63,7 +63,7 @@ const BeginnerMics = () => {
               Perfect for your first time on stage! Found {beginnerMics?.length || 0} welcoming open mics.
             </p>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-semibold text-blue-900 mb-2">Why these mics?</h3>
+              <h2 className="font-semibold text-blue-900 mb-2">Why these mics?</h2>
               <ul className="text-sm text-blue-800 space-y-1">
                 <li>• Hand-picked for new comedians</li>
                 <li>• Supportive audiences</li>
@@ -79,7 +79,7 @@ const BeginnerMics = () => {
                 <Card className="hover:shadow-lg transition h-full border-green-200">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-bold text-xl">{mic.openMic}</h3>
+                      <h2 className="font-bold text-xl">{mic.openMic}</h2>
                       <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
                         Beginner-Friendly
                       </span>
