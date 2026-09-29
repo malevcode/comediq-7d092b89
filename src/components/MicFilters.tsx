@@ -174,7 +174,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                     </div>
                   </div>
 
-                  {/* Borough Filter — NYC only */}
+                  {/* Borough Filter. NYC only */}
                   {filters.city === "New York" && (
                   <div>
                     <label className="text-xs font-medium mb-1 block text-gray-600 dark:text-white/70">Borough</label>

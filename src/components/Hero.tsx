@@ -13,7 +13,7 @@ const Hero = () => {
         >
           <div className="relative z-10 flex w-full max-w-4xl flex-col items-center px-5 pt-10 text-center">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#1a5fb4] sm:text-sm">
-              NYC · Hudson Valley · LA · Austin
+              NYC's Comedy Platform
             </p>
 
             <div className="relative mb-2">
@@ -26,7 +26,7 @@ const Hero = () => {
             </div>
 
             <h1 className="mb-2 text-3xl font-bold text-white drop-shadow-sm sm:text-5xl lg:mb-4 lg:text-6xl">
-              Comediq — The NYC Comedy Platform
+              Comediq
             </h1>
             <p className="mb-5 max-w-2xl text-base leading-relaxed text-white sm:text-xl lg:mb-6 lg:text-2xl">
               Whether you're on stage or in the audience, Comediq is your home for live comedy.

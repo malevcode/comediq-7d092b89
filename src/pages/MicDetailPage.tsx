@@ -161,9 +161,9 @@ const MicDetailPage = () => {
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <Attr label="day" value={mic.day} />
             <Attr label="time" value={`${mic.startTime}${mic.latestEndTime ? '–' + mic.latestEndTime : ''}`} />
-            <Attr label="cost" value={mic.cost || '—'} />
-            <Attr label="stage time" value={mic.stageTime || '—'} />
-            <Attr label="host" value={mic.hosts || mic.instagramHandle || '—'} />
+            <Attr label="cost" value={mic.cost || 'Not listed'} />
+            <Attr label="stage time" value={mic.stageTime || 'Not listed'} />
+            <Attr label="host" value={mic.hosts || mic.instagramHandle || 'Not listed'} />
             <Attr label="venue" value={mic.venueName} />
             <Attr label="neighborhood" value={mic.neighborhood} />
             <Attr label="borough" value={mic.borough} />

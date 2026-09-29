@@ -1,6 +1,6 @@
 import { pb } from '@/integrations/pocketbase/client';
 
-// PocketBase auth — same function signatures as src/api/auth.ts
+// PocketBase auth, same function signatures as src/api/auth.ts
 
 export async function signIn(email: string, password: string) {
   const authData = await pb.collection('users').authWithPassword(email, password);

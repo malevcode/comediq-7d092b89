@@ -65,7 +65,7 @@ export async function approveMicRequest(requestId: string, formData: MicFormData
 
   // Convert form data to database format
   const insertData = {
-    // unique_identifier omitted — DB generates UUID automatically
+    // unique_identifier omitted. DB generates UUID automatically
     active: true,
     open_mic: formData['Open Mic'] || '',
     day: formData['Day'] || '',

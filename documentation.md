@@ -12,8 +12,8 @@ Plain-English explanation of how the pieces fit together. If you are new here, s
 
 It has two sub-tabs:
 
-- **Find Shows** — a list of upcoming comedy shows
-- **My Reviews** — reviews the logged-in user has written
+- **Find Shows** ,  a list of upcoming comedy shows
+- **My Reviews** ,  reviews the logged-in user has written
 
 ### The control row
 
@@ -230,7 +230,7 @@ those three sets.
 
 Two more layout traps worth knowing.
 
-The header is **not a fixed height** — the title and subtitle wrap, so it ranges from about 76px on a wide screen to 124px at 320px. `PageHeader` measures itself with a `ResizeObserver` and publishes `--nav-height`; `--page-top-offset` is then `calc(var(--nav-height) + 0.75rem)`. Do not replace that with a fixed number: a number small enough to look right on a laptop tucks content under the header on a small phone, which is exactly the bug this replaced. The top ad bar lives *inside* the nav, so reinstating it grows the offset automatically.
+The header is **not a fixed height** ,  the title and subtitle wrap, so it ranges from about 76px on a wide screen to 124px at 320px. `PageHeader` measures itself with a `ResizeObserver` and publishes `--nav-height`; `--page-top-offset` is then `calc(var(--nav-height) + 0.75rem)`. Do not replace that with a fixed number: a number small enough to look right on a laptop tucks content under the header on a small phone, which is exactly the bug this replaced. The top ad bar lives *inside* the nav, so reinstating it grows the offset automatically.
 
 The day tabs list every mic for that weekday, with no frequency or week-of-month narrowing. A monthly mic therefore appears on its day tab every week and its card carries the frequency label. Only the "Next" tab filters down to genuinely upcoming occurrences.
 

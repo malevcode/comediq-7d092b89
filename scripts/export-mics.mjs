@@ -1,7 +1,7 @@
 /**
  * Export active mics from Supabase → public/mics.json.
  * Run this in CI on a schedule, and optionally once per deploy. After this,
- * all visitors read static JSON from the CDN — zero Supabase egress.
+ * all visitors read static JSON from the CDN, zero Supabase egress.
  *
  * CI must fail if the fetch fails; otherwise GitHub can show a green job while
  * public/mics.json remains stale.
@@ -156,7 +156,7 @@ try {
       if (Array.isArray(existing) && existing.length > 0) {
         console.warn(`[export-mics]   Keeping existing ${OUT_PATH} (${existing.length} mics)`);
       } else {
-        console.warn(`[export-mics]   ⚠ Existing ${OUT_PATH} is empty and fetch failed — site will have no data`);
+        console.warn(`[export-mics]   ⚠ Existing ${OUT_PATH} is empty and fetch failed, site will have no data`);
       }
     } catch {
       // existing file is corrupt, leave it as-is

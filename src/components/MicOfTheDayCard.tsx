@@ -39,7 +39,7 @@ export function MicOfTheDayCard({
   const label = mic.openMic || mic.venueName || 'Mic of the Day';
   const sourceLabel: Record<string, string> = {
     admin_lock: 'Pinned by Comediq admin for today.',
-    nomination: 'Won today by community nomination — most votes.',
+    nomination: 'Won today by community nomination, most votes.',
     weekly_default: 'Featured as this weekday\'s default. Nominate another mic to take the spot!',
     auto_pick: 'Auto-picked from recent activity.',
     unknown: 'Today\'s featured mic.',

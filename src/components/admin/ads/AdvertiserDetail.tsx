@@ -48,7 +48,7 @@ export function AdvertiserDetail({ contact }: Props) {
       {/* Linked Ads & Spend */}
       {linkedAds.length > 0 && (
         <div>
-          <div className="text-xs font-semibold mb-1">Linked Ads ({linkedAds.length}) — Total Spend: ${totalSpend.toFixed(2)}</div>
+          <div className="text-xs font-semibold mb-1">Linked Ads ({linkedAds.length}) · Total Spend: ${totalSpend.toFixed(2)}</div>
           <div className="flex flex-wrap gap-1">
             {linkedAds.map(a => (
               <Badge key={a.id} variant="outline" className="text-[10px]">{a.label}</Badge>

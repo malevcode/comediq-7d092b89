@@ -55,7 +55,7 @@ export default function Leaderboard() {
               className="mb-5 flex items-center gap-2 rounded-xl bg-contest-live px-4 py-2.5 text-sm font-semibold text-contest-live-foreground transition-opacity hover:opacity-90"
             >
               <Trophy className="h-4 w-4" />
-              {`${MIC_OF_THE_MONTH_LABEL} voting is live — upvote a mic`}
+              {`${MIC_OF_THE_MONTH_LABEL} voting is live, upvote a mic`}
             </Link>
 
             {isLoading ? (

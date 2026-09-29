@@ -88,7 +88,7 @@ function saveCache(data: WeeklyTopMic[]) {
   }
 }
 
-// Supabase calls are disabled — serve the manually curated list from localStorage.
+// Supabase calls are disabled, serve the manually curated list from localStorage.
 export function useWeeklyTopMics() {
   return useQuery({
     queryKey: ['weekly-top-mics'],

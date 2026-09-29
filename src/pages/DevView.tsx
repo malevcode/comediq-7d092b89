@@ -8,7 +8,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search, Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// Column definitions — order matches the plan
+// Column definitions, order matches the plan
 const COLUMNS = [
   { key: "day", label: "Day", width: "w-20" },
   { key: "start_time", label: "Start", width: "w-20" },
