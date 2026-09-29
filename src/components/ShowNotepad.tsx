@@ -214,6 +214,7 @@ function ShowCard({ show, editingId, setEditingId, editValue, setEditValue, edit
                   <Button
                     size="icon"
                     variant="ghost"
+                    aria-label="Edit notes"
                     onClick={() => {
                       setEditingId(show.id);
                       setEditValue(show.notes);

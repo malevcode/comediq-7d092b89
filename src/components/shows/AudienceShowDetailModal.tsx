@@ -138,6 +138,7 @@ export function AudienceShowDetailModal({ show, isOpen, onClose }: AudienceShowD
               variant="ghost"
               size="icon"
               onClick={handleShare}
+              aria-label="Copy link to this show"
               className="flex-shrink-0"
             >
               {copied ? (

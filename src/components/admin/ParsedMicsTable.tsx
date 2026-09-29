@@ -155,6 +155,7 @@ export function ParsedMicsTable({ mics, onUpdate, onRemove }: ParsedMicsTablePro
                   variant="ghost"
                   size="icon"
                   onClick={() => onRemove(mic.id)}
+                  aria-label="Remove mic"
                   className="h-8 w-8 text-destructive hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
