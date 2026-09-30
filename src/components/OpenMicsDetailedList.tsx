@@ -307,24 +307,26 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
       {/* Mid: Time, Cost, Stage Time - Clickable to expand */}
       <div className={`flex-1 flex flex-col min-w-0 gap-x-3 text-xs text-gray-700 mb-0 mr-1 ${expanded ? 'justify-center md:justify-start md:pt-1' : 'justify-center'}`}>
         <div 
-          className="flex min-w-0 flex-row flex-nowrap gap-x-3 sm:gap-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors dark:text-white/70 dark:hover:bg-white/10"
+          className={`flex min-w-0 flex-row gap-x-3 gap-y-1 sm:gap-x-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors dark:text-white/70 dark:hover:bg-white/10 ${expanded ? 'flex-wrap' : 'flex-nowrap'}`}
           onClick={() => setExpanded(e => !e)}
           role="button"
           tabIndex={0}
           aria-expanded={expanded}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpanded(x => !x); }}
         >
-          <span className="flex min-w-[2.5rem] items-center gap-1" title={formatTimeRange(mic.startTime, mic.latestEndTime)}>
+          {/* Collapsed, this row is one line and long values end in an ellipsis.
+              Expanding drops the width caps so the full text is readable. */}
+          <span className={`flex items-center gap-1 ${expanded ? '' : 'min-w-[2.5rem]'}`} title={formatTimeRange(mic.startTime, mic.latestEndTime)}>
             <Clock className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
-            <span className="truncate">{formatTimeRange(mic.startTime, mic.latestEndTime)}</span>
+            <span className={expanded ? '' : 'truncate'}>{formatTimeRange(mic.startTime, mic.latestEndTime)}</span>
           </span>
           <span className="flex flex-shrink-0 items-center gap-1 whitespace-nowrap">
             <Clock className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
             {formatStageTime(mic.stageTime)}
           </span>
-          <span className="flex min-w-[3.5rem] max-w-[55%] items-center gap-1" title={formatCost(mic.cost)}>
+          <span className={`flex items-center gap-1 ${expanded ? 'min-w-0' : 'min-w-[3.5rem] max-w-[55%]'}`} title={formatCost(mic.cost)}>
             <DollarSign className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
-            <span className="truncate">{formatCost(mic.cost)}</span>
+            <span className={expanded ? 'break-words' : 'truncate'}>{formatCost(mic.cost)}</span>
           </span>
           <ChevronDown
             className={`w-4 h-4 flex-shrink-0 text-[#8ec5ff] transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
