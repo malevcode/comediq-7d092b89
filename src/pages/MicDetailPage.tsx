@@ -131,19 +131,23 @@ const MicDetailPage = () => {
               </p>
               <div className="flex flex-wrap gap-2">
                 <WentUpToggle mic={mic} />
-                {user && (
-                  <button
-                    onClick={() => {
-                      if (userRating === 'like') removeRating(mic.uniqueIdentifier);
-                      else rateMic({ micUniqueIdentifier: mic.uniqueIdentifier, rating: 'like' });
-                    }}
-                    disabled={isRating}
-                    className={`${chipClass} inline-flex items-center gap-2 disabled:opacity-50 ${userRating === 'like' ? 'text-[#1a5fb4] dark:text-[#8ec5ff]' : ''}`}
-                  >
-                    <Heart className={`w-3 h-3 ${userRating === 'like' ? 'fill-current' : ''}`} />
-                    {ratingCounts?.likes || 0}
-                  </button>
-                )}
+                <button
+                  onClick={() => {
+                    if (!user) {
+                      // Send them to sign in and bring them straight back here.
+                      navigate(`/auth?next=${encodeURIComponent(`${window.location.pathname}${window.location.search}`)}`);
+                      return;
+                    }
+                    if (userRating === 'like') removeRating(mic.uniqueIdentifier);
+                    else rateMic({ micUniqueIdentifier: mic.uniqueIdentifier, rating: 'like' });
+                  }}
+                  disabled={isRating}
+                  title={user ? 'Upvote this mic' : 'Sign in to upvote'}
+                  className={`${chipClass} inline-flex items-center gap-2 disabled:opacity-50 ${userRating === 'like' ? 'text-[#1a5fb4] dark:text-[#8ec5ff]' : ''}`}
+                >
+                  <Heart className={`w-3 h-3 ${userRating === 'like' ? 'fill-current' : ''}`} />
+                  {ratingCounts?.likes || 0}
+                </button>
                 <a
                   href={getMapUrl(mic.location, mic.venueName)}
                   target="_blank"
