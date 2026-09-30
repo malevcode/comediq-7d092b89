@@ -1064,6 +1064,29 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: the card's "..." now opens into the full text
+
+**What it was.** The metadata row on an open mic card (time, stage time, cost)
+used to wrap onto two ragged lines when the cost was long. We capped the
+widths so it always sits on exactly one line, which means a long cost like
+`free 5 min mic, or plus two minutes per drink purchase` ends in `...` and
+there was nowhere to read the rest.
+
+**What it is now.** The row is already a button: clicking it opens the card.
+When the card is open, the width caps come off and the row is allowed to
+wrap, so the full time and the full cost are both readable. Close the card
+and the row snaps back to one tidy line with the `...`.
+
+**How it works.** In `src/components/OpenMicsDetailedList.tsx` the same
+`expanded` state that shows the details panel now also picks the row's
+classes: `flex-nowrap` plus `max-w-[55%]` and `truncate` when closed,
+`flex-wrap` plus `break-words` when open. No new state, no new markup.
+
+**Checked.** At 390px and 900px wide, with a real mic whose cost is long: the
+closed row measures one line and the browser reports the cost as clipped; the
+open row measures three lines and reports it as not clipped, with the whole
+string on screen.
+
 ### Session: the seam under the email icon
 
 **What it was.** The icon sat in its own flex cell on a `bg-white/10` wrapper,
