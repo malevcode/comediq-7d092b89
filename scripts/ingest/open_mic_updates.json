@@ -700,6 +700,14 @@
         "geocoding_score": null,
         "geocoding_match_address": null
       }
+    },
+    {
+      "unique_identifier": "11cdf464-126f-4c1b-b409-dcc45a273075",
+      "note": "Laughing Friends (Starr Bar, 214 Starr St, Wednesday 5:30-7:30 PM). Two fields were wrong, both confirmed by Adam against the account's own profile and posters. (1) INSTAGRAM HANDLE: stored as @laughingfriendsmic, which looks guessed from the mic name; the real account is @laughingfriends.ig (the profile page reads 'laughingfriends.ig', 'Laughing Friends'). The database column behind instagramHandle is changes_updates. (2) COST: stored as $5, but the profile bio says 'FREE (5 min)'. Already correct and left alone: Wednesday, 5:30 PM start, 7:30 PM end, 5 minute sets, signup at 5:00 PM in person, venue and address. The bio also names the hosts (@abrahamvaldez_0 and @marky.mark.ig) but hosts_organizers is not touched here because that was not asked.",
+      "set": {
+        "cost": "Free",
+        "changes_updates": "@laughingfriends.ig"
+      }
     }
   ],
   "removals": [
