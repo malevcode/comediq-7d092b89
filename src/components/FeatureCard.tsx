@@ -24,7 +24,7 @@ const FeatureCard = ({ emoji, title, description, mascotImage, link, comingSoon 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-2xl">{emoji}</span>
-            <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+            <h2 className="text-lg font-bold text-gray-900">{title}</h2>
           </div>
           <p className="text-sm text-gray-600 leading-relaxed mb-2">{description}</p>
           {comingSoon ? (
