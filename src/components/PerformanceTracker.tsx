@@ -261,7 +261,7 @@ export default function ProgressTracker() {
             <div className="lg:col-span-1 space-y-4">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-lg font-semibold">{selectedPerformance.title}</h3>
+                  <h2 className="text-lg font-semibold">{selectedPerformance.title}</h2>
                   <p className="text-sm text-muted-foreground flex items-center gap-1">
                     <MapPin className="w-3 h-3" />
                     {selectedPerformance.venue}

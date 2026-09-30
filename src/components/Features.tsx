@@ -34,7 +34,7 @@ const Features = () => {
                   <span className="text-sm flex-shrink-0">{f.emoji}</span>
                   <div className="min-w-0">
                     <div className="flex items-center gap-1 flex-wrap">
-                      <h4 className="text-xs font-semibold text-[#07111f] dark:text-white sm:text-sm">{f.title}</h4>
+                      <h3 className="text-xs font-semibold text-[#07111f] dark:text-white sm:text-sm">{f.title}</h3>
                       {f.comingSoon && (
                         <Badge variant="secondary" className="text-[10px] bg-gray-200 text-gray-500 px-1.5 py-0 mb-1">Soon</Badge>
                       )}
@@ -59,7 +59,7 @@ const Features = () => {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-1 flex-wrap">
-                      <h4 className="text-xs font-semibold text-[#07111f] dark:text-white sm:text-sm">{f.title}</h4>
+                      <h3 className="text-xs font-semibold text-[#07111f] dark:text-white sm:text-sm">{f.title}</h3>
                       {f.comingSoon && (
                         <Badge variant="secondary" className="text-[10px] bg-gray-200 text-gray-500 px-1.5 py-0 mb-1">Soon</Badge>
                       )}
