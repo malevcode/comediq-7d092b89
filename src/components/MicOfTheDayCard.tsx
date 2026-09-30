@@ -71,9 +71,9 @@ export function MicOfTheDayCard({
           {/* Row 1: Mic name • MOTD badge • Sign Up */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <h3 className="text-sm sm:text-base font-bold text-white leading-tight truncate">
+              <h2 className="text-sm sm:text-base font-bold text-white leading-tight truncate">
                 {label}
-              </h3>
+              </h2>
               <Badge
                 variant="outline"
                 className="shrink-0 text-[9px] font-semibold text-[#1a5fb4] border-[#1a5fb4]/50 bg-white/10 gap-0.5 px-1.5 py-0"
