@@ -1064,6 +1064,32 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: the Mic of the Month winner gets the front page
+
+**What it is.** Winning Mic of the Month buys the mic a month on the Comediq
+home page plus $50 to the host. There was a contest bar and a leaderboard, but
+nowhere the winner actually showed up. Now there is a section for it.
+
+**What it looks like.** A blue card, built to match the winner flyer: the
+trophy line "Comediq's Mic of the Month", the prize in one sentence, the mic's
+name big and in caps, then when it runs, a tappable address, and the host's
+Instagram. Two buttons: "See the mic" goes to that mic's page on Comediq,
+"Vote for next month" goes to the leaderboard.
+
+**Where it shows.** Both home pages. Signed out it sits right under the hero;
+signed in it sits right under the dashboard header.
+
+**How to crown next month's winner.** Edit one object,
+`MIC_OF_THE_MONTH_WINNER` in `src/config/micOfTheMonthWinner.ts`: the month,
+the mic's name, when it runs, the venue, the address, the host's handle, and
+the mic's slug (the last part of its `/mics/...` URL). Set the whole thing to
+`null` between contests and the section disappears from the home page by
+itself. No other file needs touching.
+
+**Checked.** At 390px and 1200px: the section renders, the page has no
+sideways scroll, and "See the mic" lands on `/mics/red-eye-hell-s-kitchen`,
+which really is the Crash Landing Comedy page.
+
 ### Session: the card's "..." now opens into the full text
 
 **What it was.** The metadata row on an open mic card (time, stage time, cost)
