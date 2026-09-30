@@ -98,7 +98,10 @@ export default function MicActionBar({
   const requireAuth = (action: string): boolean => {
     if (!user) {
       toast({ title: "Sign in required", description: `Please sign in to ${action}` });
-      navigate("/auth");
+      // Carry where they were, so signing in puts them back on the mic they
+      // were voting for instead of dropping them on the mic list.
+      const here = `${window.location.pathname}${window.location.search}`;
+      navigate(`/auth?next=${encodeURIComponent(here)}`);
       return false;
     }
     return true;
