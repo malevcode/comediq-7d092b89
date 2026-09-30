@@ -23,25 +23,47 @@ export interface SharedMicRatingData {
  * single mic should not use it: they are better served by the per-mic query in
  * useMicRatings, which fetches one row instead of all of them.
  */
+export type MicRatingTotals = Record<string, { likes: number; dislikes: number }>;
+
+/**
+ * Vote totals for every mic, through the security definer RPC.
+ *
+ * Not a direct select. Anonymous visitors have no select policy on
+ * user_mic_ratings, and mic_rating_totals only exists once its migration has
+ * run, so reading either table straight returned nothing for exactly the
+ * signed-out audience a public voting contest sends here. Every count showed
+ * zero and no vote appeared to register. get_mic_like_counts is granted to
+ * anon and authenticated and is the same call the leaderboard already relies
+ * on, which is why the leaderboard worked while the cards did not.
+ */
+export async function fetchMicRatingTotals(): Promise<MicRatingTotals> {
+  const { data, error } = await (supabase as any).rpc('get_mic_like_counts', {
+    min_likes: 0,
+    row_limit: 500,
+  });
+  if (error) throw error;
+  const out: MicRatingTotals = {};
+  ((data ?? []) as any[]).forEach((r) => {
+    out[r.mic_unique_identifier] = { likes: r.likes ?? 0, dislikes: r.dislikes ?? 0 };
+  });
+  return out;
+}
+
 export const useSharedMicRatingData = (): SharedMicRatingData => {
   const { user } = useAuth();
 
-  const { data: totals } = useQuery({
+  const { data: totals, error: totalsError } = useQuery({
     queryKey: TOTALS_KEY,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('mic_rating_totals')
-        .select('mic_unique_identifier, likes, dislikes');
-      if (error) throw error;
-      const out: Record<string, { likes: number; dislikes: number }> = {};
-      (data ?? []).forEach((r: any) => {
-        out[r.mic_unique_identifier] = { likes: r.likes ?? 0, dislikes: r.dislikes ?? 0 };
-      });
-      return out;
-    },
+    queryFn: fetchMicRatingTotals,
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
   });
+
+  if (totalsError) {
+    // Silence here is what hid this for weeks: a failed read renders as every
+    // mic sitting on zero, which looks exactly like nobody having voted.
+    console.error('[useSharedMicRatingData] vote totals failed to load:', totalsError);
+  }
 
   const { data: myRatings } = useQuery({
     queryKey: myRatingsKey(user?.id),
@@ -149,23 +171,16 @@ export const useMicRatings = (micUniqueIdentifier?: string, shared?: SharedMicRa
     enabled: !!user && !!micUniqueIdentifier && !shared,
   });
 
-  // Get rating counts for a mic
-  const { data: ratingCounts } = useQuery({
-    queryKey: ['micRatingCounts', micUniqueIdentifier],
-    queryFn: async () => {
-      if (!micUniqueIdentifier) return { likes: 0, dislikes: 0 };
-      
-      const { data, error } = await supabase
-        .from('mic_rating_totals')
-        .select('likes, dislikes')
-        .eq('mic_unique_identifier', micUniqueIdentifier)
-        .maybeSingle(); // get back one row or null
-      if (error) throw error;
-      return data ?? { likes: 0, dislikes: 0 };
-    },
-    // Skipped when a list already fetched totals for every mic.
+  // Counts come from the same shared read as the lists. One cached request
+  // serves every screen, and there is only one key to invalidate.
+  const { data: allTotals } = useQuery({
+    queryKey: TOTALS_KEY,
+    queryFn: fetchMicRatingTotals,
     enabled: !!micUniqueIdentifier && !shared,
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   });
+  const ratingCounts = micUniqueIdentifier ? allTotals?.[micUniqueIdentifier] : undefined;
 
   // Rate a mic (like or dislike)
   const rateMicMutation = useMutation({
