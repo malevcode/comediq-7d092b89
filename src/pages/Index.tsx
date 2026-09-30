@@ -1,5 +1,6 @@
 import PageHeader from "@/components/PageHeader";
 import Hero from "@/components/Hero";
+import MicOfTheMonthWinner from "@/components/MicOfTheMonthWinner";
 import Features from "@/components/Features";
 import AppWaitlistSection from "@/components/AppWaitlistSection";
 
@@ -38,6 +39,7 @@ const Index = () => {
           ) : (
             <>
               <Hero />
+              <MicOfTheMonthWinner />
               <div className="relative">
                 <AppWaitlistSection />
               </div>

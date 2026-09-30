@@ -11,6 +11,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { SponsorCard } from "./SponsorCard";
 import { QuickNotes } from "./home/QuickNotes";
 import Header from "./Header";
+import MicOfTheMonthWinner from "./MicOfTheMonthWinner";
 import { useSavedMics } from "@/hooks/useSavedMics";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useMicPlaylists } from "@/hooks/useMicPlaylists";
@@ -403,6 +404,8 @@ export default function Home() {
           >
             <Header />
           </section>
+
+          <MicOfTheMonthWinner />
 
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Column - Stats and Notepad */}
