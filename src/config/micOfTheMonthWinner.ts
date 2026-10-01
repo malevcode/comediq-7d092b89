@@ -20,6 +20,11 @@ export type MicOfTheMonthWinner = {
   hostHandle: string;
   /** The mic's page on Comediq: /mics/<micSlug>. */
   micSlug: string;
+  /**
+   * The mic's unique identifier, used to open it already expanded in the mic
+   * list at /open-mics?mic=<id>. Find it in public/mics.json.
+   */
+  micUniqueIdentifier: string;
 };
 
 export const MIC_OF_THE_MONTH_WINNER: MicOfTheMonthWinner | null = {
@@ -30,4 +35,5 @@ export const MIC_OF_THE_MONTH_WINNER: MicOfTheMonthWinner | null = {
   address: "355 W 41st St, New York, NY",
   hostHandle: "@ashleyryantv",
   micSlug: "red-eye-hell-s-kitchen",
+  micUniqueIdentifier: "0e94c622-2b8b-4c7c-a4d0-3f1937d3c1fd",
 };

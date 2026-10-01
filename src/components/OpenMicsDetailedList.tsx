@@ -591,9 +591,20 @@ export default function OpenMicsDetailedList({
     }, 80);
   };
 
+  // Re-check once the mics arrive, not just when the id changes. A tap on the
+  // map sets this after the list has loaded, but a link into /open-mics?mic=<id>
+  // sets it on the first render, when validMics is still empty: the lookup found
+  // nothing, and nothing ever ran again, so the link silently did nothing. The
+  // ref keeps it to one expand-and-scroll per id, so paging in more mics does
+  // not yank the page back.
+  const handledMicId = useRef<string | null>(null);
   useEffect(() => {
-    if (selectedMicId) handleSelectMicOfDay(selectedMicId);
-  }, [selectedMicId]);
+    if (!selectedMicId) return;
+    if (handledMicId.current === selectedMicId) return;
+    if (!validMics.some((m) => m.uniqueIdentifier === selectedMicId)) return;
+    handledMicId.current = selectedMicId;
+    handleSelectMicOfDay(selectedMicId);
+  }, [selectedMicId, validMics]);
 
   const handleAddToCalendar = async (mic: OpenMic) => {
     if (!user) return;

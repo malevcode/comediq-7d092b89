@@ -126,6 +126,14 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       // Apply borough filter
       setFilters(prev => ({ ...prev, borough: boroughParam }));
     }
+
+    // ?mic=<uniqueIdentifier> opens that mic already expanded and scrolls to it.
+    // The list has done this since the map got a select handler; this just gives
+    // it a URL, so a link from anywhere else on the site can land on one mic.
+    const micParam = searchParams.get('mic');
+    if (micParam) {
+      setSelectedMicId(micParam);
+    }
   }, [searchParams]);
 
   useEffect(() => {
@@ -391,6 +399,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           showMicOfDay={activeTab === "next"}
           sinkFinishedToday={!daysOfWeek.includes(tabName)}
           onOpenMic={setSelectedMic}
+          selectedMicId={selectedMicId}
         />
 
         {micsToShow.length === 0 && (
