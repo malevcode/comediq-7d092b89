@@ -13,6 +13,7 @@ import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
 import MicActionBar from '@/components/mic/MicActionBar';
 import { useSharedMicRatingData, type SharedMicRatingData } from '@/hooks/useMicRatings';
+import { useMicCommentCounts } from '@/hooks/useMicComments';
 import EditMicButton from '@/components/mic/EditMicButton';
 import MicCommentSection from '@/components/mic/MicCommentSection';
 import { FREQUENCY_LABELS } from '@/types/openMic';
@@ -181,7 +182,7 @@ function truncateMicName(name: string, maxLength: number = 15): string {
 }
 
 // Helper to format time compactly (e.g., "5:00 PM" → "5 PM", "5:30 PM" → "5:30 PM")
-function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, onRegisterRow, flash, sharedRatings }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void; onOpenMic?: (mic: OpenMic) => void; forceExpanded?: boolean; onRegisterRow?: (id: string, el: HTMLDivElement | null) => void; flash?: boolean; sharedRatings?: SharedMicRatingData }) {
+function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, onRegisterRow, flash, sharedRatings, commentCount }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void; onOpenMic?: (mic: OpenMic) => void; forceExpanded?: boolean; onRegisterRow?: (id: string, el: HTMLDivElement | null) => void; flash?: boolean; sharedRatings?: SharedMicRatingData; commentCount?: number }) {
   const [expanded, setExpanded] = useState(false);
   useEffect(() => { setExpanded(!!forceExpanded); }, [forceExpanded]);
   const [showComments, setShowComments] = useState(false);
@@ -505,6 +506,9 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
           signUpInstructions={mic.signUpInstructions}
           venueAddress={mic.location || mic.venueName}
           sharedRatings={sharedRatings}
+          onCommentClick={() => setShowComments(v => !v)}
+          showCommentSection={showComments}
+          commentCount={commentCount}
         />
 
         {/* Comments Section */}
@@ -545,6 +549,7 @@ export default function OpenMicsDetailedList({
   // Fetched once for the whole list and handed to every row, so a screen of
   // 100 cards costs two requests instead of one per card.
   const sharedRatings = useSharedMicRatingData();
+  const commentCounts = useMicCommentCounts();
 
   const validMics = sinkFinishedToday
     ? mics
@@ -631,6 +636,7 @@ export default function OpenMicsDetailedList({
           onRegisterRow={registerRow}
           flash={flashId === mic.uniqueIdentifier}
           sharedRatings={sharedRatings}
+          commentCount={commentCounts[mic.uniqueIdentifier]}
         />
       ))}
       {visibleCount < validMics.length && (

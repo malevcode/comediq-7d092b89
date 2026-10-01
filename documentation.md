@@ -1064,6 +1064,66 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: comments become the place people report wrong data
+
+**The problem.** A comedian who notices the cover went up had nowhere to say it.
+"Report" captures no text at all: it writes only (mic, user, month) and means exactly
+one thing, "this mic is dead", and two reports in a month pull the mic from the
+listings. The only other option was the twelve-field edit form. So corrections arrived
+as Instagram DMs and got typed in by hand.
+
+**The lucky part.** The comment feature was already built and simply unplugged. Table,
+RLS, grants, indexes, hook and component all existed and worked. The state that opens
+the thread was never set to true, and the button that used to set it had been removed
+from the action bar, leaving its props behind marked "no-op". So this was a button and
+a state setter, not a feature build.
+
+**What changed.**
+
+- The comment limit went from 180 characters to 1000. 180 is a tweet; "cover went up to
+  $10 and Ashley said no mic next Monday" does not fit. The number lived as a bare 180
+  in three places, and two of them were guards inside the hook, so raising only the
+  visible one would have let the textarea accept a long comment and then fail on send.
+  It is now a single exported constant that the component imports.
+- The action bar has a comment button again, showing the count. It renders only when a
+  caller asks for it, so other surfaces are untouched.
+- The mic detail page shows the thread, always open. That page had no comments and no
+  Confirm or Report at all, which was a gap on the surface people reach from search.
+- A signed-out person can type. Hitting send takes them to sign-in and brings them back
+  to the same mic, so a half-typed correction turns into an account instead of a dead end.
+- The Report dialog now says what it is for: it reports that the mic no longer exists,
+  and points price, time and host changes at the comment box. Two inboxes with the same
+  name would have made the next step much harder.
+- An admin can delete any comment. That is the only moderation tool shipping with it, on
+  purpose.
+
+**The counts come from one request.** The badge needs a number before the thread opens,
+and the existing hook cannot give one: its count is the length of a list it only loads
+once the thread is on screen. So the list fetches all counts once and hands them down,
+the same way it already does vote totals. Measured on a real page: two requests for the
+whole list, not one per card.
+
+**One trap worth naming.** The counts come from a view that is security_invoker and had
+no GRANT of its own anywhere in the migrations, while the table underneath had needed an
+explicit grant migration before anyone could read it. That is the exact shape of the bug
+that broke upvoting for two weeks: a security_invoker view over a table anonymous
+visitors had no policy on returns nothing and raises no error. The underlying policy here
+is public so it should already work, but the migration grants it explicitly anyway.
+
+**Also fixed on the way past.** The component had no dark-mode colors at all. Nobody had
+noticed, because nobody could reach it. The header and body text were near-invisible on
+the theme the site ships by default.
+
+**Checked** at 390px and 1200px on the built bundle: the button appears and toggles, the
+composer carries the new placeholder and shows 1000 characters remaining, the detail page
+renders the thread, there is no sideways scroll, and a signed-out send lands on
+`/auth?next=%2Fopen-mics`.
+
+**Not done here.** The AI triage that turns these comments into proposed edits is the
+next step. Also skipped deliberately: a foreign key from comments to mics, because the
+two columns are different types and retyping a live column alongside a UI change is not
+a trade worth making.
+
 ### Session: the Mic of the Month winner gets the front page
 
 **What it is.** Winning Mic of the Month buys the mic a month on the Comediq
