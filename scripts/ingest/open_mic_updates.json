@@ -700,6 +700,29 @@
         "geocoding_score": null,
         "geocoding_match_address": null
       }
+    },
+    {
+      "unique_identifier": "11cdf464-126f-4c1b-b409-dcc45a273075",
+      "note": "Laughing Friends (Starr Bar, 214 Starr St, Wednesday 5:30-7:30 PM). Two fields were wrong, both confirmed by Adam against the account's own profile and posters. (1) INSTAGRAM HANDLE: stored as @laughingfriendsmic, which looks guessed from the mic name; the real account is @laughingfriends.ig (the profile page reads 'laughingfriends.ig', 'Laughing Friends'). The database column behind instagramHandle is changes_updates. (2) COST: stored as $5, but the profile bio says 'FREE (5 min)'. Already correct and left alone: Wednesday, 5:30 PM start, 7:30 PM end, 5 minute sets, signup at 5:00 PM in person, venue and address. The bio also names the hosts (@abrahamvaldez_0 and @marky.mark.ig) but hosts_organizers is not touched here because that was not asked.",
+      "set": {
+        "cost": "Free",
+        "changes_updates": "@laughingfriends.ig"
+      }
+    },
+    {
+      "unique_identifier": "c3c2f0f0-a945-4f6c-a981-aaa68f99d2dc",
+      "note": "So Chill (Whisk & Whiskey, Wednesday 7 PM). Reconciled against the mic's own post, a recent @sochillcomedy x @whiskandwhiskeybklyn poster Adam screenshotted: 'So Chill Mic, Wednesday Sept 30th @ 7pm, 15 spots, 5 min each, link in bio, Whisk & Whiskey 259 4th Ave, Brooklyn, NY (No entrance fee, 1 item min.)'. STAGE TIME: was blank; the poster says 5 min each. SIGNUP: was 'RSVP on instagram'; Adam says signup is the Partiful link in the account bio, and the poster says 'link in bio'. No URL is stored because the link itself was not seen; the instructions send people to the bio, which is where it lives and will stay current if the link changes. 15 spots is from the poster. ADDRESS: the row said 460 Third Ave, 11215 and the poster says 259 4th Ave. The poster is the venue's own co-post, so it wins, and the mic runs the same night this was changed. Same failure class as the Bent Over Laughing address. The six geocoding fields are nulled so the old Third Ave pin cannot keep sending people there; the geocoder re-resolves from the new address. No zip is added because the poster does not give one. NOT CHANGED: cost. Adam said '$5 mic' but the poster says 'No entrance fee, 1 item min.', so cost is left at its existing '1 drink min' pending his answer rather than picking a side. The name stays 'So Chill' although the poster says 'So Chill Mic'.",
+      "set": {
+        "stage_time": "5 min",
+        "sign_up_instructions": "Sign up on the Partiful link in the @sochillcomedy Instagram bio. 15 spots.",
+        "location": "259 4th Ave, Brooklyn, NY",
+        "latitude": null,
+        "longitude": null,
+        "geocoded_at": null,
+        "geocoding_provider": null,
+        "geocoding_score": null,
+        "geocoding_match_address": null
+      }
     }
   ],
   "removals": [
