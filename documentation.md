@@ -1064,6 +1064,46 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: the dashboard gets out of the way
+
+**The problem.** The Mic of the Month card I had just added was 512px tall, and on the
+signed-in home page it sat between the welcome header and everything else. A comedian
+opening Comediq is almost always trying to find a mic, and the only route to the mic
+list was the bottom tab bar, under a full screen of scrolling. A section celebrating one
+mic was making it harder to find any mic.
+
+**What changed.**
+
+- **A "Find mics" button, high on the dashboard**, directly under the welcome header.
+  It is the first thing you can tap.
+- **Mic of the Month became one line** on the dashboard: trophy, the label, the winner's
+  name, a chevron. 512px of card became a 36px line. The full card stays on the
+  signed-out landing page, where being big is the whole point, because that is the prize
+  the host actually won.
+- **Both now link into the mic list rather than the mic's own page**, at
+  `/open-mics?mic=<id>`, which opens that mic already expanded and scrolls to it. Someone
+  browsing for tonight wants to be in the list, next to the alternatives, not on a
+  dead-end page.
+
+**Two bugs found while wiring that link up.** The list has been able to expand and scroll
+to a single mic for a while, but only the map could ask it to, and that path hid both
+faults:
+
+1. The page passed `selectedMicId` to the discovery feed and not to the list that
+   actually renders on `/open-mics`. A link could never have worked.
+2. The effect that reacts to it depended only on the id, not on the mics. A map tap
+   happens after the list has loaded, but a link sets the id on the first render, when
+   the list is still empty. The lookup found nothing and never ran again. It now
+   re-checks when the mics arrive, and a ref keeps it to one expand-and-scroll per mic so
+   paging in more rows does not yank the page back.
+
+**Checked** on the built bundle at 390px. Signed in (with the Supabase calls stubbed,
+since this sandbox cannot reach the project): the Find mics button lands at y=245, well
+inside the first screen; the Mic of the Month line measures 36px; it navigates to
+`/open-mics?mic=0e94c622-...`. Signed out: that URL lands with Crash Landing Comedy
+expanded and scrolled to the middle of the screen, and the full card still measures
+512px on the landing page. No sideways scroll anywhere.
+
 ### Session: comments become the place people report wrong data
 
 **The problem.** A comedian who notices the cover went up had nowhere to say it.

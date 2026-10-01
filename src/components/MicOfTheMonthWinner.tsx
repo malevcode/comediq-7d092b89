@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Trophy, MapPin, Clock, AtSign } from "lucide-react";
+import { Trophy, MapPin, Clock, AtSign, ChevronRight } from "lucide-react";
 import { MIC_OF_THE_MONTH_WINNER } from "@/config/micOfTheMonthWinner";
 
 /**
@@ -9,10 +9,34 @@ import { MIC_OF_THE_MONTH_WINNER } from "@/config/micOfTheMonthWinner";
  * the host, so this section is what the winner actually won. Everything it
  * shows comes from MIC_OF_THE_MONTH_WINNER; when that is null there is no
  * winner to show and the section renders nothing.
+ *
+ * Two sizes. The full card is for the signed-out landing page, where being big
+ * is the point: it is the prize the host won. The compact line is for the
+ * signed-in dashboard, where a full-height card sat between someone and the
+ * Perform tab and made finding a mic harder, which is the opposite of what the
+ * dashboard is for.
  */
-const MicOfTheMonthWinner = () => {
+const MicOfTheMonthWinner = ({ variant = "full" }: { variant?: "full" | "compact" }) => {
   const winner = MIC_OF_THE_MONTH_WINNER;
   if (!winner) return null;
+
+  // Opens the mic already expanded in the list, rather than on its own page,
+  // because the list is where someone browsing for tonight actually is.
+  const micInListHref = `/open-mics?mic=${encodeURIComponent(winner.micUniqueIdentifier)}`;
+
+  if (variant === "compact") {
+    return (
+      <Link
+        to={micInListHref}
+        className="mb-4 flex items-center gap-2 rounded-xl bg-[#1a5fb4] px-3 py-2 text-sm text-white transition-opacity hover:opacity-90"
+      >
+        <Trophy className="h-4 w-4 shrink-0" aria-hidden="true" />
+        <span className="shrink-0 font-semibold">Mic of the Month</span>
+        <span className="truncate text-white/90">{winner.micName}</span>
+        <ChevronRight className="ml-auto h-4 w-4 shrink-0" aria-hidden="true" />
+      </Link>
+    );
+  }
 
   const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${winner.venueName}, ${winner.address}`,
@@ -62,7 +86,7 @@ const MicOfTheMonthWinner = () => {
 
           <div className="mt-8 flex flex-col items-center justify-center gap-2 sm:flex-row sm:gap-3">
             <Link
-              to={`/mics/${winner.micSlug}`}
+              to={micInListHref}
               className="w-full rounded-full bg-white px-6 py-3 text-sm font-bold text-[#1a5fb4] transition-transform duration-300 hover:scale-105 sm:w-auto sm:px-8"
             >
               See the mic
