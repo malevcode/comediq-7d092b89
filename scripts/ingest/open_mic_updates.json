@@ -723,6 +723,17 @@
         "geocoding_score": null,
         "geocoding_match_address": null
       }
+    },
+    {
+      "unique_identifier": "7620eba5-c776-4ee7-b3aa-63aa496cc471",
+      "note": "Nice Girls (UCB, Thursday 7:30-9 PM). Adam reported three things, all from him directly. (1) CADENCE: the mic is biweekly, and it did NOT run Thursday Oct 1, the 1st Thursday of the month. Adam read that as a 2nd and 4th Thursday schedule, so the next dates are Oct 8 and Oct 22, then Nov 12 and Nov 26, then Dec 10 and Dec 24. That is an inference from one night that did not happen, not something UCB stated, so it should be confirmed. It also differs from strict every-other-week: Oct 29 and Dec 31 are 5th Thursdays and get nothing under 2nd/4th, and every-other-week from Oct 8 would put the next one on Nov 5, not Nov 12. (2) COST $5 and (3) STAGE TIME 5 min: both were blank. STORED THE WAY THE DATABASE ALREADY STORES 2nd/4th MICS: name prefix *2nd/4th Thu*, frequency bi_weekly, frequency_custom_text '2nd/4th Thu', matching '*2nd/4th Sun* The Teeny Tiny Mic' and the two '*1st/3rd Sun*' rows. The prefix is doing real work: the detail modal ignores frequency_custom_text unless frequency is 'custom', so the name is the only place the app shows 2nd/4th. The label has no M/D date in it, so report_stale_labels.py correctly treats it as recurring and never flags it. KNOWN LIMIT, NOT FIXED HERE: the app computes upcoming dates only for weekly and the single nth-of-month values. For bi_weekly it returns no dates, and its calendar view (micMatchesDate in OpenMics.tsx) returns true every Thursday. So this mic will still show on 1st/3rd/5th Thursdays in the date view, the same way it showed on Oct 1. Fixing that needs a code change, not a data change. NOT TOUCHED: the address, which looks wrong. See the PR.",
+      "set": {
+        "open_mic": "*2nd/4th Thu* Nice Girls",
+        "frequency": "bi_weekly",
+        "frequency_custom_text": "2nd/4th Thu",
+        "cost": "$5",
+        "stage_time": "5 min"
+      }
     }
   ],
   "removals": [
