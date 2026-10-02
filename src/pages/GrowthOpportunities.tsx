@@ -9,7 +9,7 @@ import { SubmitOpportunityForm } from "@/components/growth/SubmitOpportunityForm
 import { useGrowthOpportunities, useMyGrowthSubmissions } from "@/hooks/useGrowthOpportunities";
 import { useAuth } from "@/contexts/AuthContext";
 import SEO from "@/components/SEO";
-import { featuredBookingOpportunity } from "@/data/featuredGrowthOpportunities";
+import { featuredGrowthOpportunities } from "@/data/featuredGrowthOpportunities";
 import type { GrowthOpportunity, GrowthOpportunityStatus } from "@/api/growthOpportunities";
 
 const statusConfig: Record<GrowthOpportunityStatus, { label: string; icon: any; className: string }> = {
@@ -29,7 +29,7 @@ const GrowthOpportunities = () => {
   const { data: opportunities, isLoading } = useGrowthOpportunities(currentType);
   const { data: mySubmissions } = useMyGrowthSubmissions(user?.id);
   const bookingOpportunities: GrowthOpportunity[] = [
-    featuredBookingOpportunity,
+    ...featuredGrowthOpportunities,
     ...(opportunities ?? []),
   ];
 

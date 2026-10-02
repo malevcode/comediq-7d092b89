@@ -1064,6 +1064,79 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: above the fold, and making voting possible
+
+**The buttons were not too big.** They measured 44px, which is the minimum size a
+finger can reliably hit. What pushed them off the screen was everything around
+them: on a phone, three fixed bars take about 220px before any content renders,
+and the hero then spent most of what was left on a mascot stacked above the
+title. So the hero went sideways instead. The mascot sits to the right of the
+word Comediq, the tagline sits under the title, and the buttons sit under both.
+Measured on a 390x664 screen, "I Perform" now lands at y=283 and both buttons are
+fully visible without scrolling.
+
+**The menu opened on the wrong thing.** The NEW group was expanded by default,
+burying Perform, which is the only reason most people open that menu. Now Perform
+is open and NEW is closed. Leaderboard and Growth were also listed twice each,
+once in either group; they appear once now.
+
+**A dead listing was still up.** A competition whose applications closed on 9
+September was still on the Growth page and the signed-in dashboard on 2 October.
+It was a hardcoded constant spliced in on the client, so no admin toggle could
+ever have reached it. It is gone, and the file now explains why anything added
+back there has to be removed by hand. The deeper problem is unfixed and worth
+knowing: **nothing in the app expires anything.** There is no deadline column on
+growth opportunities and no query filters on a date, so the next listing will go
+stale exactly the same way.
+
+**The contest bar is orange** instead of emerald green, and it names the month.
+The month is worked out from the date rather than typed, because this codebase
+has already shipped one thing that nobody remembered to change.
+
+### Why almost nobody voted
+
+Worth reading twice, because it was not a people problem.
+
+The bar said "Voting is live" and linked to the leaderboard, **where voting was
+impossible**. The arrow on each row was a decorative span inside a link: no click
+handler, no ratings hook imported in the whole file. The page's own button then
+sent you onward to the Perform tab to go hunting. Two hops, and the destination
+that promised voting could not take one.
+
+The real control was a 16px chevron in 4px of padding, so about a 24px target
+against the 44px floor. Grey, unlabelled, only inside an expanded mic row, next
+to three buttons that had words on them. And immediately beside it sat "Nominate
+for Mic of the Day", with a trophy and the word nominate, which is a **different
+contest**. The obvious button in that row belonged to something else.
+
+The words never agreed either. The bar said Upvote, the button's label said
+Upvote, the success message said "Liked!", the database column says `like`, and
+the mic detail page showed a heart.
+
+**The fix: the leaderboard is now the ballot.** Every row has a real vote button
+at 44px, wired to the same hook the cards use, so the count moves the instant you
+tap. An orange panel at the top says what a vote is, that there is one per mic
+and you can take it back, and what the winner gets. The bounce to Perform is
+gone. A search box underneath finds any mic in the city, so a mic with no votes
+yet can still get its first one. Signed-out visitors see the counts and a tap
+sends them to sign-in with a return path, so they land back on the page they were
+voting on. The toast now says "Vote counted".
+
+**The theme switch moved** out of the permanent header and into the menu. The
+header is on every page and its height is the first thing pushing content down; a
+theme switch does not need to live there forever.
+
+**Checked** on the built bundle at 390x664: both hero buttons above the fold at
+44px, menu opens with Perform expanded and NEW collapsed, no duplicate entries,
+the dead listing is absent from both surfaces, the bar is `rgb(250, 129, 30)` and
+reads "October voting is live", the vote button measures exactly 44x44, a
+signed-out vote lands on `/auth?next=%2Fleaderboard`, the header has no theme
+button and the menu does, and no page scrolls sideways.
+
+**Not checked:** the ranked list itself. This sandbox cannot reach the Supabase
+project, so the board renders its error state and only the search path could be
+exercised. The ranking needs one look on the real site.
+
 ### Session: the dashboard gets out of the way
 
 **The problem.** The Mic of the Month card I had just added was 512px tall, and on the
