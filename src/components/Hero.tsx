@@ -20,7 +20,7 @@ const Hero = () => {
           <div className="relative z-10 flex w-full max-w-4xl flex-col items-center px-5 pt-4 text-center">
             <div className="mb-4 flex w-full items-center justify-center gap-4 sm:gap-6">
               <div className="min-w-0 text-left">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#1a5fb4] sm:text-sm">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#1a5fb4] dark:text-[#8ec5ff] sm:text-sm">
                   NYC's Comedy Platform
                 </p>
                 <h1 className="text-4xl font-bold leading-none text-white drop-shadow-sm sm:text-5xl lg:text-6xl">
@@ -49,9 +49,9 @@ const Hero = () => {
                 🎤 I Perform
               </Button>
               <Button
-                onClick={() => navigate("/auth")}
+                onClick={() => navigate("/laugh")}
                 variant="outline"
-                className="h-11 w-full rounded-full border-2 border-[#1a5fb4] bg-white/10 px-6 py-3 text-sm text-[#1a5fb4] backdrop-blur transition-all duration-300 hover:scale-105 hover:bg-[#1a5fb4]/10 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+                className="h-11 w-full rounded-full border-2 border-[#1a5fb4] bg-white/10 px-6 py-3 text-sm text-[#1a5fb4] backdrop-blur dark:border-[#8ec5ff] dark:text-[#8ec5ff] transition-all duration-300 hover:scale-105 hover:bg-[#1a5fb4]/10 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
               >
                 😂 I Watch
               </Button>

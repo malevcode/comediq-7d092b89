@@ -34,7 +34,7 @@ const MicOfTheMonthBar = () => {
       <Trophy className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
       <span className="font-bold">{MIC_OF_THE_MONTH_LABEL}</span>
       <span className="opacity-90">{micOfTheMonthCta()}</span>
-      <span className="ml-1 rounded-full bg-background/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+      <span className="ml-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#07111f]">
         Vote
       </span>
     </>
