@@ -1064,6 +1064,39 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: a vote you can practise, and fewer stock icons
+
+**A practice vote, inside the instructions.** The orange panel on the voting page
+now carries a fake mic row with a working arrow. Tapping it moves a counter from
+0 to 1, says "That is all it is", and writes nothing anywhere. The whole reason
+turnout was low is that the control was hidden, unlabelled and two pages from
+where it was advertised, so nobody ever learned the gesture. Now the lesson sits
+directly under the sentence explaining it, and it costs nothing to try.
+
+Proven rather than assumed: the test watches the network while the practice
+button is tapped and confirms no request to `user_mic_ratings` goes out.
+
+**The arrow is ours now.** The vote control used a stock thin chevron, which is
+the same glyph that means "expand this section" three inches further down the
+same card, and the same one every template ships with. It is now a drawn
+arrowhead on a stem: hollow when you have not voted, solid when you have. The
+leaderboard and the mic cards use the identical icon on purpose, so the practice
+vote teaches the gesture people will actually use.
+
+**Gradients out of the comment section.** The submit button was a two-stop blue
+to cyan gradient wrapped around a paper-plane icon. It is now flat brand blue
+with the word **Post** on it, which both looks less templated and says what the
+button does. The avatar circle lost its gradient too. Checked by reading computed
+styles: nothing in that section paints a background image any more.
+
+Worth knowing for later: 18 other files still use gradients, including the auth
+page and the pricing card. Several of them are in code nothing routes to.
+
+**Checked** on the built bundle at 390px: the practice button is 44x44, goes 0 to
+1 and back, shows its follow-up line, and sends no vote; the arrow renders as a
+real arrow in both states; the comment button is `rgb(26, 95, 180)` flat with no
+background image anywhere in the thread.
+
 ### Session: above the fold, and making voting possible
 
 **The buttons were not too big.** They measured 44px, which is the minimum size a

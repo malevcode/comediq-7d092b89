@@ -1,4 +1,5 @@
-import { ChevronUp, ChevronDown, MapPin, Send, ExternalLink, Check, Flag, MessageCircle } from "lucide-react";
+import { MapPin, Send, ExternalLink, Check, Flag, MessageCircle } from "lucide-react";
+import VoteArrow from "@/components/icons/VoteArrow";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMicRatings, type SharedMicRatingData } from "@/hooks/useMicRatings";
@@ -253,7 +254,7 @@ export default function MicActionBar({
             upvoteColor
           )}
         >
-          <ChevronUp className={cn("w-4 h-4", isUpvoted && "fill-current")} strokeWidth={2.5} />
+          <VoteArrow filled={isUpvoted} className="w-4 h-4" />
         </button>
         <span className={cn("text-xs font-semibold min-w-[1ch] text-center px-0.5", scoreColor)}>
           {score}
@@ -268,7 +269,7 @@ export default function MicActionBar({
             downvoteColor
           )}
         >
-          <ChevronDown className={cn("w-4 h-4", isDownvoted && "fill-current")} strokeWidth={2.5} />
+          <VoteArrow direction="down" filled={isDownvoted} className="w-4 h-4" />
         </button>
       </div>
 
