@@ -80,6 +80,17 @@ const HamburgerMenu = () => {
         </SheetHeader>
         <div className="flex-1 py-4">
           <div className="space-y-2">
+            {/* First row, not last. It was at the bottom of the sheet, below
+                every nav item, which is a long way to travel for the control
+                people reach for most often after navigation. */}
+            <button
+              onClick={() => setTheme(isDark ? "light" : "dark")}
+              className="w-full flex items-center px-4 py-3 text-left rounded-md text-white transition-colors hover:bg-white/10"
+            >
+              {isDark ? <Sun size={18} className="mr-3" /> : <Moon size={18} className="mr-3" />}
+              <span className="font-medium">{isDark ? "Light mode" : "Dark mode"}</span>
+            </button>
+
             {/* Home */}
             {navItems.slice(0, 1).map(({ path, icon: Icon, label }) => (
               <button
@@ -87,7 +98,7 @@ const HamburgerMenu = () => {
                 onClick={() => handleNavClick(path)}
                 className={`w-full flex items-center px-4 py-3 text-left rounded-md transition-colors ${
                   location.pathname === path
-                    ? "text-[#1a5fb4] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >
@@ -103,14 +114,14 @@ const HamburgerMenu = () => {
                 className="w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors hover:bg-white/10 text-white shadow-[0_12px_30px_rgba(2,10,30,0.38)] backdrop-blur-xl transition-colors"
               >
                 <div className="flex items-center">
-                  <Sparkles size={18} className="mr-3 text-[#1a5fb4]" />
-                  <span className="font-bold text-[#1a5fb4]">
+                  <Sparkles size={18} className="mr-3 text-[#1a5fb4] dark:text-[#8ec5ff]" />
+                  <span className="font-bold text-[#1a5fb4] dark:text-[#8ec5ff]">
                     NEW
                   </span>
                 </div>
                 <ChevronRight 
                   size={16} 
-                  className={`transition-transform text-[#1a5fb4] ${expandedNew ? 'rotate-90' : ''}`}
+                  className={`transition-transform text-[#1a5fb4] dark:text-[#8ec5ff] ${expandedNew ? 'rotate-90' : ''}`}
                 />
               </button>
               
@@ -143,7 +154,7 @@ const HamburgerMenu = () => {
                 onClick={() => setExpandedPerform(!expandedPerform)}
                 className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors ${
                   isPerformActive
-                    ? "text-[#1a5fb4] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >
@@ -165,7 +176,7 @@ const HamburgerMenu = () => {
                       onClick={() => handleNavClick(path)}
                       className={`w-full flex items-center px-4 py-2 text-left rounded-md transition-colors text-sm ${
                         location.pathname === path
-                          ? "text-[#1a5fb4] bg-white/10"
+                          ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10"
                           : "text-white/70 hover:text-white hover:bg-white/10"
                       }`}
                     >
@@ -183,7 +194,7 @@ const HamburgerMenu = () => {
                 onClick={() => setExpandedLaugh(!expandedLaugh)}
                 className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors ${
                   isLaughActive
-                    ? "text-[#1a5fb4] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >
@@ -205,7 +216,7 @@ const HamburgerMenu = () => {
                       onClick={() => handleNavClick(path)}
                       className={`w-full flex items-center px-4 py-2 text-left rounded-md transition-colors text-sm ${
                         isItemActive(path)
-                          ? "text-[#1a5fb4] bg-white/10"
+                          ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10"
                           : "text-white/70 hover:text-white hover:bg-white/10"
                       }`}
                     >
@@ -224,7 +235,7 @@ const HamburgerMenu = () => {
                 onClick={() => handleNavClick(path)}
                 className={`w-full flex items-center px-4 py-3 text-left rounded-md transition-colors ${
                   location.pathname === path
-                    ? "text-[#1a5fb4] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >
@@ -232,17 +243,6 @@ const HamburgerMenu = () => {
                 <span className="font-medium">{label}</span>
               </button>
             ))}
-
-            {/* Moved out of the fixed header. The header is on every page and
-                its height is the first thing pushing content below the fold;
-                a theme switch does not need to be there permanently. */}
-            <button
-              onClick={() => setTheme(isDark ? "light" : "dark")}
-              className="w-full flex items-center px-4 py-3 text-left rounded-md text-white transition-colors hover:bg-white/10"
-            >
-              {isDark ? <Sun size={18} className="mr-3" /> : <Moon size={18} className="mr-3" />}
-              <span className="font-medium">{isDark ? "Light mode" : "Dark mode"}</span>
-            </button>
           </div>
         </div>
       </SheetContent>

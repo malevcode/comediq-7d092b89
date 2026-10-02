@@ -51,7 +51,11 @@ const MicOfTheMonthWinner = ({ variant = "full" }: { variant?: "full" | "compact
         >
           <Trophy className="h-5 w-5 shrink-0" aria-hidden="true" />
           <span className="min-w-0 flex-1">
-            <span className="block text-[11px] font-bold uppercase tracking-[0.18em] text-white/80">
+            {/* No colour class on purpose. index.css remaps `.light .text-white`
+                to navy and only exempts elements carrying the background class
+                too, which a child span never does. Inheriting from the Link,
+                which has both, is the only way this stays white in light mode. */}
+            <span className="block text-[11px] font-bold uppercase tracking-[0.18em]">
               {winner.month} Mic of the Month
             </span>
             <span className="block truncate text-lg font-bold leading-tight">

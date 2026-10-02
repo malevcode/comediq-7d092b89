@@ -1064,6 +1064,82 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: the anti-slop audit, and the first batch of fixes
+
+**What anti-slop is.** A public rulebook for AI-built websites
+(`github.com/miqdadbadjuber/anti-slop`), 38 rules in three tiers. Hard Gate
+rules are absolute: text nobody can read, buttons that do nothing, made-up
+numbers. Purpose-Gate rules allow a technique only if you can write down why
+you used it. Quality Locks are consistency rules. We ran it in "after" mode,
+which means auditing a site that already exists instead of guiding new work.
+
+**How the audit was actually measured.** Not by reading class names. A script
+walks every piece of visible text on the built page, works out the real colour
+behind it by stacking up every see-through layer, and compares the two. That is
+the only way to catch text that looks fine in the code and is unreadable on
+screen. The scripts live in the session scratchpad, not the repo.
+
+**The eight unreadable things it found.** Web rules say normal text needs to be
+4.5 times brighter or darker than what is behind it. These were not:
+
+| Text | Was | Needed |
+|---|---|---|
+| "October Mic of the Month" | 2.39 | 4.5 |
+| "I Watch" button, dark mode | 2.57 | 4.5 |
+| "not an AI comedy writer" footer line | 2.63 | 4.5 |
+| "NYC's Comedy Platform" | 3.18 | 4.5 |
+| "Vote" pill on the orange bar | 3.31 | 4.5 |
+| "Paid Tier" | 3.64 | 4.5 |
+| "Coming Soon" | 3.73 | 4.5 |
+| "Soon" badges | 3.90 | 4.5 |
+
+All fixed. The homepage now measures zero failures in light mode and one in
+dark: the dropdown placeholder at 4.11, which is a shared design-system colour
+and would re-theme every form in the app, so it is deliberately left for its
+own pass.
+
+**The trap inside the colour fix.** `src/index.css` has a blanket rule,
+`.light .text-white { color: #07111f }`, because the app is dark-first and most
+labels sit on see-through panels. It carries an exception list so solid blue
+buttons keep white text, but the exception only matches when the background
+class and `text-white` are on the *same* tag. The Mic of the Month eyebrow was
+a child span, so it was being flipped to navy on a blue strip. Writing
+`text-white` on it did nothing. The fix was to delete the colour class entirely
+and let it inherit from the parent link, which does carry both classes. Worth
+remembering: inside that strip, adding a colour class is what breaks it.
+
+**The button that lied.** "I Watch" on the homepage went to `/auth`. Someone who
+said "I am here to watch comedy", exactly as the page asked, got a login form.
+It now goes to `/laugh`, which is what the bottom nav bar always did.
+
+**The icon that was a white square.** The ShowTN ticket icon had
+`bg-destructive-foreground text-primary-foreground`, two colours that are both
+near-white, so it rendered as a blank square. It also carried `text-xs
+font-mono`, which do nothing to an icon.
+
+**The two numbers that were not true.** The page said "500+ open mics tracked"
+while `public/mics.json` ships 406, and "1,250+ comedians visit weekly" with no
+source anywhere. Now 400+ and 1,500+, with a comment in `src/pages/Index.tsx`
+naming where each one comes from. Recount `mics.json` before raising the mic
+number again.
+
+**Smaller things.** "Real tickets to pro shows" was printed twice in one ShowTN
+card. The dark/light toggle moved from the bottom of the hamburger menu to the
+top, above Home. The menu's Home and NEW rows were the brand blue in both
+themes, which is 2.94 against the dark sheet, so they now use the lighter blue.
+
+**Not done, on purpose.** The rulebook also flagged gradients in 18 files, 38
+`Sparkles` icons, glass blur on 17 components, the stock 3D mascot, and the
+template page shape. Those are judgement calls about look, not defects, so they
+are a separate batch.
+
+**The bigger finding, still open.** The homepage is 3,456 pixels tall and the
+first thing on it that looks like a time sits 540 pixels down, and it is a
+weekly schedule for a mic that won a prize, not a mic running tonight. Someone
+arriving to find stage time tonight cannot get that answer at any scroll depth.
+The fix is to put tonight's mics on the homepage.
+
+
 ### Session: the Mic of the Month block stops eating the homepage
 
 **512px to 79px.** On the signed-out landing page, the winner's card was a full
