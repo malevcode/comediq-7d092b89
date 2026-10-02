@@ -49,8 +49,10 @@ export function useMicLeaderboard(limit = 50) {
       // Cast because src/integrations/supabase/types.ts is generated and does
       // not know this function yet. Same pattern useMicConfirmReport already
       // uses for tables that postdate the last type generation.
+      // min_likes 0, not 1. The board is now the ballot, so a mic whose only
+      // vote was taken back still has to be reachable to vote for again.
       const { data, error } = await (supabase as any).rpc("get_mic_like_counts", {
-        min_likes: 1,
+        min_likes: 0,
         row_limit: FETCH_BUFFER,
       });
       if (error) throw error;

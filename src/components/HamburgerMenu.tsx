@@ -1,15 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Home, MicVocal, Eye, User, Book, Search, Menu, ChevronRight, Briefcase, Ticket, Star, Sparkles, Trophy, Clapperboard, Map, Calendar } from "lucide-react";
-import { useState } from "react";
+import { Home, MicVocal, Eye, User, Book, Search, Menu, ChevronRight, Briefcase, Ticket, Star, Sparkles, Trophy, Clapperboard, Map, Calendar, Sun, Moon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useTheme } from "next-themes";
 
 const HamburgerMenu = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAdmin } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  // next-themes has no theme until it has mounted, and the app defaults to dark.
+  const [themeMounted, setThemeMounted] = useState(false);
+  useEffect(() => setThemeMounted(true), []);
+  const isDark = !themeMounted || theme === "dark";
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
@@ -17,10 +23,10 @@ const HamburgerMenu = () => {
     ...(isAdmin ? [{ path: "/admintest", icon: Book, label: "Admin" }] : [])
   ];
 
+  // Leaderboard and Growth live under Perform; listing them here too meant the
+  // menu showed each of them twice.
   const newFeatureItems = [
-    { path: "/leaderboard", icon: Trophy, label: "Leaderboard", isNew: true },
     { path: "/open-mics", icon: Map, label: "Open Mics Map", isNew: true },
-    { path: "/growth", icon: Briefcase, label: "Growth", isNew: true },
     { path: "/strip", icon: Clapperboard, label: "Carouseler", isNew: true },
   ];
 
@@ -42,9 +48,11 @@ const HamburgerMenu = () => {
   const isPerformActive = performSubItems.some(item => location.pathname === item.path);
   const isLaughActive = location.pathname === '/laugh' || location.pathname === '/audience-shows';
   
-  const [expandedPerform, setExpandedPerform] = useState(isPerformActive);
+  // Perform is open by default and NEW is closed: someone opening this menu is
+  // nearly always trying to get to the mic list, and NEW was burying it.
+  const [expandedPerform, setExpandedPerform] = useState(true);
   const [expandedLaugh, setExpandedLaugh] = useState(isLaughActive);
-  const [expandedNew, setExpandedNew] = useState(true);
+  const [expandedNew, setExpandedNew] = useState(false);
 
   const handleNavClick = (path: string) => {
     setIsOpen(false);
@@ -224,6 +232,17 @@ const HamburgerMenu = () => {
                 <span className="font-medium">{label}</span>
               </button>
             ))}
+
+            {/* Moved out of the fixed header. The header is on every page and
+                its height is the first thing pushing content below the fold;
+                a theme switch does not need to be there permanently. */}
+            <button
+              onClick={() => setTheme(isDark ? "light" : "dark")}
+              className="w-full flex items-center px-4 py-3 text-left rounded-md text-white transition-colors hover:bg-white/10"
+            >
+              {isDark ? <Sun size={18} className="mr-3" /> : <Moon size={18} className="mr-3" />}
+              <span className="font-medium">{isDark ? "Light mode" : "Dark mode"}</span>
+            </button>
           </div>
         </div>
       </SheetContent>
