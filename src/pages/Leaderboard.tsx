@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Trophy, ChevronUp, Search } from "lucide-react";
+import { Trophy, Search } from "lucide-react";
+import VoteArrow from "@/components/icons/VoteArrow";
 import PageHeader from "@/components/PageHeader";
 import SEO from "@/components/SEO";
 import { useMicLeaderboard } from "@/hooks/useMicLeaderboard";
@@ -84,9 +85,52 @@ function VoteButton({
           : "bg-[#1a5fb4]/10 text-[#1a5fb4] hover:bg-[#1a5fb4]/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20",
       )}
     >
-      <ChevronUp className={cn("h-4 w-4", voted && "fill-current")} strokeWidth={2.5} />
+      <VoteArrow filled={voted} className="h-4 w-4" />
       <span className="text-xs font-bold tabular-nums">{likes}</span>
     </button>
+  );
+}
+
+/**
+ * A vote that does not count, so people can try the gesture before spending a
+ * real one. The contest has had the opposite problem all along: the control was
+ * hidden, unlabelled and two pages away, so nobody learned it. This one sits
+ * directly under the instructions and writes nothing anywhere.
+ */
+function PracticeVote() {
+  const [tried, setTried] = useState(false);
+
+  return (
+    <div className="mt-3 rounded-xl bg-black/15 p-3">
+      <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] opacity-80">
+        Try it, this one does not count
+      </p>
+      <div className="flex items-center gap-3 rounded-lg bg-white/15 p-2.5">
+        <span className="w-7 shrink-0 text-center text-lg font-bold tabular-nums opacity-70">1</span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-semibold">Practice Mic</span>
+          <span className="block truncate text-xs opacity-80">Anywhere · Any night</span>
+        </span>
+        <button
+          type="button"
+          onClick={() => setTried((v) => !v)}
+          aria-pressed={tried}
+          aria-label={tried ? "Undo the practice vote" : "Try a practice vote"}
+          className={cn(
+            "flex min-h-[44px] min-w-[44px] shrink-0 flex-col items-center justify-center rounded-xl transition-colors",
+            tried ? "bg-white text-[#07111f]" : "bg-white/25 text-white hover:bg-white/40",
+          )}
+        >
+          <VoteArrow filled={tried} className="h-4 w-4" />
+          <span className="text-xs font-bold tabular-nums">{tried ? 1 : 0}</span>
+        </button>
+      </div>
+      <p className="mt-2 text-xs opacity-90">
+        {tried
+          ? "That is all it is. Tap again to take it back, then vote for real below."
+          : "Tap the arrow above to see how it works."}
+      </p>
+    </div>
   );
 }
 
@@ -191,6 +235,7 @@ export default function Leaderboard() {
                 home page for a month, plus $50 to the host.
                 {totalVotes > 0 && ` ${totalVotes} votes so far.`}
               </p>
+              <PracticeVote />
             </div>
 
             {isLoading ? (

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { Send, Trash2, X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
@@ -121,9 +121,9 @@ export default function MicCommentSection({
             size="sm"
             onClick={handleSubmit}
             disabled={!newComment.trim() || isOverLimit || isAddingComment}
-            className="absolute bottom-2 right-2 h-8 w-8 p-0 bg-gradient-to-r from-[#0E4898] to-[#5DC8E2]"
+            className="absolute bottom-2 right-2 h-8 bg-[#1a5fb4] px-3 text-xs font-bold text-white hover:bg-[#3a7bd5]"
           >
-            <Send className="w-4 h-4" />
+            {isAddingComment ? 'Posting' : 'Post'}
           </Button>
         </div>
         <div className={cn(
@@ -173,7 +173,7 @@ function CommentItem({ comment, isOwner, onDelete, isDeleting }: CommentItemProp
   return (
     <div className="flex gap-3 group">
       {/* Avatar placeholder */}
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#0E4898] to-[#5DC8E2] flex items-center justify-center flex-shrink-0">
+      <div className="w-8 h-8 rounded-full bg-[#1a5fb4] flex items-center justify-center flex-shrink-0">
         <span className="text-white text-xs font-semibold">
           {(comment.username || "A").charAt(0).toUpperCase()}
         </span>
