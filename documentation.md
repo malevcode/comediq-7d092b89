@@ -1064,6 +1064,33 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: the Mic of the Month block stops eating the homepage
+
+**512px to 79px.** On the signed-out landing page, the winner's card was a full
+phone viewport: an eyebrow, a prize sentence, the mic name at 60px, three lines
+of schedule, address and host, and two buttons. A whole screen spent on one mic
+before anyone could reach what they came for.
+
+It is now three lines inside a single tappable strip: the month, the winner's
+name, and when and where it runs with the host's handle. The whole block links
+into the mic list with that mic already expanded, so the one thing it used two
+buttons for still works with no buttons at all.
+
+What came out: the prize sentence, the separate map link, the separate Instagram
+link, the "See the mic" button and the "Vote for next month" button. The contest
+bar at the bottom of every page already carries the voting link, so that second
+button was a duplicate.
+
+The reasoning that kept it big was wrong. It was built that way on the argument
+that the landing page is where the prize lives, so being big is the point. Being
+big is the point for the host; it is a cost for everyone else, and everyone else
+is most of the traffic.
+
+**Checked** at 390x664: the block measures 79px, reads "OCTOBER MIC OF THE MONTH
+/ Crash Landing Comedy / Mondays 8-9:30 PM at Red Eye · @ashleyryantv", sits
+fully above the fold at 568px, and both hero buttons stay where they were. No
+sideways scroll.
+
 ### Session: a vote you can practise, and fewer stock icons
 
 **A practice vote, inside the instructions.** The orange panel on the voting page
