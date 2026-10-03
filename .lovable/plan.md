@@ -1,40 +1,35 @@
-# Mic of the Day — Why Crash Landing, and how to make MOTD easier to change
+# SEO overhaul for open mics: slugs, real paths, crawlable pagination, structured data
 
-## Why Crash Landing Comedy is today's MOTD
+## What you'll get
+- Every mic gets its own page at `comediq.us/mic/<name>`, and every venue gets one at `comediq.us/venue/<name>`.
+- Mic names on the open mics list become real links that Google can follow.
+- Day and borough filters get their own addresses, like `/open-mics/monday` and `/open-mics/brooklyn`. Each one has its own title, description and canonical link.
+- "Show More" becomes a real link (`?page=2`, `?page=3`). It still loads more mics in place for people, and Google can follow it to reach every mic.
+- Each card shows a "Verified <date>" line. Each list page opens with a short summary built from live numbers, for example: "42 open mics on Monday in NYC. 18 are free, the most common price is $5, and Tuesday is the busiest night."
 
-The MOTD resolver runs this priority chain (`resolve_motd_for` in Postgres):
+## Data changes
+- Add `slug` (unique) and `last_verified_at` (timestamp) to mics.
+- Fill in slugs for existing mics from start time, venue and mic name, adding a short suffix if two would clash. Fill in `last_verified_at` from the newest of `last_confirmed_at` and the parsed `last_verified` text.
+- A database trigger creates a slug for each new mic. Slugs never change after that, so old links keep working.
+- Add a `venues` table (`slug`, `name`, `address`, `borough`, `neighborhood`, `latitude`, `longitude`). Fill it from the distinct venues already in the mic data. Add a `venue_slug` link on mics. Anyone can read it, and only admins can edit it.
 
-1. **Admin-locked pick** for today → none set
-2. **Top-voted nomination** for today → **Crash Landing Comedy** (1 nomination, 0 votes) ✅ wins here
-3. **Weekly default for this day-of-week** → would have been *Easy Paradise Mag @ KGB* (Monday default)
-4. Most recent claim → n/a
+## New and changed pages
+- `/mic/:slug`: reuses the current mic page design and looks the mic up by its slug. Old `/mics/:venueSlug` links redirect to the new address. The existing `/mic/:slug/signup` page keeps working.
+- `/venue/:slug`: venue name, address, a small map, and every mic held there.
+- `/open-mics/:filter`: works out whether the filter is a day (monday…sunday) or a borough (manhattan, brooklyn, queens, bronx, staten-island, plus other city slugs). Unknown filters go to the not-found page. Old `?day=` and `?borough=` links redirect to the new paths. The day/borough controls on the page now go to these paths instead of changing query parameters.
+- Pagination: 24 mics per page. `?page=N` is read from the address. "Show More" is a real link with `rel="next"`, and clicking it adds the next page in place without reloading. The canonical link includes the page number from page 2 onward.
 
-So Crash Landing isn't hard-coded — one user nominated it earlier today (2:47pm ET) and it auto-won because it was the only nomination. The reason the *same mics* show up week after week is step 3: the `motd_weekly_defaults` table was seeded May 12 and never rotated, so when nobody nominates on a given day, you keep seeing the same 7 mics on repeat.
+## Structured data (JSON-LD)
+- Mic page: `Event` with `eventSchedule` (`Schedule`, `repeatFrequency` P1W/P2W/P1M, `byDay`, `startTime`, `endTime`), plus `location` (Place) and `offers`. Builds on `generateEventSchema` in `structuredData.ts`.
+- List pages: `ItemList` of `ListItem`s, each with a mic page URL, for the mics on that page.
+- Venue page: `Place`, with `PostalAddress` and `GeoCoordinates`.
+- Breadcrumbs on all three.
 
-## What I'd build
+## Making it visible in the HTML Google first receives
+- Extend `scripts/prerender-head.mjs` to fetch active mics and venues at build time. It writes head tags (title, description, canonical, og:*, JSON-LD) for every `/mic/*`, `/venue/*` and `/open-mics/*` path, and the summary paragraph text, into the pre-rendered HTML.
+- Regenerate `sitemap.xml` with every mic, venue, day and borough page. Use `last_verified_at` as `lastmod` for mic pages.
 
-### 1. Make "Nominate for Mic of the Day" much more discoverable
-- The `NominateMotdButton` already exists inside the expanded mic card (it's there but buried below ~6 other buttons). I'll:
-  - Move it to the **top of the expanded "Additional Details" panel** with a small "🏆 Nominate this for Mic of the Day" callout block, so it's the first thing users see when they expand a mic.
-  - Add a tiny **"🏆 Nominate"** chip to the collapsed card's action row (next to Like / Save / Share) so users don't even need to expand.
-  - Keep the existing one-nomination-per-day rule and the "already nominated" state styling.
-
-### 2. Make weekly defaults rotate (so it doesn't feel stale)
-Two small additions to the existing `AdminMotdControl` panel on `/admin`:
-  - **"Rotate weekly defaults"** button that bumps each day's default to the next-highest-rated mic for that weekday (using `weekly_top_mics` rankings), so a stale default auto-refreshes.
-  - **"Clear default"** quick action per day, so the resolver falls through to "most recent claim" instead of an old pick.
-
-Optionally (ask below): an automatic monthly rotation via the existing `resolve-motd` cron, so you don't need to touch it manually.
-
-### 3. Small transparency tweak
-Add a subtle "Why this mic?" tooltip on the MOTD card showing which step won (nomination / weekly default / admin lock). Helps you debug at a glance instead of asking me.
-
-## Technical notes
-
-- Files touched: `src/components/OpenMicsDetailedList.tsx` (move + add chip), `src/components/mic/MicActionBar.tsx` (chip), `src/components/admin/AdminMotdControl.tsx` (rotate / clear), `src/components/MicOfTheDayCard.tsx` (tooltip).
-- No schema migrations needed — `motd_nominations`, `motd_weekly_defaults`, and `resolve_motd_for` already support all of this.
-- No edge function changes required unless you want auto-rotation (would add a small update to `supabase/functions/resolve-motd/index.ts`).
-
-## One question before I build
-
-Do you want weekly defaults to **auto-rotate** (e.g. monthly, pulling from top-rated mics for each weekday), or keep it **manual** with just easier admin controls?
+## Technical details
+- Files: new `src/pages/MicPage.tsx` (wrapping MicDetailPage logic), `src/pages/VenuePage.tsx`, `src/pages/OpenMicsFiltered.tsx` (or a route param on `OpenMics.tsx`), `src/utils/micSummary.ts` (count / free / mode price / busiest day), `src/utils/structuredData.ts` (eventSchedule, ItemList, Place), `src/utils/linkManager.ts`, `src/utils/slugify.ts`, `src/types/openMic.ts`, `src/hooks/useOpenMics.ts` (map slug + last_verified_at), `src/components/OpenMicsDetailedList.tsx` (anchor titles, verified line), `src/App.tsx` (routes + redirects), `scripts/prerender-head.mjs`, `scripts/generate-sitemap.mjs`.
+- Mic naming follows the project convention (start time first), so slugs look like `7pm-buddha-room-hour-mic`.
+- Record the slug and route rules in `AGENTS.md`.
