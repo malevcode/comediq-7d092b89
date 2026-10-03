@@ -2,15 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-/**
- * Keep this in step with the CHECK constraint on mic_comments.comment_text
- * (supabase/migrations/20261001120000_mic_comments_for_corrections.sql). The
- * limit lived as a bare 180 in three places and the UI copy drifted from the
- * guards here, so a longer comment failed in the hook after the textarea had
- * already accepted it.
- */
-export const MAX_COMMENT_LENGTH = 1000;
-
 export interface MicComment {
   id: string;
   mic_unique_identifier: string;
@@ -74,7 +65,7 @@ export function useMicComments(micUniqueIdentifier: string, enabled = true) {
   const addCommentMutation = useMutation({
     mutationFn: async (commentText: string) => {
       if (!user) throw new Error("Must be logged in to comment");
-      if (commentText.length > MAX_COMMENT_LENGTH) throw new Error(`Comment must be ${MAX_COMMENT_LENGTH} characters or less`);
+      if (commentText.length > 180) throw new Error("Comment must be 180 characters or less");
 
       const { data, error } = await supabase
         .from("mic_comments")
@@ -116,7 +107,7 @@ export function useMicComments(micUniqueIdentifier: string, enabled = true) {
   const updateCommentMutation = useMutation({
     mutationFn: async ({ commentId, commentText }: { commentId: string; commentText: string }) => {
       if (!user) throw new Error("Must be logged in");
-      if (commentText.length > MAX_COMMENT_LENGTH) throw new Error(`Comment must be ${MAX_COMMENT_LENGTH} characters or less`);
+      if (commentText.length > 180) throw new Error("Comment must be 180 characters or less");
 
       const { data, error } = await supabase
         .from("mic_comments")
@@ -145,47 +136,4 @@ export function useMicComments(micUniqueIdentifier: string, enabled = true) {
     isAddingComment: addCommentMutation.isPending,
     isDeletingComment: deleteCommentMutation.isPending,
   };
-}
-
-export type MicCommentCounts = Record<string, number>;
-
-export const MIC_COMMENT_COUNTS_KEY = ["micCommentCountsAll"] as const;
-
-/**
- * Comment counts for every mic, in one request.
- *
- * The badge on a card needs a count before the thread is opened, and
- * useMicComments cannot supply it: its count is the length of a list it only
- * fetches once the thread is on screen. Asking per card would be the same N+1
- * that vote totals were cleaned up to avoid, so the list fetches this once and
- * hands it down, exactly like useSharedMicRatingData.
- *
- * Reads the mic_comment_counts view, which is security_invoker over
- * mic_comments. That is only safe because mic_comments grants SELECT to anon
- * and its RLS policy is USING (true); the same shape over a table anonymous
- * visitors had no policy on is what silently broke upvoting. A failure here
- * must not take the list down with it, so it logs and yields no badges.
- */
-export function useMicCommentCounts() {
-  const { data } = useQuery({
-    queryKey: MIC_COMMENT_COUNTS_KEY,
-    queryFn: async (): Promise<MicCommentCounts> => {
-      const { data, error } = await supabase
-        .from("mic_comment_counts")
-        .select("mic_unique_identifier, comment_count");
-      if (error) {
-        console.error("mic comment counts failed to load", error);
-        throw error;
-      }
-      const out: MicCommentCounts = {};
-      ((data ?? []) as any[]).forEach((row) => {
-        out[row.mic_unique_identifier] = Number(row.comment_count) || 0;
-      });
-      return out;
-    },
-    staleTime: 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
-
-  return data ?? {};
 }

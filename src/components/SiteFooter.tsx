@@ -159,7 +159,7 @@ const SiteFooter = () => {
             <span>•</span>
             <span>Made by @malevcomedy</span>
           </div>
-          <p className="text-[10px] text-[#07111f]/60 leading-relaxed mb-4 dark:text-white/60">
+          <p className="text-[10px] text-[#07111f]/40 leading-relaxed mb-4 dark:text-white/40">
             ComediQ is not an AI comedy writer. Your comedy comes from your unique experience and performance personality.
           </p>
         </div>

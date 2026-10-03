@@ -1,5 +1,4 @@
-import { MapPin, Send, ExternalLink, Check, Flag, MessageCircle } from "lucide-react";
-import VoteArrow from "@/components/icons/VoteArrow";
+import { ChevronUp, ChevronDown, MapPin, Send, ExternalLink, Check, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMicRatings, type SharedMicRatingData } from "@/hooks/useMicRatings";
@@ -23,19 +22,9 @@ interface MicActionBarProps {
   lastConfirmedAt?: string | null;
   signUpInstructions?: string;
   venueAddress?: string;
-  /**
-   * Opens the mic's comment thread. The button only renders when a caller
-   * supplies this, so surfaces with no thread to open (the discovery card)
-   * are unaffected.
-   */
+  // Legacy props (kept for backward compatibility, no-op)
   onCommentClick?: () => void;
   showCommentSection?: boolean;
-  /**
-   * Comment count for the badge. The surrounding list fetches these once for
-   * every visible mic, the way it already does for vote totals; asking per row
-   * would be one request per card.
-   */
-  commentCount?: number;
   className?: string;
   /**
    * Vote totals and the user's own votes, fetched once by the surrounding list.
@@ -83,9 +72,6 @@ export default function MicActionBar({
   venueAddress,
   className,
   sharedRatings,
-  onCommentClick,
-  showCommentSection,
-  commentCount,
 }: MicActionBarProps) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -254,7 +240,7 @@ export default function MicActionBar({
             upvoteColor
           )}
         >
-          <VoteArrow filled={isUpvoted} className="w-4 h-4" />
+          <ChevronUp className={cn("w-4 h-4", isUpvoted && "fill-current")} strokeWidth={2.5} />
         </button>
         <span className={cn("text-xs font-semibold min-w-[1ch] text-center px-0.5", scoreColor)}>
           {score}
@@ -269,7 +255,7 @@ export default function MicActionBar({
             downvoteColor
           )}
         >
-          <VoteArrow direction="down" filled={isDownvoted} className="w-4 h-4" />
+          <ChevronDown className={cn("w-4 h-4", isDownvoted && "fill-current")} strokeWidth={2.5} />
         </button>
       </div>
 
@@ -296,22 +282,6 @@ export default function MicActionBar({
         >
           <MapPin className="w-4 h-4" />
         </Button>
-        {onCommentClick && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onCommentClick}
-            className={cn(
-              "h-8 px-2 gap-1 text-xs font-medium text-gray-700 hover:bg-[#1a5fb4]/10 dark:text-white dark:hover:bg-[hsl(var(--primary))]/20 dark:hover:text-white",
-              showCommentSection && "text-[#1a5fb4] dark:text-[#8ec5ff]"
-            )}
-            aria-label={showCommentSection ? "Hide comments" : "Comments, or report a change"}
-            aria-expanded={showCommentSection}
-          >
-            <MessageCircle className="w-3.5 h-3.5" />
-            {commentCount ? <span>{commentCount}</span> : null}
-          </Button>
-        )}
         <Button
           variant="ghost"
           size="sm"
@@ -374,8 +344,7 @@ export default function MicActionBar({
         <DialogHeader>
           <DialogTitle>Report inactive mic?</DialogTitle>
           <DialogDescription>
-            Report that {micName} no longer exists. Two reports in a month remove it from
-            active listings. Price, time or host wrong instead? Leave a comment on the mic.
+            Flag {micName} as inactive? Two reports in a month will remove it from active listings.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

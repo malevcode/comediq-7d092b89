@@ -11,7 +11,6 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { SponsorCard } from "./SponsorCard";
 import { QuickNotes } from "./home/QuickNotes";
 import Header from "./Header";
-import MicOfTheMonthWinner from "./MicOfTheMonthWinner";
 import { useSavedMics } from "@/hooks/useSavedMics";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useMicPlaylists } from "@/hooks/useMicPlaylists";
@@ -405,21 +404,6 @@ export default function Home() {
             <Header />
           </section>
 
-          {/*
-            Straight to the mics. A signed-in comedian opening the home page is
-            almost always trying to find a mic, and until this was here the only
-            route was the bottom tab bar, under everything else on the page.
-          */}
-          <Link
-            to="/perform"
-            className="mb-3 flex items-center justify-center gap-2 rounded-xl bg-[#1a5fb4] px-4 py-3 text-base font-bold text-white transition-transform duration-200 hover:scale-[1.02]"
-          >
-            <Mic2 className="h-5 w-5" />
-            Find mics
-          </Link>
-
-          <MicOfTheMonthWinner variant="compact" />
-
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Column - Stats and Notepad */}
             <div className="flex-1 space-y-6">
@@ -809,9 +793,6 @@ export default function Home() {
 
               <QuickNotes className={panelClass} />
 
-              {/* Hidden when nothing is pinned, so the dashboard does not carry an
-                  empty card with only a "View All" button in it. */}
-              {featuredGrowthOpportunities.length > 0 && (
               <Card className={panelClass}>
                 <CardHeader className={panelHeaderClass}>
                   <div>
@@ -874,7 +855,6 @@ export default function Home() {
                   </Button>
                 </CardContent>
               </Card>
-              )}
 
               <SponsorCard placement="home_dashboard" className="border border-[#07111f]/10 bg-white/25 text-[#07111f] shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-0 dark:bg-[#102a53]/20 dark:text-white dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]" />
             </div>

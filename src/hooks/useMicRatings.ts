@@ -208,15 +208,9 @@ export const useMicRatings = (micUniqueIdentifier?: string, shared?: SharedMicRa
     },
     onSuccess: (_, variables) => {
       invalidateVoteQueries(queryClient, user?.id, variables.micUniqueIdentifier);
-      // Say "vote", the same word the contest bar and the leaderboard use.
-      // This said "Liked!" while the button said Upvote and the bar said Vote,
-      // so one action carried three names.
       toast({
-        title: variables.rating === 'like' ? 'Vote counted' : 'Downvoted',
-        description:
-          variables.rating === 'like'
-            ? 'Your vote for Mic of the Month is in.'
-            : 'You downvoted this open mic.',
+        title: variables.rating === 'like' ? 'Liked!' : 'Disliked!',
+        description: `You ${variables.rating}d this open mic.`,
       });
     },
     onError: (_error, _variables, context) => {
@@ -262,8 +256,8 @@ export const useMicRatings = (micUniqueIdentifier?: string, shared?: SharedMicRa
     onSuccess: (_, micUniqueIdentifier) => {
       invalidateVoteQueries(queryClient, user?.id, micUniqueIdentifier);
       toast({
-        title: 'Vote removed',
-        description: 'Your vote has been taken back.',
+        title: 'Rating removed',
+        description: 'Your rating has been removed.',
       });
     },
   });

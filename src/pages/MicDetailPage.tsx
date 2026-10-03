@@ -8,7 +8,6 @@ import { generateEventSchema, generateLocalBusinessSchema, generateBreadcrumbSch
 import { Button } from "@/components/ui/button";
 import { Heart, ExternalLink, Navigation } from "lucide-react";
 import { WentUpToggle } from "@/components/mic/WentUpToggle";
-import MicCommentSection from '@/components/mic/MicCommentSection';
 import ClaimMicButton from "@/components/host/ClaimMicButton";
 import EditMicButton from "@/components/mic/EditMicButton";
 import { useAuth } from "@/contexts/AuthContext";
@@ -219,16 +218,6 @@ const MicDetailPage = () => {
               venueName={mic.venueName}
             />
           </div>
-
-          {/*
-            Always open here. A detail page has one mic and plenty of room, so
-            there is nothing to collapse for, and this is the surface people
-            land on from search when they want to say the listing is wrong.
-          */}
-          <MicCommentSection
-            micUniqueIdentifier={mic.uniqueIdentifier}
-            isExpanded
-          />
 
           {/* You might also like */}
           {similarMics && similarMics.length > 0 && (
