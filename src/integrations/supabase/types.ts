@@ -1529,6 +1529,7 @@ export type Database = {
           july_verification_status: string | null
           last_confirmed_at: string | null
           last_verified: string | null
+          last_verified_at: string | null
           latest_end_time: string | null
           latitude: number | null
           legacy_tag: string | null
@@ -1544,6 +1545,7 @@ export type Database = {
           signup_url: string | null
           slot_duration_minutes: number
           slots_enabled: boolean
+          slug: string | null
           sms_response: string | null
           stage_time: string | null
           start_time: string | null
@@ -1551,6 +1553,7 @@ export type Database = {
           submission_date: string | null
           unique_identifier: string
           venue_name: string | null
+          venue_slug: string | null
           venue_type: string | null
           verification_count: number | null
         }
@@ -1574,6 +1577,7 @@ export type Database = {
           july_verification_status?: string | null
           last_confirmed_at?: string | null
           last_verified?: string | null
+          last_verified_at?: string | null
           latest_end_time?: string | null
           latitude?: number | null
           legacy_tag?: string | null
@@ -1589,6 +1593,7 @@ export type Database = {
           signup_url?: string | null
           slot_duration_minutes?: number
           slots_enabled?: boolean
+          slug?: string | null
           sms_response?: string | null
           stage_time?: string | null
           start_time?: string | null
@@ -1596,6 +1601,7 @@ export type Database = {
           submission_date?: string | null
           unique_identifier?: string
           venue_name?: string | null
+          venue_slug?: string | null
           venue_type?: string | null
           verification_count?: number | null
         }
@@ -1619,6 +1625,7 @@ export type Database = {
           july_verification_status?: string | null
           last_confirmed_at?: string | null
           last_verified?: string | null
+          last_verified_at?: string | null
           latest_end_time?: string | null
           latitude?: number | null
           legacy_tag?: string | null
@@ -1634,6 +1641,7 @@ export type Database = {
           signup_url?: string | null
           slot_duration_minutes?: number
           slots_enabled?: boolean
+          slug?: string | null
           sms_response?: string | null
           stage_time?: string | null
           start_time?: string | null
@@ -1641,6 +1649,7 @@ export type Database = {
           submission_date?: string | null
           unique_identifier?: string
           venue_name?: string | null
+          venue_slug?: string | null
           venue_type?: string | null
           verification_count?: number | null
         }
@@ -2804,6 +2813,48 @@ export type Database = {
         }
         Relationships: []
       }
+      venues: {
+        Row: {
+          address: string | null
+          borough: string | null
+          city: string | null
+          created_at: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+          neighborhood: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          borough?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          neighborhood?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          borough?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          neighborhood?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       waitlist: {
         Row: {
           created_at: string | null
@@ -3209,12 +3260,14 @@ export type Database = {
         Returns: boolean
       }
       is_current_user_admin: { Args: never; Returns: boolean }
+      parse_last_verified: { Args: { t: string }; Returns: string }
       refresh_mic_rating_total: {
         Args: { p_mic_unique_identifier: string }
         Returns: undefined
       }
       report_mic: { Args: { p_mic_unique_identifier: string }; Returns: Json }
       resolve_motd_for: { Args: { target_date: string }; Returns: string }
+      slugify_text: { Args: { t: string }; Returns: string }
     }
     Enums: {
       app_role: "performer" | "host" | "showrunner" | "admin"
