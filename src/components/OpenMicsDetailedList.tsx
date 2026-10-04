@@ -13,6 +13,7 @@ import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
 import MicActionBar from '@/components/mic/MicActionBar';
 import { useSharedMicRatingData, type SharedMicRatingData } from '@/hooks/useMicRatings';
+import { useMicCommentCounts } from '@/hooks/useMicComments';
 import EditMicButton from '@/components/mic/EditMicButton';
 import MicCommentSection from '@/components/mic/MicCommentSection';
 import { FREQUENCY_LABELS } from '@/types/openMic';
@@ -181,7 +182,7 @@ function truncateMicName(name: string, maxLength: number = 15): string {
 }
 
 // Helper to format time compactly (e.g., "5:00 PM" → "5 PM", "5:30 PM" → "5:30 PM")
-function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, onRegisterRow, flash, sharedRatings }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void; onOpenMic?: (mic: OpenMic) => void; forceExpanded?: boolean; onRegisterRow?: (id: string, el: HTMLDivElement | null) => void; flash?: boolean; sharedRatings?: SharedMicRatingData }) {
+function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, onRegisterRow, flash, sharedRatings, commentCount }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void; onOpenMic?: (mic: OpenMic) => void; forceExpanded?: boolean; onRegisterRow?: (id: string, el: HTMLDivElement | null) => void; flash?: boolean; sharedRatings?: SharedMicRatingData; commentCount?: number }) {
   const [expanded, setExpanded] = useState(false);
   useEffect(() => { setExpanded(!!forceExpanded); }, [forceExpanded]);
   const [showComments, setShowComments] = useState(false);
@@ -307,24 +308,26 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
       {/* Mid: Time, Cost, Stage Time - Clickable to expand */}
       <div className={`flex-1 flex flex-col min-w-0 gap-x-3 text-xs text-gray-700 mb-0 mr-1 ${expanded ? 'justify-center md:justify-start md:pt-1' : 'justify-center'}`}>
         <div 
-          className="flex min-w-0 flex-row flex-nowrap gap-x-3 sm:gap-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors dark:text-white/70 dark:hover:bg-white/10"
+          className={`flex min-w-0 flex-row gap-x-3 gap-y-1 sm:gap-x-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors dark:text-white/70 dark:hover:bg-white/10 ${expanded ? 'flex-wrap' : 'flex-nowrap'}`}
           onClick={() => setExpanded(e => !e)}
           role="button"
           tabIndex={0}
           aria-expanded={expanded}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpanded(x => !x); }}
         >
-          <span className="flex min-w-[2.5rem] items-center gap-1" title={formatTimeRange(mic.startTime, mic.latestEndTime)}>
+          {/* Collapsed, this row is one line and long values end in an ellipsis.
+              Expanding drops the width caps so the full text is readable. */}
+          <span className={`flex items-center gap-1 ${expanded ? '' : 'min-w-[2.5rem]'}`} title={formatTimeRange(mic.startTime, mic.latestEndTime)}>
             <Clock className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
-            <span className="truncate">{formatTimeRange(mic.startTime, mic.latestEndTime)}</span>
+            <span className={expanded ? '' : 'truncate'}>{formatTimeRange(mic.startTime, mic.latestEndTime)}</span>
           </span>
           <span className="flex flex-shrink-0 items-center gap-1 whitespace-nowrap">
             <Clock className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
             {formatStageTime(mic.stageTime)}
           </span>
-          <span className="flex min-w-[3.5rem] max-w-[55%] items-center gap-1" title={formatCost(mic.cost)}>
+          <span className={`flex items-center gap-1 ${expanded ? 'min-w-0' : 'min-w-[3.5rem] max-w-[55%]'}`} title={formatCost(mic.cost)}>
             <DollarSign className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
-            <span className="truncate">{formatCost(mic.cost)}</span>
+            <span className={expanded ? 'break-words' : 'truncate'}>{formatCost(mic.cost)}</span>
           </span>
           <ChevronDown
             className={`w-4 h-4 flex-shrink-0 text-[#8ec5ff] transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
@@ -503,6 +506,9 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
           signUpInstructions={mic.signUpInstructions}
           venueAddress={mic.location || mic.venueName}
           sharedRatings={sharedRatings}
+          onCommentClick={() => setShowComments(v => !v)}
+          showCommentSection={showComments}
+          commentCount={commentCount}
         />
 
         {/* Comments Section */}
@@ -543,6 +549,7 @@ export default function OpenMicsDetailedList({
   // Fetched once for the whole list and handed to every row, so a screen of
   // 100 cards costs two requests instead of one per card.
   const sharedRatings = useSharedMicRatingData();
+  const commentCounts = useMicCommentCounts();
 
   const validMics = sinkFinishedToday
     ? mics
@@ -584,9 +591,20 @@ export default function OpenMicsDetailedList({
     }, 80);
   };
 
+  // Re-check once the mics arrive, not just when the id changes. A tap on the
+  // map sets this after the list has loaded, but a link into /open-mics?mic=<id>
+  // sets it on the first render, when validMics is still empty: the lookup found
+  // nothing, and nothing ever ran again, so the link silently did nothing. The
+  // ref keeps it to one expand-and-scroll per id, so paging in more mics does
+  // not yank the page back.
+  const handledMicId = useRef<string | null>(null);
   useEffect(() => {
-    if (selectedMicId) handleSelectMicOfDay(selectedMicId);
-  }, [selectedMicId]);
+    if (!selectedMicId) return;
+    if (handledMicId.current === selectedMicId) return;
+    if (!validMics.some((m) => m.uniqueIdentifier === selectedMicId)) return;
+    handledMicId.current = selectedMicId;
+    handleSelectMicOfDay(selectedMicId);
+  }, [selectedMicId, validMics]);
 
   const handleAddToCalendar = async (mic: OpenMic) => {
     if (!user) return;
@@ -629,6 +647,7 @@ export default function OpenMicsDetailedList({
           onRegisterRow={registerRow}
           flash={flashId === mic.uniqueIdentifier}
           sharedRatings={sharedRatings}
+          commentCount={commentCounts[mic.uniqueIdentifier]}
         />
       ))}
       {visibleCount < validMics.length && (
