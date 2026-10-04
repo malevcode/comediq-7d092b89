@@ -1,0 +1,1 @@
+revoke execute on function public.open_mics_seo_fields() from public, anon, authenticated;
