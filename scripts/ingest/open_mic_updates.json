@@ -700,6 +700,15 @@
         "geocoding_score": null,
         "geocoding_match_address": null
       }
+    },
+    {
+      "unique_identifier": "e2c14ec2-7d73-487c-a51f-87db5457da6e",
+      "note": "One & One: host Dion Domicello (Instagram DM) said the Thursday mic was canceled and moved to Tuesdays 6 to 8 PM, $5 + 1 item from the bar, 7 min sets, same venue (One and One, 76 East 1st Street). Cost reads 'cash' in his first line ('Yes, please add $5. Cash + 1 item from the bar'). Start/end stay 6:00 PM/8:00 PM since he gave 6 to 8 explicitly. Location, sign-up text and rules unchanged. Name 'One & One 7min' kept: it carries a set length, not a day or start time.",
+      "set": {
+        "day": "Tuesday",
+        "cost": "$5 cash + 1 item from the bar",
+        "stage_time": "7 minutes"
+      }
     }
   ],
   "removals": [
