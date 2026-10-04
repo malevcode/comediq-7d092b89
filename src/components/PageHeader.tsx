@@ -4,7 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import { TopAdBar } from "@/components/TopAdBar";
 import { ReactNode, useLayoutEffect, useRef } from "react";
-import ThemeToggle from "@/components/ThemeToggle";
 
 interface PageHeaderProps {
   title?: string;
@@ -55,7 +54,6 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
 
           {/* Right: auth */}
           <div className="flex items-center gap-3">
-            <ThemeToggle />
             {user ? (
               <>
                 <span className="hidden sm:inline text-xs text-[#07111f]/60 dark:text-white/60">
