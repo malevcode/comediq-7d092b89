@@ -1064,6 +1064,80 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: the booking system was already here, switched off
+
+**The thing worth knowing.** Comediq has had two complete booking systems for
+months, and nobody could reach either one.
+
+*Mic signup sheets.* The tables (`mic_signup_events`, `mic_signups`) have
+spots, an order, open and close times, and three modes: first come, lottery,
+bucket. `src/pages/MicSignup.tsx` draws the numbered list, the "7 / 15 spots"
+counter, join and cancel. `src/api/signups.ts` has the functions.
+`RunOfShow.tsx` lets a host drag the order around. All of it worked. All of it
+was invisible, because every one of the 406 mics ships with `slots_enabled =
+false` and **nothing in the entire app could set that column to true**. There
+was no door.
+
+*Show applications.* `show_postings` plus `role_openings` (spots, stage time,
+pay) plus `job_applications` (status, producer notes) plus `job_messages`, and
+24 working functions in `src/api/jobBoard.ts`: post a show, define roles,
+apply, accept, reject, message back and forth. `/job-board` is **redirected to
+`/growth`**, and `/growth` renders a list that is an empty array. So the
+feature is routed into a wall.
+
+**What this session built.** The door. One toggle on the host dashboard that
+sets `slots_enabled` and `signup_method` together, because setting one without
+the other gives you either a sheet nobody is told about or a promise of a sheet
+that is not there. It sits first in the panel, above cover image and create
+event, because an event made while signups are off is a real event with no way
+to reach it.
+
+**The security fix that had to come first.** A policy from February said any
+signed-in person could update any column of any mic:
+
+    CREATE POLICY "Authenticated users can update public mic info"
+      ON open_mics_historical FOR UPDATE TO authenticated
+      USING (true) WITH CHECK (true);
+
+Postgres combines permissive policies with OR, so this one swallowed all three
+narrower policies on that table. The verified-host policy and both admin
+policies have done nothing since the day it landed. On its own that is bad. It
+becomes unshippable the moment `slots_enabled` is live, because then anyone can
+open a fake signup sheet on a room they have never been to, or close the sheet
+on a room that is running tonight. The migration drops it. The three correct
+policies underneath take over immediately: a verified host may edit the mic
+they claimed, an admin may edit anything.
+
+What that turns off is direct writes by ordinary signed-in users, including
+saving from `/dev-view`. Corrections now go through the mic comment thread,
+where a person reports and an admin applies, instead of an anonymous write to
+live data that nobody reviews.
+
+**A rollback ate three sessions first.** Before any of this, commit `7002071`
+from `gpt-engineer-app[bot]` ("Reverted to commit a030a7c", Oct 3) removed
+1,676 lines across 36 files: every contrast fix, the Mic of the Month strip and
+its config, the leaderboard ballot, the vote arrow, the mic comments work and
+its migration. It also put the NY Comedy Festival listing back on the Growth
+page. Reverting the revert was clean because the fourteen commits made after it
+only touched `mics.json`, `venues.json`, the sitemap, `export-mics.mjs`,
+`types.ts` and two new migrations, with zero overlap. **If Lovable is edited
+and published after a Claude Code merge, it can snap the repo back to its own
+last snapshot and silently drop everything in between.**
+
+**Still deferred, and now twice.** Two contrast failures are shared design
+tokens rather than local classes, so neither belongs in a feature change: the
+form placeholder at 4.11 (`--muted-foreground`) and the primary button label at
+3.79 (`--primary-foreground` on `--primary`, which sits behind 321 Button
+usages). They need one measured pass of their own.
+
+**What is not verified.** This sandbox cannot reach Supabase, so the toggle's
+actual write was never executed. The UI was proven with a stubbed client in
+both themes and both states, and the "open the sheet" link resolves to
+`/mic/red-eye-hell-s-kitchen/signup`, the same slug the signup page itself
+computes. Whether the migrations are applied in production is still unknown and
+still needs checking before anyone relies on this.
+
+
 ### Session: the anti-slop audit, and the first batch of fixes
 
 **What anti-slop is.** A public rulebook for AI-built websites
