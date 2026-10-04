@@ -38,6 +38,10 @@ const COLUMNS = [
   "hosts_organizers",
   "changes_updates",
   "last_verified",
+  "last_confirmed_at",
+  "last_verified_at",
+  "slug",
+  "venue_slug",
   "city",
   "signup_enabled",
   "other_rules",
@@ -81,6 +85,10 @@ function mapRow(row) {
     hosts: row.hosts_organizers || "",
     instagramHandle: row.changes_updates || "",
     lastVerified: row.last_verified || "",
+    lastConfirmedAt: row.last_confirmed_at ?? null,
+    lastVerifiedAt: row.last_verified_at ?? null,
+    slug: row.slug || undefined,
+    venueSlug: row.venue_slug || undefined,
     uniqueIdentifier: row.unique_identifier || "",
     city: row.city || "",
     signupEnabled: row.signup_enabled || false,
@@ -106,17 +114,16 @@ function mapRow(row) {
   };
 }
 
-async function fetchPage(from, size) {
+async function fetchPage(from, size, table = "open_mics_historical", select = COLUMNS, filters = { active: "eq.true", status: "neq.pending" }) {
   const params = new URLSearchParams({
-    select: COLUMNS,
-    active: "eq.true",
-    status: "neq.pending",
-    order: "unique_identifier.asc",
+    select,
+    ...filters,
+    order: table === "venues" ? "slug.asc" : "unique_identifier.asc",
     offset: String(from),
     limit: String(size),
   });
 
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/open_mics_historical?${params}`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
     headers: {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${SUPABASE_KEY}`,
@@ -141,6 +148,13 @@ try {
   const mics = allRows.map(mapRow);
   if (mics.length === 0) throw new Error("Supabase export returned zero mics");
   writeFileSync(OUT_PATH, JSON.stringify(mics));
+
+  // Venues (only those hosting an exported mic) → public/venues.json
+  const used = new Set(mics.map((m) => m.venueSlug).filter(Boolean));
+  const venues = (await fetchPage(0, 5000, "venues", "slug,name,address,borough,neighborhood,city,latitude,longitude", {}))
+    .filter((v) => used.has(v.slug));
+  writeFileSync(join(process.cwd(), "public", "venues.json"), JSON.stringify(venues));
+  console.log(`[export-mics] ✓ ${venues.length} venues → public/venues.json`);
 
   const sizeKB = (Buffer.byteLength(JSON.stringify(mics)) / 1024).toFixed(1);
   console.log(`[export-mics] ✓ ${mics.length} mics → public/mics.json (${sizeKB} KB)`);
