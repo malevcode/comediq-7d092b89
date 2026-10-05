@@ -1,3 +1,4 @@
+import { micPath } from "@/lib/seoShared";
 import { Link } from "react-router-dom";
 import { Trophy, ArrowUp } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
@@ -85,7 +86,7 @@ export default function Leaderboard() {
                 {rows.map(({ rank, upvotes, mic }) => (
                   <li key={mic.uniqueIdentifier}>
                     <Link
-                      to={`/mics/${slugify(mic.venueName || mic.openMic)}-${slugify(mic.neighborhood || "")}?id=${mic.uniqueIdentifier}`}
+                      to={micPath(mic)}
                       className={rowClass}
                       style={{
                         borderLeftWidth: 4,

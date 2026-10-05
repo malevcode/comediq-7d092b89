@@ -1,3 +1,4 @@
+import { micPath } from "@/lib/seoShared";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMicPlaylists, usePlaylistItems } from "@/hooks/useMicPlaylists";
@@ -116,7 +117,7 @@ export default function PlaylistDetail() {
                     
                     <div className="flex-1 min-w-0">
                       <Link 
-                        to={`/mics/${slugify(item.mic!.openMic)}`}
+                        to={micPath(item.mic!)}
                         className="font-semibold text-gray-900 hover:text-[#0E4898] transition-colors"
                       >
                         {item.mic!.openMic}

@@ -1,5 +1,6 @@
 import { OpenMic } from "@/types/openMic";
 import { slugify, generateVenueSlug } from "./slugify";
+import { micPath, venuePath } from "@/lib/seoShared";
 
 interface FilterParams {
   price?: string;
@@ -15,12 +16,13 @@ interface FilterParams {
  */
 export const linkManager = {
   // Mic pages
-  micDetail: (mic: OpenMic) => `/mics/${generateVenueSlug(mic)}`,
+  micDetail: (mic: OpenMic) => micPath(mic),
+  venueDetail: (mic: OpenMic) => venuePath(mic),
   micSignup: (mic: OpenMic) => `/mic/${generateVenueSlug(mic)}/signup`,
   
   // User navigation with filters (query params)
-  openMicsFilteredByDay: (day: string) => `/open-mics?day=${encodeURIComponent(day)}`,
-  openMicsFilteredByBorough: (borough: string) => `/open-mics?borough=${encodeURIComponent(borough)}`,
+  openMicsFilteredByDay: (day: string) => `/open-mics/${slugify(day)}`,
+  openMicsFilteredByBorough: (borough: string) => `/open-mics/${slugify(borough)}`,
   
   // SEO pages (for search engines)
   boroughSEO: (borough: string) => `/boroughs/${slugify(borough)}`,
