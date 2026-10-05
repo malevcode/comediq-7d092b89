@@ -415,18 +415,20 @@
     },
     {
       "unique_identifier": "12d96cea-21b0-4147-94e3-ac97c1d6928c",
-      "note": "Buddha Room Friday 9:45 PM is actually 9:00 PM. Renamed to match. The stored 10:30 PM end time is still after the new start, so it is left as is rather than guessed at. | RENAMED to '9 Buddha Room Mic Show'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Buddha Room Friday 9:45 PM is actually 9:00 PM. Renamed to match. The stored 10:30 PM end time is still after the new start, so it is left as is rather than guessed at. | RENAMED to '9 Buddha Room Mic Show'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | REVERSED by Laughing Buddha schedule email, 2026-10-05; Adam said to trust their newest email over the old PR #128 correction. Friday 9:00 PM -> 9:45 PM. The email lists Friday at 9:45 and 11:30, which restores the original times that #128 had changed. Renamed time-first and the end moved to 90 minutes after the start (11:15 PM), as Adam specified. The same existing listing is reused; nothing was deactivated.",
       "set": {
-        "open_mic": "9 Buddha Room Mic Show",
-        "start_time": "9:00 PM"
+        "open_mic": "9:45 Buddha Room Mic Show",
+        "start_time": "9:45 PM",
+        "latest_end_time": "11:15 PM"
       }
     },
     {
       "unique_identifier": "b05066a7-b776-40ba-b1d1-560cb86d833f",
-      "note": "Buddha Room Friday 11:30 PM is actually 10:30 PM. Renamed to match. The stored 12:30 AM end time is still after the new start, so it is left as is. | RENAMED to '10:30 Buddha Room Mic Show'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Buddha Room Friday 11:30 PM is actually 10:30 PM. Renamed to match. The stored 12:30 AM end time is still after the new start, so it is left as is. | RENAMED to '10:30 Buddha Room Mic Show'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | REVERSED by Laughing Buddha schedule email, 2026-10-05; Adam said to trust their newest email over the old PR #128 correction. Friday 10:30 PM -> 11:30 PM. The email lists Friday at 9:45 and 11:30, which restores the original times that #128 had changed. Renamed time-first and the end moved to 90 minutes after the start (1:00 AM), as Adam specified. The same existing listing is reused; nothing was deactivated.",
       "set": {
-        "open_mic": "10:30 Buddha Room Mic Show",
-        "start_time": "10:30 PM"
+        "open_mic": "11:30 Buddha Room Mic Show",
+        "start_time": "11:30 PM",
+        "latest_end_time": "1:00 AM"
       }
     },
     {
