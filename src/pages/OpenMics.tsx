@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { OpenMic, MicFrequency, FREQUENCY_LABELS } from "@/types/openMic";
+import { OpenMic, MicFrequency, FREQUENCY_LABELS, VARIETY_TAG } from "@/types/openMic";
 import { parseStartTimeToMinutes } from '@/utils/micCheckin';
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useAuth } from "@/contexts/AuthContext";
@@ -351,7 +351,10 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       // New: Status filter
       const matchesMicStatus = !filters.micStatus || filters.micStatus === 'all' || mic.status === filters.micStatus;
 
-      return matchesSearch && matchesBorough && matchesCost && matchesTime && matchesCity && matchesFrequency && matchesMicStatus;
+      // Variety (mixed) mics only
+      const matchesVariety = !filters.variety || mic.legacyTag === VARIETY_TAG;
+
+      return matchesSearch && matchesBorough && matchesCost && matchesTime && matchesCity && matchesFrequency && matchesMicStatus && matchesVariety;
     });
 
     if (dayFilter) {

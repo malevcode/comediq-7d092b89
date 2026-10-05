@@ -13,6 +13,7 @@ export interface MicFilters {
   city: string;
   frequency?: MicFrequency | 'all';
   micStatus?: MicStatus | 'all';
+  variety?: boolean;
 }
 
 interface MicFiltersProps {
@@ -81,10 +82,11 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
       city: filters.city,
       frequency: 'all',
       micStatus: 'all',
+      variety: false,
     });
   };
 
-  const hasActiveFilters = filters.costRange[0] > 0 || filters.costRange[1] < maxCost || filters.timeOfDay.length > 0 || filters.borough !== "All" || (filters.frequency && filters.frequency !== 'all') || (filters.micStatus && filters.micStatus !== 'all');
+  const hasActiveFilters = filters.costRange[0] > 0 || filters.costRange[1] < maxCost || filters.timeOfDay.length > 0 || filters.borough !== "All" || (filters.frequency && filters.frequency !== 'all') || (filters.micStatus && filters.micStatus !== 'all') || !!filters.variety;
 
   return (
     <div className="relative" ref={filterRef}>
@@ -189,6 +191,23 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                     </select>
                   </div>
                   )}
+
+                  {/* Variety / mixed mics: comedy plus other acts */}
+                  <div>
+                    <label className="text-xs font-medium mb-1 block text-gray-600 dark:text-white/70">Mic Type</label>
+                    <Button
+                      onClick={() => onFiltersChange({ ...filters, variety: !filters.variety })}
+                      variant="outline"
+                      size="sm"
+                      className={`w-full text-xs h-7 px-1 ${
+                        filters.variety
+                          ? 'bg-[#1a5fb4]/10 border-[#1a5fb4]/30 text-[#1a5fb4] hover:bg-[#1a5fb4]/20 dark:bg-[#102a53]/30 dark:border-white/20 dark:text-white dark:hover:bg-white/20'
+                          : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10'
+                      }`}
+                    >
+                      Variety / mixed mics only
+                    </Button>
+                  </div>
 
                   {/* Time of Day Filter */}
                   <div>
