@@ -1,5 +1,9 @@
 
 export type MicStatus = 'trial' | 'verified' | 'pending';
+
+// Variety (mixed) mics also take non-comedy acts. Stored in legacy_tag, the
+// one tag column the export already carries.
+export const VARIETY_TAG = 'Variety';
 export type MicFrequency = 'weekly' | 'one_off' | 'bi_weekly' | '1st_of_month' | '2nd_of_month' | '3rd_of_month' | '4th_of_month' | 'last_of_month' | 'custom';
 export type SignupMethod = 'in_person' | 'online' | 'comediq_slots' | 'other';
 

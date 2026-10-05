@@ -747,6 +747,21 @@
         "start_time": "2:00 PM",
         "latest_end_time": "3:30 PM"
       }
+    },
+    {
+      "unique_identifier": "92a570e4-a5f1-4503-8ad7-96ef73ea663d",
+      "note": "Adam, 2026-10-05: tag as Variety mic (mixed open mic that lets non-comedy acts sign up). legacy_tag 'Pre-March 2026' -> 'Variety'; the Pre-March 2026 provenance is recorded here. The comediq Mic Type filter matches this tag.",
+      "set": {
+        "legacy_tag": "Variety"
+      }
+    },
+    {
+      "unique_identifier": "77b1ed82-98fb-4810-9124-304453af6849",
+      "note": "Adam, 2026-10-05: tag as Variety mic (mixed open mic that lets non-comedy acts sign up). legacy_tag 'Pre-March 2026' -> 'Variety'; the Pre-March 2026 provenance is recorded here. The comediq Mic Type filter matches this tag. Also: Adam asked to add that the mic is in the Red Room on the 3rd floor of KGB Bar. Prepended to other_rules (the details field the app shows) and the existing text kept verbatim. The street address is unchanged, so no geocoding fields are touched.",
+      "set": {
+        "legacy_tag": "Variety",
+        "other_rules": "Held in the Red Room, on the 3rd floor of KGB Bar. cheapest item is $7 drink (2 drink min from a bartender with a tip screen so $18 for 2 drinks + 20%, come for a mixed show with poetry and music)"
+      }
     }
   ],
   "removals": [

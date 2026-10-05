@@ -185,6 +185,21 @@ This matters most when a start time moves, because the end time has to move with
 it. Changing a 6:00 to 6:30 and leaving the 7:30 end silently turns a 90 minute
 mic into a 60 minute one, and nobody asked for that. Shift both.
 
+### Variety (mixed) mics
+
+A **variety mic** is a mixed open mic that also lets non-comedy acts (poetry,
+music and so on) sign up. It is marked by setting a mic's `legacy_tag` to
+`Variety`. That is the one tag column the export already carries, so nothing in
+the database changes and nothing has to be migrated. The Filter menu on the
+Open Mics screen has a **Mic Type** button, "Variety / mixed mics only", which
+shows only those rows. The tag also shows up as the small pill on the detailed
+list. The name of the constant is `VARIETY_TAG` in `src/types/openMic.ts`.
+
+Setting it replaces the old `Pre-March 2026` text on that row. The batch note
+keeps the old value. A verified mic with any `legacy_tag` still shows the
+"Legacy" badge, so a brand new verified variety mic would wear that badge too.
+Tagged so far: The Open Mic Downstairs (FRIGID), Easy Paradise (KGB Bar).
+
 ### Applying a batch of host updates
 
 Host responses normally get processed into mic edits automatically. When that job does not run, the batch goes into `scripts/ingest/open_mic_updates.json` by hand and ships through the **Apply open mic updates** workflow (dry run defaults to on).
@@ -1551,3 +1566,18 @@ The `Active = TRUE` half of the request has no equivalent in the sheet and was
 left alone rather than guessed at. The nearest thing the sheet has is the
 `Last verified` column, which is free text.
 
+### Session: variety mic tag, filter, and KGB room details
+
+Adam asked for a "Variety" tag for mixed open mics, a filter for them, and the
+Red Room detail on Easy Paradise. A new database column was the obvious design
+and the wrong one here: nothing in this repo applies migrations, and the export
+selects columns by name, so a column that does not exist yet would break the
+nightly export. The tag lives in `legacy_tag` instead, the filter is one button
+in `MicFilters.tsx`, and the three data changes are entries in the batch.
+
+Easy Paradise now starts its details with "Held in the Red Room, on the 3rd
+floor of KGB Bar." in `other_rules`, with the old text kept. The street address
+was not touched, so no geocoding fields were cleared.
+
+Not tagged: `Mixed mic!The Joy of Ranting` at the Windjammer. Its name says it
+is mixed, but Adam did not list it.
