@@ -5,7 +5,6 @@ import { useMicRatings } from "@/hooks/useMicRatings";
 import { parseVenueSlug, slugify } from "@/utils/slugify";
 import { linkManager } from "@/utils/linkManager";
 import SEO from "@/components/SEO";
-import { generateEventSchema, generateLocalBusinessSchema, generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Button } from "@/components/ui/button";
 import { Heart, ExternalLink, Navigation } from "lucide-react";
 import { WentUpToggle } from "@/components/mic/WentUpToggle";
@@ -73,25 +72,6 @@ const MicDetailPage = () => {
       { name: mic.openMic, path: micPath(mic) },
     ]),
   );
-  const _legacyStructuredData = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      generateEventSchema(mic),
-      generateLocalBusinessSchema({
-        name: mic.venueName,
-        location: mic.location,
-        borough: mic.borough,
-        rating: ratingCounts ? ratingCounts.likes / (ratingCounts.likes + (ratingCounts.dislikes || 0)) * 5 : undefined,
-        reviewCount: ratingCounts ? ratingCounts.likes + (ratingCounts.dislikes || 0) : undefined
-      }),
-      generateBreadcrumbSchema([
-        { name: 'Home', url: 'https://comediq.us' },
-        { name: 'Open Mics', url: 'https://comediq.us/open-mics' },
-        { name: mic.borough, url: `https://comediq.us${linkManager.borough(mic.borough)}` },
-        { name: mic.venueName, url: `https://comediq.us/mics/${venueSlug}` }
-      ])
-    ]
-  };
 
   const titleTextClass = "text-[#07111f] dark:text-white";
   const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
@@ -143,6 +123,7 @@ const MicDetailPage = () => {
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3 md:mt-6">
               <p className={`max-w-2xl text-sm ${mutedTextClass}`}>
                 {mic.cost?.toLowerCase() === 'free' ? 'free' : mic.cost?.toLowerCase() || 'cost not specified'} · {mic.day?.toLowerCase()} · {mic.venueName?.toLowerCase()}{mic.stageTime ? ` · ${mic.stageTime} on stage` : ''}
+                {formatVerified(mic.lastVerifiedAt) ? ` · verified ${formatVerified(mic.lastVerifiedAt)!.toLowerCase()}` : ''}
               </p>
               <div className="flex flex-wrap gap-2">
                 <WentUpToggle mic={mic} />
@@ -183,7 +164,7 @@ const MicDetailPage = () => {
             <Attr label="cost" value={mic.cost || 'Not listed'} />
             <Attr label="stage time" value={mic.stageTime || 'Not listed'} />
             <Attr label="host" value={mic.hosts || mic.instagramHandle || 'Not listed'} />
-            <Attr label="venue" value={mic.venueName} />
+            <Attr label="venue" value={<Link to={venuePath(mic)} className="underline decoration-dotted underline-offset-4 hover:text-[#1a5fb4] dark:hover:text-[#8ec5ff]">{mic.venueName}</Link>} />
             <Attr label="neighborhood" value={mic.neighborhood} />
             <Attr label="borough" value={mic.borough} />
             <Attr
