@@ -525,30 +525,34 @@
     },
     {
       "unique_identifier": "20ff5c59-6bb8-45c2-aea0-190fa6fd34a8",
-      "note": "Renamed 'The Buddha Room 4:30 Hour' to '4:30 Buddha Room Hour'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Renamed 'The Buddha Room 4:30 Hour' to '4:30 Buddha Room Hour'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Thursday 4:30 PM is listed as '1 Hour Mic', which is the room specifically saying it is one hour. End 6:00 PM -> 5:30 PM per the comediq 90-minutes-unless-it-says-one-hour rule. Stage time left at 5 minutes since the list does not give one.",
       "set": {
-        "open_mic": "4:30 Buddha Room Hour"
+        "open_mic": "4:30 Buddha Room Hour",
+        "latest_end_time": "5:30 PM"
       }
     },
     {
       "unique_identifier": "31f01924-6f04-4f82-a82c-0d5d8321078c",
-      "note": "Renamed 'The Buddha Room 10:30' to '10:30 Buddha Room'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Renamed 'The Buddha Room 10:30' to '10:30 Buddha Room'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Thursday 10:30 PM at The Buddha Room is not on their list, which is described as all of their open mics. Their Thursday list is 4:30, 5:30, 6:30, 8:00, Zoom 8:30 and 9:45. Deactivated on that basis (this entry already existed for the rename, so it carries active false rather than a second removals entry). To reverse, set active true here.",
       "set": {
-        "open_mic": "10:30 Buddha Room"
+        "open_mic": "10:30 Buddha Room",
+        "active": false
       }
     },
     {
       "unique_identifier": "3a438c58-2574-4da4-9c3e-8d2133d7b5a9",
-      "note": "Renamed 'The Buddha Room 8 Show Mic' to '8 Buddha Room Show Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Renamed 'The Buddha Room 8 Show Mic' to '8 Buddha Room Show Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Monday 8:00 PM is listed as '6 Min Mic'. Stage time 5 -> 6 minutes.",
       "set": {
-        "open_mic": "8 Buddha Room Show Mic"
+        "open_mic": "8 Buddha Room Show Mic",
+        "stage_time": "6 minutes"
       }
     },
     {
       "unique_identifier": "4c07341c-c141-4bd0-be8a-7b08986327c6",
-      "note": "Renamed 'The Buddha Room 4:30 Hour Mic' to '4:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Renamed 'The Buddha Room 4:30 Hour Mic' to '4:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Monday 4:30 PM is listed as '1 Hour 7 Min Mic'. Stage time 6 -> 7 minutes; the hour length already matched.",
       "set": {
-        "open_mic": "4:30 Buddha Room Hour Mic"
+        "open_mic": "4:30 Buddha Room Hour Mic",
+        "stage_time": "7 minutes"
       }
     },
     {
@@ -567,16 +571,18 @@
     },
     {
       "unique_identifier": "922aeca4-2e23-4db6-a33e-8bd45f1be9ac",
-      "note": "Renamed 'The Buddha Room 9:30 Hour Mic' to '9:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Renamed 'The Buddha Room 9:30 Hour Mic' to '9:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Tuesday 9:30 PM is listed as '1 Hour 6 Min Mic'. Stage time 5 -> 6 minutes; the hour length already matched.",
       "set": {
-        "open_mic": "9:30 Buddha Room Hour Mic"
+        "open_mic": "9:30 Buddha Room Hour Mic",
+        "stage_time": "6 minutes"
       }
     },
     {
       "unique_identifier": "98f9d16f-b72e-4a5c-9bde-ad24baccfc3d",
-      "note": "Renamed 'The Buddha Room 6:30' to '6:30 Buddha Room'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Renamed 'The Buddha Room 6:30' to '6:30 Buddha Room'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Monday 6:30 PM is listed as '6 Min Mic'. Stage time 5 -> 6 minutes.",
       "set": {
-        "open_mic": "6:30 Buddha Room"
+        "open_mic": "6:30 Buddha Room",
+        "stage_time": "6 minutes"
       }
     },
     {
@@ -708,6 +714,36 @@
         "day": "Tuesday",
         "cost": "$5 cash + 1 item from the bar",
         "stage_time": "7 minutes"
+      }
+    },
+    {
+      "unique_identifier": "582b9d02-7455-472d-8c53-ae562f8acb70",
+      "note": "Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Thursday 6:30 PM is on the schedule again, so the stale '*Resumes 8/27*' label comes off. Renamed to match the other 6:30 Buddha Room rows. End time untouched.",
+      "set": {
+        "open_mic": "6:30 Buddha Room"
+      }
+    },
+    {
+      "unique_identifier": "c0c00e64-3550-4470-95ec-4c38dcf152a3",
+      "note": "Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Thursday 8:00 PM is on the schedule again, so the stale '*Resumes 9/3*' label comes off. Renamed time-first. End time untouched.",
+      "set": {
+        "open_mic": "8 Buddha Room"
+      }
+    },
+    {
+      "unique_identifier": "b93ed6ce-c688-4c27-b07f-7543b9ae79e3",
+      "note": "Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Thursday 9:45 PM is on the schedule again, so the stale '*Resumes 8/27*' label comes off. Renamed time-first. End time untouched (already 90 minutes).",
+      "set": {
+        "open_mic": "9:45 Buddha Room"
+      }
+    },
+    {
+      "unique_identifier": "e7ac20fa-dcbd-4219-a9fb-2720bb277707",
+      "note": "Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Sunday NY Comedy Club UWS is listed at 2:00 PM '(New Time)'. This is the live row (was 3:00 PM). Start 3:00 -> 2:00 PM, end 4:30 -> 3:30 PM (90 minutes, the list does not say one hour), renamed time-first. The old 1:30 PM row (uid 3478fc7e) stays inactive; it was cancelled by the same room and is a different row.",
+      "set": {
+        "open_mic": "Buddha 2 @NYCC UWS",
+        "start_time": "2:00 PM",
+        "latest_end_time": "3:30 PM"
       }
     }
   ],
@@ -1026,6 +1062,36 @@
         "slot_duration_minutes": 5,
         "latitude": 40.761020924319,
         "longitude": -73.960579388757
+      }
+    },
+    {
+      "note": "Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): new Tuesday 8:00 PM mic at The Buddha Room, listed as 'Mic'. No Tuesday 8 PM Buddha row existed live or in this batch. Venue, address, coordinates, cost, stage time, sign-up and rules are COPIED from the Tuesday 6:30 Buddha Room row (uid e9e8c956), not invented. 8:00-9:30 PM because the list does not say one hour. Name follows the time-first convention, matching '8 Buddha Room' and '8 Buddha Room Show Mic'.",
+      "row": {
+        "open_mic": "8 Buddha Room Mic",
+        "day": "Tuesday",
+        "start_time": "8:00 PM",
+        "latest_end_time": "9:30 PM",
+        "venue_name": "The Buddha Room",
+        "location": "410 8th Ave, 2nd Floor, New York, NY 10001",
+        "borough": "Manhattan",
+        "neighborhood": "Midtown",
+        "venue_type": "Comedy Club",
+        "cost": "$8 + 1 drink",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Check laughingbuddhacomedy.com/mics for updated schedule and sign-up info",
+        "other_rules": "No guests are required to perform at our open mics. There is a one-item minimum for all comics and guests. You must purchase your item and check in with the host before your name is added to the lineup. Spots are 5 minutes; you may have extra time if we are not full. You must be 18 and older to register, or 16 accompanied by a parent or guardian. Please note, the venue does receive last-minute bookings, which can interfere with our mics. If this happens, we will let you know beforehand. Phone/Notes: You may use your phone or notes on stage. Please do not use your phone while in the audience. You may record your performance. All sales are final. No refunds or exchanges are permitted.",
+        "hosts_organizers": "@laughingbuddhacomedy",
+        "changes_updates": "@laughingbuddhacomedy",
+        "city": "New York",
+        "status": "verified",
+        "frequency": "weekly",
+        "signup_method": "in_person",
+        "signup_url": "https://www.laughingbuddhacomedy.com/mics",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.749877058319,
+        "longitude": -73.994731369426
       }
     }
   ]
