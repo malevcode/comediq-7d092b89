@@ -750,9 +750,10 @@
     },
     {
       "unique_identifier": "92a570e4-a5f1-4503-8ad7-96ef73ea663d",
-      "note": "Adam, 2026-10-05: tag as Variety mic (mixed open mic that lets non-comedy acts sign up). legacy_tag 'Pre-March 2026' -> 'Variety'; the Pre-March 2026 provenance is recorded here. The comediq Mic Type filter matches this tag.",
+      "note": "Adam, 2026-10-05: tag as Variety mic (mixed open mic that lets non-comedy acts sign up). legacy_tag 'Pre-March 2026' -> 'Variety'; the Pre-March 2026 provenance is recorded here. The comediq Mic Type filter matches this tag. | RENAMED 'The Open Mic Downstairs' -> 'The Variety Mic' at Adam's request, 2026-10-05. No number in the name, so the time-first convention does not apply. The Instagram handle @theopenmicdownstairs is unchanged.",
       "set": {
-        "legacy_tag": "Variety"
+        "legacy_tag": "Variety",
+        "open_mic": "The Variety Mic"
       }
     },
     {
