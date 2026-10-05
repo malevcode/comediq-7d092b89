@@ -33,6 +33,13 @@ import AdminInterface from "./pages/AdminInterface";
 import Playlists from "./pages/Playlists";
 import PlaylistDetail from "./pages/PlaylistDetail";
 import MicDetailPage from "./pages/MicDetailPage";
+import VenuePage from "./pages/VenuePage";
+import { useParams } from "react-router-dom";
+
+const ToOpenMicsFilter = ({ param }: { param: string }) => {
+  const params = useParams();
+  return <Navigate to={`/open-mics/${(params[param] || "").toLowerCase()}`} replace />;
+};
 import MicsByBorough from "./pages/MicsByBorough";
 import MicsByNeighborhood from "./pages/MicsByNeighborhood";
 import MicsByDay from "./pages/MicsByDay";
@@ -148,6 +155,7 @@ function AppShell() {
             <Route path="/perform" element={<TabProvider><Perform /></TabProvider>} />
             <Route path="/laugh" element={<LaughTabProvider><Laugh /></LaughTabProvider>} />
             <Route path="/open-mics" element={<OpenMics />} />
+            <Route path="/open-mics/:filter" element={<OpenMics />} />
             <Route path="/track-sets" element={<ProgressTrackerPage />} />
             <Route path="/shows" element={<TabProvider><Shows /></TabProvider>} />
             <Route path="/auth" element={<Auth />} />
@@ -159,9 +167,11 @@ function AppShell() {
             <Route path="/playlists/:playlistId" element={<PlaylistDetail />} />
             <Route path="/home" element={<Home />} />
             <Route path="/mics/:venueSlug" element={<MicDetailPage />} />
-            <Route path="/boroughs/:borough" element={<MicsByBorough />} />
+            <Route path="/mic/:slug" element={<MicDetailPage />} />
+            <Route path="/venue/:slug" element={<VenuePage />} />
+            <Route path="/boroughs/:borough" element={<ToOpenMicsFilter param="borough" />} />
             <Route path="/neighborhoods/:neighborhood" element={<MicsByNeighborhood />} />
-            <Route path="/days/:day" element={<MicsByDay />} />
+            <Route path="/days/:day" element={<ToOpenMicsFilter param="day" />} />
             <Route path="/free-mics" element={<FreeMics />} />
             <Route path="/beginner-friendly" element={<BeginnerMics />} />
             <Route path="/host-dashboard" element={<HostDashboard />} />

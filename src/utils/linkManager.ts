@@ -25,14 +25,14 @@ export const linkManager = {
   openMicsFilteredByBorough: (borough: string) => `/open-mics/${slugify(borough)}`,
   
   // SEO pages (for search engines)
-  boroughSEO: (borough: string) => `/boroughs/${slugify(borough)}`,
+  boroughSEO: (borough: string) => `/open-mics/${slugify(borough)}`,
   neighborhoodSEO: (neighborhood: string) => `/neighborhoods/${slugify(neighborhood)}`,
-  micsByDaySEO: (day: string) => `/days/${slugify(day)}`,
+  micsByDaySEO: (day: string) => `/open-mics/${slugify(day)}`,
   
   // Legacy aliases (keep for backward compatibility)
-  borough: (borough: string) => `/boroughs/${slugify(borough)}`,
+  borough: (borough: string) => `/open-mics/${slugify(borough)}`,
   neighborhood: (neighborhood: string) => `/neighborhoods/${slugify(neighborhood)}`,
-  micsByDay: (day: string) => `/days/${slugify(day)}`,
+  micsByDay: (day: string) => `/open-mics/${slugify(day)}`,
   
   // Filter pages
   freeMics: () => '/free-mics',

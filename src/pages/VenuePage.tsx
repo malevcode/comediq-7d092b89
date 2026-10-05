@@ -74,7 +74,7 @@ const VenuePage = () => {
         <ul className="space-y-2">
           {venueMics.map((m) => (
             <li key={m.uniqueIdentifier} className="rounded-xl border border-border bg-card p-4">
-              <a href={micPath(m)} className="text-lg font-semibold text-foreground hover:text-primary">{m.openMic}</a>
+              <Link to={micPath(m)} className="text-lg font-semibold text-foreground hover:text-primary">{m.openMic}</Link>
               <p className="text-sm text-muted-foreground">
                 {[m.day, m.startTime, m.cost, m.stageTime && `${m.stageTime} on stage`].filter(Boolean).join(" · ")}
               </p>
