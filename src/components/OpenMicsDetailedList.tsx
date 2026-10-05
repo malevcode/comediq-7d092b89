@@ -11,9 +11,9 @@ import { makeLinksClickable } from '@/utils/makeLinksClickable';
 import { formatTimeRange, formatStageTime, formatCost } from '@/utils/micFormat';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
+import { micPath, venuePath, formatVerified } from '@/lib/seoShared';
 import MicActionBar from '@/components/mic/MicActionBar';
 import { useSharedMicRatingData, type SharedMicRatingData } from '@/hooks/useMicRatings';
-import { useMicCommentCounts } from '@/hooks/useMicComments';
 import EditMicButton from '@/components/mic/EditMicButton';
 import MicCommentSection from '@/components/mic/MicCommentSection';
 import { FREQUENCY_LABELS } from '@/types/openMic';
@@ -182,7 +182,7 @@ function truncateMicName(name: string, maxLength: number = 15): string {
 }
 
 // Helper to format time compactly (e.g., "5:00 PM" → "5 PM", "5:30 PM" → "5:30 PM")
-function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, onRegisterRow, flash, sharedRatings, commentCount }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void; onOpenMic?: (mic: OpenMic) => void; forceExpanded?: boolean; onRegisterRow?: (id: string, el: HTMLDivElement | null) => void; flash?: boolean; sharedRatings?: SharedMicRatingData; commentCount?: number }) {
+function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, onRegisterRow, flash, sharedRatings }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void; onOpenMic?: (mic: OpenMic) => void; forceExpanded?: boolean; onRegisterRow?: (id: string, el: HTMLDivElement | null) => void; flash?: boolean; sharedRatings?: SharedMicRatingData }) {
   const [expanded, setExpanded] = useState(false);
   useEffect(() => { setExpanded(!!forceExpanded); }, [forceExpanded]);
   const [showComments, setShowComments] = useState(false);
@@ -244,14 +244,19 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
           <div className="flex-1" />
           
           {/* Centered mic name with inline verified check */}
-          <button
-            type="button"
-            onClick={() => onOpenMic?.(mic)}
+          <a
+            href={micPath(mic)}
+            onClick={(e) => {
+              // Real link for crawlers and new-tab clicks; a plain click opens the quick-view.
+              if (!onOpenMic || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+              e.preventDefault();
+              onOpenMic(mic);
+            }}
             className="flex cursor-pointer items-center gap-1 px-0.5 text-base font-semibold text-[#07111f] transition-all duration-200 hover:rounded hover:bg-[#1a5fb4]/10 hover:text-[#1a5fb4] dark:text-white dark:hover:bg-white/10 dark:hover:text-[#8ec5ff]"
             title={mic.openMic}
           >
             {mic.openMic}
-          </button>
+          </a>
           
           {/* Right-aligned traffic light + frequency pill */}
           <div className="flex-1 flex justify-end items-center gap-1">
@@ -268,6 +273,11 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
           </div>
         </div>
         <div className="mb-0.5 text-xs text-[#07111f]/60 dark:text-white/60">
+          {formatVerified(mic.lastVerifiedAt) && (
+            <span className="block text-center text-[10px] text-[#07111f]/50 dark:text-white/45">
+              Verified {formatVerified(mic.lastVerifiedAt)}
+            </span>
+          )}
           <span className="flex items-center gap-1 justify-center">
             <MapPin className="w-3 h-3 flex-shrink-0 text-gray-400 dark:text-white/50" />
             <a
@@ -279,6 +289,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
             >
             {mic.venueName}, {mic.neighborhood}
             </a>
+            <Link to={venuePath(mic)} className="ml-1 shrink-0 text-[10px] underline decoration-dotted text-gray-500 hover:text-[#1a5fb4] dark:text-white/50" aria-label={`All mics at ${mic.venueName}`}>venue</Link>
             {distance && (
               <span className="flex items-center gap-1 ml-1 text-[#8ec5ff]  font-medium">
                 <Navigation className="w-3 h-3" />
@@ -308,26 +319,24 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
       {/* Mid: Time, Cost, Stage Time - Clickable to expand */}
       <div className={`flex-1 flex flex-col min-w-0 gap-x-3 text-xs text-gray-700 mb-0 mr-1 ${expanded ? 'justify-center md:justify-start md:pt-1' : 'justify-center'}`}>
         <div 
-          className={`flex min-w-0 flex-row gap-x-3 gap-y-1 sm:gap-x-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors dark:text-white/70 dark:hover:bg-white/10 ${expanded ? 'flex-wrap' : 'flex-nowrap'}`}
+          className="flex min-w-0 flex-row flex-nowrap gap-x-3 sm:gap-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors dark:text-white/70 dark:hover:bg-white/10"
           onClick={() => setExpanded(e => !e)}
           role="button"
           tabIndex={0}
           aria-expanded={expanded}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpanded(x => !x); }}
         >
-          {/* Collapsed, this row is one line and long values end in an ellipsis.
-              Expanding drops the width caps so the full text is readable. */}
-          <span className={`flex items-center gap-1 ${expanded ? '' : 'min-w-[2.5rem]'}`} title={formatTimeRange(mic.startTime, mic.latestEndTime)}>
+          <span className="flex min-w-[2.5rem] items-center gap-1" title={formatTimeRange(mic.startTime, mic.latestEndTime)}>
             <Clock className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
-            <span className={expanded ? '' : 'truncate'}>{formatTimeRange(mic.startTime, mic.latestEndTime)}</span>
+            <span className="truncate">{formatTimeRange(mic.startTime, mic.latestEndTime)}</span>
           </span>
           <span className="flex flex-shrink-0 items-center gap-1 whitespace-nowrap">
             <Clock className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
             {formatStageTime(mic.stageTime)}
           </span>
-          <span className={`flex items-center gap-1 ${expanded ? 'min-w-0' : 'min-w-[3.5rem] max-w-[55%]'}`} title={formatCost(mic.cost)}>
+          <span className="flex min-w-[3.5rem] max-w-[55%] items-center gap-1" title={formatCost(mic.cost)}>
             <DollarSign className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
-            <span className={expanded ? 'break-words' : 'truncate'}>{formatCost(mic.cost)}</span>
+            <span className="truncate">{formatCost(mic.cost)}</span>
           </span>
           <ChevronDown
             className={`w-4 h-4 flex-shrink-0 text-[#8ec5ff] transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
@@ -506,9 +515,6 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
           signUpInstructions={mic.signUpInstructions}
           venueAddress={mic.location || mic.venueName}
           sharedRatings={sharedRatings}
-          onCommentClick={() => setShowComments(v => !v)}
-          showCommentSection={showComments}
-          commentCount={commentCount}
         />
 
         {/* Comments Section */}
@@ -531,6 +537,9 @@ export default function OpenMicsDetailedList({
   selectedMicId = null,
   onOpenMic,
   sinkFinishedToday = true,
+  pageSize = 24,
+  nextHref,
+  onLoadMore,
 }: {
   mics: OpenMic[];
   visibleCount: number;
@@ -545,11 +554,14 @@ export default function OpenMicsDetailedList({
    * that runs on that day and expects it in time order.
    */
   sinkFinishedToday?: boolean;
+  pageSize?: number;
+  /** Crawlable URL of the next page (e.g. ?page=2). */
+  nextHref?: string;
+  onLoadMore?: (newCount: number) => void;
 }) {
   // Fetched once for the whole list and handed to every row, so a screen of
   // 100 cards costs two requests instead of one per card.
   const sharedRatings = useSharedMicRatingData();
-  const commentCounts = useMicCommentCounts();
 
   const validMics = sinkFinishedToday
     ? mics
@@ -591,20 +603,9 @@ export default function OpenMicsDetailedList({
     }, 80);
   };
 
-  // Re-check once the mics arrive, not just when the id changes. A tap on the
-  // map sets this after the list has loaded, but a link into /open-mics?mic=<id>
-  // sets it on the first render, when validMics is still empty: the lookup found
-  // nothing, and nothing ever ran again, so the link silently did nothing. The
-  // ref keeps it to one expand-and-scroll per id, so paging in more mics does
-  // not yank the page back.
-  const handledMicId = useRef<string | null>(null);
   useEffect(() => {
-    if (!selectedMicId) return;
-    if (handledMicId.current === selectedMicId) return;
-    if (!validMics.some((m) => m.uniqueIdentifier === selectedMicId)) return;
-    handledMicId.current = selectedMicId;
-    handleSelectMicOfDay(selectedMicId);
-  }, [selectedMicId, validMics]);
+    if (selectedMicId) handleSelectMicOfDay(selectedMicId);
+  }, [selectedMicId]);
 
   const handleAddToCalendar = async (mic: OpenMic) => {
     if (!user) return;
@@ -647,17 +648,23 @@ export default function OpenMicsDetailedList({
           onRegisterRow={registerRow}
           flash={flashId === mic.uniqueIdentifier}
           sharedRatings={sharedRatings}
-          commentCount={commentCounts[mic.uniqueIdentifier]}
         />
       ))}
       {visibleCount < validMics.length && (
         <div className="flex justify-center">
-          <button
-            className="px-2 py-2 mt-4 w-auto bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
-            onClick={() => setVisibleCount(c => c + 100)}
+          <a
+            href={nextHref || `?page=${Math.floor(visibleCount / pageSize) + 1}`}
+            rel="next"
+            className="px-3 py-2 mt-4 w-auto bg-primary text-primary-foreground rounded hover:bg-primary/90 text-sm"
+            onClick={(e) => {
+              e.preventDefault();
+              const next = visibleCount + pageSize;
+              setVisibleCount(next);
+              onLoadMore?.(next);
+            }}
           >
             Show More
-          </button>
+          </a>
         </div>
       )}
     </div>

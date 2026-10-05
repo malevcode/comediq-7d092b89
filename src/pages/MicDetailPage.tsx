@@ -1,14 +1,13 @@
-import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams, Navigate } from "react-router-dom";
+import { micSlug, micPath, venuePath, eventSchema, breadcrumbSchema, graph, slugify as seoSlugify, formatVerified } from "@/lib/seoShared";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useMicRatings } from "@/hooks/useMicRatings";
 import { parseVenueSlug, slugify } from "@/utils/slugify";
 import { linkManager } from "@/utils/linkManager";
 import SEO from "@/components/SEO";
-import { generateEventSchema, generateLocalBusinessSchema, generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Button } from "@/components/ui/button";
 import { Heart, ExternalLink, Navigation } from "lucide-react";
 import { WentUpToggle } from "@/components/mic/WentUpToggle";
-import MicCommentSection from '@/components/mic/MicCommentSection';
 import ClaimMicButton from "@/components/host/ClaimMicButton";
 import EditMicButton from "@/components/mic/EditMicButton";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,7 +22,7 @@ function getMapUrl(location: string, venueName: string) {
 }
 
 const MicDetailPage = () => {
-  const { venueSlug } = useParams<{ venueSlug: string }>();
+  const { venueSlug, slug } = useParams<{ venueSlug?: string; slug?: string }>();
   const [searchParams] = useSearchParams();
   const idParam = searchParams.get('id');
   const navigate = useNavigate();
@@ -33,9 +32,9 @@ const MicDetailPage = () => {
   // Prefer unique_identifier when provided (disambiguates mics that share venue+neighborhood)
   const mic = mics?.find(m => {
     if (idParam) return m.uniqueIdentifier === idParam;
-    const micSlug = `${slugify(m.venueName)}-${slugify(m.neighborhood)}`;
-    return micSlug === venueSlug;
-  });
+    if (slug) return micSlug(m) === slug;
+    return `${slugify(m.venueName)}-${slugify(m.neighborhood)}` === venueSlug;
+  }) ?? (slug ? mics?.find(m => seoSlugify(m.openMic) === slug) : undefined);
 
   const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(mic?.uniqueIdentifier || '');
 
@@ -59,25 +58,20 @@ const MicDetailPage = () => {
     );
   }
 
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      generateEventSchema(mic),
-      generateLocalBusinessSchema({
-        name: mic.venueName,
-        location: mic.location,
-        borough: mic.borough,
-        rating: ratingCounts ? ratingCounts.likes / (ratingCounts.likes + (ratingCounts.dislikes || 0)) * 5 : undefined,
-        reviewCount: ratingCounts ? ratingCounts.likes + (ratingCounts.dislikes || 0) : undefined
-      }),
-      generateBreadcrumbSchema([
-        { name: 'Home', url: 'https://comediq.us' },
-        { name: 'Open Mics', url: 'https://comediq.us/open-mics' },
-        { name: mic.borough, url: `https://comediq.us${linkManager.borough(mic.borough)}` },
-        { name: mic.venueName, url: `https://comediq.us/mics/${venueSlug}` }
-      ])
-    ]
-  };
+  // Legacy /mics/:venueSlug and ?id= links move to the canonical /mic/:slug page.
+  if (!slug || idParam || micSlug(mic) !== slug) {
+    return <Navigate to={micPath(mic)} replace />;
+  }
+
+  const structuredData = graph(
+    eventSchema(mic),
+    breadcrumbSchema([
+      { name: 'Home', path: '/' },
+      { name: 'Open Mics', path: '/open-mics' },
+      ...(mic.borough ? [{ name: mic.borough, path: `/open-mics/${seoSlugify(mic.borough)}` }] : []),
+      { name: mic.openMic, path: micPath(mic) },
+    ]),
+  );
 
   const titleTextClass = "text-[#07111f] dark:text-white";
   const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
@@ -98,7 +92,7 @@ const MicDetailPage = () => {
         title={`${mic.openMic} at ${mic.venueName} | Comediq`.slice(0, 60)}
         description={`Perform at ${mic.venueName} every ${mic.day} at ${mic.startTime}. ${mic.cost === 'Free' ? 'Free' : mic.cost} admission. ${mic.stageTime} stage time. ${mic.neighborhood}, ${mic.borough}. ${mic.signUpInstructions.substring(0, 100)}`}
         keywords={`${mic.venueName} open mic, ${mic.neighborhood} comedy, ${mic.borough} open mic, ${mic.day} comedy NYC, ${mic.cost === 'Free' ? 'free' : 'paid'} open mic`}
-        url={`https://comediq.us/mics/${venueSlug}`}
+        url={`https://comediq.us${micPath(mic)}`}
         type="article"
         structuredData={structuredData}
       />
@@ -129,6 +123,7 @@ const MicDetailPage = () => {
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3 md:mt-6">
               <p className={`max-w-2xl text-sm ${mutedTextClass}`}>
                 {mic.cost?.toLowerCase() === 'free' ? 'free' : mic.cost?.toLowerCase() || 'cost not specified'} · {mic.day?.toLowerCase()} · {mic.venueName?.toLowerCase()}{mic.stageTime ? ` · ${mic.stageTime} on stage` : ''}
+                {formatVerified(mic.lastVerifiedAt) ? ` · verified ${formatVerified(mic.lastVerifiedAt)!.toLowerCase()}` : ''}
               </p>
               <div className="flex flex-wrap gap-2">
                 <WentUpToggle mic={mic} />
@@ -169,7 +164,7 @@ const MicDetailPage = () => {
             <Attr label="cost" value={mic.cost || 'Not listed'} />
             <Attr label="stage time" value={mic.stageTime || 'Not listed'} />
             <Attr label="host" value={mic.hosts || mic.instagramHandle || 'Not listed'} />
-            <Attr label="venue" value={mic.venueName} />
+            <Attr label="venue" value={<Link to={venuePath(mic)} className="underline decoration-dotted underline-offset-4 hover:text-[#1a5fb4] dark:hover:text-[#8ec5ff]">{mic.venueName}</Link>} />
             <Attr label="neighborhood" value={mic.neighborhood} />
             <Attr label="borough" value={mic.borough} />
             <Attr
@@ -219,16 +214,6 @@ const MicDetailPage = () => {
               venueName={mic.venueName}
             />
           </div>
-
-          {/*
-            Always open here. A detail page has one mic and plenty of room, so
-            there is nothing to collapse for, and this is the surface people
-            land on from search when they want to say the listing is wrong.
-          */}
-          <MicCommentSection
-            micUniqueIdentifier={mic.uniqueIdentifier}
-            isExpanded
-          />
 
           {/* You might also like */}
           {similarMics && similarMics.length > 0 && (

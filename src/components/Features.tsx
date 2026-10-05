@@ -36,7 +36,7 @@ const Features = () => {
                     <div className="flex items-center gap-1 flex-wrap">
                       <h3 className="text-xs font-semibold text-[#07111f] dark:text-white sm:text-sm">{f.title}</h3>
                       {f.comingSoon && (
-                        <Badge variant="secondary" className="text-[10px] bg-gray-200 text-gray-700 px-1.5 py-0 mb-1">Soon</Badge>
+                        <Badge variant="secondary" className="text-[10px] bg-gray-200 text-gray-500 px-1.5 py-0 mb-1">Soon</Badge>
                       )}
                     </div>
                     <p className="text-[10px] text-[#07111f]/60 dark:text-white/60 sm:text-xs">{f.description}</p>
@@ -61,7 +61,7 @@ const Features = () => {
                     <div className="flex items-center gap-1 flex-wrap">
                       <h3 className="text-xs font-semibold text-[#07111f] dark:text-white sm:text-sm">{f.title}</h3>
                       {f.comingSoon && (
-                        <Badge variant="secondary" className="text-[10px] bg-gray-200 text-gray-700 px-1.5 py-0 mb-1">Soon</Badge>
+                        <Badge variant="secondary" className="text-[10px] bg-gray-200 text-gray-500 px-1.5 py-0 mb-1">Soon</Badge>
                       )}
                     </div>
                     <p className="text-[10px] text-[#07111f]/60 dark:text-white/60 sm:text-xs">{f.description}</p>

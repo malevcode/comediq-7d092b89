@@ -5,9 +5,6 @@ import { ClaimMicForm } from '@/components/host/ClaimMicForm';
 import { CreateEventForm } from '@/components/host/CreateEventForm';
 import { RunOfShow } from '@/components/host/RunOfShow';
 import { MicCoverUpload } from '@/components/host/MicCoverUpload';
-import { SignupSheetToggle } from '@/components/host/SignupSheetToggle';
-import { useOpenMics } from '@/hooks/useOpenMics';
-import { generateVenueSlug } from '@/utils/slugify';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -112,12 +109,6 @@ export default function HostDashboard() {
 
 function HostMicPanel({ hostId, micId, micName }: { hostId: string; micId: string; micName: string }) {
   const { data: events } = useSignupEvents(micId);
-  // The signup page lives at /mic/:slug/signup and resolves its slug with
-  // generateVenueSlug, so build the link the same way rather than a second
-  // slug rule that can drift from it.
-  const { data: mics } = useOpenMics();
-  const mic = mics?.find((m) => m.uniqueIdentifier === micId);
-  const micSlug = mic ? generateVenueSlug(mic) : undefined;
 
   return (
     <div className="space-y-6">
@@ -127,10 +118,6 @@ function HostMicPanel({ hostId, micId, micName }: { hostId: string; micId: strin
           <CardDescription className={mutedTextClass}>Create and manage signup events</CardDescription>
         </CardHeader>
       </Card>
-
-      {/* First, because an event created while signups are off is a real event
-          with no way for anyone to reach it. */}
-      <SignupSheetToggle micId={micId} micSlug={micSlug} />
 
       <MicCoverUpload micId={micId} />
       <CreateEventForm hostId={hostId} micId={micId} />

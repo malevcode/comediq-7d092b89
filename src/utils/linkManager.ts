@@ -1,5 +1,6 @@
 import { OpenMic } from "@/types/openMic";
 import { slugify, generateVenueSlug } from "./slugify";
+import { micPath, venuePath } from "@/lib/seoShared";
 
 interface FilterParams {
   price?: string;
@@ -15,22 +16,23 @@ interface FilterParams {
  */
 export const linkManager = {
   // Mic pages
-  micDetail: (mic: OpenMic) => `/mics/${generateVenueSlug(mic)}`,
+  micDetail: (mic: OpenMic) => micPath(mic),
+  venueDetail: (mic: OpenMic) => venuePath(mic),
   micSignup: (mic: OpenMic) => `/mic/${generateVenueSlug(mic)}/signup`,
   
   // User navigation with filters (query params)
-  openMicsFilteredByDay: (day: string) => `/open-mics?day=${encodeURIComponent(day)}`,
-  openMicsFilteredByBorough: (borough: string) => `/open-mics?borough=${encodeURIComponent(borough)}`,
+  openMicsFilteredByDay: (day: string) => `/open-mics/${slugify(day)}`,
+  openMicsFilteredByBorough: (borough: string) => `/open-mics/${slugify(borough)}`,
   
   // SEO pages (for search engines)
-  boroughSEO: (borough: string) => `/boroughs/${slugify(borough)}`,
+  boroughSEO: (borough: string) => `/open-mics/${slugify(borough)}`,
   neighborhoodSEO: (neighborhood: string) => `/neighborhoods/${slugify(neighborhood)}`,
-  micsByDaySEO: (day: string) => `/days/${slugify(day)}`,
+  micsByDaySEO: (day: string) => `/open-mics/${slugify(day)}`,
   
   // Legacy aliases (keep for backward compatibility)
-  borough: (borough: string) => `/boroughs/${slugify(borough)}`,
+  borough: (borough: string) => `/open-mics/${slugify(borough)}`,
   neighborhood: (neighborhood: string) => `/neighborhoods/${slugify(neighborhood)}`,
-  micsByDay: (day: string) => `/days/${slugify(day)}`,
+  micsByDay: (day: string) => `/open-mics/${slugify(day)}`,
   
   // Filter pages
   freeMics: () => '/free-mics',

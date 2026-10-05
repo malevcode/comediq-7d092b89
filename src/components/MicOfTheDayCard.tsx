@@ -1,3 +1,4 @@
+import { micPath } from "@/lib/seoShared";
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -154,7 +155,7 @@ export function MicOfTheDayCard({
 
     return (
       <Link
-        to={`/mics/${slugify(mic.venueName || '')}-${slugify(mic.neighborhood || '')}`}
+        to={micPath(mic)}
         className="block"
         aria-label={`View ${label} – Mic of the Day`}
       >
@@ -198,7 +199,7 @@ export function MicOfTheDayCard({
 
   return (
     <Link
-      to={`/mics/${slugify(mic.venueName || '')}-${slugify(mic.neighborhood || '')}`}
+      to={micPath(mic)}
       className="block"
       aria-label={`View ${label}`}
     >

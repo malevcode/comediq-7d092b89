@@ -11,7 +11,9 @@ import { parseStartTimeToMinutes } from '@/utils/micCheckin';
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link, useParams, Navigate } from "react-router-dom";
+import { PAGE_SIZE, resolveFilter, listingMeta, filterMics, summaryText, itemListSchema, breadcrumbSchema as seoBreadcrumb, graph, slugify as seoSlugify, ORIGIN } from "@/lib/seoShared";
+import NotFound from "./NotFound";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
 import { MicRequestFormData } from "@/components/host/AddMicRequestForm";
 import { EditableMicCard } from "@/components/EditableMicCard";
@@ -38,7 +40,10 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [activeTab, setActiveTab] = useState("next");
   const [showKey, setShowKey] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(100);
+  const { filter: filterParam } = useParams<{ filter?: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageParam = Math.max(1, parseInt(searchParams.get("page") || "1", 10) || 1);
+  const [visibleCount, setVisibleCount] = useState(pageParam * PAGE_SIZE);
   const [showInlineCard, setShowInlineCard] = useState(false);
   // List is the default on every mount. The toggle swaps the whole page over
   // to the map-first view rather than expanding a panel inside the list.
@@ -50,7 +55,6 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const { user, signOut } = useAuth();
   const { data: likedMics = [] } = useUserLikedMics();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const hasScrolled = useRef(false);
 
   // Auto-open inline add card when ?addMic=true is in URL (from marquee banner link)
@@ -112,29 +116,45 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     }));
   }, [maxCost]);
 
-  // Read URL query params and apply filters
+  // /open-mics/:filter is a day (monday) or a borough (brooklyn).
+  const pathFilter = useMemo(
+    () => (filterParam ? resolveFilter(filterParam, openMics) : null),
+    [filterParam, openMics]
+  );
+
   useEffect(() => {
-    const dayParam = searchParams.get('day');
-    const boroughParam = searchParams.get('borough');
+    if (!pathFilter) return;
+    if (pathFilter.kind === "day") setActiveTab(pathFilter.value);
+    else setFilters(prev => ({ ...prev, borough: pathFilter.value, city: "All" as any }));
+  }, [pathFilter]);
 
-    if (dayParam) {
-      // Set active tab to the day
-      setActiveTab(dayParam);
+  useEffect(() => {
+    if (!filterParam) {
+      setActiveTab(prev => (daysOfWeek.includes(prev) ? "next" : prev));
     }
+    setVisibleCount(pageParam * PAGE_SIZE);
+  }, [filterParam]);
 
-    if (boroughParam) {
-      // Apply borough filter
-      setFilters(prev => ({ ...prev, borough: boroughParam }));
-    }
+  const legacyDay = searchParams.get('day');
+  const legacyBorough = searchParams.get('borough');
 
-    // ?mic=<uniqueIdentifier> opens that mic already expanded and scrolls to it.
-    // The list has done this since the map got a select handler; this just gives
-    // it a URL, so a link from anywhere else on the site can land on one mic.
-    const micParam = searchParams.get('mic');
-    if (micParam) {
-      setSelectedMicId(micParam);
-    }
-  }, [searchParams]);
+  const goToFilter = (slug: string | null) => {
+    navigate(slug ? `/open-mics/${slug}` : "/open-mics");
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    if (daysOfWeek.includes(tab)) goToFilter(seoSlugify(tab));
+    else if (pathFilter?.kind === "day") goToFilter(null);
+  };
+
+  const handleFiltersChange = (next: MicFiltersType) => {
+    const boroughChanged = next.borough !== filters.borough;
+    setFilters(next);
+    if (!boroughChanged) return;
+    if (next.borough && next.borough !== "All") goToFilter(seoSlugify(next.borough));
+    else if (pathFilter?.kind === "borough") goToFilter(null);
+  };
 
   useEffect(() => {
     if (hasScrolled.current) return; 
@@ -395,11 +415,12 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           mics={micsToShow}
           visibleCount={visibleCount}
           setVisibleCount={setVisibleCount}
+          nextHref={`${filterParam ? `/open-mics/${filterParam}` : "/open-mics"}?page=${Math.floor(visibleCount / PAGE_SIZE) + 1}`}
+          onLoadMore={(n) => setSearchParams(p => { const q = new URLSearchParams(p); q.set("page", String(Math.ceil(n / PAGE_SIZE))); return q; }, { replace: true, preventScrollReset: true })}
           showSponsor={activeTab === "next"}
           showMicOfDay={activeTab === "next"}
           sinkFinishedToday={!daysOfWeek.includes(tabName)}
           onOpenMic={setSelectedMic}
-          selectedMicId={selectedMicId}
         />
 
         {micsToShow.length === 0 && (
@@ -633,18 +654,24 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
   const handleAddToSchedule = (_showData: unknown) => {};
 
-  const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Home', url: 'https://comediq.us' },
-    { name: 'Open Mics', url: 'https://comediq.us/open-mics' },
-  ]);
-
-  const seoTitle = filters.borough !== "All" 
-    ? `Comedy Open Mics in ${filters.borough} | Comediq`
-    : "Find Comedy Open Mics: NYC, Hudson Valley, LA & Austin | Comediq";
-  
-  const seoDescription = filters.borough !== "All"
-    ? `Discover comedy open mics in ${filters.borough}. Real-time schedules, venue details, and comedian reviews.`
-    : "Find every comedy open mic in NYC, the Hudson Valley, Los Angeles and Austin. Real-time schedules, venue details, comedian reviews, and set tracking.";
+  const listingPath = pathFilter ? `/open-mics/${pathFilter.slug}` : "/open-mics";
+  const scopedMics = filterMics(pathFilter, openMics);
+  const meta = listingMeta(pathFilter, openMics, pageParam);
+  const seoTitle = meta.title;
+  const seoDescription = meta.description;
+  const listingSummary = summaryText(scopedMics, pathFilter ? meta.scope : "listed on Comediq");
+  const pageStart = (pageParam - 1) * PAGE_SIZE;
+  const breadcrumbSchema = graph(
+    seoBreadcrumb([
+      { name: 'Home', path: '/' },
+      { name: 'Open Mics', path: '/open-mics' },
+      ...(pathFilter ? [{ name: pathFilter.value, path: listingPath }] : []),
+    ]),
+    itemListSchema(scopedMics.slice(pageStart, pageStart + PAGE_SIZE), pageStart),
+  );
+  const listingH1 = pathFilter
+    ? `${pathFilter.value} comedy open mics`
+    : "Comedy open mics in NYC, the Hudson Valley, LA and Austin";
   const tabListLayoutClass = user
     ? "grid grid-cols-10"
     : "grid grid-cols-9";
@@ -676,13 +703,13 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
         <SEO
           title={seoTitle}
           description={seoDescription}
-          url="https://comediq.us/open-mics"
+          url={`${ORIGIN}${listingPath}`}
           structuredData={breadcrumbSchema}
         />
       )}
       <div className="min-h-screen bg-transparent pb-8">
         {!embedded && <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />}
-        {!embedded && <h1 className="sr-only">Comedy open mics in NYC, the Hudson Valley, LA and Austin</h1>}
+        {!embedded && <h1 className="sr-only">{listingH1}</h1>}
 
         {viewMode === 'list' ? (
           <>
@@ -807,13 +834,13 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
               >
                 <Plus className="h-4 w-4" />
               </Button>
-              <MicFilters filters={filters} onFiltersChange={setFilters} maxCost={maxCost} boroughs={boroughs} cities={cities.map(c => c.value)}/>
+              <MicFilters filters={filters} onFiltersChange={handleFiltersChange} maxCost={maxCost} boroughs={boroughs} cities={cities.map(c => c.value)}/>
             </div>
           </div>
         </div>
 
         {/* Day Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className={`mb-6 h-auto w-full gap-1 border-0 bg-white/25 p-2 text-gray-500 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-blue-600 dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)] ${tabListLayoutClass}`}>
             <TabsTrigger value="next" className={tabTriggerClass}>
               Next
@@ -917,14 +944,14 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
-                      <MicFilters filters={filters} onFiltersChange={setFilters} maxCost={maxCost} boroughs={boroughs} cities={cities.map(c => c.value)}/>
+                      <MicFilters filters={filters} onFiltersChange={handleFiltersChange} maxCost={maxCost} boroughs={boroughs} cities={cities.map(c => c.value)}/>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
               <DiscoverySheet
                 expanded={sheetExpanded}
                 onToggleExpanded={() => setSheetExpanded((e) => !e)}

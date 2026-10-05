@@ -1,0 +1,23 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export const ORIGIN: string;
+export const PAGE_SIZE: number;
+export const DAYS: string[];
+export type ListingFilter = { kind: "day" | "borough"; value: string; slug: string } | null;
+export function slugify(text: string | null | undefined): string;
+export function micSlug(mic: any): string;
+export function venueSlugOf(mic: any): string;
+export function micPath(mic: any): string;
+export function venuePath(mic: any): string;
+export function resolveFilter(segment: string, mics: any[]): ListingFilter;
+export function boroughSlugs(mics: any[]): { value: string; slug: string }[];
+export function isFree(cost: string | null | undefined): boolean;
+export function micSummary(mics: any[]): { total: number; free: number; commonPrice: string | null; busiestDay: string | null };
+export function summaryText(mics: any[], scopeLabel: string): string;
+export function listingMeta(filter: ListingFilter, mics: any[], page?: number): { title: string; description: string; scope: string };
+export function filterMics<T>(filter: ListingFilter, mics: T[]): T[];
+export function placeSchema(v: any): any;
+export function eventSchema(mic: any): any;
+export function itemListSchema(mics: any[], startIndex?: number): any;
+export function breadcrumbSchema(items: { name: string; path: string }[]): any;
+export function graph(...nodes: any[]): any;
+export function formatVerified(iso: string | null | undefined): string | null;

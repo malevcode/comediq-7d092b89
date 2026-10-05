@@ -89,7 +89,7 @@ const AppWaitlistSection = () => {
     >
       <div className="landing-glass-surface mx-auto max-w-2xl rounded-2xl border p-5 text-[#07111f] transition-transform duration-300 hover:scale-[1.01] dark:text-white">
         <div className="text-center mb-5">
-          <span className="inline-block text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2 dark:text-[#8ec5ff]">
+          <span className="inline-block text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">
             Coming Soon
           </span>
           <h2 className="mb-2 text-2xl font-bold text-[#07111f] dark:text-white sm:text-3xl">
