@@ -1,4 +1,5 @@
-import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams, Navigate } from "react-router-dom";
+import { micSlug, micPath, venuePath, eventSchema, breadcrumbSchema, graph, slugify as seoSlugify, formatVerified } from "@/lib/seoShared";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useMicRatings } from "@/hooks/useMicRatings";
 import { parseVenueSlug, slugify } from "@/utils/slugify";
@@ -22,7 +23,7 @@ function getMapUrl(location: string, venueName: string) {
 }
 
 const MicDetailPage = () => {
-  const { venueSlug } = useParams<{ venueSlug: string }>();
+  const { venueSlug, slug } = useParams<{ venueSlug?: string; slug?: string }>();
   const [searchParams] = useSearchParams();
   const idParam = searchParams.get('id');
   const navigate = useNavigate();
@@ -32,9 +33,9 @@ const MicDetailPage = () => {
   // Prefer unique_identifier when provided (disambiguates mics that share venue+neighborhood)
   const mic = mics?.find(m => {
     if (idParam) return m.uniqueIdentifier === idParam;
-    const micSlug = `${slugify(m.venueName)}-${slugify(m.neighborhood)}`;
-    return micSlug === venueSlug;
-  });
+    if (slug) return micSlug(m) === slug;
+    return `${slugify(m.venueName)}-${slugify(m.neighborhood)}` === venueSlug;
+  }) ?? (slug ? mics?.find(m => seoSlugify(m.openMic) === slug) : undefined);
 
   const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(mic?.uniqueIdentifier || '');
 
@@ -58,7 +59,21 @@ const MicDetailPage = () => {
     );
   }
 
-  const structuredData = {
+  // Legacy /mics/:venueSlug and ?id= links move to the canonical /mic/:slug page.
+  if (!slug || idParam || micSlug(mic) !== slug) {
+    return <Navigate to={micPath(mic)} replace />;
+  }
+
+  const structuredData = graph(
+    eventSchema(mic),
+    breadcrumbSchema([
+      { name: 'Home', path: '/' },
+      { name: 'Open Mics', path: '/open-mics' },
+      ...(mic.borough ? [{ name: mic.borough, path: `/open-mics/${seoSlugify(mic.borough)}` }] : []),
+      { name: mic.openMic, path: micPath(mic) },
+    ]),
+  );
+  const _legacyStructuredData = {
     '@context': 'https://schema.org',
     '@graph': [
       generateEventSchema(mic),
@@ -97,7 +112,7 @@ const MicDetailPage = () => {
         title={`${mic.openMic} at ${mic.venueName} | Comediq`.slice(0, 60)}
         description={`Perform at ${mic.venueName} every ${mic.day} at ${mic.startTime}. ${mic.cost === 'Free' ? 'Free' : mic.cost} admission. ${mic.stageTime} stage time. ${mic.neighborhood}, ${mic.borough}. ${mic.signUpInstructions.substring(0, 100)}`}
         keywords={`${mic.venueName} open mic, ${mic.neighborhood} comedy, ${mic.borough} open mic, ${mic.day} comedy NYC, ${mic.cost === 'Free' ? 'free' : 'paid'} open mic`}
-        url={`https://comediq.us/mics/${venueSlug}`}
+        url={`https://comediq.us${micPath(mic)}`}
         type="article"
         structuredData={structuredData}
       />
