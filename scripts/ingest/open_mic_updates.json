@@ -763,6 +763,16 @@
         "legacy_tag": "Variety",
         "other_rules": "Held in the Red Room, on the 3rd floor of KGB Bar. cheapest item is $7 drink (2 drink min from a bartender with a tip screen so $18 for 2 drinks + 20%, come for a mixed show with poetry and music)"
       }
+    },
+    {
+      "unique_identifier": "0d6e6906-18a8-4a7b-89e4-e5d1b70dccb1",
+      "note": "Community Service (Sunday 5:30 PM, Brooklyn Art Haus). October monthly check-in DM to @zebracakemack (Mackenzie Graves). Her reply, via Instagram DM screenshot: 'Y' (active), then she shared the profile @andrewthomascomedy (Andrew Thomas) and wrote 'He has taken over the mic'. Read as: still running, and Andrew Thomas is now the host. hosts_organizers 'Mackenzie Graves' -> 'Andrew Thomas' and changes_updates '@zebracakemack' -> '@andrewthomascomedy' (the contact handle the site shows). Verified date refreshed to 10/06/26 since 'Y' is an active confirmation. Day, time, venue, cost and sign-up are untouched because she gave no changes. NOT the same record as Rodney's Wednesday 9:45 mic, whose host is Adam Thomas @adamthomascomedy: that handle says Adam, this one says Andrew, so they were not merged. To reverse the host change, rewrite this entry in place.",
+      "set": {
+        "hosts_organizers": "Andrew Thomas",
+        "changes_updates": "@andrewthomascomedy",
+        "last_verified": "10/06/26",
+        "last_verified_at": "2026-10-06T12:00:00+00:00"
+      }
     }
   ],
   "removals": [
