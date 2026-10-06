@@ -7,7 +7,11 @@
  * (and social preview bots) see correct per-page tags.
  * Client-side <SEO /> / <CanonicalTag /> still take over after load.
  */
-import { readFileSync, writeFileSync, mkdirSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
+import {
+  DAYS, slugify, micPath, venueSlugOf, boroughSlugs, filterMics, listingMeta, summaryText,
+  eventSchema, itemListSchema, placeSchema, breadcrumbSchema, graph, formatVerified,
+} from "../src/lib/seoShared.js";
 import { resolve, dirname } from "path";
 
 const ORIGIN = "https://comediq.us";
@@ -45,7 +49,7 @@ function stripOwned(html) {
     .replace(/<meta[^>]+name="twitter:[^"]+"[^>]*>\s*/gi, "");
 }
 
-function headFor({ path, title, description }) {
+function headFor({ path, title, description, jsonld }) {
   const url = path === "/" ? `${ORIGIN}/` : `${ORIGIN}${path}`;
   const t = esc(title), d = esc(description);
   return [
@@ -63,18 +67,77 @@ function headFor({ path, title, description }) {
     `<meta name="twitter:title" data-rh="true" content="${t}" />`,
     `<meta name="twitter:description" data-rh="true" content="${d}" />`,
     `<meta name="twitter:image" data-rh="true" content="${IMAGE}" />`,
-  ].map((l) => `    ${l}`).join("\n");
+    jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, "\\u003c")}</script>` : null,
+  ].filter(Boolean).map((l) => `    ${l}`).join("\n");
+}
+
+const readJson = (f) => { try { return existsSync(f) ? JSON.parse(readFileSync(f, "utf8")) : []; } catch { return []; } };
+const h = (s) => esc(String(s ?? ""));
+const micLi = (m) => `<li><a href="${micPath(m)}">${h(m.openMic)}</a> · ${h([m.day, m.startTime, m.venueName, m.cost].filter(Boolean).join(" · "))}${formatVerified(m.lastVerifiedAt) ? ` · Verified ${h(formatVerified(m.lastVerifiedAt))}` : ""}</li>`;
+const PAGE_SIZE_STATIC = 24;
+
+/** Dynamic pages built from the exported mic + venue data. */
+export function dynamicPages(mics, venues) {
+  const pages = [];
+  const listing = (filter, path) => {
+    const scoped = filterMics(filter, mics);
+    const meta = listingMeta(filter, mics, 1);
+    const first = scoped.slice(0, PAGE_SIZE_STATIC);
+    const crumbs = [{ name: "Home", path: "/" }, { name: "Open Mics", path: "/open-mics" }, ...(filter ? [{ name: filter.value, path }] : [])];
+    const h1 = filter ? `${filter.value} comedy open mics` : "Comedy open mics in NYC, the Hudson Valley, LA and Austin";
+    pages.push({
+      path, title: meta.title, description: meta.description,
+      jsonld: graph(breadcrumbSchema(crumbs), itemListSchema(first)),
+      body: `<main><h1>${h(h1)}</h1><p>${h(summaryText(scoped, filter ? meta.scope : "listed on Comediq"))}</p><ul>${first.map(micLi).join("")}</ul>${scoped.length > PAGE_SIZE_STATIC ? `<a href="${path}?page=2" rel="next">Show More</a>` : ""}<nav>${DAYS.map((d) => `<a href="/open-mics/${slugify(d)}">${d}</a>`).join(" ")}</nav></main>`,
+    });
+  };
+  listing(null, "/open-mics");
+  for (const d of DAYS) listing({ kind: "day", value: d, slug: slugify(d) }, `/open-mics/${slugify(d)}`);
+  for (const b of boroughSlugs(mics)) listing({ kind: "borough", value: b.value, slug: b.slug }, `/open-mics/${b.slug}`);
+
+  for (const m of mics) {
+    const path = micPath(m);
+    const where = [m.neighborhood, m.borough].filter(Boolean).join(", ");
+    pages.push({
+      path,
+      title: `${m.openMic} at ${m.venueName} | Comediq`.slice(0, 70),
+      description: `${m.openMic}: comedy open mic at ${m.venueName}${where ? ` (${where})` : ""}${m.day ? ` every ${m.day}` : ""}${m.startTime ? ` at ${m.startTime}` : ""}. ${m.cost ? `Cost: ${m.cost}.` : ""} ${m.stageTime ? `${m.stageTime} stage time.` : ""}`.replace(/\s+/g, " ").trim().slice(0, 300),
+      jsonld: graph(eventSchema(m), breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Open Mics", path: "/open-mics" }, ...(m.borough ? [{ name: m.borough, path: `/open-mics/${slugify(m.borough)}` }] : []), { name: m.openMic, path }])),
+      body: `<main><h1>${h(m.openMic)}</h1><p>${h([m.day, m.startTime, m.cost, m.stageTime].filter(Boolean).join(" · "))}</p><p><a href="/venue/${venueSlugOf(m)}">${h(m.venueName)}</a> ${h(m.location)}</p>${formatVerified(m.lastVerifiedAt) ? `<p>Verified ${h(formatVerified(m.lastVerifiedAt))}</p>` : ""}<p>${h(m.signUpInstructions)}</p></main>`,
+    });
+  }
+
+  for (const v of venues) {
+    const vm = mics.filter((m) => venueSlugOf(m) === v.slug);
+    if (!vm.length) continue;
+    const path = `/venue/${v.slug}`;
+    const summary = summaryText(vm, `at ${v.name}`);
+    pages.push({
+      path,
+      title: `Comedy Open Mics at ${v.name}${v.neighborhood || v.borough ? ` (${v.neighborhood || v.borough})` : ""} | Comediq`,
+      description: `${summary} ${v.address ? `Address: ${v.address}.` : ""}`.trim().slice(0, 300),
+      jsonld: graph({ ...placeSchema({ ...v, url: `${ORIGIN}${path}` }), event: vm.map(eventSchema) }, breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Open Mics", path: "/open-mics" }, { name: v.name, path }])),
+      body: `<main><h1>Open mics at ${h(v.name)}</h1><p>${h(v.address)}</p><p>${h(summary)}</p><ul>${vm.map(micLi).join("")}</ul></main>`,
+    });
+  }
+  return pages;
 }
 
 export function prerenderHeads(outDir = "dist") {
   const template = stripOwned(readFileSync(resolve(outDir, "index.html"), "utf8"));
-  for (const page of PAGES) {
-    const html = template.replace("</head>", `${headFor(page)}\n  </head>`);
+  const mics = readJson(resolve(outDir, "mics.json"));
+  const venues = readJson(resolve(outDir, "venues.json"));
+  const dynamic = dynamicPages(mics, venues);
+  const dynPaths = new Set(dynamic.map((p) => p.path));
+  const all = [...PAGES.filter((p) => !dynPaths.has(p.path)), ...dynamic];
+  for (const page of all) {
+    let html = template.replace("</head>", `${headFor(page)}\n  </head>`);
+    if (page.body) html = html.replace('<div id="root"></div>', `<div id="root">${page.body}</div>`);
     const file = page.path === "/"
       ? resolve(outDir, "index.html")
       : resolve(outDir, `.${page.path}`, "index.html");
     mkdirSync(dirname(file), { recursive: true });
     writeFileSync(file, html);
   }
-  console.log(`[prerender-head] wrote ${PAGES.length} pages`);
+  console.log(`[prerender-head] wrote ${all.length} pages (${dynamic.length} from mic data)`);
 }
