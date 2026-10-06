@@ -21,3 +21,4 @@ export function itemListSchema(mics: any[], startIndex?: number): any;
 export function breadcrumbSchema(items: { name: string; path: string }[]): any;
 export function graph(...nodes: any[]): any;
 export function formatVerified(iso: string | null | undefined): string | null;
+export function micTitle(mic: any): string;

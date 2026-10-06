@@ -56,7 +56,7 @@ export function micSummary(mics) {
     if (DAYS.includes(m.day)) days[m.day] = (days[m.day] || 0) + 1;
   }
   const top = (o) => Object.entries(o).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
-  return { total, free, commonPrice: top(prices), busiestDay: top(days) };
+  return { total, free, commonPrice: top(prices), busiestDay: Object.keys(days).length > 1 ? top(days) : null };
 }
 
 export function summaryText(mics, scopeLabel) {
@@ -128,6 +128,11 @@ export function placeSchema(v) {
   if (v.latitude != null && v.longitude != null) place.geo = { "@type": "GeoCoordinates", latitude: v.latitude, longitude: v.longitude };
   if (v.url) place.url = v.url;
   return place;
+}
+
+export function micTitle(mic) {
+  const name = mic.openMic || mic.venueName;
+  return slugify(name) === slugify(mic.venueName) || !mic.venueName ? `${name} Comedy Open Mic | Comediq` : `${name} at ${mic.venueName} | Comediq`;
 }
 
 export function eventSchema(mic) {

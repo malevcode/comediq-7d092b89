@@ -10,7 +10,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import {
   DAYS, slugify, micPath, venueSlugOf, boroughSlugs, filterMics, listingMeta, summaryText,
-  eventSchema, itemListSchema, placeSchema, breadcrumbSchema, graph, formatVerified, ORIGIN as SHARED_ORIGIN,
+  eventSchema, itemListSchema, placeSchema, breadcrumbSchema, graph, formatVerified, micTitle, ORIGIN as SHARED_ORIGIN,
 } from "../src/lib/seoShared.js";
 import { resolve, dirname } from "path";
 
@@ -100,7 +100,7 @@ export function dynamicPages(mics, venues) {
     const where = [m.neighborhood, m.borough].filter(Boolean).join(", ");
     pages.push({
       path,
-      title: `${m.openMic} at ${m.venueName} | Comediq`.slice(0, 70),
+      title: micTitle(m),
       description: `${m.openMic}: comedy open mic at ${m.venueName}${where ? ` (${where})` : ""}${m.day ? ` every ${m.day}` : ""}${m.startTime ? ` at ${m.startTime}` : ""}. ${m.cost ? `Cost: ${m.cost}.` : ""} ${m.stageTime ? `${m.stageTime} stage time.` : ""}`.replace(/\s+/g, " ").trim().slice(0, 300),
       jsonld: graph(eventSchema(m), breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Open Mics", path: "/open-mics" }, ...(m.borough ? [{ name: m.borough, path: `/open-mics/${slugify(m.borough)}` }] : []), { name: m.openMic, path }])),
       body: `<main><h1>${h(m.openMic)}</h1><p>${h([m.day, m.startTime, m.cost, m.stageTime].filter(Boolean).join(" · "))}</p><p><a href="/venue/${venueSlugOf(m)}">${h(m.venueName)}</a> ${h(m.location)}</p>${formatVerified(m.lastVerifiedAt) ? `<p>Verified ${h(formatVerified(m.lastVerifiedAt))}</p>` : ""}<p>${h(m.signUpInstructions)}</p></main>`,
