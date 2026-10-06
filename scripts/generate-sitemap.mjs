@@ -11,7 +11,8 @@
  */
 
 import { execFileSync } from "child_process";
-import { writeFileSync, existsSync } from "fs";
+import { writeFileSync, existsSync, readFileSync } from "fs";
+import { DAYS, slugify, micPath, venueSlugOf, boroughSlugs } from "../src/lib/seoShared.js";
 import { resolve } from "path";
 
 const BASE_URL = "https://comediq.us";
@@ -48,8 +49,28 @@ function lastmodFor(source) {
   }
 }
 
-const urls = routes.map(({ path, source }) => {
-  const lastmod = lastmodFor(source);
+const readJson = (f) => { try { return JSON.parse(readFileSync(resolve(f), "utf8")); } catch { return []; } };
+const mics = readJson("public/mics.json");
+const venues = readJson("public/venues.json");
+const day = (iso) => (iso ? String(iso).slice(0, 10) : null);
+const newest = (list) => list.map((m) => day(m.lastVerifiedAt)).filter(Boolean).sort().pop() || null;
+const listingSource = "src/pages/OpenMics.tsx";
+for (const d of DAYS) routes.push({ path: `/open-mics/${slugify(d)}`, lastmod: newest(mics.filter((m) => m.day === d)) || lastmodFor(listingSource) });
+for (const b of boroughSlugs(mics)) routes.push({ path: `/open-mics/${b.slug}`, lastmod: newest(mics.filter((m) => (m.borough || "").trim() === b.value)) || lastmodFor(listingSource) });
+const seen = new Set();
+for (const m of mics) {
+  const path = micPath(m);
+  if (seen.has(path)) continue;
+  seen.add(path);
+  routes.push({ path, lastmod: day(m.lastVerifiedAt) });
+}
+for (const v of venues) {
+  const vm = mics.filter((m) => venueSlugOf(m) === v.slug);
+  if (vm.length) routes.push({ path: `/venue/${v.slug}`, lastmod: newest(vm) });
+}
+
+const urls = routes.map(({ path, source, lastmod: given }) => {
+  const lastmod = given !== undefined ? given : lastmodFor(source);
   return [
     "  <url>",
     `    <loc>${BASE_URL}${path}</loc>`,

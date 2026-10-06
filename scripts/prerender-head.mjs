@@ -10,7 +10,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import {
   DAYS, slugify, micPath, venueSlugOf, boroughSlugs, filterMics, listingMeta, summaryText,
-  eventSchema, itemListSchema, placeSchema, breadcrumbSchema, graph, formatVerified,
+  eventSchema, itemListSchema, placeSchema, breadcrumbSchema, graph, formatVerified, ORIGIN as SHARED_ORIGIN,
 } from "../src/lib/seoShared.js";
 import { resolve, dirname } from "path";
 
@@ -116,7 +116,7 @@ export function dynamicPages(mics, venues) {
       path,
       title: `Comedy Open Mics at ${v.name}${v.neighborhood || v.borough ? ` (${v.neighborhood || v.borough})` : ""} | Comediq`,
       description: `${summary} ${v.address ? `Address: ${v.address}.` : ""}`.trim().slice(0, 300),
-      jsonld: graph({ ...placeSchema({ ...v, url: `${ORIGIN}${path}` }), event: vm.map(eventSchema) }, breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Open Mics", path: "/open-mics" }, { name: v.name, path }])),
+      jsonld: graph({ ...placeSchema({ ...v, url: `${SHARED_ORIGIN}${path}` }), event: vm.map(eventSchema) }, breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Open Mics", path: "/open-mics" }, { name: v.name, path }])),
       body: `<main><h1>Open mics at ${h(v.name)}</h1><p>${h(v.address)}</p><p>${h(summary)}</p><ul>${vm.map(micLi).join("")}</ul></main>`,
     });
   }
