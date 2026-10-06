@@ -31,7 +31,8 @@ function setTag(selector: string, create: () => HTMLElement) {
  * builds never compete with the canonical domain in search results.
  */
 const CanonicalTag = () => {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  const page = parseInt(new URLSearchParams(search).get("page") || "1", 10);
 
   useEffect(() => {
     // Remove any stray canonicals so only ours remains.
@@ -45,7 +46,8 @@ const CanonicalTag = () => {
       el.setAttribute("data-canonical", "app");
       return el;
     });
-    link.setAttribute("href", canonicalUrlFor(pathname));
+    // Paginated listing pages self-reference their own page (?page=N, N > 1).
+    link.setAttribute("href", canonicalUrlFor(pathname) + (page > 1 ? `?page=${page}` : ""));
 
     if (isNonCanonicalHost()) {
       const robots = setTag('meta[name="robots"][data-canonical="app"]', () => {
@@ -56,7 +58,7 @@ const CanonicalTag = () => {
       });
       robots.setAttribute("content", "noindex, nofollow");
     }
-  }, [pathname]);
+  }, [pathname, page]);
 
   return null;
 };
