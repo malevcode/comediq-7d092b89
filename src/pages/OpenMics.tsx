@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Search, HelpCircle, LogIn, Plus, Map, List } from "lucide-react";
 import SEO from "@/components/SEO";
-import { generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -125,7 +124,10 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   useEffect(() => {
     if (!pathFilter) return;
     if (pathFilter.kind === "day") setActiveTab(pathFilter.value);
-    else setFilters(prev => ({ ...prev, borough: pathFilter.value, city: "All" as any }));
+    else {
+      const city = openMics.find(m => (m.borough || "").trim() === pathFilter.value)?.city;
+      setFilters(prev => ({ ...prev, borough: pathFilter.value, city: city || prev.city }));
+    }
   }, [pathFilter]);
 
   useEffect(() => {
@@ -700,6 +702,14 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     </Button>
   );
 
+  // Old ?day= / ?borough= links move to the real filter paths.
+  if (!embedded && !filterParam && (legacyDay || legacyBorough)) {
+    return <Navigate to={`/open-mics/${seoSlugify(legacyDay || legacyBorough || "")}`} replace />;
+  }
+  if (!embedded && filterParam && openMics.length > 0 && !pathFilter) {
+    return <NotFound />;
+  }
+
   return (
     <>
       {!embedded && (
@@ -717,6 +727,9 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
         {viewMode === 'list' ? (
           <>
       <div className={`max-w-7xl mx-auto px-4 ${embedded ? 'pt-0' : 'page-content-offset'} pb-0`}>
+        {!embedded && openMics.length > 0 && (
+          <p className="mb-3 text-sm text-foreground/75">{listingSummary}</p>
+        )}
         {/* Key/Legend */}
         {showKey && (
             <div className="block mb-3">
