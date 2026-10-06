@@ -10,7 +10,7 @@ const PrivacyPolicy = () => {
         title="Privacy Policy & Terms of Service | Comediq"
         description="How Comediq collects, uses and protects comedian data, our SMS notification disclosure, and the terms of service for using the platform."
       />
-      <PageHeader title="Privacy Policy & Terms" subtitle="Last updated: September 2026" />
+      <PageHeader title="Privacy Policy & Terms" subtitle="Last updated: October 2026" />
       
       <div className="max-w-3xl mx-auto px-4 page-content-offset">
         <h1 className="sr-only">Comediq privacy policy and terms of service</h1>
@@ -32,7 +32,7 @@ const PrivacyPolicy = () => {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Information We Collect</h3>
                 <p className="text-sm leading-relaxed">
-                  We collect information you provide directly, including:
+                  This policy covers both comediq.us and the Comediq mobile app. We collect information you provide directly, including:
                 </p>
                 <ul className="list-disc list-inside text-sm mt-2 space-y-1 ml-2">
                   <li>Account information (name, email, phone number)</li>
@@ -40,6 +40,13 @@ const PrivacyPolicy = () => {
                   <li>Performance history and show tracking data</li>
                   <li>Open mic signups and attendance records</li>
                 </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Location Data</h3>
+                <p className="text-sm leading-relaxed">
+                  The Comediq mobile app collects your device's precise location, with your permission, to show you nearby open mics and venues on the map. We also maintain a database of comedy venues across NYC (current and historical) that is not tied to your individual location. Location data is used only to power this map feature and is not sold or shared with third parties for advertising or tracking.
+                </p>
               </div>
 
               <div>
