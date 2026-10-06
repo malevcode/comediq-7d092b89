@@ -40,9 +40,7 @@ const ToOpenMicsFilter = ({ param }: { param: string }) => {
   const params = useParams();
   return <Navigate to={`/open-mics/${(params[param] || "").toLowerCase()}`} replace />;
 };
-import MicsByBorough from "./pages/MicsByBorough";
 import MicsByNeighborhood from "./pages/MicsByNeighborhood";
-import MicsByDay from "./pages/MicsByDay";
 import FreeMics from "./pages/FreeMics";
 import BeginnerMics from "./pages/BeginnerMics";
 import HostDashboard from "./pages/HostDashboard";
