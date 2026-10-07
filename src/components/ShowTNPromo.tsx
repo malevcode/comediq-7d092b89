@@ -17,15 +17,14 @@ const ShowTNPromo = () => {
 
             <div className="landing-glass-inner mb-6 w-full max-w-xl rounded-2xl border bg-[#1a5fb4]/10 p-5 dark:bg-[#102a53]/20 sm:p-6">
               <div className="flex items-center justify-center gap-3 mb-3">
-                <Tickets className="w-6 h-6 text-xs font-mono rounded-sm bg-destructive-foreground text-primary-foreground" />
+                <Tickets className="h-6 w-6 shrink-0 text-[#1a5fb4] dark:text-[#8ec5ff]" aria-hidden="true" />
                 <span className="text-2xl sm:text-3xl font-bold">
                   Starting at $10/month
                 </span>
               </div>
               <p className="text-sm text-[#1a5fb4] dark:text-blue-400 sm:text-base">
-                Real tickets to pro shows every month at...
-                <br />
-                top clubs, bar popups, and underground venues across NYC
+                Real tickets to pro shows every month, at top clubs, bar
+                popups, and underground venues across NYC.
               </p>
             </div>
 
@@ -35,8 +34,8 @@ const ShowTNPromo = () => {
                 <p className="text-sm sm:text-base">Top open mics in your zip code</p>
               </div>
               <div className="landing-glass-inner rounded-xl border p-3 sm:p-4">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#b7791f] dark:text-blue-300">Paid Tier</p>
-                <p className="text-sm sm:text-base">Real tickets to pro shows monthly</p>
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#8a5a0f] dark:text-blue-300">Paid Tier</p>
+                <p className="text-sm sm:text-base">One pro show ticket every month</p>
               </div>
             </div>
 

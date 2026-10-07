@@ -87,7 +87,7 @@ const ForAudiences = () => {
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-semibold text-gray-900">{feature.title}</h4>
                     {feature.comingSoon && (
-                      <Badge variant="secondary" className="text-xs bg-gray-200 text-gray-500">Coming Soon</Badge>
+                      <Badge variant="secondary" className="text-xs bg-gray-200 text-gray-700">Coming Soon</Badge>
                     )}
                   </div>
                   <p className="text-sm text-gray-600">{feature.description}</p>
