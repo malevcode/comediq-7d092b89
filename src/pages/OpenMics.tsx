@@ -727,9 +727,6 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
         {viewMode === 'list' ? (
           <>
       <div className={`max-w-7xl mx-auto px-4 ${embedded ? 'pt-0' : 'page-content-offset'} pb-0`}>
-        {!embedded && openMics.length > 0 && (
-          <p className="mb-3 text-sm text-foreground/75">{listingSummary}</p>
-        )}
         {/* Key/Legend */}
         {showKey && (
             <div className="block mb-3">
@@ -905,6 +902,14 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
             </TabsContent>
           ))}
         </Tabs>
+
+        {/* Below the list, not above it. Someone opening this tab is looking
+            for a room tonight; the counts are context they want after they
+            have found one, not a paragraph standing between them and the
+            first mic. */}
+        {!embedded && openMics.length > 0 && (
+          <p className="mt-6 text-sm text-foreground/75">{listingSummary}</p>
+        )}
       </div>
           </>
         ) : (

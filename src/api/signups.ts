@@ -5,6 +5,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { awardPoints } from '@/services/pointsService';
+import type { SignupMethod } from '@/types/openMic';
 
 // Helper to get the next occurrence of a day
 function getNextOccurrence(dayName: string): Date {
@@ -163,6 +164,65 @@ export async function fetchCurrentUserHostForMic(micId: string) {
     .maybeSingle();
 
   if (error) throw error;
+  return data;
+}
+
+/**
+ * Read whether a mic's signup sheet is switched on.
+ *
+ * slots_enabled is the only thing standing between the signup system and the
+ * people who would use it: every one of the 406 mics ships with it false, so
+ * none of MicSignup.tsx, signups.ts or RunOfShow.tsx is reachable today.
+ */
+export async function fetchMicSignupSettings(micId: string) {
+  const { data, error } = await supabase
+    .from('open_mics_historical')
+    .select('unique_identifier, slots_enabled, signup_method, signup_url')
+    .eq('unique_identifier', micId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Turn a mic's signup sheet on or off.
+ *
+ * Writes both columns together on purpose. slots_enabled is what the signup
+ * page checks; signup_method is what the mic card shows a browsing comedian
+ * ("sign up on Comediq" rather than "in person"). Setting one without the
+ * other gives a working sheet nobody is told about, or a promise of a sheet
+ * that is not there.
+ *
+ * Turning it off restores whatever the room actually does instead, which the
+ * caller passes in, rather than guessing 'in_person' for a mic that takes
+ * signups on a different site.
+ */
+export async function setMicSignupsEnabled(
+  micId: string,
+  enabled: boolean,
+  fallbackMethod: SignupMethod = 'in_person',
+) {
+  const { data, error } = await supabase
+    .from('open_mics_historical')
+    .update({
+      slots_enabled: enabled,
+      signup_method: enabled ? 'comediq_slots' : fallbackMethod,
+    })
+    .eq('unique_identifier', micId)
+    .select('unique_identifier, slots_enabled, signup_method')
+    .maybeSingle();
+
+  if (error) throw error;
+
+  // RLS refusing the write is not an error, it is zero rows touched. Without
+  // this the toggle would report success and silently change nothing.
+  if (!data) {
+    throw new Error(
+      'That mic could not be updated. Signup sheets can only be switched on by the verified host of the mic, or an admin.',
+    );
+  }
+
   return data;
 }
 

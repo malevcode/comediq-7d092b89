@@ -773,6 +773,76 @@
         "last_verified": "10/06/26",
         "last_verified_at": "2026-10-06T12:00:00+00:00"
       }
+    },
+    {
+      "unique_identifier": "44cbdff7-0bc8-43f0-9376-f925196b46b8",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Laugh Lands Feedback Mic (Mon 12:30 PM), was $5.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "be90f316-e4ba-4355-829b-5890ca8817c2",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Open Mic w/ Greg Giraldo (Mon 3:00 PM), was $6.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "eac11d4e-07be-4332-95af-5d1b1cb38618",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Open Mic w/ Brett Singer (Tue 4:00 PM), was $5.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "60d53b64-9256-417b-8892-0e23f02ab766",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. We Wear Pink LGBTQIA+ Women's Mic (Tue 6:00 PM), was $6.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "9581991c-9cda-40ae-b50a-b67253fd49d5",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Open Mic w/ Zoe Levy (Wed 3:00 PM), was $5.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "792f7e56-bb45-43de-b8d9-c10441eb9df3",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Headliners 1st (Thu 3:30 PM), was $5.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "905be880-7b1b-465a-9af6-875b1762b399",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Feedback Mic w/ Craig Lottner (Fri 12:30 PM), was $6.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "c46872cc-7586-4917-9ca0-a8d8ff64bb98",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Open Mic w/ Rory Lutz (Fri 3:00 PM), was $5.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "f8446bc3-8fd3-4f81-8f8d-87405f1d6811",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Open Mic w/ Shareef Taher (Fri 5:00 PM), was $5.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "eedd52da-c4a4-4843-b3b5-3f00fa12d292",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Open Mic w/ Reuben Wolf (Sat 3:00 PM), was $5.",
+      "set": {
+        "cost": "$5.90"
+      }
     }
   ],
   "removals": [

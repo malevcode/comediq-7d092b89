@@ -28,7 +28,7 @@ const FeatureCard = ({ emoji, title, description, mascotImage, link, comingSoon 
           </div>
           <p className="text-sm text-gray-600 leading-relaxed mb-2">{description}</p>
           {comingSoon ? (
-            <Badge variant="secondary" className="text-xs bg-gray-200 text-gray-500">Coming Soon</Badge>
+            <Badge variant="secondary" className="text-xs bg-gray-200 text-gray-700">Coming Soon</Badge>
           ) : link ? (
             <span className="text-sm text-[#1a5fb4] font-medium hover:underline">Try it →</span>
           ) : null}
