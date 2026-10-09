@@ -119,10 +119,11 @@
     },
     {
       "unique_identifier": "ec491c87-12c1-43a2-8b10-187f22b73d73",
-      "note": "Thursdays at the Rib is biweekly not weekly",
+      "note": "Thursdays at the Rib is biweekly not weekly | Adam, 2026-10-08/09: 'Island rib house mic is now biweekly. It's on tonight but not next week and following that pattern.' Frequency was already bi_weekly (set above). His pattern matches the stored anchor: the old text named Aug 13 and Aug 27, and every other Thursday from there lands on Oct 8 (on, tonight) and skips Oct 15. So only the free text was stale: it listed August dates only. Rewritten to the current run of dates. I read 'tonight' as Thursday Oct 8. The app does not show frequency_custom_text for bi_weekly (only for 'custom'), so this is record-keeping; the site still cannot say which Thursday is on.",
       "set": {
         "open_mic": "Thursdays at the Rib *Biweekly*",
-        "frequency": "bi_weekly"
+        "frequency": "bi_weekly",
+        "frequency_custom_text": "Every other Thursday: Oct 8, Oct 22, Nov 5, Nov 19 (not Oct 15 or Nov 12)"
       }
     },
     {
