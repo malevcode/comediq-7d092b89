@@ -33,6 +33,10 @@ export const PAGES = [
   { path: "/add-show", title: "Submit a Comedy Show | Comediq", description: "List your comedy show on Comediq and reach local audiences." },
   { path: "/advertise", title: "Advertise to Comedians & Fans | Comediq", description: "Reach 1,250+ weekly comedians and comedy fans with banner and sponsor placements on Comediq." },
   { path: "/privacy", title: "Privacy Policy & Terms | Comediq", description: "How Comediq collects, uses and protects your data, plus our terms of use." },
+  // Unlinked policy for the separate SetBuild app: served at a direct URL only,
+  // never in the nav, footer or sitemap, and noindex'd so it stays out of search.
+  { path: "/setbuild-privacy", title: "SetBuild Privacy Policy", description: "What SetBuild collects, how it is used and how long it is kept. SetBuild is an app for stand-up comedians: write a set list, record your set, and see a report on how it went.", noindex: true },
+
   { path: "/slots", title: "Comediq Slots: Open Mic Sign-Ups | Comediq", description: "Reserve open mic spots and join waitlists with Comediq Slots." },
   { path: "/shows/map", title: "Comedy Shows Map | Comediq", description: "See comedy shows on a map and find one close to you tonight." },
 ];
@@ -49,13 +53,15 @@ function stripOwned(html) {
     .replace(/<meta[^>]+name="twitter:[^"]+"[^>]*>\s*/gi, "");
 }
 
-function headFor({ path, title, description, jsonld }) {
+function headFor({ path, title, description, jsonld, noindex }) {
   const url = path === "/" ? `${ORIGIN}/` : `${ORIGIN}${path}`;
   const t = esc(title), d = esc(description);
   return [
     `<title>${t}</title>`,
     `<meta name="description" data-rh="true" content="${d}" />`,
+    noindex ? `<meta name="robots" data-rh="true" content="noindex,nofollow" />` : null,
     `<link rel="canonical" data-canonical="app" href="${url}" />`,
+
     `<meta property="og:type" data-rh="true" content="website" />`,
     `<meta property="og:site_name" data-rh="true" content="Comediq" />`,
     `<meta property="og:title" data-rh="true" content="${t}" />`,

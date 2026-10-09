@@ -59,6 +59,8 @@ import ShowsMap from "./pages/ShowsMap";
 import ComedianOnboardingDialog from "@/components/ComedianOnboardingDialog";
 import Strip from "./pages/Strip";
 import CanonicalTag from "@/components/CanonicalTag";
+import SetBuildPrivacy from "./pages/SetBuildPrivacy";
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -82,10 +84,14 @@ function isMicSignupPath(pathname: string) {
   return pathname === '/mic-signup' || /^\/mic\/[^/]+\/signup\/?$/.test(pathname);
 }
 
+// Unlinked utility pages that must read as plain text with no site chrome.
+const HIDDEN_PLAIN_PAGES = ["/setbuild-privacy"];
+
 function SiteFooterWrapper() {
   const location = useLocation();
 
   if (isMicSignupPath(location.pathname)) return null;
+  if (HIDDEN_PLAIN_PAGES.includes(location.pathname)) return null;
 
   return (
     <div className="relative z-[1]">
@@ -93,6 +99,7 @@ function SiteFooterWrapper() {
     </div>
   );
 }
+
 
 function KeyboardViewportOffset() {
   useEffect(() => {
@@ -179,6 +186,8 @@ function AppShell() {
             <Route path="/job-board/create" element={<Navigate to="/growth" replace />} />
             <Route path="/advertise" element={<AdvertiseWithUs />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/setbuild-privacy" element={<SetBuildPrivacy />} />
+
             <Route path="/add-show" element={<AddShow />} />
             <Route path="/add-mic" element={<AddMic />} />
             <Route path="/shows/map" element={<ShowsMap />} />
