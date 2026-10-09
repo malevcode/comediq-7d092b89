@@ -27,6 +27,8 @@ const MicOfTheMonthBar = () => {
   // over a signup flow where the bar would compete with the primary action.
   if (location.pathname.startsWith("/auth")) return null;
   if (isMicSignupPath(location.pathname)) return null;
+  if (location.pathname === "/setbuild-privacy") return null;
+
 
   const href = votingHref();
   const content = (

@@ -94,13 +94,13 @@ const SetBuildPrivacy = () => {
             {section.bullets && (
               <ul className="mt-2 space-y-2 text-sm leading-relaxed">
                 {section.bullets.map((bullet) => (
-                  <li key={bullet} className="flex gap-2">
-                    <span aria-hidden="true">-</span>
-                    <span>{bullet}</span>
+                  <li key={bullet} className="pl-4 -indent-4">
+                    - {bullet}
                   </li>
                 ))}
               </ul>
             )}
+
           </section>
         ))}
       </div>
