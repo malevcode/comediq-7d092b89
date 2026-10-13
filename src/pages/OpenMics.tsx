@@ -14,6 +14,7 @@ import { useNavigate, useSearchParams, Link, useParams, Navigate } from "react-r
 import { PAGE_SIZE, resolveFilter, listingMeta, filterMics, summaryText, itemListSchema, breadcrumbSchema as seoBreadcrumb, graph, slugify as seoSlugify, ORIGIN } from "@/lib/seoShared";
 import NotFound from "./NotFound";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
+import { canonicalNeighborhood } from "@/utils/micFormat";
 import { MicRequestFormData } from "@/components/host/AddMicRequestForm";
 import { EditableMicCard } from "@/components/EditableMicCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -102,10 +103,29 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     costRange: [0, maxCost],
     timeOfDay: [],
     borough: "All",
+    neighborhood: "All",
     city: "New York",
     frequency: 'all',
     micStatus: 'all',
   });
+
+  // Neighbourhood options come from the mics on screen, narrowed by the city
+  // and borough already chosen, so the list never offers something that
+  // returns nothing. Names are canonicalised first because the data spells
+  // several places two ways.
+  const neighborhoods = useMemo(() => {
+    const inScope = (openMics ?? []).filter(
+      (m) =>
+        m.city === filters.city &&
+        (filters.borough === "All" || m.borough === filters.borough),
+    );
+    const names = new Set<string>();
+    for (const m of inScope) {
+      const n = canonicalNeighborhood(m.neighborhood);
+      if (n) names.add(n);
+    }
+    return ["All", ...Array.from(names).sort((a, b) => a.localeCompare(b))];
+  }, [openMics, filters.city, filters.borough]);
 
   // Update cost range when maxCost changes
   useMemo(() => {
@@ -152,7 +172,15 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
   const handleFiltersChange = (next: MicFiltersType) => {
     const boroughChanged = next.borough !== filters.borough;
-    setFilters(next);
+    // A neighbourhood only exists inside one borough and one city, so moving
+    // either leaves a combination that matches nothing. Drop it rather than
+    // show an empty list.
+    const scopeChanged = boroughChanged || next.city !== filters.city;
+    const resolved =
+      scopeChanged && next.neighborhood === filters.neighborhood
+        ? { ...next, neighborhood: "All" }
+        : next;
+    setFilters(resolved);
     if (!boroughChanged) return;
     if (next.borough && next.borough !== "All") goToFilter(seoSlugify(next.borough));
     else if (pathFilter?.kind === "borough") goToFilter(null);
@@ -339,6 +367,9 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
         mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesBorough = filters.borough === "All" || mic.borough === filters.borough;
+      const matchesNeighborhood =
+        filters.neighborhood === "All" ||
+        canonicalNeighborhood(mic.neighborhood) === filters.neighborhood;
 
       const micCost = getCostValue(mic.cost);
       const matchesCost = micCost >= filters.costRange[0] && micCost <= filters.costRange[1];
@@ -356,7 +387,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       // Variety (mixed) mics only
       const matchesVariety = !filters.variety || mic.legacyTag === VARIETY_TAG;
 
-      return matchesSearch && matchesBorough && matchesCost && matchesTime && matchesCity && matchesFrequency && matchesMicStatus && matchesVariety;
+      return matchesSearch && matchesBorough && matchesNeighborhood && matchesCost && matchesTime && matchesCity && matchesFrequency && matchesMicStatus && matchesVariety;
     });
 
     if (dayFilter) {
@@ -388,8 +419,11 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           mic.venueName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesBorough = filters.borough === "All" || mic.borough === filters.borough;
+        const matchesNeighborhood =
+          filters.neighborhood === "All" ||
+          canonicalNeighborhood(mic.neighborhood) === filters.neighborhood;
         const matchesCity = mic.city === filters.city;
-        return matchesSearch && matchesBorough && matchesCity;
+        return matchesSearch && matchesBorough && matchesNeighborhood && matchesCity;
       })
       .sort((a, b) => new Date(b.submissionDate!).getTime() - new Date(a.submissionDate!).getTime());
   };
@@ -455,7 +489,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
               <Button
                 onClick={() => {
                   setSearchTerm("");
-                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", city: filters.city, frequency: 'all', micStatus: 'all' });
+                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", neighborhood: "All", city: filters.city, frequency: 'all', micStatus: 'all' });
                 }}
                 variant="outline"
                 className="mt-4 text-sm"
@@ -521,7 +555,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
               <Button
                 onClick={() => {
                   setSearchTerm("");
-                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", city: filters.city, frequency: 'all', micStatus: 'all' });
+                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", neighborhood: "All", city: filters.city, frequency: 'all', micStatus: 'all' });
                 }}
                 variant="outline"
                 className="mt-4 text-sm"
@@ -847,7 +881,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
               >
                 <Plus className="h-4 w-4" />
               </Button>
-              <MicFilters filters={filters} onFiltersChange={handleFiltersChange} maxCost={maxCost} boroughs={boroughs} cities={cities.map(c => c.value)}/>
+              <MicFilters filters={filters} onFiltersChange={handleFiltersChange} maxCost={maxCost} boroughs={boroughs} neighborhoods={neighborhoods} cities={cities.map(c => c.value)}/>
             </div>
           </div>
         </div>
@@ -965,7 +999,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
-                      <MicFilters filters={filters} onFiltersChange={handleFiltersChange} maxCost={maxCost} boroughs={boroughs} cities={cities.map(c => c.value)}/>
+                      <MicFilters filters={filters} onFiltersChange={handleFiltersChange} maxCost={maxCost} boroughs={boroughs} neighborhoods={neighborhoods} cities={cities.map(c => c.value)}/>
                     </div>
                   </div>
                 </div>

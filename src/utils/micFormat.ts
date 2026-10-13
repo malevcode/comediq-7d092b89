@@ -41,3 +41,36 @@ export function formatStageTime(stageTime: string): string {
 export function formatCost(cost?: string | null): string {
   return cost?.trim() || 'Not specified';
 }
+
+/**
+ * One spelling per neighbourhood, for filtering and for the filter's own list.
+ *
+ * The data carries the same place under more than one name: 94 mics say
+ * "Lower East Side" and 18 say "LES", and the same goes for the Upper East and
+ * Upper West sides. Left alone, the filter offers the user two options for one
+ * neighbourhood and each hides most of the mics in it.
+ *
+ * This normalises for comparison only. Nothing is rewritten in the database;
+ * the underlying rows still need cleaning, and this keeps the filter honest in
+ * the meantime.
+ */
+const NEIGHBORHOOD_ALIASES: Record<string, string> = {
+  les: 'Lower East Side',
+  'lower east side': 'Lower East Side',
+  ues: 'Upper East Side',
+  'upper east side': 'Upper East Side',
+  uws: 'Upper West Side',
+  'upper west side': 'Upper West Side',
+  'park slope/south slope': 'Park Slope',
+  'park slope': 'Park Slope',
+  'bed stuy': 'Bedford-Stuyvesant',
+  'bedford-stuyvesant': 'Bedford-Stuyvesant',
+  'stuyvesant heights': 'Bedford-Stuyvesant',
+  'crown heights': 'Crown Heights',
+};
+
+export function canonicalNeighborhood(neighborhood?: string | null): string {
+  const trimmed = (neighborhood ?? '').trim();
+  if (!trimmed) return '';
+  return NEIGHBORHOOD_ALIASES[trimmed.toLowerCase()] ?? trimmed;
+}
