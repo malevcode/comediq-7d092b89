@@ -1,0 +1,2 @@
+- [ ] Update shared public-page metadata, homepage fallback, and dynamic page metadata within 60/160 characters.
+- [ ] Verify generated initial HTML and live preview metadata.
