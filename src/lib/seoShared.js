@@ -23,7 +23,7 @@ export function boundedMeta(title, description) {
 
 // One metadata catalogue for both initial HTML and client navigation.
 export const PUBLIC_PAGE_META = [
-  ["/", "Comedy Open Mics in NYC, Hudson Valley, LA & Austin | Comediq", "Find comedy open mics and stand-up shows in NYC, the Hudson Valley, Los Angeles and Austin. Explore venues, plan your sets and track performances with Comediq."],
+  ["/", "Comedy Open Mics: NYC, Hudson Valley, LA & Austin | Comediq", "Find comedy open mics and stand-up shows in NYC, Hudson Valley, Los Angeles and Austin. Explore venues, plan sets and track performances with Comediq."],
   ["/open-mics", "Comedy Open Mics List & Map | Comediq", "Browse comedy open mics in NYC, the Hudson Valley, Los Angeles and Austin. Compare schedules, venues, prices and sign-up details on Comediq's list and map."],
   ["/perform", "Comedy Open Mics & Mic of the Day | Comediq", "Find comedy open mics, discover the Mic of the Day and plan your next stand-up set. Explore schedules, venues and tools for comedians on Comediq."],
   ["/laugh", "Stand-Up Comedy Shows in NYC, LA & Austin | Comediq", "Discover stand-up comedy shows in NYC, the Hudson Valley, Los Angeles and Austin. Find show dates, comedy venues and ticket links on Comediq."],
@@ -47,8 +47,12 @@ export function pageMetaFor(path) {
 
 export function micMeta(mic) {
   const area = mic.neighborhood || mic.borough || mic.city;
+  const name = /^open mic$/i.test(mic.openMic || "") ? mic.venueName : mic.openMic || mic.venueName;
+  const schedule = [mic.day?.slice(0, 3), mic.startTime].filter(Boolean).join(" ");
+  const suffix = ` Open Mic${schedule ? ` ${schedule}` : ""} | Comediq`;
+  const title = `${snippet(name.replace(/\s+(comedy\s+)?open mic$/i, ""), Math.max(12, 60 - suffix.length))}${suffix}`;
   return boundedMeta(
-    `${mic.openMic || mic.venueName} Comedy Open Mic | Comediq`,
+    title,
     [`Comedy open mic: ${mic.openMic || mic.venueName} at ${mic.venueName}${area ? ` in ${area}` : ""}.`, [mic.day, mic.startTime, mic.cost, mic.stageTime && `${mic.stageTime} stage time`].filter(Boolean).join(" · "), "See venue and sign-up details."].filter(Boolean).join(" "),
   );
 }
