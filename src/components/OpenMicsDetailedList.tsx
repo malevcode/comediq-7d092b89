@@ -319,24 +319,31 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
       {/* Mid: Time, Cost, Stage Time - Clickable to expand */}
       <div className={`flex-1 flex flex-col min-w-0 gap-x-3 text-xs text-gray-700 mb-0 mr-1 ${expanded ? 'justify-center md:justify-start md:pt-1' : 'justify-center'}`}>
         <div 
-          className="flex min-w-0 flex-row flex-nowrap gap-x-3 sm:gap-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors dark:text-white/70 dark:hover:bg-white/10"
+          className={`flex min-w-0 flex-row gap-x-3 sm:gap-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors dark:text-white/70 dark:hover:bg-white/10 ${expanded ? 'flex-wrap gap-y-1' : 'flex-nowrap'}`}
           onClick={() => setExpanded(e => !e)}
           role="button"
           tabIndex={0}
           aria-expanded={expanded}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpanded(x => !x); }}
         >
-          <span className="flex min-w-[2.5rem] items-center gap-1" title={formatTimeRange(mic.startTime, mic.latestEndTime)}>
-            <Clock className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
-            <span className="truncate">{formatTimeRange(mic.startTime, mic.latestEndTime)}</span>
-          </span>
+          {/* Time never shrinks and never truncates. It is the one thing on this
+              row you cannot act on a mic without, and it was rendering as
+              "7:30-..." because it had a min-width and truncate but no
+              flex-shrink-0, so the row squeezed it before anything else. */}
           <span className="flex flex-shrink-0 items-center gap-1 whitespace-nowrap">
             <Clock className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
-            {formatStageTime(mic.stageTime)}
+            {formatTimeRange(mic.startTime, mic.latestEndTime)}
           </span>
-          <span className="flex min-w-[3.5rem] max-w-[55%] items-center gap-1" title={formatCost(mic.cost)}>
+          {/* Stage time and cost are the ones that may be long prose
+              ("purchase of drink or food"), so they give way instead, and show
+              in full once the card is open. */}
+          <span className={`flex items-center gap-1 ${expanded ? 'min-w-0' : 'min-w-[3rem] max-w-[45%]'}`} title={formatStageTime(mic.stageTime)}>
+            <Clock className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
+            <span className={expanded ? '' : 'truncate'}>{formatStageTime(mic.stageTime)}</span>
+          </span>
+          <span className={`flex items-center gap-1 ${expanded ? 'min-w-0' : 'min-w-[3rem] max-w-[45%]'}`} title={formatCost(mic.cost)}>
             <DollarSign className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
-            <span className="truncate">{formatCost(mic.cost)}</span>
+            <span className={expanded ? '' : 'truncate'}>{formatCost(mic.cost)}</span>
           </span>
           <ChevronDown
             className={`w-4 h-4 flex-shrink-0 text-[#8ec5ff] transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
