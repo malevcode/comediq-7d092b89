@@ -2,6 +2,14 @@
 export const ORIGIN: string;
 export const PAGE_SIZE: number;
 export const DAYS: string[];
+export type PageMeta = { title: string; description: string };
+export const PUBLIC_PAGE_META: (PageMeta & { path: string })[];
+export function snippet(text: string, limit: number): string;
+export function boundedMeta(title: string, description: string): PageMeta;
+export function pageMetaFor(path: string): (PageMeta & { path: string }) | undefined;
+export function micMeta(mic: any): PageMeta;
+export function venueMeta(venue: any, mics: any[]): PageMeta;
+export function neighborhoodMeta(name: string, mics: any[]): PageMeta;
 export type ListingFilter = { kind: "day" | "borough"; value: string; slug: string } | null;
 export function slugify(text: string | null | undefined): string;
 export function micSlug(mic: any): string;
