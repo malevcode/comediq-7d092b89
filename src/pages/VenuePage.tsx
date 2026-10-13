@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import SEO from "@/components/SEO";
 import PageHeader from "@/components/PageHeader";
-import { DAYS, breadcrumbSchema, formatVerified, graph, micPath, placeSchema, slugify, summaryText, venueSlugOf, eventSchema, ORIGIN } from "@/lib/seoShared";
+import { DAYS, breadcrumbSchema, formatVerified, graph, micPath, placeSchema, slugify, summaryText, venueSlugOf, eventSchema, ORIGIN, venueMeta } from "@/lib/seoShared";
 
 type Venue = { slug: string; name: string; address?: string; borough?: string; neighborhood?: string; city?: string; latitude?: number | null; longitude?: number | null };
 
@@ -55,8 +55,7 @@ const VenuePage = () => {
   return (
     <>
       <SEO
-        title={`Comedy Open Mics at ${venue.name}${area ? ` (${venue.neighborhood || venue.borough})` : ""} | Comediq`}
-        description={`${summary} ${venue.address ? `Address: ${venue.address}.` : ""}`.trim().slice(0, 300)}
+        {...venueMeta(venue, venueMics)}
         url={`${ORIGIN}${path}`}
         structuredData={structuredData}
       />

@@ -3,6 +3,72 @@ export const ORIGIN = "https://comediq.us";
 export const PAGE_SIZE = 24;
 export const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
+// Search snippets use maximum lengths, not padded character targets.
+export function snippet(text, limit) {
+  const value = String(text || "").replace(/\s+/g, " ").trim();
+  if (value.length <= limit) return value;
+  const prefix = value.slice(0, limit - 1);
+  const boundary = prefix.lastIndexOf(" ");
+  return `${prefix.slice(0, boundary > prefix.length * 0.6 ? boundary : prefix.length).replace(/[ ,;:.–-]+$/, "")}…`;
+}
+
+export function boundedMeta(title, description) {
+  const suffix = " | Comediq";
+  const branded = String(title).endsWith(suffix);
+  return {
+    title: branded ? `${snippet(title.slice(0, -suffix.length), 60 - suffix.length)}${suffix}` : snippet(title, 60),
+    description: snippet(description, 160),
+  };
+}
+
+// One metadata catalogue for both initial HTML and client navigation.
+export const PUBLIC_PAGE_META = [
+  ["/", "Comedy Open Mics: NYC, Hudson Valley, LA & Austin | Comediq", "Find comedy open mics and stand-up shows in NYC, Hudson Valley, Los Angeles and Austin. Explore venues, plan sets and track performances with Comediq."],
+  ["/open-mics", "Comedy Open Mics List & Map | Comediq", "Browse comedy open mics in NYC, the Hudson Valley, Los Angeles and Austin. Compare schedules, venues, prices and sign-up details on Comediq's list and map."],
+  ["/perform", "Comedy Open Mics & Mic of the Day | Comediq", "Find comedy open mics, discover the Mic of the Day and plan your next stand-up set. Explore schedules, venues and tools for comedians on Comediq."],
+  ["/laugh", "Stand-Up Comedy Shows in NYC, LA & Austin | Comediq", "Discover stand-up comedy shows in NYC, the Hudson Valley, Los Angeles and Austin. Find show dates, comedy venues and ticket links on Comediq."],
+  ["/shows", "Comedy Show Scheduler & Set Planning | Comediq", "Organize your upcoming comedy shows, stand-up sets and bits. Keep performance dates and set plans together with the Comediq show scheduler."],
+  ["/free-mics", "Free Comedy Open Mics in NYC, LA & Austin | Comediq", "Find free comedy open mics in NYC, the Hudson Valley, Los Angeles and Austin. Browse venues and schedules with no cover charge or drink minimum."],
+  ["/beginner-friendly", "Beginner-Friendly Comedy Open Mics | Comediq", "Find beginner-friendly comedy open mics for your first stand-up set. Explore supportive rooms, venue details and schedules for new comedians on Comediq."],
+  ["/top-mics", "Top Comedy Open Mics & Comedian Rankings | Comediq", "Discover top comedy open mics ranked by comedian votes. Compare popular stand-up rooms and vote for NYC's Mic of the Month on Comediq."],
+  ["/leaderboard", "Comedy Open Mic Leaderboard & Monthly Voting | Comediq", "Vote for NYC's Mic of the Month and follow the comedy open mic leaderboard. See live comedian voting totals and find popular stand-up rooms on Comediq."],
+  ["/growth", "Comedy Gigs, Festivals & Booking Opportunities | Comediq", "Find comedy booking opportunities, stand-up gigs, festivals and contests. Explore opportunities to grow your career as a comedian on Comediq."],
+  ["/add-mic", "Submit a Comedy Open Mic & Venue Details | Comediq", "Add a comedy open mic to Comediq. Submit venue details, schedules, stage time, costs and sign-up instructions so local comedians can find your room."],
+  ["/add-show", "Submit a Stand-Up Comedy Show | Comediq", "List your stand-up comedy show on Comediq. Add event dates, venue details and ticket links to help local comedy fans discover your next show."],
+  ["/advertise", "Advertise to Comedians & Comedy Fans | Comediq", "Promote your comedy venue, event or brand to comedians and comedy fans. Explore Comediq banner advertising and sponsor placements for your campaign."],
+  ["/privacy", "Comediq Privacy Policy & Terms of Service", "Read Comediq's privacy policy and terms of service. Learn how comedian data is collected, used and protected, including SMS notification disclosures."],
+  ["/slots", "Comedy Open Mic Sign-Ups & Waitlists | Comediq", "Reserve comedy open mic spots and join waitlists with Comediq Slots. Explore available sign-ups and manage your next stand-up performance."],
+  ["/shows/map", "Stand-Up Comedy Shows Map & Venue Locations | Comediq", "Find stand-up comedy shows on a map. Explore comedy venue locations, upcoming events and ticket links to plan a night of live comedy with Comediq."],
+].map(([path, title, description]) => ({ path, ...boundedMeta(title, description) }));
+
+export function pageMetaFor(path) {
+  return PUBLIC_PAGE_META.find((page) => page.path === path.replace(/\/+$/, "") || (page.path === "/" && path === "/"));
+}
+
+export function micMeta(mic) {
+  const area = mic.neighborhood || mic.borough || mic.city;
+  const name = /^open mic$/i.test(mic.openMic || "") ? mic.venueName : mic.openMic || mic.venueName;
+  const schedule = [mic.day?.slice(0, 3), mic.startTime].filter(Boolean).join(" ");
+  const suffix = ` Open Mic${schedule ? ` ${schedule}` : ""} | Comediq`;
+  const title = `${snippet(name.replace(/\s+(comedy\s+)?open mic$/i, ""), Math.max(12, 60 - suffix.length))}${suffix}`;
+  return boundedMeta(
+    title,
+    [`Comedy open mic: ${mic.openMic || mic.venueName} at ${mic.venueName}${area ? ` in ${area}` : ""}.`, [mic.day, mic.startTime, mic.cost, mic.stageTime && `${mic.stageTime} stage time`].filter(Boolean).join(" · "), "See venue and sign-up details."].filter(Boolean).join(" "),
+  );
+}
+
+export function venueMeta(venue, mics) {
+  const area = venue.neighborhood || venue.borough || venue.city;
+  return boundedMeta(
+    `${venue.name} Comedy Open Mics | Comediq`,
+    `Find ${mics.length} comedy open mic${mics.length === 1 ? "" : "s"} at ${venue.name}${area ? ` in ${area}` : ""}. Browse stand-up schedules, prices and sign-up details.${venue.address ? ` Address: ${venue.address}.` : ""}`,
+  );
+}
+
+export function neighborhoodMeta(name, mics) {
+  return boundedMeta(`${name} Comedy Open Mics & Stand-Up | Comediq`, `Find ${mics.length} comedy open mics in ${name}. Browse stand-up venues, weekly schedules, costs and sign-up details to plan your next set on Comediq.`);
+}
+
 export function slugify(text) {
   return String(text || "")
     .toLowerCase()
@@ -75,15 +141,13 @@ export function listingMeta(filter, mics, page = 1) {
   const pageSuffix = page > 1 ? ` (Page ${page})` : "";
   if (!filter) {
     return {
-      title: `Comedy Open Mics List & Map | Comediq${pageSuffix}`,
-      description: summaryText(scoped, "listed on Comediq across NYC, the Hudson Valley, LA and Austin"),
+      ...boundedMeta(`Comedy Open Mics List & Map${pageSuffix} | Comediq`, `Find ${scoped.length} comedy open mics across NYC, the Hudson Valley, LA and Austin. Compare stand-up venues, schedules, prices and sign-up details.${page > 1 ? ` Page ${page}.` : ""}`),
       scope: "listed on Comediq",
     };
   }
   const scope = filter.kind === "day" ? `on ${filter.value}s` : `in ${filter.value}`;
   return {
-    title: `${filter.value} Comedy Open Mics${filter.kind === "day" ? "" : ""} | Comediq${pageSuffix}`,
-    description: summaryText(scoped, scope).slice(0, 300),
+    ...boundedMeta(`${filter.value} Comedy Open Mics${pageSuffix} | Comediq`, `Find ${scoped.length} comedy open mics ${scope}${page > 1 ? `, page ${page}` : ""}. ${micSummary(scoped).free} are free. Compare stand-up venues, schedules, prices and sign-up details on Comediq.`),
     scope,
   };
 }
@@ -131,8 +195,7 @@ export function placeSchema(v) {
 }
 
 export function micTitle(mic) {
-  const name = mic.openMic || mic.venueName;
-  return slugify(name) === slugify(mic.venueName) || !mic.venueName ? `${name} Comedy Open Mic | Comediq` : `${name} at ${mic.venueName} | Comediq`;
+  return micMeta(mic).title;
 }
 
 export function eventSchema(mic) {

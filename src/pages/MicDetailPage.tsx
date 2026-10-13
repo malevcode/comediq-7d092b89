@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate, useSearchParams, Navigate } from "react-router-dom";
-import { micSlug, micPath, venuePath, eventSchema, breadcrumbSchema, graph, slugify as seoSlugify, formatVerified, micTitle } from "@/lib/seoShared";
+import { micSlug, micPath, venuePath, eventSchema, breadcrumbSchema, graph, slugify as seoSlugify, formatVerified, micMeta } from "@/lib/seoShared";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useMicRatings } from "@/hooks/useMicRatings";
 import { parseVenueSlug, slugify } from "@/utils/slugify";
@@ -89,8 +89,7 @@ const MicDetailPage = () => {
   return (
     <>
       <SEO
-        title={micTitle(mic)}
-        description={`Perform at ${mic.venueName} every ${mic.day} at ${mic.startTime}. ${mic.cost === 'Free' ? 'Free' : mic.cost} admission. ${mic.stageTime} stage time. ${mic.neighborhood}, ${mic.borough}. ${mic.signUpInstructions.substring(0, 100)}`}
+        {...micMeta(mic)}
         keywords={`${mic.venueName} open mic, ${mic.neighborhood} comedy, ${mic.borough} open mic, ${mic.day} comedy NYC, ${mic.cost === 'Free' ? 'free' : 'paid'} open mic`}
         url={`https://comediq.us${micPath(mic)}`}
         type="article"

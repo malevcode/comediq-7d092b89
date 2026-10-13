@@ -7,6 +7,7 @@ import { generateBreadcrumbSchema, generateLocalBusinessSchema } from "@/utils/s
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Clock, DollarSign, Users, Star } from "lucide-react";
 import { NYC_NEIGHBORHOODS } from "@/utils/neighborhoods";
+import { neighborhoodMeta } from "@/lib/seoShared";
 
 const MicsByNeighborhood = () => {
   const { neighborhood } = useParams<{ neighborhood: string }>();
@@ -87,8 +88,7 @@ const MicsByNeighborhood = () => {
   return (
     <>
       <SEO
-        title={`${neighborhoodName} Comedy Open Mics – NYC Stand-Up | Comediq`}
-        description={`Find ${filteredMics.length} comedy open mics in ${neighborhoodName}, NYC. Weekly schedules, venue details, and comedian reviews. Perfect for performers and comedy fans.`}
+        {...neighborhoodMeta(neighborhoodName, filteredMics)}
         keywords={`${neighborhoodName} open mic, ${neighborhoodName} comedy, NYC ${neighborhoodName} stand up, comedy shows ${neighborhoodName}`}
         url={`https://comediq.us/neighborhoods/${neighborhood}`}
         structuredData={structuredData}
