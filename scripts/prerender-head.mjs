@@ -10,35 +10,16 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import {
   DAYS, slugify, micPath, venueSlugOf, boroughSlugs, filterMics, listingMeta, summaryText,
-  eventSchema, itemListSchema, placeSchema, breadcrumbSchema, graph, formatVerified, micTitle, ORIGIN as SHARED_ORIGIN,
+  eventSchema, itemListSchema, placeSchema, breadcrumbSchema, graph, formatVerified, micTitle, ORIGIN as SHARED_ORIGIN, PUBLIC_PAGE_META, boundedMeta, micMeta, venueMeta, neighborhoodMeta,
 } from "../src/lib/seoShared.js";
 import { resolve, dirname } from "path";
 
 const ORIGIN = "https://comediq.us";
 const IMAGE = `${ORIGIN}/comediq_logo.jpg`;
-const REGIONS = "NYC, the Hudson Valley, Los Angeles and Austin";
 
 export const PAGES = [
-  { path: "/", title: "Comediq! Find Comedy Open Mics in NYC, Hudson Valley, LA & Austin", description: `Discover comedy open mics and shows across ${REGIONS}. Find venues, track your sets, and build your comedy career with Comediq.` },
-  { path: "/open-mics", title: "Comedy Open Mics List & Map | Comediq", description: `Browse every comedy open mic in ${REGIONS} by day, time, cost and neighborhood, with a live map and sign-up details.` },
-  { path: "/perform", title: "Perform: Open Mics & Mic of the Day | Comediq", description: "Plan tonight's sets: today's Mic of the Day, upcoming open mics near you, and tools for working comedians." },
-  { path: "/laugh", title: "Comedy Shows Near You | Comediq", description: `Find stand-up comedy shows to watch across ${REGIONS}, with dates, venues and ticket links.` },
-  { path: "/shows", title: "Show Scheduler | Comediq", description: "Plan and organize your upcoming comedy shows, sets and bits in one place." },
-  { path: "/free-mics", title: "Free Comedy Open Mics | Comediq", description: `Comedy open mics with no cover or drink minimum in ${REGIONS}.` },
-  { path: "/beginner-friendly", title: "Beginner-Friendly Comedy Open Mics | Comediq", description: "Supportive, low-pressure open mics for first-time and newer comedians." },
-  { path: "/top-mics", title: "Top Comedy Open Mics This Week | Comediq", description: "The week's highest-rated open mics, ranked by comedian votes on Comediq." },
-  { path: "/leaderboard", title: "Open Mic Leaderboard | Comediq", description: "Live comedian voting on the best open mics. See which rooms are leading this month." },
-  { path: "/growth", title: "Comedy Growth Opportunities | Comediq", description: "Booking spots, festivals, contests and gigs for comedians looking to grow their careers." },
-  { path: "/add-mic", title: "Add an Open Mic | Comediq", description: "Submit a comedy open mic to Comediq so comedians can find it." },
-  { path: "/add-show", title: "Submit a Comedy Show | Comediq", description: "List your comedy show on Comediq and reach local audiences." },
-  { path: "/advertise", title: "Advertise to Comedians & Fans | Comediq", description: "Reach 1,250+ weekly comedians and comedy fans with banner and sponsor placements on Comediq." },
-  { path: "/privacy", title: "Privacy Policy & Terms | Comediq", description: "How Comediq collects, uses and protects your data, plus our terms of use." },
-  // Unlinked policy for the separate SetBuild app: served at a direct URL only,
-  // never in the nav, footer or sitemap, and noindex'd so it stays out of search.
-  { path: "/setbuild-privacy", title: "SetBuild Privacy Policy", description: "What SetBuild collects, how it is used and how long it is kept. SetBuild is an app for stand-up comedians: write a set list, record your set, and see a report on how it went.", noindex: true },
-
-  { path: "/slots", title: "Comediq Slots: Open Mic Sign-Ups | Comediq", description: "Reserve open mic spots and join waitlists with Comediq Slots." },
-  { path: "/shows/map", title: "Comedy Shows Map | Comediq", description: "See comedy shows on a map and find one close to you tonight." },
+  ...PUBLIC_PAGE_META,
+  { path: "/setbuild-privacy", title: "SetBuild Privacy Policy", description: "Read the SetBuild privacy policy for stand-up recordings, transcripts and analysis, including data storage and deletion requests.", noindex: true },
 ];
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
@@ -55,7 +36,8 @@ function stripOwned(html) {
 
 function headFor({ path, title, description, jsonld, noindex }) {
   const url = path === "/" ? `${ORIGIN}/` : `${ORIGIN}${path}`;
-  const t = esc(title), d = esc(description);
+  const meta = boundedMeta(title, description);
+  const t = esc(meta.title), d = esc(meta.description);
   return [
     `<title>${t}</title>`,
     `<meta name="description" data-rh="true" content="${d}" />`,
@@ -101,13 +83,23 @@ export function dynamicPages(mics, venues) {
   for (const d of DAYS) listing({ kind: "day", value: d, slug: slugify(d) }, `/open-mics/${slugify(d)}`);
   for (const b of boroughSlugs(mics)) listing({ kind: "borough", value: b.value, slug: b.slug }, `/open-mics/${b.slug}`);
 
+  // Neighborhood routes are public search pages too.
+  const neighborhoods = [...new Set(mics.map((m) => m.neighborhood).filter(Boolean))];
+  for (const name of neighborhoods) {
+    const nm = mics.filter((m) => m.neighborhood === name);
+    const path = `/neighborhoods/${slugify(name)}`;
+    pages.push({
+      path, ...neighborhoodMeta(name, nm),
+      jsonld: graph(itemListSchema(nm), breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Open Mics", path: "/open-mics" }, { name, path }])),
+      body: `<main><h1>Comedy open mics in ${h(name)}</h1><p>${h(summaryText(nm, `in ${name}`))}</p><ul>${nm.map(micLi).join("")}</ul></main>`,
+    });
+  }
+
   for (const m of mics) {
     const path = micPath(m);
-    const where = [m.neighborhood, m.borough].filter(Boolean).join(", ");
     pages.push({
       path,
-      title: micTitle(m),
-      description: `${m.openMic}: comedy open mic at ${m.venueName}${where ? ` (${where})` : ""}${m.day ? ` every ${m.day}` : ""}${m.startTime ? ` at ${m.startTime}` : ""}. ${m.cost ? `Cost: ${m.cost}.` : ""} ${m.stageTime ? `${m.stageTime} stage time.` : ""}`.replace(/\s+/g, " ").trim().slice(0, 300),
+      ...micMeta(m),
       jsonld: graph(eventSchema(m), breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Open Mics", path: "/open-mics" }, ...(m.borough ? [{ name: m.borough, path: `/open-mics/${slugify(m.borough)}` }] : []), { name: m.openMic, path }])),
       body: `<main><h1>${h(m.openMic)}</h1><p>${h([m.day, m.startTime, m.cost, m.stageTime].filter(Boolean).join(" · "))}</p><p><a href="/venue/${venueSlugOf(m)}">${h(m.venueName)}</a> ${h(m.location)}</p>${formatVerified(m.lastVerifiedAt) ? `<p>Verified ${h(formatVerified(m.lastVerifiedAt))}</p>` : ""}<p>${h(m.signUpInstructions)}</p></main>`,
     });
@@ -120,8 +112,7 @@ export function dynamicPages(mics, venues) {
     const summary = summaryText(vm, `at ${v.name}`);
     pages.push({
       path,
-      title: `Comedy Open Mics at ${v.name}${v.neighborhood || v.borough ? ` (${v.neighborhood || v.borough})` : ""} | Comediq`,
-      description: `${summary} ${v.address ? `Address: ${v.address}.` : ""}`.trim().slice(0, 300),
+      ...venueMeta(v, vm),
       jsonld: graph({ ...placeSchema({ ...v, url: `${SHARED_ORIGIN}${path}` }), event: vm.map(eventSchema) }, breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Open Mics", path: "/open-mics" }, { name: v.name, path }])),
       body: `<main><h1>Open mics at ${h(v.name)}</h1><p>${h(v.address)}</p><p>${h(summary)}</p><ul>${vm.map(micLi).join("")}</ul></main>`,
     });
