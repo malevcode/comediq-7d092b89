@@ -23,6 +23,11 @@ export function micSummary(mics: any[]): { total: number; free: number; commonPr
 export function summaryText(mics: any[], scopeLabel: string): string;
 export function listingMeta(filter: ListingFilter, mics: any[], page?: number): { title: string; description: string; scope: string };
 export function filterMics<T>(filter: ListingFilter, mics: T[]): T[];
+export function micDescription(mic: any, mics?: any[]): string;
+export type MicFaq = { question: string; answer: string };
+export function micFaqs(mic: any): MicFaq[];
+export function faqSchema(faqs: MicFaq[]): any;
+export function venueDescription(venue: any, mics: any[]): string;
 export function placeSchema(v: any): any;
 export function eventSchema(mic: any): any;
 export function itemListSchema(mics: any[], startIndex?: number): any;

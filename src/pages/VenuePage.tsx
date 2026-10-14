@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import SEO from "@/components/SEO";
 import PageHeader from "@/components/PageHeader";
-import { DAYS, breadcrumbSchema, formatVerified, graph, micPath, placeSchema, slugify, summaryText, venueSlugOf, eventSchema, ORIGIN, venueMeta } from "@/lib/seoShared";
+import { DAYS, breadcrumbSchema, formatVerified, graph, micPath, placeSchema, slugify, summaryText, venueSlugOf, eventSchema, ORIGIN, venueMeta, venueDescription } from "@/lib/seoShared";
 
 type Venue = { slug: string; name: string; address?: string; borough?: string; neighborhood?: string; city?: string; latitude?: number | null; longitude?: number | null };
 
@@ -38,6 +38,7 @@ const VenuePage = () => {
 
   const area = [venue.neighborhood, venue.borough].filter(Boolean).join(", ");
   const summary = summaryText(venueMics, `at ${venue.name}`);
+  const description = venueDescription(venue, venueMics);
   const path = `/venue/${slug}`;
   const structuredData = graph(
     { ...placeSchema({ ...venue, url: `${ORIGIN}${path}` }), event: venueMics.map(eventSchema) },
@@ -64,6 +65,7 @@ const VenuePage = () => {
         <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground mt-4">Open mics at {venue.name}</h1>
         {venue.address && <p className="mt-2 text-sm text-muted-foreground">{venue.address}</p>}
         <p className="mt-4 text-base text-foreground/80">{summary}</p>
+        {description && <p className="mt-2 text-base text-muted-foreground">{description}</p>}
 
         {mapSrc && (
           <iframe title={`Map of ${venue.name}`} src={mapSrc} loading="lazy" className="mt-6 h-56 w-full rounded-xl border border-border" />

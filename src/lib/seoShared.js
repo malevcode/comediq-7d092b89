@@ -158,6 +158,78 @@ export function filterMics(filter, mics) {
   return mics.filter((m) => (m.borough || "").trim() === filter.value);
 }
 
+const fieldText = (value) => String(value ?? "").trim();
+const sentence = (value) => `${value.replace(/[.!?]+$/, "")}.`;
+const stageText = (value) => /^\d+(\.\d+)?$/.test(value) ? `${value} minutes` : value;
+
+/** Read-only detail copy; use the listing filters and totals rather than a separate count source. */
+export function micDescription(mic, mics = []) {
+  const name = fieldText(mic.openMic);
+  const day = fieldText(mic.day);
+  const time = fieldText(mic.startTime);
+  const venue = fieldText(mic.venueName);
+  const address = fieldText(mic.location);
+  const area = [mic.neighborhood, mic.borough].map(fieldText).filter(Boolean).join(", ");
+  const cost = fieldText(mic.cost);
+  const stage = stageText(fieldText(mic.stageTime));
+  const schedule = [day && `${!mic.frequency || mic.frequency === "weekly" ? "every" : "on"} ${day}`, time && `at ${time}`].filter(Boolean).join(" ");
+  const place = [venue && `at ${venue}`, address].filter(Boolean).join(", ");
+  const details = [name, schedule && `runs ${schedule}`, place, area && `in ${area}`].filter(Boolean).join(" ");
+  const parts = details ? [sentence(details)] : [];
+  if (cost && stage) parts.push(sentence(`It costs ${cost} and each comic gets ${stage}`));
+  else if (cost) parts.push(sentence(`It costs ${cost}`));
+  else if (stage) parts.push(sentence(`Each comic gets ${stage}`));
+  const counts = [];
+  if (day) {
+    const total = micSummary(filterMics({ kind: "day", value: mic.day }, mics)).total;
+    if (total) counts.push(`${total} open mics running on ${day}s`);
+  }
+  const borough = fieldText(mic.borough);
+  if (borough) {
+    const total = micSummary(filterMics({ kind: "borough", value: borough }, mics)).total;
+    if (total) counts.push(`${total} in ${borough}`);
+  }
+  if (counts.length) parts.push(sentence(`This is one of ${counts.join(" and one of ")}`));
+  return parts.join(" ");
+}
+
+export function micFaqs(mic) {
+  const cost = fieldText(mic.cost);
+  const stage = stageText(fieldText(mic.stageTime));
+  const signup = fieldText(mic.signUpInstructions);
+  return [
+    cost && { question: "How much does the mic cost?", answer: sentence(`It costs ${cost}`) },
+    stage && { question: "How long is the set?", answer: sentence(`Each comic gets ${stage}`) },
+    signup && { question: "How does sign-up work?", answer: signup },
+  ].filter(Boolean);
+}
+
+export function faqSchema(faqs) {
+  if (!faqs.length) return null;
+  return {
+    "@type": "FAQPage",
+    mainEntity: faqs.map(({ question, answer }) => ({
+      "@type": "Question", name: question,
+      acceptedAnswer: { "@type": "Answer", text: answer },
+    })),
+  };
+}
+
+export function venueDescription(venue, mics) {
+  const area = [venue.neighborhood, venue.borough].map(fieldText).filter(Boolean).join(", ");
+  const parts = area ? [sentence(`${fieldText(venue.name) || "This venue"} is in ${area}`)] : [];
+  const costs = [...new Set(mics.map((mic) => fieldText(mic.cost)).filter(Boolean))];
+  const amount = (cost) => isFree(cost) ? 0 : Number(cost.match(/\$\s*(\d+(?:\.\d+)?)/)?.[1] ?? (/^\d+(?:\.\d+)?$/.test(cost) ? cost : NaN));
+  const priced = costs.filter((cost) => Number.isFinite(amount(cost))).sort((a, b) => amount(a) - amount(b));
+  const other = costs.filter((cost) => !Number.isFinite(amount(cost)));
+  if (costs.length === 1) parts.push(sentence(`Listed mic cost: ${costs[0]}`));
+  else if (priced.length > 1 && amount(priced[0]) !== amount(priced[priced.length - 1])) {
+    parts.push(sentence(`Listed mic prices range from ${priced[0]} to ${priced[priced.length - 1]}`));
+    if (other.length) parts.push(sentence(`Other listed costs include ${other.join("; ")}`));
+  } else if (costs.length) parts.push(sentence(`Listed mic costs include ${costs.join("; ")}`));
+  return parts.join(" ");
+}
+
 // ---------- JSON-LD ----------
 function parseTime(t) {
   const m = String(t || "").trim().toLowerCase().match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm|a|p)?/);

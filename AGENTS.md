@@ -4,6 +4,7 @@
 - Day and borough filters are real paths `/open-mics/:filter` (old `?day=`/`?borough=` and `/days/*`, `/boroughs/*` redirect there). Why: each filter gets its own title, description and canonical.
 - Slug, summary, title and JSON-LD logic lives only in `src/lib/seoShared.js`, shared by the app, `scripts/prerender-head.mjs` and `scripts/generate-sitemap.mjs`. Why: the pre-rendered HTML and the live app must never disagree.
 - Public static route metadata comes from the shared catalogue; dynamic routes use shared metadata generators and all snippets pass through the same length guard. Why: initial HTML and client navigation must have consistent search snippets.
+- Detail descriptions and FAQ answers use shared read-only formatters in `seoShared.js`, with day/borough totals from the listing filters and identical FAQ data for visible text and JSON-LD. Why: live and pre-rendered detail content must agree without changing stored data.
 - Listing pagination is `?page=N` (page size from `PAGE_SIZE`), with "Show More" as a real `rel="next"` link; canonical includes `?page=N` for N > 1. Why: crawlers can reach every mic.
 - Build-time pages for mics/venues/filters come from `public/mics.json` + `public/venues.json` (written by `scripts/export-mics.mjs`, which must run before the sitemap). Why: static hosting has no server rendering.
 - `last_verified_at` is the single verification date shown on cards; a trigger keeps it in step with `last_confirmed_at` and `last_verified`. Why: one trustworthy date per mic.

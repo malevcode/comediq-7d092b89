@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate, useSearchParams, Navigate } from "react-router-dom";
-import { micSlug, micPath, venuePath, eventSchema, breadcrumbSchema, graph, slugify as seoSlugify, formatVerified, micMeta } from "@/lib/seoShared";
+import { micSlug, micPath, venuePath, eventSchema, breadcrumbSchema, graph, slugify as seoSlugify, formatVerified, micMeta, micDescription, micFaqs, faqSchema } from "@/lib/seoShared";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useMicRatings } from "@/hooks/useMicRatings";
 import { parseVenueSlug, slugify } from "@/utils/slugify";
@@ -63,8 +63,11 @@ const MicDetailPage = () => {
     return <Navigate to={micPath(mic)} replace />;
   }
 
+  const description = micDescription(mic, mics);
+  const faqs = micFaqs(mic);
   const structuredData = graph(
     eventSchema(mic),
+    faqSchema(faqs),
     breadcrumbSchema([
       { name: 'Home', path: '/' },
       { name: 'Open Mics', path: '/open-mics' },
@@ -117,6 +120,21 @@ const MicDetailPage = () => {
             >
               {mic.openMic.toLowerCase()}
             </h1>
+
+            {description && <p className="mt-5 max-w-4xl text-sm leading-relaxed text-muted-foreground md:text-base">{description}</p>}
+            {faqs.length > 0 && (
+              <section aria-labelledby="mic-faq-heading" className="mt-6 border-t border-border pt-4">
+                <h2 id="mic-faq-heading" className="text-base font-semibold text-foreground">Frequently asked questions</h2>
+                <dl className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
+                  {faqs.map(({ question, answer }) => (
+                    <div key={question} className="min-w-0">
+                      <dt className="text-sm font-medium text-foreground">{question}</dt>
+                      <dd className="mt-1 whitespace-pre-wrap break-words text-sm leading-relaxed text-muted-foreground">{answer}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            )}
 
             {/* Tagline + actions */}
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3 md:mt-6">
