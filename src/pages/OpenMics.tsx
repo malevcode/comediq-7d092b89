@@ -7,8 +7,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OpenMic, MicFrequency, FREQUENCY_LABELS, VARIETY_TAG } from "@/types/openMic";
 import { parseStartTimeToMinutes } from '@/utils/micCheckin';
-import { useOpenMics } from "@/hooks/useOpenMics";
+import { useOpenMics, mapSupabaseRow } from "@/hooks/useOpenMics";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQueryClient } from "@tanstack/react-query";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
 import { useNavigate, useSearchParams, Link, useParams, Navigate } from "react-router-dom";
 import { PAGE_SIZE, resolveFilter, listingMeta, filterMics, summaryText, itemListSchema, breadcrumbSchema as seoBreadcrumb, graph, slugify as seoSlugify, ORIGIN } from "@/lib/seoShared";
@@ -52,6 +53,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const [sheetExpanded, setSheetExpanded] = useState(false);
 
   const { data: openMics = [], isLoading, error } = useOpenMics();
+  const queryClient = useQueryClient();
   const { user, signOut } = useAuth();
   const { data: likedMics = [] } = useUserLikedMics();
   const navigate = useNavigate();
@@ -574,54 +576,51 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const handleRequestMic = async (formData: MicRequestFormData) => {
     setIsSubmittingMic(true);
     try {
-      // Generate unique_identifier parts
-      const day = formData.day?.trim() || '';
-      const startTime = formData.start_time?.trim() || '';
-      const changes = formData.changes_updates?.trim().replace(/\s+/g, '') || '';
-      const venue = formData.venue_name?.trim() || '';
+      // add_open_mic is a SECURITY DEFINER function so anyone, signed in or not,
+      // can add a mic. It sets status, creator and submission date server-side.
+      const { data: newRow, error: histError } = await (supabase as any).rpc("add_open_mic", {
+        p: {
+          open_mic: formData.open_mic,
+          venue_name: formData.venue_name,
+          borough: formData.borough,
+          neighborhood: formData.neighborhood,
+          location: formData.location,
+          day: formData.day,
+          start_time: formData.start_time,
+          latest_end_time: formData.latest_end_time,
+          stage_time: formData.stage_time,
+          cost: formData.cost,
+          venue_type: formData.venue_type,
+          sign_up_instructions: formData.sign_up_instructions,
+          hosts_organizers: formData.hosts_organizers,
+          changes_updates: formData.changes_updates,
+          city: formData.city,
+          frequency: formData.frequency,
+          signup_method: formData.signup_method,
+          signup_url: formData.signup_url,
+          frequency_custom_text: formData.frequency_custom_text,
+        },
+      });
 
-      // Insert directly into open_mics_historical for instant visibility
-      const historicalObj = {
-        open_mic: formData.open_mic,
-        venue_name: formData.venue_name,
-        borough: formData.borough || null,
-        neighborhood: formData.neighborhood || null,
-        location: formData.location || null,
-        day: formData.day,
-        start_time: formData.start_time,
-        latest_end_time: formData.latest_end_time || null,
-        stage_time: formData.stage_time || null,
-        cost: formData.cost || 'Free',
-        venue_type: formData.venue_type || null,
-        sign_up_instructions: formData.sign_up_instructions || null,
-        hosts_organizers: formData.hosts_organizers || null,
-        changes_updates: formData.changes_updates || null,
-        other_rules: null,
-        city: formData.city || 'New York',
-        active: true,
-        status: 'trial' as const,
-        frequency: formData.frequency || 'weekly',
-        signup_method: formData.signup_method || 'in_person',
-        signup_url: formData.signup_url || null,
-        frequency_custom_text: formData.frequency_custom_text || null,
-        submission_date: new Date().toISOString(),
-        creator_id: user?.id || null,
-        verification_count: 0,
-      };
-
-      const { error: histError } = await supabase
-        .from("open_mics_historical")
-        .insert([historicalObj]);
-
-      if (histError) {
+      if (histError || !newRow) {
         console.error('Insert error:', histError);
         toast({
           title: "Error",
-          description: histError.message || "Failed to add mic. Please try again.",
+          description: histError?.message || "Failed to add mic. Please try again.",
           variant: "destructive",
         });
         return;
       }
+
+      // Show it right away: drop it into every cached mic list.
+      const addedMic = mapSupabaseRow(newRow);
+      queryClient.setQueriesData<OpenMic[]>({ queryKey: ["openMics"] }, (old) =>
+        old ? [...old.filter((m) => m.id !== addedMic.id), addedMic] : [addedMic],
+      );
+      if (addedMic.city && addedMic.city !== filters.city) {
+        setFilters((f) => ({ ...f, city: addedMic.city }));
+      }
+      setActiveTab('new');
 
       // Also insert audit trail into requests table
       const auditObj = {
