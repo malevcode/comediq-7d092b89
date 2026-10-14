@@ -5,7 +5,7 @@ import PageHeader from "@/components/PageHeader";
 const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-transparent pb-20">
-      <PageHeader title="Privacy Policy & Terms" subtitle="Last updated: January 2025" />
+      <PageHeader title="Privacy Policy & Terms" subtitle="Last updated: October 2026" />
       
       <div className="max-w-3xl mx-auto px-4 page-content-offset">
         <Link 
@@ -33,6 +33,9 @@ const PrivacyPolicy = () => {
                   <li>Profile information (stage name, bio, social links)</li>
                   <li>Performance history and show tracking data</li>
                   <li>Open mic signups and attendance records</li>
+                  <li>Your approximate location, if you allow it, to show nearby open mics on the map</li>
+                  <li>Video and audio of your set if you use the Record feature in the Comediq app</li>
+                  <li>Payment information if you subscribe to Full Pass (handled by Stripe, see below)</li>
                 </ul>
               </div>
 
@@ -46,7 +49,22 @@ const PrivacyPolicy = () => {
                   <li>Send open mic reminders and updates</li>
                   <li>Process signup requests and manage lineups</li>
                   <li>Communicate about your account and platform updates</li>
+                  <li>Show nearby open mics on the map, using your location only on your device unless noted otherwise below</li>
+                  <li>Transcribe sets you record in the app and suggest clips or jokes from that transcript</li>
+                  <li>Process Full Pass subscription payments</li>
                 </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Video and Audio from the Record Feature</h3>
+                <p className="text-sm leading-relaxed">
+                  If you record a set in the Comediq app, the video is uploaded to Cloudflare for
+                  storage and sent to AssemblyAI for transcription. The video and audio file itself is
+                  automatically deleted within about a day of upload (Cloudflare's deletion window can
+                  take up to roughly 48 hours in rare cases, it is not an exact 24-hour cutoff). The
+                  text transcript, and any clip or joke suggestions generated from it, are kept as part
+                  of your account unless you delete them or delete your account.
+                </p>
               </div>
 
               <div>
@@ -57,6 +75,8 @@ const PrivacyPolicy = () => {
                 <ul className="list-disc list-inside text-sm mt-2 space-y-1 ml-2">
                   <li>Venue hosts (for signup management)</li>
                   <li>Service providers (for platform operations)</li>
+                  <li>Stripe, to process Full Pass subscription payments</li>
+                  <li>Cloudflare and AssemblyAI, to store and transcribe sets you record in the app</li>
                   <li>As required by law</li>
                 </ul>
               </div>
@@ -71,7 +91,17 @@ const PrivacyPolicy = () => {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Your Rights</h3>
                 <p className="text-sm leading-relaxed">
-                  You may access, update, or delete your account information at any time through your profile settings.
+                  You may access or update your account information at any time through your profile
+                  settings. You can delete your account and the personal data tied to it, in the
+                  Comediq app under Profile &gt; Delete My Account, or by emailing{" "}
+                  <a href="mailto:hello@comediq.us" className="text-orange-600 hover:text-orange-700">
+                    hello@comediq.us
+                  </a>
+                  . See our{" "}
+                  <Link to="/support" className="text-orange-600 hover:text-orange-700">
+                    Support page
+                  </Link>{" "}
+                  for details.
                 </p>
               </div>
             </div>
@@ -180,7 +210,7 @@ const PrivacyPolicy = () => {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Contact</h3>
                 <p className="text-sm leading-relaxed">
-                  Questions about these terms? Contact us at support@comediq.com
+                  Questions about these terms? Contact us at hello@comediq.us
                 </p>
               </div>
             </div>
