@@ -844,6 +844,20 @@
       "set": {
         "cost": "$5.90"
       }
+    },
+    {
+      "unique_identifier": "4c9754d8-49e5-4e23-85c6-7c18aa04adb0",
+      "note": "3 Sheets Comedy is every other Wednesday and is NOT running the week of 2026-10-12 (Adam, 2026-10-14), so the next one is 10/21. The anchor lets the site hide it in off weeks.",
+      "set": {
+        "frequency_custom_text": "Every other Wednesday; follow Instagram for accurate dates. anchor 2026-10-21"
+      }
+    },
+    {
+      "unique_identifier": "ec491c87-12c1-43a2-8b10-187f22b73d73",
+      "note": "Thursdays at the Rib: add the anchor (10/8 ran, 10/15 skipped) so the site can hide the off weeks.",
+      "set": {
+        "frequency_custom_text": "Every other Thursday: Oct 8, Oct 22, Nov 5, Nov 19 (not Oct 15 or Nov 12). anchor 2026-10-08"
+      }
     }
   ],
   "removals": [

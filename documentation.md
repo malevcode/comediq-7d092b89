@@ -1607,3 +1607,17 @@ SUN.
 **One manual step.** Nothing in this repo applies migrations. Run
 `supabase/migrations/20261014120000_add_open_mic_rpc.sql` in the Supabase SQL
 editor or the + button will keep failing.
+
+### Session: bi-weekly mics hide on their off week
+
+A bi-weekly mic runs every other week, but the site had no way to know which
+week. It showed the mic every week. Now a bi-weekly mic can carry an "anchor",
+any one date it runs, written at the end of its `frequency_custom_text` like
+`anchor 2026-10-21`. The site counts in two-week steps from that date. On a day
+tab (and in NEXT) the mic is hidden in the off week. No anchor means the old
+behavior: always shown.
+
+Anchors are set for 3 Sheets Comedy (anchor 10/21, it is off the week of 10/12)
+and Thursdays at the Rib (anchor 10/8). Other bi-weekly mics still show every
+week until someone tells us a date they ran. To add one, put `anchor YYYY-MM-DD`
+in that mic's `frequency_custom_text` in `scripts/ingest/open_mic_updates.json`.
