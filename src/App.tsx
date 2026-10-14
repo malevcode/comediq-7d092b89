@@ -49,6 +49,7 @@ import GrowthOpportunities from "./pages/GrowthOpportunities";
 import { Navigate } from "react-router-dom";
 import AdvertiseWithUs from "./pages/AdvertiseWithUs";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Support from "./pages/Support";
 import AddShow from "./pages/AddShow";
 import SavedMics from "./pages/SavedMics";
 import DevView from "./pages/DevView";
@@ -186,8 +187,8 @@ function AppShell() {
             <Route path="/job-board/create" element={<Navigate to="/growth" replace />} />
             <Route path="/advertise" element={<AdvertiseWithUs />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/support" element={<Support />} />
             <Route path="/setbuild-privacy" element={<SetBuildPrivacy />} />
-
             <Route path="/add-show" element={<AddShow />} />
             <Route path="/add-mic" element={<AddMic />} />
             <Route path="/shows/map" element={<ShowsMap />} />
