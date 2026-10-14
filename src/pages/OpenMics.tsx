@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OpenMic, MicFrequency, FREQUENCY_LABELS, VARIETY_TAG } from "@/types/openMic";
 import { parseStartTimeToMinutes } from '@/utils/micCheckin';
 import { useOpenMics, mapSupabaseRow } from "@/hooks/useOpenMics";
+import { parseBiweeklyAnchor, runsOnBiweeklyDate } from "@/utils/micOccurrences";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
@@ -293,7 +294,11 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     if (freq === 'weekly') return true;
     if (freq === 'one_off') return true; // one-offs show always on their day (admin manages active flag)
     
-    if (freq === 'bi_weekly') return true; // can't determine week parity without anchor, show it
+    if (freq === 'bi_weekly') {
+      // Without an anchor date we cannot tell which week it runs, so show it.
+      const anchor = parseBiweeklyAnchor(mic.frequencyCustomText);
+      return anchor ? runsOnBiweeklyDate(anchor, date) : true;
+    }
     
     // Monthly frequencies: check week-of-month
     const dayOfMonth = date.getDate();
@@ -358,7 +363,14 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       // week-of-month narrowing here: a monthly mic belongs on its day tab
       // every week, and the card shows its frequency label. The "Next" tab
       // above is the one that filters down to genuinely upcoming occurrences.
-      filtered = openMics.filter((mic) => mic.day === dayFilter);
+      // The one exception is a bi-weekly mic with a known anchor: hide it in
+      // the week it is not happening.
+      const today = new Date();
+      const tabDate = new Date(today);
+      tabDate.setDate(today.getDate() + ((daysOfWeek.indexOf(dayFilter) - today.getDay() + 7) % 7));
+      filtered = openMics.filter(
+        (mic) => mic.day === dayFilter && (mic.frequency !== 'bi_weekly' || micMatchesDate(mic, tabDate)),
+      );
     }
 
     // Apply search, borough, cost, and time filters

@@ -99,6 +99,24 @@ export function getUpcomingOccurrences(
   return dates;
 }
 
+/**
+ * A bi-weekly mic's anchor: any date it runs, written into its
+ * frequency_custom_text as "anchor 2026-10-21". Returns null when none is there.
+ */
+export function parseBiweeklyAnchor(text?: string | null): Date | null {
+  const match = text?.match(/anchor[:\s]+(\d{4})-(\d{2})-(\d{2})/i);
+  if (!match) return null;
+  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+}
+
+/** True when the date is a whole number of two-week steps from the anchor. */
+export function runsOnBiweeklyDate(anchor: Date, date: Date): boolean {
+  const days = Math.round(
+    (startOfDay(date).getTime() - startOfDay(anchor).getTime()) / 86400000,
+  );
+  return days % 14 === 0;
+}
+
 /** "Today", "Tomorrow", or "Thu, Sep 25". */
 export function formatOccurrence(date: Date, from: Date = new Date()): string {
   const days = Math.round(
