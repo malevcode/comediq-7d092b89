@@ -1581,3 +1581,29 @@ was not touched, so no geocoding fields were cleared.
 
 Not tagged: `Mixed mic!The Joy of Ranting` at the Windjammer. Its name says it
 is mixed, but Adam did not list it.
+
+### Session: the + button, "add a mic" for everyone
+
+**What broke.** Tapping + and saving a mic showed an error about
+`open_mics_historical`. The page wrote straight into that table, so it only
+worked if the table's permission rules happened to line up for whoever was
+logged in. Signed-out visitors have an insert rule but were never given the
+actual permission to insert, and signed-in users had to pass a stricter check.
+
+**The fix, in kid terms.** Instead of every visitor trying the front door of the
+table, there is now a staff member at a desk: a database function called
+`add_open_mic`. Anyone can hand them the form. They check the basics (name,
+venue, day, start time), stamp the trusted parts themselves (status `trial`,
+who added it, when), and put the mic in the table. Visitors cannot pick those
+trusted parts.
+
+**Showing it right away.** Signed-out visitors read a saved copy of the list
+(`mics.json`) that only refreshes a couple of minutes after a change. Now the
+list also asks the database for mics added in the last 30 days and merges them
+in, so a new mic shows up for everyone immediately. The page also drops the new
+mic into its own list and switches to the NEW tab, which sits between NEXT and
+SUN.
+
+**One manual step.** Nothing in this repo applies migrations. Run
+`supabase/migrations/20261014120000_add_open_mic_rpc.sql` in the Supabase SQL
+editor or the + button will keep failing.

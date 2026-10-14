@@ -65,7 +65,7 @@ async function fetchFromStaticJson(): Promise<OpenMic[]> {
   return mics as OpenMic[];
 }
 
-function mapSupabaseRow(row: any): OpenMic {
+export function mapSupabaseRow(row: any): OpenMic {
   return {
     id: row.unique_identifier,
     openMic: row.open_mic || "",
@@ -125,6 +125,28 @@ async function fetchFromSupabase(): Promise<OpenMic[]> {
   return (data || []).map(mapSupabaseRow);
 }
 
+// mics.json refreshes a few minutes after a change, so fetch the last 30 days of
+// rows live and merge them in. This is what makes a newly added mic appear for
+// everyone right away.
+async function fetchRecentFromSupabase(): Promise<OpenMic[]> {
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const { data, error } = await supabase
+    .from("open_mics_historical")
+    .select(LIVE_COLUMNS)
+    .eq("active", true)
+    .neq("status", "pending")
+    .gte("submission_date", since);
+
+  if (error) throw error;
+  return (data || []).map(mapSupabaseRow);
+}
+
+function mergeRecent(base: OpenMic[], recent: OpenMic[]): OpenMic[] {
+  if (recent.length === 0) return base;
+  const recentIds = new Set(recent.map((m) => m.id));
+  return [...base.filter((m) => !recentIds.has(m.id)), ...recent];
+}
+
 export const useOpenMics = (_tableName: "open_mics_historical" = "open_mics_historical") => {
   const { user, loading } = useAuth();
   const shouldUseLiveData = !!user;
@@ -144,7 +166,12 @@ export const useOpenMics = (_tableName: "open_mics_historical" = "open_mics_hist
       }
 
       try {
-        const rows = await fetchFromStaticJson();
+        let rows = await fetchFromStaticJson();
+        try {
+          rows = mergeRecent(rows, await fetchRecentFromSupabase());
+        } catch (e) {
+          console.warn("[useOpenMics] Recent mics fetch failed:", e);
+        }
         if (rows.length > 0) saveCachedOpenMics(rows);
         return rows;
       } catch (e) {
