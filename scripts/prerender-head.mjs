@@ -10,7 +10,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import {
   DAYS, slugify, micPath, venueSlugOf, boroughSlugs, filterMics, listingMeta, summaryText,
-  eventSchema, itemListSchema, placeSchema, breadcrumbSchema, graph, formatVerified, micTitle, ORIGIN as SHARED_ORIGIN, PUBLIC_PAGE_META, boundedMeta, micMeta, venueMeta, neighborhoodMeta,
+  eventSchema, itemListSchema, placeSchema, breadcrumbSchema, graph, formatVerified, micTitle, ORIGIN as SHARED_ORIGIN, PUBLIC_PAGE_META, boundedMeta, micMeta, venueMeta, neighborhoodMeta, micDescription, micFaqs, faqSchema, venueDescription,
 } from "../src/lib/seoShared.js";
 import { resolve, dirname } from "path";
 
@@ -97,11 +97,13 @@ export function dynamicPages(mics, venues) {
 
   for (const m of mics) {
     const path = micPath(m);
+    const faqs = micFaqs(m);
+    const faqBody = faqs.length ? `<section><h2>Frequently asked questions</h2><dl>${faqs.map(({ question, answer }) => `<dt>${h(question)}</dt><dd>${h(answer)}</dd>`).join("")}</dl></section>` : "";
     pages.push({
       path,
       ...micMeta(m),
-      jsonld: graph(eventSchema(m), breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Open Mics", path: "/open-mics" }, ...(m.borough ? [{ name: m.borough, path: `/open-mics/${slugify(m.borough)}` }] : []), { name: m.openMic, path }])),
-      body: `<main><h1>${h(m.openMic)}</h1><p>${h([m.day, m.startTime, m.cost, m.stageTime].filter(Boolean).join(" · "))}</p><p><a href="/venue/${venueSlugOf(m)}">${h(m.venueName)}</a> ${h(m.location)}</p>${formatVerified(m.lastVerifiedAt) ? `<p>Verified ${h(formatVerified(m.lastVerifiedAt))}</p>` : ""}<p>${h(m.signUpInstructions)}</p></main>`,
+      jsonld: graph(eventSchema(m), faqSchema(faqs), breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Open Mics", path: "/open-mics" }, ...(m.borough ? [{ name: m.borough, path: `/open-mics/${slugify(m.borough)}` }] : []), { name: m.openMic, path }])),
+      body: `<main><h1>${h(m.openMic)}</h1><p>${h(micDescription(m, mics))}</p>${faqBody}<p><a href="/venue/${venueSlugOf(m)}">${h(m.venueName)}</a> ${h(m.location)}</p>${formatVerified(m.lastVerifiedAt) ? `<p>Verified ${h(formatVerified(m.lastVerifiedAt))}</p>` : ""}</main>`,
     });
   }
 
@@ -114,7 +116,7 @@ export function dynamicPages(mics, venues) {
       path,
       ...venueMeta(v, vm),
       jsonld: graph({ ...placeSchema({ ...v, url: `${SHARED_ORIGIN}${path}` }), event: vm.map(eventSchema) }, breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Open Mics", path: "/open-mics" }, { name: v.name, path }])),
-      body: `<main><h1>Open mics at ${h(v.name)}</h1><p>${h(v.address)}</p><p>${h(summary)}</p><ul>${vm.map(micLi).join("")}</ul></main>`,
+      body: `<main><h1>Open mics at ${h(v.name)}</h1><p>${h(v.address)}</p><p>${h(summary)}</p>${venueDescription(v, vm) ? `<p>${h(venueDescription(v, vm))}</p>` : ""}<ul>${vm.map(micLi).join("")}</ul></main>`,
     });
   }
   return pages;
