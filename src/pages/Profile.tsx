@@ -161,6 +161,7 @@ const Profile = () => {
         <PageHeader title="Profile" subtitle="Your comedy profile and stats" />
         
         <div className="max-w-7xl mx-auto px-4 page-content-offset pb-6">
+          <h1 className="sr-only">Your Comediq comedian profile</h1>
           <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
             <BulkImportModal
               open={showBulkImport} 

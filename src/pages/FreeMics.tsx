@@ -51,7 +51,7 @@ const FreeMics = () => {
                 <Card className="hover:shadow-lg transition h-full">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-bold text-xl">{mic.openMic}</h3>
+                      <h2 className="font-bold text-xl">{mic.openMic}</h2>
                       <span className="text-green-600 font-bold">FREE</span>
                     </div>
                     <p className="text-muted-foreground mb-4">{mic.venueName}</p>

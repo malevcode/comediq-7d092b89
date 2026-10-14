@@ -81,6 +81,7 @@ export default function AudienceShows({ searchTerm, borough, showType, viewMode 
       onClick={handleAddShow}
       className="fixed bottom-[11rem] right-10 z-[1200] rounded-full bg-orange-500 p-2 text-white shadow-lg transition duration-300 hover:bg-orange-600"
       size="icon"
+      aria-label="Add a show"
     >
       <Plus className="h-6 w-6" />
     </Button>,

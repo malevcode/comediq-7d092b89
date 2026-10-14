@@ -209,7 +209,7 @@ export function SmartUpdateInterface() {
         );
       } catch (err: any) {
         console.error('Failed to apply update:', err);
-        toast({ title: 'Error', description: `Failed: ${update.venue_name} ${update.day} — ${err.message}`, variant: 'destructive' });
+        toast({ title: 'Error', description: `Failed: ${update.venue_name} ${update.day} · ${err.message}`, variant: 'destructive' });
       }
 
       completed++;
@@ -241,7 +241,7 @@ export function SmartUpdateInterface() {
               Smart Update
             </CardTitle>
             <p className="text-sm text-muted-foreground">
-              Paste any unstructured message about mic changes — AI will parse it into actionable updates.
+              Paste any unstructured message about mic changes. AI will parse it into actionable updates.
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -398,7 +398,7 @@ export function SmartUpdateInterface() {
                             </span>
                           ) : (
                             <span className="text-destructive flex items-center gap-1">
-                              <AlertTriangle className="w-3 h-3" /> No match found — will skip
+                              <AlertTriangle className="w-3 h-3" /> No match found, will skip
                             </span>
                           )}
                         </div>

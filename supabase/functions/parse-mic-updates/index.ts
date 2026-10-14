@@ -37,7 +37,7 @@ Each operation should be one of:
 For time values, always use 12-hour format with AM/PM (e.g., "4:30 PM", "9:00 PM").
 For days, use full day names (e.g., "Monday", "Tuesday").
 
-Extract ALL changes mentioned in the message. Be thorough — don't miss any.`;
+Extract ALL changes mentioned in the message. Be thorough, don't miss any.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

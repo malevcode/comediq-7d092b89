@@ -10,9 +10,11 @@ export interface MicFilters {
   costRange: [number, number];
   timeOfDay: string[];
   borough: string;
+  neighborhood: string;
   city: string;
   frequency?: MicFrequency | 'all';
   micStatus?: MicStatus | 'all';
+  variety?: boolean;
 }
 
 interface MicFiltersProps {
@@ -20,6 +22,8 @@ interface MicFiltersProps {
   onFiltersChange: (filters: MicFilters) => void;
   maxCost: number;
   boroughs: string[];
+  /** Built from the mics actually in scope, so no option returns nothing. */
+  neighborhoods: string[];
   cities: string[];
 }
 
@@ -34,7 +38,7 @@ const FREQUENCY_OPTIONS: { value: MicFrequency | 'all'; label: string }[] = [
   ...Object.entries(FREQUENCY_LABELS).map(([value, label]) => ({ value: value as MicFrequency, label })),
 ];
 
-export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs, cities }: MicFiltersProps) {
+export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs, neighborhoods, cities }: MicFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
@@ -78,13 +82,15 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
       costRange: [0, maxCost],
       timeOfDay: [],
       borough: "All",
+      neighborhood: "All",
       city: filters.city,
       frequency: 'all',
       micStatus: 'all',
+      variety: false,
     });
   };
 
-  const hasActiveFilters = filters.costRange[0] > 0 || filters.costRange[1] < maxCost || filters.timeOfDay.length > 0 || filters.borough !== "All" || (filters.frequency && filters.frequency !== 'all') || (filters.micStatus && filters.micStatus !== 'all');
+  const hasActiveFilters = filters.costRange[0] > 0 || filters.costRange[1] < maxCost || filters.timeOfDay.length > 0 || filters.borough !== "All" || filters.neighborhood !== "All" || (filters.frequency && filters.frequency !== 'all') || (filters.micStatus && filters.micStatus !== 'all') || !!filters.variety;
 
   return (
     <div className="relative" ref={filterRef}>
@@ -174,7 +180,7 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                     </div>
                   </div>
 
-                  {/* Borough Filter — NYC only */}
+                  {/* Borough Filter. NYC only */}
                   {filters.city === "New York" && (
                   <div>
                     <label className="text-xs font-medium mb-1 block text-gray-600 dark:text-white/70">Borough</label>
@@ -189,6 +195,41 @@ export default function MicFilters({ filters, onFiltersChange, maxCost, boroughs
                     </select>
                   </div>
                   )}
+
+                  {/* Neighbourhood, below borough and narrowed by it. Hidden
+                      when the borough in play has only one, since a dropdown
+                      with a single choice is furniture. */}
+                  {filters.city === "New York" && neighborhoods.length > 2 && (
+                  <div>
+                    <label className="text-xs font-medium mb-1 block text-gray-600 dark:text-white/70">Neighborhood</label>
+                    <select
+                      value={filters.neighborhood}
+                      onChange={(e) => onFiltersChange({ ...filters, neighborhood: e.target.value })}
+                      className="w-full px-2 py-1 text-xs border border-gray-200 rounded-md bg-white text-gray-900 dark:border-white/10 dark:bg-[#102a53]/20 dark:text-white"
+                    >
+                      {neighborhoods.map((n) => (
+                        <option key={n} value={n}>{n}</option>
+                      ))}
+                    </select>
+                  </div>
+                  )}
+
+                  {/* Variety / mixed mics: comedy plus other acts */}
+                  <div>
+                    <label className="text-xs font-medium mb-1 block text-gray-600 dark:text-white/70">Mic Type</label>
+                    <Button
+                      onClick={() => onFiltersChange({ ...filters, variety: !filters.variety })}
+                      variant="outline"
+                      size="sm"
+                      className={`w-full text-xs h-7 px-1 ${
+                        filters.variety
+                          ? 'bg-[#1a5fb4]/10 border-[#1a5fb4]/30 text-[#1a5fb4] hover:bg-[#1a5fb4]/20 dark:bg-[#102a53]/30 dark:border-white/20 dark:text-white dark:hover:bg-white/20'
+                          : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/10'
+                      }`}
+                    >
+                      Variety / mixed mics only
+                    </Button>
+                  </div>
 
                   {/* Time of Day Filter */}
                   <div>

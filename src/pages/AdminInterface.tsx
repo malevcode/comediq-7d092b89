@@ -1,3 +1,4 @@
+import SEO from '@/components/SEO';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -278,7 +279,7 @@ const AdminInterface = () => {
       await navigator.clipboard.writeText(messageText);
       toast({ 
         title: 'Message copied to clipboard', 
-        description: `User ID: ${messageTarget.req.user_id?.slice(0, 8)}... — Paste this in your preferred messaging channel.` 
+        description: `User ID: ${messageTarget.req.user_id?.slice(0, 8)}... Paste this in your preferred messaging channel.` 
       });
     } catch {
       toast({ title: 'Message ready', description: 'Copy the message manually.' });
@@ -295,6 +296,11 @@ const AdminInterface = () => {
   return (
     <div className="min-h-screen bg-transparent">
       <PageHeader />
+      <SEO
+        title="Admin Dashboard | Comediq"
+        description="Manage open mic submissions, ads, venues and platform content."
+        noindex
+      />
 
       <div className="max-w-3xl mx-auto px-4 page-content-offset pb-20">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">

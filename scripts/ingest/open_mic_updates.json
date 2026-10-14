@@ -119,10 +119,11 @@
     },
     {
       "unique_identifier": "ec491c87-12c1-43a2-8b10-187f22b73d73",
-      "note": "Thursdays at the Rib is biweekly not weekly",
+      "note": "Thursdays at the Rib is biweekly not weekly | Adam, 2026-10-08/09: 'Island rib house mic is now biweekly. It's on tonight but not next week and following that pattern.' Frequency was already bi_weekly (set above). His pattern matches the stored anchor: the old text named Aug 13 and Aug 27, and every other Thursday from there lands on Oct 8 (on, tonight) and skips Oct 15. So only the free text was stale: it listed August dates only. Rewritten to the current run of dates. I read 'tonight' as Thursday Oct 8. The app does not show frequency_custom_text for bi_weekly (only for 'custom'), so this is record-keeping; the site still cannot say which Thursday is on.",
       "set": {
         "open_mic": "Thursdays at the Rib *Biweekly*",
-        "frequency": "bi_weekly"
+        "frequency": "bi_weekly",
+        "frequency_custom_text": "Every other Thursday: Oct 8, Oct 22, Nov 5, Nov 19 (not Oct 15 or Nov 12)"
       }
     },
     {
@@ -415,18 +416,20 @@
     },
     {
       "unique_identifier": "12d96cea-21b0-4147-94e3-ac97c1d6928c",
-      "note": "Buddha Room Friday 9:45 PM is actually 9:00 PM. Renamed to match. The stored 10:30 PM end time is still after the new start, so it is left as is rather than guessed at. | RENAMED to '9 Buddha Room Mic Show'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Buddha Room Friday 9:45 PM is actually 9:00 PM. Renamed to match. The stored 10:30 PM end time is still after the new start, so it is left as is rather than guessed at. | RENAMED to '9 Buddha Room Mic Show'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | REVERSED by Laughing Buddha schedule email, 2026-10-05; Adam said to trust their newest email over the old PR #128 correction. Friday 9:00 PM -> 9:45 PM. The email lists Friday at 9:45 and 11:30, which restores the original times that #128 had changed. Renamed time-first and the end moved to 90 minutes after the start (11:15 PM), as Adam specified. The same existing listing is reused; nothing was deactivated.",
       "set": {
-        "open_mic": "9 Buddha Room Mic Show",
-        "start_time": "9:00 PM"
+        "open_mic": "9:45 Buddha Room Mic Show",
+        "start_time": "9:45 PM",
+        "latest_end_time": "11:15 PM"
       }
     },
     {
       "unique_identifier": "b05066a7-b776-40ba-b1d1-560cb86d833f",
-      "note": "Buddha Room Friday 11:30 PM is actually 10:30 PM. Renamed to match. The stored 12:30 AM end time is still after the new start, so it is left as is. | RENAMED to '10:30 Buddha Room Mic Show'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Buddha Room Friday 11:30 PM is actually 10:30 PM. Renamed to match. The stored 12:30 AM end time is still after the new start, so it is left as is. | RENAMED to '10:30 Buddha Room Mic Show'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | REVERSED by Laughing Buddha schedule email, 2026-10-05; Adam said to trust their newest email over the old PR #128 correction. Friday 10:30 PM -> 11:30 PM. The email lists Friday at 9:45 and 11:30, which restores the original times that #128 had changed. Renamed time-first and the end moved to 90 minutes after the start (1:00 AM), as Adam specified. The same existing listing is reused; nothing was deactivated.",
       "set": {
-        "open_mic": "10:30 Buddha Room Mic Show",
-        "start_time": "10:30 PM"
+        "open_mic": "11:30 Buddha Room Mic Show",
+        "start_time": "11:30 PM",
+        "latest_end_time": "1:00 AM"
       }
     },
     {
@@ -525,30 +528,34 @@
     },
     {
       "unique_identifier": "20ff5c59-6bb8-45c2-aea0-190fa6fd34a8",
-      "note": "Renamed 'The Buddha Room 4:30 Hour' to '4:30 Buddha Room Hour'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Renamed 'The Buddha Room 4:30 Hour' to '4:30 Buddha Room Hour'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Thursday 4:30 PM is listed as '1 Hour Mic', which is the room specifically saying it is one hour. End 6:00 PM -> 5:30 PM per the comediq 90-minutes-unless-it-says-one-hour rule. Stage time left at 5 minutes since the list does not give one.",
       "set": {
-        "open_mic": "4:30 Buddha Room Hour"
+        "open_mic": "4:30 Buddha Room Hour",
+        "latest_end_time": "5:30 PM"
       }
     },
     {
       "unique_identifier": "31f01924-6f04-4f82-a82c-0d5d8321078c",
-      "note": "Renamed 'The Buddha Room 10:30' to '10:30 Buddha Room'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Renamed 'The Buddha Room 10:30' to '10:30 Buddha Room'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Thursday 10:30 PM at The Buddha Room is not on their list, which is described as all of their open mics. Their Thursday list is 4:30, 5:30, 6:30, 8:00, Zoom 8:30 and 9:45. Deactivated on that basis (this entry already existed for the rename, so it carries active false rather than a second removals entry). To reverse, set active true here.",
       "set": {
-        "open_mic": "10:30 Buddha Room"
+        "open_mic": "10:30 Buddha Room",
+        "active": false
       }
     },
     {
       "unique_identifier": "3a438c58-2574-4da4-9c3e-8d2133d7b5a9",
-      "note": "Renamed 'The Buddha Room 8 Show Mic' to '8 Buddha Room Show Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Renamed 'The Buddha Room 8 Show Mic' to '8 Buddha Room Show Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Monday 8:00 PM is listed as '6 Min Mic'. Stage time 5 -> 6 minutes.",
       "set": {
-        "open_mic": "8 Buddha Room Show Mic"
+        "open_mic": "8 Buddha Room Show Mic",
+        "stage_time": "6 minutes"
       }
     },
     {
       "unique_identifier": "4c07341c-c141-4bd0-be8a-7b08986327c6",
-      "note": "Renamed 'The Buddha Room 4:30 Hour Mic' to '4:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Renamed 'The Buddha Room 4:30 Hour Mic' to '4:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Monday 4:30 PM is listed as '1 Hour 7 Min Mic'. Stage time 6 -> 7 minutes; the hour length already matched.",
       "set": {
-        "open_mic": "4:30 Buddha Room Hour Mic"
+        "open_mic": "4:30 Buddha Room Hour Mic",
+        "stage_time": "7 minutes"
       }
     },
     {
@@ -567,16 +574,18 @@
     },
     {
       "unique_identifier": "922aeca4-2e23-4db6-a33e-8bd45f1be9ac",
-      "note": "Renamed 'The Buddha Room 9:30 Hour Mic' to '9:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Renamed 'The Buddha Room 9:30 Hour Mic' to '9:30 Buddha Room Hour Mic'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Tuesday 9:30 PM is listed as '1 Hour 6 Min Mic'. Stage time 5 -> 6 minutes; the hour length already matched.",
       "set": {
-        "open_mic": "9:30 Buddha Room Hour Mic"
+        "open_mic": "9:30 Buddha Room Hour Mic",
+        "stage_time": "6 minutes"
       }
     },
     {
       "unique_identifier": "98f9d16f-b72e-4a5c-9bde-ad24baccfc3d",
-      "note": "Renamed 'The Buddha Room 6:30' to '6:30 Buddha Room'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not.",
+      "note": "Renamed 'The Buddha Room 6:30' to '6:30 Buddha Room'. Comediq naming convention: the time leads, so the number can never be read as a duration. \"The Buddha Room 5 Hour Mic\" looked like a five hour mic; \"5 Buddha Room Hour Mic\" does not. | Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Monday 6:30 PM is listed as '6 Min Mic'. Stage time 5 -> 6 minutes.",
       "set": {
-        "open_mic": "6:30 Buddha Room"
+        "open_mic": "6:30 Buddha Room",
+        "stage_time": "6 minutes"
       }
     },
     {
@@ -634,6 +643,207 @@
       "set": {
         "open_mic": "6:30 Buddha Room"
       }
+    },
+    {
+      "unique_identifier": "291a39b4-ae7d-4104-b631-ed3d99f1479a",
+      "note": "Mark's Monday Mic -> 6 Mark's Monday Mic. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. Renamed onto the comediq convention (start time first). It is now load-bearing here: Monday, Tuesday and Wednesday each have two St. Marks mics, so \"Mark's Monday Mic\" no longer identifies one of them. End time set to 7:30 PM: 90 minutes, the comediq default, since nothing says this is a one hour mic. It had no end time at all before. Cost gains the detail that the free item is specifically a drink. Moved out of new_mics and into edits because renaming inside new_mics changes its open_mic+day+start_time match key, which would stop matching this row and insert a duplicate instead of renaming it.",
+      "set": {
+        "open_mic": "6 Mark's Monday Mic",
+        "latest_end_time": "7:30 PM",
+        "cost": "$10 (includes a free drink)"
+      }
+    },
+    {
+      "unique_identifier": "f7ea74eb-5d9c-4858-943e-cb16fdb7de03",
+      "note": "Mark's Tuesday Mic -> 6 Mark's Tuesday Mic. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. Renamed onto the comediq convention (start time first). It is now load-bearing here: Monday, Tuesday and Wednesday each have two St. Marks mics, so \"Mark's Monday Mic\" no longer identifies one of them. End time set to 7:30 PM: 90 minutes, the comediq default, since nothing says this is a one hour mic. It had no end time at all before. Cost gains the detail that the free item is specifically a drink. Moved out of new_mics and into edits because renaming inside new_mics changes its open_mic+day+start_time match key, which would stop matching this row and insert a duplicate instead of renaming it.",
+      "set": {
+        "open_mic": "6 Mark's Tuesday Mic",
+        "latest_end_time": "7:30 PM",
+        "cost": "$10 (includes a free drink)"
+      }
+    },
+    {
+      "unique_identifier": "b7dc902d-257b-43a8-9e90-c2ac23d5a5fb",
+      "note": "Mark's Wednesday Mic -> 6 Mark's Wednesday Mic. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. Renamed onto the comediq convention (start time first). It is now load-bearing here: Monday, Tuesday and Wednesday each have two St. Marks mics, so \"Mark's Monday Mic\" no longer identifies one of them. End time set to 7:30 PM: 90 minutes, the comediq default, since nothing says this is a one hour mic. It had no end time at all before. Cost gains the detail that the free item is specifically a drink. Moved out of new_mics and into edits because renaming inside new_mics changes its open_mic+day+start_time match key, which would stop matching this row and insert a duplicate instead of renaming it.",
+      "set": {
+        "open_mic": "6 Mark's Wednesday Mic",
+        "latest_end_time": "7:30 PM",
+        "cost": "$10 (includes a free drink)"
+      }
+    },
+    {
+      "unique_identifier": "c0c14030-606e-44d6-a687-f5784670c4ed",
+      "note": "Mark's Thursday Mic -> 5 Mark's Thursday Mic. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. Renamed onto the comediq convention (start time first). It is now load-bearing here: Monday, Tuesday and Wednesday each have two St. Marks mics, so \"Mark's Monday Mic\" no longer identifies one of them. End time set to 6:30 PM: 90 minutes, the comediq default, since nothing says this is a one hour mic. It had no end time at all before. Cost gains the detail that the free item is specifically a drink. Moved out of new_mics and into edits because renaming inside new_mics changes its open_mic+day+start_time match key, which would stop matching this row and insert a duplicate instead of renaming it.",
+      "set": {
+        "open_mic": "5 Mark's Thursday Mic",
+        "latest_end_time": "6:30 PM",
+        "cost": "$10 (includes a free drink)"
+      }
+    },
+    {
+      "unique_identifier": "bf580cdc-95c7-47bf-b17a-5bc30041e77b",
+      "note": "Mark's Friday Mic -> 5 Mark's Friday Mic. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. Renamed onto the comediq convention (start time first). It is now load-bearing here: Monday, Tuesday and Wednesday each have two St. Marks mics, so \"Mark's Monday Mic\" no longer identifies one of them. End time set to 6:30 PM: 90 minutes, the comediq default, since nothing says this is a one hour mic. It had no end time at all before. Cost gains the detail that the free item is specifically a drink. Moved out of new_mics and into edits because renaming inside new_mics changes its open_mic+day+start_time match key, which would stop matching this row and insert a duplicate instead of renaming it.",
+      "set": {
+        "open_mic": "5 Mark's Friday Mic",
+        "latest_end_time": "6:30 PM",
+        "cost": "$10 (includes a free drink)"
+      }
+    },
+    {
+      "unique_identifier": "ff5a9210-1be3-4c87-9060-57f2468492a5",
+      "note": "ADHD Comedy (Commune BK, 415 Classon Ave) moves from Thursday to Tuesday. The host wrote to Adam directly: \"our mic is no longer 6pm Thursdays, it's now 6pm TUESDAYS\". Day is the only field that changes. The 6 PM start is explicitly unchanged in their own message, so per the comediq convention neither the name nor the end time moves: that rule fires on a start time change, and this is a day change. The name carries no day or time, so it needs no rename either. Cost, stage time and the slotted.co signup were not mentioned and are untouched. Commune BK has no other row, and nothing else sat on that Tuesday slot.",
+      "set": {
+        "day": "Tuesday"
+      }
+    },
+    {
+      "unique_identifier": "ea37784d-b08f-45fa-8eea-ae9005d3f1d7",
+      "note": "Bent Over Laughing: the address was WRONG and sent Adam to the wrong place. It said 268 Lenox Ave (Harlem, ~123rd St). The real address is 2048 Amsterdam Ave, New York, NY 10032 (Washington Heights, ~160th St), about forty blocks north. ALL SIX GEOCODING FIELDS ARE NULLED, not just the address text. The stored coordinates pinned to Lenox Ave, so changing only the location string would have left the map pointing at the wrong corner, which is the exact failure that burned him. Nulling them makes the geocoder re-resolve from the corrected address. neighborhood also moves Harlem -> Washington Heights, since 2048 Amsterdam at 160th is not Harlem and a wrong neighbourhood is its own way of sending someone to the wrong part of town. Worth noting the old row's geocoding_score was 1.1677, the kind of weak match that is worth distrusting.",
+      "set": {
+        "location": "2048 Amsterdam Ave, New York, NY 10032",
+        "neighborhood": "Washington Heights",
+        "latitude": null,
+        "longitude": null,
+        "geocoded_at": null,
+        "geocoding_provider": null,
+        "geocoding_score": null,
+        "geocoding_match_address": null
+      }
+    },
+    {
+      "unique_identifier": "e2c14ec2-7d73-487c-a51f-87db5457da6e",
+      "note": "One & One: host Dion Domicello (Instagram DM) said the Thursday mic was canceled and moved to Tuesdays 6 to 8 PM, $5 + 1 item from the bar, 7 min sets, same venue (One and One, 76 East 1st Street). Cost reads 'cash' in his first line ('Yes, please add $5. Cash + 1 item from the bar'). Start/end stay 6:00 PM/8:00 PM since he gave 6 to 8 explicitly. Location, sign-up text and rules unchanged. Name 'One & One 7min' kept: it carries a set length, not a day or start time.",
+      "set": {
+        "day": "Tuesday",
+        "cost": "$5 cash + 1 item from the bar",
+        "stage_time": "7 minutes"
+      }
+    },
+    {
+      "unique_identifier": "582b9d02-7455-472d-8c53-ae562f8acb70",
+      "note": "Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Thursday 6:30 PM is on the schedule again, so the stale '*Resumes 8/27*' label comes off. Renamed to match the other 6:30 Buddha Room rows. End time untouched.",
+      "set": {
+        "open_mic": "6:30 Buddha Room"
+      }
+    },
+    {
+      "unique_identifier": "c0c00e64-3550-4470-95ec-4c38dcf152a3",
+      "note": "Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Thursday 8:00 PM is on the schedule again, so the stale '*Resumes 9/3*' label comes off. Renamed time-first. End time untouched.",
+      "set": {
+        "open_mic": "8 Buddha Room"
+      }
+    },
+    {
+      "unique_identifier": "b93ed6ce-c688-4c27-b07f-7543b9ae79e3",
+      "note": "Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Thursday 9:45 PM is on the schedule again, so the stale '*Resumes 8/27*' label comes off. Renamed time-first. End time untouched (already 90 minutes).",
+      "set": {
+        "open_mic": "9:45 Buddha Room"
+      }
+    },
+    {
+      "unique_identifier": "e7ac20fa-dcbd-4219-a9fb-2720bb277707",
+      "note": "Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): Sunday NY Comedy Club UWS is listed at 2:00 PM '(New Time)'. This is the live row (was 3:00 PM). Start 3:00 -> 2:00 PM, end 4:30 -> 3:30 PM (90 minutes, the list does not say one hour), renamed time-first. The old 1:30 PM row (uid 3478fc7e) stays inactive; it was cancelled by the same room and is a different row.",
+      "set": {
+        "open_mic": "Buddha 2 @NYCC UWS",
+        "start_time": "2:00 PM",
+        "latest_end_time": "3:30 PM"
+      }
+    },
+    {
+      "unique_identifier": "92a570e4-a5f1-4503-8ad7-96ef73ea663d",
+      "note": "Adam, 2026-10-05: tag as Variety mic (mixed open mic that lets non-comedy acts sign up). legacy_tag 'Pre-March 2026' -> 'Variety'; the Pre-March 2026 provenance is recorded here. The comediq Mic Type filter matches this tag. | RENAMED 'The Open Mic Downstairs' -> 'The Variety Mic' at Adam's request, 2026-10-05. No number in the name, so the time-first convention does not apply. The Instagram handle @theopenmicdownstairs is unchanged.",
+      "set": {
+        "legacy_tag": "Variety",
+        "open_mic": "The Variety Mic"
+      }
+    },
+    {
+      "unique_identifier": "77b1ed82-98fb-4810-9124-304453af6849",
+      "note": "Adam, 2026-10-05: tag as Variety mic (mixed open mic that lets non-comedy acts sign up). legacy_tag 'Pre-March 2026' -> 'Variety'; the Pre-March 2026 provenance is recorded here. The comediq Mic Type filter matches this tag. Also: Adam asked to add that the mic is in the Red Room on the 3rd floor of KGB Bar. Prepended to other_rules (the details field the app shows) and the existing text kept verbatim. The street address is unchanged, so no geocoding fields are touched.",
+      "set": {
+        "legacy_tag": "Variety",
+        "other_rules": "Held in the Red Room, on the 3rd floor of KGB Bar. cheapest item is $7 drink (2 drink min from a bartender with a tip screen so $18 for 2 drinks + 20%, come for a mixed show with poetry and music)"
+      }
+    },
+    {
+      "unique_identifier": "0d6e6906-18a8-4a7b-89e4-e5d1b70dccb1",
+      "note": "Community Service (Sunday 5:30 PM, Brooklyn Art Haus). October monthly check-in DM to @zebracakemack (Mackenzie Graves). Her reply, via Instagram DM screenshot: 'Y' (active), then she shared the profile @andrewthomascomedy (Andrew Thomas) and wrote 'He has taken over the mic'. Read as: still running, and Andrew Thomas is now the host. hosts_organizers 'Mackenzie Graves' -> 'Andrew Thomas' and changes_updates '@zebracakemack' -> '@andrewthomascomedy' (the contact handle the site shows). Verified date refreshed to 10/06/26 since 'Y' is an active confirmation. Day, time, venue, cost and sign-up are untouched because she gave no changes. NOT the same record as Rodney's Wednesday 9:45 mic, whose host is Adam Thomas @adamthomascomedy: that handle says Adam, this one says Andrew, so they were not merged. To reverse the host change, rewrite this entry in place.",
+      "set": {
+        "hosts_organizers": "Andrew Thomas",
+        "changes_updates": "@andrewthomascomedy",
+        "last_verified": "10/06/26",
+        "last_verified_at": "2026-10-06T12:00:00+00:00"
+      }
+    },
+    {
+      "unique_identifier": "44cbdff7-0bc8-43f0-9376-f925196b46b8",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Laugh Lands Feedback Mic (Mon 12:30 PM), was $5.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "be90f316-e4ba-4355-829b-5890ca8817c2",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Open Mic w/ Greg Giraldo (Mon 3:00 PM), was $6.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "eac11d4e-07be-4332-95af-5d1b1cb38618",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Open Mic w/ Brett Singer (Tue 4:00 PM), was $5.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "60d53b64-9256-417b-8892-0e23f02ab766",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. We Wear Pink LGBTQIA+ Women's Mic (Tue 6:00 PM), was $6.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "9581991c-9cda-40ae-b50a-b67253fd49d5",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Open Mic w/ Zoe Levy (Wed 3:00 PM), was $5.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "792f7e56-bb45-43de-b8d9-c10441eb9df3",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Headliners 1st (Thu 3:30 PM), was $5.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "905be880-7b1b-465a-9af6-875b1762b399",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Feedback Mic w/ Craig Lottner (Fri 12:30 PM), was $6.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "c46872cc-7586-4917-9ca0-a8d8ff64bb98",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Open Mic w/ Rory Lutz (Fri 3:00 PM), was $5.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "f8446bc3-8fd3-4f81-8f8d-87405f1d6811",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Open Mic w/ Shareef Taher (Fri 5:00 PM), was $5.",
+      "set": {
+        "cost": "$5.90"
+      }
+    },
+    {
+      "unique_identifier": "eedd52da-c4a4-4843-b3b5-3f00fa12d292",
+      "note": "West Side Comedy Club cost is $5.90 once fees are added. Open Mic w/ Reuben Wolf (Sat 3:00 PM), was $5.",
+      "set": {
+        "cost": "$5.90"
+      }
     }
   ],
   "removals": [
@@ -664,6 +874,14 @@
     {
       "unique_identifier": "013bf709-f274-46c0-8364-53f884e19a53",
       "note": "SUNDAY 9:30 PM IS CANCELLED (The Buddha Room 9:30 Hour Mic). Requested by Daryn Passarello, Director/Booker at Laughing Buddha Comedy, who runs these rooms, and passed on by Adam. removals sets active=false and keeps the row with its history, ratings and comments."
+    },
+    {
+      "unique_identifier": "35f0ad79-fab1-4b34-8df0-ced4b7379eef",
+      "note": "Otto's Shrunken Head Mic (538 E 14th St), listed Wednesday 5:00 PM to 10:30 PM. Removed at Adam's call: he doubts it really runs 5 to 10:30 and cannot confirm anyone who hosts it. NOTE THE DAY: Adam called it the Sunday mic, but the row is WEDNESDAY. It is still the right row. It is the only Otto's row in the database, the only row at that address, and the only mic anywhere starting 5:00 PM and ending 10:30 PM, which is the window he described. The row corroborates the doubt: status trial, verification_count 0, and no host, no signup instructions, no stage time, no lastVerified and no submission date. It is a 330 minute listing nobody has ever confirmed. removals sets active=false and keeps the row, so if it turns out to be real it comes back by setting active true in THIS entry, not by re-adding it."
+    },
+    {
+      "unique_identifier": "28ab9f17-e0d5-4d65-818b-5578e550f87b",
+      "note": "The Spins Mic (Rodney's, Wednesday 6:00-8:30 PM) is no longer running. Rodney's Mic w/ Ellen Maloney, same venue same Wednesday 6 PM, is the only live one in that slot, and the site was showing both. Ellen's row is untouched. removals sets active=false and keeps this row with its history; reviving it means setting active true in THIS entry, not re-adding it."
     }
   ],
   "new_mics": [
@@ -814,131 +1032,6 @@
       }
     },
     {
-      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
-      "row": {
-        "open_mic": "Mark's Monday Mic",
-        "day": "Monday",
-        "start_time": "6:00 PM",
-        "venue_name": "St. Marks Comedy Club",
-        "location": "12 St. Marks Place, New York, NY 10003",
-        "borough": "Manhattan",
-        "neighborhood": "East Village",
-        "venue_type": "Comedy Club",
-        "cost": "$10 (includes a free item)",
-        "stage_time": "5 minutes",
-        "sign_up_instructions": "Sign up at sendyouravails.com",
-        "city": "New York",
-        "status": "trial",
-        "frequency": "weekly",
-        "signup_method": "online",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "slot_duration_minutes": 5,
-        "latitude": 40.729000922632,
-        "longitude": -73.98931355867
-      }
-    },
-    {
-      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
-      "row": {
-        "open_mic": "Mark's Tuesday Mic",
-        "day": "Tuesday",
-        "start_time": "6:00 PM",
-        "venue_name": "St. Marks Comedy Club",
-        "location": "12 St. Marks Place, New York, NY 10003",
-        "borough": "Manhattan",
-        "neighborhood": "East Village",
-        "venue_type": "Comedy Club",
-        "cost": "$10 (includes a free item)",
-        "stage_time": "5 minutes",
-        "sign_up_instructions": "Sign up at sendyouravails.com",
-        "city": "New York",
-        "status": "trial",
-        "frequency": "weekly",
-        "signup_method": "online",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "slot_duration_minutes": 5,
-        "latitude": 40.729000922632,
-        "longitude": -73.98931355867
-      }
-    },
-    {
-      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
-      "row": {
-        "open_mic": "Mark's Wednesday Mic",
-        "day": "Wednesday",
-        "start_time": "6:00 PM",
-        "venue_name": "St. Marks Comedy Club",
-        "location": "12 St. Marks Place, New York, NY 10003",
-        "borough": "Manhattan",
-        "neighborhood": "East Village",
-        "venue_type": "Comedy Club",
-        "cost": "$10 (includes a free item)",
-        "stage_time": "5 minutes",
-        "sign_up_instructions": "Sign up at sendyouravails.com",
-        "city": "New York",
-        "status": "trial",
-        "frequency": "weekly",
-        "signup_method": "online",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "slot_duration_minutes": 5,
-        "latitude": 40.729000922632,
-        "longitude": -73.98931355867
-      }
-    },
-    {
-      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
-      "row": {
-        "open_mic": "Mark's Thursday Mic",
-        "day": "Thursday",
-        "start_time": "5:00 PM",
-        "venue_name": "St. Marks Comedy Club",
-        "location": "12 St. Marks Place, New York, NY 10003",
-        "borough": "Manhattan",
-        "neighborhood": "East Village",
-        "venue_type": "Comedy Club",
-        "cost": "$10 (includes a free item)",
-        "stage_time": "5 minutes",
-        "sign_up_instructions": "Sign up at sendyouravails.com",
-        "city": "New York",
-        "status": "trial",
-        "frequency": "weekly",
-        "signup_method": "online",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "slot_duration_minutes": 5,
-        "latitude": 40.729000922632,
-        "longitude": -73.98931355867
-      }
-    },
-    {
-      "note": "New mic: St. Marks Comedy Club's post-relaunch weekday schedule, named by Adam as \"Mark's [day] Mic\". Day, start time, $10 with a free item and the sendyouravails.com signup all came from Adam directly. Address, borough, neighborhood, venue_type, stage_time and coordinates are INHERITED from the venue's only other row (Get It Goin Mic, uid bfec3020), not stated by Adam. latest_end_time is deliberately omitted: no end time was given for any of the five and guessing one would put a wrong time in front of comics. This is NOT Get It Goin renamed: Adam confirmed it stays a separate, dormant mic that may reopen at a different venue.",
-      "row": {
-        "open_mic": "Mark's Friday Mic",
-        "day": "Friday",
-        "start_time": "5:00 PM",
-        "venue_name": "St. Marks Comedy Club",
-        "location": "12 St. Marks Place, New York, NY 10003",
-        "borough": "Manhattan",
-        "neighborhood": "East Village",
-        "venue_type": "Comedy Club",
-        "cost": "$10 (includes a free item)",
-        "stage_time": "5 minutes",
-        "sign_up_instructions": "Sign up at sendyouravails.com",
-        "city": "New York",
-        "status": "trial",
-        "frequency": "weekly",
-        "signup_method": "online",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "slot_duration_minutes": 5,
-        "latitude": 40.729000922632,
-        "longitude": -73.98931355867
-      }
-    },
-    {
       "note": "New mic: the Saturday 1PM Secret Mic at Pioneers Bar, 138 W 29th. Source: the @the_secret_mics carousel, \"New Saturday mic! Now 6 mics a week... Signups start 30 min before for weekday mics. For the Saturday mic you must dm for a spot. $5 cash only.\" Saturday is the one of the six with no row at all; the other five already exist and matched. Saturday signup is by DM, not the weekday 30-minutes-before rule. neighborhood 'Midtown' follows the existing 156 W. 29th Street row rather than being guessed. stage_time 5 minutes is INHERITED from the same operator's other five mics, not stated. latest_end_time omitted: no end time was given. No coordinates set: this is a new address, so the geocoder should fill them.",
       "row": {
         "open_mic": "The Secret Mic",
@@ -961,6 +1054,143 @@
         "signup_enabled": false,
         "slots_enabled": false,
         "slot_duration_minutes": 5
+      }
+    },
+    {
+      "note": "New mic: the 5 PM St. Marks mic on Monday, which was missing. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. END TIME 6:00 PM, NOT the usual 90 minutes: this venue starts another mic at 6 PM on this day, and one room cannot run two mics at once, so the 5 PM has to finish by then. That is the schedule saying it is a one hour mic without using the words. Everything else inherits the venue's existing rows.",
+      "row": {
+        "open_mic": "5 Mark's Monday Mic",
+        "day": "Monday",
+        "start_time": "5:00 PM",
+        "latest_end_time": "6:00 PM",
+        "venue_name": "St. Marks Comedy Club",
+        "location": "12 St. Marks Place, New York, NY 10003",
+        "borough": "Manhattan",
+        "neighborhood": "East Village",
+        "venue_type": "Comedy Club",
+        "cost": "$10 (includes a free drink)",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up at sendyouravails.com",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "online",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.729000922632,
+        "longitude": -73.98931355867
+      }
+    },
+    {
+      "note": "New mic: the 5 PM St. Marks mic on Tuesday, which was missing. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. END TIME 6:00 PM, NOT the usual 90 minutes: this venue starts another mic at 6 PM on this day, and one room cannot run two mics at once, so the 5 PM has to finish by then. That is the schedule saying it is a one hour mic without using the words. Everything else inherits the venue's existing rows.",
+      "row": {
+        "open_mic": "5 Mark's Tuesday Mic",
+        "day": "Tuesday",
+        "start_time": "5:00 PM",
+        "latest_end_time": "6:00 PM",
+        "venue_name": "St. Marks Comedy Club",
+        "location": "12 St. Marks Place, New York, NY 10003",
+        "borough": "Manhattan",
+        "neighborhood": "East Village",
+        "venue_type": "Comedy Club",
+        "cost": "$10 (includes a free drink)",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up at sendyouravails.com",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "online",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.729000922632,
+        "longitude": -73.98931355867
+      }
+    },
+    {
+      "note": "New mic: the 5 PM St. Marks mic on Wednesday, which was missing. Straight from St. Marks Comedy Club: Monday through Friday 5 PM, Monday through Wednesday also 6 PM, $10 signing up on sendyouravails.com, free drink with the signup. END TIME 6:00 PM, NOT the usual 90 minutes: this venue starts another mic at 6 PM on this day, and one room cannot run two mics at once, so the 5 PM has to finish by then. That is the schedule saying it is a one hour mic without using the words. Everything else inherits the venue's existing rows.",
+      "row": {
+        "open_mic": "5 Mark's Wednesday Mic",
+        "day": "Wednesday",
+        "start_time": "5:00 PM",
+        "latest_end_time": "6:00 PM",
+        "venue_name": "St. Marks Comedy Club",
+        "location": "12 St. Marks Place, New York, NY 10003",
+        "borough": "Manhattan",
+        "neighborhood": "East Village",
+        "venue_type": "Comedy Club",
+        "cost": "$10 (includes a free drink)",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up at sendyouravails.com",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "online",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.729000922632,
+        "longitude": -73.98931355867
+      }
+    },
+    {
+      "note": "New mic: Rodney's Wednesday 9:45 PM, hosted by Adam Thomas (@adamthomascomedy). Adam asked for the same details as the Thursday 9:45 mic, so cost, stage time, signup, the venue rules boilerplate, coordinates and the 9:45-11:15 window are all COPIED from that row (uid df641def), not invented. Address uses the version carrying the 10065 zip, which three other Rodney's rows have and the Thursday row lacks. NAME: follows the venue's own \"Rodney's Mic w/ <host>\" shape rather than the comediq time-first convention. That convention exists so a number in a name cannot be read as a duration, and this name has no number; the host's name is what distinguishes it from the Thursday 9:45. Say the word and it becomes \"9:45 Rodney's Mic w/ Adam Thomas\". This is the same Wednesday 9:45 slot Laughing Buddha vacated (uid 3701d276, already inactive), so the two do not collide and the slot is simply being re-used by the venue.",
+      "row": {
+        "open_mic": "Rodney's Mic w/ Adam Thomas",
+        "day": "Wednesday",
+        "start_time": "9:45 PM",
+        "latest_end_time": "11:15 PM",
+        "venue_name": "Rodney's",
+        "location": "1118 1st Ave, New York, NY 10065",
+        "borough": "Manhattan",
+        "neighborhood": "UES",
+        "venue_type": "Comedy Club",
+        "cost": "1 drink min",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Show up go up",
+        "other_rules": "No guests are required to perform at our open mics. There is a one-item minimum for all comics and guests. You must purchase your item and check in with the host before your name is added to the lineup. Spots are 5 minutes; you may have extra time if we are not full. You must be 18 and older to register, or 16 accompanied by a parent or guardian. Please note, the venue does receive last-minute bookings, which can interfere with our mics. If this happens, we will let you know beforehand. Phone/Notes: You may use your phone or notes on stage. Please do not use your phone while in the audience. You may record your performance. All sales are final. No refunds or exchanges are permitted.",
+        "hosts_organizers": "Adam Thomas",
+        "changes_updates": "@adamthomascomedy",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "in_person",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.761020924319,
+        "longitude": -73.960579388757
+      }
+    },
+    {
+      "note": "Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): new Tuesday 8:00 PM mic at The Buddha Room, listed as 'Mic'. No Tuesday 8 PM Buddha row existed live or in this batch. Venue, address, coordinates, cost, stage time, sign-up and rules are COPIED from the Tuesday 6:30 Buddha Room row (uid e9e8c956), not invented. 8:00-9:30 PM because the list does not say one hour. Name follows the time-first convention, matching '8 Buddha Room' and '8 Buddha Room Show Mic'.",
+      "row": {
+        "open_mic": "8 Buddha Room Mic",
+        "day": "Tuesday",
+        "start_time": "8:00 PM",
+        "latest_end_time": "9:30 PM",
+        "venue_name": "The Buddha Room",
+        "location": "410 8th Ave, 2nd Floor, New York, NY 10001",
+        "borough": "Manhattan",
+        "neighborhood": "Midtown",
+        "venue_type": "Comedy Club",
+        "cost": "$8 + 1 drink",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Check laughingbuddhacomedy.com/mics for updated schedule and sign-up info",
+        "other_rules": "No guests are required to perform at our open mics. There is a one-item minimum for all comics and guests. You must purchase your item and check in with the host before your name is added to the lineup. Spots are 5 minutes; you may have extra time if we are not full. You must be 18 and older to register, or 16 accompanied by a parent or guardian. Please note, the venue does receive last-minute bookings, which can interfere with our mics. If this happens, we will let you know beforehand. Phone/Notes: You may use your phone or notes on stage. Please do not use your phone while in the audience. You may record your performance. All sales are final. No refunds or exchanges are permitted.",
+        "hosts_organizers": "@laughingbuddhacomedy",
+        "changes_updates": "@laughingbuddhacomedy",
+        "city": "New York",
+        "status": "verified",
+        "frequency": "weekly",
+        "signup_method": "in_person",
+        "signup_url": "https://www.laughingbuddhacomedy.com/mics",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "slot_duration_minutes": 5,
+        "latitude": 40.749877058319,
+        "longitude": -73.994731369426
       }
     }
   ]

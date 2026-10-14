@@ -230,7 +230,7 @@ export default function AdminMotdControl() {
                   >
                     <span className="truncate">
                       <strong>{m.openMic}</strong>
-                      <span className="text-muted-foreground"> — {m.venueName}</span>
+                      <span className="text-muted-foreground"> · {m.venueName}</span>
                     </span>
                     <Lock className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
                   </button>
@@ -323,7 +323,7 @@ function DefaultRow({
       <div className="flex-1 min-w-0">
         {currentMicName ? (
           <div className="flex items-center justify-between gap-2 mb-1">
-            <span className="text-sm truncate">{currentMicName} <span className="text-muted-foreground">— {currentVenue}</span></span>
+            <span className="text-sm truncate">{currentMicName} <span className="text-muted-foreground"> · {currentVenue}</span></span>
             <Button size="sm" variant="ghost" onClick={() => existingId && onClear(existingId)}>
               Clear
             </Button>
@@ -345,7 +345,7 @@ function DefaultRow({
                 onClick={() => { onSet(dayOfWeek, m.uniqueIdentifier); setSearch(''); }}
                 className="w-full text-left px-2 py-1 hover:bg-muted text-xs"
               >
-                <strong>{m.openMic}</strong> — {m.venueName}
+                <strong>{m.openMic}</strong> · {m.venueName}
               </button>
             ))}
           </div>

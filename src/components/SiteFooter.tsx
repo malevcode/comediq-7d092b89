@@ -38,7 +38,7 @@ const SiteFooter = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 ml-6 gap-6 sm:gap-8 mr-6">
           {/* Browse by Day */}
           <div>
-            <h3 className="font-bold mb-4 text-lg">Browse by Day</h3>
+            <h2 className="font-bold mb-4 text-lg">Browse by Day</h2>
             <ul className="space-y-2">
               {daysOfWeek.map(day => (
                 <li key={day}>
@@ -55,7 +55,7 @@ const SiteFooter = () => {
           
           {/* Browse by Borough */}
           <div>
-            <h3 className="font-bold mb-4 text-lg">Browse by Borough</h3>
+            <h2 className="font-bold mb-4 text-lg">Browse by Borough</h2>
             <ul className="space-y-2">
               {boroughs.map(borough => (
                 <li key={borough}>
@@ -72,7 +72,7 @@ const SiteFooter = () => {
           
           {/* Popular Searches */}
           <div>
-            <h3 className="font-bold mb-4 text-lg">Popular Searches</h3>
+            <h2 className="font-bold mb-4 text-lg">Popular Searches</h2>
             <ul className="space-y-2">
               <li>
                 <Link 
@@ -111,7 +111,7 @@ const SiteFooter = () => {
           
           {/* Company */}
           <div>
-            <h3 className="font-bold mb-4 text-lg">Comediq</h3>
+            <h2 className="font-bold mb-4 text-lg">Comediq</h2>
             <ul className="space-y-2">
               <li>
                 <Link to="/" className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#1a5fb4]">
@@ -159,7 +159,7 @@ const SiteFooter = () => {
             <span>•</span>
             <span>Made by @malevcomedy</span>
           </div>
-          <p className="text-[10px] text-[#07111f]/40 leading-relaxed mb-4 dark:text-white/40">
+          <p className="text-[10px] text-[#07111f]/60 leading-relaxed mb-4 dark:text-white/60">
             ComediQ is not an AI comedy writer. Your comedy comes from your unique experience and performance personality.
           </p>
         </div>

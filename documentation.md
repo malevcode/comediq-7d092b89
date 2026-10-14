@@ -12,8 +12,8 @@ Plain-English explanation of how the pieces fit together. If you are new here, s
 
 It has two sub-tabs:
 
-- **Find Shows** — a list of upcoming comedy shows
-- **My Reviews** — reviews the logged-in user has written
+- **Find Shows** ,  a list of upcoming comedy shows
+- **My Reviews** ,  reviews the logged-in user has written
 
 ### The control row
 
@@ -185,6 +185,21 @@ This matters most when a start time moves, because the end time has to move with
 it. Changing a 6:00 to 6:30 and leaving the 7:30 end silently turns a 90 minute
 mic into a 60 minute one, and nobody asked for that. Shift both.
 
+### Variety (mixed) mics
+
+A **variety mic** is a mixed open mic that also lets non-comedy acts (poetry,
+music and so on) sign up. It is marked by setting a mic's `legacy_tag` to
+`Variety`. That is the one tag column the export already carries, so nothing in
+the database changes and nothing has to be migrated. The Filter menu on the
+Open Mics screen has a **Mic Type** button, "Variety / mixed mics only", which
+shows only those rows. The tag also shows up as the small pill on the detailed
+list. The name of the constant is `VARIETY_TAG` in `src/types/openMic.ts`.
+
+Setting it replaces the old `Pre-March 2026` text on that row. The batch note
+keeps the old value. A verified mic with any `legacy_tag` still shows the
+"Legacy" badge, so a brand new verified variety mic would wear that badge too.
+Tagged so far: The Open Mic Downstairs (FRIGID), Easy Paradise (KGB Bar).
+
 ### Applying a batch of host updates
 
 Host responses normally get processed into mic edits automatically. When that job does not run, the batch goes into `scripts/ingest/open_mic_updates.json` by hand and ships through the **Apply open mic updates** workflow (dry run defaults to on).
@@ -230,7 +245,7 @@ those three sets.
 
 Two more layout traps worth knowing.
 
-The header is **not a fixed height** — the title and subtitle wrap, so it ranges from about 76px on a wide screen to 124px at 320px. `PageHeader` measures itself with a `ResizeObserver` and publishes `--nav-height`; `--page-top-offset` is then `calc(var(--nav-height) + 0.75rem)`. Do not replace that with a fixed number: a number small enough to look right on a laptop tucks content under the header on a small phone, which is exactly the bug this replaced. The top ad bar lives *inside* the nav, so reinstating it grows the offset automatically.
+The header is **not a fixed height** ,  the title and subtitle wrap, so it ranges from about 76px on a wide screen to 124px at 320px. `PageHeader` measures itself with a `ResizeObserver` and publishes `--nav-height`; `--page-top-offset` is then `calc(var(--nav-height) + 0.75rem)`. Do not replace that with a fixed number: a number small enough to look right on a laptop tucks content under the header on a small phone, which is exactly the bug this replaced. The top ad bar lives *inside* the nav, so reinstating it grows the offset automatically.
 
 The day tabs list every mic for that weekday, with no frequency or week-of-month narrowing. A monthly mic therefore appears on its day tab every week and its card carries the frequency label. Only the "Next" tab filters down to genuinely upcoming occurrences.
 
@@ -823,7 +838,385 @@ export script it complements, rather than only in a browser tab.
 
 ---
 
+## Signing up: no plan to choose first
+
+`/auth` used to open on a plan comparison. Full Pass at $20 a month on the
+left, Basic at $0 on the right, and a small "Sign in" button underneath. To
+make a free account you first had to read two pricing cards and work out that
+the quieter one was the free one.
+
+It now opens on the actual sign-in form. Three ways in, all of them free:
+
+1. **Continue with Google.**
+2. **Get a code emailed to you.** This one both signs you in and makes the
+   account, because the code is sent with `shouldCreateUser: true`. There is
+   no separate "sign up" to find.
+3. **Sign in with a password**, for people who already set one.
+
+### The plans did not disappear
+
+They moved behind a link instead of standing in the doorway.
+
+- `/auth?plans=true` still shows the comparison, now headed "Choose your plan"
+  with a "Skip for now, just sign in" button under it.
+- The two upgrade buttons that deliberately link there, on the home page and
+  on the credit balance, still work exactly as before.
+- A small "See Full Pass" link sits at the bottom of the sign-in page.
+
+So anyone who wants to pay still can. Nobody has to decide about it before
+making an account.
+
+### One bug worth remembering
+
+The shared block of sign-in controls was first written as a component declared
+inside the `Auth` component. React treats a component declared during render
+as a brand new type every time the parent renders, so it unmounts and remounts
+the whole subtree. The email input would have been destroyed and rebuilt on
+every keystroke, losing focus each time, which would have made the box
+impossible to type in.
+
+The fix is that it is a plain function returning JSX, called as
+`{renderAuthMethods()}`. That inlines the elements into the parent's tree, so
+React reconciles them normally and the input survives. The existing `Divider`
+and `TierComparison` are declared the same risky way and get away with it only
+because neither holds a cursor.
+
+---
+
+## Where you land after signing in, and the one question we ask
+
+A comedian tried Comediq and said: after you sign up, the first thing you
+should see is the mic list. The page he got instead meant nothing to him.
+
+So two changes.
+
+### Signing in lands on the mic list
+
+`/auth` used to send people to `/` when nothing said otherwise. It now sends
+them to `/perform`, which is the Find Mics list.
+
+Only the default moved. When a link carries a `next` (a mic signup page
+bouncing you through sign-in, say), that destination still wins.
+
+### One question, over the top of the mics
+
+New accounts get a small dialog: **Are you a comedian?** Answer yes and a
+slider asks how long you have been doing it, 0 to 10, where 10 means 10 or
+more. Answer no and that is the end of it.
+
+It is a dialog rather than a page on purpose. The mic list is already loaded
+behind it, so answering costs no navigation and nobody gets parked on a form.
+
+Where the answers go:
+
+| Answer | Column on `profiles` |
+| --- | --- |
+| Not asked yet | `is_comedian` is `NULL` |
+| Yes | `is_comedian` true, `years_performing` 0 to 10 |
+| No | `is_comedian` false |
+
+`years_performing` already existed and already shows on comedian cards and the
+profile editor, so the slider fills a field the app was using.
+
+**The prompt is driven entirely by `is_comedian` being NULL.** Answer it once,
+either way, and it never comes back. "Not now" hides it for the browser
+session only, so it asks again next visit.
+
+### Two things worth knowing
+
+**The migration has to be applied.** The column arrives in
+`supabase/migrations/20260925000000_profiles_is_comedian.sql`. No new RLS is
+needed, because "Users can update their own profile (except admin status)"
+already covers a column that is not `isadmin`.
+
+**The app survives that migration being late.** Asking Postgres for a column
+it does not have fails the whole row, and that row also carries `isadmin`,
+`subscription_plan` and `credits_balance`. Without a guard, shipping this
+before the migration would have silently stripped admin rights and downgraded
+every subscriber. So `fetchProfileAccess` in `AuthContext.tsx` retries without
+`is_comedian` when the first select errors, and reports the answer as already
+given. One request normally, two only while the database is behind, and the
+worst case is the prompt staying hidden instead of everyone losing their plan.
+
+### A stray slider thumb, fixed
+
+`src/components/ui/slider.tsx` hardcoded two thumbs. That is right for the
+cost range filter in `MicFilters`, which passes two values, and wrong for any
+single-value slider: a second thumb sat parked at the minimum. It now renders
+one thumb per value, so both work.
+
+### The old onboarding page is gone
+
+`src/pages/Onboarding.tsx` asked a three-way role question and wrote to
+`user_onboarding_responses`. It could never be reached: `needsOnboarding` was
+hardcoded `false`, so the page bounced every visitor on arrival. Making that
+flag mean something would have exposed a stale flow that asks different
+questions and never sets `is_comedian`, leaving the new prompt nagging
+forever. The page and its route were removed.
+
+---
+
+## Signing up: a bare door, then one questionnaire
+
+There are two screens and they do different jobs.
+
+### The door: `/auth`
+
+**Continue with Google**, or an email box and *Send me a code*. That is the
+whole page. No name, no role, no sliders.
+
+The emailed code runs with `shouldCreateUser`, so the one box both makes an
+account and signs an existing one back in. There is no separate signup to
+find.
+
+Anything more here is a reason to leave. Someone who has not decided to join
+yet should not be looking at a wall of questions.
+
+### The questionnaire: a dialog on the first signed-in load
+
+Once there is an account, one dialog asks everything, then never comes back.
+
+It lives here rather than on the door for two reasons. Signing in with Google
+never touches the signup form, so anyone arriving that way was skipping every
+question. And the questions only make sense once someone has actually joined.
+
+The name box and the Comedian / Audience choice show first. **Nothing else
+appears until they pick**, so the dialog opens short.
+
+| Picks | Then asked | Lands on |
+| --- | --- | --- |
+| Comedian | Instagram, years doing comedy 0 to 10+, weekly mic spend $0 to $150+, affiliate opt-in | `/perform` |
+| Audience | Comedy shows a year, 0 to 20+ | `/laugh` |
+
+Affiliate reads: *I will post one Comediq story a month, to be considered for
+shows and bookings.* Off by default.
+
+Audience members are never asked for Instagram, years or spend. They have no
+answer to give, and reaching comedians is the point of collecting a handle.
+
+### What makes it appear, exactly once
+
+`profiles.is_comedian` being NULL. Nothing else.
+
+Answer it, either way, and the column is no longer NULL, so a returning user
+signs in and goes straight into the site. Closing the dialog without
+answering hides it for that browser session only.
+
+Each path writes only its own columns, so `shows_seen_per_year` stays NULL for
+every comedian and `years_performing` stays NULL for every audience member.
+NULL means never asked, which is not a zero somebody gave.
+
+### Where the answers live
+
+| Answer | Column |
+| --- | --- |
+| Name | `profiles.stage_name` |
+| Comedian or audience | `profiles.is_comedian` |
+| Instagram | `comedian_social_links`, `platform: 'instagram'` |
+| Years doing comedy | `profiles.years_performing` |
+| Weekly mic spend | `profiles.weekly_mic_spend_usd` |
+| Affiliate opt-in | `profiles.affiliate_interested` |
+| Shows seen a year | `profiles.shows_seen_per_year` |
+
+The write is an upsert, not an update. AuthContext creates the profile row in
+its own effect, and an update against a row that does not exist yet matches
+nothing and reports no error, so the answers would vanish and the Instagram
+row would fail its foreign key.
+
+### Why the input fields have no icon box
+
+An input inside a `<form>` gets its background forced by a global rule in
+`index.css`:
+
+```css
+form :where(input:not([type="checkbox"])…) {
+  border-width: 0 !important;
+  background-color: rgb(255 255 255 / 0.1) !important;
+}
+```
+
+The fields used to be a flex row: a wrapper painted `bg-white/10` with an icon
+sitting in it, then the input beside it. Both layers painted the same
+translucent white, so the input area stacked to roughly 0.19 while the icon
+gutter stayed at 0.10. The result was a visible darker square under the icon,
+on a field that should read as one surface.
+
+`bg-transparent` on the input could not fix it, because that global rule wins
+on `!important`.
+
+So there is no gutter any more. The wrapper is transparent and carries only
+the border and the focus ring. The input paints the whole width. The icon is
+positioned absolutely on top of it with `pointer-events-none`, so clicking it
+still lands in the input.
+
+Sampling real pixels across a field now gives `28,34,42` the whole way, give
+or take one unit at the rounded corners.
+
+The same shape is used on the door's email box and on the name and Instagram
+boxes in the onboarding dialog. The dialog's inputs are not inside a `<form>`,
+so nothing forces their background; `bg-white/10` on the input gives the same
+value either way, which is why one set of classes covers both.
+
+### Three migrations, none optional
+
+| File | Columns |
+| --- | --- |
+| `20260925000000_profiles_is_comedian.sql` | `is_comedian` |
+| `20260925120000_profiles_weekly_mic_spend.sql` | `weekly_mic_spend_usd` |
+| `20260925180000_signup_audience_and_affiliate.sql` | `shows_seen_per_year`, `affiliate_interested` |
+
+None needs new RLS: "Users can update their own profile (except admin
+status)" already covers any column that is not `isadmin`.
+
+**Until `is_comedian` exists the dialog never appears at all.**
+`fetchProfileAccess` in `AuthContext.tsx` retries without the column and
+reports it as answered, which is deliberate: a missing column fails the whole
+row, and that row also carries `isadmin`, `subscription_plan` and
+`credits_balance`, so without the guard a late migration would strip admin
+rights and downgrade every subscriber. The cost is that the failure is silent.
+
+---
+
 ## Summarize
+
+### Session: the seam under the email icon
+
+**What it was.** The icon sat in its own flex cell on a `bg-white/10` wrapper,
+and the input beside it painted `bg-white/10` again on top. Two translucent
+layers where there should have been one, so the icon's cell read as a darker
+square against the rest of the field.
+
+**Why the obvious fix did not work.** `index.css` forces the background of any
+input inside a `<form>` with `!important`, so `bg-transparent` on the input
+was ignored.
+
+**The fix.** No gutter. The wrapper is transparent and holds only the border
+and focus ring, the input paints the full width, and the icon is absolutely
+positioned over it with `pointer-events-none`.
+
+**Verified by sampling pixels, not by looking.** Screenshotted the field,
+decoded it in the page with a canvas, and read 24 points across a row clear of
+the placeholder text: `28,34,42` all the way, with a one-unit drift only at
+the rounded corners.
+
+**Also.** The affiliate checkbox was a native control, which paints a pale
+square on navy when unchecked. Swapped to the app's own `Checkbox`, and
+re-ran the signup flow to confirm `affiliate_interested: true` still reaches
+the database.
+
+### Session: moving the questions to after the door
+
+**The feedback.** The signup page opened on a role picker, a name box, two
+sliders and a checkbox. Intimidating for someone who has not joined yet.
+
+**What shipped.** `/auth` is now Google plus an email box, nothing else. Every
+question moved into one dialog that appears on the first signed-in load and
+never again.
+
+**This also closed a hole.** Signing in with Google never passed through the
+signup form, so anyone arriving that way answered nothing at all. Both routes
+land in the same dialog now, because the trigger is `profiles.is_comedian`
+being NULL rather than anything about how they signed in.
+
+**The dialog opens short.** Name and the Comedian / Audience choice only.
+Everything else is hidden until they pick, so nobody sees sliders they will
+not be asked about.
+
+**Deleted.** The sessionStorage stash that carried answers from the pre-auth
+form through code verification. The account exists before any question is
+asked now, so there is nothing to hold.
+
+**Verified.** Four cases driven in a browser against a stubbed Supabase: the
+signed-out door has one input, no sliders and no role buttons; a new comedian
+writes name, is_comedian, years, spend, affiliate and an Instagram row and
+lands on /perform; a new audience member writes only name, is_comedian and
+shows_seen_per_year with no social row and lands on /laugh; and a user whose
+is_comedian is already set sees no dialog at all.
+
+### Session: splitting signup into comedian and audience
+
+**Why.** The first cut asked every new account how many years they had been
+doing comedy and what they spend on open mics. An audience member has no
+answer to either, and their Instagram is of no use to us.
+
+**What shipped.** The form opens on a Comedian / Audience choice, defaulting
+to Comedian, and swaps its fields. Comedians get Instagram, two sliders and an
+affiliate opt-in. Audience members get one slider, shows seen a year. Each
+path writes only its own columns and lands on the page that suits it,
+`/perform` for comedians and `/laugh` for audience.
+
+**The affiliate opt-in** is a checkbox reading "I will post one Comediq story
+a month, to be considered for shows and bookings", stored on
+`profiles.affiliate_interested`.
+
+**Verified.** Drove a browser through both paths against a stubbed Supabase
+and read the request bodies. The audience path sends no Instagram row at all
+and no `years_performing`, `weekly_mic_spend_usd` or `affiliate_interested`;
+the comedian path sends all four plus the social link. Both at phone and
+desktop widths. `npx tsc -b` and `npm run build` clean.
+
+**Still needs applying.** All three signup migrations are on main and none has
+reached the database. Until they do, the answers are dropped silently, by
+design, because the guard that keeps a late migration from wrecking admin and
+subscription state also swallows the error.
+
+### Session: landing on the mics, and asking who is a comedian
+
+**Why.** A comedian's feedback after trying the site: the first thing you see
+after signing up should be the mic list.
+
+**What shipped.** `/auth` now defaults to `/perform` instead of `/`, honouring
+an explicit `next` as before. And a one-question dialog over that page asks
+whether you are a comedian, with a 0 to 10+ slider if you are. Answers land on
+`profiles.is_comedian` and the existing `profiles.years_performing`.
+
+**The guard that mattered most.** The new column is read in the same select
+that carries `isadmin`, `subscription_plan` and `credits_balance`. Postgres
+fails the whole row for one unknown column, so shipping the code before the
+migration would have stripped admin rights and downgraded every subscriber.
+`fetchProfileAccess` retries without the column and treats the question as
+answered, so the only casualty is a hidden prompt. Proved by stubbing a 42703
+error and checking a premium account still rendered `subscriber-layout`.
+
+**Two bugs found on the way.** The shared `Slider` hardcoded two thumbs, so
+every single-value slider had a stray one parked at zero; it now renders one
+per value, which keeps the two-thumb cost filter working. And making
+`needsOnboarding` real would have un-buried `pages/Onboarding.tsx`, a
+three-way role form that bounced every visitor while the flag was hardcoded
+false and that never sets `is_comedian`; it was removed.
+
+**Verified.** `npx tsc -b`, a production build, and a browser driven against a
+stubbed Supabase across three profile states (never asked, already answered,
+column missing) plus both redirect cases. Checked the slider reads "Just
+started", "2 years" and "10+ years" at its ends, and that the dialog renders
+dark on dark.
+
+**Needs applying.** `supabase/migrations/20260925000000_profiles_is_comedian.sql`
+has to reach the database before the prompt can appear.
+
+### Session: taking the paywall out of the front door
+
+**What shipped.** `/auth` lands on the sign-in form instead of a $20 vs $0
+plan comparison. Google, an emailed code, or a password, all free, with the
+code path creating the account on the spot. The plan comparison still lives at
+`/auth?plans=true`, which is where the home page and credit balance upgrade
+buttons already pointed, so the paid path is untouched.
+
+**Also.** The Google and password buttons were styled for a light card and
+rendered grey-on-grey in dark mode. They were only on `/auth/sign-in` before,
+which few people saw. They are the front door now, so they got dark variants.
+
+**The bug caught before it shipped.** The shared sign-in controls were first
+written as a component declared inside `Auth`. React remounts a
+render-declared component's whole subtree on every parent render, so the email
+input would have lost focus on every keystroke. Rewritten as a plain render
+function. Verified by driving a real browser: typed sixteen characters and
+asserted the input was still `document.activeElement`.
+
+**Verified.** `npx tsc -b`, a production build, and Playwright runs over
+`/auth`, `/auth?plans=true` and `/auth/sign-in` in both themes, checking the
+headings, the buttons on each, and that the plan cards appear only where they
+should.
 
 ### Session: the mic popup, rebuilt
 
@@ -1173,3 +1566,18 @@ The `Active = TRUE` half of the request has no equivalent in the sheet and was
 left alone rather than guessed at. The nearest thing the sheet has is the
 `Last verified` column, which is free text.
 
+### Session: variety mic tag, filter, and KGB room details
+
+Adam asked for a "Variety" tag for mixed open mics, a filter for them, and the
+Red Room detail on Easy Paradise. A new database column was the obvious design
+and the wrong one here: nothing in this repo applies migrations, and the export
+selects columns by name, so a column that does not exist yet would break the
+nightly export. The tag lives in `legacy_tag` instead, the filter is one button
+in `MicFilters.tsx`, and the three data changes are entries in the batch.
+
+Easy Paradise now starts its details with "Held in the Red Room, on the 3rd
+floor of KGB Bar." in `other_rules`, with the old text kept. The street address
+was not touched, so no geocoding fields were cleared.
+
+Not tagged: `Mixed mic!The Joy of Ranting` at the Windjammer. Its name says it
+is mixed, but Adam did not list it.

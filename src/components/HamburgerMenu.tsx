@@ -1,15 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Home, MicVocal, Eye, User, Book, Search, Menu, ChevronRight, Briefcase, Ticket, Star, Sparkles, Trophy, Clapperboard, Map, Calendar } from "lucide-react";
-import { useState } from "react";
+import { Home, MicVocal, Eye, User, Book, Search, Menu, ChevronRight, Briefcase, Ticket, Star, Sparkles, Trophy, Clapperboard, Map, Calendar, Sun, Moon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useTheme } from "next-themes";
 
 const HamburgerMenu = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAdmin } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  // next-themes has no theme until it has mounted, and the app defaults to dark.
+  const [themeMounted, setThemeMounted] = useState(false);
+  useEffect(() => setThemeMounted(true), []);
+  const isDark = !themeMounted || theme === "dark";
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
@@ -17,10 +23,10 @@ const HamburgerMenu = () => {
     ...(isAdmin ? [{ path: "/admintest", icon: Book, label: "Admin" }] : [])
   ];
 
+  // Leaderboard and Growth live under Perform; listing them here too meant the
+  // menu showed each of them twice.
   const newFeatureItems = [
-    { path: "/leaderboard", icon: Trophy, label: "Leaderboard", isNew: true },
     { path: "/open-mics", icon: Map, label: "Open Mics Map", isNew: true },
-    { path: "/growth", icon: Briefcase, label: "Growth", isNew: true },
     { path: "/strip", icon: Clapperboard, label: "Carouseler", isNew: true },
   ];
 
@@ -42,9 +48,14 @@ const HamburgerMenu = () => {
   const isPerformActive = performSubItems.some(item => location.pathname === item.path);
   const isLaughActive = location.pathname === '/laugh' || location.pathname === '/audience-shows';
   
-  const [expandedPerform, setExpandedPerform] = useState(isPerformActive);
-  const [expandedLaugh, setExpandedLaugh] = useState(isLaughActive);
-  const [expandedNew, setExpandedNew] = useState(true);
+  // Perform is open by default and NEW is closed: someone opening this menu is
+  // nearly always trying to get to the mic list, and NEW was burying it.
+  // All three start closed. Opening the sheet should show six short rows you
+  // can scan, not two sections already unfolded into a dozen. Tapping a
+  // section still opens it; this only changes what you are met with.
+  const [expandedPerform, setExpandedPerform] = useState(false);
+  const [expandedLaugh, setExpandedLaugh] = useState(false);
+  const [expandedNew, setExpandedNew] = useState(false);
 
   const handleNavClick = (path: string) => {
     setIsOpen(false);
@@ -68,7 +79,18 @@ const HamburgerMenu = () => {
         className="w-64 border-r border-[#07111f]/10 bg-[radial-gradient(circle_at_top_left,rgba(255,199,44,0.34),transparent_34%),linear-gradient(155deg,rgba(255,247,220,0.96)_0%,rgba(219,234,254,0.92)_54%,rgba(245,242,235,0.96)_100%)] text-[#07111f] shadow-[18px_0_60px_rgba(2,10,30,0.18)] backdrop-blur-2xl [&>button]:text-[#07111f]/70 [&>button:hover]:text-[#07111f] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,rgba(255,199,44,0.18),transparent_34%),linear-gradient(155deg,rgba(7,17,31,0.96)_0%,rgba(16,42,83,0.92)_54%,rgba(4,10,24,0.96)_100%)] dark:text-white dark:shadow-[18px_0_60px_rgba(2,10,30,0.48)] dark:[&>button]:text-white/70 dark:[&>button:hover]:text-white"
       >
         <SheetHeader className="border-b border-[#07111f]/10 dark:border-white/10">
-          <SheetTitle className="text-[#07111f] dark:text-white">Menu</SheetTitle>
+          <div className="flex flex-row items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setTheme(isDark ? "light" : "dark")}
+              className="rounded-full p-1.5 text-[#07111f]/70 transition-colors hover:bg-[#07111f]/10 hover:text-[#07111f] dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              title={isDark ? "Light mode" : "Dark mode"}
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <SheetTitle className="text-[#07111f] dark:text-white">Menu</SheetTitle>
+          </div>
         </SheetHeader>
         <div className="flex-1 py-4">
           <div className="space-y-2">
@@ -79,7 +101,7 @@ const HamburgerMenu = () => {
                 onClick={() => handleNavClick(path)}
                 className={`w-full flex items-center px-4 py-3 text-left rounded-md transition-colors ${
                   location.pathname === path
-                    ? "text-[#1a5fb4] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >
@@ -95,14 +117,14 @@ const HamburgerMenu = () => {
                 className="w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors hover:bg-white/10 text-white shadow-[0_12px_30px_rgba(2,10,30,0.38)] backdrop-blur-xl transition-colors"
               >
                 <div className="flex items-center">
-                  <Sparkles size={18} className="mr-3 text-[#1a5fb4]" />
-                  <span className="font-bold text-[#1a5fb4]">
+                  <Sparkles size={18} className="mr-3 text-[#1a5fb4] dark:text-[#8ec5ff]" />
+                  <span className="font-bold text-[#1a5fb4] dark:text-[#8ec5ff]">
                     NEW
                   </span>
                 </div>
                 <ChevronRight 
                   size={16} 
-                  className={`transition-transform text-[#1a5fb4] ${expandedNew ? 'rotate-90' : ''}`}
+                  className={`transition-transform text-[#1a5fb4] dark:text-[#8ec5ff] ${expandedNew ? 'rotate-90' : ''}`}
                 />
               </button>
               
@@ -135,7 +157,7 @@ const HamburgerMenu = () => {
                 onClick={() => setExpandedPerform(!expandedPerform)}
                 className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors ${
                   isPerformActive
-                    ? "text-[#1a5fb4] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >
@@ -157,7 +179,7 @@ const HamburgerMenu = () => {
                       onClick={() => handleNavClick(path)}
                       className={`w-full flex items-center px-4 py-2 text-left rounded-md transition-colors text-sm ${
                         location.pathname === path
-                          ? "text-[#1a5fb4] bg-white/10"
+                          ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10"
                           : "text-white/70 hover:text-white hover:bg-white/10"
                       }`}
                     >
@@ -175,7 +197,7 @@ const HamburgerMenu = () => {
                 onClick={() => setExpandedLaugh(!expandedLaugh)}
                 className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors ${
                   isLaughActive
-                    ? "text-[#1a5fb4] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >
@@ -197,7 +219,7 @@ const HamburgerMenu = () => {
                       onClick={() => handleNavClick(path)}
                       className={`w-full flex items-center px-4 py-2 text-left rounded-md transition-colors text-sm ${
                         isItemActive(path)
-                          ? "text-[#1a5fb4] bg-white/10"
+                          ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10"
                           : "text-white/70 hover:text-white hover:bg-white/10"
                       }`}
                     >
@@ -216,7 +238,7 @@ const HamburgerMenu = () => {
                 onClick={() => handleNavClick(path)}
                 className={`w-full flex items-center px-4 py-3 text-left rounded-md transition-colors ${
                   location.pathname === path
-                    ? "text-[#1a5fb4] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
+                    ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
                     : "text-white hover:bg-white/10"
                 }`}
               >

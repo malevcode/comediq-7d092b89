@@ -1,17 +1,20 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Search, HelpCircle, LogIn, Plus, Map, List } from "lucide-react";
 import SEO from "@/components/SEO";
-import { generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { OpenMic, MicFrequency, FREQUENCY_LABELS } from "@/types/openMic";
+import { OpenMic, MicFrequency, FREQUENCY_LABELS, VARIETY_TAG } from "@/types/openMic";
+import { parseStartTimeToMinutes } from '@/utils/micCheckin';
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link, useParams, Navigate } from "react-router-dom";
+import { PAGE_SIZE, resolveFilter, listingMeta, filterMics, summaryText, itemListSchema, breadcrumbSchema as seoBreadcrumb, graph, slugify as seoSlugify, ORIGIN } from "@/lib/seoShared";
+import NotFound from "./NotFound";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
+import { canonicalNeighborhood } from "@/utils/micFormat";
 import { MicRequestFormData } from "@/components/host/AddMicRequestForm";
 import { EditableMicCard } from "@/components/EditableMicCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,7 +40,10 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
   const [activeTab, setActiveTab] = useState("next");
   const [showKey, setShowKey] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(100);
+  const { filter: filterParam } = useParams<{ filter?: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageParam = Math.max(1, parseInt(searchParams.get("page") || "1", 10) || 1);
+  const [visibleCount, setVisibleCount] = useState(pageParam * PAGE_SIZE);
   const [showInlineCard, setShowInlineCard] = useState(false);
   // List is the default on every mount. The toggle swaps the whole page over
   // to the map-first view rather than expanding a panel inside the list.
@@ -49,7 +55,6 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const { user, signOut } = useAuth();
   const { data: likedMics = [] } = useUserLikedMics();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const hasScrolled = useRef(false);
 
   // Auto-open inline add card when ?addMic=true is in URL (from marquee banner link)
@@ -98,10 +103,29 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     costRange: [0, maxCost],
     timeOfDay: [],
     borough: "All",
+    neighborhood: "All",
     city: "New York",
     frequency: 'all',
     micStatus: 'all',
   });
+
+  // Neighbourhood options come from the mics on screen, narrowed by the city
+  // and borough already chosen, so the list never offers something that
+  // returns nothing. Names are canonicalised first because the data spells
+  // several places two ways.
+  const neighborhoods = useMemo(() => {
+    const inScope = (openMics ?? []).filter(
+      (m) =>
+        m.city === filters.city &&
+        (filters.borough === "All" || m.borough === filters.borough),
+    );
+    const names = new Set<string>();
+    for (const m of inScope) {
+      const n = canonicalNeighborhood(m.neighborhood);
+      if (n) names.add(n);
+    }
+    return ["All", ...Array.from(names).sort((a, b) => a.localeCompare(b))];
+  }, [openMics, filters.city, filters.borough]);
 
   // Update cost range when maxCost changes
   useMemo(() => {
@@ -111,21 +135,56 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     }));
   }, [maxCost]);
 
-  // Read URL query params and apply filters
+  // /open-mics/:filter is a day (monday) or a borough (brooklyn).
+  const pathFilter = useMemo(
+    () => (filterParam ? resolveFilter(filterParam, openMics) : null),
+    [filterParam, openMics]
+  );
+
   useEffect(() => {
-    const dayParam = searchParams.get('day');
-    const boroughParam = searchParams.get('borough');
-
-    if (dayParam) {
-      // Set active tab to the day
-      setActiveTab(dayParam);
+    if (!pathFilter) return;
+    if (pathFilter.kind === "day") setActiveTab(pathFilter.value);
+    else {
+      const city = openMics.find(m => (m.borough || "").trim() === pathFilter.value)?.city;
+      setFilters(prev => ({ ...prev, borough: pathFilter.value, city: city || prev.city }));
     }
+  }, [pathFilter]);
 
-    if (boroughParam) {
-      // Apply borough filter
-      setFilters(prev => ({ ...prev, borough: boroughParam }));
+  useEffect(() => {
+    if (!filterParam) {
+      setActiveTab(prev => (daysOfWeek.includes(prev) ? "next" : prev));
     }
-  }, [searchParams]);
+    setVisibleCount(pageParam * PAGE_SIZE);
+  }, [filterParam]);
+
+  const legacyDay = searchParams.get('day');
+  const legacyBorough = searchParams.get('borough');
+
+  const goToFilter = (slug: string | null) => {
+    navigate(slug ? `/open-mics/${slug}` : "/open-mics");
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    if (daysOfWeek.includes(tab)) goToFilter(seoSlugify(tab));
+    else if (pathFilter?.kind === "day") goToFilter(null);
+  };
+
+  const handleFiltersChange = (next: MicFiltersType) => {
+    const boroughChanged = next.borough !== filters.borough;
+    // A neighbourhood only exists inside one borough and one city, so moving
+    // either leaves a combination that matches nothing. Drop it rather than
+    // show an empty list.
+    const scopeChanged = boroughChanged || next.city !== filters.city;
+    const resolved =
+      scopeChanged && next.neighborhood === filters.neighborhood
+        ? { ...next, neighborhood: "All" }
+        : next;
+    setFilters(resolved);
+    if (!boroughChanged) return;
+    if (next.borough && next.borough !== "All") goToFilter(seoSlugify(next.borough));
+    else if (pathFilter?.kind === "borough") goToFilter(null);
+  };
 
   useEffect(() => {
     if (hasScrolled.current) return; 
@@ -153,15 +212,8 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     setTimeout(scrollToHash, 50);
   }, [visibleCount]);
 
-  // Helper: 12h time string -> minutes
-  const timeToMinutes = (timeStr: string) => {
-    const [time, period] = timeStr.split(" ");
-    const [hours, minutes] = time.split(":").map(Number);
-    let hour24 = hours;
-    if (period === "PM" && hours !== 12) hour24 += 12;
-    else if (period === "AM" && hours === 12) hour24 = 0;
-    return hour24 * 60 + (minutes || 0);
-  };
+  // Helper: 12h time string -> minutes. Unparseable reads as null.
+  const timeToMinutes = (timeStr: string) => parseStartTimeToMinutes(timeStr);
 
   // Current time & day
   const now = new Date();
@@ -176,15 +228,18 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     if (micDayIndex === -1) return Infinity;
 
     const micStartMinutes = timeToMinutes(mic.startTime);
-    const maxTimeWindow = 168 * 60; // 48 hours in minutes
+    if (micStartMinutes === null) return Infinity;
+    const maxTimeWindow = 168 * 60; // seven days
     
     if (micDayIndex === currentDayIndex) {
       // Same day - check if mic hasn't started yet
       if (micStartMinutes > currentTimeMinutes) {
         return micStartMinutes - currentTimeMinutes;
       }
-      // Mic already started today, don't show it in "next"
-      return Infinity;
+      // Already ran today, so its next occurrence is this weekday next week.
+      // Returning Infinity here is what made "Next" cover six days and the
+      // rest of today rather than a full seven.
+      return 7 * 24 * 60 + micStartMinutes - currentTimeMinutes;
     } else {
       // Different day - calculate days until mic
       let daysUntil = micDayIndex - currentDayIndex;
@@ -212,7 +267,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
   const matchesTimeOfDay = (mic: OpenMic, timeSlots: string[]) => {
     if (timeSlots.length === 0) return true;
-    const startHour = timeToMinutes(mic.startTime) / 60;
+    const startHour = (timeToMinutes(mic.startTime) ?? 0) / 60;
     return timeSlots.some((slot) => {
       switch (slot) {
         case "daytime":
@@ -312,6 +367,9 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
         mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesBorough = filters.borough === "All" || mic.borough === filters.borough;
+      const matchesNeighborhood =
+        filters.neighborhood === "All" ||
+        canonicalNeighborhood(mic.neighborhood) === filters.neighborhood;
 
       const micCost = getCostValue(mic.cost);
       const matchesCost = micCost >= filters.costRange[0] && micCost <= filters.costRange[1];
@@ -326,18 +384,24 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       // New: Status filter
       const matchesMicStatus = !filters.micStatus || filters.micStatus === 'all' || mic.status === filters.micStatus;
 
-      return matchesSearch && matchesBorough && matchesCost && matchesTime && matchesCity && matchesFrequency && matchesMicStatus;
+      // Variety (mixed) mics only
+      const matchesVariety = !filters.variety || mic.legacyTag === VARIETY_TAG;
+
+      return matchesSearch && matchesBorough && matchesNeighborhood && matchesCost && matchesTime && matchesCity && matchesFrequency && matchesMicStatus && matchesVariety;
     });
 
-    // Sort by next occurrence (like OpenMicsDetailedList)
-    filtered.sort((a, b) => {
-      const aDate = getNextOccurrence(a);
-      const bDate = getNextOccurrence(b);
-      const comparison = aDate.getTime() - bDate.getTime();
-
-      
-      return comparison;
-    });
+    if (dayFilter) {
+      // A weekday tab is a timetable for that day, so order it by clock time.
+      // Sorting by next occurrence would put whatever already ran today a week
+      // out and bury it at the far end of the list.
+      filtered.sort(
+        (a, b) =>
+          (timeToMinutes(a.startTime) ?? Number.MAX_SAFE_INTEGER) -
+          (timeToMinutes(b.startTime) ?? Number.MAX_SAFE_INTEGER),
+      );
+    } else {
+      filtered.sort((a, b) => getNextOccurrence(a).getTime() - getNextOccurrence(b).getTime());
+    }
 
     
     return filtered;
@@ -355,8 +419,11 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           mic.venueName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           mic.neighborhood.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesBorough = filters.borough === "All" || mic.borough === filters.borough;
+        const matchesNeighborhood =
+          filters.neighborhood === "All" ||
+          canonicalNeighborhood(mic.neighborhood) === filters.neighborhood;
         const matchesCity = mic.city === filters.city;
-        return matchesSearch && matchesBorough && matchesCity;
+        return matchesSearch && matchesBorough && matchesNeighborhood && matchesCity;
       })
       .sort((a, b) => new Date(b.submissionDate!).getTime() - new Date(a.submissionDate!).getTime());
   };
@@ -387,8 +454,11 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           mics={micsToShow}
           visibleCount={visibleCount}
           setVisibleCount={setVisibleCount}
+          nextHref={`${filterParam ? `/open-mics/${filterParam}` : "/open-mics"}?page=${Math.floor(visibleCount / PAGE_SIZE) + 1}`}
+          onLoadMore={(n) => setSearchParams(p => { const q = new URLSearchParams(p); q.set("page", String(Math.ceil(n / PAGE_SIZE))); return q; }, { replace: true, preventScrollReset: true })}
           showSponsor={activeTab === "next"}
           showMicOfDay={activeTab === "next"}
+          sinkFinishedToday={!daysOfWeek.includes(tabName)}
           onOpenMic={setSelectedMic}
         />
 
@@ -419,7 +489,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
               <Button
                 onClick={() => {
                   setSearchTerm("");
-                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", city: filters.city, frequency: 'all', micStatus: 'all' });
+                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", neighborhood: "All", city: filters.city, frequency: 'all', micStatus: 'all' });
                 }}
                 variant="outline"
                 className="mt-4 text-sm"
@@ -485,7 +555,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
               <Button
                 onClick={() => {
                   setSearchTerm("");
-                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", city: filters.city, frequency: 'all', micStatus: 'all' });
+                  setFilters({ costRange: [0, maxCost], timeOfDay: [], borough: "All", neighborhood: "All", city: filters.city, frequency: 'all', micStatus: 'all' });
                 }}
                 variant="outline"
                 className="mt-4 text-sm"
@@ -623,18 +693,24 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
 
   const handleAddToSchedule = (_showData: unknown) => {};
 
-  const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Home', url: 'https://comediq.us' },
-    { name: 'Open Mics', url: 'https://comediq.us/open-mics' },
-  ]);
-
-  const seoTitle = filters.borough !== "All" 
-    ? `Comedy Open Mics in ${filters.borough} - NYC | Comediq`
-    : "Find Comedy Open Mics in NYC | Comediq";
-  
-  const seoDescription = filters.borough !== "All"
-    ? `Discover comedy open mics in ${filters.borough}. Real-time schedules, venue details, and comedian reviews.`
-    : "Find every comedy open mic in NYC. Real-time schedules, venue details, comedian reviews, and set tracking.";
+  const listingPath = pathFilter ? `/open-mics/${pathFilter.slug}` : "/open-mics";
+  const scopedMics = filterMics(pathFilter, openMics);
+  const meta = listingMeta(pathFilter, openMics, pageParam);
+  const seoTitle = meta.title;
+  const seoDescription = meta.description;
+  const listingSummary = summaryText(scopedMics, pathFilter ? meta.scope : "listed on Comediq");
+  const pageStart = (pageParam - 1) * PAGE_SIZE;
+  const breadcrumbSchema = graph(
+    seoBreadcrumb([
+      { name: 'Home', path: '/' },
+      { name: 'Open Mics', path: '/open-mics' },
+      ...(pathFilter ? [{ name: pathFilter.value, path: listingPath }] : []),
+    ]),
+    itemListSchema(scopedMics.slice(pageStart, pageStart + PAGE_SIZE), pageStart),
+  );
+  const listingH1 = pathFilter
+    ? `${pathFilter.value} comedy open mics`
+    : "Comedy open mics in NYC, the Hudson Valley, LA and Austin";
   const tabListLayoutClass = user
     ? "grid grid-cols-10"
     : "grid grid-cols-9";
@@ -660,16 +736,27 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     </Button>
   );
 
+  // Old ?day= / ?borough= links move to the real filter paths.
+  if (!embedded && !filterParam && (legacyDay || legacyBorough)) {
+    return <Navigate to={`/open-mics/${seoSlugify(legacyDay || legacyBorough || "")}`} replace />;
+  }
+  if (!embedded && filterParam && openMics.length > 0 && !pathFilter) {
+    return <NotFound />;
+  }
+
   return (
     <>
-      <SEO
-        title={seoTitle}
-        description={seoDescription}
-        url="https://comediq.us/open-mics"
-        structuredData={breadcrumbSchema}
-      />
+      {!embedded && (
+        <SEO
+          title={seoTitle}
+          description={seoDescription}
+          url={`${ORIGIN}${listingPath}`}
+          structuredData={breadcrumbSchema}
+        />
+      )}
       <div className="min-h-screen bg-transparent pb-8">
         {!embedded && <PageHeader title="Open Mics" subtitle="Discover comedy open mics across NYC" />}
+        {!embedded && <h1 className="sr-only">{listingH1}</h1>}
 
         {viewMode === 'list' ? (
           <>
@@ -789,17 +876,18 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                 onClick={() => { setShowInlineCard(true); setActiveTab('next'); }}
                 variant="outline"
                 size="sm"
+                aria-label="Add new open mic"
                 className="flex items-center justify-center px-0 py-1 h-7 w-8 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
               >
                 <Plus className="h-4 w-4" />
               </Button>
-              <MicFilters filters={filters} onFiltersChange={setFilters} maxCost={maxCost} boroughs={boroughs} cities={cities.map(c => c.value)}/>
+              <MicFilters filters={filters} onFiltersChange={handleFiltersChange} maxCost={maxCost} boroughs={boroughs} neighborhoods={neighborhoods} cities={cities.map(c => c.value)}/>
             </div>
           </div>
         </div>
 
         {/* Day Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className={`mb-6 h-auto w-full gap-1 border-0 bg-white/25 p-2 text-gray-500 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-blue-600 dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)] ${tabListLayoutClass}`}>
             <TabsTrigger value="next" className={tabTriggerClass}>
               Next
@@ -848,6 +936,14 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
             </TabsContent>
           ))}
         </Tabs>
+
+        {/* Below the list, not above it. Someone opening this tab is looking
+            for a room tonight; the counts are context they want after they
+            have found one, not a paragraph standing between them and the
+            first mic. */}
+        {!embedded && openMics.length > 0 && (
+          <p className="mt-6 text-sm text-foreground/75">{listingSummary}</p>
+        )}
       </div>
           </>
         ) : (
@@ -898,18 +994,19 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                         onClick={() => { setShowInlineCard(true); setActiveTab('next'); setSheetExpanded(true); }}
                         variant="outline"
                         size="sm"
+                        aria-label="Add new open mic"
                         className="flex items-center justify-center px-0 py-1 h-7 w-8 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
-                      <MicFilters filters={filters} onFiltersChange={setFilters} maxCost={maxCost} boroughs={boroughs} cities={cities.map(c => c.value)}/>
+                      <MicFilters filters={filters} onFiltersChange={handleFiltersChange} maxCost={maxCost} boroughs={boroughs} neighborhoods={neighborhoods} cities={cities.map(c => c.value)}/>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
               <DiscoverySheet
                 expanded={sheetExpanded}
                 onToggleExpanded={() => setSheetExpanded((e) => !e)}

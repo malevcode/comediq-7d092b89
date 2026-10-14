@@ -1,3 +1,4 @@
+import SEO from '@/components/SEO';
 import { useState, useCallback, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,7 +8,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search, Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// Column definitions — order matches the plan
+// Column definitions, order matches the plan
 const COLUMNS = [
   { key: "day", label: "Day", width: "w-20" },
   { key: "start_time", label: "Start", width: "w-20" },
@@ -172,6 +173,12 @@ const DevView = () => {
 
   return (
     <div className="w-full px-1 pb-20">
+      <SEO
+        title="Mic Data Dev View: Edit Open Mic Listings | Comediq"
+        description="Spreadsheet view of every open mic listing for quick inline edits and data clean-up."
+        noindex
+      />
+      <h1 className="sr-only">Open mic data dev view</h1>
       {/* Filters bar */}
       <div className="flex flex-wrap items-center gap-2 py-2 px-1 sticky top-0 z-30 bg-background">
         <div className="relative flex-1 min-w-[140px] max-w-xs">

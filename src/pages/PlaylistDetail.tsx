@@ -1,3 +1,4 @@
+import { micPath } from "@/lib/seoShared";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMicPlaylists, usePlaylistItems } from "@/hooks/useMicPlaylists";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Trash2, MapPin, Calendar, Clock, DollarSign, Music, GripVertical } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import SEO from '@/components/SEO';
 import { Link } from "react-router-dom";
 import { slugify } from "@/utils/slugify";
 
@@ -67,8 +69,14 @@ export default function PlaylistDetail() {
 
   return (
     <div className="min-h-screen bg-transparent">
+      <SEO
+        title={`${playlist.name} – Open Mic Playlist | Comediq`}
+        description={playlist.description || `${playlistMics.length} open mics saved in the "${playlist.name}" playlist on Comediq.`}
+        noindex
+      />
       <PageHeader title={playlist.name} subtitle={playlist.description || "Your curated mic collection"} />
       <main className="max-w-7xl mx-auto px-8 page-content-offset pb-10">
+        <h1 className="sr-only">{playlist.name} open mic playlist</h1>
         <Button variant="ghost" onClick={() => navigate("/playlists")} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Playlists
         </Button>
@@ -109,7 +117,7 @@ export default function PlaylistDetail() {
                     
                     <div className="flex-1 min-w-0">
                       <Link 
-                        to={`/mics/${slugify(item.mic!.openMic)}`}
+                        to={micPath(item.mic!)}
                         className="font-semibold text-gray-900 hover:text-[#0E4898] transition-colors"
                       >
                         {item.mic!.openMic}
@@ -142,6 +150,7 @@ export default function PlaylistDetail() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      aria-label="Remove mic from playlist"
                       onClick={() => handleRemoveFromPlaylist(item.mic_unique_identifier)}
                       className="text-red-600 hover:text-red-800 hover:bg-red-50"
                     >

@@ -252,7 +252,7 @@ export function PlaylistsTab() {
             <Mic className={`mx-auto mb-3 h-10 w-10 ${mutedTextClass}`} />
             <h4 className="mb-1 text-base font-semibold text-[#07111f] dark:text-white">Build your mic rotation</h4>
             <p className={`mx-auto mb-5 max-w-sm text-sm ${mutedTextClass}`}>
-              Group mics by night, borough, or vibe — just like a Spotify playlist, but for open mics.
+              Group mics by night, borough, or vibe, just like a Spotify playlist, but for open mics.
             </p>
             <div className="flex flex-wrap gap-2 justify-center mb-4">
               {["Monday Night Lineup", "Free Mics Only", "Brooklyn Circuit", "Late Night Spots"].map(name => (

@@ -395,6 +395,7 @@ export default function Home() {
   return (
     <div className="page-content-offset relative flex-col overflow-hidden bg-transparent">
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 pb-6 pt-0">
+        <h1 className="sr-only">Your Comediq home base</h1>
         <div>
           <section
             aria-label="Home media area"

@@ -1,0 +1,2 @@
+- [x] Update shared public-page metadata, homepage fallback, and dynamic page metadata within 60/160 characters.
+- [x] Verify generated initial HTML and live preview metadata (652 initial HTML pages and 16 public routes checked).

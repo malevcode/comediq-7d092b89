@@ -123,7 +123,7 @@ export function SubmitOpportunityForm() {
             </div>
           </div>
 
-          {/* Date — barking & festival */}
+          {/* Date, barking & festival */}
           {(form.type === 'barking' || form.type === 'festival') && (
             <div>
               <Label>Date</Label>
@@ -131,7 +131,7 @@ export function SubmitOpportunityForm() {
             </div>
           )}
 
-          {/* Time — barking only */}
+          {/* Time, barking only */}
           {form.type === 'barking' && (
             <div>
               <Label>Time</Label>
@@ -139,7 +139,7 @@ export function SubmitOpportunityForm() {
             </div>
           )}
 
-          {/* Compensation — barking & festival */}
+          {/* Compensation, barking & festival */}
           {(form.type === 'barking' || form.type === 'festival') && (
             <div>
               <Label>Compensation</Label>
@@ -147,7 +147,7 @@ export function SubmitOpportunityForm() {
             </div>
           )}
 
-          {/* Contact Info — barking & school_ad */}
+          {/* Contact Info, barking & school_ad */}
           {(form.type === 'barking' || form.type === 'school_ad') && (
             <div>
               <Label>Contact Info</Label>
@@ -155,7 +155,7 @@ export function SubmitOpportunityForm() {
             </div>
           )}
 
-          {/* Website / Link — school_ad, festival, barking */}
+          {/* Website / Link, school_ad, festival, barking */}
           {(form.type === 'school_ad' || form.type === 'festival') && (
             <div>
               <Label>Website Link</Label>

@@ -1,3 +1,4 @@
+import { slugify } from "@/lib/seoShared";
 import { ChevronUp, ChevronDown, MapPin, Send, ExternalLink, Check, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -98,7 +99,10 @@ export default function MicActionBar({
   const requireAuth = (action: string): boolean => {
     if (!user) {
       toast({ title: "Sign in required", description: `Please sign in to ${action}` });
-      navigate("/auth");
+      // Carry where they were, so signing in puts them back on the mic they
+      // were voting for instead of dropping them on the mic list.
+      const here = `${window.location.pathname}${window.location.search}`;
+      navigate(`/auth?next=${encodeURIComponent(here)}`);
       return false;
     }
     return true;
@@ -124,7 +128,7 @@ export default function MicActionBar({
   };
 
   const handleShare = async () => {
-    const url = `https://comediq.us/mics/${encodeURIComponent(micName.toLowerCase().replace(/\s+/g, "-"))}`;
+    const url = `https://comediq.us/mic/${slugify(micName)}`;
     if (navigator.share) {
       try {
         await navigator.share({ title: micName, text: `Check out ${micName} on Comediq!`, url });
@@ -208,7 +212,7 @@ export default function MicActionBar({
     }
   };
 
-  // Comediq Blue / muted red / neutral — using arbitrary HSL values matching brand tokens
+  // Comediq Blue / muted red / neutral, using arbitrary HSL values matching brand tokens
   const upvoteColor = isUpvoted ? "text-[#1a5fb4]" : "text-gray-600 dark:text-muted-foreground";
   const downvoteColor = isDownvoted ? "text-red-500 dark:text-red-400" : "text-gray-600 dark:text-muted-foreground";
   const scoreColor = isUpvoted

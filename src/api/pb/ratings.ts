@@ -11,7 +11,7 @@ export async function fetchUserRating(userId: string, micId: string): Promise<Ra
   return (results[0]?.rating as RatingType) ?? null;
 }
 
-// PocketBase has no mic_like_counts view — compute from user_mic_ratings directly
+// PocketBase has no mic_like_counts view, compute from user_mic_ratings directly
 export async function fetchRatingCounts(micId: string): Promise<RatingCounts> {
   const all = await pb.collection('user_mic_ratings').getFullList({
     filter: `mic_unique_identifier = "${micId}"`,

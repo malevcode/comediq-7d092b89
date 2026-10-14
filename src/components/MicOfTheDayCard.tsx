@@ -1,3 +1,4 @@
+import { micPath } from "@/lib/seoShared";
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -39,7 +40,7 @@ export function MicOfTheDayCard({
   const label = mic.openMic || mic.venueName || 'Mic of the Day';
   const sourceLabel: Record<string, string> = {
     admin_lock: 'Pinned by Comediq admin for today.',
-    nomination: 'Won today by community nomination — most votes.',
+    nomination: 'Won today by community nomination, most votes.',
     weekly_default: 'Featured as this weekday\'s default. Nominate another mic to take the spot!',
     auto_pick: 'Auto-picked from recent activity.',
     unknown: 'Today\'s featured mic.',
@@ -71,9 +72,9 @@ export function MicOfTheDayCard({
           {/* Row 1: Mic name • MOTD badge • Sign Up */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <h3 className="text-sm sm:text-base font-bold text-white leading-tight truncate">
+              <h2 className="text-sm sm:text-base font-bold text-white leading-tight truncate">
                 {label}
-              </h3>
+              </h2>
               <Badge
                 variant="outline"
                 className="shrink-0 text-[9px] font-semibold text-[#1a5fb4] border-[#1a5fb4]/50 bg-white/10 gap-0.5 px-1.5 py-0"
@@ -154,7 +155,7 @@ export function MicOfTheDayCard({
 
     return (
       <Link
-        to={`/mics/${slugify(mic.venueName || '')}-${slugify(mic.neighborhood || '')}`}
+        to={micPath(mic)}
         className="block"
         aria-label={`View ${label} – Mic of the Day`}
       >
@@ -198,7 +199,7 @@ export function MicOfTheDayCard({
 
   return (
     <Link
-      to={`/mics/${slugify(mic.venueName || '')}-${slugify(mic.neighborhood || '')}`}
+      to={micPath(mic)}
       className="block"
       aria-label={`View ${label}`}
     >

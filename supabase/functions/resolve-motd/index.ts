@@ -1,4 +1,4 @@
-// Midnight MOTD resolver — runs daily via pg_cron at 00:05 ET
+// Midnight MOTD resolver, runs daily via pg_cron at 00:05 ET
 // Resolves today's MOTD using the resolve_motd_for(date) Postgres function
 // and writes a non-locked entry into mic_of_the_day if no admin lock exists.
 

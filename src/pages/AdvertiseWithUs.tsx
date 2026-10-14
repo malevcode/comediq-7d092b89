@@ -1,3 +1,4 @@
+import SEO from '@/components/SEO';
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -42,6 +43,10 @@ const AdvertiseWithUs = () => {
   const theme = colorThemes[colorTheme];
   return <div className="min-h-screen bg-transparent pt-6 pb-24">
       <div className="max-w-2xl mx-auto px-4">
+        <SEO
+          title="Advertise With Comediq: Reach Working Comedians | Comediq"
+          description="Promote your club, show, class or product to thousands of comedians and comedy fans across NYC, the Hudson Valley, LA and Austin."
+        />
         {/* Back Button */}
         <Link to="/" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6">
           <ArrowLeft className="h-4 w-4 mr-1" />

@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import PageHeader from '@/components/PageHeader';
+import SEO from '@/components/SEO';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { FREQUENCY_LABELS, SIGNUP_METHOD_LABELS, type MicFrequency, type SignupMethod } from '@/types/openMic';
 
@@ -115,8 +116,13 @@ export default function AddMic() {
 
   return (
     <div className="min-h-screen">
+      <SEO
+        title="Add an Open Mic to Comediq | Comediq"
+        description="Submit a comedy open mic to Comediq. Add the venue, start time, cost and sign-up rules so other comedians can find the room."
+      />
       <PageHeader title="Add a Mic" subtitle="Add mic details straight to the database" />
       <main className="mx-auto max-w-3xl px-4 pt-28 pb-16">
+        <h1 className="sr-only">Add a comedy open mic</h1>
         <Button
           variant="ghost"
           size="sm"

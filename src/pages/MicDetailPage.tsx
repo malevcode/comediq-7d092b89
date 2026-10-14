@@ -1,10 +1,10 @@
-import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams, Navigate } from "react-router-dom";
+import { micSlug, micPath, venuePath, eventSchema, breadcrumbSchema, graph, slugify as seoSlugify, formatVerified, micMeta } from "@/lib/seoShared";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { useMicRatings } from "@/hooks/useMicRatings";
 import { parseVenueSlug, slugify } from "@/utils/slugify";
 import { linkManager } from "@/utils/linkManager";
 import SEO from "@/components/SEO";
-import { generateEventSchema, generateLocalBusinessSchema, generateBreadcrumbSchema } from "@/utils/structuredData";
 import { Button } from "@/components/ui/button";
 import { Heart, ExternalLink, Navigation } from "lucide-react";
 import { WentUpToggle } from "@/components/mic/WentUpToggle";
@@ -22,7 +22,7 @@ function getMapUrl(location: string, venueName: string) {
 }
 
 const MicDetailPage = () => {
-  const { venueSlug } = useParams<{ venueSlug: string }>();
+  const { venueSlug, slug } = useParams<{ venueSlug?: string; slug?: string }>();
   const [searchParams] = useSearchParams();
   const idParam = searchParams.get('id');
   const navigate = useNavigate();
@@ -32,9 +32,9 @@ const MicDetailPage = () => {
   // Prefer unique_identifier when provided (disambiguates mics that share venue+neighborhood)
   const mic = mics?.find(m => {
     if (idParam) return m.uniqueIdentifier === idParam;
-    const micSlug = `${slugify(m.venueName)}-${slugify(m.neighborhood)}`;
-    return micSlug === venueSlug;
-  });
+    if (slug) return micSlug(m) === slug;
+    return `${slugify(m.venueName)}-${slugify(m.neighborhood)}` === venueSlug;
+  }) ?? (slug ? mics?.find(m => seoSlugify(m.openMic) === slug) : undefined);
 
   const { userRating, ratingCounts, rateMic, removeRating, isRating } = useMicRatings(mic?.uniqueIdentifier || '');
 
@@ -58,25 +58,20 @@ const MicDetailPage = () => {
     );
   }
 
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      generateEventSchema(mic),
-      generateLocalBusinessSchema({
-        name: mic.venueName,
-        location: mic.location,
-        borough: mic.borough,
-        rating: ratingCounts ? ratingCounts.likes / (ratingCounts.likes + (ratingCounts.dislikes || 0)) * 5 : undefined,
-        reviewCount: ratingCounts ? ratingCounts.likes + (ratingCounts.dislikes || 0) : undefined
-      }),
-      generateBreadcrumbSchema([
-        { name: 'Home', url: 'https://comediq.us' },
-        { name: 'Open Mics', url: 'https://comediq.us/open-mics' },
-        { name: mic.borough, url: `https://comediq.us${linkManager.borough(mic.borough)}` },
-        { name: mic.venueName, url: `https://comediq.us/mics/${venueSlug}` }
-      ])
-    ]
-  };
+  // Legacy /mics/:venueSlug and ?id= links move to the canonical /mic/:slug page.
+  if (!slug || idParam || micSlug(mic) !== slug) {
+    return <Navigate to={micPath(mic)} replace />;
+  }
+
+  const structuredData = graph(
+    eventSchema(mic),
+    breadcrumbSchema([
+      { name: 'Home', path: '/' },
+      { name: 'Open Mics', path: '/open-mics' },
+      ...(mic.borough ? [{ name: mic.borough, path: `/open-mics/${seoSlugify(mic.borough)}` }] : []),
+      { name: mic.openMic, path: micPath(mic) },
+    ]),
+  );
 
   const titleTextClass = "text-[#07111f] dark:text-white";
   const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
@@ -94,10 +89,9 @@ const MicDetailPage = () => {
   return (
     <>
       <SEO
-        title={`${mic.openMic} at ${mic.venueName} | Comediq`.slice(0, 60)}
-        description={`Perform at ${mic.venueName} every ${mic.day} at ${mic.startTime}. ${mic.cost === 'Free' ? 'Free' : mic.cost} admission. ${mic.stageTime} stage time. ${mic.neighborhood}, ${mic.borough}. ${mic.signUpInstructions.substring(0, 100)}`}
+        {...micMeta(mic)}
         keywords={`${mic.venueName} open mic, ${mic.neighborhood} comedy, ${mic.borough} open mic, ${mic.day} comedy NYC, ${mic.cost === 'Free' ? 'free' : 'paid'} open mic`}
-        url={`https://comediq.us/mics/${venueSlug}`}
+        url={`https://comediq.us${micPath(mic)}`}
         type="article"
         structuredData={structuredData}
       />
@@ -128,22 +122,27 @@ const MicDetailPage = () => {
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3 md:mt-6">
               <p className={`max-w-2xl text-sm ${mutedTextClass}`}>
                 {mic.cost?.toLowerCase() === 'free' ? 'free' : mic.cost?.toLowerCase() || 'cost not specified'} · {mic.day?.toLowerCase()} · {mic.venueName?.toLowerCase()}{mic.stageTime ? ` · ${mic.stageTime} on stage` : ''}
+                {formatVerified(mic.lastVerifiedAt) ? ` · verified ${formatVerified(mic.lastVerifiedAt)!.toLowerCase()}` : ''}
               </p>
               <div className="flex flex-wrap gap-2">
                 <WentUpToggle mic={mic} />
-                {user && (
-                  <button
-                    onClick={() => {
-                      if (userRating === 'like') removeRating(mic.uniqueIdentifier);
-                      else rateMic({ micUniqueIdentifier: mic.uniqueIdentifier, rating: 'like' });
-                    }}
-                    disabled={isRating}
-                    className={`${chipClass} inline-flex items-center gap-2 disabled:opacity-50 ${userRating === 'like' ? 'text-[#1a5fb4] dark:text-[#8ec5ff]' : ''}`}
-                  >
-                    <Heart className={`w-3 h-3 ${userRating === 'like' ? 'fill-current' : ''}`} />
-                    {ratingCounts?.likes || 0}
-                  </button>
-                )}
+                <button
+                  onClick={() => {
+                    if (!user) {
+                      // Send them to sign in and bring them straight back here.
+                      navigate(`/auth?next=${encodeURIComponent(`${window.location.pathname}${window.location.search}`)}`);
+                      return;
+                    }
+                    if (userRating === 'like') removeRating(mic.uniqueIdentifier);
+                    else rateMic({ micUniqueIdentifier: mic.uniqueIdentifier, rating: 'like' });
+                  }}
+                  disabled={isRating}
+                  title={user ? 'Upvote this mic' : 'Sign in to upvote'}
+                  className={`${chipClass} inline-flex items-center gap-2 disabled:opacity-50 ${userRating === 'like' ? 'text-[#1a5fb4] dark:text-[#8ec5ff]' : ''}`}
+                >
+                  <Heart className={`w-3 h-3 ${userRating === 'like' ? 'fill-current' : ''}`} />
+                  {ratingCounts?.likes || 0}
+                </button>
                 <a
                   href={getMapUrl(mic.location, mic.venueName)}
                   target="_blank"
@@ -161,10 +160,10 @@ const MicDetailPage = () => {
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <Attr label="day" value={mic.day} />
             <Attr label="time" value={`${mic.startTime}${mic.latestEndTime ? '–' + mic.latestEndTime : ''}`} />
-            <Attr label="cost" value={mic.cost || '—'} />
-            <Attr label="stage time" value={mic.stageTime || '—'} />
-            <Attr label="host" value={mic.hosts || mic.instagramHandle || '—'} />
-            <Attr label="venue" value={mic.venueName} />
+            <Attr label="cost" value={mic.cost || 'Not listed'} />
+            <Attr label="stage time" value={mic.stageTime || 'Not listed'} />
+            <Attr label="host" value={mic.hosts || mic.instagramHandle || 'Not listed'} />
+            <Attr label="venue" value={<Link to={venuePath(mic)} className="underline decoration-dotted underline-offset-4 hover:text-[#1a5fb4] dark:hover:text-[#8ec5ff]">{mic.venueName}</Link>} />
             <Attr label="neighborhood" value={mic.neighborhood} />
             <Attr label="borough" value={mic.borough} />
             <Attr
@@ -179,7 +178,7 @@ const MicDetailPage = () => {
 
           {/* Sign up */}
           <div className={`${panelClass} mt-6 rounded-2xl p-5 md:p-6`}>
-            <div className={`mb-2 text-[10px] uppercase tracking-[0.25em] ${mutedTextClass}`}>how to sign up</div>
+            <h2 className={`mb-2 text-[10px] font-normal uppercase tracking-[0.25em] ${mutedTextClass}`}>how to sign up</h2>
             <p className={`whitespace-pre-wrap text-base leading-relaxed md:text-lg ${descriptionTextClass}`}>
               {mic.signUpInstructions || 'Contact venue for details.'}
             </p>
@@ -218,7 +217,7 @@ const MicDetailPage = () => {
           {/* You might also like */}
           {similarMics && similarMics.length > 0 && (
             <section className={`${panelClass} mt-10 rounded-3xl p-5 md:p-6`}>
-              <div className={`mb-4 text-[10px] uppercase tracking-[0.25em] ${mutedTextClass}`}>you might also like</div>
+              <h2 className={`mb-4 text-[10px] font-normal uppercase tracking-[0.25em] ${mutedTextClass}`}>you might also like</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
                 {similarMics.map(similarMic => (
                   <Link

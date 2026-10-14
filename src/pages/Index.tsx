@@ -48,12 +48,12 @@ const Index = () => {
               >
                 <div className="mx-auto flex max-w-6xl items-center justify-center gap-6 px-4 text-[#07111f] dark:text-white sm:gap-12">
                   <div className="text-center">
-                    <div className="text-2xl sm:text-3xl font-bold text-blue-600">1,250+</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-blue-600">1,500+</div>
                     <div className="text-xs text-[#07111f]/60 dark:text-white/60 sm:text-sm">comedians visit weekly</div>
                   </div>
                   <div className="h-8 w-px bg-[#07111f]/10 dark:bg-white/10" />
                   <div className="text-center">
-                    <div className="text-2xl sm:text-3xl font-bold text-blue-600">500+</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-blue-600">400+</div>
                     <div className="text-xs text-[#07111f]/60 dark:text-white/60 sm:text-sm">open mics tracked</div>
                   </div>
                 </div>

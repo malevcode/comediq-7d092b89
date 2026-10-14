@@ -214,13 +214,13 @@ function ShowCard({ show, editingId, setEditingId, editValue, setEditValue, edit
                   <Button
                     size="icon"
                     variant="ghost"
+                    aria-label="Edit notes"
                     onClick={() => {
                       setEditingId(show.id);
                       setEditValue(show.notes);
                       setEditStatus(show.status);
                     }}
                     className="h-8 w-8 text-[#1a5fb4] hover:bg-white/40 hover:text-[#1550a0] dark:text-[#8ec5ff] dark:hover:bg-white/10 dark:hover:text-white"
-                    aria-label="Edit notes"
                   >
                     <Pencil className="w-4 h-4" size={16} />
                   </Button>

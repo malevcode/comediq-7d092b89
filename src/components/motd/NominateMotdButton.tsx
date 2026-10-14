@@ -86,7 +86,7 @@ export default function NominateMotdButton({ micUniqueIdentifier, micName, varia
         className="inline-flex items-center gap-1 text-[11px] text-blue-700 dark:text-blue-600 hover:text-blue-900 dark:hover:text-blue-700 hover:underline disabled:opacity-60 disabled:no-underline disabled:cursor-not-allowed"
         title={
           alreadyNominated
-            ? 'Already nominated today — go upvote it!'
+            ? 'Already nominated today, go upvote it!'
             : userAlreadyUsedToday
               ? 'You\'ve used your nomination for today'
               : undefined
@@ -112,7 +112,7 @@ export default function NominateMotdButton({ micUniqueIdentifier, micName, varia
       className="w-full flex items-center justify-center gap-2 border-blue-400 text-blue-700 dark:text-blue-600 hover:bg-blue-50"
       title={
         alreadyNominated
-          ? 'Already nominated today — go upvote it!'
+          ? 'Already nominated today, go upvote it!'
           : userAlreadyUsedToday
             ? 'You\'ve used your nomination for today'
             : undefined

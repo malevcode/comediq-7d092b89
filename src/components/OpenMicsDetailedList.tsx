@@ -11,6 +11,7 @@ import { makeLinksClickable } from '@/utils/makeLinksClickable';
 import { formatTimeRange, formatStageTime, formatCost } from '@/utils/micFormat';
 import { linkManager } from '@/utils/linkManager';
 import { Link } from 'react-router-dom';
+import { micPath, venuePath, formatVerified } from '@/lib/seoShared';
 import MicActionBar from '@/components/mic/MicActionBar';
 import { useSharedMicRatingData, type SharedMicRatingData } from '@/hooks/useMicRatings';
 import EditMicButton from '@/components/mic/EditMicButton';
@@ -243,14 +244,19 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
           <div className="flex-1" />
           
           {/* Centered mic name with inline verified check */}
-          <button
-            type="button"
-            onClick={() => onOpenMic?.(mic)}
+          <a
+            href={micPath(mic)}
+            onClick={(e) => {
+              // Real link for crawlers and new-tab clicks; a plain click opens the quick-view.
+              if (!onOpenMic || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+              e.preventDefault();
+              onOpenMic(mic);
+            }}
             className="flex cursor-pointer items-center gap-1 px-0.5 text-base font-semibold text-[#07111f] transition-all duration-200 hover:rounded hover:bg-[#1a5fb4]/10 hover:text-[#1a5fb4] dark:text-white dark:hover:bg-white/10 dark:hover:text-[#8ec5ff]"
             title={mic.openMic}
           >
             {mic.openMic}
-          </button>
+          </a>
           
           {/* Right-aligned traffic light + frequency pill */}
           <div className="flex-1 flex justify-end items-center gap-1">
@@ -267,6 +273,11 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
           </div>
         </div>
         <div className="mb-0.5 text-xs text-[#07111f]/60 dark:text-white/60">
+          {formatVerified(mic.lastVerifiedAt) && (
+            <span className="block text-center text-[10px] text-[#07111f]/50 dark:text-white/45">
+              Verified {formatVerified(mic.lastVerifiedAt)}
+            </span>
+          )}
           <span className="flex items-center gap-1 justify-center">
             <MapPin className="w-3 h-3 flex-shrink-0 text-gray-400 dark:text-white/50" />
             <a
@@ -278,6 +289,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
             >
             {mic.venueName}, {mic.neighborhood}
             </a>
+            <Link to={venuePath(mic)} className="ml-1 shrink-0 text-[10px] underline decoration-dotted text-gray-500 hover:text-[#1a5fb4] dark:text-white/50" aria-label={`All mics at ${mic.venueName}`}>venue</Link>
             {distance && (
               <span className="flex items-center gap-1 ml-1 text-[#8ec5ff]  font-medium">
                 <Navigation className="w-3 h-3" />
@@ -307,21 +319,34 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
       {/* Mid: Time, Cost, Stage Time - Clickable to expand */}
       <div className={`flex-1 flex flex-col min-w-0 gap-x-3 text-xs text-gray-700 mb-0 mr-1 ${expanded ? 'justify-center md:justify-start md:pt-1' : 'justify-center'}`}>
         <div 
-          className="flex flex-row gap-x-4 sm:gap-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors dark:text-white/70 dark:hover:bg-white/10"
+          className={`flex min-w-0 flex-row gap-x-3 sm:gap-2 items-center justify-center text-xs text-gray-700 cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors dark:text-white/70 dark:hover:bg-white/10 ${expanded ? 'flex-wrap gap-y-1' : 'flex-nowrap'}`}
           onClick={() => setExpanded(e => !e)}
           role="button"
           tabIndex={0}
           aria-expanded={expanded}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpanded(x => !x); }}
         >
-          <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />{formatTimeRange(mic.startTime, mic.latestEndTime)}</span>
-          <span className="flex items-center gap-1">
+          {/* Time never shrinks and never truncates. It is the one thing on this
+              row you cannot act on a mic without, and it was rendering as
+              "7:30-..." because it had a min-width and truncate but no
+              flex-shrink-0, so the row squeezed it before anything else. */}
+          <span className="flex flex-shrink-0 items-center gap-1 whitespace-nowrap">
             <Clock className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
-            {formatStageTime(mic.stageTime)}
+            {formatTimeRange(mic.startTime, mic.latestEndTime)}
           </span>
-          <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />{formatCost(mic.cost)}</span>
+          {/* Stage time and cost are the ones that may be long prose
+              ("purchase of drink or food"), so they give way instead, and show
+              in full once the card is open. */}
+          <span className={`flex items-center gap-1 ${expanded ? 'min-w-0' : 'min-w-[3rem] max-w-[45%]'}`} title={formatStageTime(mic.stageTime)}>
+            <Clock className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
+            <span className={expanded ? '' : 'truncate'}>{formatStageTime(mic.stageTime)}</span>
+          </span>
+          <span className={`flex items-center gap-1 ${expanded ? 'min-w-0' : 'min-w-[3rem] max-w-[45%]'}`} title={formatCost(mic.cost)}>
+            <DollarSign className="w-3 h-3 text-gray-400 dark:text-white/50 flex-shrink-0" />
+            <span className={expanded ? '' : 'truncate'}>{formatCost(mic.cost)}</span>
+          </span>
           <ChevronDown
-            className={`w-4 h-4 text-[#8ec5ff] transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+            className={`w-4 h-4 flex-shrink-0 text-[#8ec5ff] transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
           />
         </div>
         {/* Host info - only on desktop, stays outside clickable area */}
@@ -336,7 +361,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
       <div className="w-full md:flex-[1.2] flex flex-col justify-center gap-0">
         {expanded && (
           <div className="mb-2 flex flex-col gap-1.5 rounded-md bg-white/25 p-2 text-[#07111f]/70 shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white/70 dark:shadow-[0_24px_80px_rgba(2,10,30,0.34),0_8px_28px_rgba(2,10,30,0.2)]">
-            {/* Nominate for Mic of the Day — subtle inline text link */}
+            {/* Nominate for Mic of the Day, subtle inline text link */}
             <div onClick={(e) => e.stopPropagation()}>
               <NominateMotdButton
                 micUniqueIdentifier={mic.uniqueIdentifier}
@@ -518,6 +543,10 @@ export default function OpenMicsDetailedList({
   showMicOfDay = false,
   selectedMicId = null,
   onOpenMic,
+  sinkFinishedToday = true,
+  pageSize = 24,
+  nextHref,
+  onLoadMore,
 }: {
   mics: OpenMic[];
   visibleCount: number;
@@ -526,19 +555,31 @@ export default function OpenMicsDetailedList({
   showMicOfDay?: boolean;
   selectedMicId?: string | null;
   onOpenMic?: (mic: OpenMic) => void;
+  /**
+   * Push mics that already ran today to the bottom. Right for a list of what
+   * is coming up. Wrong for a weekday tab, where someone asked for everything
+   * that runs on that day and expects it in time order.
+   */
+  sinkFinishedToday?: boolean;
+  pageSize?: number;
+  /** Crawlable URL of the next page (e.g. ?page=2). */
+  nextHref?: string;
+  onLoadMore?: (newCount: number) => void;
 }) {
   // Fetched once for the whole list and handed to every row, so a screen of
   // 100 cards costs two requests instead of one per card.
   const sharedRatings = useSharedMicRatingData();
 
-  const validMics = mics
-    .filter(Boolean)
-    .map((mic, index) => ({ mic, index, isFinished: hasMicAlreadyHappenedToday(mic) }))
-    .sort((a, b) => {
-      if (a.isFinished !== b.isFinished) return a.isFinished ? 1 : -1;
-      return a.index - b.index;
-    })
-    .map(({ mic }) => mic);
+  const validMics = sinkFinishedToday
+    ? mics
+        .filter(Boolean)
+        .map((mic, index) => ({ mic, index, isFinished: hasMicAlreadyHappenedToday(mic) }))
+        .sort((a, b) => {
+          if (a.isFinished !== b.isFinished) return a.isFinished ? 1 : -1;
+          return a.index - b.index;
+        })
+        .map(({ mic }) => mic)
+    : mics.filter(Boolean);
   const [forceExpandedId, setForceExpandedId] = useState<string | null>(null);
   const [flashId, setFlashId] = useState<string | null>(null);
   const rowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -618,12 +659,19 @@ export default function OpenMicsDetailedList({
       ))}
       {visibleCount < validMics.length && (
         <div className="flex justify-center">
-          <button
-            className="px-2 py-2 mt-4 w-auto bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
-            onClick={() => setVisibleCount(c => c + 100)}
+          <a
+            href={nextHref || `?page=${Math.floor(visibleCount / pageSize) + 1}`}
+            rel="next"
+            className="px-3 py-2 mt-4 w-auto bg-primary text-primary-foreground rounded hover:bg-primary/90 text-sm"
+            onClick={(e) => {
+              e.preventDefault();
+              const next = visibleCount + pageSize;
+              setVisibleCount(next);
+              onLoadMore?.(next);
+            }}
           >
             Show More
-          </button>
+          </a>
         </div>
       )}
     </div>

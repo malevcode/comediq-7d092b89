@@ -42,7 +42,7 @@ export default function SponsorSection() {
               </a>
             )}
             <div className="flex-1 text-center sm:text-left space-y-2">
-              <h3 className="text-lg font-bold text-foreground">{sponsor.label}</h3>
+              <h2 className="text-lg font-bold text-foreground">{sponsor.label}</h2>
               {sponsor.description && (
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {sponsor.description}

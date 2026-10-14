@@ -14,8 +14,8 @@ interface EditMicButtonProps {
 
 /**
  * Open edit button shown on every mic listing (inside the additional
- * details dropdown). Anyone with an account can fix a listing's facts —
- * changes publish instantly, and old values are recorded to
+ * details dropdown). Anyone with an account can fix a listing's facts and
+ * the changes publish instantly. Old values are recorded to
  * mic_edit_history so they can be restored later.
  */
 export default function EditMicButton({ micUniqueIdentifier, micName }: EditMicButtonProps) {
@@ -52,7 +52,7 @@ export default function EditMicButton({ micUniqueIdentifier, micName }: EditMicB
               Edit {micName}
             </DialogTitle>
             <DialogDescription>
-              Spot something out of date? Fix it below — changes publish instantly.
+              Spot something out of date? Fix it below, changes publish instantly.
             </DialogDescription>
           </DialogHeader>
           <HostMicEditForm

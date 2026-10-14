@@ -55,6 +55,7 @@ export default function LikedMics() {
         />
 
         <main className="container mx-auto px-4 page-content-offset pb-4">
+          <h1 className="sr-only">Open mics you liked</h1>
           <Button
             variant="ghost"
             size="sm"

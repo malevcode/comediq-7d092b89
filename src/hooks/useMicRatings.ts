@@ -23,28 +23,50 @@ export interface SharedMicRatingData {
  * single mic should not use it: they are better served by the per-mic query in
  * useMicRatings, which fetches one row instead of all of them.
  */
+export type MicRatingTotals = Record<string, { likes: number; dislikes: number }>;
+
+/**
+ * Vote totals for every mic, through the security definer RPC.
+ *
+ * Not a direct select. Anonymous visitors have no select policy on
+ * user_mic_ratings, and mic_rating_totals only exists once its migration has
+ * run, so reading either table straight returned nothing for exactly the
+ * signed-out audience a public voting contest sends here. Every count showed
+ * zero and no vote appeared to register. get_mic_like_counts is granted to
+ * anon and authenticated and is the same call the leaderboard already relies
+ * on, which is why the leaderboard worked while the cards did not.
+ */
+export async function fetchMicRatingTotals(): Promise<MicRatingTotals> {
+  const { data, error } = await (supabase as any).rpc('get_mic_like_counts', {
+    min_likes: 0,
+    row_limit: 500,
+  });
+  if (error) throw error;
+  const out: MicRatingTotals = {};
+  ((data ?? []) as any[]).forEach((r) => {
+    out[r.mic_unique_identifier] = { likes: r.likes ?? 0, dislikes: r.dislikes ?? 0 };
+  });
+  return out;
+}
+
 export const useSharedMicRatingData = (): SharedMicRatingData => {
   const { user } = useAuth();
 
-  const { data: totals } = useQuery({
-    queryKey: ['micRatingTotalsAll'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('mic_rating_totals')
-        .select('mic_unique_identifier, likes, dislikes');
-      if (error) throw error;
-      const out: Record<string, { likes: number; dislikes: number }> = {};
-      (data ?? []).forEach((r: any) => {
-        out[r.mic_unique_identifier] = { likes: r.likes ?? 0, dislikes: r.dislikes ?? 0 };
-      });
-      return out;
-    },
+  const { data: totals, error: totalsError } = useQuery({
+    queryKey: TOTALS_KEY,
+    queryFn: fetchMicRatingTotals,
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
+  if (totalsError) {
+    // Silence here is what hid this for weeks: a failed read renders as every
+    // mic sitting on zero, which looks exactly like nobody having voted.
+    console.error('[useSharedMicRatingData] vote totals failed to load:', totalsError);
+  }
+
   const { data: myRatings } = useQuery({
-    queryKey: ['myMicRatings', user?.id],
+    queryKey: myRatingsKey(user?.id),
     queryFn: async () => {
       if (!user) return {};
       const { data, error } = await supabase
@@ -63,6 +85,66 @@ export const useSharedMicRatingData = (): SharedMicRatingData => {
 
   return { totals: totals ?? {}, myRatings: myRatings ?? {} };
 };
+
+
+const TOTALS_KEY = ['micRatingTotalsAll'] as const;
+const myRatingsKey = (userId?: string) => ['myMicRatings', userId] as const;
+
+/**
+ * Moves the number on screen the moment someone taps, and tells every query
+ * that holds vote data to refetch.
+ *
+ * The list screens read from the two shared queries above, not from the
+ * per-mic ones. Those shared keys were missing from the invalidation list, so
+ * a vote was written, the toast fired, and the count sat there unchanged for a
+ * full staleTime with refetchOnWindowFocus off. It looked like the vote had
+ * been swallowed.
+ */
+function applyVoteToCache(
+  queryClient: ReturnType<typeof useQueryClient>,
+  userId: string | undefined,
+  micId: string,
+  next: 'like' | 'dislike' | null,
+) {
+  const mine = queryClient.getQueryData<Record<string, string>>(myRatingsKey(userId));
+  const previous = mine?.[micId] ?? null;
+  if (previous === next) return;
+
+  queryClient.setQueryData<Record<string, { likes: number; dislikes: number }>>(
+    TOTALS_KEY,
+    (totals) => {
+      if (!totals) return totals;
+      const row = totals[micId] ?? { likes: 0, dislikes: 0 };
+      const updated = { ...row };
+      if (previous === 'like') updated.likes = Math.max(0, updated.likes - 1);
+      if (previous === 'dislike') updated.dislikes = Math.max(0, updated.dislikes - 1);
+      if (next === 'like') updated.likes += 1;
+      if (next === 'dislike') updated.dislikes += 1;
+      return { ...totals, [micId]: updated };
+    },
+  );
+
+  queryClient.setQueryData<Record<string, string>>(myRatingsKey(userId), (mineNow) => {
+    const copy = { ...(mineNow ?? {}) };
+    if (next) copy[micId] = next;
+    else delete copy[micId];
+    return copy;
+  });
+}
+
+/** Every query holding vote data, so none of them is left behind again. */
+function invalidateVoteQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+  userId: string | undefined,
+  micId: string,
+) {
+  queryClient.invalidateQueries({ queryKey: ['micRating', micId] });
+  queryClient.invalidateQueries({ queryKey: ['micRatingCounts', micId] });
+  queryClient.invalidateQueries({ queryKey: TOTALS_KEY });
+  queryClient.invalidateQueries({ queryKey: myRatingsKey(userId) });
+  queryClient.invalidateQueries({ queryKey: ['micLeaderboardCounts'] });
+  queryClient.invalidateQueries({ queryKey: ['userLikedMics', userId] });
+}
 
 export const useMicRatings = (micUniqueIdentifier?: string, shared?: SharedMicRatingData) => {
   const { user } = useAuth();
@@ -89,23 +171,16 @@ export const useMicRatings = (micUniqueIdentifier?: string, shared?: SharedMicRa
     enabled: !!user && !!micUniqueIdentifier && !shared,
   });
 
-  // Get rating counts for a mic
-  const { data: ratingCounts } = useQuery({
-    queryKey: ['micRatingCounts', micUniqueIdentifier],
-    queryFn: async () => {
-      if (!micUniqueIdentifier) return { likes: 0, dislikes: 0 };
-      
-      const { data, error } = await supabase
-        .from('mic_rating_totals')
-        .select('likes, dislikes')
-        .eq('mic_unique_identifier', micUniqueIdentifier)
-        .maybeSingle(); // get back one row or null
-      if (error) throw error;
-      return data ?? { likes: 0, dislikes: 0 };
-    },
-    // Skipped when a list already fetched totals for every mic.
+  // Counts come from the same shared read as the lists. One cached request
+  // serves every screen, and there is only one key to invalidate.
+  const { data: allTotals } = useQuery({
+    queryKey: TOTALS_KEY,
+    queryFn: fetchMicRatingTotals,
     enabled: !!micUniqueIdentifier && !shared,
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   });
+  const ratingCounts = micUniqueIdentifier ? allTotals?.[micUniqueIdentifier] : undefined;
 
   // Rate a mic (like or dislike)
   const rateMicMutation = useMutation({
@@ -125,17 +200,26 @@ export const useMicRatings = (micUniqueIdentifier?: string, shared?: SharedMicRa
       if (error) throw error;
       return data;
     },
+    onMutate: ({ micUniqueIdentifier, rating }) => {
+      const totals = queryClient.getQueryData(TOTALS_KEY);
+      const mine = queryClient.getQueryData(myRatingsKey(user?.id));
+      applyVoteToCache(queryClient, user?.id, micUniqueIdentifier, rating);
+      return { totals, mine };
+    },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['micRating', variables.micUniqueIdentifier] });
-      queryClient.invalidateQueries({ queryKey: ['micRatingCounts', variables.micUniqueIdentifier] });
-      queryClient.invalidateQueries({ queryKey: ['micLeaderboardCounts'] });
-      queryClient.invalidateQueries({ queryKey: ['userLikedMics', user?.id] });
+      invalidateVoteQueries(queryClient, user?.id, variables.micUniqueIdentifier);
       toast({
         title: variables.rating === 'like' ? 'Liked!' : 'Disliked!',
         description: `You ${variables.rating}d this open mic.`,
       });
     },
-    onError: (error) => {
+    onError: (_error, _variables, context) => {
+      // Put the number back, then say so. A count that stayed bumped after a
+      // failed write is the same lie in the other direction.
+      if (context) {
+        queryClient.setQueryData(TOTALS_KEY, context.totals);
+        queryClient.setQueryData(myRatingsKey(user?.id), context.mine);
+      }
       toast({
         title: 'Error',
         description: 'Failed to rate this mic. Please try again.',
@@ -157,11 +241,20 @@ export const useMicRatings = (micUniqueIdentifier?: string, shared?: SharedMicRa
 
       if (error) throw error;
     },
+    onMutate: (micUniqueIdentifier) => {
+      const totals = queryClient.getQueryData(TOTALS_KEY);
+      const mine = queryClient.getQueryData(myRatingsKey(user?.id));
+      applyVoteToCache(queryClient, user?.id, micUniqueIdentifier, null);
+      return { totals, mine };
+    },
+    onError: (_error, _variables, context) => {
+      if (context) {
+        queryClient.setQueryData(TOTALS_KEY, context.totals);
+        queryClient.setQueryData(myRatingsKey(user?.id), context.mine);
+      }
+    },
     onSuccess: (_, micUniqueIdentifier) => {
-      queryClient.invalidateQueries({ queryKey: ['micRating', micUniqueIdentifier] });
-      queryClient.invalidateQueries({ queryKey: ['micRatingCounts', micUniqueIdentifier] });
-      queryClient.invalidateQueries({ queryKey: ['micLeaderboardCounts'] });
-      queryClient.invalidateQueries({ queryKey: ['userLikedMics', user?.id] });
+      invalidateVoteQueries(queryClient, user?.id, micUniqueIdentifier);
       toast({
         title: 'Rating removed',
         description: 'Your rating has been removed.',

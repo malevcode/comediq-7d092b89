@@ -112,19 +112,19 @@ export function DiscoveryMicCard({ mic, forceExpanded, flash, onRegisterRow }: D
             aria-expanded={expanded}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setExpanded((x) => !x); }}
           >
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 whitespace-nowrap">
               <Clock className="w-3 h-3 flex-shrink-0" />
               {formatTimeRange(mic.startTime, mic.latestEndTime)}
             </span>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 whitespace-nowrap">
               <Clock className="w-3 h-3 flex-shrink-0" />
               {formatStageTime(mic.stageTime)}
             </span>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 whitespace-nowrap">
               <DollarSign className="w-3 h-3 flex-shrink-0" />
               {formatCost(mic.cost)}
             </span>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 whitespace-nowrap">
               <Calendar className="w-3 h-3 flex-shrink-0" />
               {mic.frequency && mic.frequency !== "weekly"
                 ? `${FREQUENCY_LABELS[mic.frequency as MicFrequency] || ""} \u00b7 ${mic.day}`

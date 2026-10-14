@@ -386,6 +386,7 @@ const Wrapped = () => {
               disabled={currentSlide === 0}
               variant="ghost"
               size="icon"
+              aria-label="Previous slide"
               className="text-comediq-cream hover:bg-comediq-cream/20 disabled:opacity-30"
             >
               <ChevronLeft className="h-8 w-8" />
@@ -395,6 +396,7 @@ const Wrapped = () => {
               disabled={currentSlide === totalSlides - 1}
               variant="ghost"
               size="icon"
+              aria-label="Next slide"
               className="text-comediq-cream hover:bg-comediq-cream/20 disabled:opacity-30"
             >
               <ChevronRight className="h-8 w-8" />

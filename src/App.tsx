@@ -33,9 +33,14 @@ import AdminInterface from "./pages/AdminInterface";
 import Playlists from "./pages/Playlists";
 import PlaylistDetail from "./pages/PlaylistDetail";
 import MicDetailPage from "./pages/MicDetailPage";
-import MicsByBorough from "./pages/MicsByBorough";
+import VenuePage from "./pages/VenuePage";
+import { useParams } from "react-router-dom";
+
+const ToOpenMicsFilter = ({ param }: { param: string }) => {
+  const params = useParams();
+  return <Navigate to={`/open-mics/${(params[param] || "").toLowerCase()}`} replace />;
+};
 import MicsByNeighborhood from "./pages/MicsByNeighborhood";
-import MicsByDay from "./pages/MicsByDay";
 import FreeMics from "./pages/FreeMics";
 import BeginnerMics from "./pages/BeginnerMics";
 import HostDashboard from "./pages/HostDashboard";
@@ -52,8 +57,11 @@ import LikedMics from "./pages/LikedMics";
 import Leaderboard from "./pages/Leaderboard";
 import Slots from "./pages/Slots";
 import ShowsMap from "./pages/ShowsMap";
-import Onboarding from "./pages/Onboarding";
+import ComedianOnboardingDialog from "@/components/ComedianOnboardingDialog";
 import Strip from "./pages/Strip";
+import CanonicalTag from "@/components/CanonicalTag";
+import SetBuildPrivacy from "./pages/SetBuildPrivacy";
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,10 +85,14 @@ function isMicSignupPath(pathname: string) {
   return pathname === '/mic-signup' || /^\/mic\/[^/]+\/signup\/?$/.test(pathname);
 }
 
+// Unlinked utility pages that must read as plain text with no site chrome.
+const HIDDEN_PLAIN_PAGES = ["/setbuild-privacy"];
+
 function SiteFooterWrapper() {
   const location = useLocation();
 
   if (isMicSignupPath(location.pathname)) return null;
+  if (HIDDEN_PLAIN_PAGES.includes(location.pathname)) return null;
 
   return (
     <div className="relative z-[1]">
@@ -88,6 +100,7 @@ function SiteFooterWrapper() {
     </div>
   );
 }
+
 
 function KeyboardViewportOffset() {
   useEffect(() => {
@@ -140,12 +153,15 @@ function AppShell() {
         <OfflineBanner />
         <MicOfTheMonthBar />
         <SubscriptionSuccessBanner />
+        <ComedianOnboardingDialog />
         <div className={isSubscriber ? "subscriber-layout relative z-10 pb-0" : "non-subscriber-layout relative z-10 pb-0"}>
+          <CanonicalTag />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/perform" element={<TabProvider><Perform /></TabProvider>} />
             <Route path="/laugh" element={<LaughTabProvider><Laugh /></LaughTabProvider>} />
             <Route path="/open-mics" element={<OpenMics />} />
+            <Route path="/open-mics/:filter" element={<OpenMics />} />
             <Route path="/track-sets" element={<ProgressTrackerPage />} />
             <Route path="/shows" element={<TabProvider><Shows /></TabProvider>} />
             <Route path="/auth" element={<Auth />} />
@@ -157,9 +173,11 @@ function AppShell() {
             <Route path="/playlists/:playlistId" element={<PlaylistDetail />} />
             <Route path="/home" element={<Home />} />
             <Route path="/mics/:venueSlug" element={<MicDetailPage />} />
-            <Route path="/boroughs/:borough" element={<MicsByBorough />} />
+            <Route path="/mic/:slug" element={<MicDetailPage />} />
+            <Route path="/venue/:slug" element={<VenuePage />} />
+            <Route path="/boroughs/:borough" element={<ToOpenMicsFilter param="borough" />} />
             <Route path="/neighborhoods/:neighborhood" element={<MicsByNeighborhood />} />
-            <Route path="/days/:day" element={<MicsByDay />} />
+            <Route path="/days/:day" element={<ToOpenMicsFilter param="day" />} />
             <Route path="/free-mics" element={<FreeMics />} />
             <Route path="/beginner-friendly" element={<BeginnerMics />} />
             <Route path="/host-dashboard" element={<HostDashboard />} />
@@ -170,6 +188,7 @@ function AppShell() {
             <Route path="/advertise" element={<AdvertiseWithUs />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/support" element={<Support />} />
+            <Route path="/setbuild-privacy" element={<SetBuildPrivacy />} />
             <Route path="/add-show" element={<AddShow />} />
             <Route path="/add-mic" element={<AddMic />} />
             <Route path="/shows/map" element={<ShowsMap />} />
@@ -179,7 +198,6 @@ function AppShell() {
             <Route path="/top-mics" element={<Leaderboard />} />
             <Route path="/dev-view" element={<TabProvider><DevView /></TabProvider>} />
             <Route path="/slots" element={<Slots />} />
-            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/strip" element={<Strip />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

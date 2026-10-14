@@ -150,7 +150,7 @@ def main():
 
     print(f"\nInserting {len(to_insert)} new mics:")
     for r in to_insert:
-        print(f"  + {r['open_mic']} ({r.get('day', 'no day')}) — {r.get('city')}")
+        print(f"  + {r['open_mic']} ({r.get('day', 'no day')}), {r.get('city')}")
 
     if not to_insert:
         print("\nNothing to insert.")

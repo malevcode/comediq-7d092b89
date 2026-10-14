@@ -153,7 +153,7 @@ export default function MyReviews() {
                       
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button variant="ghost" size="icon" aria-label="Delete review" className="h-8 w-8">
                             <Trash2 className="w-4 h-4 text-muted-foreground" />
                           </Button>
                         </AlertDialogTrigger>

@@ -15,6 +15,8 @@ const BottomNavigation = () => {
   const isSubscriber = subscriptionPlan !== 'free';
   if (location.pathname.startsWith("/auth")) return null;
   if (isMicSignupPath(location.pathname)) return null;
+  if (location.pathname === "/setbuild-privacy") return null;
+
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },

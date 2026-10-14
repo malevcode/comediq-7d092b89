@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import SEO from "@/components/SEO";
 
 const faqs = [
   {
@@ -28,9 +29,14 @@ const faqs = [
 const Support = () => {
   return (
     <div className="min-h-screen bg-transparent pb-20">
+      <SEO
+        title="Support | Comediq"
+        description="Contact Comediq, delete your account, report a wrong mic, cancel your Full Pass, or read our FAQ."
+      />
       <PageHeader title="Support" subtitle="We're here to help" />
 
       <div className="max-w-3xl mx-auto px-4 page-content-offset">
+        <h1 className="sr-only">Comediq support</h1>
         <Link
           to="/"
           className="inline-flex items-center text-orange-600 hover:text-orange-700 mb-6 text-sm"

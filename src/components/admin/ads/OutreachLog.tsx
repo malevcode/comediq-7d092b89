@@ -99,7 +99,7 @@ export function OutreachLog() {
                   <Badge variant="secondary" className="text-[10px]">{o.method.replace('_', ' ')}</Badge>
                   <Badge className={`text-[10px] ${OUTCOME_COLORS[o.outcome] ?? ''}`}>{o.outcome.replace('_', ' ')}</Badge>
                   <span className="text-xs text-muted-foreground">{o.outreach_date}</span>
-                  {o.subject && <span className="text-xs text-muted-foreground truncate">— {o.subject}</span>}
+                  {o.subject && <span className="text-xs text-muted-foreground truncate"> · {o.subject}</span>}
                   {isOverdue && (
                     <span className="text-xs text-red-500 font-medium flex items-center gap-1">
                       <AlertTriangle className="w-3 h-3" /> Follow-up overdue ({o.follow_up_date})

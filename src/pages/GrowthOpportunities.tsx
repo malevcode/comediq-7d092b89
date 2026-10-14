@@ -39,13 +39,13 @@ const GrowthOpportunities = () => {
   const emptyMessages = {
     booking: { title: "No booking opportunities yet", sub: "Check back soon or post one yourself!" },
     festivals: { title: "No festivals listed yet", sub: "Know about a comedy festival? Submit it!" },
-    training: { title: "No training opportunities yet", sub: "Comedy schools and coaches — advertise here!" },
+    training: { title: "No training opportunities yet", sub: "Comedy schools and coaches, advertise here." },
   };
 
   return (
     <>
       <SEO
-        title="Growth Opportunities - Level Up Your Comedy"
+        title="Comedy Growth Opportunities: Bookings & Festivals | Comediq"
         description="Find booking opportunities, comedy festivals, and training opportunities to grow your comedy career in NYC."
         keywords="comedy growth, booking opportunities, comedy festivals, comedy schools, comedy training, NYC comedy"
       />
@@ -53,6 +53,7 @@ const GrowthOpportunities = () => {
         <PageHeader title="Growth" subtitle="Level up your comedy career" />
 
         <div className="page-content-offset px-4 max-w-4xl mx-auto pb-24">
+          <h1 className="sr-only">Comedy growth opportunities</h1>
           {/* Submit CTA */}
           <div className="mb-6 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
@@ -128,7 +129,7 @@ const GrowthOpportunities = () => {
           {/* My Submissions */}
           {user && mySubmissions && mySubmissions.length > 0 && (
             <div className="mt-8">
-              <h3 className="text-sm font-semibold text-foreground mb-3">My Submissions</h3>
+              <h2 className="text-sm font-semibold text-foreground mb-3">My Submissions</h2>
               <div className="space-y-2">
                 {mySubmissions.map((sub) => {
                   const config = statusConfig[(sub.status as GrowthOpportunityStatus) || 'submitted'];

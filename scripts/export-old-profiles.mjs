@@ -57,7 +57,7 @@ for (const table of tables) {
   console.log(` ${rows.length} rows`)
 }
 
-// Print admin accounts (critical — save these)
+// Print admin accounts (critical, save these)
 const profiles = JSON.parse(require('fs').readFileSync('./migration-data/profiles.json', 'utf8'))
 const admins = profiles.filter(p => p.isadmin)
 console.log('\n=== ADMIN ACCOUNTS (save these!) ===')

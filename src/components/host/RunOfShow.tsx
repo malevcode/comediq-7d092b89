@@ -137,7 +137,7 @@ export function RunOfShow({ eventId, eventDate, totalSpots }: RunOfShowProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base">Run of Show — {format(new Date(eventDate + 'T00:00:00'), 'MMM d, yyyy')}</CardTitle>
+            <CardTitle className="text-base">Run of Show · {format(new Date(eventDate + 'T00:00:00'), 'MMM d, yyyy')}</CardTitle>
             <CardDescription className="text-xs">
               {confirmedSignups.length} / {totalSpots} spots · Drag to reorder
             </CardDescription>

@@ -67,6 +67,7 @@ export default function HeadshotUpload({
           className="absolute bottom-0 right-0 rounded-full shadow-lg"
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading}
+          aria-label="Change headshot"
         >
           <Camera className="h-4 w-4" />
         </Button>

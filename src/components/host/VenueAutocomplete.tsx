@@ -98,7 +98,7 @@ async function searchDatabase(query: string): Promise<SuggestionItem[]> {
 
   if (error || !data) return [];
 
-  // Deduplicate by venue_name (case-insensitive) — pick the one with the most info
+  // Deduplicate by venue_name (case-insensitive), pick the one with the most info
   const venueMap = new Map<string, typeof data[0]>();
   for (const row of data) {
     if (!row.venue_name) continue;
