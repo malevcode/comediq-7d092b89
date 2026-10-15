@@ -122,6 +122,22 @@ One limitation: the workflow talks to Supabase over PostgREST, which can insert 
 
 The SQL migrations in `supabase/migrations/` remain the historical record of what was added and when. They are not applied automatically by anything in this repo.
 
+### Taking a show off the Laugh tab (cancelling a date)
+
+Deleting a date from the seed file does **not** delist a show that is already
+live, because the seed script only ever inserts rows that are missing. To pull a
+date, do both of these in `audience_shows_seed.json`:
+
+1. Remove the date from the show's `instance_dates`, so a future run never adds it back.
+2. Add `{"title": ..., "show_date": ..., "reason": ...}` to the `cancellations` list.
+
+Merging runs the **Seed audience shows** workflow, which flips that one dated
+row to `status = 'cancelled'` and `is_active = false`. Two of the four gates
+above then fail and the show disappears. Only a live, dated, curated row with
+that exact title and date is touched, so re-running does nothing. Anyone who
+already RSVP'd keeps their RSVP and is not told: the script does not message
+people.
+
 ### The four ways a show gets added
 
 1. **The public form** at `/add-show` (`src/pages/AddShow.tsx`). Submits with `verified = false`, so an admin still has to approve it by flipping the flag in the database. There is no admin UI for this yet.
@@ -1639,3 +1655,12 @@ The bi-weekly anchor work from the previous session had also appended a second
 batch entry for the same mic (Thursdays at the Rib). That breaks the one entry
 per row rule, so the two were merged into one. Bi-weekly mics with an anchor now
 show their upcoming on-weeks in the detail window.
+
+### Session: Malev & Friends cancelled on Oct 24 and Oct 31
+
+Both dates were removed from the show's `instance_dates` and listed under
+`cancellations`, and the seed script learned how to cancel (see "Taking a show
+off the Laugh tab"). It was tested against an in-memory fake of the table, not
+the real database: a dry run changes nothing, a real run cancels exactly those
+two dated rows and leaves a different show on the same date alone, and a second
+run does nothing.

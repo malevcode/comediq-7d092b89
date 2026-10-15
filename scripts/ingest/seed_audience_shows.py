@@ -98,6 +98,19 @@ class Client:
             raise RuntimeError(f"Insert failed ({r.status_code}): {r.text}")
         return r.json()[0]["id"]
 
+    def cancel(self, row_id: str) -> None:
+        """Delist a show: the Laugh tab only shows status active + is_active."""
+        if self.dry_run:
+            print(f"      [dry-run] would cancel row {row_id}")
+            return
+        r = self._send(
+            "PATCH",
+            params={"id": f"eq.{row_id}"},
+            data=json.dumps({"status": "cancelled", "is_active": False}),
+        )
+        if r.status_code >= 400:
+            raise RuntimeError(f"Cancel failed ({r.status_code}): {r.text}")
+
 
 def is_null_show_time_error(exc: Exception) -> bool:
     text = str(exc).lower()
@@ -212,8 +225,38 @@ def main() -> None:
                 known_missing=instances_known_missing,
             )
 
+    # Cancellations. The inserts above never touch a row that already exists, so
+    # taking a date out of instance_dates does not delist a show that is already
+    # live. Listing it here does: it flips the dated row to cancelled/inactive.
+    # Only a live, dated, curated row is touched, so re-running is a no-op.
+    print("\nCancellations:")
+    cancelled: List[str] = []
+    for item in seed.get("cancellations", []):
+        label = f"{item['title']} on {item['show_date']}"
+        try:
+            row_id = client.find_id(
+                {
+                    "title": f"eq.{item['title']}",
+                    "show_date": f"eq.{item['show_date']}",
+                    "is_recurring": "eq.false",
+                    "source": "is.null",
+                    "status": "eq.active",
+                    "is_active": "eq.true",
+                }
+            )
+            if not row_id:
+                print(f"  skip     {label} (not live: already cancelled or never added)")
+                continue
+            client.cancel(row_id)
+            print(f"  {'would cancel' if client.dry_run else 'cancelled '} {label}")
+            cancelled.append(label)
+        except Exception as exc:  # noqa: BLE001  one row must not abort the rest
+            print(f"  FAILED   {label}: {exc}")
+            failed.append(label)
+
     print(
-        f"\nDone. inserted={len(inserted)} skipped={len(skipped)} failed={len(failed)}"
+        f"\nDone. inserted={len(inserted)} skipped={len(skipped)} "
+        f"cancelled={len(cancelled)} failed={len(failed)}"
     )
 
     if blocked_on_show_time:

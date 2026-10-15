@@ -159,8 +159,6 @@
                 "2026-10-03",
                 "2026-10-10",
                 "2026-10-17",
-                "2026-10-24",
-                "2026-10-31",
                 "2026-11-07",
                 "2026-11-14",
                 "2026-11-21",
@@ -170,6 +168,18 @@
                 "2026-12-19",
                 "2026-12-26"
             ]
+        }
+    ],
+    "cancellations": [
+        {
+            "title": "Malev & Friends Comedy Show",
+            "show_date": "2026-10-24",
+            "reason": "Adam, 2026-10-15: the show is cancelled on this date."
+        },
+        {
+            "title": "Malev & Friends Comedy Show",
+            "show_date": "2026-10-31",
+            "reason": "Adam, 2026-10-15: the show is cancelled on this date."
         }
     ]
 }
