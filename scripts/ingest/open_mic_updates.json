@@ -119,11 +119,11 @@
     },
     {
       "unique_identifier": "ec491c87-12c1-43a2-8b10-187f22b73d73",
-      "note": "Thursdays at the Rib is biweekly not weekly | Adam, 2026-10-08/09: 'Island rib house mic is now biweekly. It's on tonight but not next week and following that pattern.' Frequency was already bi_weekly (set above). His pattern matches the stored anchor: the old text named Aug 13 and Aug 27, and every other Thursday from there lands on Oct 8 (on, tonight) and skips Oct 15. So only the free text was stale: it listed August dates only. Rewritten to the current run of dates. I read 'tonight' as Thursday Oct 8. The app does not show frequency_custom_text for bi_weekly (only for 'custom'), so this is record-keeping; the site still cannot say which Thursday is on.",
+      "note": "Thursdays at the Rib is biweekly not weekly | Adam, 2026-10-08/09: 'Island rib house mic is now biweekly. It's on tonight but not next week and following that pattern.' Frequency was already bi_weekly (set above). His pattern matches the stored anchor: the old text named Aug 13 and Aug 27, and every other Thursday from there lands on Oct 8 (on, tonight) and skips Oct 15. So only the free text was stale: it listed August dates only. Rewritten to the current run of dates. I read 'tonight' as Thursday Oct 8. The app does not show frequency_custom_text for bi_weekly (only for 'custom'), so this is record-keeping; the site still cannot say which Thursday is on. | Thursdays at the Rib: add the anchor (10/8 ran, 10/15 skipped) so the site can hide the off weeks. (Merged here from a second entry for the same uid, since two entries for one row make the batch order-dependent.)",
       "set": {
         "open_mic": "Thursdays at the Rib *Biweekly*",
         "frequency": "bi_weekly",
-        "frequency_custom_text": "Every other Thursday: Oct 8, Oct 22, Nov 5, Nov 19 (not Oct 15 or Nov 12)"
+        "frequency_custom_text": "Every other Thursday: Oct 8, Oct 22, Nov 5, Nov 19 (not Oct 15 or Nov 12). anchor 2026-10-08"
       }
     },
     {
@@ -853,10 +853,20 @@
       }
     },
     {
-      "unique_identifier": "ec491c87-12c1-43a2-8b10-187f22b73d73",
-      "note": "Thursdays at the Rib: add the anchor (10/8 ran, 10/15 skipped) so the site can hide the off weeks.",
+      "unique_identifier": "91bb3838-2243-4deb-8204-0964f23b27c4",
+      "note": "Adam, 2026-10-15: @themicattheimprov is at the Brooklyn Improv in Williamsburg, not UCB in the East Village. The row said venue 'The Improv', location 'Upright Citizens Brigade Theater (Various NYC Locations)', neighborhood East Village, borough blank, and its pin was a generic 'New York' geocode (40.713, -74.007, near City Hall), so it was wrong on every location field. Address 64 N 9th St, Brooklyn, NY 11249 taken from two independent listings (nyctourism.com and Live Nation's Brooklyn Improv venue page), not from Adam; the Brooklyn Improv has several rooms (Main Room, Lab) and which room this mic uses is not known. venue_name 'Brooklyn Improv', borough Brooklyn, neighborhood Williamsburg, venue_type Comedy Club (was Other). ALL SIX GEOCODING FIELDS NULLED so the stale City Hall pin cannot survive; run npm run geocode:open-mics after this applies. Name, day (Saturday), times (3:30-5:00 PM), stage time and the handle are untouched: Adam only reported the venue, so those are as unverified as before. venue_slug 'the-improv' left alone so any existing venue URL keeps working.",
       "set": {
-        "frequency_custom_text": "Every other Thursday: Oct 8, Oct 22, Nov 5, Nov 19 (not Oct 15 or Nov 12). anchor 2026-10-08"
+        "venue_name": "Brooklyn Improv",
+        "location": "64 N 9th St, Brooklyn, NY 11249",
+        "borough": "Brooklyn",
+        "neighborhood": "Williamsburg",
+        "venue_type": "Comedy Club",
+        "latitude": null,
+        "longitude": null,
+        "geocoded_at": null,
+        "geocoding_provider": null,
+        "geocoding_score": null,
+        "geocoding_match_address": null
       }
     }
   ],
