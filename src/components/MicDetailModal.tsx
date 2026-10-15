@@ -34,6 +34,7 @@ import {
   formatOccurrence,
   formatOccurrenceShort,
   getUpcomingOccurrences,
+  parseBiweeklyAnchor,
 } from "@/utils/micOccurrences";
 
 type ScheduleMicData = {
@@ -134,8 +135,15 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
   }, [onClose]);
 
   const occurrences = useMemo(
-    () => getUpcomingOccurrences(mic.day, mic.frequency, 5),
-    [mic.day, mic.frequency],
+    () =>
+      getUpcomingOccurrences(
+        mic.day,
+        mic.frequency,
+        5,
+        new Date(),
+        parseBiweeklyAnchor(mic.frequencyCustomText),
+      ),
+    [mic.day, mic.frequency, mic.frequencyCustomText],
   );
   const nextDate = occurrences[0];
 
