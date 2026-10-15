@@ -1639,3 +1639,33 @@ The bi-weekly anchor work from the previous session had also appended a second
 batch entry for the same mic (Thursdays at the Rib). That breaks the one entry
 per row rule, so the two were merged into one. Bi-weekly mics with an anchor now
 show their upcoming on-weeks in the detail window.
+
+### Session: new logged-out homepage
+
+**What changed.** Signed-out visitors now see a redesign built from Adam's
+Claude Design PDF (blue page, cream headlines, real photos). Signed-in users
+still see the old `Home` screen. The new page lives in
+`src/components/landing/` (`Landing.tsx` and `landing.css`). `Index.tsx` just
+picks which one to show.
+
+**How it works, in kid terms.** Think of the page as a stack of sections:
+a top bar, the big "Comediq" intro, three numbers, tonight's mics, two big
+doors (watch or perform), photos, a hosts box, and a waitlist button.
+
+- **Tonight's mics are real.** The list is built from the same mic data the
+  rest of the site uses. It keeps only mics that run today (it knows about
+  monthly mics and bi-weekly anchors), sorts by start time, and hides ones that
+  already started more than 30 minutes ago. The chips filter it: Free, and
+  Beginner friendly (same venue list as the Beginner Friendly page). Tapping a
+  row opens that mic's page. The little map loads later so the page paints fast.
+- **Every button goes somewhere.** Perform, Laugh, Mic of the Month (the
+  leaderboard or the voting form), For hosts (scrolls down), Log in, Browse
+  shows, Find a mic, "See all N mics", Privacy, and the Instagram links.
+  "Join the app waitlist" opens the existing waitlist form in a popup.
+- **Pictures** were cut out of the PDF into `public/landing/`. They are
+  screenshots of the design, so swap in the original photos when you have them.
+- **Fonts**: Archivo (headlines) and Instrument Sans (body), loaded in
+  `index.html`. They are the closest free match to the PDF, not the exact fonts.
+- The old `Hero`, `Features`, `SponsorSection` and `ShowTNPromo` components are
+  no longer used on the homepage. They were left in place, not deleted.
+- The stats (1,250+, 500+, 4 scenes) are copied from the design, not computed.

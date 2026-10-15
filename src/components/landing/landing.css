@@ -1,0 +1,120 @@
+/* Landing page redesign. Everything is scoped under .lp so it cannot leak. */
+.lp {
+  --lp-bg: #1e4894;
+  --lp-bg-deep: #173a7a;
+  --lp-ink: #f4ede1;
+  --lp-muted: rgba(244, 237, 225, 0.72);
+  --lp-accent: #8fc2f5;
+  --lp-line: rgba(255, 255, 255, 0.14);
+  background: var(--lp-bg);
+  color: var(--lp-ink);
+  font-family: "Instrument Sans", system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+.lp-display {
+  font-family: "Archivo", "Instrument Sans", sans-serif;
+  font-stretch: 72%;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.005em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+.lp-wordmark {
+  font-family: "Archivo", "Instrument Sans", sans-serif;
+  font-stretch: 112%;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+}
+
+.lp-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lp-accent);
+}
+
+.lp-link {
+  color: var(--lp-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.lp-link:hover {
+  color: var(--lp-accent);
+}
+
+.lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.7rem 1.4rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+.lp-btn-solid {
+  background: var(--lp-accent);
+  color: #0c1d3d;
+}
+.lp-btn-solid:hover {
+  background: #b0d4f9;
+}
+.lp-btn-ghost {
+  border: 1px solid rgba(244, 237, 225, 0.45);
+  color: var(--lp-ink);
+}
+.lp-btn-ghost:hover {
+  border-color: var(--lp-ink);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.lp-chip {
+  border: 1px solid rgba(244, 237, 225, 0.45);
+  border-radius: 9999px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--lp-ink);
+  transition: background-color 0.15s, color 0.15s;
+}
+.lp-chip[aria-pressed="true"] {
+  background: var(--lp-ink);
+  color: #0c1d3d;
+  border-color: var(--lp-ink);
+}
+
+.lp-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.lp-row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr auto;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 1rem 0;
+  border-top: 1px solid var(--lp-line);
+  transition: background-color 0.15s;
+}
+.lp-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+@media (max-width: 640px) {
+  .lp-row {
+    grid-template-columns: 4.5rem 1fr;
+  }
+  .lp-row-verified {
+    grid-column: 2;
+  }
+}
