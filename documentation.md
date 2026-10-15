@@ -1694,3 +1694,20 @@ off the Laugh tab"). It was tested against an in-memory fake of the table, not
 the real database: a dry run changes nothing, a real run cancels exactly those
 two dated rows and leaves a different show on the same date alone, and a second
 run does nothing.
+
+### Session: the "Find mics" button is back on the logged-in home
+
+**What happened.** The logged-in home page used to have a one-tap button to the
+mics. On Oct 3 an automatic "Reverted to commit..." from the Lovable bot rolled
+`Home.tsx` back and deleted it. It was not part of anyone's recent edits, and
+the later "put our work back" pass did not restore it.
+
+**The fix.** A round blue button with the Comediq logo now floats at the bottom
+right of the logged-in home page, just above the orange Mic of the Month bar.
+One tap goes to `/perform`. It lives in `src/components/home/FindMicsButton.tsx`
+and is added once at the top of `Home.tsx`. It hides itself when the phone
+keyboard is open, like the other bottom bars.
+
+**Watch out.** Lovable's "Revert" button rolls back whole commits and can
+silently delete unrelated work, which is how this disappeared. Prefer a normal
+git revert of the one bad change.
