@@ -1216,6 +1216,29 @@
         "latitude": 40.749877058319,
         "longitude": -73.994731369426
       }
+    },
+    {
+      "note": "New mic from Adam, 2026-10-15, off an Instagram post screenshot by @justgoodcomedynyc (collab with @flophouseopenmic): 'Some Good Comedy. An open mic every Thursday, 6:30 PM, at Flophouse Comedy Club. Hosted by Hayden Arrington and Elliot Bromberg.' Caption handles: @haydenarrington, @elliot_bromberg. CAUTION: the post is dated March 10, 2025, about 19 months old, and nothing else confirms the mic still runs (a web search found no listing; a July 2026 Thursday show at Flop House was a different show). So status is 'trial' rather than verified. Venue name, address, borough, neighborhood, venue type and coordinates are COPIED from the verified Friday Pure Chaos Mic row at the same venue (uid ca4ac065), not invented. End time 8:00 PM is the comediq 90-minute default, since the poster gives no end time. Cost, stage time, sign-up and rules are left BLANK because the poster states none; the other Flop House mics charge $4 through a Square checkout, but that is not assumed here. The contact handle is the poster's account @justgoodcomedynyc; the hosts' own handles are in this note. No other Thursday mic exists at this venue.",
+      "row": {
+        "open_mic": "Some Good Comedy",
+        "day": "Thursday",
+        "start_time": "6:30 PM",
+        "latest_end_time": "8:00 PM",
+        "venue_name": "Flop House Comedy Club",
+        "location": "362 Grand St, Brooklyn, NY 11211, USA",
+        "borough": "Brooklyn",
+        "neighborhood": "Williamsburg",
+        "venue_type": "Comedy Club",
+        "hosts_organizers": "Hayden Arrington and Elliot Bromberg",
+        "changes_updates": "@justgoodcomedynyc",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "latitude": 40.712208240625,
+        "longitude": -73.95578066537
+      }
     }
   ]
 }
