@@ -1617,7 +1617,25 @@ any one date it runs, written at the end of its `frequency_custom_text` like
 tab (and in NEXT) the mic is hidden in the off week. No anchor means the old
 behavior: always shown.
 
+**The detail window shows the on-weeks too.** A bi-weekly mic with an anchor now
+lists its next dates in the detail window (for example Oct 22, Nov 5, Nov 19),
+and "Add to calendar" lands on a real on-week instead of today. Without an
+anchor it still shows no dates, because guessing would be wrong half the time.
+
 Anchors are set for 3 Sheets Comedy (anchor 10/21, it is off the week of 10/12)
 and Thursdays at the Rib (anchor 10/8). Other bi-weekly mics still show every
 week until someone tells us a date they ran. To add one, put `anchor YYYY-MM-DD`
 in that mic's `frequency_custom_text` in `scripts/ingest/open_mic_updates.json`.
+
+### Session: Brooklyn Improv and bi-weekly dates in the detail window
+
+The Mic (`@themicattheimprov`) was listed at UCB in the East Village but runs at
+the Brooklyn Improv in Williamsburg, 64 N 9th St. Its old pin was a generic
+"New York" point near City Hall, so every location field was wrong. The geocoding
+fields are nulled; **nothing in CI geocodes open mics, so `npm run
+geocode:open-mics` still has to be run** to give it a real pin.
+
+The bi-weekly anchor work from the previous session had also appended a second
+batch entry for the same mic (Thursdays at the Rib). That breaks the one entry
+per row rule, so the two were merged into one. Bi-weekly mics with an anchor now
+show their upcoming on-weeks in the detail window.

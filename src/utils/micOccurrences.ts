@@ -57,15 +57,17 @@ function nthWeekdayOfMonth(
 /**
  * The next few dates this mic runs, today included when today is its day.
  *
- * Only frequencies the schedule actually pins down get a list. Bi-weekly needs
- * an anchor date we do not store, one-offs do not repeat, and custom schedules
- * live in free text, so all three return an empty list rather than a guess.
+ * Only frequencies the schedule actually pins down get a list. Bi-weekly gets
+ * one only when it carries an anchor date (see parseBiweeklyAnchor); one-offs do
+ * not repeat and custom schedules live in free text, so those return an empty
+ * list rather than a guess.
  */
 export function getUpcomingOccurrences(
   day: string | undefined | null,
   frequency: MicFrequency,
   count = 5,
   from: Date = new Date(),
+  anchor?: Date | null,
 ): Date[] {
   const weekday = weekdayIndex(day);
   if (weekday === null) return [];
@@ -78,6 +80,19 @@ export function getUpcomingOccurrences(
     return Array.from({ length: count }, (_, i) => {
       const date = new Date(first);
       date.setDate(first.getDate() + i * 7);
+      return date;
+    });
+  }
+
+  if (frequency === "bi_weekly") {
+    if (!anchor) return [];
+    // Step forward in weeks from today until we land on an on-week.
+    const first = new Date(today);
+    first.setDate(today.getDate() + ((weekday - today.getDay() + 7) % 7));
+    while (!runsOnBiweeklyDate(anchor, first)) first.setDate(first.getDate() + 7);
+    return Array.from({ length: count }, (_, i) => {
+      const date = new Date(first);
+      date.setDate(first.getDate() + i * 14);
       return date;
     });
   }
