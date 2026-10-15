@@ -434,9 +434,14 @@
     },
     {
       "unique_identifier": "6a2a3632-ad32-4dc9-a2e6-62c028262dc5",
-      "note": "Listen Up Queers! at Flop House runs to 6:30 PM, not 6:00. Start time 4:30 PM was already correct and is unchanged.",
+      "note": "Listen Up Queers! at Flop House runs to 6:30 PM, not 6:00. Start time 4:30 PM was already correct and is unchanged. | Adam, 2026-10-15, from @flophouseopenmic posts (Aug 28, 2025: 'Weekday mics' Mon to Fri 6:30-7:45, 'Weekend mics' Sat 4:30 and Sun 4PM, 'Sign up online, $4 for 3-5 minutes (includes a drink!)') and a screenshot of their live Square sign-up form, which lists Mon 6:30-7:15, Tue/Wed/Thu/Fri 6:30-7:45, Sat 4:30-6:30, Sun 4:00-6:30. Where the old post and the live form differ, the live form wins. Adam asked that every Flop House description carry @flophouseopenmic and that exact link. Saturday 4:30-6:30 matches the live form. Venue 'Flophouse (Queer & Allys)' -> 'Flop House Comedy Club' (the parenthetical is the event's audience, not the venue), type Other -> Comedy Club, cost '$4 (including 1 drink)' reworded to match, stage time was blank, sign-up was blank.",
       "set": {
-        "latest_end_time": "6:30 PM"
+        "latest_end_time": "6:30 PM",
+        "venue_name": "Flop House Comedy Club",
+        "venue_type": "Comedy Club",
+        "cost": "$4 (includes a drink)",
+        "stage_time": "3-5 minutes",
+        "sign_up_instructions": "Sign up online with @flophouseopenmic: https://checkout.square.site/merchant/MLE3S94S31KSN/checkout/SIS6B57KN346S6DZKXCFZ26T?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAdGRleAU9_w5leHRuA2FlbQIxMQBwZG9mAmZkaWQWUQX1_Wvd055H9jtvcEenPF_ScgTK7HNydGMGYXBwX2lkDzEyNDAyNDU3NDI4NzQxNAABp8KWqojPLe71QcEuDrrLaLSQE1190t3OEdQeekhSRWpvo7nG-uu2f0b7gITc_aem_m7RsRRZAxaKcax-YhZ57Yw&utm_id=97760_v0_s00_e0_tv3"
       }
     },
     {
@@ -868,6 +873,28 @@
         "geocoding_score": null,
         "geocoding_match_address": null
       }
+    },
+    {
+      "unique_identifier": "ca4ac065-5bc5-4bfb-8ad3-d3ba630d756e",
+      "note": "Adam, 2026-10-15, from @flophouseopenmic posts (Aug 28, 2025: 'Weekday mics' Mon to Fri 6:30-7:45, 'Weekend mics' Sat 4:30 and Sun 4PM, 'Sign up online, $4 for 3-5 minutes (includes a drink!)') and a screenshot of their live Square sign-up form, which lists Mon 6:30-7:15, Tue/Wed/Thu/Fri 6:30-7:45, Sat 4:30-6:30, Sun 4:00-6:30. Where the old post and the live form differ, the live form wins. Adam asked that every Flop House description carry @flophouseopenmic and that exact link. Friday 6:30-7:45 already matched. Cost '4' -> '$4 (includes a drink)', stage time '4 minutes' -> '3-5 minutes' (the room's wording for every mic), sign-up now names @flophouseopenmic and carries the exact link Adam gave (the old link ended in a $0 variant). Venue name and type already matched.",
+      "set": {
+        "venue_name": "Flop House Comedy Club",
+        "venue_type": "Comedy Club",
+        "cost": "$4 (includes a drink)",
+        "stage_time": "3-5 minutes",
+        "sign_up_instructions": "Sign up online with @flophouseopenmic: https://checkout.square.site/merchant/MLE3S94S31KSN/checkout/SIS6B57KN346S6DZKXCFZ26T?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAdGRleAU9_w5leHRuA2FlbQIxMQBwZG9mAmZkaWQWUQX1_Wvd055H9jtvcEenPF_ScgTK7HNydGMGYXBwX2lkDzEyNDAyNDU3NDI4NzQxNAABp8KWqojPLe71QcEuDrrLaLSQE1190t3OEdQeekhSRWpvo7nG-uu2f0b7gITc_aem_m7RsRRZAxaKcax-YhZ57Yw&utm_id=97760_v0_s00_e0_tv3"
+      }
+    },
+    {
+      "unique_identifier": "d8974b6e-b577-4fb2-9930-5a4ecb32c874",
+      "note": "Adam, 2026-10-15, from @flophouseopenmic posts (Aug 28, 2025: 'Weekday mics' Mon to Fri 6:30-7:45, 'Weekend mics' Sat 4:30 and Sun 4PM, 'Sign up online, $4 for 3-5 minutes (includes a drink!)') and a screenshot of their live Square sign-up form, which lists Mon 6:30-7:15, Tue/Wed/Thu/Fri 6:30-7:45, Sat 4:30-6:30, Sun 4:00-6:30. Where the old post and the live form differ, the live form wins. Adam asked that every Flop House description carry @flophouseopenmic and that exact link. Tuesday 6:30-7:45 already matched. Venue 'Flophouse' -> 'Flop House Comedy Club' and type Other -> Comedy Club so all Flop House mics read the same; cost, stage time (was '3') and sign-up set to the room's wording.",
+      "set": {
+        "venue_name": "Flop House Comedy Club",
+        "venue_type": "Comedy Club",
+        "cost": "$4 (includes a drink)",
+        "stage_time": "3-5 minutes",
+        "sign_up_instructions": "Sign up online with @flophouseopenmic: https://checkout.square.site/merchant/MLE3S94S31KSN/checkout/SIS6B57KN346S6DZKXCFZ26T?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAdGRleAU9_w5leHRuA2FlbQIxMQBwZG9mAmZkaWQWUQX1_Wvd055H9jtvcEenPF_ScgTK7HNydGMGYXBwX2lkDzEyNDAyNDU3NDI4NzQxNAABp8KWqojPLe71QcEuDrrLaLSQE1190t3OEdQeekhSRWpvo7nG-uu2f0b7gITc_aem_m7RsRRZAxaKcax-YhZ57Yw&utm_id=97760_v0_s00_e0_tv3"
+      }
     }
   ],
   "removals": [
@@ -1218,12 +1245,12 @@
       }
     },
     {
-      "note": "New mic from Adam, 2026-10-15, off an Instagram post screenshot by @justgoodcomedynyc (collab with @flophouseopenmic): 'Some Good Comedy. An open mic every Thursday, 6:30 PM, at Flophouse Comedy Club. Hosted by Hayden Arrington and Elliot Bromberg.' Caption handles: @haydenarrington, @elliot_bromberg. CAUTION: the post is dated March 10, 2025, about 19 months old, and nothing else confirms the mic still runs (a web search found no listing; a July 2026 Thursday show at Flop House was a different show). So status is 'trial' rather than verified. Venue name, address, borough, neighborhood, venue type and coordinates are COPIED from the verified Friday Pure Chaos Mic row at the same venue (uid ca4ac065), not invented. End time 8:00 PM is the comediq 90-minute default, since the poster gives no end time. Cost, stage time, sign-up and rules are left BLANK because the poster states none; the other Flop House mics charge $4 through a Square checkout, but that is not assumed here. The contact handle is the poster's account @justgoodcomedynyc; the hosts' own handles are in this note. No other Thursday mic exists at this venue.",
+      "note": "New mic from Adam, 2026-10-15, off an Instagram post screenshot by @justgoodcomedynyc (collab with @flophouseopenmic): 'Some Good Comedy. An open mic every Thursday, 6:30 PM, at Flophouse Comedy Club. Hosted by Hayden Arrington and Elliot Bromberg.' Caption handles: @haydenarrington, @elliot_bromberg. CAUTION: the post is dated March 10, 2025, about 19 months old, and nothing else confirms the mic still runs (a web search found no listing; a July 2026 Thursday show at Flop House was a different show). So status is 'trial' rather than verified. Venue name, address, borough, neighborhood, venue type and coordinates are COPIED from the verified Friday Pure Chaos Mic row at the same venue (uid ca4ac065), not invented. End time 8:00 PM is the comediq 90-minute default, since the poster gives no end time. Cost, stage time, sign-up and rules are left BLANK because the poster states none; the other Flop House mics charge $4 through a Square checkout, but that is not assumed here. The contact handle is the poster's account @justgoodcomedynyc; the hosts' own handles are in this note. No other Thursday mic exists at this venue. | UPDATED Adam, 2026-10-15, from @flophouseopenmic posts (Aug 28, 2025: 'Weekday mics' Mon to Fri 6:30-7:45, 'Weekend mics' Sat 4:30 and Sun 4PM, 'Sign up online, $4 for 3-5 minutes (includes a drink!)') and a screenshot of their live Square sign-up form, which lists Mon 6:30-7:15, Tue/Wed/Thu/Fri 6:30-7:45, Sat 4:30-6:30, Sun 4:00-6:30. Where the old post and the live form differ, the live form wins. Adam asked that every Flop House description carry @flophouseopenmic and that exact link. The live form lists 'Thursday 6:30 pm - 7:45 pm - Out of stock', so a Thursday 6:30 slot is on the room's current sign-up form, which is the first real corroboration; 'Out of stock' may only mean sold out, so status stays trial. End time 8:00 PM (my 90-minute default) -> 7:45 PM per the room. Cost, stage time and sign-up filled in.",
       "row": {
         "open_mic": "Some Good Comedy",
         "day": "Thursday",
         "start_time": "6:30 PM",
-        "latest_end_time": "8:00 PM",
+        "latest_end_time": "7:45 PM",
         "venue_name": "Flop House Comedy Club",
         "location": "362 Grand St, Brooklyn, NY 11211, USA",
         "borough": "Brooklyn",
@@ -1231,6 +1258,107 @@
         "venue_type": "Comedy Club",
         "hosts_organizers": "Hayden Arrington and Elliot Bromberg",
         "changes_updates": "@justgoodcomedynyc",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "latitude": 40.712208240625,
+        "longitude": -73.95578066537,
+        "cost": "$4 (includes a drink)",
+        "stage_time": "3-5 minutes",
+        "sign_up_instructions": "Sign up online with @flophouseopenmic: https://checkout.square.site/merchant/MLE3S94S31KSN/checkout/SIS6B57KN346S6DZKXCFZ26T?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAdGRleAU9_w5leHRuA2FlbQIxMQBwZG9mAmZkaWQWUQX1_Wvd055H9jtvcEenPF_ScgTK7HNydGMGYXBwX2lkDzEyNDAyNDU3NDI4NzQxNAABp8KWqojPLe71QcEuDrrLaLSQE1190t3OEdQeekhSRWpvo7nG-uu2f0b7gITc_aem_m7RsRRZAxaKcax-YhZ57Yw&utm_id=97760_v0_s00_e0_tv3"
+      }
+    },
+    {
+      "note": "New Flop House Monday mic. Adam, 2026-10-15, from @flophouseopenmic posts (Aug 28, 2025: 'Weekday mics' Mon to Fri 6:30-7:45, 'Weekend mics' Sat 4:30 and Sun 4PM, 'Sign up online, $4 for 3-5 minutes (includes a drink!)') and a screenshot of their live Square sign-up form, which lists Mon 6:30-7:15, Tue/Wed/Thu/Fri 6:30-7:45, Sat 4:30-6:30, Sun 4:00-6:30. Where the old post and the live form differ, the live form wins. Adam asked that every Flop House description carry @flophouseopenmic and that exact link. Monday is 45 minutes (6:30-7:15) on the live form, which answers the old question; the 2025 post said 7:45. NAME is a placeholder in the comediq time-first style, because the room's materials call these only 'weekday mics' / 'weekend mics' and we do not know their real names (the open question from the original job). Venue, address and coordinates copied from the verified Friday Pure Chaos row (uid ca4ac065), not invented. Hosts unknown, left blank.",
+      "row": {
+        "open_mic": "6:30 Flop House Mic",
+        "day": "Monday",
+        "start_time": "6:30 PM",
+        "latest_end_time": "7:15 PM",
+        "venue_name": "Flop House Comedy Club",
+        "location": "362 Grand St, Brooklyn, NY 11211, USA",
+        "borough": "Brooklyn",
+        "neighborhood": "Williamsburg",
+        "venue_type": "Comedy Club",
+        "cost": "$4 (includes a drink)",
+        "stage_time": "3-5 minutes",
+        "sign_up_instructions": "Sign up online with @flophouseopenmic: https://checkout.square.site/merchant/MLE3S94S31KSN/checkout/SIS6B57KN346S6DZKXCFZ26T?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAdGRleAU9_w5leHRuA2FlbQIxMQBwZG9mAmZkaWQWUQX1_Wvd055H9jtvcEenPF_ScgTK7HNydGMGYXBwX2lkDzEyNDAyNDU3NDI4NzQxNAABp8KWqojPLe71QcEuDrrLaLSQE1190t3OEdQeekhSRWpvo7nG-uu2f0b7gITc_aem_m7RsRRZAxaKcax-YhZ57Yw&utm_id=97760_v0_s00_e0_tv3",
+        "changes_updates": "@flophouseopenmic",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "latitude": 40.712208240625,
+        "longitude": -73.95578066537
+      }
+    },
+    {
+      "note": "New Flop House Wednesday mic. Adam, 2026-10-15, from @flophouseopenmic posts (Aug 28, 2025: 'Weekday mics' Mon to Fri 6:30-7:45, 'Weekend mics' Sat 4:30 and Sun 4PM, 'Sign up online, $4 for 3-5 minutes (includes a drink!)') and a screenshot of their live Square sign-up form, which lists Mon 6:30-7:15, Tue/Wed/Thu/Fri 6:30-7:45, Sat 4:30-6:30, Sun 4:00-6:30. Where the old post and the live form differ, the live form wins. Adam asked that every Flop House description carry @flophouseopenmic and that exact link. NAME is a placeholder in the comediq time-first style, because the room's materials call these only 'weekday mics' / 'weekend mics' and we do not know their real names (the open question from the original job). Venue, address and coordinates copied from the verified Friday Pure Chaos row (uid ca4ac065), not invented. Hosts unknown, left blank.",
+      "row": {
+        "open_mic": "6:30 Flop House Mic",
+        "day": "Wednesday",
+        "start_time": "6:30 PM",
+        "latest_end_time": "7:45 PM",
+        "venue_name": "Flop House Comedy Club",
+        "location": "362 Grand St, Brooklyn, NY 11211, USA",
+        "borough": "Brooklyn",
+        "neighborhood": "Williamsburg",
+        "venue_type": "Comedy Club",
+        "cost": "$4 (includes a drink)",
+        "stage_time": "3-5 minutes",
+        "sign_up_instructions": "Sign up online with @flophouseopenmic: https://checkout.square.site/merchant/MLE3S94S31KSN/checkout/SIS6B57KN346S6DZKXCFZ26T?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAdGRleAU9_w5leHRuA2FlbQIxMQBwZG9mAmZkaWQWUQX1_Wvd055H9jtvcEenPF_ScgTK7HNydGMGYXBwX2lkDzEyNDAyNDU3NDI4NzQxNAABp8KWqojPLe71QcEuDrrLaLSQE1190t3OEdQeekhSRWpvo7nG-uu2f0b7gITc_aem_m7RsRRZAxaKcax-YhZ57Yw&utm_id=97760_v0_s00_e0_tv3",
+        "changes_updates": "@flophouseopenmic",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "latitude": 40.712208240625,
+        "longitude": -73.95578066537
+      }
+    },
+    {
+      "note": "New Flop House Sunday mic. Adam, 2026-10-15, from @flophouseopenmic posts (Aug 28, 2025: 'Weekday mics' Mon to Fri 6:30-7:45, 'Weekend mics' Sat 4:30 and Sun 4PM, 'Sign up online, $4 for 3-5 minutes (includes a drink!)') and a screenshot of their live Square sign-up form, which lists Mon 6:30-7:15, Tue/Wed/Thu/Fri 6:30-7:45, Sat 4:30-6:30, Sun 4:00-6:30. Where the old post and the live form differ, the live form wins. Adam asked that every Flop House description carry @flophouseopenmic and that exact link. Sunday is 4:00-6:30 PM on the live form (the 2025 post gave only '4PM'). NAME is a placeholder in the comediq time-first style, because the room's materials call these only 'weekday mics' / 'weekend mics' and we do not know their real names (the open question from the original job). Venue, address and coordinates copied from the verified Friday Pure Chaos row (uid ca4ac065), not invented. Hosts unknown, left blank.",
+      "row": {
+        "open_mic": "4 Flop House Mic",
+        "day": "Sunday",
+        "start_time": "4:00 PM",
+        "latest_end_time": "6:30 PM",
+        "venue_name": "Flop House Comedy Club",
+        "location": "362 Grand St, Brooklyn, NY 11211, USA",
+        "borough": "Brooklyn",
+        "neighborhood": "Williamsburg",
+        "venue_type": "Comedy Club",
+        "cost": "$4 (includes a drink)",
+        "stage_time": "3-5 minutes",
+        "sign_up_instructions": "Sign up online with @flophouseopenmic: https://checkout.square.site/merchant/MLE3S94S31KSN/checkout/SIS6B57KN346S6DZKXCFZ26T?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAdGRleAU9_w5leHRuA2FlbQIxMQBwZG9mAmZkaWQWUQX1_Wvd055H9jtvcEenPF_ScgTK7HNydGMGYXBwX2lkDzEyNDAyNDU3NDI4NzQxNAABp8KWqojPLe71QcEuDrrLaLSQE1190t3OEdQeekhSRWpvo7nG-uu2f0b7gITc_aem_m7RsRRZAxaKcax-YhZ57Yw&utm_id=97760_v0_s00_e0_tv3",
+        "changes_updates": "@flophouseopenmic",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "latitude": 40.712208240625,
+        "longitude": -73.95578066537
+      }
+    },
+    {
+      "note": "New Flop House Thursday late mic. Adam, 2026-10-15, from a @girlsnightmic Instagram post (posted 'April 29', no year shown, so this year) by @flophousecomedyclub collab: 'GIRLS NIGHT MIC. Thursdays @ 11PM, Flophouse Comedy Club. Hosted by Steph Brown & Jaclyn Lore Edwards.' Caption handles @jacksowack and @stephbrown.jpg. The older never-applied May 2026 migration also listed a Thursday 11:00 PM Flop House slot. End 12:30 AM is the 90-minute default. SIGN-UP AND COST LEFT BLANK ON PURPOSE: Adam asked for the @flophouseopenmic link on every Flop House mic, but the Square form lists no Thursday 11 PM option, so that link would send comics to the wrong slot. Held for Adam. Venue fields copied from the verified Pure Chaos row (uid ca4ac065). Status trial.",
+      "row": {
+        "open_mic": "Girls Night Mic",
+        "day": "Thursday",
+        "start_time": "11:00 PM",
+        "latest_end_time": "12:30 AM",
+        "venue_name": "Flop House Comedy Club",
+        "location": "362 Grand St, Brooklyn, NY 11211, USA",
+        "borough": "Brooklyn",
+        "neighborhood": "Williamsburg",
+        "venue_type": "Comedy Club",
+        "hosts_organizers": "Steph Brown and Jaclyn Lore Edwards",
+        "changes_updates": "@girlsnightmic",
         "city": "New York",
         "status": "trial",
         "frequency": "weekly",
