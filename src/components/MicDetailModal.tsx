@@ -35,6 +35,8 @@ import {
   formatOccurrenceShort,
   getUpcomingOccurrences,
   parseBiweeklyAnchor,
+  parseDateList,
+  stripScheduleTags,
 } from "@/utils/micOccurrences";
 
 type ScheduleMicData = {
@@ -142,6 +144,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
         5,
         new Date(),
         parseBiweeklyAnchor(mic.frequencyCustomText),
+        parseDateList(mic.frequencyCustomText),
       ),
     [mic.day, mic.frequency, mic.frequencyCustomText],
   );
@@ -168,12 +171,19 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
   const timeRange = mic.latestEndTime
     ? `${mic.startTime} - ${mic.latestEndTime}`
     : mic.startTime;
+  const scheduleNote = stripScheduleTags(mic.frequencyCustomText);
+  const isListed = mic.frequency === "one_off" || mic.frequency === "custom";
   const cadence =
-    mic.frequency === "custom" && mic.frequencyCustomText
-      ? mic.frequencyCustomText
+    mic.frequency === "custom" && scheduleNote
+      ? scheduleNote
       : mic.frequency === "weekly"
         ? `Every ${mic.day}`
-        : `${FREQUENCY_LABELS[mic.frequency]} · ${mic.day}`;
+        : isListed && occurrences.length > 0
+          ? `${FREQUENCY_LABELS[mic.frequency]} · ${occurrences
+              .slice(0, 3)
+              .map((date) => formatOccurrence(date))
+              .join(", ")}`
+          : `${FREQUENCY_LABELS[mic.frequency]} · ${mic.day}`;
 
   const mapUrl = (() => {
     const q = encodeURIComponent(`${mic.venueName}, ${mic.location}`);

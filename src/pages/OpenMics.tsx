@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OpenMic, MicFrequency, FREQUENCY_LABELS, VARIETY_TAG } from "@/types/openMic";
 import { parseStartTimeToMinutes } from '@/utils/micCheckin';
 import { useOpenMics, mapSupabaseRow } from "@/hooks/useOpenMics";
-import { parseBiweeklyAnchor, runsOnBiweeklyDate } from "@/utils/micOccurrences";
+import { isListedDate, parseBiweeklyAnchor, parseDateList, runsOnBiweeklyDate } from "@/utils/micOccurrences";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
@@ -292,7 +292,12 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     
     const freq = mic.frequency || 'weekly';
     if (freq === 'weekly') return true;
-    if (freq === 'one_off') return true; // one-offs show always on their day (admin manages active flag)
+    // Pop-ups and custom mics can list the exact dates they run. With a list,
+    // show the mic only on those days. Without one, keep the old behavior.
+    if (freq === 'one_off' || freq === 'custom') {
+      const listed = parseDateList(mic.frequencyCustomText);
+      return listed.length > 0 ? isListedDate(listed, date) : true;
+    } // one-offs show always on their day (admin manages active flag)
     
     if (freq === 'bi_weekly') {
       // Without an anchor date we cannot tell which week it runs, so show it.
@@ -363,13 +368,15 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       // week-of-month narrowing here: a monthly mic belongs on its day tab
       // every week, and the card shows its frequency label. The "Next" tab
       // above is the one that filters down to genuinely upcoming occurrences.
-      // The one exception is a bi-weekly mic with a known anchor: hide it in
-      // the week it is not happening.
+      // The exception is a bi-weekly mic with an anchor, or a pop-up or custom
+      // mic with listed dates: hide it in a week it is not happening.
       const today = new Date();
       const tabDate = new Date(today);
       tabDate.setDate(today.getDate() + ((daysOfWeek.indexOf(dayFilter) - today.getDay() + 7) % 7));
       filtered = openMics.filter(
-        (mic) => mic.day === dayFilter && (mic.frequency !== 'bi_weekly' || micMatchesDate(mic, tabDate)),
+        (mic) =>
+          mic.day === dayFilter &&
+          (!['bi_weekly', 'one_off', 'custom'].includes(mic.frequency) || micMatchesDate(mic, tabDate)),
       );
     }
 

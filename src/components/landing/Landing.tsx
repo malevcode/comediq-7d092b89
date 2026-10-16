@@ -7,7 +7,9 @@ import { useOpenMics } from "@/hooks/useOpenMics";
 import { isExternalVotingLink, votingHref } from "@/config/micOfTheMonth";
 import {
   getUpcomingOccurrences,
+  isListedDate,
   parseBiweeklyAnchor,
+  parseDateList,
   runsOnBiweeklyDate,
 } from "@/utils/micOccurrences";
 import type { OpenMic } from "@/types/openMic";
@@ -60,8 +62,11 @@ function runsOn(mic: OpenMic, date: Date): boolean {
     const anchor = parseBiweeklyAnchor(mic.frequencyCustomText);
     return anchor ? runsOnBiweeklyDate(anchor, date) : true;
   }
+  if (frequency === "one_off" || frequency === "custom") {
+    const listed = parseDateList(mic.frequencyCustomText);
+    return listed.length > 0 ? isListedDate(listed, date) : true;
+  }
   const [next] = getUpcomingOccurrences(mic.day, frequency, 1, date);
-  // One-offs and custom schedules have no pinned dates, so keep them.
   return next ? next.toDateString() === date.toDateString() : true;
 }
 
