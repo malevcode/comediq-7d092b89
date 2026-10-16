@@ -1095,6 +1095,14 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: mascot in the hero, one shared header logo
+
+The homepage hero now puts the cartoon mascot (`public/landing/character.png`)
+to the right of the big "Comediq" title. Every header (landing nav, landing
+footer, and `PageHeader` on pages like /open-mics) now uses one component,
+`src/components/Wordmark.tsx`: cream Q logo plus "Comediq" in wide Archivo
+(110%). Change the logo there and it changes everywhere.
+
 ### Session: the seam under the email icon
 
 **What it was.** The icon sat in its own flex cell on a `bg-white/10` wrapper,
