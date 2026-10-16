@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Eye, Menu, Mic, X } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import AppWaitlistSection from "@/components/AppWaitlistSection";
+import Wordmark from "@/components/Wordmark";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { isExternalVotingLink, votingHref } from "@/config/micOfTheMonth";
 import {
@@ -93,13 +94,6 @@ function micHref(mic: OpenMic): string {
   return mic.slug ? `/mic/${mic.slug}` : "/open-mics";
 }
 
-const Logo = () => (
-  <Link to="/" className="flex items-center gap-2" aria-label="Comediq home">
-    <img src="/landing/logo-mark.png" alt="" className="h-7 w-auto" />
-    <span className="lp-wordmark text-2xl">Comediq</span>
-  </Link>
-);
-
 const Nav = () => {
   const [open, setOpen] = useState(false);
   const vote = votingHref();
@@ -117,7 +111,7 @@ const Nav = () => {
 
   return (
     <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
-      <Logo />
+      <Wordmark />
       <nav className="hidden items-center gap-7 text-sm font-medium md:flex" aria-label="Main">
         {items}
         <Link to="/auth/sign-in" className="lp-btn lp-btn-ghost !px-4 !py-1.5 !text-sm">Log in</Link>
@@ -148,8 +142,13 @@ const Nav = () => {
 const Hero = () => (
   <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-14 pt-4 sm:px-8 md:grid-cols-2 md:gap-14 md:pb-20">
     <div>
-      <p className="lp-eyebrow">NYC's comedy platform</p>
-      <h1 className="lp-wordmark mt-4 text-[4.5rem] sm:text-[6.5rem]">Comediq</h1>
+      <div className="flex items-end gap-2">
+        <div className="min-w-0">
+          <p className="lp-eyebrow">NYC's comedy platform</p>
+          <h1 className="lp-wordmark mt-4 text-[58px] sm:text-[clamp(56px,6vw,92px)]">Comediq</h1>
+        </div>
+        <img src="/landing/character.png" alt="The Comediq mascot" className="h-[170px] w-auto shrink-0 sm:h-[240px]" />
+      </div>
       <p className="mt-5 max-w-md text-lg leading-snug text-[var(--lp-ink)]">
         Whether you're on stage or in the audience, Comediq is your home for live comedy.
       </p>
@@ -383,7 +382,7 @@ const Footer = () => (
   <footer className="border-t border-[var(--lp-line)]">
     <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <Logo />
+        <Wordmark />
         <p className="text-sm text-[var(--lp-muted)]">
           By comedians, for comedians. Started as a Google Sheet tracking all of NYC's open mics.
         </p>
