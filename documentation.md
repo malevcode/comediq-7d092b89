@@ -1095,6 +1095,21 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: Laugh redesigned to match the comedy club handoff
+
+**What shipped.** `AudienceShows` now features the next upcoming show in a
+big photo hero (`FeaturedShowHero.tsx`) with Next up, RSVP, Tix, LaughPass
+and Share, then groups the rest of the list by month under a plain header.
+Reused the existing RSVP, ticket purchase and LaughPass logic (the last two
+already honest "coming soon" toasts) instead of writing a second copy.
+
+**Left alone on purpose.** `AudienceShowCard`'s own row layout. The handoff
+shows a day/date/month block per row; the existing card already carries the
+date, venue and every real action, so a full rebuild was not worth the
+regression risk under "smallest change per file."
+
+**Verified.** `tsc` and `npm run build` both clean.
+
 ### Session: Perform redesigned to match the comedy club handoff
 
 **What shipped.** `MicActionBar` now shows like and dislike as two separate
