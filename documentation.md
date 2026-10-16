@@ -1711,3 +1711,34 @@ keyboard is open, like the other bottom bars.
 **Watch out.** Lovable's "Revert" button rolls back whole commits and can
 silently delete unrelated work, which is how this disappeared. Prefer a normal
 git revert of the one bad change.
+
+### Session: choose the dates when adding a bi-weekly, pop-up or custom mic
+
+**The problem.** A host who picks Bi-Weekly, Custom or One-Off in the + add-a-mic
+card never said which weeks or days. So the site could not tell people the mic
+was off this week, and people showed up to the wrong week.
+
+**The fix, in kid terms.** The card now asks. Pick the day first, then a small
+calendar opens where only that weekday can be tapped.
+
+- **Bi-Weekly:** tap the next date it happens. The card shows "Shows on: Oct 21,
+  Nov 4, Nov 18..." so the host can see what the site will do. The site counts
+  every two weeks from that date.
+- **One-Off (Pop-Up):** tap the day, or several days.
+- **Custom:** tap up to 12 dates, plus an optional short note like "1st and 3rd
+  Thursday".
+
+**How it is stored (no database change).** The dates are written at the end of
+the mic's `frequency_custom_text`: `anchor 2026-10-21` for bi-weekly, and
+`dates 2026-10-21,2026-11-04` for pop-up and custom. Helpers in
+`src/utils/micOccurrences.ts` read them (`parseDateList`, `stripScheduleTags`).
+The notes are capped at 60 characters so 12 dates always fit in the 200 limit.
+
+**What the site does with them.** The Next tab, the day tabs (Wed and so on) and
+the new homepage's "Tonight" list only show the mic on those dates. The mic
+detail window shows the real next dates. Mics with no dates (older ones) behave
+as before, so nothing already on the site disappears.
+
+**Not done yet.** The older `/add-mic` page and the host request form still have
+the old free-text box. The 1st and 3rd or 2nd and 4th week pattern is covered
+by picking dates, not by a one-tap preset.

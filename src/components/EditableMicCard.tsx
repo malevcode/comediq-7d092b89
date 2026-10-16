@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import VenueAutocomplete, { type VenueLocation } from '@/components/host/VenueAutocomplete';
 import DayOfWeekPicker from '@/components/ui/DayOfWeekPicker';
+import MicDatePicker from '@/components/MicDatePicker';
+import { toIsoDate } from '@/utils/micOccurrences';
 import { MicFrequency, SignupMethod, FREQUENCY_LABELS } from '@/types/openMic';
 import { MicRequestFormData } from '@/components/host/AddMicRequestForm';
 
@@ -68,7 +70,42 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
   const [signupMethod, setSignupMethod] = useState<SignupMethod>('in_person');
   const [signupUrl, setSignupUrl] = useState('');
   const [frequencyCustomText, setFrequencyCustomText] = useState('');
+  const [dates, setDates] = useState<Date[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Bi-weekly, pop-up and custom mics must say WHICH weeks or days, so the site
+  // only shows them when they are actually happening.
+  const needsDates = frequency === 'bi_weekly' || frequency === 'one_off' || frequency === 'custom';
+  const datesMode = frequency === 'custom' || frequency === 'one_off' ? 'multiple' : 'single';
+  const noteLimit = 60;
+
+  const scheduleText = (): string => {
+    if (frequency === 'bi_weekly') return dates[0] ? `anchor ${toIsoDate(dates[0])}` : '';
+    if (frequency === 'one_off' || frequency === 'custom') {
+      const list = dates.length ? `dates ${dates.map(toIsoDate).join(',')}` : '';
+      const note = frequency === 'custom' ? frequencyCustomText.trim().slice(0, noteLimit) : '';
+      return [note, list].filter(Boolean).join(' ');
+    }
+    return '';
+  };
+
+  const changeDay = (next: string) => {
+    setDay(next);
+    clearError('day');
+    // Dates already picked must still be that weekday.
+    const index = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(next);
+    setDates((current) => current.filter((d) => d.getDay() === index));
+  };
+
+  const changeDates = (next: Date[]) => {
+    setDates(next);
+    clearError('dates');
+    // No day chosen yet: take it from the first date picked.
+    if (!day && next[0]) {
+      setDay(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][next[0].getDay()]);
+      clearError('day');
+    }
+  };
 
   const clearError = (key: string) => setErrors(p => { const n = { ...p }; delete n[key]; return n; });
 
@@ -79,7 +116,7 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
     if (!day) newErrors.day = 'Day required';
     if (!startTime.trim()) newErrors.startTime = 'Start time required';
     if (signupMethod === 'online' && !signupUrl.trim()) newErrors.signupUrl = 'Signup URL required';
-    if (frequency === 'custom' && !frequencyCustomText.trim()) newErrors.frequencyCustom = 'Describe frequency';
+    if (needsDates && dates.length === 0) newErrors.dates = frequency === 'bi_weekly' ? 'Pick the next date it happens' : 'Pick the date(s)';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -108,7 +145,7 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
       frequency,
       signup_method: signupMethod,
       signup_url: signupUrl.trim(),
-      frequency_custom_text: frequencyCustomText.trim(),
+      frequency_custom_text: scheduleText(),
     });
   };
 
@@ -149,7 +186,7 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
               <Calendar className="w-3 h-3 flex-shrink-0 text-gray-400" />
               <DayOfWeekPicker
                 value={day}
-                onChange={(v) => { setDay(v); clearError('day'); }}
+                onChange={changeDay}
               />
             </span>
             <span className="flex items-center gap-1">
@@ -227,13 +264,24 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
           )}
 
           <div className="grid grid-cols-2 gap-2">
-            <Select value={frequency} onValueChange={(v) => setFrequency(v as MicFrequency)}>
+            <Select
+              value={frequency}
+              onValueChange={(v) => {
+                const next = v as MicFrequency;
+                setFrequency(next);
+                clearError('dates');
+                // Bi-weekly takes one date. Weekly and monthly schedules take none.
+                setDates((current) =>
+                  next === 'bi_weekly' ? current.slice(0, 1) : ['one_off', 'custom'].includes(next) ? current : [],
+                );
+              }}
+            >
               <SelectTrigger className="h-7 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {FREQUENCY_OPTIONS.map(f => (
-                  <SelectItem key={f} value={f}>{FREQUENCY_LABELS[f]}</SelectItem>
+                  <SelectItem key={f} value={f}>{f === 'one_off' ? 'One-Off (Pop-Up)' : FREQUENCY_LABELS[f]}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -258,13 +306,46 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
             />
           )}
 
-          {frequency === 'custom' && (
-            <Input
-              placeholder="e.g., Every other Thursday"
-              value={frequencyCustomText}
-              onChange={(e) => { setFrequencyCustomText(e.target.value); clearError('frequencyCustom'); }}
-              className={`h-7 text-xs ${errors.frequencyCustom ? 'border-red-400' : ''}`}
-            />
+          {needsDates && (
+            <div className="space-y-1 text-left">
+              <p className="text-[11px] font-medium text-muted-foreground">
+                {frequency === 'bi_weekly'
+                  ? 'Which date is the next one? We will show it every other week from then.'
+                  : frequency === 'one_off'
+                    ? 'Which day is the pop-up?'
+                    : 'Which dates does it happen? We will only show it on those days.'}
+              </p>
+              <MicDatePicker
+                mode={datesMode}
+                day={day}
+                value={dates}
+                onChange={changeDates}
+                placeholder={frequency === 'bi_weekly' ? 'Pick the next date *' : 'Pick the date(s) *'}
+                invalid={Boolean(errors.dates)}
+              />
+              {frequency === 'bi_weekly' && dates[0] && (
+                <p className="text-[11px] text-muted-foreground">
+                  Shows on:{' '}
+                  {[0, 14, 28, 42]
+                    .map((offset) => {
+                      const date = new Date(dates[0]);
+                      date.setDate(date.getDate() + offset);
+                      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    })
+                    .join(', ')}
+                  , and so on
+                </p>
+              )}
+              {frequency === 'custom' && (
+                <Input
+                  placeholder="Optional note, e.g. 1st and 3rd Thursday"
+                  value={frequencyCustomText}
+                  maxLength={60}
+                  onChange={(e) => setFrequencyCustomText(e.target.value)}
+                  className="h-7 text-xs"
+                />
+              )}
+            </div>
           )}
 
           {Object.keys(errors).length > 0 && (
