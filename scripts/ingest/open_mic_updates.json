@@ -895,6 +895,13 @@
         "stage_time": "3-5 minutes",
         "sign_up_instructions": "Sign up online with @flophouseopenmic: https://checkout.square.site/merchant/MLE3S94S31KSN/checkout/SIS6B57KN346S6DZKXCFZ26T?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAdGRleAU9_w5leHRuA2FlbQIxMQBwZG9mAmZkaWQWUQX1_Wvd055H9jtvcEenPF_ScgTK7HNydGMGYXBwX2lkDzEyNDAyNDU3NDI4NzQxNAABp8KWqojPLe71QcEuDrrLaLSQE1190t3OEdQeekhSRWpvo7nG-uu2f0b7gITc_aem_m7RsRRZAxaKcax-YhZ57Yw&utm_id=97760_v0_s00_e0_tv3"
       }
+    },
+    {
+      "unique_identifier": "fd0ed5a2-f8c0-4720-a101-d46d555c9356",
+      "note": "Girls Night Mic (Thursday 11:00 PM at Flop House) is NO LONGER ACTIVE. Adam, 2026-10-16: 'the fun girls mic we just added at flop house is no longer active sadly', and he listed the only active Flop House mics as Sun 4:00-6:30, Mon 6:30-7:15, Tue 6:30-7:45, Wed 6:30-7:45, Fri 6:30-7:45, Sat 4:30-6:30 and Thursday (the Thursday time was cut off). This row was added the day before, so it was live for about a day. Moved here from new_mics because a new_mics entry is re-applied whole on every run and its applier default (active true) would switch the row back on; an edits entry keyed by uid with active false cannot. To bring it back, rewrite this entry in place with active true. Original add note, kept for the record: New Flop House Thursday late mic. Adam, 2026-10-15, from a @girlsnightmic Instagram post (posted 'April 29', no year shown, so this year) by @flophousecomedyclub collab: 'GIRLS NIGHT MIC. Thursdays @ 11PM, Flophouse Comedy Club. Hosted by Steph Brown & Jaclyn Lore Edwards.' Caption handles @jacksowack and @stephbrown.jpg. The older never-applied May 2026 migration also listed a Thursday 11:00 PM Flop House slot. End 12:30 AM is the 90-minute default. SIGN-UP AND COST LEFT BLANK ON PURPOSE: Adam asked for the @flophouseopenmic link on every Flop House mic, but the Square form lists no Thursday 11 PM option, so that link would send comics to the wrong slot. Held for Adam. Venue fields copied from the verified Pure Chaos row (uid ca4ac065). Status trial.",
+      "set": {
+        "active": false
+      }
     }
   ],
   "removals": [
@@ -1336,29 +1343,6 @@
         "stage_time": "3-5 minutes",
         "sign_up_instructions": "Sign up online with @flophouseopenmic: https://checkout.square.site/merchant/MLE3S94S31KSN/checkout/SIS6B57KN346S6DZKXCFZ26T?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAdGRleAU9_w5leHRuA2FlbQIxMQBwZG9mAmZkaWQWUQX1_Wvd055H9jtvcEenPF_ScgTK7HNydGMGYXBwX2lkDzEyNDAyNDU3NDI4NzQxNAABp8KWqojPLe71QcEuDrrLaLSQE1190t3OEdQeekhSRWpvo7nG-uu2f0b7gITc_aem_m7RsRRZAxaKcax-YhZ57Yw&utm_id=97760_v0_s00_e0_tv3",
         "changes_updates": "@flophouseopenmic",
-        "city": "New York",
-        "status": "trial",
-        "frequency": "weekly",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "latitude": 40.712208240625,
-        "longitude": -73.95578066537
-      }
-    },
-    {
-      "note": "New Flop House Thursday late mic. Adam, 2026-10-15, from a @girlsnightmic Instagram post (posted 'April 29', no year shown, so this year) by @flophousecomedyclub collab: 'GIRLS NIGHT MIC. Thursdays @ 11PM, Flophouse Comedy Club. Hosted by Steph Brown & Jaclyn Lore Edwards.' Caption handles @jacksowack and @stephbrown.jpg. The older never-applied May 2026 migration also listed a Thursday 11:00 PM Flop House slot. End 12:30 AM is the 90-minute default. SIGN-UP AND COST LEFT BLANK ON PURPOSE: Adam asked for the @flophouseopenmic link on every Flop House mic, but the Square form lists no Thursday 11 PM option, so that link would send comics to the wrong slot. Held for Adam. Venue fields copied from the verified Pure Chaos row (uid ca4ac065). Status trial.",
-      "row": {
-        "open_mic": "Girls Night Mic",
-        "day": "Thursday",
-        "start_time": "11:00 PM",
-        "latest_end_time": "12:30 AM",
-        "venue_name": "Flop House Comedy Club",
-        "location": "362 Grand St, Brooklyn, NY 11211, USA",
-        "borough": "Brooklyn",
-        "neighborhood": "Williamsburg",
-        "venue_type": "Comedy Club",
-        "hosts_organizers": "Steph Brown and Jaclyn Lore Edwards",
-        "changes_updates": "@girlsnightmic",
         "city": "New York",
         "status": "trial",
         "frequency": "weekly",
