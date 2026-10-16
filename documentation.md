@@ -1095,6 +1095,24 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: Mic of the Month reskinned, no logic changes
+
+**What shipped.** Pure visual pass on `/leaderboard` to match
+`MotmMobile.dc.html`: flat rows separated by a top border instead of glass
+cards, big accent colored rank numbers for the top 3, square icon vote
+buttons (cream when voted) instead of a small pill, and stat chips (votes
+so far, mics ranked) in place of the single colored instruction banner.
+
+**Left alone on purpose.** The vote mutation, rank calculation, the
+search-to-vote-on-an-unranked-mic flow, and the practice vote, none of
+that changed. Also skipped the handoff's "You voted for N" chip, since
+counting a user's own votes across the board is new logic, not a reskin.
+
+**Removed.** The per-row borough color-coded left border. Visual only, not
+part of the voting logic, and not in the handoff's plain row design.
+
+**Verified.** `tsc` and `npm run build` both clean.
+
 ### Session: one Home for everyone
 
 **What shipped.** `Index.tsx` now always renders `Landing.tsx`, signed in or
