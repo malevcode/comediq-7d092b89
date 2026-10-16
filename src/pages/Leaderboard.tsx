@@ -17,22 +17,11 @@ import { MIC_OF_THE_MONTH_LABEL, currentVotingMonth } from "@/config/micOfTheMon
 import { cn } from "@/lib/utils";
 import type { OpenMic } from "@/types/openMic";
 
-// Card left-border colours, matching getBoroughOutline in OpenMicsDetailedList
-// so a mic reads the same colour here as it does on the Perform tab.
-const BOROUGH_COLOR: Record<string, string> = {
-  Manhattan: "#1a5fb4",
-  Brooklyn: "#92400e",
-  Queens: "#9333ea",
-  Bronx: "#ea580c",
-  "Staten Island": "#6b7280",
-};
-
-const titleTextClass = "text-[#07111f] dark:text-white";
-const mutedTextClass = "text-[#07111f]/60 dark:text-white/60";
-const panelClass =
-  "border border-[#07111f]/10 bg-white/50 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.12)] backdrop-blur-xl dark:border-white/10 dark:bg-[#102a53]/60 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.24)]";
+const titleTextClass = "text-comediq-cream";
+const mutedTextClass = "text-[#D2DCF0]";
+const panelClass = "text-comediq-cream";
 const rowClass =
-  "flex items-center gap-3 rounded-2xl border border-[#07111f]/10 bg-white/50 p-3 text-[#07111f] shadow-[0_14px_44px_rgba(4,20,55,0.10)] backdrop-blur-xl transition-colors dark:border-white/10 dark:bg-[#102a53]/50 dark:text-white md:p-4";
+  "flex items-center gap-3.5 border-t border-white/16 py-3 text-comediq-cream transition-colors";
 
 /**
  * The vote control, and the whole point of this page.
@@ -77,16 +66,16 @@ function VoteButton({
       onClick={handleClick}
       disabled={isRating}
       aria-pressed={voted}
-      aria-label={voted ? `Remove your vote for ${mic.openMic}` : `Vote for ${mic.openMic}`}
+      aria-label={voted ? `Remove your vote, ${likes} votes` : `Vote, ${likes} votes`}
       className={cn(
-        "flex min-h-[44px] min-w-[44px] shrink-0 flex-col items-center justify-center rounded-xl px-2 py-1 transition-colors disabled:opacity-50",
+        "flex h-[52px] w-[52px] shrink-0 flex-col items-center justify-center gap-0 rounded-xl border transition-colors disabled:opacity-50",
         voted
-          ? "bg-[#1a5fb4] text-white"
-          : "bg-[#1a5fb4]/10 text-[#1a5fb4] hover:bg-[#1a5fb4]/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20",
+          ? "border-comediq-cream bg-comediq-cream text-[#0A1128]"
+          : "border-white/40 bg-transparent text-comediq-cream hover:bg-white/10",
       )}
     >
-      <VoteArrow filled={voted} className="h-4 w-4" />
-      <span className="text-xs font-bold tabular-nums">{likes}</span>
+      <VoteArrow filled={voted} className="h-[18px] w-[18px]" />
+      <span className="text-sm font-bold tabular-nums leading-tight">{likes}</span>
     </button>
   );
 }
@@ -117,12 +106,12 @@ function PracticeVote() {
           aria-pressed={tried}
           aria-label={tried ? "Undo the practice vote" : "Try a practice vote"}
           className={cn(
-            "flex min-h-[44px] min-w-[44px] shrink-0 flex-col items-center justify-center rounded-xl transition-colors",
-            tried ? "bg-white text-[#07111f]" : "bg-white/25 text-white hover:bg-white/40",
+            "flex h-[52px] w-[52px] shrink-0 flex-col items-center justify-center gap-0 rounded-xl border transition-colors",
+            tried ? "border-comediq-cream bg-comediq-cream text-[#0A1128]" : "border-white/40 bg-transparent text-white hover:bg-white/10",
           )}
         >
-          <VoteArrow filled={tried} className="h-4 w-4" />
-          <span className="text-xs font-bold tabular-nums">{tried ? 1 : 0}</span>
+          <VoteArrow filled={tried} className="h-[18px] w-[18px]" />
+          <span className="text-sm font-bold tabular-nums leading-tight">{tried ? 1 : 0}</span>
         </button>
       </div>
       <p className="mt-2 text-xs opacity-90">
@@ -144,17 +133,11 @@ function MicRow({
   shared: SharedMicRatingData;
 }) {
   return (
-    <li
-      className={rowClass}
-      style={{
-        borderLeftWidth: 4,
-        borderLeftColor: BOROUGH_COLOR[(mic.borough || "").trim()] || "#9ca3af",
-      }}
-    >
+    <li className={rowClass}>
       {rank !== undefined && (
         <span
-          className={`w-7 shrink-0 text-center text-lg font-bold tabular-nums ${
-            rank <= 3 ? "text-[#1a5fb4] dark:text-[#8ec5ff]" : mutedTextClass
+          className={`font-display shrink-0 text-center leading-none ${
+            rank <= 3 ? "w-10 text-[40px] text-comediq-accent" : `w-10 text-2xl ${mutedTextClass}`
           }`}
         >
           {rank}
@@ -165,7 +148,7 @@ function MicRow({
         className="min-w-0 flex-1"
       >
         <span className={`block truncate font-semibold ${titleTextClass}`}>{mic.openMic}</span>
-        <span className={`block truncate text-xs ${mutedTextClass}`}>
+        <span className={`block truncate text-[13px] ${mutedTextClass}`}>
           {[mic.venueName, mic.borough, `${mic.day} ${mic.startTime}`].filter(Boolean).join(" · ")}
         </span>
       </Link>
@@ -209,39 +192,39 @@ export default function Leaderboard() {
 
       <div className="min-h-screen bg-transparent page-content-offset-flush pb-24">
         <div className="mx-auto max-w-3xl px-4">
-          <section className={`${panelClass} rounded-3xl p-4 md:p-6`}>
-            <div
-              className={`mb-3 flex items-center justify-between text-[11px] uppercase tracking-[0.25em] ${mutedTextClass}`}
-            >
-              <span>{month} voting</span>
-              <span>{rows.length.toString().padStart(2, "0")} ranked</span>
-            </div>
+          <section className={`${panelClass} p-4 md:p-6`}>
+            <span className="mb-3 block text-xs font-semibold uppercase tracking-[0.14em] text-comediq-accent">
+              {month} voting &middot; Live
+            </span>
 
-            <h1
-              className={`mb-1 text-3xl font-bold leading-tight tracking-tight sm:text-4xl ${titleTextClass}`}
-            >
-              {month} {MIC_OF_THE_MONTH_LABEL}
+            <h1 className="font-display mb-2 text-[44px] uppercase leading-[0.9] text-comediq-cream sm:text-5xl">
+              {MIC_OF_THE_MONTH_LABEL}
             </h1>
+
+            <p className="max-w-xl text-base text-[#E2E8F5]">
+              One vote per mic, and you can take it back. The winner gets the Comediq
+              home page for a month, plus $50 to the host.
+            </p>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="inline-flex h-9 items-center rounded-full border border-white/16 bg-[#1A3F85] px-3.5 text-sm text-comediq-cream">
+                <b className="mr-1.5">{totalVotes}</b> votes so far
+              </span>
+              <span className="inline-flex h-9 items-center rounded-full border border-white/16 bg-[#1A3F85] px-3.5 text-sm text-comediq-cream">
+                <b className="mr-1.5">{rows.length}</b> mics ranked
+              </span>
+            </div>
 
             {/* The instruction people never had. Voting was two taps away on a
                 different page, with nothing anywhere saying how it worked. */}
-            <div className="mb-5 rounded-xl bg-contest-live px-4 py-3 text-sm text-contest-live-foreground">
-              <p className="flex items-center gap-2 font-bold">
-                <Trophy className="h-4 w-4 shrink-0" />
-                Tap the arrow to vote
-              </p>
-              <p className="mt-1 opacity-90">
-                One vote per mic, and you can take it back. The winner gets the Comediq
-                home page for a month, plus $50 to the host.
-                {totalVotes > 0 && ` ${totalVotes} votes so far.`}
-              </p>
+            <div className="mt-2">
               <PracticeVote />
             </div>
 
             {isLoading ? (
-              <div className="space-y-2">
+              <div className="mt-2 space-y-2">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="h-16 animate-pulse rounded-2xl bg-white/40 dark:bg-white/5" />
+                  <div key={i} className="h-16 animate-pulse rounded-xl bg-white/10" />
                 ))}
               </div>
             ) : error ? (
@@ -261,7 +244,7 @@ export default function Leaderboard() {
                 </p>
               </div>
             ) : (
-              <ol className="space-y-2">
+              <ol className="mt-1">
                 {rows.map(({ rank, mic }) => (
                   <MicRow key={mic.uniqueIdentifier} mic={mic} rank={rank} shared={shared} />
                 ))}
@@ -269,7 +252,7 @@ export default function Leaderboard() {
             )}
 
             {/* Every mic is votable, not just the ones already on the board. */}
-            <div className="mt-6 border-t border-[#07111f]/10 pt-4 dark:border-white/10">
+            <div className="mt-6 border-t border-white/16 pt-4">
               <label htmlFor="mic-vote-search" className={`mb-2 block text-sm font-semibold ${titleTextClass}`}>
                 Don't see your mic?
               </label>
@@ -282,12 +265,12 @@ export default function Leaderboard() {
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search by mic, venue or neighborhood"
-                  className="h-11 w-full rounded-xl border border-[#07111f]/10 bg-white/60 pl-9 pr-3 text-sm text-[#07111f] outline-none focus:border-[#1a5fb4] dark:border-white/10 dark:bg-white/10 dark:text-white dark:placeholder-white/40"
+                  placeholder="Find a mic to vote for"
+                  className="h-12 w-full rounded-full border border-white/16 bg-[#1A3F85] pl-9 pr-3 text-sm text-comediq-cream outline-none placeholder:text-[#D2DCF0] focus:border-comediq-accent"
                 />
               </div>
               {searchResults.length > 0 && (
-                <ul className="mt-3 space-y-2">
+                <ul className="mt-2">
                   {searchResults.map((mic) => (
                     <MicRow key={mic.uniqueIdentifier} mic={mic} shared={shared} />
                   ))}
