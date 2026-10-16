@@ -29,7 +29,6 @@ import SubscriptionSuccessBanner from "./components/SubscriptionSuccessBanner";
 import OfflineBanner from "./components/OfflineBanner";
 import MicOfTheMonthBar from "./components/MicOfTheMonthBar";
 import ProgressTrackerPage from "./pages/ProgressTracker";
-import Home from "./components/Home";
 import { TabProvider } from "@/contexts/TabContext";
 import AdminInterface from "./pages/AdminInterface";
 import Playlists from "./pages/Playlists";
@@ -173,7 +172,7 @@ function AppShell() {
             <Route path="/admintest" element={<AdminInterface />} />
             <Route path="/playlists" element={<Playlists />} />
             <Route path="/playlists/:playlistId" element={<PlaylistDetail />} />
-            <Route path="/home" element={<Home />} />
+            <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="/mics/:venueSlug" element={<MicDetailPage />} />
             <Route path="/mic/:slug" element={<MicDetailPage />} />
             <Route path="/venue/:slug" element={<VenuePage />} />
