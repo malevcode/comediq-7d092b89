@@ -1,9 +1,11 @@
 import { lazy, Suspense, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Eye, Menu, Mic, X } from "lucide-react";
+import { ArrowRight, Eye, Mic, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import AppWaitlistSection from "@/components/AppWaitlistSection";
 import Wordmark from "@/components/Wordmark";
+import HamburgerMenu from "@/components/HamburgerMenu";
+import { useAuth } from "@/contexts/AuthContext";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { isExternalVotingLink, votingHref } from "@/config/micOfTheMonth";
 import {
@@ -95,7 +97,7 @@ function micHref(mic: OpenMic): string {
 }
 
 const Nav = () => {
-  const [open, setOpen] = useState(false);
+  const { user } = useAuth();
   const vote = votingHref();
   const voteClass = "hover:text-[var(--lp-accent)]";
   const items = [
@@ -114,27 +116,18 @@ const Nav = () => {
       <Wordmark />
       <nav className="hidden items-center gap-7 text-sm font-medium md:flex" aria-label="Main">
         {items}
-        <Link to="/auth/sign-in" className="lp-btn lp-btn-ghost !px-4 !py-1.5 !text-sm">Log in</Link>
+        <Link to="/listing" className="lp-btn lp-btn-solid !px-4 !py-1.5 !text-sm">
+          <Plus className="h-4 w-4" aria-hidden="true" />
+          Listing
+        </Link>
+        {!user && (
+          <Link to="/auth/sign-in" className="lp-btn lp-btn-ghost !px-4 !py-1.5 !text-sm">Log in</Link>
+        )}
       </nav>
-      <button
-        type="button"
-        className="md:hidden"
-        aria-label={open ? "Close menu" : "Open menu"}
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-      >
-        {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-      </button>
-      {open && (
-        <nav
-          className="absolute inset-x-0 top-[68px] z-30 flex flex-col gap-4 border-y border-[var(--lp-line)] bg-[var(--lp-bg-deep)] px-5 py-5 text-lg font-medium md:hidden"
-          aria-label="Mobile"
-          onClick={() => setOpen(false)}
-        >
-          {items}
-          <Link to="/auth/sign-in" className="lp-btn lp-btn-ghost self-start">Log in</Link>
-        </nav>
-      )}
+      {/* Same hamburger menu every other page uses, so Home matches the handoff header exactly. */}
+      <div className="md:hidden">
+        <HamburgerMenu />
+      </div>
     </header>
   );
 };
