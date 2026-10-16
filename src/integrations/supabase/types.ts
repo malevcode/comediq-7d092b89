@@ -3224,6 +3224,63 @@ export type Database = {
       }
     }
     Functions: {
+      add_open_mic: {
+        Args: { p: Json }
+        Returns: {
+          active: boolean | null
+          aug_verification_status: string | null
+          borough: string | null
+          changes_updates: string | null
+          city: string | null
+          cost: string | null
+          cover_image_url: string | null
+          creator_id: string | null
+          day: string | null
+          frequency: Database["public"]["Enums"]["mic_frequency"] | null
+          frequency_custom_text: string | null
+          geocoded_at: string | null
+          geocoding_match_address: string | null
+          geocoding_provider: string | null
+          geocoding_score: number | null
+          hosts_organizers: string | null
+          july_verification_status: string | null
+          last_confirmed_at: string | null
+          last_verified: string | null
+          last_verified_at: string | null
+          latest_end_time: string | null
+          latitude: number | null
+          legacy_tag: string | null
+          location: string | null
+          longitude: number | null
+          neighborhood: string | null
+          open_mic: string
+          other_rules: string | null
+          price_per_slot: number | null
+          sign_up_instructions: string | null
+          signup_enabled: boolean
+          signup_method: Database["public"]["Enums"]["signup_method"] | null
+          signup_url: string | null
+          slot_duration_minutes: number
+          slots_enabled: boolean
+          slug: string | null
+          sms_response: string | null
+          stage_time: string | null
+          start_time: string | null
+          status: Database["public"]["Enums"]["mic_status"] | null
+          submission_date: string | null
+          unique_identifier: string
+          venue_name: string | null
+          venue_slug: string | null
+          venue_type: string | null
+          verification_count: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "open_mics_historical"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       admin_deactivate_flagged_mic: {
         Args: { p_mic_unique_identifier: string }
         Returns: Json
