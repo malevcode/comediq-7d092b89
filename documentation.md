@@ -1095,6 +1095,29 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: Perform redesigned to match the comedy club handoff
+
+**What shipped.** `MicActionBar` now shows like and dislike as two separate
+counts (hidden at zero, not a combined score pill), added a host Instagram
+button, and restyled the sign-up link into an accent colored Register pill.
+Replaced three separate calendar actions (schedule, Google Calendar link,
+download iCal) with one Add to calendar button opening a new bottom sheet,
+`CalendarSheet.tsx` (Google, Apple, Other .ics), backed by a shared
+`src/utils/micCalendar.ts` instead of a second copy of the date math. Day
+tabs now show the date number under each day (Thu 15, Fri 16).
+
+**Also.** `MicMiniMap` is now a lazy import behind Suspense, only requested
+once someone taps Show map. Mapbox itself still ships in the main bundle
+regardless, `src/components/map/index.ts` imports it statically for other
+screens, that is a separate, bigger fix.
+
+**Left alone on purpose.** The mic row's two column layout. The handoff shows
+a strict time-first column; the existing row already surfaces time, name,
+venue, stage time, cost and verified status, and reworking a 679 line
+component's geometry was more regression risk than the gap was worth.
+
+**Verified.** `tsc` and `npm run build` both clean.
+
 ### Session: mascot in the hero, one shared header logo
 
 The homepage hero now puts the cartoon mascot (`public/landing/character.png`)
