@@ -1095,6 +1095,27 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: one Home for everyone
+
+**What shipped.** `Index.tsx` now always renders `Landing.tsx`, signed in or
+not, matching screens/Mobile.dc.html, which has no separate signed-in
+layout. Deleted `src/components/Home.tsx` (the old dashboard: streaks,
+borough analytics, next 7 days, quick actions, growth opportunities) and
+the `/home` route, which now redirects to `/`.
+
+**Not a data loss.** Every number on that dashboard came from Supabase and
+from a Profile tab link (`?tab=saved`, `?tab=liked`, `?tab=signups`,
+`?tab=playlists`) that still works exactly as before. The dashboard was a
+second place to see that data, not the only place it lived.
+
+**Also.** Landing's header now hides Log in once a user is signed in, adds
+a `+ Listing` pill to the desktop nav to match Main.dc.html, and its mobile
+menu is the same shared `HamburgerMenu` every other page uses instead of a
+second, simpler dropdown it used to carry on its own.
+
+**Verified.** `tsc` and `npm run build` both clean. Bundle size dropped
+about 58kb from removing Home.tsx's recharts analytics code.
+
 ### Session: Laugh redesigned to match the comedy club handoff
 
 **What shipped.** `AudienceShows` now features the next upcoming show in a
