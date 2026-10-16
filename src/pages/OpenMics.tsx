@@ -918,11 +918,18 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                 ❤️
               </TabsTrigger>
             )}
-            {daysOfWeek.map((day) => (
-              <TabsTrigger key={day} value={day} className={tabTriggerClass}>
-                {day.slice(0, 3)}
-              </TabsTrigger>
-            ))}
+            {daysOfWeek.map((day) => {
+              const today = new Date();
+              const daysUntil = (daysOfWeek.indexOf(day) - today.getDay() + 7) % 7;
+              const tabDate = new Date(today);
+              tabDate.setDate(today.getDate() + daysUntil);
+              return (
+                <TabsTrigger key={day} value={day} className={`flex flex-col gap-0 ${tabTriggerClass}`}>
+                  <span>{day.slice(0, 3)}</span>
+                  <span className="font-display text-sm leading-none">{tabDate.getDate()}</span>
+                </TabsTrigger>
+              );
+            })}
           </TabsList>
           {showInlineCard && (
             <div className="mb-4">

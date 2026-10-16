@@ -1,7 +1,7 @@
 import { Calendar, Clock, UserRoundCheck, DollarSign, CircleUser, MapPin, ChevronDown, Navigation, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OpenMic } from "@/types/openMic";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense, lazy } from "react";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,8 +23,14 @@ import { useMicOfTheDay } from '@/hooks/useMicOfTheDay';
 import ClaimMicButton from '@/components/host/ClaimMicButton';
 import ClaimMicOfDayButton from '@/components/host/ClaimMicOfDayButton';
 import NominateMotdButton from '@/components/motd/NominateMotdButton';
-import { MicMiniMap } from '@/components/map/MicMiniMap';
 import { getBoroughOutline } from "@/utils/boroughColors";
+import CalendarSheet from "@/components/mic/CalendarSheet";
+
+// Mapbox is a heavy dependency, load it only once someone actually opens the
+// mini map on a row, not on every visit to the mic list.
+const MicMiniMap = lazy(() =>
+  import('@/components/map/MicMiniMap').then((m) => ({ default: m.MicMiniMap })),
+);
 
 // Helper function to get map URL based on device
 function getMapUrl(location: string, venueName: string) {
@@ -40,50 +46,6 @@ function getMapUrl(location: string, venueName: string) {
     // Use Google Maps on other devices
     return `https://www.google.com/maps/search/?api=1&query=${searchQuery}`;
   }
-}
-
-function downloadICal(mic: OpenMic) {
-  const event = generateCalendarEvent(mic);
-  const icalContent = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Comediq//Open Mic//EN',
-    'BEGIN:VEVENT',
-    `DTSTART:${event.start}`,
-    `DTEND:${event.end}`,
-    `SUMMARY:${event.title}`,
-    `DESCRIPTION:${event.description.replace(/\n/g, '\\n')}`,
-    `LOCATION:${event.location}`,
-    `UID:${mic.uniqueIdentifier || mic.openMic.replace(/[^a-z0-9]/gi, '_').toLowerCase()}@comediq.app`,
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ].join('\r\n');
-  const blob = new Blob([icalContent], { type: 'text/calendar' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${mic.openMic.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.ics`;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => {
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, 0);
-}
-
-function getNextOccurrence(mic: OpenMic) {
-  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const today = new Date();
-  const currentDay = today.getDay();
-  const targetDay = daysOfWeek.indexOf(mic.day);
-  let daysUntil = targetDay - currentDay;
-  // Only add 7 if the day is in the past (not today)
-  if (daysUntil < 0) {
-    daysUntil += 7;
-  }
-  const nextDate = new Date(today);
-  nextDate.setDate(today.getDate() + daysUntil);
-  return nextDate;
 }
 
 function parseMicStartMinutes(mic: OpenMic): number | null {
@@ -118,63 +80,6 @@ function hasMicAlreadyHappenedToday(mic: OpenMic, date = new Date()): boolean {
   return startMinutes < date.getHours() * 60 + date.getMinutes();
 }
 
-function generateCalendarEvent(mic: OpenMic) {
-  const nextDate = getNextOccurrence(mic);
-  // Parse start time
-  const [startHour, startMinute] = mic.startTime.replace(/[^\d:]/g, '').split(':').map(Number);
-  // Parse end time
-  const [endHour, endMinute] = mic.latestEndTime
-    ? mic.latestEndTime.replace(/[^\d:]/g, '').split(':').map(Number)
-    : [startHour + 1, startMinute]; // fallback if no end time
-
-  // Handle AM/PM for start
-  let startHour24 = startHour;
-  const normalizedStartTime = mic.startTime.toUpperCase();
-  if (normalizedStartTime.includes('PM') && startHour !== 12) startHour24 += 12;
-  if (normalizedStartTime.includes('AM') && startHour === 12) startHour24 = 0;
-
-  // Handle AM/PM for end
-  let endHour24 = endHour;
-  if (mic.latestEndTime) {
-    const normalizedEndTime = mic.latestEndTime.toUpperCase();
-    if (normalizedEndTime.includes('PM') && endHour !== 12) endHour24 += 12;
-    if (normalizedEndTime.includes('AM') && endHour === 12) endHour24 = 0;
-  }
-
-  // Calculate duration in minutes
-  const startTotalMinutes = startHour24 * 60 + (startMinute || 0);
-  const endTotalMinutes = endHour24 * 60 + (endMinute || 0);
-  const durationMinutes = endTotalMinutes > startTotalMinutes
-    ? endTotalMinutes - startTotalMinutes
-    : 60; // fallback to 1 hour if invalid
-
-  nextDate.setHours(startHour24, startMinute || 0, 0, 0);
-  const endDate = new Date(nextDate.getTime() + durationMinutes * 60 * 1000);
-  const formatDate = (date: Date) => {
-    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-  };
-  return {
-    title: mic.openMic,
-    start: formatDate(nextDate),
-    end: formatDate(endDate),
-    description: `Open mic at ${mic.venueName}\nCost: ${mic.cost}\nStage time: ${mic.stageTime}\n\nSign-up: ${mic.signUpInstructions}`,
-    location: `${mic.venueName}, ${mic.location}`,
-    date: nextDate
-  };
-}
-
-function getGoogleCalendarUrl(mic: OpenMic) {
-  const event = generateCalendarEvent(mic);
-  const params = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: event.title,
-    dates: `${event.start}/${event.end}`,
-    details: event.description,
-    location: event.location
-  });
-  return `https://calendar.google.com/calendar/render?${params.toString()}`;
-}
-
 // Helper to truncate mic name to max 15 chars
 function truncateMicName(name: string, maxLength: number = 15): string {
   if (!name) return '';
@@ -192,6 +97,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
   const [distanceLoading, setDistanceLoading] = useState(false);
   const isFinished = hasMicAlreadyHappenedToday(mic);
   const [showMiniMap, setShowMiniMap] = useState(false);
+  const [calendarSheetOpen, setCalendarSheetOpen] = useState(false);
 
   // Calculate distance when user location changes
   useEffect(() => {
@@ -403,12 +309,14 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
               </Button>
 
               {showMiniMap && (
-                <MicMiniMap
-                  location={mic.location}
-                  venueName={mic.venueName}
-                  latitude={mic.latitude}
-                  longitude={mic.longitude}
-                />
+                <Suspense fallback={<div className="mt-2 h-32 w-full animate-pulse rounded-md bg-white/10" />}>
+                  <MicMiniMap
+                    location={mic.location}
+                    venueName={mic.venueName}
+                    latitude={mic.latitude}
+                    longitude={mic.longitude}
+                  />
+                </Suspense>
               )}
             </div>
             {mic.otherRules && (
@@ -445,10 +353,19 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
                   className="flex items-center justify-center gap-2 text-gray-800 bg-white hover:bg-gray-200 border-gray-300"
                   onClick={() => onAddToCalendar(mic)}
                 >
-                  <Calendar className="w-4 h-4" />
-                  Add to Calendar
+                  <UserRoundCheck className="w-4 h-4" />
+                  Add to my schedule
                 </Button>
               )}
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex items-center justify-center gap-2 border-comediq-cream bg-comediq-cream text-[#0A1128] hover:bg-comediq-cream/90"
+                onClick={() => setCalendarSheetOpen(true)}
+              >
+                <Calendar className="w-4 h-4" />
+                Add to calendar
+              </Button>
             </div>
             {/* Open editing: anyone can fix listing facts */}
             <EditMicButton
@@ -467,51 +384,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
               micName={mic.openMic}
             />
             {/* Nominate button moved to top of expanded panel */}
-
-            <div className="flex flex-row gap-2 mt-2">
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-full flex items-center justify-center gap-2 border-gray-300 bg-white hover:bg-gray-200"
-                asChild
-              >
-                <a
-                  href={getGoogleCalendarUrl(mic)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Add to Google Calendar"
-                  onClick={async () => {
-                    if (user) {
-                      try {
-                        await supabase
-                          .from('gcal_clicks')
-                          .insert({
-                            user_id: user.id,
-                            created_at: new Date().toISOString()
-                          });
-                      } catch (error) {
-                        console.error('Error logging Google Calendar click:', error);
-                      }
-                    }
-                  }}
-                >
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block w-4 h-4 text-sky font-bold rounded-full flex items-center justify-center">G</span>
-                    <span className="text-sky">Google Calendar</span>
-                  </span>
-                </a>
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-full flex items-center justify-center gap-2 border-gray-300 bg-white hover:bg-gray-200"
-                onClick={() => downloadICal(mic)}
-                aria-label="Download iCal file"
-              >
-                <Calendar className="text-orange-500 w-4 h-4" />
-                <span className="text-orange-500">Download iCal</span>
-              </Button>
-            </div>
+            <CalendarSheet mic={mic} open={calendarSheetOpen} onOpenChange={setCalendarSheetOpen} />
           </div>
         )}
         {/* Social Action Bar - reduced top margin */}
@@ -521,6 +394,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
           lastConfirmedAt={mic.lastConfirmedAt}
           signUpInstructions={mic.signUpInstructions}
           venueAddress={mic.location || mic.venueName}
+          hostInstagram={mic.instagramHandle}
           sharedRatings={sharedRatings}
         />
 
