@@ -48,19 +48,24 @@ export function useUploadHeadshot() {
   const { toast } = useToast();
 
   return useMutation({
+    // uploadHeadshot uploads the file AND saves the URL on the profile.
     mutationFn: ({ userId, file }: { userId: string; file: File }) =>
       uploadHeadshot(userId, file),
-    onSuccess: (url, variables) => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['comedian-profile', variables.userId] });
-      return updateUserProfile(variables.userId, { headshot_url: url });
+      toast({
+        title: 'Headshot updated',
+        description: 'Your new photo is saved.',
+      });
     },
     onError: (error) => {
+      const reason = error instanceof Error ? error.message : String(error);
       toast({
-        title: 'Error',
-        description: 'Failed to upload headshot. Please try again.',
+        title: 'Headshot upload failed',
+        description: reason,
         variant: 'destructive',
       });
-      console.error('Headshot upload error:', error);
+      console.error('Headshot upload error:', reason, error);
     },
   });
 }
