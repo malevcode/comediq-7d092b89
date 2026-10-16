@@ -128,25 +128,77 @@ export async function fetchComedianProfile(userId: string): Promise<ComedianProf
   };
 }
 
+const HEADSHOT_MAX_INPUT_BYTES = 15 * 1024 * 1024;
+const HEADSHOT_MAX_SIDE = 1024;
+
 /**
- * Uploads a headshot image to storage
+ * Shrinks a picked photo to a web-sized JPEG. Phone photos are often 5MB or more
+ * and some are HEIC, which browsers cannot show. If the browser cannot decode the
+ * file, the original is uploaded as is.
+ */
+export async function prepareHeadshot(file: File): Promise<{ blob: Blob; ext: string; type: string }> {
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, HEADSHOT_MAX_SIDE / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const context = canvas.getContext('2d');
+    if (context) {
+      context.fillStyle = '#ffffff'; // PNGs with see-through areas would turn black in a JPEG
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.88));
+      if (blob) return { blob, ext: 'jpg', type: 'image/jpeg' };
+    }
+  } catch {
+    // fall through to the original file
+  }
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  return { blob: file, ext, type: file.type || 'image/jpeg' };
+}
+
+const describeError = (error: unknown): string => {
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return String(error);
+};
+
+/**
+ * Uploads a headshot image to storage and saves its URL on the profile.
+ * Errors say which step failed and why, so a failure can be diagnosed.
  */
 export async function uploadHeadshot(userId: string, file: File): Promise<string> {
-  const fileExt = file.name.split('.').pop();
-  const filePath = `${userId}/headshot.${fileExt}`;
+  if (file.type && !file.type.startsWith('image/')) {
+    throw new Error('Please choose an image file (JPG, PNG or similar).');
+  }
+  if (file.size > HEADSHOT_MAX_INPUT_BYTES) {
+    throw new Error('That photo is over 15 MB. Please choose a smaller one.');
+  }
 
-  // Delete old headshot if exists
-  await supabase.storage.from('headshots').remove([filePath]);
+  const { blob, ext, type } = await prepareHeadshot(file);
+  const filePath = `${userId}/headshot.${ext}`;
 
   const { error: uploadError } = await supabase.storage
     .from('headshots')
-    .upload(filePath, file, { upsert: true });
+    .upload(filePath, blob, { upsert: true, contentType: type, cacheControl: '3600' });
 
-  if (uploadError) throw uploadError;
+  if (uploadError) {
+    throw new Error(`Photo upload failed: ${describeError(uploadError)}`);
+  }
 
   const { data } = supabase.storage.from('headshots').getPublicUrl(filePath);
-  
-  return data.publicUrl;
+  // Same path every time, so add a version to get past browser and CDN caches.
+  const url = `${data.publicUrl}?v=${Date.now()}`;
+
+  try {
+    await updateUserProfile(userId, { headshot_url: url });
+  } catch (error) {
+    throw new Error(`Photo uploaded, but saving it to your profile failed: ${describeError(error)}`);
+  }
+
+  return url;
 }
 
 /**

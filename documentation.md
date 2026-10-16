@@ -1742,3 +1742,26 @@ as before, so nothing already on the site disappears.
 **Not done yet.** The older `/add-mic` page and the host request form still have
 the old free-text box. The 1st and 3rd or 2nd and 4th week pattern is covered
 by picking dates, not by a one-tap preset.
+
+### Session: headshot upload failing
+
+**What users saw.** After picking a photo on the profile page, the upload failed.
+The message only said "Failed to upload headshot", and the browser console only
+said "Headshot upload error" with no reason, so nobody could tell why.
+
+**What we changed.**
+- The reason is now shown. The toast and the console say which step failed
+  (the photo upload to storage, or saving the link on the profile) and the
+  exact error. If it fails again, the message points at the cause.
+- The photo is shrunk first. Big phone photos (often 5 MB or more) are resized
+  to at most 1024 pixels and saved as a JPEG, in the browser, before upload. If
+  the browser cannot read the file (some HEIC photos), the original is uploaded.
+- The file is always stored at `<user id>/headshot.jpg`, with a version added to
+  the link so a new photo shows up right away instead of the old cached one.
+- Upload and "save to profile" now happen as one step, so a half-finished
+  upload cannot look like a full success.
+- Wrong file types and files over 15 MB are rejected with a plain message.
+
+**Still unknown.** If it keeps failing, the new message will say whether it is
+storage (a rule on the `headshots` bucket) or the profile save (a rule on the
+`profiles` table). Those rules live in Supabase, not in this repo's code.
