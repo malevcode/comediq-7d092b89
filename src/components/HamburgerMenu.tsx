@@ -1,61 +1,31 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Home, MicVocal, Eye, User, Book, Search, Menu, ChevronRight, Briefcase, Ticket, Star, Sparkles, Trophy, Clapperboard, Map, Calendar, Sun, Moon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Home, MicVocal, Eye, User, Book, Menu, Plus, Trophy, Instagram, LogOut } from "lucide-react";
+import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { useTheme } from "next-themes";
+import { MIC_OF_THE_MONTH_LABEL, micOfTheMonthCta } from "@/config/micOfTheMonth";
 
+/**
+ * Comedy club redesign (Oct 2026): a flat list, not expandable sections.
+ * Create a listing up top, then Home / Perform / Laugh / Mic of the Month /
+ * Profile, then Log in (or Sign out) and the Instagram DM link at the
+ * bottom. Matches MenuMobile in the handoff.
+ */
 const HamburgerMenu = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
-  // next-themes has no theme until it has mounted, and the app defaults to dark.
-  const [themeMounted, setThemeMounted] = useState(false);
-  useEffect(() => setThemeMounted(true), []);
-  const isDark = !themeMounted || theme === "dark";
 
   const navItems = [
-    { path: "/", icon: Home, label: "Home" },
-    ...(user ? [{ path: "/profile", icon: User, label: "Profile" }] : []),
-    ...(isAdmin ? [{ path: "/admintest", icon: Book, label: "Admin" }] : [])
+    { path: "/", icon: Home, label: "Home", subtitle: undefined as string | undefined },
+    { path: "/open-mics", icon: MicVocal, label: "Perform", subtitle: "Open mics" },
+    { path: "/laugh", icon: Eye, label: "Laugh", subtitle: "Shows" },
+    { path: "/leaderboard", icon: Trophy, label: MIC_OF_THE_MONTH_LABEL, subtitle: micOfTheMonthCta() },
+    ...(user ? [{ path: "/profile", icon: User, label: "Profile", subtitle: "Points and prizes" }] : []),
+    ...(isAdmin ? [{ path: "/admintest", icon: Book, label: "Admin", subtitle: undefined }] : []),
   ];
-
-  // Leaderboard and Growth live under Perform; listing them here too meant the
-  // menu showed each of them twice.
-  const newFeatureItems = [
-    { path: "/open-mics", icon: Map, label: "Open Mics Map", isNew: true },
-    { path: "/strip", icon: Clapperboard, label: "Carouseler", isNew: true },
-  ];
-
-  const performSubItems = [
-    { path: "/open-mics", icon: Search, label: "Find Mics" },
-    { path: "/leaderboard", icon: Trophy, label: "Leaderboard" },
-    { path: "/growth", icon: Briefcase, label: "Growth" },
-    ...(user ? [{ path: "/shows", icon: Calendar, label: "Scheduler" }] : []),
-    ...(user ? [{ path: "/host-dashboard", icon: MicVocal, label: "Host Dashboard" }] : []),
-  ];
-
-  const laughSubItems = [
-    { path: "/laugh?tab=find-shows", icon: Ticket, label: "Find Shows" },
-    { path: "/laugh?tab=my-reviews", icon: Star, label: "My Reviews" },
-  ];
-
-  const currentPathWithSearch = `${location.pathname}${location.search}`;
-  const isItemActive = (path: string) => currentPathWithSearch === path || location.pathname === path;
-  const isPerformActive = performSubItems.some(item => location.pathname === item.path);
-  const isLaughActive = location.pathname === '/laugh' || location.pathname === '/audience-shows';
-  
-  // Perform is open by default and NEW is closed: someone opening this menu is
-  // nearly always trying to get to the mic list, and NEW was burying it.
-  // All three start closed. Opening the sheet should show six short rows you
-  // can scan, not two sections already unfolded into a dozen. Tapping a
-  // section still opens it; this only changes what you are met with.
-  const [expandedPerform, setExpandedPerform] = useState(false);
-  const [expandedLaugh, setExpandedLaugh] = useState(false);
-  const [expandedNew, setExpandedNew] = useState(false);
 
   const handleNavClick = (path: string) => {
     setIsOpen(false);
@@ -69,184 +39,79 @@ const HamburgerMenu = () => {
           variant="ghost"
           size="sm"
           aria-label="Open menu"
-          className="w-10 h-10 p-2 rounded-md bg-white/30 text-[#07111f] shadow-[0_12px_30px_rgba(2,10,30,0.16)] backdrop-blur-xl transition-colors hover:bg-white/50 dark:bg-[#07111f]/40 dark:text-white dark:shadow-[0_12px_30px_rgba(2,10,30,0.38)] dark:hover:bg-[#07111f]/80"
+          className="h-11 w-11 p-0 text-comediq-cream hover:bg-white/10 hover:text-comediq-cream"
         >
-          <Menu size={20} />
+          <Menu size={24} />
         </Button>
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="w-64 border-r border-[#07111f]/10 bg-[radial-gradient(circle_at_top_left,rgba(255,199,44,0.34),transparent_34%),linear-gradient(155deg,rgba(255,247,220,0.96)_0%,rgba(219,234,254,0.92)_54%,rgba(245,242,235,0.96)_100%)] text-[#07111f] shadow-[18px_0_60px_rgba(2,10,30,0.18)] backdrop-blur-2xl [&>button]:text-[#07111f]/70 [&>button:hover]:text-[#07111f] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,rgba(255,199,44,0.18),transparent_34%),linear-gradient(155deg,rgba(7,17,31,0.96)_0%,rgba(16,42,83,0.92)_54%,rgba(4,10,24,0.96)_100%)] dark:text-white dark:shadow-[18px_0_60px_rgba(2,10,30,0.48)] dark:[&>button]:text-white/70 dark:[&>button:hover]:text-white"
+        className="w-[min(390px,100vw)] border-r border-white/10 bg-comediq-blue text-comediq-cream [&>button]:text-comediq-cream/70 [&>button:hover]:text-comediq-cream"
       >
-        <SheetHeader className="border-b border-[#07111f]/10 dark:border-white/10">
-          <div className="flex flex-row items-center gap-3">
+        <SheetHeader className="border-b border-white/10">
+          <SheetTitle className="text-comediq-cream">Menu</SheetTitle>
+        </SheetHeader>
+        <nav aria-label="Menu" className="flex flex-1 flex-col px-1 pt-2">
+          <button
+            type="button"
+            onClick={() => handleNavClick("/listing")}
+            className="mb-4 inline-flex min-h-[56px] items-center justify-center gap-2 rounded-full bg-comediq-accent px-5 text-[17px] font-semibold text-[#0A1128]"
+          >
+            <Plus size={18} strokeWidth={2.4} />
+            Create a listing
+          </button>
+
+          {navItems.map(({ path, icon: Icon, label, subtitle }) => (
+            <button
+              key={path}
+              onClick={() => handleNavClick(path)}
+              className="flex min-h-[60px] items-center gap-3.5 border-t border-white/10 px-1 text-left"
+            >
+              <span className="shrink-0 text-[#D2DCF0]">
+                <Icon size={22} />
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="font-display text-2xl uppercase leading-[1.05]">{label}</span>
+                {subtitle && <span className="text-[13px] text-[#D2DCF0]">{subtitle}</span>}
+              </span>
+              {location.pathname === path && (
+                <span className="h-2 w-2 shrink-0 rounded-full bg-comediq-accent" />
+              )}
+            </button>
+          ))}
+          <div className="border-t border-white/10" />
+        </nav>
+
+        <div className="flex flex-col gap-3 px-1 pb-9 pt-5">
+          {user ? (
             <button
               type="button"
-              onClick={() => setTheme(isDark ? "light" : "dark")}
-              className="rounded-full p-1.5 text-[#07111f]/70 transition-colors hover:bg-[#07111f]/10 hover:text-[#07111f] dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
-              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-              title={isDark ? "Light mode" : "Dark mode"}
+              onClick={async () => {
+                setIsOpen(false);
+                await signOut();
+                navigate("/");
+              }}
+              className="inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full border border-white/40 text-[15px] font-medium text-comediq-cream"
             >
-              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+              <LogOut size={16} />
+              Sign out
             </button>
-            <SheetTitle className="text-[#07111f] dark:text-white">Menu</SheetTitle>
-          </div>
-        </SheetHeader>
-        <div className="flex-1 py-4">
-          <div className="space-y-2">
-            {/* Home */}
-            {navItems.slice(0, 1).map(({ path, icon: Icon, label }) => (
-              <button
-                key={path}
-                onClick={() => handleNavClick(path)}
-                className={`w-full flex items-center px-4 py-3 text-left rounded-md transition-colors ${
-                  location.pathname === path
-                    ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
-                    : "text-white hover:bg-white/10"
-                }`}
-              >
-                <Icon size={18} className="mr-3" />
-                <span className="font-medium">{label}</span>
-              </button>
-            ))}
-
-            {/* 🔥 NEW Section */}
-            <div className="space-y-1">
-              <button
-                onClick={() => setExpandedNew(!expandedNew)}
-                className="w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors hover:bg-white/10 text-white shadow-[0_12px_30px_rgba(2,10,30,0.38)] backdrop-blur-xl transition-colors"
-              >
-                <div className="flex items-center">
-                  <Sparkles size={18} className="mr-3 text-[#1a5fb4] dark:text-[#8ec5ff]" />
-                  <span className="font-bold text-[#1a5fb4] dark:text-[#8ec5ff]">
-                    NEW
-                  </span>
-                </div>
-                <ChevronRight 
-                  size={16} 
-                  className={`transition-transform text-[#1a5fb4] dark:text-[#8ec5ff] ${expandedNew ? 'rotate-90' : ''}`}
-                />
-              </button>
-              
-              {expandedNew && (
-                <div className="ml-6 space-y-1">
-                  {newFeatureItems.map(({ path, icon: Icon, label, isNew }) => (
-                    <button
-                      key={path}
-                      onClick={() => handleNavClick(path)}
-                      className="w-full flex items-center justify-between px-4 py-2 text-left rounded-md transition-colors text-sm text-white/70 hover:text-white hover:bg-white/10"
-                    >
-                      <div className="flex items-center">
-                        <Icon size={16} className="mr-3" />
-                        <span className="font-medium">{label}</span>
-                      </div>
-                      {isNew && (
-                        <span className="bg-[#1a5fb4] text-[#07111f] text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
-                          NEW
-                        </span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Perform Section with Subitems */}
-            <div className="space-y-1">
-              <button
-                onClick={() => setExpandedPerform(!expandedPerform)}
-                className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors ${
-                  isPerformActive
-                    ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
-                    : "text-white hover:bg-white/10"
-                }`}
-              >
-                <div className="flex items-center">
-                  <MicVocal size={18} className="mr-3" />
-                  <span className="font-medium">Perform</span>
-                </div>
-                <ChevronRight 
-                  size={16} 
-                  className={`transition-transform ${expandedPerform ? 'rotate-90' : ''}`}
-                />
-              </button>
-              
-              {expandedPerform && (
-                <div className="ml-6 space-y-1">
-                  {performSubItems.map(({ path, icon: Icon, label }) => (
-                    <button
-                      key={path}
-                      onClick={() => handleNavClick(path)}
-                      className={`w-full flex items-center px-4 py-2 text-left rounded-md transition-colors text-sm ${
-                        location.pathname === path
-                          ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10"
-                          : "text-white/70 hover:text-white hover:bg-white/10"
-                      }`}
-                    >
-                      <Icon size={16} className="mr-3" />
-                      <span className="font-medium">{label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Laugh Section with Subitems */}
-            <div className="space-y-1">
-              <button
-                onClick={() => setExpandedLaugh(!expandedLaugh)}
-                className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-md transition-colors ${
-                  isLaughActive
-                    ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
-                    : "text-white hover:bg-white/10"
-                }`}
-              >
-                <div className="flex items-center">
-                  <Eye size={18} className="mr-3" />
-                  <span className="font-medium">Laugh</span>
-                </div>
-                <ChevronRight 
-                  size={16} 
-                  className={`transition-transform ${expandedLaugh ? 'rotate-90' : ''}`}
-                />
-              </button>
-              
-              {expandedLaugh && (
-                <div className="ml-6 space-y-1">
-                  {laughSubItems.map(({ path, icon: Icon, label }) => (
-                    <button
-                      key={path}
-                      onClick={() => handleNavClick(path)}
-                      className={`w-full flex items-center px-4 py-2 text-left rounded-md transition-colors text-sm ${
-                        isItemActive(path)
-                          ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10"
-                          : "text-white/70 hover:text-white hover:bg-white/10"
-                      }`}
-                    >
-                      <Icon size={16} className="mr-3" />
-                      <span className="font-medium">{label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Profile and Admin items */}
-            {navItems.slice(1).map(({ path, icon: Icon, label }) => (
-              <button
-                key={path}
-                onClick={() => handleNavClick(path)}
-                className={`w-full flex items-center px-4 py-3 text-left rounded-md transition-colors ${
-                  location.pathname === path
-                    ? "text-[#1a5fb4] dark:text-[#8ec5ff] bg-white/10 hover:bg-white/10 shadow-[0_10px_28px_rgba(2,10,30,0.18)]"
-                    : "text-white hover:bg-white/10"
-                }`}
-              >
-                <Icon size={18} className="mr-3" />
-                <span className="font-medium">{label}</span>
-              </button>
-            ))}
-          </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => handleNavClick("/auth")}
+              className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full border border-white/40 text-[15px] font-medium text-comediq-cream"
+            >
+              Log in
+            </button>
+          )}
+          <a
+            href="https://instagram.com/comediq.us"
+            className="inline-flex items-center justify-center gap-1.5 self-center text-sm text-[#E2E8F5]"
+          >
+            <Instagram size={16} />
+            Questions or new mics? DM @comediq.us
+          </a>
         </div>
       </SheetContent>
     </Sheet>

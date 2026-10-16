@@ -3,103 +3,105 @@
 @tailwind utilities;
 
 @layer base {
+  /*
+   * Comedy club redesign (Oct 2026): one fixed royal blue look, not a
+   * light/dark pair. The app is forced into the "dark" class (see
+   * ThemeProvider in App.tsx), so :root below is a fallback only, the
+   * .dark block is what every page actually renders. Both blocks carry
+   * the same values on purpose, so nothing that still checks `.light`
+   * breaks if that ever changes.
+   */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 220 60% 33%;
+    --foreground: 42 60% 93%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 220 60% 33%;
+    --card-foreground: 42 60% 93%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 220 60% 33%;
+    --popover-foreground: 42 60% 93%;
 
     --primary: 213 73% 40%;
-    --primary-foreground: 210 40% 98%;
+    --primary-foreground: 42 60% 93%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 221 62% 29%;
+    --secondary-foreground: 42 60% 93%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 221 62% 29%;
+    --muted-foreground: 220 44% 86%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 206 78% 78%;
+    --accent-foreground: 220 70% 10%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 42 60% 93%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 213 73% 40%;
+    --border: 42 40% 93% / 0.16;
+    --input: 42 40% 93% / 0.16;
+    --ring: 206 78% 78%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 220 60% 33%;
+    --sidebar-foreground: 42 60% 93%;
+    --sidebar-primary: 206 78% 78%;
+    --sidebar-primary-foreground: 220 70% 10%;
+    --sidebar-accent: 221 62% 29%;
+    --sidebar-accent-foreground: 42 60% 93%;
+    --sidebar-border: 42 40% 93% / 0.16;
+    --sidebar-ring: 206 78% 78%;
 
     --color-papaya: 213 60% 55%;
     --color-sky: 192 72% 64%;
 
-    /* Comediq Brand Colors */
-    --comediq-blue: 213 73% 40%;
+    /* Comediq brand colors, matching the handoff spec exactly. */
+    --comediq-blue: 220 60% 33%;        /* #1F4894, the background */
     --comediq-blue-light: 213 60% 55%;
-    --comediq-blue-dark: 213 80% 25%;
-    --comediq-cream: 40 33% 94%;
-    --contest-live: 24 94% 40%;
-    --contest-live-foreground: 0 0% 100%;
+    --comediq-blue-dark: 220 70% 22%;
+    --comediq-cream: 42 60% 93%;        /* #F6F1E4, body text */
+    --comediq-accent: 206 78% 78%;      /* #9CCBF5, sky blue spotlight accent */
+    --contest-live: 42 60% 93%;
+    --contest-live-foreground: 220 70% 10%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 220 60% 33%;
+    --foreground: 42 60% 93%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 60% 33%;
+    --card-foreground: 42 60% 93%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 60% 33%;
+    --popover-foreground: 42 60% 93%;
 
-    --primary: 213 60% 55%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 206 78% 78%;
+    --primary-foreground: 220 70% 10%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 221 62% 29%;
+    --secondary-foreground: 42 60% 93%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 221 62% 29%;
+    --muted-foreground: 220 44% 86%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 206 78% 78%;
+    --accent-foreground: 220 70% 10%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 42 60% 93%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 213 60% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-    --contest-live: 27 96% 55%;
-    --contest-live-foreground: 20 60% 10%;
+    --border: 42 40% 93% / 0.16;
+    --input: 42 40% 93% / 0.16;
+    --ring: 206 78% 78%;
+    --sidebar-background: 220 60% 33%;
+    --sidebar-foreground: 42 60% 93%;
+    --sidebar-primary: 206 78% 78%;
+    --sidebar-primary-foreground: 220 70% 10%;
+    --sidebar-accent: 221 62% 29%;
+    --sidebar-accent-foreground: 42 60% 93%;
+    --sidebar-border: 42 40% 93% / 0.16;
+    --sidebar-ring: 206 78% 78%;
+    --contest-live: 42 60% 93%;
+    --contest-live-foreground: 220 70% 10%;
   }
 }
 
@@ -120,15 +122,22 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: 'Instrument Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
+  /* Archivo only, not forced uppercase, headings on pages I have not
+     individually redesigned may hold mixed-case content (a venue name, a
+     comedian's name) that uppercase would hurt. Pages redesigned for this
+     project add their own text-transform: uppercase, matching the handoff. */
   h1,
   h2,
   h3,
   .font-display {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    font-weight: 700;
+    font-family: 'Archivo', 'Arial Narrow', sans-serif;
+    font-stretch: 68%;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 0.95;
   }
 }
 

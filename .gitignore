@@ -51,3 +51,6 @@ __pycache__/
 
 # tsc -b incremental build cache
 *.tsbuildinfo
+
+# Local design handoff reference material, not part of the app
+/comediq-redesign-handoff

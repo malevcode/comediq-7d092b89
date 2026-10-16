@@ -21,6 +21,10 @@ export default {
 			fontFamily: {
 				'fredoka': ['Fredoka', 'sans-serif'],
 				'nunito': ['Nunito', 'sans-serif'],
+				// Comedy club redesign (Oct 2026): Archivo for headlines (squished,
+				// bold, all caps), Instrument Sans for body text.
+				'archivo': ['Archivo', 'Arial Narrow', 'sans-serif'],
+				'instrument': ['Instrument Sans', 'Helvetica Neue', 'Helvetica', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -77,6 +81,7 @@ export default {
 					'blue-light': 'hsl(var(--comediq-blue-light))',
 					'blue-dark': 'hsl(var(--comediq-blue-dark))',
 					cream: 'hsl(var(--comediq-cream))',
+					accent: 'hsl(var(--comediq-accent))',
 				},
 			},
 			borderRadius: {

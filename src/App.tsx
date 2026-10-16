@@ -22,6 +22,8 @@ import NotFound from "./pages/NotFound";
 import BottomNavigation from "./components/BottomNavigation";
 import ScrollToTop from "./components/ScrollToTop";
 import AddMic from "./pages/AddMic";
+import Listing from "./pages/Listing";
+import Search from "./pages/Search";
 import SiteFooter from "./components/SiteFooter";
 import SubscriptionSuccessBanner from "./components/SubscriptionSuccessBanner";
 import OfflineBanner from "./components/OfflineBanner";
@@ -191,6 +193,8 @@ function AppShell() {
             <Route path="/setbuild-privacy" element={<SetBuildPrivacy />} />
             <Route path="/add-show" element={<AddShow />} />
             <Route path="/add-mic" element={<AddMic />} />
+            <Route path="/listing" element={<Listing />} />
+            <Route path="/search" element={<Search />} />
             <Route path="/shows/map" element={<ShowsMap />} />
             <Route path="/saved" element={<SavedMics />} />
             <Route path="/liked" element={<LikedMics />} />
@@ -215,7 +219,7 @@ const App = () => (
       <PointsSyncWrapper>
         <HelmetProvider>
           <TooltipProvider>
-            <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+            <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
               <Toaster />
               <Sonner />
               <AppShell />
