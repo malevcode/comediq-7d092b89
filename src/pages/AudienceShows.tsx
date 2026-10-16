@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { format, parseISO } from "date-fns";
 import { useAudienceShows } from "@/hooks/useAudienceShows";
 import { AudienceShowCard } from "@/components/shows/AudienceShowCard";
+import { FeaturedShowHero } from "@/components/shows/FeaturedShowHero";
 import { AudienceShowDetailModal } from "@/components/shows/AudienceShowDetailModal";
 import AudienceShowsMap from "@/components/map/AudienceShowsMap";
 import { AudienceShow } from "@/api/audienceShows";
@@ -10,6 +12,25 @@ import { Button } from "@/components/ui/button";
 import { Ticket, Calendar, Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { createPortal } from "react-dom";
+
+/**
+ * Groups every show after the featured one by month, in the order they
+ * already arrive (soonest first), matching LaughMobile.dc.html's "October"
+ * / "November" headers.
+ */
+function groupByMonth(shows: AudienceShow[]): Array<{ label: string; shows: AudienceShow[] }> {
+  const groups: Array<{ label: string; shows: AudienceShow[] }> = [];
+  for (const show of shows) {
+    const label = format(parseISO(show.show_date), "MMMM");
+    const lastGroup = groups[groups.length - 1];
+    if (lastGroup && lastGroup.label === label) {
+      lastGroup.shows.push(show);
+    } else {
+      groups.push({ label, shows: [show] });
+    }
+  }
+  return groups;
+}
 
 interface AudienceShowsProps {
   searchTerm: string;
@@ -135,12 +156,22 @@ export default function AudienceShows({ searchTerm, borough, showType, viewMode 
         </div>
       ) : shows && shows.length > 0 ? (
         <div className="space-y-4">
-          {shows.map((show) => (
-            <AudienceShowCard
-              key={show.id}
-              show={show}
-              onClick={() => handleShowSelect(show)}
-            />
+          <FeaturedShowHero show={shows[0]} onClick={() => handleShowSelect(shows[0])} />
+          {groupByMonth(shows.slice(1)).map((group) => (
+            <div key={group.label}>
+              <h2 className="font-display mb-2 text-xl uppercase tracking-wide text-comediq-cream">
+                {group.label}
+              </h2>
+              <div className="space-y-3">
+                {group.shows.map((show) => (
+                  <AudienceShowCard
+                    key={show.id}
+                    show={show}
+                    onClick={() => handleShowSelect(show)}
+                  />
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       ) : (
