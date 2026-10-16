@@ -36,14 +36,14 @@ const MicOfTheMonthBar = () => {
       <Trophy className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
       <span className="font-bold">{MIC_OF_THE_MONTH_LABEL}</span>
       <span className="opacity-90">{micOfTheMonthCta()}</span>
-      <span className="ml-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#07111f]">
-        Vote
-      </span>
+      <span className="ml-1 font-bold underline underline-offset-4">Vote</span>
     </>
   );
 
+  // Positioned to clear the floating glass pill nav + its own padding
+  // (BottomNavigation.tsx: pb-6 + pt-2.5 + the 52px pill = ~6.125rem).
   const className =
-    "keyboard-fixed-hide fixed bottom-[4.75rem] left-0 right-0 z-[50] flex h-8 items-center justify-center gap-2 " +
+    "keyboard-fixed-hide fixed bottom-[6.125rem] left-0 right-0 z-[50] flex h-8 items-center justify-center gap-2 " +
     "bg-contest-live px-4 text-[11px] leading-none text-contest-live-foreground shadow-lg " +
     "transition-opacity hover:opacity-90";
 
