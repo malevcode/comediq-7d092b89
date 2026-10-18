@@ -1095,6 +1095,16 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: website stops asking for location
+
+The map on the homepage and /open-mics used to pop a "use your current
+location?" prompt as soon as it loaded. Now `LocationService` in
+`src/components/map/LocationService.ts` just answers "Union Square,
+Manhattan" on the website, so no prompt ever shows. The native app still
+reads real GPS. The "I went up" check-in (`src/utils/deviceLocation.ts`)
+still asks for real location when someone taps it, because faking that
+would let anyone check in from home.
+
 ### Session: centered hero on tablet widths
 
 Between 640px and 767px wide the hero photo drops below the text, which left
