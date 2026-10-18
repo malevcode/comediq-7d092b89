@@ -1095,6 +1095,13 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: centered hero on tablet widths
+
+Between 640px and 767px wide the hero photo drops below the text, which left
+the text hugging the left edge with empty space on the right. In that range
+only, the hero text, mascot row, buttons and links are now centered. Phones
+(under 640px) and desktop (768px and up, photo on the right) are unchanged.
+
 ### Session: Mic of the Month reskinned, no logic changes
 
 **What shipped.** Pure visual pass on `/leaderboard` to match
