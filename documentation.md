@@ -1093,7 +1093,120 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ---
 
+## How time-block signup works
+
+Comediq already had one way to sign up for an open mic: a single numbered
+list, first come first served (there is also a lottery and a bucket-draw
+mode for the same list). This is a second, different way to sign up, called
+time-block mode, and only one pilot mic uses it so far.
+
+**What a slot is.** Instead of one long list, the night is cut into named
+time blocks, like 7:00pm, 7:10pm, 7:20pm. Each block has room for a few
+people. You are not number 14 in a line, you are "in the 7:10 block."
+
+**What happens when you press Sign up.** The page asks the database, right
+then, "is there still room in this block?" If yes, you are added and the
+button changes to "You're in" with a "Cancel my spot" option. If someone
+else took the last spot a half second before you, you get a clear "that
+slot is full" message instead of both of you thinking you have the spot.
+Nothing is decided in the browser, the database itself checks and locks the
+spot, which is what makes this safe even if two people tap Sign up on the
+same block at the exact same time.
+
+**What the host sees.** The mic's claimed host (and Comediq admins) can open
+a plain table: which block, which comedian, in order. Nobody else can see
+that table, not even other logged-in comedians.
+
+**Where the data lives.** Everything reuses the tables the original list
+mode already had:
+
+- `mic_hosts` gets one new column, `slug`, a stable link like
+  `/mic-slots/chuckles-mon` that a host can share. Only hosts who turn on
+  time-block mode get a slug; every other host row is exactly as private as
+  before.
+- `mic_signup_events` (one row per night) gets new columns for time-block
+  mode only: `slot_minutes` (how long each block is), `spots_per_slot`,
+  `slot_count` (how many blocks), `min_signups` (stored, not enforced yet),
+  `signup_rules` (the text shown above the blocks), and the mic and venue
+  name written directly onto the row. That last part is deliberate: the
+  signup page never has to look up the mic in the big 400-plus row mics
+  table, it only ever reads this one event.
+- `mic_signups` (one row per person per night) gets one new column,
+  `slot_start`, which block they picked. The legacy list mode leaves this
+  blank and is not touched by any of this.
+- Two database functions do the real work: `get_time_block_slot_counts`
+  (how many spots are left in each block, no names, safe for anyone to
+  call) and `signup_for_mic_slot` (the one that actually takes a spot,
+  locks the row, and checks capacity before it lets the insert through). A
+  third, `get_mic_slot_host_view`, is the only way to read names, and it
+  checks the caller is that mic's verified host or an admin before it
+  returns anything.
+
+**Not built yet.** A host screen for opening next week's signup sheet (right
+now that is a manual database insert), payments, texts or emails to hosts,
+the Wednesday auto-open of unfilled slots, auto-cancelling a mic under its
+minimum signups, and the cancelled-mic story card. `min_signups` is stored
+so a later phase can use it, nothing reads it yet.
+
+---
+
 ## Summarize
+
+### Session: nav lives in the app, not the website
+
+`BottomNavigation.tsx` now returns `null` unless
+`Capacitor.isNativePlatform()` is true, same check `deviceLocation.ts`
+already used to split native from web. The floating pill nav (Home,
+Perform, Laugh, Profile, Search) only renders inside the Capacitor app
+shell; the website no longer shows any nav bar.
+
+### Session: time-block mic signup (pilot)
+
+**What shipped.** A second signup mode, time-block, alongside the existing
+first-come list. New page at `/mic-slots/:hostSlug` (`MicSlotSignup.tsx`):
+shows the next date, the host's rules text, and a list of named time blocks
+with spots left, a Sign up button, and Cancel my spot if you already have
+one. A host/admin-only panel on the same page lists who is signed up for
+each block. Logged-out visitors go through the existing `/auth?next=`
+flow and land back on the same page.
+
+**Why a new page instead of extending `MicSignup.tsx`.** That file is the
+working, live, numbered-list signup sheet. Time-block mode is a different
+shape (named blocks with their own capacity, not one ordered line), so it
+got its own page and its own small API module
+(`src/api/micSlotSignup.ts`), and the legacy page was not touched.
+
+**Database.** One migration,
+`20261019120000_mic_signup_time_blocks.sql`, entirely additive: a new
+`time_block` value on the existing `signup_mode` enum, new nullable columns
+on `mic_signup_events`, `mic_hosts` and `mic_signups` (see "How time-block
+signup works" above), one new RLS policy (host rows become readable once
+they have a public `slug`, every other host row is unaffected), and three
+new Postgres functions (`get_time_block_slot_counts`,
+`signup_for_mic_slot`, `get_mic_slot_host_view`). Nothing existing was
+altered. Not yet run against the database, by design, Adam runs migrations
+by hand.
+
+**Points.** Reused the existing one-line `awardPoints('mic_signup', ...)`
+call, same as the legacy signup flow. No ledger changes.
+
+**Egress.** The signup page makes four small, scoped reads (host row by
+slug, one event row, a counts-only RPC, the viewer's own signup row) and
+never touches `open_mics_historical` or the full mics list. Estimated
+under 1KB per page view; see the session's PR description for the
+calculated breakdown, since the real number could not be measured until
+the migration runs.
+
+**Pilot only.** No existing mic had `signup_enabled` or `slots_enabled`
+changed. Exactly one mic, set up by hand with a separate SQL script, uses
+time-block mode so far.
+
+**Not built.** Host UI to open next week's event (manual SQL for now),
+payments, host texts or emails, Wednesday auto-open, auto-cancel under
+`min_signups`, cancellation story cards. All deliberately deferred to a
+later phase.
+
+**Verified.** `tsc -b` and `npm run build` both clean.
 
 ### Session: steady icons on mic cards
 

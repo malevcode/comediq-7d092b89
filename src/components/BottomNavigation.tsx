@@ -1,3 +1,4 @@
+import { Capacitor } from "@capacitor/core";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, Eye, User, Book, MicVocal, LayoutDashboard, Search } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,6 +29,9 @@ const BottomNavigation = () => {
   const navigate = useNavigate();
   const { user, isAdmin, role } = useAuth();
   const { trackClick } = useAnalytics();
+
+  // Nav lives in the native app only; the website stays a plain website.
+  if (!Capacitor.isNativePlatform()) return null;
 
   const isHostOrShowrunner = role === 'host' || role === 'showrunner';
   if (location.pathname.startsWith("/auth")) return null;

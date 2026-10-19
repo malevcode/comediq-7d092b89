@@ -46,6 +46,7 @@ import FreeMics from "./pages/FreeMics";
 import BeginnerMics from "./pages/BeginnerMics";
 import HostDashboard from "./pages/HostDashboard";
 import MicSignup from "./pages/MicSignup";
+import MicSlotSignup from "./pages/MicSlotSignup";
 import GrowthOpportunities from "./pages/GrowthOpportunities";
 import { Navigate } from "react-router-dom";
 import AdvertiseWithUs from "./pages/AdvertiseWithUs";
@@ -83,7 +84,11 @@ function PointsSyncWrapper({ children }: { children: React.ReactNode }) {
 }
 
 function isMicSignupPath(pathname: string) {
-  return pathname === '/mic-signup' || /^\/mic\/[^/]+\/signup\/?$/.test(pathname);
+  return (
+    pathname === '/mic-signup' ||
+    /^\/mic\/[^/]+\/signup\/?$/.test(pathname) ||
+    /^\/mic-slots\/[^/]+\/?$/.test(pathname)
+  );
 }
 
 // Unlinked utility pages that must read as plain text with no site chrome.
@@ -183,6 +188,7 @@ function AppShell() {
             <Route path="/beginner-friendly" element={<BeginnerMics />} />
             <Route path="/host-dashboard" element={<HostDashboard />} />
             <Route path="/mic/:slug/signup" element={<MicSignup />} />
+            <Route path="/mic-slots/:hostSlug" element={<MicSlotSignup />} />
             <Route path="/growth" element={<GrowthOpportunities />} />
             <Route path="/job-board" element={<Navigate to="/growth" replace />} />
             <Route path="/job-board/create" element={<Navigate to="/growth" replace />} />
