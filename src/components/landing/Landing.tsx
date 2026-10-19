@@ -134,22 +134,22 @@ const Nav = () => {
 
 const Hero = () => (
   <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-14 pt-4 sm:px-8 md:grid-cols-2 md:gap-14 md:pb-20">
-    <div>
-      <div className="flex items-end gap-2">
+    <div className="sm:text-center md:text-left">
+      <div className="flex items-end gap-2 sm:justify-center md:justify-start">
         <div className="min-w-0">
           <p className="lp-eyebrow">NYC's comedy platform</p>
           <h1 className="lp-wordmark mt-4 text-[58px] sm:text-[clamp(56px,6vw,92px)]">Comediq</h1>
         </div>
         <img src="/landing/character.png" alt="The Comediq mascot" className="h-[170px] w-auto shrink-0 sm:h-[240px]" />
       </div>
-      <p className="mt-5 max-w-md text-lg leading-snug text-[var(--lp-ink)]">
+      <p className="mt-5 max-w-md text-lg leading-snug text-[var(--lp-ink)] sm:mx-auto md:mx-0">
         Whether you're on stage or in the audience, Comediq is your home for live comedy.
       </p>
-      <div className="mt-7 flex flex-wrap gap-3">
+      <div className="mt-7 flex flex-wrap gap-3 sm:justify-center md:justify-start">
         <Link to="/perform" className="lp-btn lp-btn-solid"><Mic className="h-4 w-4" aria-hidden="true" />I Perform</Link>
         <Link to="/laugh" className="lp-btn lp-btn-ghost"><Eye className="h-4 w-4" aria-hidden="true" />I Watch</Link>
       </div>
-      <div className="mt-7 flex flex-col gap-2 text-sm">
+      <div className="mt-7 flex flex-col gap-2 text-sm sm:items-center md:items-start">
         <a className="lp-link w-fit" href={MALEV_INSTAGRAM} target="_blank" rel="noopener noreferrer">
           Made and maintained by Adam Malev @malevcomedy
         </a>

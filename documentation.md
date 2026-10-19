@@ -1152,6 +1152,14 @@ so a later phase can use it, nothing reads it yet.
 
 ## Summarize
 
+### Session: nav lives in the app, not the website
+
+`BottomNavigation.tsx` now returns `null` unless
+`Capacitor.isNativePlatform()` is true, same check `deviceLocation.ts`
+already used to split native from web. The floating pill nav (Home,
+Perform, Laugh, Profile, Search) only renders inside the Capacitor app
+shell; the website no longer shows any nav bar.
+
 ### Session: time-block mic signup (pilot)
 
 **What shipped.** A second signup mode, time-block, alongside the existing
@@ -1199,6 +1207,38 @@ payments, host texts or emails, Wednesday auto-open, auto-cancel under
 later phase.
 
 **Verified.** `tsc -b` and `npm run build` both clean.
+
+### Session: steady icons on mic cards
+
+The action row under every mic (`src/components/mic/MicActionBar.tsx`) is now
+three slots: votes on the left, Register in the middle (only when the mic has
+a signup link), and Instagram, map, confirm, report and share fixed on the
+right. A mic with no Instagram gets a blank spacer in that spot, so the icons
+sit in exactly the same place on every card.
+
+### Session: Perform tabs only for signed-in users
+
+The Find Mics / My Mics tab row on /perform (`src/pages/Perform.tsx`) now
+only shows when someone is signed in. Signed-out visitors always land on
+Find Mics, even if My Mics was the last tab they opened. For signed-in users
+the tab row gets a thin 6px gap under the header so it no longer touches it.
+
+### Session: website stops asking for location
+
+The map on the homepage and /open-mics used to pop a "use your current
+location?" prompt as soon as it loaded. Now `LocationService` in
+`src/components/map/LocationService.ts` just answers "Union Square,
+Manhattan" on the website, so no prompt ever shows. The native app still
+reads real GPS. The "I went up" check-in (`src/utils/deviceLocation.ts`)
+still asks for real location when someone taps it, because faking that
+would let anyone check in from home.
+
+### Session: centered hero on tablet widths
+
+Between 640px and 767px wide the hero photo drops below the text, which left
+the text hugging the left edge with empty space on the right. In that range
+only, the hero text, mascot row, buttons and links are now centered. Phones
+(under 640px) and desktop (768px and up, photo on the right) are unchanged.
 
 ### Session: Mic of the Month reskinned, no logic changes
 
