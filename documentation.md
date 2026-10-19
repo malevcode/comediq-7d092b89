@@ -1095,6 +1095,14 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: steady icons on mic cards
+
+The action row under every mic (`src/components/mic/MicActionBar.tsx`) is now
+three slots: votes on the left, Register in the middle (only when the mic has
+a signup link), and Instagram, map, confirm, report and share fixed on the
+right. A mic with no Instagram gets a blank spacer in that spot, so the icons
+sit in exactly the same place on every card.
+
 ### Session: Perform tabs only for signed-in users
 
 The Find Mics / My Mics tab row on /perform (`src/pages/Perform.tsx`) now
