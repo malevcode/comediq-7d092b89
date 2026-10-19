@@ -1,3 +1,4 @@
+import { Capacitor } from "@capacitor/core";
 import { Link, useLocation } from "react-router-dom";
 import { Trophy } from "lucide-react";
 import {
@@ -40,10 +41,13 @@ const MicOfTheMonthBar = () => {
     </>
   );
 
-  // Positioned to clear the floating glass pill nav + its own padding
-  // (BottomNavigation.tsx: pb-6 + pt-2.5 + the 52px pill = ~6.125rem).
+  // BottomNavigation only renders in the native app (see BottomNavigation.tsx),
+  // so only there does this bar need to clear the floating glass pill nav +
+  // its own padding (pb-6 + pt-2.5 + the 52px pill = ~6.125rem). On the
+  // website there's nothing below it, so it sits flush at the bottom.
+  const bottomOffset = Capacitor.isNativePlatform() ? "bottom-[6.125rem]" : "bottom-0";
   const className =
-    "keyboard-fixed-hide fixed bottom-[6.125rem] left-0 right-0 z-[50] flex h-8 items-center justify-center gap-2 " +
+    `keyboard-fixed-hide fixed ${bottomOffset} left-0 right-0 z-[50] flex h-8 items-center justify-center gap-2 ` +
     "bg-contest-live px-4 text-[11px] leading-none text-contest-live-foreground shadow-lg " +
     "transition-opacity hover:opacity-90";
 

@@ -136,7 +136,7 @@ const Hero = () => (
   <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-14 pt-4 sm:px-8 md:grid-cols-2 md:gap-14 md:pb-20">
     <div className="sm:text-center md:text-left">
       <div className="flex items-end gap-2 sm:justify-center md:justify-start">
-        <div className="min-w-0">
+        <div className="min-w-0 md:order-last">
           <p className="lp-eyebrow">NYC's comedy platform</p>
           <h1 className="lp-wordmark mt-4 text-[58px] sm:text-[clamp(56px,6vw,92px)]">Comediq</h1>
         </div>
