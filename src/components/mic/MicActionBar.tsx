@@ -232,7 +232,7 @@ export default function MicActionBar({
 
   return (
     <>
-    <div className={cn("flex items-center justify-between border-t border-white/10 pt-1.5 mt-1 text-[#D2DCF0]", className)}>
+    <div className={cn("grid grid-cols-[auto_1fr_auto] items-center gap-1 border-t border-white/10 pt-1.5 mt-1 text-[#D2DCF0]", className)}>
       {/* Left: like and dislike, each its own count, hidden when zero. */}
       <div className="flex items-center">
         <button
@@ -263,9 +263,26 @@ export default function MicActionBar({
         </button>
       </div>
 
-      {/* Right: quiet icon row, then Register as the one filled action. */}
+      {/* Middle: Register, only when the mic has a signup link. Kept out of
+          the icon row so those icons sit in the same spot on every card. */}
+      <div className="flex justify-center">
+        {signUpUrl && (
+          <Button
+            size="sm"
+            onClick={handleSignUp}
+            className="h-8 gap-1.5 rounded-full bg-comediq-accent px-3.5 text-xs font-semibold text-[#0A1128] hover:bg-comediq-accent/90"
+            aria-label="Register for this mic"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            Register
+          </Button>
+        )}
+      </div>
+
+      {/* Right: fixed icon row. A blank slot stands in for a missing
+          Instagram so the other icons never shift. */}
       <div className="flex items-center gap-0.5">
-        {instagramUrl && (
+        {instagramUrl ? (
           <Button
             variant="ghost"
             size="sm"
@@ -276,6 +293,8 @@ export default function MicActionBar({
               <Instagram className="w-4 h-4" />
             </a>
           </Button>
+        ) : (
+          <span className="h-8 w-8" aria-hidden="true" />
         )}
         <Button
           variant="ghost"
@@ -315,17 +334,6 @@ export default function MicActionBar({
         >
           <Send className="w-4 h-4" />
         </Button>
-        {signUpUrl && (
-          <Button
-            size="sm"
-            onClick={handleSignUp}
-            className="ml-1.5 h-8 gap-1.5 rounded-full bg-comediq-accent px-3.5 text-xs font-semibold text-[#0A1128] hover:bg-comediq-accent/90"
-            aria-label="Register for this mic"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            Register
-          </Button>
-        )}
       </div>
     </div>
     <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
