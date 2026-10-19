@@ -1095,6 +1095,13 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ## Summarize
 
+### Session: Perform tabs only for signed-in users
+
+The Find Mics / My Mics tab row on /perform (`src/pages/Perform.tsx`) now
+only shows when someone is signed in. Signed-out visitors always land on
+Find Mics, even if My Mics was the last tab they opened. For signed-in users
+the tab row gets a thin 6px gap under the header so it no longer touches it.
+
 ### Session: website stops asking for location
 
 The map on the homepage and /open-mics used to pop a "use your current
