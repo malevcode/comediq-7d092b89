@@ -7,12 +7,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OpenMic, MicFrequency, FREQUENCY_LABELS, VARIETY_TAG } from "@/types/openMic";
 import { parseStartTimeToMinutes } from '@/utils/micCheckin';
-import { useOpenMics, mapSupabaseRow } from "@/hooks/useOpenMics";
+import { useOpenMics } from "@/hooks/useOpenMics";
+import { useAddMic } from "@/hooks/useAddMic";
 import { isListedDate, parseBiweeklyAnchor, parseDateList, runsOnBiweeklyDate } from "@/utils/micOccurrences";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserLikedMics } from "@/hooks/useMicRatings";
-import { useNavigate, useSearchParams, Link, useParams, Navigate } from "react-router-dom";
+import { useNavigate, useSearchParams, Link, useParams, Navigate, useLocation } from "react-router-dom";
 import { PAGE_SIZE, resolveFilter, listingMeta, filterMics, summaryText, itemListSchema, breadcrumbSchema as seoBreadcrumb, graph, slugify as seoSlugify, ORIGIN } from "@/lib/seoShared";
 import NotFound from "./NotFound";
 import OpenMicsDetailedList from "@/components/OpenMicsDetailedList";
@@ -40,7 +41,9 @@ interface OpenMicsProps {
 const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
-  const [activeTab, setActiveTab] = useState("next");
+  const location = useLocation();
+  // The Create a listing page sends people here with the NEW tab open.
+  const [activeTab, setActiveTab] = useState<string>(() => (location.state as { tab?: string } | null)?.tab ?? "next");
   const [showKey, setShowKey] = useState(false);
   const { filter: filterParam } = useParams<{ filter?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -590,102 +593,16 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
     );
   };
 
-  const [isSubmittingMic, setIsSubmittingMic] = useState(false);
+  const { addMic, isSubmitting: isSubmittingMic } = useAddMic();
 
   const handleRequestMic = async (formData: MicRequestFormData) => {
-    setIsSubmittingMic(true);
-    try {
-      // add_open_mic is a SECURITY DEFINER function so anyone, signed in or not,
-      // can add a mic. It sets status, creator and submission date server-side.
-      const { data: newRow, error: histError } = await (supabase as any).rpc("add_open_mic", {
-        p: {
-          open_mic: formData.open_mic,
-          venue_name: formData.venue_name,
-          borough: formData.borough,
-          neighborhood: formData.neighborhood,
-          location: formData.location,
-          day: formData.day,
-          start_time: formData.start_time,
-          latest_end_time: formData.latest_end_time,
-          stage_time: formData.stage_time,
-          cost: formData.cost,
-          venue_type: formData.venue_type,
-          sign_up_instructions: formData.sign_up_instructions,
-          hosts_organizers: formData.hosts_organizers,
-          changes_updates: formData.changes_updates,
-          city: formData.city,
-          frequency: formData.frequency,
-          signup_method: formData.signup_method,
-          signup_url: formData.signup_url,
-          frequency_custom_text: formData.frequency_custom_text,
-        },
-      });
-
-      if (histError || !newRow) {
-        console.error('Insert error:', histError);
-        toast({
-          title: "Error",
-          description: histError?.message || "Failed to add mic. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Show it right away: drop it into every cached mic list.
-      const addedMic = mapSupabaseRow(newRow);
-      queryClient.setQueriesData<OpenMic[]>({ queryKey: ["openMics"] }, (old) =>
-        old ? [...old.filter((m) => m.id !== addedMic.id), addedMic] : [addedMic],
-      );
-      if (addedMic.city && addedMic.city !== filters.city) {
-        setFilters((f) => ({ ...f, city: addedMic.city }));
-      }
-      setActiveTab('new');
-
-      // Also insert audit trail into requests table
-      const auditObj = {
-        show_title: formData.open_mic,
-        open_mic: formData.open_mic,
-        venue_name: formData.venue_name,
-        borough: formData.borough || null,
-        neighborhood: formData.neighborhood || null,
-        location: formData.location || null,
-        date: formData.day,
-        time: formData.start_time,
-        latest_end_time: formData.latest_end_time || null,
-        stage_time: formData.stage_time || null,
-        cost: formData.cost || null,
-        venue_type: formData.venue_type || null,
-        sign_up_instructions: formData.sign_up_instructions || null,
-        hosts_organizers: formData.hosts_organizers || null,
-        changes_updates: formData.changes_updates || null,
-        other_rules: null,
-        city: formData.city || 'New York',
-        user_id: user?.id || null,
-        frequency: formData.frequency || 'weekly',
-        signup_method: formData.signup_method || 'in_person',
-        signup_url: formData.signup_url || null,
-        frequency_custom_text: formData.frequency_custom_text || null,
-        reviewed: true,
-        status: 'approved',
-      };
-
-      await supabase.from("open_mics_requests").insert([auditObj]);
-
-      toast({
-        title: "Mic added! 🎤",
-        description: "It's now live on the site. Thanks for contributing!",
-      });
-      setShowInlineCard(false);
-    } catch (e) {
-      console.error('Unexpected error:', e);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmittingMic(false);
+    const addedMic = await addMic(formData);
+    if (!addedMic) return;
+    if (addedMic.city && addedMic.city !== filters.city) {
+      setFilters((f) => ({ ...f, city: addedMic.city }));
     }
+    setActiveTab('new');
+    setShowInlineCard(false);
   };
 
   if (isLoading) {

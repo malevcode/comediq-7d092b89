@@ -154,7 +154,7 @@ const Hero = () => (
           Made and maintained by Adam Malev @malevcomedy
         </a>
         <a className="lp-link w-fit" href={INSTAGRAM} target="_blank" rel="noopener noreferrer">
-          Questions or new mics? DM @comediq.us
+          Questions or collabs? DM @comediq.us
         </a>
       </div>
     </div>

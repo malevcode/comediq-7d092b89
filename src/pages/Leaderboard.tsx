@@ -80,49 +80,6 @@ function VoteButton({
   );
 }
 
-/**
- * A vote that does not count, so people can try the gesture before spending a
- * real one. The contest has had the opposite problem all along: the control was
- * hidden, unlabelled and two pages away, so nobody learned it. This one sits
- * directly under the instructions and writes nothing anywhere.
- */
-function PracticeVote() {
-  const [tried, setTried] = useState(false);
-
-  return (
-    <div className="mt-3 rounded-xl bg-black/15 p-3">
-      <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] opacity-80">
-        Try it, this one does not count
-      </p>
-      <div className="flex items-center gap-3 rounded-lg bg-white/15 p-2.5">
-        <span className="w-7 shrink-0 text-center text-lg font-bold tabular-nums opacity-70">1</span>
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold">Practice Mic</span>
-          <span className="block truncate text-xs opacity-80">Anywhere · Any night</span>
-        </span>
-        <button
-          type="button"
-          onClick={() => setTried((v) => !v)}
-          aria-pressed={tried}
-          aria-label={tried ? "Undo the practice vote" : "Try a practice vote"}
-          className={cn(
-            "flex h-[52px] w-[52px] shrink-0 flex-col items-center justify-center gap-0 rounded-xl border transition-colors",
-            tried ? "border-comediq-cream bg-comediq-cream text-[#0A1128]" : "border-white/40 bg-transparent text-white hover:bg-white/10",
-          )}
-        >
-          <VoteArrow filled={tried} className="h-[18px] w-[18px]" />
-          <span className="text-sm font-bold tabular-nums leading-tight">{tried ? 1 : 0}</span>
-        </button>
-      </div>
-      <p className="mt-2 text-xs opacity-90">
-        {tried
-          ? "That is all it is. Tap again to take it back, then vote for real below."
-          : "Tap the arrow above to see how it works."}
-      </p>
-    </div>
-  );
-}
-
 function MicRow({
   mic,
   rank,
@@ -213,12 +170,6 @@ export default function Leaderboard() {
               <span className="inline-flex h-9 items-center rounded-full border border-white/16 bg-[#1A3F85] px-3.5 text-sm text-comediq-cream">
                 <b className="mr-1.5">{rows.length}</b> mics ranked
               </span>
-            </div>
-
-            {/* The instruction people never had. Voting was two taps away on a
-                different page, with nothing anywhere saying how it worked. */}
-            <div className="mt-2">
-              <PracticeVote />
             </div>
 
             {isLoading ? (
