@@ -1995,3 +1995,26 @@ said "Headshot upload error" with no reason, so nobody could tell why.
 **Still unknown.** If it keeps failing, the new message will say whether it is
 storage (a rule on the `headshots` bucket) or the profile save (a rule on the
 `profiles` table). Those rules live in Supabase, not in this repo's code.
+
+### Session: one add-a-mic form, Laugh + in the toolbar, copy cleanups
+
+**One form for adding a mic.** There used to be two very different forms: the
+small card that opens from the green + on the Perform tab, and a long page
+behind "Create a listing" in the menu. Now there is one. The "Create a listing"
+page (`/add-mic`) shows the same small card with the same questions, so it fits
+on one screen. Both save through one shared helper, `src/hooks/useAddMic.ts`
+(the `add_open_mic` database function, the audit row, and putting the new mic on
+screen straight away). After saving from the listing page you land on the Perform
+tab with NEW open. The old long form is gone, so there is only one place to
+change when a question changes.
+
+**Laugh + moved.** The orange floating + on the Laugh tab is now a green + in the
+top row, next to the filter button, in the same spot and style as the Perform +.
+It still opens the add-a-show page (signed-out people go to log in first).
+
+**Copy and cleanup.** "Questions or new mics?" is now "Questions or collabs? DM
+@comediq.us", because we want people to add mics themselves. The "Try it, this
+one does not count" practice mic on the Mic of the Month page is removed.
+
+**Not changed.** The add-a-show form (`/add-show`) is a different kind of
+listing and keeps its own questions.
