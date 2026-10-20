@@ -2018,3 +2018,22 @@ one does not count" practice mic on the Mic of the Month page is removed.
 
 **Not changed.** The add-a-show form (`/add-show`) is a different kind of
 listing and keeps its own questions.
+
+### Session: simpler sign-up questions on the add-a-mic card
+
+The card had two overlapping sign-up questions: a text box ("bucket pull, list,
+etc.") and an "In-Person / Online / Comediq Slots / Other" dropdown. Now:
+
+- **One box:** the hint says "[paste link here] or bucket or in person list".
+  If the host pastes a link, the mic is saved as an online sign-up with that
+  link. If they type words, it is saved as an in-person sign-up. No more second
+  "https://..." box to fill in.
+- **Lineup order dropdown** replaces the In-Person dropdown: Bucket / random,
+  List in order of arrival, or Host chooses. It is optional. There is no new
+  database column: the choice is added to the sign-up text as "Lineup: Bucket /
+  random", so it shows wherever the sign-up instructions already show.
+- The old dropdown also offered "Comediq Slots!". That option is gone from this
+  card (it was already rarely the right answer for a new mic).
+
+This card is shared by the + on the Perform tab and the Create a listing page,
+so both changed at once.
