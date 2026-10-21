@@ -2132,3 +2132,10 @@ reply is read. The plan file has the go-live checklist.
 is `true`. It never texts someone who said STOP, never texts the same mic and
 number twice for one date, and never texts about a mic whose dates it is only
 guessing.
+
+## Session: nav bar shine removed
+
+- The bottom nav's selected button no longer has a glow or shadow behind it. It is
+  just the cream pill that slides (the lava lamp motion is unchanged).
+- Next: ShowTN "Next shows" menu (show of the night, this week, this month). It lives
+  in a separate site, so it needs a read-only way to get shows from our database.
