@@ -2104,3 +2104,31 @@ person "Show listings are being set up" instead of saving.
 before they appear on the Laugh tab. For a repeating show that means each dated
 row. We do not ask the database to return the new row, because an unverified row
 cannot be read by the person who submitted it, so asking for it back would fail.
+
+### Session: day-before confirmation texts for mic hosts (built, not live)
+
+**The idea.** The day before a mic, text its host "is it still on?". A YES marks the
+mic confirmed and the card shows the date it was last confirmed (the "Verified
+<date>" label already on every card). Full plan: `docs/HOST_TEXT_CONFIRMATION_PLAN.md`.
+
+**What exists now, in kid terms.**
+1. **The sign-up.** On the Host Dashboard a verified host sees a card to add their
+   phone number and tick a consent box. Only verified hosts can, because their
+   YES changes what the public sees. The number goes in a private table and is never
+   put on the website's mic data.
+2. **The mailman.** Every day around noon a GitHub job looks at tomorrow, finds the
+   mics running then (it understands weekly, bi-weekly anchors, monthly and listed
+   dates), and works out who to text. Weekly mics only get one text a month.
+   Right now it only **prints** who it would text. It sends nothing, and writes
+   nothing, until real texting is switched on.
+3. **The answers.** A database function turns YES, NO or STOP into the right
+   action: YES sets the confirmed date, STOP stops all texts.
+
+**What is missing.** A texting company (the provider is not chosen), and the web
+address the provider sends replies to. Until both exist, no text goes out and no
+reply is read. The plan file has the go-live checklist.
+
+**Safety.** The daily job is dry-run unless the GitHub variable `HOST_TEXTS_LIVE`
+is `true`. It never texts someone who said STOP, never texts the same mic and
+number twice for one date, and never texts about a mic whose dates it is only
+guessing.

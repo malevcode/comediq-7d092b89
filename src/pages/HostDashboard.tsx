@@ -5,6 +5,7 @@ import { ClaimMicForm } from '@/components/host/ClaimMicForm';
 import { CreateEventForm } from '@/components/host/CreateEventForm';
 import { RunOfShow } from '@/components/host/RunOfShow';
 import { MicCoverUpload } from '@/components/host/MicCoverUpload';
+import { HostConfirmationTexts } from '@/components/host/HostConfirmationTexts';
 import { SignupSheetToggle } from '@/components/host/SignupSheetToggle';
 import { useOpenMics } from '@/hooks/useOpenMics';
 import { generateVenueSlug } from '@/utils/slugify';
@@ -131,6 +132,8 @@ function HostMicPanel({ hostId, micId, micName }: { hostId: string; micId: strin
       {/* First, because an event created while signups are off is a real event
           with no way for anyone to reach it. */}
       <SignupSheetToggle micId={micId} micSlug={micSlug} />
+
+      <HostConfirmationTexts micId={micId} micName={micName} />
 
       <MicCoverUpload micId={micId} />
       <CreateEventForm hostId={hostId} micId={micId} />

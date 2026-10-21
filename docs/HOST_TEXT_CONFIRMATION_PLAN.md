@@ -3,8 +3,9 @@
 Goal: the day before a mic runs, text its host "is it still on?". A reply of YES
 marks the mic confirmed and Comediq shows the date it was last confirmed.
 
-Status: design only. Nothing here is built. The questions at the bottom decide
-the build.
+Status: the database, the daily job (dry run) and the host opt-in card are built.
+Sending real texts and catching replies are NOT built, because the texting
+provider is not chosen yet. See "Go live" at the bottom.
 
 ## What already exists (so we reuse it)
 
@@ -61,9 +62,50 @@ the build.
 5. Turn on real sending for one friendly host, then everyone.
 6. Card wording: "Host confirmed <date>" and "Not running <date>".
 
-## Decisions needed
+## Decisions made (Oct 21)
 
-1. Where do host phone numbers come from?
-2. Which texting provider?
-3. How often do weekly mics get texted? Every week is a lot for a host.
-4. What happens when nobody replies?
+1. **Phone numbers:** hosts opt in themselves, on the Host Dashboard. Only a verified
+   host (an approved claim in `mic_hosts`) can turn texts on for a mic. This matters
+   because the replies set the public "Verified" date.
+2. **Provider:** not chosen. Twilio code is included and is the only provider-specific
+   piece (`sendSms()` in the script). Replace it to switch.
+3. **Weekly mics:** one text a month. A weekly mic is texted only when it has not been
+   confirmed in the last 28 days. Bi-weekly, monthly, pop-up and custom mics are
+   texted before every show.
+4. **No reply:** nothing changes. The mic stays listed and keeps showing its last
+   confirmed date, so an old date warns people on its own.
+
+Mics where we cannot tell which dates they run (bi-weekly with no anchor, pop-up
+or custom with no listed dates) are never texted.
+
+## What is built
+
+- `supabase/migrations/20261021130000_host_confirmation_texts.sql`: the two private
+  tables, `set_host_confirmation_contact` (what the opt-in card calls) and
+  `apply_host_reply` (what the reply webhook will call). Tested on a real Postgres
+  engine: phone cleanup, host checks, YES / NO / STOP, number changes.
+- `scripts/send-host-confirmation-texts.ts` and
+  `.github/workflows/host_confirmation_texts.yaml`: the daily job. Dry run by
+  default; tested against a fake database for who gets texted and who is skipped.
+- `src/components/host/HostConfirmationTexts.tsx`: the opt-in card on the Host Dashboard.
+- Display: nothing new needed. A YES sets `last_confirmed_at`, which cards already
+  show as "Verified <date>".
+
+## Not built yet
+
+- **The reply webhook.** The provider needs a public address to send replies to. It
+  should check the provider's signature, then call `apply_host_reply(phone, body)`
+  with the service key and answer with a short reply. Until it exists, YES replies
+  go nowhere and nothing gets confirmed.
+- **Cancelled dates.** A NO is recorded but not shown on the mic yet.
+- A second nudge when nobody replies (optional).
+
+## Go live checklist
+
+1. Create the texting account and start sender registration (days to weeks).
+2. Run the two migrations' SQL (this one and any earlier ones not yet run).
+3. Add the Twilio values as GitHub secrets: `TWILIO_ACCOUNT_SID`,
+   `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`.
+4. Build the reply webhook (ask for it once the provider is chosen).
+5. Run the workflow by hand with "send" ticked, with one friendly host opted in.
+6. Set the repository variable `HOST_TEXTS_LIVE` to `true` so the daily run sends.
