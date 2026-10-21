@@ -2037,3 +2037,25 @@ etc.") and an "In-Person / Online / Comediq Slots / Other" dropdown. Now:
 
 This card is shared by the + on the Perform tab and the Create a listing page,
 so both changed at once.
+
+### Session: glass bottom nav is back on the website, with a lava-lamp slide
+
+**What happened.** The floating glass pill at the bottom (Home / Perform / Laugh /
+Profile, plus the round search button) was added in the Oct 16 redesign. On
+Oct 19 a commit ("Hide bottom nav on web, keep it native-app only") made it show
+only inside the phone app, so on the website it vanished. It is back on the
+website now. To hide it on the web again, put back the one line
+`if (!Capacitor.isNativePlatform()) return null;` at the top of
+`src/components/BottomNavigation.tsx`.
+
+**The lava-lamp animation.** The highlight behind the selected button used to
+jump from one button to the next. Now it is one soft blob that slides over:
+
+- It uses a springy curve, so it slightly overshoots the button and settles back.
+- It stretches wide and thin in the middle of the trip, then relaxes
+  (the `lava-squish` animation in `src/index.css`).
+- A blurred blue glow follows a split second behind it, which is the "lava" part.
+- People who turn on "reduce motion" in their phone settings get no animation.
+
+**The + buttons.** On a laptop the Laugh + sits in the top row with search, map
+and filter, next to the Perform + style. Both are the same green + .
