@@ -24,8 +24,7 @@ function getInitials(user: { user_metadata?: Record<string, unknown>; email?: st
  * its own link.
  *
  * The highlight is one "lava lamp" blob that slides to the selected button. It
- * overshoots and squishes as it moves, with a soft blurred glow that trails a
- * beat behind, so switching tabs flows instead of jumping.
+ * overshoots and squishes as it moves, so switching tabs flows instead of jumping.
  */
 const BottomNavigation = () => {
   const location = useLocation();
@@ -120,20 +119,10 @@ const BottomNavigation = () => {
       >
         {blob && (
           <>
-            {/* Trailing glow: same move, slower, blurred. */}
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute bottom-1.5 top-1.5 rounded-full bg-comediq-accent/50 blur-md motion-reduce:transition-none"
-              style={{
-                left: blob.left,
-                width: blob.width,
-                transition: "left 900ms cubic-bezier(0.22, 1, 0.36, 1) 70ms, width 900ms cubic-bezier(0.22, 1, 0.36, 1) 70ms",
-              }}
-            />
             {/* The blob: overshoots with a springy curve and squishes while it travels. */}
             <span
               aria-hidden="true"
-              className={`pointer-events-none absolute bottom-1.5 top-1.5 rounded-full bg-comediq-cream/92 shadow-[0_4px_14px_rgba(10,17,40,0.25)] motion-reduce:transition-none ${squishing ? "lava-squish" : ""}`}
+              className={`pointer-events-none absolute bottom-1.5 top-1.5 rounded-full bg-comediq-cream/92 motion-reduce:transition-none ${squishing ? "lava-squish" : ""}`}
               style={{
                 left: blob.left,
                 width: blob.width,
