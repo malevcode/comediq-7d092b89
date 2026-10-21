@@ -2059,3 +2059,48 @@ jump from one button to the next. Now it is one soft blob that slides over:
 
 **The + buttons.** On a laptop the Laugh + sits in the top row with search, map
 and filter, next to the Perform + style. Both are the same green + .
+
+### Session: the new add-a-show form
+
+**What changed.** `/add-show` (Create a listing, then A show, and the green + on the
+Laugh tab) used to be a long form that asked for a weekday. It is now one
+condensed card, like the add-a-mic card. Files: `src/components/EditableShowCard.tsx`
+(the card), `src/pages/AddShow.tsx` (saves it), `submitShowListing` in
+`src/api/audienceShows.ts`, `src/utils/showRecurrence.ts` (the date maths).
+
+**What it asks.** Show name, venue, a **real calendar date** (not a weekday), start
+time, doors time (optional), price, Instagram, ticket link, show type, a short
+description, a picture, and whether the show repeats. No lineup order or stage
+time, those are for open mics. A show still needs an Instagram or a ticket link.
+
+**Repeating shows.** "One time only", every week, every 2 weeks, or every month
+(same weekday and position, so a 1st Sunday show stays on the 1st Sunday). It
+saves the way the Repeating shows section above describes: one hidden template
+plus dated rows. It creates the next 8 weeks, 6 biweekly shows or 6 months up
+front. Nothing creates more later, so a repeating show runs out of dates.
+
+**The picture.** Shrunk in the browser (`src/utils/prepareImage.ts`) and uploaded to
+the signed-in user's own folder of the public `headshots` bucket, because that
+is the one place every signed-in user is already allowed to upload.
+
+**LaughPass free ticket.** A checkbox: "Offer LaughPass members a free ticket", plus
+how many free tickets per show. This is only **recorded** for now
+(`laughpass_free_ticket`, `laughpass_ticket_limit`). LaughPass has no claim
+flow yet, so nothing on the public site mentions it, on purpose, so we never
+promise audiences a ticket that cannot be claimed.
+
+**Confirm 1 day before.** A required checkbox: the host promises to confirm the
+show is still on the day before each show (`confirm_active_agreed`). **The
+reminders are not built yet.** Nothing emails the host, and nothing hides an
+unconfirmed show. That needs a scheduled job and an email, and is the next piece
+of work. `last_confirmed_active_at` is waiting for it.
+
+**Needs one SQL step.** `supabase/migrations/20261021120000_show_listing_fields.sql`
+adds the four new columns. Nothing in this repo applies migrations, so run it in
+the Supabase SQL editor first. Until it is run, submitting a show tells the
+person "Show listings are being set up" instead of saving.
+
+**Still reviewed first.** New shows are saved unverified, so an admin approves them
+before they appear on the Laugh tab. For a repeating show that means each dated
+row. We do not ask the database to return the new row, because an unverified row
+cannot be read by the person who submitted it, so asking for it back would fail.

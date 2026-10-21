@@ -1,334 +1,98 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import { useMutation } from '@tanstack/react-query';
-import { submitAudienceShow } from '@/api/audienceShows';
-import { useAuth } from '@/contexts/AuthContext';
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { ArrowLeft } from 'lucide-react';
+import { EditableShowCard, type ShowCardData } from '@/components/EditableShowCard';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { submitShowListing } from '@/api/audienceShows';
+import { prepareImage } from '@/utils/prepareImage';
 
-const BOROUGHS = ['Manhattan', 'Brooklyn', 'Queens', 'Bronx', 'Staten Island'];
-const SHOW_TYPES = ['Stand-up', 'Variety', 'Improv', 'Sketch', 'Roast', 'Other'];
-const FIELD_CLASS = 'w-full min-w-0 border-0 bg-white/10 text-sm text-gray-900 shadow-[0_12px_38px_rgba(2,10,30,0.10)] backdrop-blur-xl placeholder:text-gray-400 focus-visible:ring-gray-200 dark:bg-white/10 dark:text-white dark:placeholder:text-white/50 dark:focus-visible:ring-[#8ec5ff]/50 dark:shadow-[0_12px_38px_rgba(2,10,30,0.24)] dark:data-[placeholder]:text-white/50';
+/** The database is missing the columns from 20261021120000_show_listing_fields.sql. */
+const isMissingColumnError = (message: string) =>
+  /laughpass|confirm_active|last_confirmed_active|schema cache|column .* does not exist/i.test(message);
 
+/**
+ * Create a listing, show. Same kind of condensed card as the add-a-mic form.
+ * Shows are reviewed before they appear on the Laugh tab.
+ */
 export default function AddShow() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
-  const searchParams = new URLSearchParams(location.search);
-  const returnPath = searchParams.get('from') === 'shows' ? '/shows' : '/laugh';
+  const [submitting, setSubmitting] = useState(false);
+  const returnPath = new URLSearchParams(location.search).get('from') === 'shows' ? '/shows' : '/laugh';
 
-  const [title, setTitle] = useState('');
-  const [venueName, setVenueName] = useState('');
-  const [venueAddress, setVenueAddress] = useState('');
-  const [borough, setBorough] = useState('');
-  const [showDate, setShowDate] = useState('');
-  const [showTime, setShowTime] = useState('');
-  const [doorsTime, setDoorsTime] = useState('');
-  const [description, setDescription] = useState('');
-  const [lineup, setLineup] = useState('');
-  const [ticketUrl, setTicketUrl] = useState('');
-  const [ticketPrice, setTicketPrice] = useState('');
-  const [showType, setShowType] = useState('');
-  const [hostName, setHostName] = useState('');
-  const [instagramHandle, setInstagramHandle] = useState('');
-
-  const submitMutation = useMutation({
-    mutationFn: submitAudienceShow,
-    onSuccess: () => {
-      toast({
-        title: 'Show submitted!',
-        description: 'Your show has been submitted for review and will appear once approved.',
-      });
-      navigate(returnPath);
-    },
-    onError: (error: any) => {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to submit show',
-        variant: 'destructive',
-      });
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSave = async (data: ShowCardData) => {
     if (!user) {
       navigate(`/auth?redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`);
       return;
     }
 
-    // A listing has to give people somewhere to go for anything we are missing.
-    if (!instagramHandle.trim() && !ticketUrl.trim()) {
+    setSubmitting(true);
+    try {
+      // The picture goes in the user's own folder of the public headshots bucket,
+      // the one place every signed-in user is already allowed to upload.
+      let imageUrl: string | null = null;
+      if (data.imageFile) {
+        const { blob, ext, type } = await prepareImage(data.imageFile);
+        const path = `${user.id}/show-${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from('headshots')
+          .upload(path, blob, { contentType: type, cacheControl: '3600' });
+        if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`);
+        imageUrl = supabase.storage.from('headshots').getPublicUrl(path).data.publicUrl;
+      }
+
+      const { imageFile: _imageFile, ...fields } = data;
+      await submitShowListing(user.id, { ...fields, image_url: imageUrl });
+
       toast({
-        title: 'Add an Instagram or a ticket link',
-        description: 'We need at least one so people can find your show details.',
+        title: 'Show submitted!',
+        description:
+          data.repeat === 'none'
+            ? 'It will appear on the Laugh tab once it has been reviewed.'
+            : 'Your upcoming dates will appear on the Laugh tab once they have been reviewed.',
+      });
+      navigate(returnPath);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Show submit error:', message, error);
+      toast({
+        title: isMissingColumnError(message) ? 'Show listings are being set up' : 'Could not submit the show',
+        description: isMissingColumnError(message)
+          ? 'Comediq needs one quick database update before shows can be submitted. Please try again soon.'
+          : message,
         variant: 'destructive',
       });
-      return;
+    } finally {
+      setSubmitting(false);
     }
-
-    submitMutation.mutate({
-      title,
-      venue_name: venueName,
-      venue_address: venueAddress || null,
-      borough: borough || null,
-      show_date: showDate,
-      show_time: showTime,
-      doors_time: doorsTime || null,
-      description: description || null,
-      lineup: lineup || null,
-      ticket_url: ticketUrl || null,
-      ticket_price: ticketPrice || null,
-      show_type: showType || null,
-      host_name: hostName || null,
-      instagram_handle: instagramHandle || null,
-      image_url: null,
-      expected_audience: null,
-      age_restriction: null,
-      is_featured: false,
-      is_recurring: false,
-      recurrence_pattern: null,
-      recurrence_day: null,
-      parent_show_id: null,
-      is_active: true,
-      // Must stay null: the feed query and the RLS policy only admit
-      // source IS NULL or an approved venue_sources key.
-      source: null,
-      source_event_id: null,
-      latitude: null,
-      longitude: null,
-      geocoded_at: null,
-      geocoding_provider: null,
-      geocoding_score: null,
-      geocoding_match_address: null,
-    });
   };
 
   return (
     <div className="min-h-screen bg-transparent pb-2 pt-20">
       <SEO
         title="Submit a Comedy Show to Comediq | Comediq"
-        description="List your stand-up comedy show on Comediq. Add the venue, date, line-up and ticket link so audiences and comedians can find it."
+        description="List your stand-up comedy show on Comediq. Add the venue, date, ticket link and a picture so audiences can find it."
       />
-      <PageHeader
-        title="Submit a Show"
-        subtitle="Add your comedy show to our listings"
-      />
-      
-      <div className="max-w-2xl mx-auto px-4 mt-10 pb-10">
+      <PageHeader title="Submit a Show" subtitle="Add your comedy show to our listings" />
+
+      <div className="mx-auto mt-10 max-w-3xl px-4 pb-10">
         <h1 className="sr-only">Submit a comedy show</h1>
-        <Button
-          variant="ghost" 
-          onClick={() => navigate(returnPath)}
-          className="mb-2"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+        <Button variant="ghost" onClick={() => navigate(returnPath)} className="mb-2">
+          <ArrowLeft className="mr-2 h-4 w-4" />
           {returnPath === '/shows' ? 'Back to Scheduler' : 'Back to Shows'}
         </Button>
+        <p className="mb-3 text-sm text-[#07111f]/70 dark:text-white/70">
+          Your show is reviewed before it appears on the Laugh tab.
+        </p>
 
-        <Card className="bg-white/10 border-0">
-          <CardHeader>
-            <CardTitle>Show Details</CardTitle>
-            <CardDescription>
-              Fill out the details below. Your show will be reviewed before appearing on the site.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="title">Show Title *</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g., Friday Night Comedy"
-                  className={FIELD_CLASS}
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="venueName">Venue Name *</Label>
-                  <Input
-                    id="venueName"
-                    value={venueName}
-                    onChange={(e) => setVenueName(e.target.value)}
-                    placeholder="e.g., The Comedy Cellar"
-                    className={FIELD_CLASS}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="borough">Borough</Label>
-                  <Select value={borough} onValueChange={setBorough}>
-                    <SelectTrigger id="borough" className={FIELD_CLASS}>
-                      <SelectValue placeholder="Select borough" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {BOROUGHS.map((b) => (
-                        <SelectItem key={b} value={b}>{b}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="venueAddress">Venue Address</Label>
-                <Input
-                  id="venueAddress"
-                  value={venueAddress}
-                  onChange={(e) => setVenueAddress(e.target.value)}
-                  placeholder="e.g., 117 MacDougal St, New York, NY"
-                  className={FIELD_CLASS}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="min-w-0">
-                  <Label htmlFor="showDate">Show Date *</Label>
-                  <Input
-                    id="showDate"
-                    type="date"
-                    value={showDate}
-                    onChange={(e) => setShowDate(e.target.value)}
-                    className={FIELD_CLASS}
-                    required
-                  />
-                </div>
-                <div className="min-w-0">
-                  <Label htmlFor="showTime">Show Time *</Label>
-                  <Input
-                    id="showTime"
-                    type="time"
-                    value={showTime}
-                    onChange={(e) => setShowTime(e.target.value)}
-                    className={FIELD_CLASS}
-                    required
-                  />
-                </div>
-                <div className="min-w-0">
-                  <Label htmlFor="doorsTime">Doors Time</Label>
-                  <Input
-                    id="doorsTime"
-                    type="time"
-                    value={doorsTime}
-                    onChange={(e) => setDoorsTime(e.target.value)}
-                    className={FIELD_CLASS}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="showType">Show Type</Label>
-                  <Select value={showType} onValueChange={setShowType}>
-                    <SelectTrigger id="showType" className={FIELD_CLASS}>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SHOW_TYPES.map((t) => (
-                        <SelectItem key={t} value={t}>{t}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="ticketPrice">Ticket Price</Label>
-                  <Input
-                    id="ticketPrice"
-                    value={ticketPrice}
-                    onChange={(e) => setTicketPrice(e.target.value)}
-                    placeholder="e.g., Free, $10, $15-20"
-                    className={FIELD_CLASS}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Tell us about your show..."
-                  rows={3}
-                  className={FIELD_CLASS}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="lineup">Lineup</Label>
-                <Textarea
-                  id="lineup"
-                  value={lineup}
-                  onChange={(e) => setLineup(e.target.value)}
-                  placeholder="List the performers (one per line or comma-separated)"
-                  rows={2}
-                  className={FIELD_CLASS}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="hostName">Host Name</Label>
-                  <Input
-                    id="hostName"
-                    value={hostName}
-                    onChange={(e) => setHostName(e.target.value)}
-                    placeholder="Who's hosting?"
-                    className={FIELD_CLASS}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="instagramHandle">Instagram Handle</Label>
-                  <Input
-                    id="instagramHandle"
-                    value={instagramHandle}
-                    onChange={(e) => setInstagramHandle(e.target.value)}
-                    placeholder="@yourshow"
-                    className={FIELD_CLASS}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="ticketUrl">Ticket/RSVP Link</Label>
-                <Input
-                  id="ticketUrl"
-                  type="url"
-                  value={ticketUrl}
-                  onChange={(e) => setTicketUrl(e.target.value)}
-                  placeholder="https://..."
-                  className={FIELD_CLASS}
-                />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Give us an Instagram handle or a ticket link. At least one is required
-                  so people have somewhere to go for more details.
-                </p>
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={submitMutation.isPending}
-              >
-                {submitMutation.isPending ? 'Submitting...' : 'Submit Show'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        <EditableShowCard isSubmitting={submitting} onCancel={() => navigate(returnPath)} onSave={handleSave} />
       </div>
     </div>
   );
