@@ -2139,3 +2139,8 @@ guessing.
   just the cream pill that slides (the lava lamp motion is unchanged).
 - Next: ShowTN "Next shows" menu (show of the night, this week, this month). It lives
   in a separate site, so it needs a read-only way to get shows from our database.
+
+## Session: vote bar text and mascot side
+
+- The bottom contest bar is now plain text, not a link: "Vote! by hitting like on good mics 👍".
+- Home hero: on phones the mascot sits left of "NYC's comedy platform Comediq"; on desktop (md and up) it sits to the right.
