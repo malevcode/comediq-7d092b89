@@ -1,15 +1,9 @@
 import { Capacitor } from "@capacitor/core";
-import { Link, useLocation } from "react-router-dom";
-import { Trophy } from "lucide-react";
-import {
-  MIC_OF_THE_MONTH_LABEL,
-  isExternalVotingLink,
-  micOfTheMonthCta,
-  votingHref,
-} from "@/config/micOfTheMonth";
+import { useLocation } from "react-router-dom";
 
 /**
- * Static bottom bar for the Mic of the Month contest.
+ * Static bottom bar telling people how to vote for Mic of the Month: hit like
+ * on good mics. It is plain text, not a link.
  *
  * This replaces MarqueeBanner's scrolling ad strip for the run of the contest:
  * one fixed, non-animated bar with a single destination. Unlike the ad bar it
@@ -30,17 +24,6 @@ const MicOfTheMonthBar = () => {
   if (isMicSignupPath(location.pathname)) return null;
   if (location.pathname === "/setbuild-privacy") return null;
 
-
-  const href = votingHref();
-  const content = (
-    <>
-      <Trophy className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-      <span className="font-bold">{MIC_OF_THE_MONTH_LABEL}</span>
-      <span className="opacity-90">{micOfTheMonthCta()}</span>
-      <span className="ml-1 font-bold underline underline-offset-4">Vote</span>
-    </>
-  );
-
   // BottomNavigation only renders in the native app (see BottomNavigation.tsx),
   // so only there does this bar need to clear the floating glass pill nav +
   // its own padding (pb-6 + pt-2.5 + the 52px pill = ~6.125rem). On the
@@ -48,22 +31,9 @@ const MicOfTheMonthBar = () => {
   const bottomOffset = Capacitor.isNativePlatform() ? "bottom-[6.125rem]" : "bottom-0";
   const className =
     `keyboard-fixed-hide fixed ${bottomOffset} left-0 right-0 z-[50] flex h-8 items-center justify-center gap-2 ` +
-    "bg-contest-live px-4 text-[11px] leading-none text-contest-live-foreground shadow-lg " +
-    "transition-opacity hover:opacity-90";
+    "bg-contest-live px-4 text-[11px] font-bold leading-none text-contest-live-foreground shadow-lg";
 
-  if (isExternalVotingLink()) {
-    return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
-        {content}
-      </a>
-    );
-  }
-
-  return (
-    <Link to={href} className={className}>
-      {content}
-    </Link>
-  );
+  return <div className={className}>Vote! by hitting like on good mics {"\u{1F44D}"}</div>;
 };
 
 export default MicOfTheMonthBar;
