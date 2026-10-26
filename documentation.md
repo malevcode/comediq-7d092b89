@@ -2144,3 +2144,12 @@ guessing.
 
 - The bottom contest bar is now plain text, not a link: "Vote! by hitting like on good mics 👍".
 - Home hero: on phones the mascot sits left of "NYC's comedy platform Comediq"; on desktop (md and up) it sits to the right.
+
+## Session: shows go live right away
+
+- New shows submitted on Comediq are approved automatically, like mics. A small database
+  rule (trigger `auto_approve_native_show`) marks them `verified = true` when they are saved.
+- The same SQL publishes shows that were already waiting. Partner-source shows are untouched.
+- The add-show page and its toast now say the show is live right away.
+- Heads up: a Lovable merge once wiped ~50 files (see PR "Undo the Lovable merge"). After any
+  Lovable publish, check that the add-show form, vote bar and nav motion are still there.
