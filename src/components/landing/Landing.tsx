@@ -146,28 +146,37 @@ const Nav = () => {
 };
 
 const Hero = () => (
-  <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-14 pt-4 sm:px-8 md:grid-cols-2 md:gap-14 md:pb-20">
-    <div>
-      <p className="lp-eyebrow">NYC's comedy platform</p>
-      <h1 className="lp-wordmark mt-4 text-[4.5rem] sm:text-[6.5rem]">Comediq</h1>
-      <p className="mt-5 max-w-md text-lg leading-snug text-[var(--lp-ink)]">
-        Whether you're on stage or in the audience, Comediq is your home for live comedy.
-      </p>
-      <div className="mt-7 flex flex-wrap gap-3">
-        <Link to="/perform" className="lp-btn lp-btn-solid"><Mic className="h-4 w-4" aria-hidden="true" />I Perform</Link>
-        <Link to="/laugh" className="lp-btn lp-btn-ghost"><Eye className="h-4 w-4" aria-hidden="true" />I Watch</Link>
+  <section className="mx-auto max-w-6xl px-5 pb-14 pt-4 sm:px-8 md:pb-20">
+    {/*
+      Per Mobile.dc.html: the wordmark and the mascot are one bottom-aligned
+      row, the mascot on the right. The subtitle, the two doors and the
+      attribution run full width underneath, so on a phone nothing has to
+      share a row with the artwork.
+    */}
+    <div className="flex items-end gap-2">
+      <div className="min-w-0">
+        <p className="lp-eyebrow">NYC's comedy platform</p>
+        <h1 className="lp-hero-title mt-2">Comediq</h1>
       </div>
-      <div className="mt-7 flex flex-col gap-2 text-sm">
-        <a className="lp-link w-fit" href={MALEV_INSTAGRAM} target="_blank" rel="noopener noreferrer">
-          Made and maintained by Adam Malev @malevcomedy
-        </a>
-        <a className="lp-link w-fit" href={INSTAGRAM} target="_blank" rel="noopener noreferrer">
-          Questions or new mics? DM @comediq.us
-        </a>
-      </div>
+      <img src="/mascot.png" alt="The Comediq mascot" className="lp-hero-mascot shrink-0" />
     </div>
-    <div className="aspect-[4/4.4] overflow-hidden rounded-md md:order-last">
+    <p className="mt-5 max-w-md text-lg leading-snug text-[var(--lp-ink)]">
+      Whether you're on stage or in the audience, Comediq is your home for live comedy.
+    </p>
+    <div className="mt-7 flex flex-wrap gap-3">
+      <Link to="/perform" className="lp-btn lp-btn-solid"><Mic className="h-4 w-4" aria-hidden="true" />I Perform</Link>
+      <Link to="/laugh" className="lp-btn lp-btn-ghost"><Eye className="h-4 w-4" aria-hidden="true" />I Watch</Link>
+    </div>
+    <div className="mt-8 aspect-[16/7] w-full overflow-hidden rounded-md">
       <img src="/landing/hero.jpg" alt="A comedy crowd facing an empty stage and microphone" className="lp-photo" />
+    </div>
+    <div className="mt-7 flex flex-col gap-2 text-sm">
+      <a className="lp-link w-fit" href={MALEV_INSTAGRAM} target="_blank" rel="noopener noreferrer">
+        Made and maintained by Adam Malev @malevcomedy
+      </a>
+      <a className="lp-link w-fit" href={INSTAGRAM} target="_blank" rel="noopener noreferrer">
+        Questions or new mics? DM @comediq.us
+      </a>
     </div>
   </section>
 );
