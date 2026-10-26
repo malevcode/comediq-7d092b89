@@ -2153,3 +2153,9 @@ guessing.
 - The add-show page and its toast now say the show is live right away.
 - Heads up: a Lovable merge once wiped ~50 files (see PR "Undo the Lovable merge"). After any
   Lovable publish, check that the add-show form, vote bar and nav motion are still there.
+
+## Session: web map upgrade plan
+
+- Wrote `docs/WEB_MAP_UPGRADE_PLAN.md`: how to make the web maps look like Partiful's
+  (custom navy map style, picture pins, count bubbles, big city title, one filter pill).
+- No code changed. Phase 1 (the map style) needs a Mapbox Studio style URL.
