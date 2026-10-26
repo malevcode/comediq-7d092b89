@@ -1,11 +1,8 @@
 import { lazy, Suspense, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Eye, Mic, Plus } from "lucide-react";
+import { ArrowRight, Eye, Menu, Mic, X } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import AppWaitlistSection from "@/components/AppWaitlistSection";
-import Wordmark from "@/components/Wordmark";
-import HamburgerMenu from "@/components/HamburgerMenu";
-import { useAuth } from "@/contexts/AuthContext";
 import { useOpenMics } from "@/hooks/useOpenMics";
 import { isExternalVotingLink, votingHref } from "@/config/micOfTheMonth";
 import {
@@ -96,8 +93,15 @@ function micHref(mic: OpenMic): string {
   return mic.slug ? `/mic/${mic.slug}` : "/open-mics";
 }
 
+const Logo = () => (
+  <Link to="/" className="flex items-center gap-2" aria-label="Comediq home">
+    <img src="/landing/logo-mark.png" alt="" className="h-7 w-auto" />
+    <span className="lp-wordmark text-2xl">Comediq</span>
+  </Link>
+);
+
 const Nav = () => {
-  const { user } = useAuth();
+  const [open, setOpen] = useState(false);
   const vote = votingHref();
   const voteClass = "hover:text-[var(--lp-accent)]";
   const items = [
@@ -113,53 +117,66 @@ const Nav = () => {
 
   return (
     <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
-      <Wordmark />
+      <Logo />
       <nav className="hidden items-center gap-7 text-sm font-medium md:flex" aria-label="Main">
         {items}
-        <Link to="/listing" className="lp-btn lp-btn-solid !px-4 !py-1.5 !text-sm">
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          Listing
-        </Link>
-        {!user && (
-          <Link to="/auth/sign-in" className="lp-btn lp-btn-ghost !px-4 !py-1.5 !text-sm">Log in</Link>
-        )}
+        <Link to="/auth/sign-in" className="lp-btn lp-btn-ghost !px-4 !py-1.5 !text-sm">Log in</Link>
       </nav>
-      {/* Same hamburger menu every other page uses, so Home matches the handoff header exactly. */}
-      <div className="md:hidden">
-        <HamburgerMenu />
-      </div>
+      <button
+        type="button"
+        className="md:hidden"
+        aria-label={open ? "Close menu" : "Open menu"}
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+      </button>
+      {open && (
+        <nav
+          className="absolute inset-x-0 top-[68px] z-30 flex flex-col gap-4 border-y border-[var(--lp-line)] bg-[var(--lp-bg-deep)] px-5 py-5 text-lg font-medium md:hidden"
+          aria-label="Mobile"
+          onClick={() => setOpen(false)}
+        >
+          {items}
+          <Link to="/auth/sign-in" className="lp-btn lp-btn-ghost self-start">Log in</Link>
+        </nav>
+      )}
     </header>
   );
 };
 
 const Hero = () => (
-  <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-14 pt-4 sm:px-8 md:grid-cols-2 md:gap-14 md:pb-20">
-    <div className="sm:text-center md:text-left">
-      <div className="flex items-end gap-2 sm:justify-center md:justify-start">
-        <div className="min-w-0">
-          <p className="lp-eyebrow">NYC's comedy platform</p>
-          <h1 className="lp-wordmark mt-4 text-[58px] sm:text-[clamp(56px,6vw,92px)]">Comediq</h1>
-        </div>
-        <img src="/landing/character.png" alt="The Comediq mascot" className="order-first h-[170px] w-auto shrink-0 sm:h-[240px] md:order-last" />
+  <section className="mx-auto max-w-6xl px-5 pb-14 pt-4 sm:px-8 md:pb-20">
+    {/*
+      Per Mobile.dc.html: the wordmark and the mascot are one bottom-aligned
+      row, the mascot on the right. The subtitle, the two doors and the
+      attribution run full width underneath, so on a phone nothing has to
+      share a row with the artwork.
+    */}
+    <div className="flex items-end gap-2">
+      <div className="min-w-0">
+        <p className="lp-eyebrow">NYC's comedy platform</p>
+        <h1 className="lp-hero-title mt-2">Comediq</h1>
       </div>
-      <p className="mt-5 max-w-md text-lg leading-snug text-[var(--lp-ink)] sm:mx-auto md:mx-0">
-        Whether you're on stage or in the audience, Comediq is your home for live comedy.
-      </p>
-      <div className="mt-7 flex flex-wrap gap-3 sm:justify-center md:justify-start">
-        <Link to="/perform" className="lp-btn lp-btn-solid"><Mic className="h-4 w-4" aria-hidden="true" />I Perform</Link>
-        <Link to="/laugh" className="lp-btn lp-btn-ghost"><Eye className="h-4 w-4" aria-hidden="true" />I Watch</Link>
-      </div>
-      <div className="mt-7 flex flex-col gap-2 text-sm sm:items-center md:items-start">
-        <a className="lp-link w-fit" href={MALEV_INSTAGRAM} target="_blank" rel="noopener noreferrer">
-          Made and maintained by Adam Malev @malevcomedy
-        </a>
-        <a className="lp-link w-fit" href={INSTAGRAM} target="_blank" rel="noopener noreferrer">
-          Questions or collabs? DM @comediq.us
-        </a>
-      </div>
+      <img src="/mascot.png" alt="The Comediq mascot" className="lp-hero-mascot shrink-0" />
     </div>
-    <div className="aspect-[4/4.4] overflow-hidden rounded-md md:order-last">
+    <p className="mt-5 max-w-md text-lg leading-snug text-[var(--lp-ink)]">
+      Whether you're on stage or in the audience, Comediq is your home for live comedy.
+    </p>
+    <div className="mt-7 flex flex-wrap gap-3">
+      <Link to="/perform" className="lp-btn lp-btn-solid"><Mic className="h-4 w-4" aria-hidden="true" />I Perform</Link>
+      <Link to="/laugh" className="lp-btn lp-btn-ghost"><Eye className="h-4 w-4" aria-hidden="true" />I Watch</Link>
+    </div>
+    <div className="mt-8 aspect-[16/7] w-full overflow-hidden rounded-md">
       <img src="/landing/hero.jpg" alt="A comedy crowd facing an empty stage and microphone" className="lp-photo" />
+    </div>
+    <div className="mt-7 flex flex-col gap-2 text-sm">
+      <a className="lp-link w-fit" href={MALEV_INSTAGRAM} target="_blank" rel="noopener noreferrer">
+        Made and maintained by Adam Malev @malevcomedy
+      </a>
+      <a className="lp-link w-fit" href={INSTAGRAM} target="_blank" rel="noopener noreferrer">
+        Questions or new mics? DM @comediq.us
+      </a>
     </div>
   </section>
 );
@@ -375,7 +392,7 @@ const Footer = () => (
   <footer className="border-t border-[var(--lp-line)]">
     <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <Wordmark />
+        <Logo />
         <p className="text-sm text-[var(--lp-muted)]">
           By comedians, for comedians. Started as a Google Sheet tracking all of NYC's open mics.
         </p>

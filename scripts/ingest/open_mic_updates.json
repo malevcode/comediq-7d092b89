@@ -1351,56 +1351,6 @@
         "latitude": 40.712208240625,
         "longitude": -73.95578066537
       }
-    },
-    {
-      "note": "New mic. Email from Daryn Stephanie Passarello, Director | Booker, Laughing Buddha Comedy, forwarded by Adam 2026-10-22: 'Please add the following two Thursday Mics. They start Thursday, October 29th: Thursdays 5:30 PM 1 HR Mic @ The Rose and Thursdays 6:30 PM @ The Rose. Address: 160 W 25th St, New York, NY 10001 (Located in: The Chelsean New York Hotel).' '1 HR Mic' means the room specifically says one hour, so 5:30-6:30 PM. NAME carries a '*Starts 10/29*' label because today is Thursday 10/22 and a weekly row would otherwise show as running tonight; report_stale_labels.py will flag it once 10/29 has passed, and the label then comes off by rewriting this entry in place. Time-first naming per the comediq convention. Hosts, sign-up text and sign-up URL are COPIED from the other Laughing Buddha rows, not stated in the email. COST, STAGE TIME AND RULES ARE BLANK because the email gives none (the Buddha Room prices are not assumed to apply at a different venue). Coordinates are blank too, so run npm run geocode:open-mics to put it on the map. No other mic exists at this address or under the name The Rose in NYC (the 'Rose R&R Bar' row is a different Brooklyn bar).",
-      "row": {
-        "day": "Thursday",
-        "venue_name": "The Rose",
-        "location": "160 W 25th St, New York, NY 10001",
-        "borough": "Manhattan",
-        "neighborhood": "Chelsea",
-        "venue_type": "Other",
-        "other_rules": "Located in The Chelsean New York Hotel.",
-        "hosts_organizers": "@laughingbuddhacomedy",
-        "changes_updates": "@laughingbuddhacomedy",
-        "sign_up_instructions": "Check laughingbuddhacomedy.com/mics for updated schedule and sign-up info",
-        "signup_method": "in_person",
-        "signup_url": "https://www.laughingbuddhacomedy.com/mics",
-        "city": "New York",
-        "status": "verified",
-        "frequency": "weekly",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "open_mic": "5:30 Rose Hour Mic *Starts 10/29*",
-        "start_time": "5:30 PM",
-        "latest_end_time": "6:30 PM"
-      }
-    },
-    {
-      "note": "New mic. Email from Daryn Stephanie Passarello, Director | Booker, Laughing Buddha Comedy, forwarded by Adam 2026-10-22: 'Please add the following two Thursday Mics. They start Thursday, October 29th: Thursdays 5:30 PM 1 HR Mic @ The Rose and Thursdays 6:30 PM @ The Rose. Address: 160 W 25th St, New York, NY 10001 (Located in: The Chelsean New York Hotel).' No length stated for the 6:30 mic, so the comediq 90-minute default gives 6:30-8:00 PM. NAME carries a '*Starts 10/29*' label because today is Thursday 10/22 and a weekly row would otherwise show as running tonight; report_stale_labels.py will flag it once 10/29 has passed, and the label then comes off by rewriting this entry in place. Time-first naming per the comediq convention. Hosts, sign-up text and sign-up URL are COPIED from the other Laughing Buddha rows, not stated in the email. COST, STAGE TIME AND RULES ARE BLANK because the email gives none (the Buddha Room prices are not assumed to apply at a different venue). Coordinates are blank too, so run npm run geocode:open-mics to put it on the map. No other mic exists at this address or under the name The Rose in NYC (the 'Rose R&R Bar' row is a different Brooklyn bar).",
-      "row": {
-        "day": "Thursday",
-        "venue_name": "The Rose",
-        "location": "160 W 25th St, New York, NY 10001",
-        "borough": "Manhattan",
-        "neighborhood": "Chelsea",
-        "venue_type": "Other",
-        "other_rules": "Located in The Chelsean New York Hotel.",
-        "hosts_organizers": "@laughingbuddhacomedy",
-        "changes_updates": "@laughingbuddhacomedy",
-        "sign_up_instructions": "Check laughingbuddhacomedy.com/mics for updated schedule and sign-up info",
-        "signup_method": "in_person",
-        "signup_url": "https://www.laughingbuddhacomedy.com/mics",
-        "city": "New York",
-        "status": "verified",
-        "frequency": "weekly",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "open_mic": "6:30 Rose Mic *Starts 10/29*",
-        "start_time": "6:30 PM",
-        "latest_end_time": "8:00 PM"
-      }
     }
   ]
 }

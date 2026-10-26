@@ -190,27 +190,3 @@ export function formatOccurrence(date: Date, from: Date = new Date()): string {
 export function formatOccurrenceShort(date: Date): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
-
-/**
- * Does this mic run on this calendar date? Unlike the on-screen filters, this
- * is strict for texting: if we cannot tell which dates a bi-weekly, pop-up or
- * custom mic runs (no anchor, no listed dates), it returns false so nobody gets
- * a text about a show we are only guessing at.
- */
-export function micKnownToRunOn(
-  mic: { day?: string | null; frequency?: MicFrequency | null; frequencyCustomText?: string | null },
-  date: Date,
-): boolean {
-  if (weekdayIndex(mic.day) !== date.getDay()) return false;
-  const frequency = mic.frequency || "weekly";
-  if (frequency === "weekly") return true;
-  if (frequency === "bi_weekly") {
-    const anchor = parseBiweeklyAnchor(mic.frequencyCustomText);
-    return anchor ? runsOnBiweeklyDate(anchor, date) : false;
-  }
-  if (frequency === "one_off" || frequency === "custom") {
-    return isListedDate(parseDateList(mic.frequencyCustomText), date);
-  }
-  const [next] = getUpcomingOccurrences(mic.day, frequency, 1, date);
-  return Boolean(next) && next.getTime() === startOfDay(date).getTime();
-}

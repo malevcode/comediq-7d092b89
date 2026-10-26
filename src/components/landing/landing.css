@@ -118,3 +118,29 @@
     grid-column: 2;
   }
 }
+
+/* Hero wordmark and mascot. One bottom-aligned row: the title carries the
+   size, the mascot is set by height so its own proportions decide the width. */
+.lp-hero-title {
+  font-family: "Archivo", "Instrument Sans", sans-serif;
+  font-stretch: 112%;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+  font-size: 58px;
+}
+
+.lp-hero-mascot {
+  display: block;
+  height: 170px;
+  width: auto;
+}
+
+@media (min-width: 768px) {
+  .lp-hero-title {
+    font-size: clamp(56px, 6vw, 92px);
+  }
+  .lp-hero-mascot {
+    height: 240px;
+  }
+}

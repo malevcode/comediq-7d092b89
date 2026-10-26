@@ -10,15 +10,11 @@ import PageHeader from "@/components/PageHeader";
 import SEO from "@/components/SEO";
 import DevView from "./DevView";
 import MyMicsTab from "@/components/mic/MyMicsTab";
-import { useAuth } from "@/contexts/AuthContext";
 
 const Perform = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const { activeTab, setActiveTab } = useTabContext();
-  const { user } = useAuth();
-  // My Mics is only for signed-in users, so signed-out visitors always land on Find Mics.
-  const shownTab = !user && activeTab === "my-mics" ? "find-mics" : activeTab;
 
   const scrollPositions = useRef({
     'find-mics': 0,
@@ -75,10 +71,10 @@ const Perform = () => {
       />
       <PageHeader title="Perform" />
       <h1 className="sr-only">Perform: find comedy open mics and track your sets</h1>
-      <Tabs value={shownTab} onValueChange={setActiveTab} className="w-full">
-        {/* Find Mics / My Mics row, signed-in only. pt-1.5 is a thin gap under the header. */}
-        {user && (
-        <div className="max-w-7xl mx-auto px-4 pt-1.5">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        {/* Perform had no visible tab row at all: tabs were switched only by
+            URL param and localStorage. This mirrors the Laugh tab's row. */}
+        <div className="max-w-7xl mx-auto px-4">
           <TabsList className="mb-2 flex h-8 w-full gap-1 rounded-xl bg-white/60 p-0 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#102a53]/70 dark:shadow-[0_12px_38px_rgba(2,10,30,0.22)]">
             <TabsTrigger value="find-mics" className={tabTriggerClass}>
               Find Mics
@@ -88,7 +84,6 @@ const Perform = () => {
             </TabsTrigger>
           </TabsList>
         </div>
-        )}
 
         <TabsContent value="find-mics" className="mt-0">
           <OpenMics embedded />

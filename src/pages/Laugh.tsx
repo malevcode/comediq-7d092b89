@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,13 +9,11 @@ import SEO from "@/components/SEO";
 import { AudienceShowFilters } from "@/components/shows/AudienceShowFilters";
 import AudienceShows from "./AudienceShows";
 import MyReviews from "./MyReviews";
-import { List, Map, Plus, Search } from "lucide-react";
+import { List, Map, Search } from "lucide-react";
 
 export default function Laugh() {
   const { activeTab, setActiveTab } = useLaughTabContext();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { user } = useAuth();
 
   // Show controls live here, not in AudienceShows, so the tabs and the
   // search/map/filter controls can share one row.
@@ -112,17 +109,6 @@ export default function Laugh() {
                   className="h-8 w-8 shrink-0 border-0 bg-white/70 p-0 text-gray-700 hover:bg-white/90 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
                 >
                   {viewMode === 'list' ? <Map className="h-3.5 w-3.5" /> : <List className="h-3.5 w-3.5" />}
-                </Button>
-
-                {/* Same spot and look as the + on the Perform tab. */}
-                <Button
-                  onClick={() => navigate(user ? '/add-show' : '/auth?redirect=/add-show')}
-                  variant="outline"
-                  size="sm"
-                  aria-label="Add a show"
-                  className="flex h-8 w-8 shrink-0 items-center justify-center border-green-300 bg-green-50 px-0 py-1 text-green-700 hover:bg-green-100"
-                >
-                  <Plus className="h-4 w-4" />
                 </Button>
 
                 <AudienceShowFilters

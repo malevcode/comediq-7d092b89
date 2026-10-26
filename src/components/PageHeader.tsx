@@ -1,7 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import HamburgerMenu from "@/components/HamburgerMenu";
-import Wordmark from "@/components/Wordmark";
 import { TopAdBar } from "@/components/TopAdBar";
 import { ReactNode, useLayoutEffect, useRef } from "react";
 import { MIC_OF_THE_MONTH_LABEL } from "@/config/micOfTheMonth";
@@ -45,7 +44,10 @@ const PageHeader = ({ title, subtitle, children, className = "" }: PageHeaderPro
     <nav ref={navRef} className="fixed top-0 left-0 right-0 z-[100] bg-comediq-blue text-comediq-cream">
       <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-2 px-4 py-2.5 sm:px-6 lg:px-10">
         <div className="flex min-w-0 items-center gap-1">
-          <Wordmark />
+          <button onClick={() => navigate('/')} className="flex min-w-0 items-center gap-2.5">
+            <img src="/comediq_logo.jpg" alt="Comediq" className="h-9 w-auto rounded object-contain sm:h-10" />
+            <span className="font-display text-xl tracking-tight sm:text-2xl">Comediq</span>
+          </button>
           {title && title !== 'Comediq' && (
             <span className="ml-2 hidden min-w-0 truncate text-sm text-comediq-cream/70 sm:inline">{title}</span>
           )}

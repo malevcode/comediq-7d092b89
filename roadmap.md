@@ -1,3 +1,5 @@
+- [ ] Landing hero: mascot to the right of the wordmark, bottom-aligned, 8px gap (mobile h1 58px / mascot 170px, desktop clamp(56px,6vw,92px) / 240px).
+- [ ] Second visual fix from the Oct 16 handoff message: the text was cut off after "2." — awaiting the details.
 - [x] Update shared public-page metadata, homepage fallback, and dynamic page metadata within 60/160 characters.
 - [x] Verify generated initial HTML and live preview metadata (652 initial HTML pages and 16 public routes checked).
 - [x] Add existing-field mic descriptions, count comparisons and FAQ markup, plus venue location/price descriptions, in live and pre-rendered pages.

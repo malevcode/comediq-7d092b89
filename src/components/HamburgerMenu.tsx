@@ -110,7 +110,7 @@ const HamburgerMenu = () => {
             className="inline-flex items-center justify-center gap-1.5 self-center text-sm text-[#E2E8F5]"
           >
             <Instagram size={16} />
-            Questions or collabs? DM @comediq.us
+            Questions or new mics? DM @comediq.us
           </a>
         </div>
       </SheetContent>

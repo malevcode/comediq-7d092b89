@@ -72,7 +72,7 @@ const Hero = () => {
                 rel="noopener noreferrer"
                 className="block text-sm text-white/70 transition-colors hover:text-[#1a5fb4]"
               >
-                Questions or collabs? DM @comediq.us
+                Questions or new mics? DM @comediq.us
               </a>
             </div>
           </div>

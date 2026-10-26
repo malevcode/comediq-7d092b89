@@ -1,12 +1,3 @@
-import { Capacitor } from '@capacitor/core';
-
-/**
- * The website never asks for location. Everyone on the web is treated as
- * standing in Union Square, Manhattan, as [longitude, latitude]. Only the
- * native app reads real GPS here.
- */
-export const UNION_SQUARE: [number, number] = [-73.9903, 40.7359];
-
 export interface LocationError {
   code: number;
   message: string;
@@ -14,7 +5,6 @@ export interface LocationError {
 
 export class LocationService {
   static async getUserLocation(): Promise<[number, number]> {
-    if (!Capacitor.isNativePlatform()) return UNION_SQUARE;
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
         reject({
@@ -59,6 +49,6 @@ export class LocationService {
   }
 
   static isLocationSupported(): boolean {
-    return !Capacitor.isNativePlatform() || !!navigator.geolocation;
+    return !!navigator.geolocation;
   }
 } 

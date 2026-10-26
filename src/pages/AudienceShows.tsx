@@ -1,34 +1,15 @@
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { format, parseISO } from "date-fns";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAudienceShows } from "@/hooks/useAudienceShows";
 import { AudienceShowCard } from "@/components/shows/AudienceShowCard";
-import { FeaturedShowHero } from "@/components/shows/FeaturedShowHero";
 import { AudienceShowDetailModal } from "@/components/shows/AudienceShowDetailModal";
 import AudienceShowsMap from "@/components/map/AudienceShowsMap";
 import { AudienceShow } from "@/api/audienceShows";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Ticket, Calendar } from "lucide-react";
-
-/**
- * Groups every show after the featured one by month, in the order they
- * already arrive (soonest first), matching LaughMobile.dc.html's "October"
- * / "November" headers.
- */
-function groupByMonth(shows: AudienceShow[]): Array<{ label: string; shows: AudienceShow[] }> {
-  const groups: Array<{ label: string; shows: AudienceShow[] }> = [];
-  for (const show of shows) {
-    const label = format(parseISO(show.show_date), "MMMM");
-    const lastGroup = groups[groups.length - 1];
-    if (lastGroup && lastGroup.label === label) {
-      lastGroup.shows.push(show);
-    } else {
-      groups.push({ label, shows: [show] });
-    }
-  }
-  return groups;
-}
+import { Ticket, Calendar, Plus } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { createPortal } from "react-dom";
 
 interface AudienceShowsProps {
   searchTerm: string;
@@ -38,8 +19,23 @@ interface AudienceShowsProps {
 }
 
 export default function AudienceShows({ searchTerm, borough, showType, viewMode }: AudienceShowsProps) {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useAuth();
   const [selectedShow, setSelectedShow] = useState<AudienceShow | null>(null);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  const handleAddShow = () => {
+    if (!user) {
+      navigate('/auth?redirect=/add-show');
+    } else {
+      navigate('/add-show');
+    }
+  };
 
   const filters = useMemo(() => ({
     borough: borough !== 'all' ? borough : undefined,
@@ -80,6 +76,18 @@ export default function AudienceShows({ searchTerm, borough, showType, viewMode 
     );
   }
 
+  const addShowButton = hasMounted && createPortal(
+    <Button
+      onClick={handleAddShow}
+      className="fixed bottom-[11rem] right-10 z-[1200] rounded-full bg-orange-500 p-2 text-white shadow-lg transition duration-300 hover:bg-orange-600"
+      size="icon"
+      aria-label="Add a show"
+    >
+      <Plus className="h-6 w-6" />
+    </Button>,
+    document.body
+  );
+
   // Map view is an inline toggle rather than its own route, mirroring the
   // Perform tab. AudienceShowsMap brings its own pin drawer.
   if (viewMode === 'map') {
@@ -112,6 +120,7 @@ export default function AudienceShows({ searchTerm, borough, showType, viewMode 
           onClose={handleModalClose}
         />
 
+        {addShowButton}
       </div>
     );
   }
@@ -126,22 +135,12 @@ export default function AudienceShows({ searchTerm, borough, showType, viewMode 
         </div>
       ) : shows && shows.length > 0 ? (
         <div className="space-y-4">
-          <FeaturedShowHero show={shows[0]} onClick={() => handleShowSelect(shows[0])} />
-          {groupByMonth(shows.slice(1)).map((group) => (
-            <div key={group.label}>
-              <h2 className="font-display mb-2 text-xl uppercase tracking-wide text-comediq-cream">
-                {group.label}
-              </h2>
-              <div className="space-y-3">
-                {group.shows.map((show) => (
-                  <AudienceShowCard
-                    key={show.id}
-                    show={show}
-                    onClick={() => handleShowSelect(show)}
-                  />
-                ))}
-              </div>
-            </div>
+          {shows.map((show) => (
+            <AudienceShowCard
+              key={show.id}
+              show={show}
+              onClick={() => handleShowSelect(show)}
+            />
           ))}
         </div>
       ) : (
@@ -168,6 +167,7 @@ export default function AudienceShows({ searchTerm, borough, showType, viewMode 
         onClose={handleModalClose}
       />
 
+      {addShowButton}
     </div>
   );
 }

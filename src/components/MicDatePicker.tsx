@@ -15,13 +15,11 @@ interface MicDatePickerProps {
   onChange: (dates: Date[]) => void;
   placeholder: string;
   invalid?: boolean;
-  /** Replaces the footer line under the calendar. Pass an empty string to hide it. */
-  hint?: string;
 }
 
 const sortDates = (dates: Date[]) => [...dates].sort((a, b) => a.getTime() - b.getTime());
 
-const MicDatePicker = ({ mode, day, value, onChange, placeholder, invalid, hint }: MicDatePickerProps) => {
+const MicDatePicker = ({ mode, day, value, onChange, placeholder, invalid }: MicDatePickerProps) => {
   const weekday = weekdayIndex(day);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -64,14 +62,10 @@ const MicDatePicker = ({ mode, day, value, onChange, placeholder, invalid, hint 
             initialFocus
           />
         )}
-        {hint !== '' && (
-          <p className="border-t px-3 py-2 text-[11px] text-muted-foreground">
-            {hint ??
-              `${weekday === null ? 'Pick a day first to see only those days.' : `Only ${day}s can be picked.`}${
-                mode === 'multiple' ? ` Up to ${MAX_MIC_DATES} dates.` : ''
-              }`}
-          </p>
-        )}
+        <p className="border-t px-3 py-2 text-[11px] text-muted-foreground">
+          {weekday === null ? 'Pick a day first to see only those days.' : `Only ${day}s can be picked.`}
+          {mode === 'multiple' ? ` Up to ${MAX_MIC_DATES} dates.` : ''}
+        </p>
       </PopoverContent>
     </Popover>
   );
