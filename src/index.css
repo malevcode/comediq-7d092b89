@@ -363,3 +363,20 @@ form :where(
   color: rgb(255 255 255 / 0.45) !important;
   opacity: 1;
 }
+
+
+/* Bottom nav "lava lamp" blob: stretches wide and thin while it slides, then settles. */
+@keyframes lava-squish {
+  0% { transform: scale(1, 1); }
+  35% { transform: scale(1.22, 0.84); }
+  70% { transform: scale(0.96, 1.07); }
+  100% { transform: scale(1, 1); }
+}
+.lava-squish {
+  animation: lava-squish 650ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lava-squish {
+    animation: none;
+  }
+}

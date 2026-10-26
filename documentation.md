@@ -1093,7 +1093,237 @@ rights and downgrade every subscriber. The cost is that the failure is silent.
 
 ---
 
+## How time-block signup works
+
+Comediq already had one way to sign up for an open mic: a single numbered
+list, first come first served (there is also a lottery and a bucket-draw
+mode for the same list). This is a second, different way to sign up, called
+time-block mode, and only one pilot mic uses it so far.
+
+**What a slot is.** Instead of one long list, the night is cut into named
+time blocks, like 7:00pm, 7:10pm, 7:20pm. Each block has room for a few
+people. You are not number 14 in a line, you are "in the 7:10 block."
+
+**What happens when you press Sign up.** The page asks the database, right
+then, "is there still room in this block?" If yes, you are added and the
+button changes to "You're in" with a "Cancel my spot" option. If someone
+else took the last spot a half second before you, you get a clear "that
+slot is full" message instead of both of you thinking you have the spot.
+Nothing is decided in the browser, the database itself checks and locks the
+spot, which is what makes this safe even if two people tap Sign up on the
+same block at the exact same time.
+
+**What the host sees.** The mic's claimed host (and Comediq admins) can open
+a plain table: which block, which comedian, in order. Nobody else can see
+that table, not even other logged-in comedians.
+
+**Where the data lives.** Everything reuses the tables the original list
+mode already had:
+
+- `mic_hosts` gets one new column, `slug`, a stable link like
+  `/mic-slots/chuckles-mon` that a host can share. Only hosts who turn on
+  time-block mode get a slug; every other host row is exactly as private as
+  before.
+- `mic_signup_events` (one row per night) gets new columns for time-block
+  mode only: `slot_minutes` (how long each block is), `spots_per_slot`,
+  `slot_count` (how many blocks), `min_signups` (stored, not enforced yet),
+  `signup_rules` (the text shown above the blocks), and the mic and venue
+  name written directly onto the row. That last part is deliberate: the
+  signup page never has to look up the mic in the big 400-plus row mics
+  table, it only ever reads this one event.
+- `mic_signups` (one row per person per night) gets one new column,
+  `slot_start`, which block they picked. The legacy list mode leaves this
+  blank and is not touched by any of this.
+- Two database functions do the real work: `get_time_block_slot_counts`
+  (how many spots are left in each block, no names, safe for anyone to
+  call) and `signup_for_mic_slot` (the one that actually takes a spot,
+  locks the row, and checks capacity before it lets the insert through). A
+  third, `get_mic_slot_host_view`, is the only way to read names, and it
+  checks the caller is that mic's verified host or an admin before it
+  returns anything.
+
+**Not built yet.** A host screen for opening next week's signup sheet (right
+now that is a manual database insert), payments, texts or emails to hosts,
+the Wednesday auto-open of unfilled slots, auto-cancelling a mic under its
+minimum signups, and the cancelled-mic story card. `min_signups` is stored
+so a later phase can use it, nothing reads it yet.
+
+---
+
 ## Summarize
+
+### Session: nav lives in the app, not the website
+
+`BottomNavigation.tsx` now returns `null` unless
+`Capacitor.isNativePlatform()` is true, same check `deviceLocation.ts`
+already used to split native from web. The floating pill nav (Home,
+Perform, Laugh, Profile, Search) only renders inside the Capacitor app
+shell; the website no longer shows any nav bar.
+
+### Session: time-block mic signup (pilot)
+
+**What shipped.** A second signup mode, time-block, alongside the existing
+first-come list. New page at `/mic-slots/:hostSlug` (`MicSlotSignup.tsx`):
+shows the next date, the host's rules text, and a list of named time blocks
+with spots left, a Sign up button, and Cancel my spot if you already have
+one. A host/admin-only panel on the same page lists who is signed up for
+each block. Logged-out visitors go through the existing `/auth?next=`
+flow and land back on the same page.
+
+**Why a new page instead of extending `MicSignup.tsx`.** That file is the
+working, live, numbered-list signup sheet. Time-block mode is a different
+shape (named blocks with their own capacity, not one ordered line), so it
+got its own page and its own small API module
+(`src/api/micSlotSignup.ts`), and the legacy page was not touched.
+
+**Database.** One migration,
+`20261019120000_mic_signup_time_blocks.sql`, entirely additive: a new
+`time_block` value on the existing `signup_mode` enum, new nullable columns
+on `mic_signup_events`, `mic_hosts` and `mic_signups` (see "How time-block
+signup works" above), one new RLS policy (host rows become readable once
+they have a public `slug`, every other host row is unaffected), and three
+new Postgres functions (`get_time_block_slot_counts`,
+`signup_for_mic_slot`, `get_mic_slot_host_view`). Nothing existing was
+altered. Not yet run against the database, by design, Adam runs migrations
+by hand.
+
+**Points.** Reused the existing one-line `awardPoints('mic_signup', ...)`
+call, same as the legacy signup flow. No ledger changes.
+
+**Egress.** The signup page makes four small, scoped reads (host row by
+slug, one event row, a counts-only RPC, the viewer's own signup row) and
+never touches `open_mics_historical` or the full mics list. Estimated
+under 1KB per page view; see the session's PR description for the
+calculated breakdown, since the real number could not be measured until
+the migration runs.
+
+**Pilot only.** No existing mic had `signup_enabled` or `slots_enabled`
+changed. Exactly one mic, set up by hand with a separate SQL script, uses
+time-block mode so far.
+
+**Not built.** Host UI to open next week's event (manual SQL for now),
+payments, host texts or emails, Wednesday auto-open, auto-cancel under
+`min_signups`, cancellation story cards. All deliberately deferred to a
+later phase.
+
+**Verified.** `tsc -b` and `npm run build` both clean.
+
+### Session: steady icons on mic cards
+
+The action row under every mic (`src/components/mic/MicActionBar.tsx`) is now
+three slots: votes on the left, Register in the middle (only when the mic has
+a signup link), and Instagram, map, confirm, report and share fixed on the
+right. A mic with no Instagram gets a blank spacer in that spot, so the icons
+sit in exactly the same place on every card.
+
+### Session: Perform tabs only for signed-in users
+
+The Find Mics / My Mics tab row on /perform (`src/pages/Perform.tsx`) now
+only shows when someone is signed in. Signed-out visitors always land on
+Find Mics, even if My Mics was the last tab they opened. For signed-in users
+the tab row gets a thin 6px gap under the header so it no longer touches it.
+
+### Session: website stops asking for location
+
+The map on the homepage and /open-mics used to pop a "use your current
+location?" prompt as soon as it loaded. Now `LocationService` in
+`src/components/map/LocationService.ts` just answers "Union Square,
+Manhattan" on the website, so no prompt ever shows. The native app still
+reads real GPS. The "I went up" check-in (`src/utils/deviceLocation.ts`)
+still asks for real location when someone taps it, because faking that
+would let anyone check in from home.
+
+### Session: centered hero on tablet widths
+
+Between 640px and 767px wide the hero photo drops below the text, which left
+the text hugging the left edge with empty space on the right. In that range
+only, the hero text, mascot row, buttons and links are now centered. Phones
+(under 640px) and desktop (768px and up, photo on the right) are unchanged.
+
+### Session: Mic of the Month reskinned, no logic changes
+
+**What shipped.** Pure visual pass on `/leaderboard` to match
+`MotmMobile.dc.html`: flat rows separated by a top border instead of glass
+cards, big accent colored rank numbers for the top 3, square icon vote
+buttons (cream when voted) instead of a small pill, and stat chips (votes
+so far, mics ranked) in place of the single colored instruction banner.
+
+**Left alone on purpose.** The vote mutation, rank calculation, the
+search-to-vote-on-an-unranked-mic flow, and the practice vote, none of
+that changed. Also skipped the handoff's "You voted for N" chip, since
+counting a user's own votes across the board is new logic, not a reskin.
+
+**Removed.** The per-row borough color-coded left border. Visual only, not
+part of the voting logic, and not in the handoff's plain row design.
+
+**Verified.** `tsc` and `npm run build` both clean.
+
+### Session: one Home for everyone
+
+**What shipped.** `Index.tsx` now always renders `Landing.tsx`, signed in or
+not, matching screens/Mobile.dc.html, which has no separate signed-in
+layout. Deleted `src/components/Home.tsx` (the old dashboard: streaks,
+borough analytics, next 7 days, quick actions, growth opportunities) and
+the `/home` route, which now redirects to `/`.
+
+**Not a data loss.** Every number on that dashboard came from Supabase and
+from a Profile tab link (`?tab=saved`, `?tab=liked`, `?tab=signups`,
+`?tab=playlists`) that still works exactly as before. The dashboard was a
+second place to see that data, not the only place it lived.
+
+**Also.** Landing's header now hides Log in once a user is signed in, adds
+a `+ Listing` pill to the desktop nav to match Main.dc.html, and its mobile
+menu is the same shared `HamburgerMenu` every other page uses instead of a
+second, simpler dropdown it used to carry on its own.
+
+**Verified.** `tsc` and `npm run build` both clean. Bundle size dropped
+about 58kb from removing Home.tsx's recharts analytics code.
+
+### Session: Laugh redesigned to match the comedy club handoff
+
+**What shipped.** `AudienceShows` now features the next upcoming show in a
+big photo hero (`FeaturedShowHero.tsx`) with Next up, RSVP, Tix, LaughPass
+and Share, then groups the rest of the list by month under a plain header.
+Reused the existing RSVP, ticket purchase and LaughPass logic (the last two
+already honest "coming soon" toasts) instead of writing a second copy.
+
+**Left alone on purpose.** `AudienceShowCard`'s own row layout. The handoff
+shows a day/date/month block per row; the existing card already carries the
+date, venue and every real action, so a full rebuild was not worth the
+regression risk under "smallest change per file."
+
+**Verified.** `tsc` and `npm run build` both clean.
+
+### Session: Perform redesigned to match the comedy club handoff
+
+**What shipped.** `MicActionBar` now shows like and dislike as two separate
+counts (hidden at zero, not a combined score pill), added a host Instagram
+button, and restyled the sign-up link into an accent colored Register pill.
+Replaced three separate calendar actions (schedule, Google Calendar link,
+download iCal) with one Add to calendar button opening a new bottom sheet,
+`CalendarSheet.tsx` (Google, Apple, Other .ics), backed by a shared
+`src/utils/micCalendar.ts` instead of a second copy of the date math. Day
+tabs now show the date number under each day (Thu 15, Fri 16).
+
+**Also.** `MicMiniMap` is now a lazy import behind Suspense, only requested
+once someone taps Show map. Mapbox itself still ships in the main bundle
+regardless, `src/components/map/index.ts` imports it statically for other
+screens, that is a separate, bigger fix.
+
+**Left alone on purpose.** The mic row's two column layout. The handoff shows
+a strict time-first column; the existing row already surfaces time, name,
+venue, stage time, cost and verified status, and reworking a 679 line
+component's geometry was more regression risk than the gap was worth.
+
+**Verified.** `tsc` and `npm run build` both clean.
+
+### Session: mascot in the hero, one shared header logo
+
+The homepage hero now puts the cartoon mascot (`public/landing/character.png`)
+to the right of the big "Comediq" title. Every header (landing nav, landing
+footer, and `PageHeader` on pages like /open-mics) now uses one component,
+`src/components/Wordmark.tsx`: cream Q logo plus "Comediq" in wide Archivo
+(110%). Change the logo there and it changes everywhere.
 
 ### Session: the seam under the email icon
 
@@ -1765,3 +1995,152 @@ said "Headshot upload error" with no reason, so nobody could tell why.
 **Still unknown.** If it keeps failing, the new message will say whether it is
 storage (a rule on the `headshots` bucket) or the profile save (a rule on the
 `profiles` table). Those rules live in Supabase, not in this repo's code.
+
+### Session: one add-a-mic form, Laugh + in the toolbar, copy cleanups
+
+**One form for adding a mic.** There used to be two very different forms: the
+small card that opens from the green + on the Perform tab, and a long page
+behind "Create a listing" in the menu. Now there is one. The "Create a listing"
+page (`/add-mic`) shows the same small card with the same questions, so it fits
+on one screen. Both save through one shared helper, `src/hooks/useAddMic.ts`
+(the `add_open_mic` database function, the audit row, and putting the new mic on
+screen straight away). After saving from the listing page you land on the Perform
+tab with NEW open. The old long form is gone, so there is only one place to
+change when a question changes.
+
+**Laugh + moved.** The orange floating + on the Laugh tab is now a green + in the
+top row, next to the filter button, in the same spot and style as the Perform +.
+It still opens the add-a-show page (signed-out people go to log in first).
+
+**Copy and cleanup.** "Questions or new mics?" is now "Questions or collabs? DM
+@comediq.us", because we want people to add mics themselves. The "Try it, this
+one does not count" practice mic on the Mic of the Month page is removed.
+
+**Not changed.** The add-a-show form (`/add-show`) is a different kind of
+listing and keeps its own questions.
+
+### Session: simpler sign-up questions on the add-a-mic card
+
+The card had two overlapping sign-up questions: a text box ("bucket pull, list,
+etc.") and an "In-Person / Online / Comediq Slots / Other" dropdown. Now:
+
+- **One box:** the hint says "[paste link here] or bucket or in person list".
+  If the host pastes a link, the mic is saved as an online sign-up with that
+  link. If they type words, it is saved as an in-person sign-up. No more second
+  "https://..." box to fill in.
+- **Lineup order dropdown** replaces the In-Person dropdown: Bucket / random,
+  List in order of arrival, or Host chooses. It is optional. There is no new
+  database column: the choice is added to the sign-up text as "Lineup: Bucket /
+  random", so it shows wherever the sign-up instructions already show.
+- The old dropdown also offered "Comediq Slots!". That option is gone from this
+  card (it was already rarely the right answer for a new mic).
+
+This card is shared by the + on the Perform tab and the Create a listing page,
+so both changed at once.
+
+### Session: glass bottom nav is back on the website, with a lava-lamp slide
+
+**What happened.** The floating glass pill at the bottom (Home / Perform / Laugh /
+Profile, plus the round search button) was added in the Oct 16 redesign. On
+Oct 19 a commit ("Hide bottom nav on web, keep it native-app only") made it show
+only inside the phone app, so on the website it vanished. It is back on the
+website now. To hide it on the web again, put back the one line
+`if (!Capacitor.isNativePlatform()) return null;` at the top of
+`src/components/BottomNavigation.tsx`.
+
+**The lava-lamp animation.** The highlight behind the selected button used to
+jump from one button to the next. Now it is one soft blob that slides over:
+
+- It uses a springy curve, so it slightly overshoots the button and settles back.
+- It stretches wide and thin in the middle of the trip, then relaxes
+  (the `lava-squish` animation in `src/index.css`).
+- A blurred blue glow follows a split second behind it, which is the "lava" part.
+- People who turn on "reduce motion" in their phone settings get no animation.
+
+**The + buttons.** On a laptop the Laugh + sits in the top row with search, map
+and filter, next to the Perform + style. Both are the same green + .
+
+### Session: the new add-a-show form
+
+**What changed.** `/add-show` (Create a listing, then A show, and the green + on the
+Laugh tab) used to be a long form that asked for a weekday. It is now one
+condensed card, like the add-a-mic card. Files: `src/components/EditableShowCard.tsx`
+(the card), `src/pages/AddShow.tsx` (saves it), `submitShowListing` in
+`src/api/audienceShows.ts`, `src/utils/showRecurrence.ts` (the date maths).
+
+**What it asks.** Show name, venue, a **real calendar date** (not a weekday), start
+time, doors time (optional), price, Instagram, ticket link, show type, a short
+description, a picture, and whether the show repeats. No lineup order or stage
+time, those are for open mics. A show still needs an Instagram or a ticket link.
+
+**Repeating shows.** "One time only", every week, every 2 weeks, or every month
+(same weekday and position, so a 1st Sunday show stays on the 1st Sunday). It
+saves the way the Repeating shows section above describes: one hidden template
+plus dated rows. It creates the next 8 weeks, 6 biweekly shows or 6 months up
+front. Nothing creates more later, so a repeating show runs out of dates.
+
+**The picture.** Shrunk in the browser (`src/utils/prepareImage.ts`) and uploaded to
+the signed-in user's own folder of the public `headshots` bucket, because that
+is the one place every signed-in user is already allowed to upload.
+
+**LaughPass free ticket.** A checkbox: "Offer LaughPass members a free ticket", plus
+how many free tickets per show. This is only **recorded** for now
+(`laughpass_free_ticket`, `laughpass_ticket_limit`). LaughPass has no claim
+flow yet, so nothing on the public site mentions it, on purpose, so we never
+promise audiences a ticket that cannot be claimed.
+
+**Confirm 1 day before.** A required checkbox: the host promises to confirm the
+show is still on the day before each show (`confirm_active_agreed`). **The
+reminders are not built yet.** Nothing emails the host, and nothing hides an
+unconfirmed show. That needs a scheduled job and an email, and is the next piece
+of work. `last_confirmed_active_at` is waiting for it.
+
+**Needs one SQL step.** `supabase/migrations/20261021120000_show_listing_fields.sql`
+adds the four new columns. Nothing in this repo applies migrations, so run it in
+the Supabase SQL editor first. Until it is run, submitting a show tells the
+person "Show listings are being set up" instead of saving.
+
+**Still reviewed first.** New shows are saved unverified, so an admin approves them
+before they appear on the Laugh tab. For a repeating show that means each dated
+row. We do not ask the database to return the new row, because an unverified row
+cannot be read by the person who submitted it, so asking for it back would fail.
+
+### Session: day-before confirmation texts for mic hosts (built, not live)
+
+**The idea.** The day before a mic, text its host "is it still on?". A YES marks the
+mic confirmed and the card shows the date it was last confirmed (the "Verified
+<date>" label already on every card). Full plan: `docs/HOST_TEXT_CONFIRMATION_PLAN.md`.
+
+**What exists now, in kid terms.**
+1. **The sign-up.** On the Host Dashboard a verified host sees a card to add their
+   phone number and tick a consent box. Only verified hosts can, because their
+   YES changes what the public sees. The number goes in a private table and is never
+   put on the website's mic data.
+2. **The mailman.** Every day around noon a GitHub job looks at tomorrow, finds the
+   mics running then (it understands weekly, bi-weekly anchors, monthly and listed
+   dates), and works out who to text. Weekly mics only get one text a month.
+   Right now it only **prints** who it would text. It sends nothing, and writes
+   nothing, until real texting is switched on.
+3. **The answers.** A database function turns YES, NO or STOP into the right
+   action: YES sets the confirmed date, STOP stops all texts.
+
+**What is missing.** A texting company (the provider is not chosen), and the web
+address the provider sends replies to. Until both exist, no text goes out and no
+reply is read. The plan file has the go-live checklist.
+
+**Safety.** The daily job is dry-run unless the GitHub variable `HOST_TEXTS_LIVE`
+is `true`. It never texts someone who said STOP, never texts the same mic and
+number twice for one date, and never texts about a mic whose dates it is only
+guessing.
+
+## Session: nav bar shine removed
+
+- The bottom nav's selected button no longer has a glow or shadow behind it. It is
+  just the cream pill that slides (the lava lamp motion is unchanged).
+- Next: ShowTN "Next shows" menu (show of the night, this week, this month). It lives
+  in a separate site, so it needs a read-only way to get shows from our database.
+
+## Session: vote bar text and mascot side
+
+- The bottom contest bar is now plain text, not a link: "Vote! by hitting like on good mics 👍".
+- Home hero: on phones the mascot sits left of "NYC's comedy platform Comediq"; on desktop (md and up) it sits to the right.

@@ -7,7 +7,7 @@ import VenueAutocomplete, { type VenueLocation } from '@/components/host/VenueAu
 import DayOfWeekPicker from '@/components/ui/DayOfWeekPicker';
 import MicDatePicker from '@/components/MicDatePicker';
 import { toIsoDate } from '@/utils/micOccurrences';
-import { MicFrequency, SignupMethod, FREQUENCY_LABELS } from '@/types/openMic';
+import { MicFrequency, FREQUENCY_LABELS } from '@/types/openMic';
 import { MicRequestFormData } from '@/components/host/AddMicRequestForm';
 
 function addMinutes(timeStr: string, minutes: number): string {
@@ -42,12 +42,19 @@ const FREQUENCY_OPTIONS: MicFrequency[] = [
   '1st_of_month', '2nd_of_month', '3rd_of_month', '4th_of_month', 'last_of_month', 'custom',
 ];
 
-const SIGNUP_OPTIONS: { value: SignupMethod; label: string }[] = [
-  { value: 'in_person', label: 'In-Person' },
-  { value: 'online', label: 'Online' },
-  { value: 'comediq_slots', label: 'Comediq Slots!' },
-  { value: 'other', label: 'Other' },
+const LINEUP_OPTIONS: { value: string; label: string }[] = [
+  { value: 'bucket', label: 'Bucket / random' },
+  { value: 'arrival', label: 'List in order of arrival' },
+  { value: 'host', label: 'Host chooses' },
 ];
+
+/** The first web link in the sign-up box, with https:// added when it starts with www. */
+function findLink(text: string): { raw: string; url: string } | null {
+  const match = text.match(/(https?:\/\/\S+|www\.\S+)/i);
+  if (!match) return null;
+  const raw = match[1];
+  return { raw, url: /^https?:\/\//i.test(raw) ? raw : `https://${raw}` };
+}
 
 interface EditableMicCardProps {
   onSave: (data: MicRequestFormData) => void;
@@ -67,8 +74,7 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
   const [stageTime, setStageTime] = useState('');
   const [signUpInstructions, setSignUpInstructions] = useState('');
   const [frequency, setFrequency] = useState<MicFrequency>('weekly');
-  const [signupMethod, setSignupMethod] = useState<SignupMethod>('in_person');
-  const [signupUrl, setSignupUrl] = useState('');
+  const [lineup, setLineup] = useState('');
   const [frequencyCustomText, setFrequencyCustomText] = useState('');
   const [dates, setDates] = useState<Date[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -115,7 +121,6 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
     if (!venueQuery.trim() || !venueLocation) newErrors.venue = 'Select a venue';
     if (!day) newErrors.day = 'Day required';
     if (!startTime.trim()) newErrors.startTime = 'Start time required';
-    if (signupMethod === 'online' && !signupUrl.trim()) newErrors.signupUrl = 'Signup URL required';
     if (needsDates && dates.length === 0) newErrors.dates = frequency === 'bi_weekly' ? 'Pick the next date it happens' : 'Pick the date(s)';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -124,6 +129,12 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
   const handleSave = () => {
     if (isSubmitting || !validate()) return;
     const autoEndTime = endTime.trim() || addMinutes(startTime, 90);
+    // One box for how to sign up. A pasted link makes it an online sign-up; plain
+    // words stay as in-person instructions. The lineup order is added as a line.
+    const link = findLink(signUpInstructions);
+    const typed = (link ? signUpInstructions.replace(link.raw, '') : signUpInstructions).trim();
+    const lineupLabel = LINEUP_OPTIONS.find((o) => o.value === lineup)?.label;
+    const signUpText = [typed, lineupLabel ? `Lineup: ${lineupLabel}` : ''].filter(Boolean).join('. ');
     onSave({
       open_mic: micName.trim(),
       venue_name: venueLocation?.venueName || venueQuery.trim(),
@@ -137,14 +148,14 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
       stage_time: stageTime.trim(),
       cost: cost.trim() || 'Free',
       venue_type: venueLocation?.venueType || '',
-      sign_up_instructions: signUpInstructions.trim(),
+      sign_up_instructions: signUpText,
       hosts_organizers: hostInstagram.trim(),
       host_phone: '',
       changes_updates: hostInstagram.trim(),
       other_rules: '',
       frequency,
-      signup_method: signupMethod,
-      signup_url: signupUrl.trim(),
+      signup_method: link ? 'online' : 'in_person',
+      signup_url: link ? link.url : '',
       frequency_custom_text: scheduleText(),
     });
   };
@@ -249,10 +260,10 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
             <UserRoundCheck className="w-3 h-3 flex-shrink-0 text-gray-500" />
             <span className="whitespace-nowrap text-muted-foreground text-[11px]">Sign-Up:</span>
             <Input
-              placeholder="bucket pull, list, etc."
+              placeholder="[paste link here] or bucket or in person list"
               value={signUpInstructions}
               onChange={(e) => setSignUpInstructions(e.target.value)}
-              className={ghostInput('flex-1 h-6 border-gray-300')}
+              className={ghostInput('flex-1 h-6 border-gray-300 text-[11px] placeholder:text-[11px]')}
             />
           </div>
 
@@ -285,26 +296,17 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
                 ))}
               </SelectContent>
             </Select>
-            <Select value={signupMethod} onValueChange={(v) => setSignupMethod(v as SignupMethod)}>
+            <Select value={lineup} onValueChange={setLineup}>
               <SelectTrigger className="h-7 text-xs">
-                <SelectValue />
+                <SelectValue placeholder="Lineup order" />
               </SelectTrigger>
               <SelectContent>
-                {SIGNUP_OPTIONS.map(o => (
+                {LINEUP_OPTIONS.map(o => (
                   <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-
-          {(signupMethod === 'online' || signupMethod === 'other') && (
-            <Input
-              placeholder={signupMethod === 'online' ? 'https://...' : 'Describe how to sign up'}
-              value={signupUrl}
-              onChange={(e) => { setSignupUrl(e.target.value); clearError('signupUrl'); }}
-              className={`h-7 text-xs ${errors.signupUrl ? 'border-red-400' : ''}`}
-            />
-          )}
 
           {needsDates && (
             <div className="space-y-1 text-left">
