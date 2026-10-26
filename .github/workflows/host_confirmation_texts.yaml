@@ -1,0 +1,54 @@
+name: Host confirmation texts
+
+# Texts mic hosts the day before their mic to confirm it is still on.
+# Plan: docs/HOST_TEXT_CONFIRMATION_PLAN.md
+#
+# Safe by default: a scheduled run only PRINTS who it would text. It sends real
+# texts only when the repository variable HOST_TEXTS_LIVE is set to "true"
+# (Settings > Secrets and variables > Actions > Variables). A manual run sends
+# only if you tick "send". Real sending also needs the Twilio secrets below.
+on:
+  schedule:
+    # 16:00 UTC is noon in New York during daylight time (11am in winter).
+    - cron: "0 16 * * *"
+  workflow_dispatch:
+    inputs:
+      send:
+        description: "Really send the texts (otherwise a dry run)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: host-confirmation-texts
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Send (or preview) the texts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
+          LIVE: ${{ (github.event_name == 'workflow_dispatch' && inputs.send) || (github.event_name == 'schedule' && vars.HOST_TEXTS_LIVE == 'true') }}
+        run: |
+          if [ "$LIVE" = "true" ]; then
+            npx --yes tsx scripts/send-host-confirmation-texts.ts --send
+          else
+            npx --yes tsx scripts/send-host-confirmation-texts.ts
+          fi

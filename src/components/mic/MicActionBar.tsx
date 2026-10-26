@@ -1,5 +1,5 @@
 import { slugify } from "@/lib/seoShared";
-import { ChevronUp, ChevronDown, MapPin, Send, ExternalLink, Check, Flag } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MapPin, Send, ExternalLink, Check, Flag, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMicRatings, type SharedMicRatingData } from "@/hooks/useMicRatings";
@@ -23,6 +23,8 @@ interface MicActionBarProps {
   lastConfirmedAt?: string | null;
   signUpInstructions?: string;
   venueAddress?: string;
+  /** Freeform host Instagram text (a handle, a URL, or both). */
+  hostInstagram?: string;
   // Legacy props (kept for backward compatibility, no-op)
   onCommentClick?: () => void;
   showCommentSection?: boolean;
@@ -65,12 +67,26 @@ const extractFirstUrl = (text?: string): string | null => {
   }
 };
 
+// Builds a usable Instagram URL from freeform host text: a full URL, a bare
+// "@handle", or a bare "handle".
+const getInstagramUrl = (text?: string): string | null => {
+  if (!text) return null;
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+  const asUrl = extractFirstUrl(trimmed);
+  if (asUrl && asUrl.includes("instagram.com")) return asUrl;
+  const handle = trimmed.replace(/^@/, "").split(/\s+/)[0];
+  if (!handle || /[^a-zA-Z0-9._]/.test(handle)) return null;
+  return `https://instagram.com/${handle}`;
+};
+
 export default function MicActionBar({
   micUniqueIdentifier,
   micName,
   lastConfirmedAt,
   signUpInstructions,
   venueAddress,
+  hostInstagram,
   className,
   sharedRatings,
 }: MicActionBarProps) {
@@ -92,9 +108,8 @@ export default function MicActionBar({
 
   const isUpvoted = userRating === "like";
   const isDownvoted = userRating === "dislike";
-  const score = (ratingCounts.likes || 0) - (ratingCounts.dislikes || 0);
-
   const signUpUrl = extractFirstUrl(signUpInstructions);
+  const instagramUrl = getInstagramUrl(hostInstagram);
 
   const requireAuth = (action: string): boolean => {
     if (!user) {
@@ -212,74 +227,81 @@ export default function MicActionBar({
     }
   };
 
-  // Comediq Blue / muted red / neutral, using arbitrary HSL values matching brand tokens
-  const upvoteColor = isUpvoted ? "text-[#1a5fb4]" : "text-gray-600 dark:text-muted-foreground";
-  const downvoteColor = isDownvoted ? "text-red-500 dark:text-red-400" : "text-gray-600 dark:text-muted-foreground";
-  const scoreColor = isUpvoted
-    ? "text-[#1a5fb4]"
-    : isDownvoted
-      ? "text-red-500 dark:text-red-400"
-      : "text-gray-800 dark:text-foreground";
+  const quietIconClass =
+    "h-8 w-8 p-0 text-[#D2DCF0] hover:bg-white/10 hover:text-comediq-cream";
 
   return (
     <>
-    <div className={cn("flex items-center justify-between border-t border-white/10 pt-1.5 mt-1 text-gray-700 dark:text-white/70", className)}>
-      {/* Left: Reddit-style vote pill */}
-      <div
-        className={cn(
-          "flex items-center gap-0.5 rounded-full bg-white/60 px-1 py-0.5 dark:bg-muted/40",
-          (isUpvoted || isDownvoted) && "bg-white/80 dark:bg-muted"
-        )}
-      >
+    <div className={cn("grid grid-cols-[auto_1fr_auto] items-center gap-1 border-t border-white/10 pt-1.5 mt-1 text-[#D2DCF0]", className)}>
+      {/* Left: like and dislike, each its own count, hidden when zero. */}
+      <div className="flex items-center">
         <button
           type="button"
           onClick={() => handleVote("like")}
           disabled={isRating}
-          aria-label="Upvote"
+          aria-label={ratingCounts.likes ? `Like, ${ratingCounts.likes}` : "Like"}
           className={cn(
-            "p-1 rounded-full hover:bg-background transition-colors disabled:opacity-50 dark:hover:bg-background/40",
-            upvoteColor
+            "flex items-center gap-1 rounded-full px-1.5 py-1 transition-colors hover:bg-white/10 disabled:opacity-50",
+            isUpvoted ? "text-comediq-cream" : "text-[#D2DCF0]",
           )}
         >
-          <ChevronUp className={cn("w-4 h-4", isUpvoted && "fill-current")} strokeWidth={2.5} />
+          <ThumbsUp className={cn("h-4 w-4", isUpvoted && "fill-current")} strokeWidth={2} />
+          {ratingCounts.likes > 0 && <span className="text-xs font-semibold">{ratingCounts.likes}</span>}
         </button>
-        <span className={cn("text-xs font-semibold min-w-[1ch] text-center px-0.5", scoreColor)}>
-          {score}
-        </span>
         <button
           type="button"
           onClick={() => handleVote("dislike")}
           disabled={isRating}
-          aria-label="Downvote"
+          aria-label={ratingCounts.dislikes ? `Dislike, ${ratingCounts.dislikes}` : "Dislike"}
           className={cn(
-            "p-1 rounded-full hover:bg-background transition-colors disabled:opacity-50 dark:hover:bg-background/40",
-            downvoteColor
+            "flex items-center gap-1 rounded-full px-1.5 py-1 transition-colors hover:bg-white/10 disabled:opacity-50",
+            isDownvoted ? "text-comediq-cream" : "text-[#D2DCF0]",
           )}
         >
-          <ChevronDown className={cn("w-4 h-4", isDownvoted && "fill-current")} strokeWidth={2.5} />
+          <ThumbsDown className={cn("h-4 w-4", isDownvoted && "fill-current")} strokeWidth={2} />
+          {ratingCounts.dislikes > 0 && <span className="text-xs font-semibold">{ratingCounts.dislikes}</span>}
         </button>
       </div>
 
-      {/* Right: utility buttons */}
-      <div className="flex items-center gap-0.5">
+      {/* Middle: Register, only when the mic has a signup link. Kept out of
+          the icon row so those icons sit in the same spot on every card. */}
+      <div className="flex justify-center">
         {signUpUrl && (
+          <Button
+            size="sm"
+            onClick={handleSignUp}
+            className="h-8 gap-1.5 rounded-full bg-comediq-accent px-3.5 text-xs font-semibold text-[#0A1128] hover:bg-comediq-accent/90"
+            aria-label="Register for this mic"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            Register
+          </Button>
+        )}
+      </div>
+
+      {/* Right: fixed icon row. A blank slot stands in for a missing
+          Instagram so the other icons never shift. */}
+      <div className="flex items-center gap-0.5">
+        {instagramUrl ? (
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleSignUp}
-            className="h-8 px-2 gap-1 text-xs font-medium text-gray-700 hover:bg-[#1a5fb4]/10 dark:text-white dark:hover:bg-[hsl(var(--primary))]/20 dark:hover:text-white"
-            aria-label="Sign up online"
+            asChild
+            className={quietIconClass}
           >
-            <ExternalLink className="w-3.5 h-3.5 text-gray-600 dark:text-white" />
-            Sign Up
+            <a href={instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Host Instagram">
+              <Instagram className="w-4 h-4" />
+            </a>
           </Button>
+        ) : (
+          <span className="h-8 w-8" aria-hidden="true" />
         )}
         <Button
           variant="ghost"
           size="sm"
           onClick={handleMap}
-          className="h-8 w-8 p-0 text-gray-700 hover:bg-[#1a5fb4]/10 dark:text-white dark:hover:bg-[hsl(var(--primary))]/20 dark:hover:text-white"
-          aria-label="Open in Google Maps"
+          className={quietIconClass}
+          aria-label="Directions"
         >
           <MapPin className="w-4 h-4" />
         </Button>
@@ -288,34 +310,26 @@ export default function MicActionBar({
           size="sm"
           onClick={openConfirmDialog}
           disabled={confirmedThisMonth || isConfirming}
-          className={cn(
-            "h-8 px-2 gap-1 text-xs font-medium text-gray-700 hover:bg-green-500/10 disabled:opacity-70 dark:text-white dark:hover:bg-green-500/20",
-            confirmedThisMonth && "text-green-700 dark:text-green-300"
-          )}
+          className={cn(quietIconClass, "disabled:opacity-70", confirmedThisMonth && "text-green-300")}
           aria-label={confirmedThisMonth ? "Confirmed this month" : "Confirm mic is active"}
         >
-          <Check className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">{confirmedThisMonth ? "Confirmed" : "Confirm"}</span>
+          <Check className="w-4 h-4" />
         </Button>
         <Button
           variant="ghost"
           size="sm"
           onClick={openReportDialog}
           disabled={alreadyReportedThisMonth || isReporting}
-          className={cn(
-            "h-8 px-2 gap-1 text-xs font-medium text-gray-700 hover:bg-red-500/10 disabled:opacity-70 dark:text-white dark:hover:bg-red-500/20",
-            alreadyReportedThisMonth && "text-red-600 dark:text-red-300"
-          )}
+          className={cn(quietIconClass, "disabled:opacity-70", alreadyReportedThisMonth && "text-red-300")}
           aria-label={alreadyReportedThisMonth ? "Reported this month" : "Report mic as inactive"}
         >
-          <Flag className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">{alreadyReportedThisMonth ? "Reported" : "Report"}</span>
+          <Flag className="w-4 h-4" />
         </Button>
         <Button
           variant="ghost"
           size="sm"
           onClick={handleShare}
-          className="h-8 w-8 p-0 text-gray-700 hover:bg-[#1a5fb4]/10  dark:text-white dark:hover:bg-[hsl(var(--primary))]/20 dark:hover:text-white"
+          className={quietIconClass}
           aria-label="Share mic"
         >
           <Send className="w-4 h-4" />

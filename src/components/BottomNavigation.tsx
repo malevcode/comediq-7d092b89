@@ -1,3 +1,4 @@
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, Eye, User, Book, MicVocal, LayoutDashboard, Search } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,10 +19,12 @@ function getInitials(user: { user_metadata?: Record<string, unknown>; email?: st
 }
 
 /**
- * Floating glass pill bottom nav, redesigned Oct 2026 to match the comedy
- * club handoff: Home / Perform / Laugh / Profile in a translucent pill,
- * plus a separate round Search button beside it. Admin keeps its own
- * link, same as before, just restyled.
+ * Floating glass pill bottom nav: Home / Perform / Laugh / Profile in a
+ * translucent pill, plus a separate round Search button beside it. Admin keeps
+ * its own link.
+ *
+ * The highlight is one "lava lamp" blob that slides to the selected button. It
+ * overshoots and squishes as it moves, so switching tabs flows instead of jumping.
  */
 const BottomNavigation = () => {
   const location = useLocation();
@@ -30,20 +33,9 @@ const BottomNavigation = () => {
   const { trackClick } = useAnalytics();
 
   const isHostOrShowrunner = role === 'host' || role === 'showrunner';
-  if (location.pathname.startsWith("/auth")) return null;
-  if (isMicSignupPath(location.pathname)) return null;
-  if (location.pathname === "/setbuild-privacy") return null;
-
-
   const laughOrDashboard = isHostOrShowrunner
     ? { path: "/host-dashboard", icon: LayoutDashboard, label: "Dashboard" }
     : { path: "/laugh", icon: Eye, label: "Laugh" };
-
-  const navItems = [
-    { path: "/", icon: Home, label: "Home" },
-    { path: "/open-mics", icon: MicVocal, label: "Perform" },
-    laughOrDashboard,
-  ];
 
   const isActive = (path: string) => {
     if (path === "/open-mics") {
@@ -74,60 +66,97 @@ const BottomNavigation = () => {
   };
 
   const initials = getInitials(user);
-  const profilePath = user ? "/profile" : "/auth";
-  const profileActive = location.pathname === "/profile";
+  const items = [
+    { path: "/", icon: Home, label: "Home", track: true },
+    { path: "/open-mics", icon: MicVocal, label: "Perform", track: true },
+    { ...laughOrDashboard, track: true },
+    { path: user ? "/profile" : "/auth", icon: User, label: "Profile", track: false, initials },
+    ...(isAdmin ? [{ path: "/admintest", icon: Book, label: "Admin", track: false }] : []),
+  ].map((item) => ({
+    ...item,
+    active: item.label === "Profile" ? location.pathname === "/profile" : isActive(item.path),
+  }));
+  const activeIndex = items.findIndex((item) => item.active);
+
+  const hidden =
+    location.pathname.startsWith("/auth") ||
+    isMicSignupPath(location.pathname) ||
+    location.pathname === "/setbuild-privacy";
+
+  // Where the lava blob sits: measured from the selected button.
+  const itemRefs = useRef<Array<HTMLAnchorElement | null>>([]);
+  const [blob, setBlob] = useState<{ left: number; width: number } | null>(null);
+  const [squishing, setSquishing] = useState(false);
+  const lastIndex = useRef(-1);
+
+  useLayoutEffect(() => {
+    if (hidden) return undefined;
+    const measure = () => {
+      const el = itemRefs.current[activeIndex];
+      setBlob(el ? { left: el.offsetLeft, width: el.offsetWidth } : null);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [activeIndex, items.length, hidden]);
+
+  useEffect(() => {
+    const moved = lastIndex.current !== -1 && activeIndex !== -1 && activeIndex !== lastIndex.current;
+    lastIndex.current = activeIndex;
+    if (!moved) return undefined;
+    setSquishing(true);
+    const timer = window.setTimeout(() => setSquishing(false), 700);
+    return () => window.clearTimeout(timer);
+  }, [activeIndex]);
+
+  if (hidden) return null;
 
   return (
     <div className="keyboard-fixed-hide fixed bottom-0 left-0 right-0 z-50 flex items-center gap-2.5 px-3.5 pb-6 pt-2.5">
       <nav
         aria-label="Main"
-        className="mx-auto flex max-w-md flex-1 gap-1 rounded-full border border-white/25 bg-comediq-cream/15 p-1.5 shadow-[0_10px_30px_rgba(10,17,40,0.35)] backdrop-blur-xl [backdrop-filter:blur(20px)_saturate(160%)]"
+        className="relative mx-auto flex max-w-md flex-1 gap-1 rounded-full border border-white/25 bg-comediq-cream/15 p-1.5 shadow-[0_10px_30px_rgba(10,17,40,0.35)] backdrop-blur-xl [backdrop-filter:blur(20px)_saturate(160%)]"
       >
-        {navItems.map(({ path, icon: Icon, label }) => {
-          const active = isActive(path);
+        {blob && (
+          <>
+            {/* The blob: overshoots with a springy curve and squishes while it travels. */}
+            <span
+              aria-hidden="true"
+              className={`pointer-events-none absolute bottom-1.5 top-1.5 rounded-full bg-comediq-cream/92 motion-reduce:transition-none ${squishing ? "lava-squish" : ""}`}
+              style={{
+                left: blob.left,
+                width: blob.width,
+                transition: "left 520ms cubic-bezier(0.34, 1.5, 0.5, 1), width 520ms cubic-bezier(0.34, 1.5, 0.5, 1)",
+              }}
+            />
+          </>
+        )}
+        {items.map(({ path, icon: Icon, label, track, active, ...rest }, index) => {
+          const itemInitials = "initials" in rest ? (rest.initials as string | null) : null;
           return (
             <Link
-              key={path}
+              key={label}
+              ref={(el) => {
+                itemRefs.current[index] = el;
+              }}
               to={path}
-              onClick={() => trackClick(`nav_${label.toLowerCase()}`, { target: path })}
+              onClick={track ? () => trackClick(`nav_${label.toLowerCase()}`, { target: path }) : undefined}
               aria-label={label}
               aria-current={active ? "page" : undefined}
-              className={`flex h-[52px] flex-1 items-center justify-center rounded-full transition-colors ${
-                active ? "bg-comediq-cream/92 text-[#0A1128]" : "text-comediq-cream hover:bg-white/10"
+              className={`relative z-10 flex h-[52px] flex-1 items-center justify-center rounded-full transition-colors duration-300 ${
+                active ? "text-[#0A1128]" : "text-comediq-cream"
               }`}
             >
-              <Icon size={24} />
+              {label === "Profile" && itemInitials ? (
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-comediq-accent text-xs font-bold text-[#0A1128] shadow-[0_0_0_2px_rgba(246,241,228,0.85)]">
+                  {itemInitials}
+                </span>
+              ) : (
+                <Icon size={label === "Admin" ? 22 : 24} />
+              )}
             </Link>
           );
         })}
-        <Link
-          to={profilePath}
-          aria-label="Profile"
-          aria-current={profileActive ? "page" : undefined}
-          className={`flex h-[52px] flex-1 items-center justify-center rounded-full transition-colors ${
-            profileActive ? "bg-comediq-cream/92 text-[#0A1128]" : "text-comediq-cream hover:bg-white/10"
-          }`}
-        >
-          {initials ? (
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-comediq-accent text-xs font-bold text-[#0A1128] shadow-[0_0_0_2px_rgba(246,241,228,0.85)]">
-              {initials}
-            </span>
-          ) : (
-            <User size={24} />
-          )}
-        </Link>
-        {isAdmin && (
-          <Link
-            to="/admintest"
-            aria-label="Admin"
-            aria-current={location.pathname === "/admintest" ? "page" : undefined}
-            className={`flex h-[52px] flex-1 items-center justify-center rounded-full transition-colors ${
-              location.pathname === "/admintest" ? "bg-comediq-cream/92 text-[#0A1128]" : "text-comediq-cream hover:bg-white/10"
-            }`}
-          >
-            <Book size={22} />
-          </Link>
-        )}
       </nav>
       <button
         type="button"
