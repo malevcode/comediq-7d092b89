@@ -17,7 +17,7 @@ const isMissingColumnError = (message: string) =>
 
 /**
  * Create a listing, show. Same kind of condensed card as the add-a-mic form.
- * Shows are reviewed before they appear on the Laugh tab.
+ * Shows go live right away (the database approves them on save).
  */
 export default function AddShow() {
   const navigate = useNavigate();
@@ -55,8 +55,8 @@ export default function AddShow() {
         title: 'Show submitted!',
         description:
           data.repeat === 'none'
-            ? 'It will appear on the Laugh tab once it has been reviewed.'
-            : 'Your upcoming dates will appear on the Laugh tab once they have been reviewed.',
+            ? 'It is now live on the Laugh tab.'
+            : 'Your upcoming dates are now live on the Laugh tab.',
       });
       navigate(returnPath);
     } catch (error) {
@@ -89,7 +89,7 @@ export default function AddShow() {
           {returnPath === '/shows' ? 'Back to Scheduler' : 'Back to Shows'}
         </Button>
         <p className="mb-3 text-sm text-[#07111f]/70 dark:text-white/70">
-          Your show is reviewed before it appears on the Laugh tab.
+          Your show goes live on the Laugh tab right away.
         </p>
 
         <EditableShowCard isSubmitting={submitting} onCancel={() => navigate(returnPath)} onSave={handleSave} />
