@@ -93,8 +93,12 @@ grant execute on function public.get_time_block_slot_counts(uuid) to anon, authe
 
 -- One slot per person. Locks the event row so two people who both read
 -- "1 of 1 spots left" cannot both insert and take the same last spot.
--- An upsert on (event_id, user_id) so cancelling and signing up again,
--- including for a different slot, both work.
+-- mic_signups has no unique constraint on (event_id, user_id), the
+-- mobile app writes this table too, so we never add one. Instead, this
+-- function finds the caller's own most recent row for this event and
+-- updates it in place; it only inserts when no row exists yet. That way
+-- a person never ends up with two rows, confirmed or otherwise, for the
+-- same event.
 create or replace function public.signup_for_mic_slot(p_event_id uuid, p_slot_start time)
 returns jsonb
 language plpgsql
@@ -105,7 +109,11 @@ declare
   v_user_id uuid := auth.uid();
   v_event record;
   v_spots_per_slot integer;
+  v_slot_minutes integer;
+  v_slot_count integer;
+  v_slot_valid boolean;
   v_taken integer;
+  v_existing_id uuid;
 begin
   if v_user_id is null then
     raise exception 'Authentication required';
@@ -128,8 +136,21 @@ begin
     raise exception 'This signup sheet is closed';
   end if;
 
-  if v_event.event_date < current_date then
+  if v_event.event_date < (now() at time zone 'America/New_York')::date then
     raise exception 'This signup sheet has already passed';
+  end if;
+
+  v_slot_minutes := coalesce(v_event.slot_minutes, 10);
+  v_slot_count := greatest(coalesce(v_event.slot_count, 1), 1);
+
+  select exists (
+    select 1
+    from generate_series(0, v_slot_count - 1) as n
+    where (v_event.event_time + (n * v_slot_minutes) * interval '1 minute')::time = p_slot_start
+  ) into v_slot_valid;
+
+  if not v_slot_valid then
+    raise exception 'Invalid slot';
   end if;
 
   v_spots_per_slot := coalesce(v_event.spots_per_slot, 1);
@@ -145,13 +166,24 @@ begin
     raise exception 'That slot is full';
   end if;
 
-  insert into public.mic_signups (event_id, user_id, slot_start, status)
-  values (p_event_id, v_user_id, p_slot_start, 'confirmed')
-  on conflict (event_id, user_id)
-  do update set
-    slot_start = excluded.slot_start,
-    status = 'confirmed',
-    updated_at = now();
+  select id into v_existing_id
+  from public.mic_signups
+  where event_id = p_event_id
+    and user_id = v_user_id
+  order by created_at desc
+  limit 1
+  for update;
+
+  if v_existing_id is not null then
+    update public.mic_signups
+    set slot_start = p_slot_start,
+        status = 'confirmed',
+        updated_at = now()
+    where id = v_existing_id;
+  else
+    insert into public.mic_signups (event_id, user_id, slot_start, status)
+    values (p_event_id, v_user_id, p_slot_start, 'confirmed');
+  end if;
 
   return jsonb_build_object(
     'status', 'confirmed',
