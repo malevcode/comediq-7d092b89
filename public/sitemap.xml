@@ -2,19 +2,19 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://comediq.us/</loc>
-    <lastmod>2026-10-15</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/open-mics</loc>
-    <lastmod>2026-10-16</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/perform</loc>
-    <lastmod>2026-09-24</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/laugh</loc>
-    <lastmod>2026-09-24</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/shows</loc>
@@ -30,11 +30,11 @@
   </url>
   <url>
     <loc>https://comediq.us/top-mics</loc>
-    <lastmod>2026-10-07</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/leaderboard</loc>
-    <lastmod>2026-10-07</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/growth</loc>
@@ -42,11 +42,11 @@
   </url>
   <url>
     <loc>https://comediq.us/add-mic</loc>
-    <lastmod>2026-09-24</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/add-show</loc>
-    <lastmod>2026-09-24</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/advertise</loc>
@@ -74,7 +74,7 @@
   </url>
   <url>
     <loc>https://comediq.us/open-mics/thursday</loc>
-    <lastmod>2026-10-15</lastmod>
+    <lastmod>2026-10-20</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/open-mics/friday</loc>
@@ -82,15 +82,15 @@
   </url>
   <url>
     <loc>https://comediq.us/open-mics/saturday</loc>
-    <lastmod>2026-09-12</lastmod>
+    <lastmod>2026-10-24</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/open-mics/manhattan</loc>
-    <lastmod>2026-10-15</lastmod>
+    <lastmod>2026-10-20</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/open-mics/brooklyn</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-24</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/open-mics/staten-island</loc>
@@ -421,6 +421,9 @@
     <lastmod>2026-04-13</lastmod>
   </url>
   <url>
+    <loc>https://comediq.us/mic/throwback-mic</loc>
+  </url>
+  <url>
     <loc>https://comediq.us/mic/serving-up-comedy</loc>
   </url>
   <url>
@@ -674,6 +677,9 @@
   <url>
     <loc>https://comediq.us/mic/bk-made-open-mic-60df24</loc>
     <lastmod>2026-08-10</lastmod>
+  </url>
+  <url>
+    <loc>https://comediq.us/mic/5-30-rose-hour-mic-starts-10-29</loc>
   </url>
   <url>
     <loc>https://comediq.us/mic/knockouts-comedy</loc>
@@ -944,7 +950,7 @@
   </url>
   <url>
     <loc>https://comediq.us/mic/the-mic</loc>
-    <lastmod>2026-07-13</lastmod>
+    <lastmod>2026-10-24</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/mic/producers-club-78556e</loc>
@@ -1401,6 +1407,9 @@
     <lastmod>2026-06-04</lastmod>
   </url>
   <url>
+    <loc>https://comediq.us/mic/6-30-rose-mic-starts-10-29</loc>
+  </url>
+  <url>
     <loc>https://comediq.us/mic/gp-midtown-open-mic-5974e4</loc>
     <lastmod>2026-06-04</lastmod>
   </url>
@@ -1485,7 +1494,7 @@
   </url>
   <url>
     <loc>https://comediq.us/mic/bent-over-laughing</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-10-20</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/mic/carp-tarp</loc>
@@ -1887,7 +1896,7 @@
   </url>
   <url>
     <loc>https://comediq.us/venue/n-m-pizza-bar</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-10-20</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/venue/new-york-comedy-club-east-village</loc>
@@ -2064,7 +2073,7 @@
   </url>
   <url>
     <loc>https://comediq.us/venue/the-improv</loc>
-    <lastmod>2026-07-13</lastmod>
+    <lastmod>2026-10-24</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/venue/the-kibitz-room</loc>
