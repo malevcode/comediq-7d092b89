@@ -13,6 +13,8 @@ import {
   eventSchema, itemListSchema, placeSchema, breadcrumbSchema, graph, formatVerified, micTitle, ORIGIN as SHARED_ORIGIN, PUBLIC_PAGE_META, boundedMeta, micMeta, venueMeta, neighborhoodMeta, micDescription, micFaqs, faqSchema, venueDescription,
 } from "../src/lib/seoShared.js";
 import { resolve, dirname } from "path";
+import { publishedPosts, renderBlogMarkdown, blogDate } from "../src/lib/blogContent.js";
+import { blogPostMeta, blogPostSchema, pageMetaFor } from "../src/lib/seoShared.js";
 
 const ORIGIN = "https://comediq.us";
 const IMAGE = `${ORIGIN}/comediq_logo.jpg`;
@@ -34,7 +36,7 @@ function stripOwned(html) {
     .replace(/<meta[^>]+name="twitter:[^"]+"[^>]*>\s*/gi, "");
 }
 
-function headFor({ path, title, description, jsonld, noindex }) {
+function headFor({ path, title, description, jsonld, noindex, type = "website" }) {
   const url = path === "/" ? `${ORIGIN}/` : `${ORIGIN}${path}`;
   const meta = boundedMeta(title, description);
   const t = esc(meta.title), d = esc(meta.description);
@@ -44,7 +46,7 @@ function headFor({ path, title, description, jsonld, noindex }) {
     noindex ? `<meta name="robots" data-rh="true" content="noindex,nofollow" />` : null,
     `<link rel="canonical" data-canonical="app" href="${url}" />`,
 
-    `<meta property="og:type" data-rh="true" content="website" />`,
+    `<meta property="og:type" data-rh="true" content="${esc(type)}" />`,
     `<meta property="og:site_name" data-rh="true" content="Comediq" />`,
     `<meta property="og:title" data-rh="true" content="${t}" />`,
     `<meta property="og:description" data-rh="true" content="${d}" />`,
@@ -63,6 +65,20 @@ const readJson = (f) => { try { return existsSync(f) ? JSON.parse(readFileSync(f
 const h = (s) => esc(String(s ?? ""));
 const micLi = (m) => `<li><a href="${micPath(m)}">${h(m.openMic)}</a> · ${h([m.day, m.startTime, m.venueName, m.cost].filter(Boolean).join(" · "))}${formatVerified(m.lastVerifiedAt) ? ` · Verified ${h(formatVerified(m.lastVerifiedAt))}` : ""}</li>`;
 const PAGE_SIZE_STATIC = 24;
+
+export function blogPages(posts = publishedPosts()) {
+  return [
+    {
+      path: "/blog", ...pageMetaFor("/blog"),
+      jsonld: graph(breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Blog", path: "/blog" }])),
+      body: `<main><h1>Comedy blog</h1>${posts.length ? `<ul>${posts.map((post) => `<li><h2><a href="/blog/${post.slug}">${h(post.title)}</a></h2><time datetime="${h(post.datePublished)}">${h(blogDate(post.datePublished))}</time><p>${h(post.excerpt)}</p></li>`).join("")}</ul>` : "<p>No posts published yet.</p>"}</main>`,
+    },
+    ...posts.map((post) => ({
+      path: `/blog/${post.slug}`, ...blogPostMeta(post), type: "article", jsonld: blogPostSchema(post),
+      body: `<main><nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/blog">Blog</a> / ${h(post.title)}</nav><article><h1>${h(post.title)}</h1><p>By ${h(post.author)} · <time datetime="${h(post.datePublished)}">${h(blogDate(post.datePublished))}</time></p>${post.dateModified !== post.datePublished ? `<p>Updated <time datetime="${h(post.dateModified)}">${h(blogDate(post.dateModified))}</time></p>` : ""}<div class="blog-prose">${renderBlogMarkdown(post.body)}</div></article><a href="/blog">All posts</a></main>`,
+    })),
+  ];
+}
 
 /** Dynamic pages built from the exported mic + venue data. */
 export function dynamicPages(mics, venues) {
@@ -122,11 +138,11 @@ export function dynamicPages(mics, venues) {
   return pages;
 }
 
-export function prerenderHeads(outDir = "dist") {
+export function prerenderHeads(outDir = "dist", posts = publishedPosts()) {
   const template = stripOwned(readFileSync(resolve(outDir, "index.html"), "utf8"));
   const mics = readJson(resolve(outDir, "mics.json"));
   const venues = readJson(resolve(outDir, "venues.json"));
-  const dynamic = dynamicPages(mics, venues);
+  const dynamic = [...dynamicPages(mics, venues), ...blogPages(posts)];
   const dynPaths = new Set(dynamic.map((p) => p.path));
   const all = [...PAGES.filter((p) => !dynPaths.has(p.path)), ...dynamic];
   for (const page of all) {

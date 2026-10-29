@@ -37,6 +37,7 @@ export const PUBLIC_PAGE_META = [
   ["/add-show", "Submit a Stand-Up Comedy Show | Comediq", "List your stand-up comedy show on Comediq. Add event dates, venue details and ticket links to help local comedy fans discover your next show."],
   ["/advertise", "Advertise to Comedians & Comedy Fans | Comediq", "Promote your comedy venue, event or brand to comedians and comedy fans. Explore Comediq banner advertising and sponsor placements for your campaign."],
   ["/privacy", "Comediq Privacy Policy & Terms of Service", "Read Comediq's privacy policy and terms of service. Learn how comedian data is collected, used and protected, including SMS notification disclosures."],
+  ["/blog", "Stand-Up Comedy Blog & Open Mic Guides | Comediq", "Read Comediq's stand-up comedy blog for open mic guides, performance tips and stories for comedians in NYC, Hudson Valley, Los Angeles and Austin."],
   ["/slots", "Comedy Open Mic Sign-Ups & Waitlists | Comediq", "Reserve comedy open mic spots and join waitlists with Comediq Slots. Explore available sign-ups and manage your next stand-up performance."],
   ["/shows/map", "Stand-Up Comedy Shows Map & Venue Locations | Comediq", "Find stand-up comedy shows on a map. Explore comedy venue locations, upcoming events and ticket links to plan a night of live comedy with Comediq."],
 ].map(([path, title, description]) => ({ path, ...boundedMeta(title, description) }));
@@ -62,6 +63,28 @@ export function venueMeta(venue, mics) {
   return boundedMeta(
     `${venue.name} Comedy Open Mics | Comediq`,
     `Find ${mics.length} comedy open mic${mics.length === 1 ? "" : "s"} at ${venue.name}${area ? ` in ${area}` : ""}. Browse stand-up schedules, prices and sign-up details.${venue.address ? ` Address: ${venue.address}.` : ""}`,
+  );
+}
+
+export function blogPostMeta(post) {
+  return boundedMeta(`${post.title} | Comediq`, post.metaDescription || post.excerpt);
+}
+
+export function blogPostSchema(post) {
+  const url = `${ORIGIN}/blog/${post.slug}`;
+  return graph(
+    {
+      "@type": "Article",
+      headline: post.title,
+      description: blogPostMeta(post).description,
+      datePublished: post.datePublished,
+      dateModified: post.dateModified,
+      author: { "@type": "Person", name: post.author },
+      publisher: { "@type": "Organization", name: "Comediq", url: ORIGIN },
+      url,
+      mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    },
+    breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Blog", path: "/blog" }, { name: post.title, path: `/blog/${post.slug}` }]),
   );
 }
 

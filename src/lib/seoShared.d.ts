@@ -9,6 +9,8 @@ export function boundedMeta(title: string, description: string): PageMeta;
 export function pageMetaFor(path: string): (PageMeta & { path: string }) | undefined;
 export function micMeta(mic: any): PageMeta;
 export function venueMeta(venue: any, mics: any[]): PageMeta;
+export function blogPostMeta(post: import("./blogContent").BlogPost): PageMeta;
+export function blogPostSchema(post: import("./blogContent").BlogPost): any;
 export function neighborhoodMeta(name: string, mics: any[]): PageMeta;
 export type ListingFilter = { kind: "day" | "borough"; value: string; slug: string } | null;
 export function slugify(text: string | null | undefined): string;
