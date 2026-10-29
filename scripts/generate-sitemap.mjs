@@ -14,6 +14,7 @@ import { execFileSync } from "child_process";
 import { writeFileSync, existsSync, readFileSync } from "fs";
 import { DAYS, slugify, micPath, venueSlugOf, boroughSlugs } from "../src/lib/seoShared.js";
 import { resolve } from "path";
+import { blogSitemapEntries } from "../src/lib/blogContent.js";
 
 const BASE_URL = "https://comediq.us";
 

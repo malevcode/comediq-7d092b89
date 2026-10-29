@@ -138,6 +138,11 @@ const SiteFooter = () => {
                   Privacy Policy & Terms
                 </Link>
               </li>
+              <li>
+                <Link to="/blog" className="text-sm text-muted-foreground transition-colors hover:text-accent">
+                  Blog
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

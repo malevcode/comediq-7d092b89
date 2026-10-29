@@ -63,6 +63,8 @@ import ComedianOnboardingDialog from "@/components/ComedianOnboardingDialog";
 import Strip from "./pages/Strip";
 import CanonicalTag from "@/components/CanonicalTag";
 import SetBuildPrivacy from "./pages/SetBuildPrivacy";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 
 
 const queryClient = new QueryClient({
@@ -194,6 +196,8 @@ function AppShell() {
             <Route path="/job-board/create" element={<Navigate to="/growth" replace />} />
             <Route path="/advertise" element={<AdvertiseWithUs />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/support" element={<Support />} />
             <Route path="/setbuild-privacy" element={<SetBuildPrivacy />} />
             <Route path="/add-show" element={<AddShow />} />
