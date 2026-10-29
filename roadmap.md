@@ -1,4 +1,5 @@
 - [x] Fix failing SEO finding: descriptive homepage heading and sponsor link text; verify rendered result and record correction.
+- [ ] Add footer-only blog index and post pages with shared content, readable formatting, initial HTML metadata, Article/breadcrumb markup and accurate sitemap dates; verify.
 - [ ] Landing hero: mascot to the right of the wordmark, bottom-aligned, 8px gap (mobile h1 58px / mascot 170px, desktop clamp(56px,6vw,92px) / 240px).
 - [ ] Second visual fix from the Oct 16 handoff message: the text was cut off after "2." — awaiting the details.
 - [x] Update shared public-page metadata, homepage fallback, and dynamic page metadata within 60/160 characters.
