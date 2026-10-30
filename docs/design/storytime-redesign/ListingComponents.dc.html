@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Add a listing: components</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap">
+<style>
+body{margin:0}
+.field{display:flex;flex-direction:column;gap:8px}
+.field-label{font-size:16px;font-weight:600;color:#F4EDE1;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.field-optional{font-size:14px;font-weight:400;color:#C9D3EA}
+.text-input{width:100%;height:44px;box-sizing:border-box;border-radius:12px;border:2px solid transparent;background:#2B56A6;color:#F4EDE1;font:inherit;font-size:16px;padding:0 16px;outline:none}
+.text-input::placeholder{color:rgba(244,237,225,.62)}
+.text-input--error{border-color:#FFB4A8}
+.text-input--focus{border-color:#8FC2F5}
+.field-error{margin:0;font-size:14px;color:#FFC9C0}
+.chip-group{display:flex;gap:2px;padding:3px;border-radius:12px;background:#2B56A6;min-height:44px;box-sizing:border-box}
+.chip{flex:1 1 0;height:34px;padding:0 6px;border-radius:9px;border:0;background:none;color:#F4EDE1;font:inherit;font-size:13px;font-weight:600}
+.row-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.chip--on{background:#8FC2F5;color:#08142B}
+.toggle-card,.checkbox-card{display:flex;align-items:center;gap:14px;width:100%;min-height:72px;box-sizing:border-box;padding:14px 16px;border-radius:20px;background:#173A7A;border:1px solid rgba(255,255,255,.14);color:#F4EDE1;font:inherit;text-align:left}
+.switch{flex:0 0 52px;width:52px;height:32px;border-radius:16px;background:rgba(244,237,225,.32);position:relative}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff}
+.switch--on{background:#3DBE74}.switch--on::after{left:23px}
+.checkbox{flex:0 0 26px;width:26px;height:26px;border-radius:8px;border:2px solid rgba(244,237,225,.7);display:flex;align-items:center;justify-content:center;box-sizing:border-box}
+.checkbox--on{background:#8FC2F5;border-color:#8FC2F5}
+.primary-button{width:100%;height:56px;border-radius:999px;border:0;background:#8FC2F5;color:#08142B;font:inherit;font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.primary-button--publish{background:#3DBE74}
+.preview-card{background:#0E1A36;border-radius:24px;padding:22px 20px 18px;border:1px solid rgba(255,255,255,.08);color:#F4EDE1}
+.comp{background:#1E4894;border-radius:28px;padding:24px;display:flex;flex-direction:column;gap:16px}
+.comp-name{font-size:22px;font-weight:700}
+.comp-note{font-size:14px;color:#C9D3EA;margin-top:-10px}
+.lf-spin{width:22px;height:22px;border-radius:50%;border:3px solid rgba(8,20,43,.25);border-top-color:#08142B}
+</style>
+</helmet>
+<div style="width: 1280px; min-height: 1240px; box-sizing: border-box; padding: 48px; background: #0E1A36; font-family: 'DM Sans', system-ui, sans-serif; color: #F4EDE1">
+  <h1 style="margin: 0 0 6px; font-size: 34px; font-weight: 700">Add a listing components</h1>
+  <p style="margin: 0 0 32px; font-size: 16px; color: #C9D3EA">Same names as the class names in the flow, so each maps to one React component.</p>
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; align-items: start">
+
+    <section class="comp">
+      <div class="comp-name">StepHeader</div>
+      <div class="comp-note">Back, progress dots, close. Dots: done, current (wide), upcoming.</div>
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <span style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F4EDE1" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg></span>
+        <span style="display: flex; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #8FC2F5"></span><span style="width: 24px; height: 8px; border-radius: 4px; background: #8FC2F5"></span><span style="width: 8px; height: 8px; border-radius: 4px; background: rgba(244,237,225,.3)"></span><span style="width: 8px; height: 8px; border-radius: 4px; background: rgba(244,237,225,.3)"></span></span>
+        <span style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F4EDE1" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></span>
+      </div>
+    </section>
+
+    <section class="comp">
+      <div class="comp-name">PrimaryButton</div>
+      <div class="comp-note">One per screen, full width, pinned to the bottom. Default, publish, loading.</div>
+      <button class="primary-button">Next</button>
+      <button class="primary-button primary-button--publish">Publish</button>
+      <button class="primary-button primary-button--publish" aria-label="Publishing"><span class="lf-spin"></span></button>
+    </section>
+
+    <section class="comp">
+      <div class="comp-name">TextInput</div>
+      <div class="comp-note">Label above, solid fill, 12px corners, 44px tall. Pairs up two per row. Enter jumps to the next empty field.</div>
+      <div class="field"><label class="field-label" for="c-a">Mic name</label><input id="c-a" class="text-input" placeholder="e.g. Rusty Thursdays"></div>
+      <div class="field"><label class="field-label" for="c-b">Mic name</label><input id="c-b" class="text-input text-input--focus" value="Rusty Thursdays"></div>
+      <div class="field"><label class="field-label" for="c-c">Mic name</label><input id="c-c" class="text-input text-input--error"><p class="field-error">Add a mic name so comics can find it</p></div>
+      <div class="field"><label class="field-label" for="c-d">Host Instagram <span class="field-optional">Optional</span></label><input id="c-d" class="text-input" placeholder="@host"></div>
+    </section>
+
+    <section class="comp">
+      <div class="comp-name">ChipGroup</div>
+      <div class="comp-note">Replaces every dropdown. Compact segmented style, one tap, then focus jumps to the next empty field.</div>
+      <div class="row-2">
+        <div class="field"><span class="field-label">Set length</span><div class="chip-group"><button class="chip">3</button><button class="chip chip--on">5</button><button class="chip">7</button><button class="chip">Other</button></div></div>
+        <div class="field"><span class="field-label">Cost</span><div class="chip-group"><button class="chip chip--on">Free</button><button class="chip">Paid</button><button class="chip">Bringer</button></div></div>
+      </div>
+      <div class="field"><span class="field-label">Day</span>
+        <div class="chip-group"><button class="chip">Sun</button><button class="chip">Mon</button><button class="chip">Tue</button><button class="chip">Wed</button><button class="chip chip--on">Thu</button><button class="chip">Fri</button><button class="chip">Sat</button></div>
+      </div>
+    </section>
+
+    <section class="comp">
+      <div class="comp-name">VenueSearchField</div>
+      <div class="comp-note">Search, pick to autofill the address, or add a new venue when nothing matches.</div>
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 72px; padding: 12px 16px; border-radius: 16px; background: #2B56A6">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8FC2F5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+        <div style="flex: 1"><div style="font-size: 16px; font-weight: 600">The Rusty Mic</div><div style="font-size: 14px; color: #C9D3EA">214 E 12th St · East Village</div></div>
+        <span style="color: #8FC2F5; font-size: 15px; font-weight: 600; text-decoration: underline">Change</span>
+      </div>
+      <div style="border-radius: 16px; background: #173A7A; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+        <div style="font-size: 16px; font-weight: 600">No venue called "Cozy Corner Cafe" yet</div>
+        <div style="font-size: 14px; color: #C9D3EA">Add it once and every comic can find it after you.</div>
+        <button class="chip chip--on" style="align-self: flex-start">Add it as a new venue</button>
+      </div>
+      <span style="color: #8FC2F5; font-size: 15px; font-weight: 600; text-decoration: underline">Can't find your venue? Add it</span>
+    </section>
+
+    <section class="comp">
+      <div class="comp-name">ToggleCard and CheckboxCard</div>
+      <div class="comp-note">Whole card is the tap target. Title plus one line of hint.</div>
+      <div class="toggle-card"><span style="flex: 1"><span style="display: block; font-size: 16px; font-weight: 600">Remind me to confirm this is still happening</span><span style="display: block; font-size: 14px; color: #C9D3EA">We'll ping you once a month</span></span><span class="switch switch--on"></span></div>
+      <div class="toggle-card"><span style="flex: 1; font-size: 16px; font-weight: 600">Off state</span><span class="switch"></span></div>
+      <div class="checkbox-card"><span class="checkbox checkbox--on"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#08142B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg></span><span style="flex: 1"><span style="display: block; font-size: 16px; font-weight: 600">Offer LaughPass members a free ticket.</span><span style="display: block; font-size: 14px; color: #C9D3EA">Fill more seats on slow nights.</span></span></div>
+      <div class="checkbox-card"><span class="checkbox"></span><span style="flex: 1; font-size: 16px; font-weight: 600">Unchecked state</span></div>
+    </section>
+
+    <section class="comp" style="grid-column: 1 / -1">
+      <div class="comp-name">PreviewCard</div>
+      <div class="comp-note">The same card used in Find Mics and Laugh lists, so the preview is exact.</div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+        <article class="preview-card">
+          <h2 style="margin: 0; text-align: center; font-size: 24px; font-weight: 700">Rusty Thursdays</h2>
+          <div style="text-align: center; font-size: 14px; color: #9AA6C2; margin-top: 4px">Added today</div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 12px; font-size: 15px; color: #C9D3EA"><span>The Rusty Mic, East Village</span><span>Every Thursday</span><span style="color: #8FC2F5; text-decoration: underline">@rustymicnyc</span><span style="color: #F4EDE1; font-weight: 600">7:00pm to 9:00pm · 5 min · Free</span></div>
+          <div style="display: flex; justify-content: center; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.1)"><span style="height: 44px; padding: 0 22px; border-radius: 999px; background: #8FC2F5; color: #08142B; font-size: 16px; font-weight: 700; display: flex; align-items: center">Register</span></div>
+        </article>
+        <article class="preview-card">
+          <h2 style="margin: 0; text-align: center; font-size: 24px; font-weight: 700">Basement Bangers</h2>
+          <div style="text-align: center; font-size: 14px; color: #9AA6C2; margin-top: 4px">Added today</div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 12px; font-size: 15px; color: #C9D3EA"><span>Basement Lab, Alphabet City</span><span>Fri, Nov 6</span><span style="color: #F4EDE1; font-weight: 600">Doors 7:30pm · Show 8:00pm · $15</span></div>
+          <div style="display: flex; justify-content: center; gap: 6px; margin-top: 12px"><span style="padding: 6px 12px; border-radius: 999px; background: #173A7A; font-size: 13px; font-weight: 600">Lineup listed</span><span style="padding: 6px 12px; border-radius: 999px; background: #173A7A; font-size: 13px; font-weight: 600">Free for LaughPass members</span></div>
+          <div style="display: flex; justify-content: center; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.1)"><span style="height: 44px; padding: 0 22px; border-radius: 999px; background: #8FC2F5; color: #08142B; font-size: 16px; font-weight: 700; display: flex; align-items: center">Get tickets</span></div>
+        </article>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1240}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

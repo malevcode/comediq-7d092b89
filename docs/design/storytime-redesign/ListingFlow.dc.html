@@ -1,0 +1,1192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Add a listing flow</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#8FC2F5}a:hover{color:#B0D4F9}
+.lf-scroll{scrollbar-width:none}.lf-scroll::-webkit-scrollbar{display:none}
+.icon-button{width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:none;color:#F4EDE1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.icon-button--ghost{border-color:transparent}
+.step-dots{display:flex;gap:6px;align-items:center}
+.step-dot{width:8px;height:8px;border-radius:4px;background:rgba(244,237,225,.3)}
+.step-dot--done{background:#8FC2F5}
+.step-dot--on{width:24px;background:#8FC2F5}
+.row-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.row-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.row-price{display:grid;grid-template-columns:104px minmax(0,1fr);gap:10px}
+.row-desc{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:10px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field-label{font-size:13px;font-weight:600;color:#DCE3F2;display:flex;justify-content:space-between;align-items:baseline;gap:6px;white-space:nowrap}
+.field-optional{font-size:12px;font-weight:400;color:#AEB9D6}
+.field-link{background:none;border:0;padding:0;color:#8FC2F5;font:inherit;font-size:12px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.text-input{width:100%;height:44px;box-sizing:border-box;border-radius:12px;border:2px solid transparent;background:#2B56A6;color:#F4EDE1;font:inherit;font-size:15px;padding:0 12px;outline:none;color-scheme:dark}
+.text-input[type=time],.text-input[type=date]{font-size:14px;padding:0 8px}
+.text-input::placeholder{color:rgba(244,237,225,.6)}
+.text-input:focus{border-color:#8FC2F5}
+.text-input--error{border-color:#FFB4A8}
+.field-hint{margin:0;font-size:12px;color:#AEB9D6;line-height:1.35}
+.field-error{margin:0;font-size:12px;color:#FFC9C0}
+.chip-group{display:flex;gap:2px;padding:3px;border-radius:12px;background:#2B56A6;border:2px solid transparent;box-sizing:border-box;min-height:44px}
+.chip-group--error{border-color:#FFB4A8}
+.chip{flex:1 1 0;min-width:0;height:34px;border-radius:9px;border:0;background:none;color:#F4EDE1;font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:0 4px;white-space:nowrap}
+.chip--on{background:#8FC2F5;color:#08142B}
+.toggle-card,.checkbox-card{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;box-sizing:border-box;padding:8px 12px;border-radius:12px;background:#173A7A;border:1px solid rgba(255,255,255,.12);color:#F4EDE1;font:inherit;text-align:left;cursor:pointer}
+.switch{flex:0 0 44px;width:44px;height:26px;border-radius:13px;background:rgba(244,237,225,.32);position:relative;transition:background .2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s}
+.switch--on{background:#3DBE74}
+.switch--on::after{left:21px}
+.checkbox{flex:0 0 22px;width:22px;height:22px;border-radius:6px;border:2px solid rgba(244,237,225,.7);display:flex;align-items:center;justify-content:center;box-sizing:border-box}
+.checkbox--on{background:#8FC2F5;border-color:#8FC2F5}
+.primary-button{width:100%;height:52px;border-radius:999px;border:0;background:#8FC2F5;color:#08142B;font:inherit;font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.primary-button--publish{background:#3DBE74}
+.text-link{background:none;border:0;padding:0;color:#8FC2F5;font:inherit;font-size:15px;font-weight:600;min-height:44px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.venue-results{border-radius:12px;background:#173A7A;overflow:hidden}
+.venue-option{display:flex;gap:10px;align-items:center;width:100%;min-height:48px;padding:6px 12px;background:none;border:0;border-top:1px solid rgba(255,255,255,.1);color:#F4EDE1;text-align:left;font:inherit;cursor:pointer;box-sizing:border-box}
+.venue-option:first-child{border-top:0}
+.preview-card{background:#0E1A36;border-radius:24px;padding:22px 20px 18px;border:1px solid rgba(255,255,255,.08);color:#F4EDE1}
+.choice-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:100%;padding:22px;border-radius:24px;background:#173A7A;border:1px solid rgba(255,255,255,.14);color:#F4EDE1;font:inherit;text-align:left;cursor:pointer;position:relative;box-sizing:border-box}
+.logo-font{font-family:Archivo,'DM Sans',sans-serif;font-stretch:112%;font-weight:800;letter-spacing:-.03em;line-height:1.05}
+.date-button{display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer}
+.cal{background:#173A7A;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.cal-head{display:flex;align-items:center;justify-content:space-between}
+.cal-nav{width:36px;height:36px;border-radius:50%;border:0;background:#2B56A6;color:#F4EDE1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.cal-nav:disabled{opacity:.35;cursor:default}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.cal-wd{font-size:11px;font-weight:600;color:#AEB9D6;text-align:center;padding:2px 0}
+.cal-day{height:38px;border-radius:10px;border:0;background:none;color:#F4EDE1;font:inherit;font-size:14px;font-weight:600;cursor:pointer;padding:0}
+.cal-day--today{box-shadow:inset 0 0 0 1.5px #8FC2F5}
+.cal-day--on{background:#8FC2F5;color:#08142B}
+.cal-day--sched{background:rgba(143,194,245,.22);color:#B0D4F9}
+.cal-day--skip{background:rgba(255,180,168,.16);color:#FFC9C0;text-decoration:line-through}
+.cal-day:disabled{opacity:.3;cursor:default}
+.cal-key{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:#AEB9D6}
+.cal-key span{display:flex;align-items:center;gap:4px}
+.cal-key i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.cal-day--blank{visibility:hidden}
+.lf-spin{width:22px;height:22px;border-radius:50%;border:3px solid rgba(8,20,43,.25);border-top-color:#08142B;animation:lfspin .8s linear infinite}
+@keyframes lfspin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+<div style="{{rootStyle}}; position: relative; overflow: hidden; background: #1E4894; font-family: 'DM Sans', system-ui, sans-serif; color: #F4EDE1">
+
+<!-- ================= CHOOSER ================= -->
+<sc-if value="{{isChooser}}" hint-placeholder-val="{{ true }}">
+<div class="lf-scroll" style="position: absolute; inset: 0; overflow-y: auto; padding: 56px 20px 40px; box-sizing: border-box">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px">
+    <div>
+      <h1 style="margin: 0; font-size: 30px; font-weight: 700; line-height: 1.15">What are you listing?</h1>
+      <p style="margin: 8px 0 0; font-size: 15px; color: #E2E8F5">Pick one. It takes about a minute.</p>
+    </div>
+    <button class="icon-button" aria-label="Close">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+    </button>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 28px">
+    <button class="choice-card" onClick="{{startMic}}">
+      <span style="width: 48px; height: 48px; border-radius: 50%; background: #8FC2F5; color: #08142B; display: flex; align-items: center; justify-content: center; margin-bottom: 8px">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"></path></svg>
+      </span>
+      <span style="font-size: 15px; font-weight: 600; color: #8FC2F5">For comedians</span>
+      <span style="font-size: 24px; font-weight: 700">An open mic</span>
+      <span style="font-size: 15px; line-height: 1.45; color: #C9D3EA; padding-right: 28px">Comics find it, register and get up. Add the venue, day, time, set length and cover.</span>
+      <svg style="position: absolute; right: 20px; top: 50%; margin-top: -11px" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8FC2F5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg>
+    </button>
+    <button class="choice-card" onClick="{{startShow}}">
+      <span style="width: 48px; height: 48px; border-radius: 50%; background: #8FC2F5; color: #08142B; display: flex; align-items: center; justify-content: center; margin-bottom: 8px">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2.5a2.5 2.5 0 0 0 0 5V18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4.5a2.5 2.5 0 0 0 0-5Z"></path><path d="M14 5v14"></path></svg>
+      </span>
+      <span style="font-size: 15px; font-weight: 600; color: #8FC2F5">For audiences</span>
+      <span style="font-size: 24px; font-weight: 700">A show</span>
+      <span style="font-size: 15px; line-height: 1.45; color: #C9D3EA; padding-right: 28px">People find it and RSVP or grab tickets. Add the venue, date, time and ticket link.</span>
+      <svg style="position: absolute; right: 20px; top: 50%; margin-top: -11px" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8FC2F5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg>
+    </button>
+  </div>
+  <div style="text-align: center; margin-top: 18px"><button class="text-link" onClick="{{goMine}}">Manage my listings</button></div>
+  <p style="margin: 10px 0 0; text-align: center; font-size: 15px; color: #C9D3EA">Questions? <a href="https://instagram.com/comediq.us">DM @comediq.us</a></p>
+</div>
+</sc-if>
+
+<!-- ================= FORM + PREVIEW ================= -->
+<sc-if value="{{hasHeader}}" hint-placeholder-val="{{ false }}">
+<!-- StepHeader -->
+<header style="position: absolute; left: 0; right: 0; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; padding: 48px 12px 4px; background: #1E4894">
+  <button class="icon-button icon-button--ghost" onClick="{{goBack}}" aria-label="Back">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>
+  </button>
+  <div class="step-dots" role="img" aria-label="{{dotsLabel}}">
+    <sc-for list="{{dots}}" as="d" hint-placeholder-count="2"><span class="{{d.cls}}"></span></sc-for>
+  </div>
+  <button class="icon-button icon-button--ghost" onClick="{{closeFlow}}" aria-label="Close">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+  </button>
+</header>
+
+<div class="lf-scroll" ref="{{setScroller}}" style="position: absolute; left: 0; right: 0; top: 96px; bottom: 0; overflow-y: auto; padding: 0 16px 110px; box-sizing: border-box">
+  <h1 style="margin: 0 0 12px; font-size: 22px; font-weight: 700; line-height: 1.2">{{pageTitle}}</h1>
+  <sc-if value="{{isFormStep}}" hint-placeholder-val="{{ false }}">
+    <!-- HostBar: listings are tied to the logged-in host -->
+    <div style="display: flex; align-items: center; gap: 10px; margin: -4px 0 12px; font-size: 13px; color: #DCE3F2">
+      <span style="width: 28px; height: 28px; border-radius: 50%; background: #8FC2F5; color: #08142B; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center">AM</span>
+      <span>Listing as <strong style="color: #F4EDE1; font-weight: 600">Adam Malev</strong> · @adammalev. Only you can edit or cancel dates.</span>
+    </div>
+  </sc-if>
+
+  <!-- ===== OPEN MIC: one page ===== -->
+  <sc-if value="{{isMicForm}}" hint-placeholder-val="{{ false }}">
+  <form ref="{{setForm}}" onSubmit="{{noSubmit}}" onKeyDown="{{onKey}}" novalidate style="display: flex; flex-direction: column; gap: 11px">
+    <div class="row-2">
+      <div class="field">
+        <label class="field-label" for="lf-name">Mic name</label>
+        <input id="lf-name" class="{{cls.name}}" enterkeyhint="next" placeholder="Rusty Thursdays" value="{{f.name}}" onChange="{{on.name}}">
+        <sc-if value="{{err.name}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.name}}</p></sc-if>
+      </div>
+      <div class="field">
+        <label class="field-label" for="lf-host">Host Instagram <span class="field-optional">Optional</span></label>
+        <input id="lf-host" class="text-input" enterkeyhint="next" placeholder="@host" value="{{f.host}}" onChange="{{on.host}}">
+      </div>
+    </div>
+
+    <!-- VenueSearchField -->
+    <sc-if value="{{venueSearchMode}}" hint-placeholder-val="{{ true }}">
+    <div class="field">
+      <div class="field-label"><label for="lf-venue">Venue</label><button type="button" class="field-link" onClick="{{addVenue}}">Not listed? Add it</button></div>
+      <sc-if value="{{venuePicked}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 6px 0 12px; border-radius: 12px; background: #2B56A6; box-sizing: border-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FC2F5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+          <div style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 15px"><strong style="font-weight: 600">{{venue.name}}</strong> <span style="color: #C9D3EA; font-size: 13px">{{venue.address}}</span></div>
+          <button type="button" class="field-link" onClick="{{clearVenue}}" style="font-size: 13px; padding: 0 8px; min-height: 36px">Change</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{venueNotPicked}}" hint-placeholder-val="{{ true }}">
+        <div style="position: relative">
+          <svg style="position: absolute; left: 12px; top: 13px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9D3EA" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          <input id="lf-venue" class="{{cls.venue}}" style="padding-left: 38px" placeholder="Search venue name or address" value="{{f.venueQuery}}" onChange="{{on.venueQuery}}" autocomplete="off">
+        </div>
+        <sc-if value="{{hasResults}}" hint-placeholder-val="{{ false }}">
+          <div class="venue-results" role="listbox" aria-label="Matching venues">
+            <sc-for list="{{results}}" as="r" hint-placeholder-count="2">
+              <button type="button" class="venue-option" role="option" onClick="{{r.pick}}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8FC2F5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+                <span style="font-size: 15px; font-weight: 600">{{r.name}}</span>
+                <span style="font-size: 13px; color: #C9D3EA">{{r.address}}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{noResults}}" hint-placeholder-val="{{ false }}">
+          <div role="status" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; border-radius: 12px; background: #173A7A; padding: 8px 8px 8px 12px">
+            <span style="font-size: 13px; color: #DCE3F2">No venue matches "{{f.venueQuery}}"</span>
+            <button type="button" class="chip chip--on" onClick="{{addVenue}}" style="flex: 0 0 auto; padding: 0 12px">Add it</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{err.venue}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.venue}}</p></sc-if>
+      </sc-if>
+    </div>
+    </sc-if>
+    <sc-if value="{{venueAddMode}}" hint-placeholder-val="{{ false }}">
+    <div class="field">
+      <div class="field-label"><span>New venue</span><button type="button" class="field-link" onClick="{{searchVenues}}">Search instead</button></div>
+      <div class="row-2">
+        <div class="field">
+          <input id="lf-vname" aria-label="Venue name" class="{{cls.newVenueName}}" placeholder="Venue name" value="{{f.newVenueName}}" onChange="{{on.newVenueName}}">
+          <sc-if value="{{err.newVenueName}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.newVenueName}}</p></sc-if>
+        </div>
+        <div class="field">
+          <input id="lf-vaddr" aria-label="Address" class="{{cls.newVenueAddress}}" placeholder="Street address" value="{{f.newVenueAddress}}" onChange="{{on.newVenueAddress}}">
+          <sc-if value="{{err.newVenueAddress}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.newVenueAddress}}</p></sc-if>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- DatePicker: multi-select calendar that auto-fills Day and How often -->
+    <div class="field">
+      <div class="field-label"><span id="lf-dates-l">Next dates</span><span class="field-optional">{{datesOptional}}</span></div>
+      <button type="button" class="{{datesBtnCls}}" onClick="{{toggleCal}}" aria-expanded="{{f.calOpen}}" aria-labelledby="lf-dates-l">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FC2F5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>
+        <span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{datesSummary}}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9D3EA" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+      </button>
+      <sc-if value="{{err.dates}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.dates}}</p></sc-if>
+      <sc-if value="{{f.calOpen}}" hint-placeholder-val="{{ false }}">
+        <div class="cal" role="group" aria-label="Pick dates">
+          <div class="cal-head">
+            <button type="button" class="cal-nav" onClick="{{cal.prev}}" disabled="{{cal.noPrev}}" aria-label="Previous month"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"></path></svg></button>
+            <span style="font-size: 15px; font-weight: 700">{{cal.label}}</span>
+            <button type="button" class="cal-nav" onClick="{{cal.next}}" aria-label="Next month"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg></button>
+          </div>
+          <div class="cal-grid" aria-hidden="true">
+            <span class="cal-wd">Su</span><span class="cal-wd">Mo</span><span class="cal-wd">Tu</span><span class="cal-wd">We</span><span class="cal-wd">Th</span><span class="cal-wd">Fr</span><span class="cal-wd">Sa</span>
+          </div>
+          <div class="cal-grid">
+            <sc-for list="{{cal.cells}}" as="d" hint-placeholder-count="35"><button type="button" class="{{d.cls}}" disabled="{{d.off}}" aria-pressed="{{d.on}}" aria-label="{{d.aria}}" onClick="{{d.pick}}">{{d.label}}</button></sc-for>
+          </div>
+          <div class="cal-key" aria-hidden="true">
+            <span><i style="background: #8FC2F5"></i>Picked</span>
+            <span><i style="background: rgba(143,194,245,.35)"></i>Scheduled</span>
+            <span><i style="background: rgba(255,180,168,.4)"></i>Skipped</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px 2px 0">
+            <span class="field-hint">Pick up to 3 dates. Cancelled one week? Tap a scheduled date to skip it.</span>
+            <button type="button" class="field-link" onClick="{{closeCal}}" style="font-size: 14px; min-height: 36px">Done</button>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{f.autoNote}}" hint-placeholder-val="{{ false }}">
+        <p class="field-hint" style="display: flex; align-items: center; gap: 6px; color: #DCE3F2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3DBE74" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>{{f.autoNote}}</p>
+      </sc-if>
+    </div>
+
+    <div class="field" role="group" aria-labelledby="lf-day-l">
+      <span class="field-label" id="lf-day-l">Day</span>
+      <div class="{{groupCls.day}}"><sc-for list="{{chips.day}}" as="c" hint-placeholder-count="7"><button type="button" class="{{c.cls}}" aria-pressed="{{c.on}}" aria-label="{{c.full}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
+      <sc-if value="{{err.day}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.day}}</p></sc-if>
+    </div>
+
+    <div class="row-2">
+      <div class="field">
+        <label class="field-label" for="lf-start">Start</label>
+        <input id="lf-start" type="time" class="{{cls.start}}" value="{{f.start}}" onChange="{{on.start}}">
+        <sc-if value="{{err.start}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.start}}</p></sc-if>
+      </div>
+      <div class="field">
+        <label class="field-label" for="lf-end">End <span class="field-optional">Optional</span></label>
+        <input id="lf-end" type="time" class="text-input" value="{{f.end}}" onChange="{{on.end}}">
+      </div>
+    </div>
+
+    <div class="field" role="group" aria-labelledby="lf-freq-l">
+      <span class="field-label" id="lf-freq-l">How often</span>
+      <div class="chip-group"><sc-for list="{{chips.micFreq}}" as="c" hint-placeholder-count="4"><button type="button" class="{{c.cls}}" aria-pressed="{{c.on}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
+      <sc-if value="{{nextFour}}" hint-placeholder-val="{{ false }}"><p class="field-hint" style="color: #DCE3F2">{{nextFour}}</p></sc-if>
+      <sc-if value="{{skipText}}" hint-placeholder-val="{{ false }}"><p class="field-hint" style="color: #FFC9C0">{{skipText}}</p></sc-if>
+    </div>
+    <sc-if value="{{isMonthly}}" hint-placeholder-val="{{ false }}">
+      <div class="field">
+        <label class="field-label" for="lf-note">Pattern <span class="field-optional">Optional</span></label>
+        <input id="lf-note" class="text-input" placeholder="1st and 3rd Thu" value="{{f.note}}" onChange="{{on.note}}">
+      </div>
+    </sc-if>
+
+    <div class="row-2">
+      <div class="field" role="group" aria-labelledby="lf-len-l">
+        <span class="field-label" id="lf-len-l">Set length</span>
+        <div class="{{groupCls.setLen}}"><sc-for list="{{chips.setLen}}" as="c" hint-placeholder-count="4"><button type="button" class="{{c.cls}}" aria-pressed="{{c.on}}" aria-label="{{c.full}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
+        <sc-if value="{{err.setLen}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.setLen}}</p></sc-if>
+      </div>
+      <div class="field" role="group" aria-labelledby="lf-cost-l">
+        <span class="field-label" id="lf-cost-l">Cost</span>
+        <div class="{{groupCls.cost}}"><sc-for list="{{chips.cost}}" as="c" hint-placeholder-count="3"><button type="button" class="{{c.cls}}" aria-pressed="{{c.on}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
+        <sc-if value="{{err.cost}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.cost}}</p></sc-if>
+      </div>
+    </div>
+    <sc-if value="{{showLenOrPrice}}" hint-placeholder-val="{{ false }}">
+      <div class="row-2">
+        <div class="field">
+          <sc-if value="{{isOtherLen}}" hint-placeholder-val="{{ false }}">
+            <label class="field-label" for="lf-mins">Minutes</label>
+            <input id="lf-mins" type="number" inputmode="numeric" class="{{cls.otherMins}}" placeholder="4" value="{{f.otherMins}}" onChange="{{on.otherMins}}">
+            <sc-if value="{{err.otherMins}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.otherMins}}</p></sc-if>
+          </sc-if>
+        </div>
+        <div class="field">
+          <sc-if value="{{isPaid}}" hint-placeholder-val="{{ false }}">
+            <label class="field-label" for="lf-price">Price</label>
+            <input id="lf-price" class="{{cls.price}}" placeholder="$5 or 1 drink" value="{{f.price}}" onChange="{{on.price}}">
+            <sc-if value="{{err.price}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.price}}</p></sc-if>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <div class="field" role="group" aria-labelledby="lf-sign-l">
+      <span class="field-label" id="lf-sign-l">Signup</span>
+      <div class="{{groupCls.signup}}"><sc-for list="{{chips.signup}}" as="c" hint-placeholder-count="3"><button type="button" class="{{c.cls}}" aria-pressed="{{c.on}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
+      <sc-if value="{{err.signup}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.signup}}</p></sc-if>
+    </div>
+    <sc-if value="{{isOnline}}" hint-placeholder-val="{{ false }}">
+      <div class="field">
+        <label class="field-label" for="lf-link">Signup link</label>
+        <input id="lf-link" type="url" class="{{cls.link}}" placeholder="Paste the link" value="{{f.link}}" onChange="{{on.link}}">
+        <sc-if value="{{err.link}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.link}}</p></sc-if>
+      </div>
+    </sc-if>
+    <sc-if value="{{isLineup}}" hint-placeholder-val="{{ false }}">
+      <div class="field" role="group" aria-labelledby="lf-order-l">
+        <span class="field-label" id="lf-order-l">How is the order set?</span>
+        <div class="chip-group"><sc-for list="{{chips.order}}" as="c" hint-placeholder-count="3"><button type="button" class="{{c.cls}}" aria-pressed="{{c.on}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
+      </div>
+    </sc-if>
+
+    <!-- ToggleCard + CheckboxCard: keeping the listing active -->
+    <div style="{{verifyBoxStyle}}">
+      <button type="button" class="toggle-card" role="switch" aria-checked="{{f.verify}}" onClick="{{toggleVerify}}" style="border: 0; background: none">
+        <span style="flex: 1">
+          <span style="display: block; font-size: 14px; font-weight: 600">I'll verify this mic is still active</span>
+          <span style="display: block; font-size: 12px; color: #C9D3EA">Confirm it's running at least once a month</span>
+        </span>
+        <span class="{{verifyCls}}" aria-hidden="true"></span>
+      </button>
+      <div style="height: 1px; background: rgba(255,255,255,.1); margin: 0 12px"></div>
+      <button type="button" class="checkbox-card" role="checkbox" aria-checked="{{f.emailOk}}" onClick="{{toggleEmail}}" style="border: 0; background: none">
+        <span class="{{emailCls}}" aria-hidden="true">
+          <sc-if value="{{f.emailOk}}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#08142B" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg></sc-if>
+        </span>
+        <span style="flex: 1; font-size: 14px; font-weight: 500">Email me reminders to confirm my mic is active</span>
+      </button>
+    </div>
+    <sc-if value="{{err.verify}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert" style="margin-top: -5px">{{err.verify}}</p></sc-if>
+  </form>
+  </sc-if>
+
+  <!-- ===== SHOW: one page ===== -->
+  <sc-if value="{{isShowForm}}" hint-placeholder-val="{{ false }}">
+  <form ref="{{setForm}}" onSubmit="{{noSubmit}}" onKeyDown="{{onKey}}" novalidate style="display: flex; flex-direction: column; gap: 11px">
+    <div class="row-2">
+      <div class="field">
+        <label class="field-label" for="lf-sname">Show name</label>
+        <input id="lf-sname" class="{{cls.name}}" enterkeyhint="next" placeholder="Basement Bangers" value="{{f.name}}" onChange="{{on.name}}">
+        <sc-if value="{{err.name}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.name}}</p></sc-if>
+      </div>
+      <div class="field">
+        <label class="field-label" for="lf-ig">Instagram <span class="field-optional">Optional</span></label>
+        <input id="lf-ig" class="text-input" enterkeyhint="next" placeholder="@instagram" value="{{f.ig}}" onChange="{{on.ig}}">
+      </div>
+    </div>
+
+    <sc-if value="{{venueSearchMode}}" hint-placeholder-val="{{ true }}">
+    <div class="field">
+      <div class="field-label"><label for="lf-svenue">Venue</label><button type="button" class="field-link" onClick="{{addVenue}}">Not listed? Add it</button></div>
+      <sc-if value="{{venuePicked}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 6px 0 12px; border-radius: 12px; background: #2B56A6; box-sizing: border-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FC2F5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+          <div style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 15px"><strong style="font-weight: 600">{{venue.name}}</strong> <span style="color: #C9D3EA; font-size: 13px">{{venue.address}}</span></div>
+          <button type="button" class="field-link" onClick="{{clearVenue}}" style="font-size: 13px; padding: 0 8px; min-height: 36px">Change</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{venueNotPicked}}" hint-placeholder-val="{{ true }}">
+        <div style="position: relative">
+          <svg style="position: absolute; left: 12px; top: 13px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9D3EA" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          <input id="lf-svenue" class="{{cls.venue}}" style="padding-left: 38px" placeholder="Search venue name or address" value="{{f.venueQuery}}" onChange="{{on.venueQuery}}" autocomplete="off">
+        </div>
+        <sc-if value="{{hasResults}}" hint-placeholder-val="{{ false }}">
+          <div class="venue-results" role="listbox" aria-label="Matching venues">
+            <sc-for list="{{results}}" as="r" hint-placeholder-count="2">
+              <button type="button" class="venue-option" role="option" onClick="{{r.pick}}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8FC2F5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+                <span style="font-size: 15px; font-weight: 600">{{r.name}}</span>
+                <span style="font-size: 13px; color: #C9D3EA">{{r.address}}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{noResults}}" hint-placeholder-val="{{ false }}">
+          <div role="status" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; border-radius: 12px; background: #173A7A; padding: 8px 8px 8px 12px">
+            <span style="font-size: 13px; color: #DCE3F2">No venue matches "{{f.venueQuery}}"</span>
+            <button type="button" class="chip chip--on" onClick="{{addVenue}}" style="flex: 0 0 auto; padding: 0 12px">Add it</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{err.venue}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.venue}}</p></sc-if>
+      </sc-if>
+    </div>
+    </sc-if>
+    <sc-if value="{{venueAddMode}}" hint-placeholder-val="{{ false }}">
+    <div class="field">
+      <div class="field-label"><span>New venue</span><button type="button" class="field-link" onClick="{{searchVenues}}">Search instead</button></div>
+      <div class="row-2">
+        <div class="field">
+          <input aria-label="Venue name" class="{{cls.newVenueName}}" placeholder="Venue name" value="{{f.newVenueName}}" onChange="{{on.newVenueName}}">
+          <sc-if value="{{err.newVenueName}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.newVenueName}}</p></sc-if>
+        </div>
+        <div class="field">
+          <input aria-label="Address" class="{{cls.newVenueAddress}}" placeholder="Street address" value="{{f.newVenueAddress}}" onChange="{{on.newVenueAddress}}">
+          <sc-if value="{{err.newVenueAddress}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.newVenueAddress}}</p></sc-if>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <div class="row-3">
+      <div class="field">
+        <label class="field-label" for="lf-sdate">Date</label>
+        <input id="lf-sdate" type="date" class="{{cls.date}}" value="{{f.date}}" onChange="{{on.date}}">
+        <sc-if value="{{err.date}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.date}}</p></sc-if>
+      </div>
+      <div class="field">
+        <label class="field-label" for="lf-sstart">Show starts</label>
+        <input id="lf-sstart" type="time" class="{{cls.start}}" value="{{f.start}}" onChange="{{on.start}}">
+        <sc-if value="{{err.start}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.start}}</p></sc-if>
+      </div>
+      <div class="field">
+        <label class="field-label" for="lf-doors">Doors <span class="field-optional">Optional</span></label>
+        <input id="lf-doors" type="time" class="text-input" value="{{f.doors}}" onChange="{{on.doors}}">
+      </div>
+    </div>
+
+    <div class="row-price">
+      <div class="field">
+        <label class="field-label" for="lf-tprice">Price</label>
+        <input id="lf-tprice" class="{{cls.price}}" placeholder="$15" value="{{f.price}}" onChange="{{on.price}}">
+        <sc-if value="{{err.price}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.price}}</p></sc-if>
+      </div>
+      <div class="field">
+        <label class="field-label" for="lf-tlink">Ticket link</label>
+        <input id="lf-tlink" type="url" class="{{cls.ticket}}" placeholder="Eventbrite, Posh or your site" value="{{f.ticket}}" onChange="{{on.ticket}}">
+        <sc-if value="{{err.ticket}}" hint-placeholder-val="{{ false }}"><p class="field-error" role="alert">{{err.ticket}}</p></sc-if>
+      </div>
+    </div>
+
+    <div class="row-2">
+      <div class="field" role="group" aria-labelledby="lf-sfreq-l">
+        <span class="field-label" id="lf-sfreq-l">How often</span>
+        <div class="chip-group"><sc-for list="{{chips.showFreq}}" as="c" hint-placeholder-count="3"><button type="button" class="{{c.cls}}" aria-pressed="{{c.on}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
+      </div>
+      <div class="field" role="group" aria-labelledby="lf-lineup-l">
+        <span class="field-label" id="lf-lineup-l">Lineup</span>
+        <div class="chip-group"><sc-for list="{{chips.lineup}}" as="c" hint-placeholder-count="2"><button type="button" class="{{c.cls}}" aria-pressed="{{c.on}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
+      </div>
+    </div>
+    <p class="field-hint" style="margin-top: -5px; text-align: right">{{lineupHint}}</p>
+
+    <div class="row-desc">
+      <div class="field">
+        <label class="field-label" for="lf-desc">Description <span class="field-optional">Optional</span></label>
+        <input id="lf-desc" class="text-input" placeholder="One line about the show" value="{{f.desc}}" onChange="{{on.desc}}">
+      </div>
+      <div class="field">
+        <span class="field-label">Image <span class="field-optional">Suggested</span></span>
+        <button type="button" onClick="{{toggleImage}}" style="{{imageBtnStyle}}">
+          <sc-if value="{{noImage}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Add</sc-if>
+          <sc-if value="{{f.image}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>Added</sc-if>
+        </button>
+      </div>
+    </div>
+
+    <!-- CheckboxCard -->
+    <div style="display: flex; flex-direction: column; border-radius: 12px; background: #173A7A; border: 1px solid rgba(255,255,255,.12)">
+      <button type="button" class="checkbox-card" role="checkbox" aria-checked="{{f.laughpass}}" onClick="{{toggleLaughpass}}" style="border: 0; background: none">
+        <span class="{{laughpassCls}}" aria-hidden="true">
+          <sc-if value="{{f.laughpass}}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#08142B" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg></sc-if>
+        </span>
+        <span style="flex: 1">
+          <span style="display: block; font-size: 14px; font-weight: 600">Offer LaughPass members a free ticket.</span>
+          <span style="display: block; font-size: 12px; color: #C9D3EA">Members get in free while regular tickets are left, until the show sells out. Fills seats on slow nights.</span>
+        </span>
+      </button>
+    </div>
+
+    <button type="button" class="toggle-card" role="switch" aria-checked="{{f.remind}}" onClick="{{toggleRemind}}">
+      <span style="flex: 1; font-size: 14px; font-weight: 600">Remind me to confirm this is still happening</span>
+      <span class="{{remindCls}}" aria-hidden="true"></span>
+    </button>
+    <p class="field-hint" style="text-align: center">Free through Dec 31. From January: $100/month for weekly shows, $45/month for monthly shows.</p>
+  </form>
+  </sc-if>
+
+  <!-- ===== PREVIEW ===== -->
+  <sc-if value="{{isPreview}}" hint-placeholder-val="{{ false }}">
+    <p style="margin: -6px 0 16px; font-size: 15px; color: #C9D3EA">{{previewSub}}</p>
+    <!-- PreviewCard: the real Mic / Show detail page from the app, shrunk into a frame -->
+    <article style="background: #F4EDE1; color: #08142B; border-radius: 28px; padding: 16px 16px 18px; box-shadow: 0 16px 40px rgba(0,0,0,.25)">
+      <div style="position: relative; height: 170px; border-radius: 22px; overflow: hidden">
+        <svg viewBox="0 0 300 170" preserveAspectRatio="xMidYMid slice" style="width: 100%; height: 100%; display: block" aria-hidden="true"><rect width="300" height="170" fill="{{pc.wall}}"></rect><path d="M0 22H300M0 44H300M0 66H300M0 88H300M0 110H300M0 132H300M0 154H300" stroke="rgba(0,0,0,.18)" stroke-width="1.5"></path><path d="M110 0H190L240 170H60Z" fill="rgba(255,236,190,.16)"></path><ellipse cx="150" cy="156" rx="90" ry="14" fill="rgba(255,236,190,.22)"></ellipse><path d="M150 156V86M136 158H164" stroke="#111" stroke-width="4" stroke-linecap="round"></path><rect x="143" y="66" width="14" height="24" rx="7" fill="#111"></rect></svg>
+        <div style="position: absolute; right: 12px; bottom: 12px; width: 56px; height: 56px; border-radius: 50%; border: 3px solid #fff; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 17px; background: {{pc.logoBg}}">{{pc.short}}</div>
+      </div>
+      <h2 class="logo-font" style="margin: 16px 0 10px; font-size: 26px">{{pc.title}}</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px">
+        <span style="display: flex; align-items: center; gap: 5px; background: #fff; border: 1px solid #E4E7EE; border-radius: 999px; padding: 5px 10px; font-size: 13px; font-weight: 500">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1E4894" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>{{pc.hood}}
+        </span>
+        <span style="background: #fff; border: 1px solid #E4E7EE; border-radius: 999px; padding: 5px 10px; font-size: 13px; font-weight: 500">Starts {{pc.startText}}</span>
+        <sc-for list="{{pc.badges}}" as="b" hint-placeholder-count="1"><span style="background: #fff; border: 1px solid #E4E7EE; border-radius: 999px; padding: 5px 10px; font-size: 13px; font-weight: 500">{{b}}</span></sc-for>
+      </div>
+      <sc-if value="{{pc.desc}}" hint-placeholder-val="{{ false }}"><p style="margin: 0 0 10px; font-size: 14px; line-height: 1.5; color: #4A5160">{{pc.desc}}</p></sc-if>
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px">
+        <span style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 13px; background: {{pc.logoBg}}">{{pc.short}}</span>
+        <span style="flex: 1">
+          <span class="logo-font" style="display: block; font-size: 14px">{{pc.venueName}}</span>
+          <span style="display: block; font-size: 13px; color: #5F6675">{{pc.handleOrVenue}}</span>
+        </span>
+      </div>
+      <sc-if value="{{pc.skipBanner}}" hint-placeholder-val="{{ false }}">
+        <div role="note" style="display: flex; gap: 8px; align-items: flex-start; background: #FCEBD2; color: #6B3A00; border-radius: 14px; padding: 10px 12px; margin-bottom: 10px; font-size: 13px; font-weight: 600">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex: 0 0 16px; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M5.6 5.6l12.8 12.8"></path></svg>
+          <span>{{pc.skipBanner}}</span>
+        </div>
+      </sc-if>
+      <div style="background: #fff; border-radius: 20px; padding: 14px 14px 14px; border: 1px solid #EEF0F4">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #E4E7EE">
+          <span style="font-size: 15px; font-weight: 600">{{pc.kindLabel}}</span>
+          <span style="font-size: 13px; font-weight: 600; color: #1E4894">New</span>
+        </div>
+        <sc-if value="{{pc.signupLine}}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top: 10px; font-size: 15px; font-weight: 600">Signup</div>
+          <div style="font-size: 14px; color: #4A5160; margin-top: 2px">{{pc.signupLine}}</div>
+        </sc-if>
+        <div style="margin-top: 10px; font-size: 15px; font-weight: 600">Details</div>
+        <dl style="margin: 2px 0 0; font-size: 14px">
+          <sc-for list="{{pc.rows}}" as="r" hint-placeholder-count="3">
+            <div style="display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid #EEF0F4"><dt style="color: #5F6675">{{r.k}}</dt><dd style="margin: 0; font-weight: 600; text-align: right">{{r.v}}</dd></div>
+          </sc-for>
+        </dl>
+        <div style="margin-top: 12px; height: 46px; border-radius: 999px; background: #1E4894; color: #F4EDE1; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{pc.cta}}</div>
+      </div>
+    </article>
+    <div style="text-align: center; margin-top: 8px"><button class="text-link" onClick="{{editFromPreview}}">Edit</button></div>
+  </sc-if>
+</div>
+
+<!-- Bottom bar: one PrimaryButton -->
+<div style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; padding: 18px 16px 26px; background: linear-gradient(rgba(30,72,148,0), #1E4894 24%)">
+  <sc-if value="{{isPreview}}" hint-placeholder-val="{{ false }}">
+    <p style="margin: 0 0 10px; text-align: center; font-size: 14px; color: #C9D3EA">Your listing goes live right away. Please double-check the details.</p>
+  </sc-if>
+  <button class="{{primaryCls}}" onClick="{{primaryAction}}" disabled="{{publishing}}">
+    <sc-if value="{{publishing}}" hint-placeholder-val="{{ false }}"><span class="lf-spin" role="status" aria-label="Publishing"></span></sc-if>
+    <sc-if value="{{notPublishing}}" hint-placeholder-val="{{ true }}"><span>{{primaryLabel}}</span></sc-if>
+  </button>
+</div>
+</sc-if>
+
+<!-- ================= SUCCESS ================= -->
+<sc-if value="{{isSuccess}}" hint-placeholder-val="{{ false }}">
+<div class="lf-scroll" style="position: absolute; inset: 0; overflow-y: auto; padding: 52px 20px 170px; box-sizing: border-box">
+  <div style="display: flex; justify-content: flex-end">
+    <button class="icon-button icon-button--ghost" onClick="{{closeFlow}}" aria-label="Close">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+    </button>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin: 8px 0 24px">
+    <span style="width: 72px; height: 72px; border-radius: 50%; background: #3DBE74; display: flex; align-items: center; justify-content: center">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#08142B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>
+    </span>
+    <h1 style="margin: 18px 0 6px; font-size: 28px; font-weight: 700">{{successTitle}}</h1>
+    <p style="margin: 0; font-size: 15px; color: #C9D3EA; max-width: 300px">{{successSub}}</p>
+  </div>
+  <article style="background: #F4EDE1; color: #08142B; border-radius: 24px; padding: 12px; display: flex; gap: 12px; align-items: center">
+    <div style="position: relative; flex: 0 0 84px; width: 84px; height: 84px; border-radius: 18px; overflow: hidden">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" style="width: 100%; height: 100%; display: block" aria-hidden="true"><rect width="100" height="100" fill="{{pc.wall}}"></rect><path d="M34 0H66L86 100H14Z" fill="rgba(255,236,190,.16)"></path><path d="M50 92V52M42 93H58" stroke="#111" stroke-width="3" stroke-linecap="round"></path><rect x="46" y="40" width="8" height="14" rx="4" fill="#111"></rect></svg>
+    </div>
+    <div style="flex: 1; min-width: 0">
+      <div class="logo-font" style="font-size: 18px">{{pc.title}}</div>
+      <div style="font-size: 14px; color: #4A5160; margin-top: 4px">{{pc.venue}}</div>
+      <div style="font-size: 14px; font-weight: 600; margin-top: 2px">{{pc.when}}</div>
+    </div>
+  </article>
+</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 22px 20px 26px; background: linear-gradient(rgba(30,72,148,0), #1E4894 26%); display: flex; flex-direction: column; align-items: center; gap: 4px">
+  <button class="primary-button">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor"></circle></svg>
+    Share to Instagram
+  </button>
+  <div style="display: flex; gap: 20px">
+    <button class="text-link" onClick="{{closeFlow}}">Back to mics</button>
+    <button class="text-link" onClick="{{goMine}}">Manage dates</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- ================= MY LISTINGS (logged-in host) ================= -->
+<sc-if value="{{isMine}}" hint-placeholder-val="{{ false }}">
+<div class="lf-scroll" style="position: absolute; inset: 0; overflow-y: auto; padding: 48px 16px 40px; box-sizing: border-box">
+  <div style="display: flex; align-items: center; justify-content: space-between">
+    <button class="icon-button icon-button--ghost" onClick="{{closeFlow}}" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg></button>
+    <button class="icon-button icon-button--ghost" onClick="{{closeFlow}}" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+  </div>
+  <h1 style="margin: 4px 0 10px; font-size: 26px; font-weight: 700">My listings</h1>
+  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px">
+    <span style="width: 40px; height: 40px; border-radius: 50%; background: #8FC2F5; color: #08142B; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center">AM</span>
+    <span><span style="display: block; font-size: 15px; font-weight: 600">Adam Malev</span><span style="display: block; font-size: 13px; color: #C9D3EA">@adammalev · Host</span></span>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <sc-for list="{{mine}}" as="l" hint-placeholder-count="2">
+      <article style="background: #173A7A; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 14px">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+          <span class="logo-font" style="font-size: 18px">{{l.title}}</span>
+          <span style="flex: 0 0 auto; padding: 4px 10px; border-radius: 999px; background: #2B56A6; font-size: 12px; font-weight: 600">{{l.kindLabel}}</span>
+        </div>
+        <div style="font-size: 13px; color: #C9D3EA; margin-top: 6px">{{l.sub}}</div>
+        <div style="font-size: 14px; font-weight: 600; margin-top: 4px">{{l.next}}</div>
+        <sc-if value="{{l.skipped}}" hint-placeholder-val="{{ false }}"><div style="font-size: 13px; color: #FFC9C0; margin-top: 2px">{{l.skipped}}</div></sc-if>
+        <button class="chip chip--on" onClick="{{l.manage}}" style="width: 100%; height: 42px; margin-top: 12px; font-size: 14px">Manage dates</button>
+      </article>
+    </sc-for>
+  </div>
+  <div style="text-align: center; margin-top: 12px"><button class="text-link" onClick="{{closeFlow}}">List something new</button></div>
+</div>
+</sc-if>
+
+<!-- ================= MANAGE DATES (cancel / skip specific dates) ================= -->
+<sc-if value="{{isManage}}" hint-placeholder-val="{{ false }}">
+<div class="lf-scroll" style="position: absolute; inset: 0; overflow-y: auto; padding: 48px 16px 120px; box-sizing: border-box">
+  <div style="display: flex; align-items: center; justify-content: space-between">
+    <button class="icon-button icon-button--ghost" onClick="{{goMine}}" aria-label="Back to my listings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg></button>
+    <button class="icon-button icon-button--ghost" onClick="{{closeFlow}}" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+  </div>
+  <div style="font-size: 14px; color: #C9D3EA; margin-top: 4px">Manage dates</div>
+  <h1 class="logo-font" style="margin: 4px 0 4px; font-size: 24px">{{m.title}}</h1>
+  <div style="font-size: 13px; color: #C9D3EA">{{m.sub}}</div>
+  <p class="field-hint" style="margin: 12px 0 14px; font-size: 13px; color: #DCE3F2">Turn a date off if it's cancelled. It won't be listed on Comediq that day, and your page will show it's skipped.</p>
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <sc-for list="{{m.rows}}" as="r" hint-placeholder-count="6">
+      <div style="background: #173A7A; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 10px 12px">
+        <button type="button" role="switch" aria-checked="{{r.on}}" onClick="{{r.toggle}}" style="display: flex; align-items: center; gap: 12px; width: 100%; min-height: 40px; background: none; border: 0; padding: 0; color: #F4EDE1; font: inherit; text-align: left; cursor: pointer">
+          <span style="flex: 1">
+            <span style="display: block; font-size: 15px; font-weight: 600; {{r.dateStyle}}">{{r.date}}</span>
+            <span style="display: block; font-size: 12px; {{r.statusStyle}}">{{r.status}}</span>
+          </span>
+          <span class="{{r.switchCls}}" aria-hidden="true"></span>
+        </button>
+        <sc-if value="{{r.off}}" hint-placeholder-val="{{ false }}">
+          <div class="chip-group" role="group" aria-label="Reason" style="margin-top: 8px; min-height: 40px">
+            <sc-for list="{{r.reasons}}" as="c" hint-placeholder-count="4"><button type="button" class="{{c.cls}}" onClick="{{c.pick}}" style="height: 30px; font-size: 12px">{{c.label}}</button></sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 16px 26px; background: linear-gradient(rgba(30,72,148,0), #1E4894 24%)">
+  <button class="primary-button" onClick="{{goMine}}">Done</button>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"scene":{"editor":"enum","options":["chooser","micEmpty","micFilled","micCalendar","micVenueNotFound","micError","micPreview","success","edit","showEmpty","showFilled","showPreview","showSuccess","myListings","manage","manageShow"],"default":"chooser"},"frame":{"editor":"enum","options":["phone","panel"],"default":"phone"},"$preview":{"width":390,"height":844}}'>
+const VENUES = [
+  { name: 'The Rusty Mic', address: '214 E 12th St', hood: 'East Village' },
+  { name: 'Basement Lab', address: '88 Avenue A', hood: 'Alphabet City' },
+  { name: 'Corner Stage', address: '301 E 9th St', hood: 'East Village' },
+  { name: 'Pickle Room', address: '57 2nd Ave', hood: 'East Village' },
+  { name: 'Late Set Bar', address: '12 Avenue B', hood: 'Alphabet City' },
+  { name: 'Second Floor', address: '140 E 14th St', hood: 'Union Square' }
+];
+const DAYS = [['Sun', 'Sunday'], ['Mon', 'Monday'], ['Tue', 'Tuesday'], ['Wed', 'Wednesday'], ['Thu', 'Thursday'], ['Fri', 'Friday'], ['Sat', 'Saturday']];
+const EMPTY = { name: '', venueQuery: '', venue: null, addVenue: false, newVenueName: '', newVenueAddress: '', day: '', start: '', end: '', freq: 'Weekly', date: '', dates: [], calOpen: false, calMonth: '', autoNote: '', verify: false, emailOk: false, skips: [], skipReasons: {}, note: '', setLen: '', otherMins: '', cost: '', price: '', signup: '', link: '', order: '', host: '', remind: true, doors: '', ticket: '', ig: '', desc: '', image: false, lineup: 'Public', laughpass: false, lpCount: '2' };
+const MIC_FILLED = Object.assign({}, EMPTY, { name: 'Rusty Thursdays', venue: VENUES[0], day: 'Thu', start: '19:00', end: '21:00', freq: 'Weekly', dates: ['2026-11-05', '2026-11-12', '2026-11-19'], skips: ['2026-11-26'], skipReasons: { '2026-11-26': 'Holiday' }, calMonth: '2026-11', autoNote: 'Set to weekly on Thursdays from your dates', verify: true, emailOk: true, setLen: '5', cost: 'Free', signup: 'Online link', link: 'comediq.us/r/rusty-thursdays', host: '@rustymicnyc' });
+const SHOW_EMPTY = Object.assign({}, EMPTY, { freq: 'One time' });
+const SHOW_FILLED = Object.assign({}, EMPTY, { name: 'Basement Bangers', venue: VENUES[1], date: '2026-11-06', start: '20:00', doors: '19:30', freq: 'One time', price: '$15', ticket: 'posh.vip/e/basement-bangers', ig: '@basementbangers', desc: 'Six comics, one tight hour, cheap drinks.', image: true, lineup: 'Public', laughpass: true, lpCount: '2' });
+// The logged-in host's existing listings (sample data)
+const SEED = [
+  { id: 'rusty', kind: 'mic', f: MIC_FILLED },
+  { id: 'bangers', kind: 'show', f: Object.assign({}, SHOW_FILLED, { freq: 'Weekly', skips: ['2026-11-27'], skipReasons: { '2026-11-27': 'Venue closed' } }) }
+];
+const SCENES = {
+  myListings: { step: 4 },
+  manage: { step: 5, manageId: 'rusty' },
+  manageShow: { step: 5, manageId: 'bangers' },
+  micEmpty: { path: 'mic', step: 1, f: EMPTY },
+  micFilled: { path: 'mic', step: 1, f: MIC_FILLED },
+  micVenueNotFound: { path: 'mic', step: 1, f: Object.assign({}, EMPTY, { name: 'Cozy Corner Open Mic', venueQuery: 'Cozy Corner Cafe' }) },
+  micError: { path: 'mic', step: 1, f: Object.assign({}, EMPTY, { host: '@cozycorner' }), errors: { name: 'Add a mic name', venue: 'Pick a venue or add a new one', day: 'Pick the day it runs', start: 'Add a start time', setLen: 'Pick a length', cost: 'Pick a cost', signup: 'Pick how comics sign up', verify: 'Turn this on so comics can trust the listing' } },
+  micCalendar: { path: 'mic', step: 1, f: Object.assign({}, MIC_FILLED, { calOpen: true }) },
+  micPreview: { path: 'mic', step: 2, f: MIC_FILLED },
+  success: { path: 'mic', step: 3, f: MIC_FILLED },
+  edit: { path: 'mic', step: 1, f: MIC_FILLED, edit: true },
+  showEmpty: { path: 'show', step: 1, f: SHOW_EMPTY },
+  showFilled: { path: 'show', step: 1, f: SHOW_FILLED },
+  showPreview: { path: 'show', step: 2, f: SHOW_FILLED },
+  showSuccess: { path: 'show', step: 3, f: SHOW_FILLED }
+};
+const MSG = {
+  name: 'Add a name',
+  venue: 'Pick a venue or add a new one',
+  newVenueName: 'Add the venue name',
+  newVenueAddress: 'Add the address',
+  day: 'Pick the day it runs',
+  start: 'Add a start time',
+  date: 'Pick a date',
+  setLen: 'Pick a length',
+  otherMins: 'How many minutes?',
+  cost: 'Pick a cost',
+  price: 'Add the price',
+  signup: 'Pick how comics sign up',
+  link: 'Paste the signup link',
+  ticket: 'Paste the ticket link'
+};
+
+function fmtTime(t) {
+  if (!t) return '';
+  const p = t.split(':');
+  let h = parseInt(p[0], 10);
+  const ap = h >= 12 ? 'pm' : 'am';
+  h = h % 12 || 12;
+  return h + ':' + p[1] + ap;
+}
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+function isoOf(dt) { return dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate()); }
+function parseIso(s) { return new Date(s + 'T12:00:00'); }
+// Look at the picked dates and guess the cadence.
+function detectCadence(dates) {
+  if (!dates.length) return { autoNote: '' };
+  const ds = dates.map(parseIso);
+  const wds = {};
+  ds.forEach((d) => { wds[d.getDay()] = true; });
+  if (Object.keys(wds).length !== 1) return { autoNote: '' };
+  const wd = ds[0].getDay();
+  const out = { day: DAYS[wd][0] };
+  const plural = DAYS[wd][1] + 's';
+  if (ds.length < 2) { out.autoNote = 'Set day to ' + DAYS[wd][1] + ' from your date'; return out; }
+  const gaps = [];
+  for (let i = 1; i < ds.length; i++) gaps.push(Math.round((ds[i] - ds[i - 1]) / 86400000));
+  if (gaps.every((g) => g === 7)) { out.freq = 'Weekly'; out.autoNote = 'Set to weekly on ' + plural + ' from your dates'; }
+  else if (gaps.every((g) => g === 14)) { out.freq = 'Every other week'; out.autoNote = 'Set to every other ' + DAYS[wd][1] + ' from your dates'; }
+  else {
+    const ord = ['1st', '2nd', '3rd', '4th', '5th'];
+    const nths = [];
+    ds.forEach((d) => { const n = ord[Math.ceil(d.getDate() / 7) - 1]; if (nths.indexOf(n) < 0) nths.push(n); });
+    out.freq = 'Monthly';
+    out.note = nths.join(' and ') + ' ' + DAYS[wd][0];
+    out.autoNote = 'Set to monthly, ' + out.note + ', from your dates';
+  }
+  return out;
+}
+function md(s) { const d = parseIso(s); return (d.getMonth() + 1) + '/' + d.getDate(); }
+// Every upcoming date the mic should run, from the picks plus the cadence (skips not removed here).
+function projectDates(f, todayIso, horizonDays) {
+  const picks = (f.dates || []).slice().sort();
+  const out = {};
+  picks.forEach((p) => { if (p >= todayIso) out[p] = 1; });
+  const wd = DAYS.findIndex((d) => d[0] === f.day);
+  if (f.freq === 'One time' || wd < 0) return Object.keys(out).sort();
+  const a = parseIso(picks[0] || todayIso);
+  while (a.getDay() !== wd) a.setDate(a.getDate() + 1);
+  const end = new Date(parseIso(todayIso).getTime() + horizonDays * 86400000);
+  if (f.freq === 'Weekly' || f.freq === 'Every other week') {
+    const step = f.freq === 'Weekly' ? 7 : 14;
+    for (let d = new Date(a); d <= end; d.setDate(d.getDate() + step)) { const s = isoOf(d); if (s >= todayIso) out[s] = 1; }
+  } else if (f.freq === 'Monthly') {
+    const src = picks.length ? picks.map(parseIso) : [a];
+    const nths = [];
+    src.forEach((d) => { const n = Math.ceil(d.getDate() / 7); if (nths.indexOf(n) < 0) nths.push(n); });
+    for (let m = 0; m < 5; m++) {
+      const monthStart = new Date(a.getFullYear(), a.getMonth() + m, 1);
+      nths.forEach((n) => {
+        const d = new Date(monthStart);
+        while (d.getDay() !== wd) d.setDate(d.getDate() + 1);
+        d.setDate(d.getDate() + (n - 1) * 7);
+        const s = isoOf(d);
+        if (d.getMonth() === monthStart.getMonth() && s >= todayIso && d <= end) out[s] = 1;
+      });
+    }
+  }
+  return Object.keys(out).sort();
+}
+function summarizeDates(dates) {
+  if (!dates.length) return 'Pick the next 1 to 3 times it happens';
+  let lastM = '';
+  return dates.map((s) => {
+    const d = parseIso(s);
+    const m = d.toLocaleDateString('en-US', { month: 'short' });
+    const txt = m === lastM ? String(d.getDate()) : m + ' ' + d.getDate();
+    lastM = m;
+    return txt;
+  }).join(', ');
+}
+function fmtDate(d) {
+  if (!d) return '';
+  const x = new Date(d + 'T12:00:00');
+  if (isNaN(x)) return d;
+  return x.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+class Component extends DCLogic {
+  componentDidMount() {
+    const s = SCENES[this.props.scene];
+    if (s) this.setState(Object.assign({ errors: {} }, s, { f: Object.assign({}, s.f) }));
+  }
+  componentWillUnmount() { clearTimeout(this.t); clearTimeout(this.ft); }
+
+  // Auto-advance: jump to the next empty field after the one just finished.
+  advance(fromEl) {
+    clearTimeout(this.ft);
+    this.ft = setTimeout(() => {
+      const form = this.form;
+      if (!form) return;
+      const inputs = Array.prototype.slice.call(form.querySelectorAll('input, textarea')).filter((x) => !x.disabled && x.offsetParent !== null);
+      const after = fromEl && fromEl.isConnected ? inputs.filter((x) => fromEl.compareDocumentPosition(x) & 4) : inputs;
+      const next = after.find((x) => !x.value) || null;
+      if (next) next.focus();
+      else if (fromEl && fromEl.blur && fromEl.tagName !== 'BUTTON') fromEl.blur();
+    }, 60);
+  }
+
+  validate(path, f) {
+    const e = {};
+    if (!f.name.trim()) e.name = MSG.name;
+    if (f.addVenue) {
+      if (!f.newVenueName.trim()) e.newVenueName = MSG.newVenueName;
+      if (!f.newVenueAddress.trim()) e.newVenueAddress = MSG.newVenueAddress;
+    } else if (!f.venue) e.venue = MSG.venue;
+    if (!f.start) e.start = MSG.start;
+    if (path === 'mic') {
+      if (f.freq !== 'One time' && !f.day) e.day = MSG.day;
+      if (f.freq !== 'Weekly' && !(f.dates && f.dates.length)) e.dates = 'Pick the date or dates on the calendar';
+      if (!f.verify) e.verify = 'Turn this on so comics can trust the listing';
+      if (!f.setLen) e.setLen = MSG.setLen;
+      if (f.setLen === 'Other' && !f.otherMins) e.otherMins = MSG.otherMins;
+      if (!f.cost) e.cost = MSG.cost;
+      if (f.cost === 'Paid' && !f.price.trim()) e.price = MSG.price;
+      if (!f.signup) e.signup = MSG.signup;
+      if (f.signup === 'Online link' && !f.link.trim()) e.link = MSG.link;
+    } else {
+      if (!f.date) e.date = MSG.date;
+      if (!f.price.trim()) e.price = MSG.price;
+      if (!f.ticket.trim()) e.ticket = MSG.ticket;
+    }
+    return e;
+  }
+
+  renderVals() {
+    const st = this.state || {};
+    const path = st.path || null;
+    const step = st.step || 0;
+    const f = Object.assign({}, EMPTY, st.f || {});
+    const errors = st.errors || {};
+    const edit = !!st.edit;
+    const publishing = !!st.publishing;
+    const isMic = path === 'mic';
+    const panel = this.props.frame === 'panel';
+
+    const set = (o) => this.setState(o);
+    const patch = (o) => this.setState((s) => {
+      const nf = Object.assign({}, EMPTY, s.f || {}, o);
+      const ne = Object.assign({}, s.errors || {});
+      Object.keys(o).forEach((k) => { delete ne[k]; });
+      if (o.venue || o.addVenue !== undefined) delete ne.venue;
+      return { f: nf, errors: ne };
+    });
+    // text fields: just update
+    const bind = (k) => (ev) => patch({ [k]: ev.target.value });
+    // time/date fields: update and jump ahead once a full value is in
+    const bindJump = (k) => (ev) => { const el = ev.target; patch({ [k]: el.value }); if (el.value) this.advance(el); };
+    const on = {};
+    ['name', 'venueQuery', 'newVenueName', 'newVenueAddress', 'note', 'otherMins', 'price', 'link', 'host', 'ticket', 'ig', 'desc'].forEach((k) => { on[k] = bind(k); });
+    ['start', 'end', 'date', 'doors'].forEach((k) => { on[k] = bindJump(k); });
+
+    const inputCls = (k) => 'text-input' + (errors[k] ? ' text-input--error' : '');
+    const cls = {};
+    ['name', 'venue', 'newVenueName', 'newVenueAddress', 'start', 'date', 'otherMins', 'price', 'link', 'ticket'].forEach((k) => { cls[k] = inputCls(k); });
+    const groupCls = {};
+    ['day', 'setLen', 'cost', 'signup'].forEach((k) => { groupCls[k] = 'chip-group' + (errors[k] ? ' chip-group--error' : ''); });
+
+    const chipList = (k, opts, labels, fulls) => opts.map((o, i) => ({
+      label: labels ? labels[i] : o,
+      full: fulls ? fulls[i] : o,
+      on: f[k] === o,
+      cls: 'chip' + (f[k] === o ? ' chip--on' : ''),
+      pick: (ev) => { const el = ev && ev.currentTarget; patch({ [k]: o }); this.advance(el); }
+    }));
+
+    const q = (f.venueQuery || '').trim().toLowerCase();
+    const results = q ? VENUES.filter((v) => v.name.toLowerCase().indexOf(q) >= 0 || v.address.toLowerCase().indexOf(q) >= 0).map((v) => Object.assign({}, v, { pick: () => { patch({ venue: v, venueQuery: '' }); this.advance(null); } })) : [];
+
+    const dots = [1, 2].map((i) => ({ cls: 'step-dot' + (i === step ? ' step-dot--on' : i < step ? ' step-dot--done' : '') }));
+
+    // preview card
+    const v = f.addVenue ? { name: f.newVenueName || 'New venue', address: f.newVenueAddress, hood: 'New York' } : (f.venue || { name: '', address: '', hood: '' });
+    const dayFull = (DAYS.find((d) => d[0] === f.day) || ['', ''])[1];
+    const lenText = f.setLen === 'Other' ? (f.otherMins || '?') + ' min' : f.setLen ? f.setLen + ' min' : '';
+    const costText = f.cost === 'Paid' ? f.price : f.cost;
+    const timeRange = fmtTime(f.start) + (f.end ? ' to ' + fmtTime(f.end) : '');
+    const firstDate = (f.dates || [])[0] || '';
+    let micWhen = '';
+    if (f.freq === 'Weekly') micWhen = 'Every ' + dayFull + (firstDate ? ', starting ' + fmtDate(firstDate) : '');
+    else if (f.freq === 'Every other week') micWhen = 'Every other ' + dayFull + ' from ' + fmtDate(firstDate);
+    else if (f.freq === 'Monthly') micWhen = 'Monthly, ' + (f.note || summarizeDates(f.dates || []));
+    else micWhen = 'One time, ' + fmtDate(firstDate);
+
+    // DatePicker month grid
+    const todayIso = isoOf(new Date());
+    const calMonth = f.calMonth || (firstDate ? firstDate.slice(0, 7) : todayIso.slice(0, 7));
+    const cy = parseInt(calMonth.slice(0, 4), 10);
+    const cm = parseInt(calMonth.slice(5, 7), 10);
+    const firstOfMonth = new Date(cy, cm - 1, 1);
+    const daysIn = new Date(cy, cm, 0).getDate();
+    const shiftMonth = (n) => { const d = new Date(cy, cm - 1 + n, 1); patch({ calMonth: d.getFullYear() + '-' + pad(d.getMonth() + 1) }); };
+    const picks = f.dates || [];
+    const skips = f.skips || [];
+    const sched = projectDates(f, todayIso, 150);
+    const upcoming = sched.filter((s) => skips.indexOf(s) < 0).slice(0, 4);
+    const futureSkips = skips.filter((s) => s >= todayIso).sort();
+    // Tap rules: picked -> unpick, skipped -> unskip, scheduled -> skip (cancellation), empty -> pick (max 3)
+    const toggleDate = (iso) => {
+      if (picks.indexOf(iso) >= 0) { const cur = picks.filter((x) => x !== iso); patch(Object.assign({ dates: cur }, detectCadence(cur))); return; }
+      if (skips.indexOf(iso) >= 0) { patch({ skips: skips.filter((x) => x !== iso) }); return; }
+      if (sched.indexOf(iso) >= 0) { patch({ skips: skips.concat([iso]) }); return; }
+      if (picks.length >= 3) return;
+      const cur = picks.concat([iso]).sort();
+      patch(Object.assign({ dates: cur }, detectCadence(cur)));
+    };
+    const cells = [];
+    for (let i = 0; i < firstOfMonth.getDay(); i++) cells.push({ label: '', cls: 'cal-day cal-day--blank', off: true, on: false, aria: '', pick: () => {} });
+    for (let d = 1; d <= daysIn; d++) {
+      const iso = cy + '-' + pad(cm) + '-' + pad(d);
+      const on = picks.indexOf(iso) >= 0;
+      const skip = !on && skips.indexOf(iso) >= 0;
+      const sch = !on && !skip && sched.indexOf(iso) >= 0;
+      const past = iso < todayIso;
+      cells.push({
+        label: String(d),
+        on,
+        off: past || (!on && !skip && !sch && picks.length >= 3),
+        aria: fmtDate(iso) + (on ? ', picked' : skip ? ', skipped' : sch ? ', scheduled, tap to skip' : ''),
+        cls: 'cal-day' + (on ? ' cal-day--on' : skip ? ' cal-day--skip' : sch ? ' cal-day--sched' : '') + (iso === todayIso ? ' cal-day--today' : ''),
+        pick: () => toggleDate(iso)
+      });
+    }
+    const cal = {
+      label: firstOfMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+      cells,
+      noPrev: calMonth <= todayIso.slice(0, 7),
+      prev: () => shiftMonth(-1),
+      next: () => shiftMonth(1)
+    };
+    const pc = isMic ? {
+      title: f.name || 'Untitled mic',
+      added: edit ? 'Updated today' : 'Added today',
+      venue: v.name + ', ' + v.hood,
+      when: micWhen,
+      handle: f.host,
+      meta: [timeRange, lenText, costText].filter(Boolean).join(' · '),
+      desc: '',
+      image: false,
+      badges: f.signup === 'Lineup order' && f.order ? ['Lineup: ' + f.order] : f.signup === 'In person' ? ['In person signup'] : [],
+      cta: f.signup === 'Online link' ? 'Register' : 'Details'
+    } : {
+      title: f.name || 'Untitled show',
+      added: 'Added today',
+      venue: v.name + ', ' + v.hood,
+      when: fmtDate(f.date) + (f.freq !== 'One time' ? ' · ' + f.freq : ''),
+      handle: f.ig,
+      meta: [(f.doors ? 'Doors ' + fmtTime(f.doors) : ''), 'Show ' + fmtTime(f.start), f.price].filter(Boolean).join(' · '),
+      desc: f.desc,
+      image: !!f.image,
+      badges: [f.lineup === 'Secret' ? 'Secret lineup' : 'Lineup listed'].concat(f.laughpass ? ['Free for LaughPass members'] : []),
+      cta: 'Get tickets'
+    };
+    pc.hasBadges = pc.badges.length > 0;
+    // Extra fields so the preview matches the real detail page
+    const LOOK = { 'The Rusty Mic': ['#6E2B22', '#121A33'], 'Basement Lab': ['#2E3A4F', '#1E4894'], 'Corner Stage': ['#5B4A2E', '#B4472E'], 'Pickle Room': ['#2F4A3A', '#2F6B45'], 'Late Set Bar': ['#3B2F4F', '#5B3FA0'], 'Second Floor': ['#4F3A2A', '#0E7C86'] };
+    const look = LOOK[v.name] || ['#3A3F55', '#1E4894'];
+    pc.wall = look[0];
+    pc.logoBg = look[1];
+    pc.short = (v.name || 'New venue').replace(/^The\s+/i, '').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+    pc.hood = v.hood || 'New York';
+    pc.venueName = v.name;
+    pc.startText = fmtTime(f.start) || 'TBD';
+    pc.kindLabel = isMic ? 'Open mic' : 'Show';
+    pc.handleOrVenue = pc.handle ? pc.handle : 'View venue';
+    const reasonsNow = f.skipReasons || {};
+    pc.skipBanner = futureSkips.length ? 'Skipped on ' + futureSkips.map((s) => fmtDate(s) + (reasonsNow[s] ? ' (' + reasonsNow[s].toLowerCase() + ')' : '')).join(', ') + '. Not listed on Comediq that day.' : '';
+
+    // ---- My listings + Manage dates (host tools) ----
+    const listings = st.listings || SEED;
+    const occOf = (l) => projectDates(l.kind === 'show' ? { dates: l.f.date ? [l.f.date] : [], day: l.f.date ? DAYS[parseIso(l.f.date).getDay()][0] : '', freq: l.f.freq } : l.f, todayIso, 120);
+    const dayNameOf = (l) => {
+      if (l.kind === 'show') return l.f.date ? DAYS[parseIso(l.f.date).getDay()][1] : '';
+      return (DAYS.find((d) => d[0] === l.f.day) || ['', ''])[1];
+    };
+    const cadenceOf = (l) => {
+      if (l.f.freq === 'One time') return 'One time, ' + fmtDate(l.kind === 'show' ? l.f.date : (l.f.dates || [])[0]);
+      const label = l.f.freq === 'Every other week' ? 'Every other week' : l.f.freq;
+      return label + ' on ' + dayNameOf(l) + 's';
+    };
+    const venueOf = (l) => (l.f.venue ? l.f.venue.name : l.f.newVenueName || 'New venue');
+    const updateListing = (id, fn) => this.setState((s) => ({ listings: (s.listings || SEED).map((l) => (l.id === id ? Object.assign({}, l, { f: fn(Object.assign({}, l.f)) }) : l)) }));
+    const mine = listings.map((l) => {
+      const occ = occOf(l);
+      const sk = (l.f.skips || []).filter((x) => x >= todayIso).sort();
+      const nx = occ.filter((x) => sk.indexOf(x) < 0).slice(0, 3);
+      return {
+        title: l.f.name || 'Untitled',
+        kindLabel: l.kind === 'mic' ? 'Open mic' : 'Show',
+        sub: cadenceOf(l) + ' · ' + venueOf(l),
+        next: nx.length ? 'Next: ' + nx.map(md).join(', ') : 'No upcoming dates',
+        skipped: sk.length ? 'Skipping ' + sk.map(md).join(', ') : '',
+        manage: () => set({ step: 5, manageId: l.id })
+      };
+    });
+    const ml = listings.find((l) => l.id === st.manageId) || listings[0];
+    const mSkips = ml.f.skips || [];
+    const mReasons = ml.f.skipReasons || {};
+    const m = {
+      title: ml.f.name || 'Untitled',
+      sub: cadenceOf(ml) + ' · ' + venueOf(ml),
+      rows: occOf(ml).slice(0, 6).map((iso) => {
+        const off = mSkips.indexOf(iso) >= 0;
+        return {
+          date: fmtDate(iso),
+          on: !off,
+          off,
+          switchCls: 'switch' + (off ? '' : ' switch--on'),
+          dateStyle: off ? 'text-decoration: line-through; color: #FFC9C0' : '',
+          statusStyle: off ? 'color: #FFC9C0' : 'color: #AEB9D6',
+          status: off ? 'Cancelled' + (mReasons[iso] ? ': ' + mReasons[iso].toLowerCase() : '') + '. Hidden from Comediq this day' : 'Happening',
+          toggle: () => updateListing(ml.id, (f2) => { const s = (f2.skips || []).slice(); const i = s.indexOf(iso); if (i >= 0) s.splice(i, 1); else s.push(iso); f2.skips = s; return f2; }),
+          reasons: ['Holiday', 'Host away', 'Venue closed', 'Other'].map((r) => ({
+            label: r,
+            cls: 'chip' + (mReasons[iso] === r ? ' chip--on' : ''),
+            pick: () => updateListing(ml.id, (f2) => { f2.skipReasons = Object.assign({}, f2.skipReasons || {}, { [iso]: r }); return f2; })
+          }))
+        };
+      })
+    };
+    this._host = { mine, m };
+
+    if (isMic) {
+      pc.signupLine = f.signup === 'Online link' ? 'Online at ' + f.link : f.signup === 'In person' ? 'In person at the venue' : f.signup === 'Lineup order' ? 'Lineup order' + (f.order ? ': ' + f.order : '') : 'Not set yet';
+      pc.rows = [
+        { k: 'When', v: micWhen },
+        { k: 'Next up', v: upcoming.length ? upcoming.slice(0, 3).map(md).join(', ') : 'TBD' }
+      ].concat(futureSkips.length ? [{ k: 'Skipping', v: futureSkips.map(md).join(', ') }] : []).concat([
+        { k: 'Time', v: timeRange || 'TBD' },
+        { k: 'Set length', v: lenText || 'TBD' },
+        { k: 'Cost', v: costText || 'TBD' }
+      ]);
+    } else {
+      pc.signupLine = '';
+      pc.rows = [
+        { k: 'Date', v: fmtDate(f.date) + (f.freq !== 'One time' ? ', ' + f.freq.toLowerCase() : '') },
+        { k: 'Doors', v: fmtTime(f.doors) || 'Not listed' },
+        { k: 'Show', v: fmtTime(f.start) || 'TBD' },
+        { k: 'Price', v: f.price || 'TBD' }
+      ];
+    }
+
+    const next = () => {
+      if (step === 1) {
+        const e = this.validate(path, f);
+        if (Object.keys(e).length) {
+          set({ errors: e });
+          setTimeout(() => {
+            const bad = this.form && this.form.querySelector('.text-input--error, .chip-group--error');
+            if (bad) { bad.scrollIntoView({ block: 'center', behavior: 'smooth' }); if (bad.focus && bad.tagName === 'INPUT') bad.focus(); }
+          }, 50);
+          return;
+        }
+        set({ step: 2, errors: {} });
+        if (this.scroller) this.scroller.scrollTop = 0;
+      } else if (step === 2) {
+        if (publishing) return;
+        set({ publishing: true });
+        this.t = setTimeout(() => this.setState((s) => {
+          const list = (s.listings || SEED).slice();
+          const id = s.edit ? 'rusty' : 'new-' + list.length;
+          const item = { id, kind: s.path, f: Object.assign({}, s.f) };
+          const i = list.findIndex((l) => l.id === id);
+          if (i >= 0) list[i] = item; else list.unshift(item);
+          return { publishing: false, step: 3, listings: list };
+        }), 1200);
+      }
+    };
+    const reset = () => set({ path: null, step: 0, f: Object.assign({}, EMPTY), errors: {}, edit: false, publishing: false });
+
+    return {
+      rootStyle: panel ? 'width: 520px; height: 780px' : 'width: 390px; height: 844px',
+      setForm: (el) => { this.form = el; },
+      setScroller: (el) => { this.scroller = el; },
+      noSubmit: (ev) => { ev.preventDefault(); },
+      onKey: (ev) => {
+        if (ev.key === 'Enter' && ev.target && ev.target.tagName === 'INPUT') { ev.preventDefault(); this.advance(ev.target); }
+      },
+      isChooser: step === 0,
+      hasHeader: step === 1 || step === 2,
+      isSuccess: step === 3,
+      isMicForm: isMic && step === 1,
+      isShowForm: !isMic && step === 1,
+      isPreview: step === 2,
+      startMic: () => set({ path: 'mic', step: 1, f: Object.assign({}, EMPTY), errors: {}, edit: false }),
+      startShow: () => set({ path: 'show', step: 1, f: Object.assign({}, SHOW_EMPTY), errors: {}, edit: false }),
+      goBack: () => (step === 1 ? (edit ? reset() : set({ step: 0, errors: {} })) : set({ step: step - 1, errors: {} })),
+      closeFlow: reset,
+      dots,
+      dotsLabel: 'Step ' + step + ' of 2',
+      pageTitle: step === 2 ? 'Preview' : edit ? 'Edit listing' : isMic ? 'List an open mic' : 'List a show',
+      f,
+      on,
+      cls,
+      groupCls,
+      err: errors,
+      venueSearchMode: !f.addVenue,
+      venueAddMode: !!f.addVenue,
+      venuePicked: !!f.venue,
+      venueNotPicked: !f.venue,
+      venue: f.venue || VENUES[0],
+      results,
+      hasResults: results.length > 0,
+      noResults: !!q && results.length === 0,
+      clearVenue: () => patch({ venue: null }),
+      addVenue: () => { patch({ addVenue: true, newVenueName: f.newVenueName || f.venueQuery, venue: null }); this.advance(null); },
+      searchVenues: () => patch({ addVenue: false }),
+      chips: {
+        day: DAYS.map((d) => ({ label: d[0], full: d[1], on: f.day === d[0], cls: 'chip' + (f.day === d[0] ? ' chip--on' : ''), pick: (ev) => { const el = ev && ev.currentTarget; patch({ day: d[0] }); this.advance(el); } })),
+        micFreq: chipList('freq', ['Weekly', 'Every other week', 'Monthly', 'One time'], ['Weekly', 'Biweekly', 'Monthly', 'Once']),
+        showFreq: chipList('freq', ['One time', 'Weekly', 'Monthly'], ['Once', 'Weekly', 'Monthly']),
+        setLen: chipList('setLen', ['3', '5', '7', 'Other'], ['3', '5', '7', 'Other'], ['3 minutes', '5 minutes', '7 minutes', 'Other length']),
+        cost: chipList('cost', ['Free', 'Paid', 'Bringer']),
+        signup: chipList('signup', ['Online link', 'In person', 'Lineup order']),
+        order: chipList('order', ['Order of arrival', 'Bucket / random', 'Host chooses'], ['Arrival', 'Bucket', 'Host picks']),
+        lineup: chipList('lineup', ['Public', 'Secret']),
+        lpCount: chipList('lpCount', ['1', '2', '4', '6'])
+      },
+      needsDate: f.freq !== 'Weekly',
+      isMonthly: f.freq === 'Monthly',
+      dateLabel: f.freq === 'One time' ? 'Date' : 'Next date',
+      isOtherLen: f.setLen === 'Other',
+      isPaid: f.cost === 'Paid',
+      showLenOrPrice: f.setLen === 'Other' || f.cost === 'Paid',
+      isOnline: f.signup === 'Online link',
+      isLineup: f.signup === 'Lineup order',
+      cal,
+      isFormStep: step === 1,
+      isMine: step === 4,
+      isManage: step === 5,
+      goMine: () => set({ step: 4, publishing: false }),
+      mine: this._host.mine,
+      m: this._host.m,
+      nextFour: upcoming.length && f.freq !== 'One time' ? '(So the next ' + upcoming.length + ' dates your mic will happen are ' + upcoming.map(md).join(', ') + ')' : '',
+      skipText: futureSkips.length ? 'Skipping ' + futureSkips.map(md).join(', ') + ' (tap it on the calendar to bring it back)' : '',
+      datesOptional: f.freq === 'Weekly' ? 'Optional' : '',
+      datesSummary: summarizeDates(f.dates || []),
+      datesBtnCls: 'text-input date-button' + (errors.dates ? ' text-input--error' : ''),
+      toggleCal: () => patch({ calOpen: !f.calOpen }),
+      closeCal: () => { patch({ calOpen: false }); this.advance(null); },
+      verifyCls: 'switch' + (f.verify ? ' switch--on' : ''),
+      emailCls: 'checkbox' + (f.emailOk ? ' checkbox--on' : ''),
+      toggleVerify: () => patch({ verify: !f.verify }),
+      toggleEmail: () => patch({ emailOk: !f.emailOk }),
+      verifyBoxStyle: 'border-radius: 12px; background: #173A7A; border: ' + (errors.verify ? '2px solid #FFB4A8' : '1px solid rgba(255,255,255,.12)'),
+      remindCls: 'switch' + (f.remind ? ' switch--on' : ''),
+      toggleRemind: () => patch({ remind: !f.remind }),
+      noImage: !f.image,
+      toggleImage: () => patch({ image: !f.image }),
+      imageBtnStyle: 'height: 44px; border-radius: 12px; border: 0; font: inherit; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; ' + (f.image ? 'background: #8FC2F5; color: #08142B' : 'background: #2B56A6; color: #F4EDE1'),
+      lineupHint: f.lineup === 'Secret' ? 'Names are revealed to people who check in' : 'Shows with names listed get more check-ins',
+      laughpassCls: 'checkbox' + (f.laughpass ? ' checkbox--on' : ''),
+      toggleLaughpass: () => patch({ laughpass: !f.laughpass }),
+      previewSub: isMic ? 'This is the page comics will see when they open your mic.' : 'This is the page people will see when they open your show.',
+      pc,
+      editFromPreview: () => set({ step: 1 }),
+      primaryLabel: step === 2 ? (edit ? 'Save changes' : 'Publish') : 'Preview listing',
+      primaryCls: 'primary-button' + (step === 2 ? ' primary-button--publish' : ''),
+      primaryAction: next,
+      publishing,
+      notPublishing: !publishing,
+      successTitle: edit ? 'Changes saved' : isMic ? 'Your mic is live' : 'Your show is live',
+      successSub: isMic ? 'Comics can find it in Find Mics right now. Share it so your regulars know.' : 'People can find it in Laugh right now. Share it to fill seats.'
+    };
+  }
+}
+</script>
+</body>
+</html>

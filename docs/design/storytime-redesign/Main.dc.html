@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Comediq app prototype</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1E4894}a:hover{color:#173A7A}
+.cq-d{font-family:Archivo,'DM Sans',sans-serif;font-stretch:112%;font-weight:800;letter-spacing:-.03em;line-height:1}
+.cq-wm{font-family:Archivo,'DM Sans',sans-serif;font-stretch:112%;font-weight:800;letter-spacing:-.03em;line-height:.9}
+.cq-b{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.cq-b:disabled{cursor:default}
+.cq-s{scrollbar-width:none}
+.cq-s::-webkit-scrollbar{display:none}
+.cq-lbl{font-size:17px;font-weight:600;letter-spacing:normal;color:#08142B}
+.cq-spin{width:22px;height:22px;border-radius:50%;border:3px solid rgba(255,255,255,.45);border-top-color:#fff;animation:cqspin .8s linear infinite}
+.cq-live{width:9px;height:9px;border-radius:50%;background:#1F8A4C;animation:cqpulse 1.4s ease-in-out infinite}
+@keyframes cqspin{to{transform:rotate(360deg)}}
+@keyframes cqpulse{0%,100%{box-shadow:0 0 0 0 rgba(31,138,76,.45)}50%{box-shadow:0 0 0 6px rgba(31,138,76,0)}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F4EDE1; font-family: 'DM Sans', system-ui, sans-serif; color: #08142B">
+
+<!-- ============ HOME ============ -->
+<sc-if value="{{isHome}}" hint-placeholder-val="{{ true }}">
+<div class="cq-s" style="position: absolute; inset: 0; overflow-y: auto; padding: 0 0 150px">
+  <header style="display: flex; justify-content: space-between; align-items: flex-start; padding: 58px 16px 24px 24px; background: #1E4894; border-radius: 0 0 32px 32px; color: #F4EDE1">
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <img src="/_blob/d460cb464411c942b95645fb36a6711b" alt="" style="width: 26px; height: 38px; object-fit: contain">
+        <span class="cq-wm" style="font-size: 36px; color: #F4EDE1">Comediq</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 4px; color: #8FC2F5; font-size: 16px; font-weight: 600">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+        East Village, NY
+      </div>
+    </div>
+    <button class="cq-b" aria-label="Notifications" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; position: relative">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4l2-2Z"></path><path d="M10 21h4"></path></svg>
+      <span style="position: absolute; top: 10px; right: 11px; width: 9px; height: 9px; border-radius: 50%; background: #8FC2F5; border: 2px solid #1E4894"></span>
+    </button>
+  </header>
+
+  <sc-for list="{{sections}}" as="sec" hint-placeholder-count="3">
+    <section style="margin-top: 22px">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px 0 24px; margin-bottom: 12px">
+        <h2 style="margin: 0; font-size: 22px; font-weight: 700">{{sec.title}}</h2>
+        <button class="cq-b" aria-label="See all" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #1E4894">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg>
+        </button>
+      </div>
+      <div class="cq-s" style="display: flex; gap: 14px; overflow-x: auto; padding: 0 24px 8px">
+        <sc-for list="{{sec.items}}" as="v" hint-placeholder-count="3">
+          <button class="cq-b" onClick="{{v.open}}" style="flex: 0 0 176px; display: flex; flex-direction: column; gap: 8px">
+            <div style="position: relative; width: 176px; height: 176px; border-radius: 28px; overflow: hidden; box-shadow: 0 8px 22px rgba(18,26,51,.12)">
+              <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" style="width: 100%; height: 100%; display: block" aria-hidden="true"><rect width="200" height="200" fill="{{v.wall}}"></rect><path d="M0 22H200M0 44H200M0 66H200M0 88H200M0 110H200M0 132H200M0 154H200M0 176H200" stroke="rgba(0,0,0,.18)" stroke-width="1.5"></path><path d="M64 0H136L182 200H18Z" fill="rgba(255,236,190,.16)"></path><ellipse cx="100" cy="178" rx="78" ry="18" fill="rgba(255,236,190,.22)"></ellipse><path d="M100 178V96M84 180H116" stroke="#111" stroke-width="4" stroke-linecap="round"></path><rect x="93" y="76" width="14" height="24" rx="7" fill="#111"></rect></svg>
+              <div style="position: absolute; right: 10px; bottom: 10px; width: 46px; height: 46px; border-radius: 50%; border: 3px solid #fff; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,.2); background: {{v.logoBg}}">{{v.short}}</div>
+            </div>
+            <div style="padding: 0 4px">
+              <div class="cq-d" style="font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{v.name}}</div>
+              <div style="font-size: 15px; color: #5F6675; margin-top: 2px">{{v.dist}} · {{v.start}}</div>
+            </div>
+          </button>
+        </sc-for>
+      </div>
+    </section>
+  </sc-for>
+</div>
+</sc-if>
+
+<!-- ============ MAP ============ -->
+<sc-if value="{{isMap}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0">
+  <svg width="390" height="844" viewBox="0 0 390 844" style="position: absolute; inset: 0; display: block" role="img" aria-label="Map of the East Village">
+    <defs>
+      <pattern id="cqgrid" width="150" height="58" patternUnits="userSpaceOnUse" patternTransform="rotate(-29)">
+        <rect width="150" height="58" fill="#FFFFFF"></rect>
+        <rect x="9" y="6" width="132" height="46" rx="2" fill="#EFEDE6"></rect>
+        <rect x="14" y="10" width="30" height="16" fill="#E6E3DA"></rect>
+        <rect x="52" y="30" width="38" height="16" fill="#E6E3DA"></rect>
+        <rect x="100" y="12" width="34" height="14" fill="#F1E9CF"></rect>
+      </pattern>
+    </defs>
+    <rect width="390" height="844" fill="url(#cqgrid)"></rect>
+    <path d="M30 120 L120 70 L165 150 L75 200 Z" fill="#CDE8B5" stroke="#B9DB9C" stroke-width="2"></path>
+    <path d="M300 760 L390 712 L390 844 L330 844 Z" fill="#CDE8B5"></path>
+    <g fill="#8A8F99" font-family="DM Sans, sans-serif" font-size="10" font-weight="600" letter-spacing="1.5">
+      <text x="170" y="250" transform="rotate(29 170 250)">E 14TH ST</text>
+      <text x="40" y="380" transform="rotate(29 40 380)">E 12TH ST</text>
+      <text x="60" y="520" transform="rotate(29 60 520)">E 10TH ST</text>
+      <text x="190" y="700" transform="rotate(29 190 700)">E 7TH ST</text>
+      <text x="268" y="560" transform="rotate(-61 268 560)">AVENUE A</text>
+    </g>
+    <text x="40" y="270" fill="#7C8290" font-family="DM Sans, sans-serif" font-size="15" font-weight="700" letter-spacing="2">EAST VILLAGE</text>
+  </svg>
+
+  <sc-for list="{{venues}}" as="v" hint-placeholder-count="6">
+    <button class="cq-b" onClick="{{v.pick}}" aria-label="{{v.name}}" style="position: absolute; width: 50px; height: 50px; border-radius: 50%; border: 3px solid #fff; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 14px; box-shadow: 0 6px 16px rgba(18,26,51,.28); {{v.pinPos}}; background: {{v.logoBg}}; {{v.pinRing}}">{{v.short}}</button>
+  </sc-for>
+
+  <div aria-label="You are here" style="position: absolute; left: 186px; top: 560px; width: 22px; height: 22px; border-radius: 50%; background: #1E4894; border: 4px solid #fff; box-shadow: 0 0 0 10px rgba(30,72,148,.2), 0 3px 8px rgba(0,0,0,.25)"></div>
+
+  <button class="cq-b" aria-label="Filters" style="position: absolute; left: 24px; top: 56px; width: 60px; height: 60px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(18,26,51,.14)">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"></path></svg>
+  </button>
+  <button class="cq-b" aria-label="Locate me" style="position: absolute; right: 24px; top: 56px; width: 60px; height: 60px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(18,26,51,.14); color: #1E4894">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 4 4 11l7 2 2 7 7-16Z"></path></svg>
+  </button>
+
+  <sc-if value="{{hasPreview}}" hint-placeholder-val="{{ true }}">
+    <button class="cq-b" onClick="{{openPreview}}" aria-label="Open {{pv.name}}" style="position: absolute; left: 70px; bottom: 122px; width: 240px; height: 210px">
+      <div style="position: relative; width: 230px; height: 200px; border-radius: 32px; overflow: hidden; box-shadow: 0 16px 40px rgba(18,26,51,.3)">
+        <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" style="width: 100%; height: 100%; display: block" aria-hidden="true"><rect width="200" height="200" fill="{{pv.wall}}"></rect><path d="M0 22H200M0 44H200M0 66H200M0 88H200M0 110H200M0 132H200M0 154H200M0 176H200" stroke="rgba(0,0,0,.18)" stroke-width="1.5"></path><path d="M64 0H136L182 200H18Z" fill="rgba(255,236,190,.16)"></path><ellipse cx="100" cy="178" rx="78" ry="18" fill="rgba(255,236,190,.22)"></ellipse><path d="M100 178V96M84 180H116" stroke="#111" stroke-width="4" stroke-linecap="round"></path><rect x="93" y="76" width="14" height="24" rx="7" fill="#111"></rect></svg>
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 80px; background: linear-gradient(transparent, rgba(0,0,0,.55))"></div>
+        <div style="position: absolute; left: 18px; bottom: 16px; color: #fff">
+          <div class="cq-d" style="font-size: 19px; margin-bottom: 2px">{{pv.name}}</div>
+          <div style="font-size: 14px; opacity: .9">{{pv.start}} · {{pv.dist}}</div>
+        </div>
+      </div>
+      <div style="position: absolute; right: 0; bottom: 0; width: 66px; height: 66px; border-radius: 50%; border: 4px solid #fff; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 18px; box-shadow: 0 6px 16px rgba(0,0,0,.25); background: {{pv.logoBg}}">{{pv.short}}</div>
+    </button>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ============ MIC DETAIL ============ -->
+<sc-if value="{{isDetail}}" hint-placeholder-val="{{ false }}">
+<div class="cq-s" style="position: absolute; inset: 0; overflow-y: auto; padding: 52px 24px 150px; box-sizing: border-box">
+  <button class="cq-b" onClick="{{goBack}}" aria-label="Back" style="width: 52px; height: 52px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 18px rgba(18,26,51,.1)">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"></path></svg>
+  </button>
+  <div style="position: relative; margin-top: 18px; width: 342px; height: 290px; border-radius: 32px; overflow: hidden; box-shadow: 0 10px 28px rgba(18,26,51,.14)">
+    <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" style="width: 100%; height: 100%; display: block" role="img" aria-label="{{v.name}} stage"><rect width="200" height="200" fill="{{v.wall}}"></rect><path d="M0 22H200M0 44H200M0 66H200M0 88H200M0 110H200M0 132H200M0 154H200M0 176H200" stroke="rgba(0,0,0,.18)" stroke-width="1.5"></path><path d="M64 0H136L182 200H18Z" fill="rgba(255,236,190,.16)"></path><ellipse cx="100" cy="178" rx="78" ry="18" fill="rgba(255,236,190,.22)"></ellipse><path d="M100 178V96M84 180H116" stroke="#111" stroke-width="4" stroke-linecap="round"></path><rect x="93" y="76" width="14" height="24" rx="7" fill="#111"></rect></svg>
+    <div style="position: absolute; right: 16px; bottom: 16px; width: 76px; height: 76px; border-radius: 50%; border: 4px solid #fff; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 22px; box-shadow: 0 6px 16px rgba(0,0,0,.25); background: {{v.logoBg}}">{{v.short}}</div>
+  </div>
+  <h1 class="cq-d" style="margin: 24px 0 12px; font-size: 34px">{{v.name}}</h1>
+  <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px">
+    <span style="display: flex; align-items: center; gap: 6px; background: #fff; border: 1px solid #E4E7EE; border-radius: 999px; padding: 7px 12px; font-size: 14px; font-weight: 500">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1E4894" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+      {{v.hood}}
+    </span>
+    <span style="display: flex; align-items: center; gap: 6px; background: #fff; border: 1px solid #E4E7EE; border-radius: 999px; padding: 7px 12px; font-size: 14px; font-weight: 500">Starts {{v.start}}</span>
+  </div>
+  <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #4A5160">{{v.desc}}</p>
+
+  <button class="cq-b" style="margin-top: 22px; width: 100%; display: flex; align-items: center; gap: 14px; min-height: 64px">
+    <div style="width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 17px; background: {{v.logoBg}}">{{v.short}}</div>
+    <div style="flex: 1">
+      <div class="cq-d" style="font-size: 17px">{{v.name}}</div>
+      <div style="font-size: 15px; color: #5F6675">View venue</div>
+    </div>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8A8F99" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg>
+  </button>
+
+  <article style="margin-top: 24px; background: #fff; border-radius: 28px; padding: 22px 22px 18px; box-shadow: 0 10px 30px rgba(18,26,51,.08); border: 1px solid #EEF0F4">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E4E7EE">
+      <span class="cq-lbl">Open mic</span>
+      <span style="display: flex; align-items: center; gap: 6px; color: #1E4894; font-size: 15px; font-weight: 600">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 4 4 11l7 2 2 7 7-16Z"></path></svg>{{v.dist}}
+      </span>
+    </div>
+    <div style="padding-top: 16px; display: flex; flex-direction: column; gap: 18px">
+      <div>
+        <div class="cq-lbl">Signup</div>
+        <div style="font-size: 15px; margin-top: 4px">{{v.signup}} · <span style="color: #1E4894; font-weight: 600">{{v.left}}</span></div>
+      </div>
+      <div>
+        <div class="cq-lbl">Details</div>
+        <dl style="margin: 4px 0 0; font-size: 15px">
+          <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #EEF0F4"><dt style="color: #5F6675">Cost</dt><dd style="margin: 0; font-weight: 600">{{v.cost}}</dd></div>
+          <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #EEF0F4"><dt style="color: #5F6675">Doors</dt><dd style="margin: 0; font-weight: 600">{{v.checkinOpens}}</dd></div>
+          <div style="display: flex; justify-content: space-between; padding: 10px 0 0"><dt style="color: #5F6675">Set length</dt><dd style="margin: 0; font-weight: 600">{{v.mins}}</dd></div>
+        </dl>
+      </div>
+    </div>
+    <div style="display: flex; gap: 10px; margin-top: 20px">
+      <button class="cq-b" onClick="{{primaryAction}}" style="flex: 1; height: 54px; border-radius: 999px; background: #1E4894; color: #F4EDE1; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{ctaLabel}}</button>
+      <button class="cq-b" aria-label="Directions" style="width: 54px; height: 54px; border-radius: 50%; background: #F7F2E8; color: #1E4894; display: flex; align-items: center; justify-content: center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 21.5 12 12 21.5 2.5 12 12 2.5Z"></path><path d="M9 14v-3h5M12 8.5 14.5 11 12 13.5"></path></svg>
+      </button>
+      <button class="cq-b" aria-label="Add to calendar" style="width: 54px; height: 54px; border-radius: 50%; background: #F7F2E8; color: #1E4894; display: flex; align-items: center; justify-content: center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"></rect><path d="M3.5 10h17M8 3v4M16 3v4M12 13v5M9.5 15.5h5"></path></svg>
+      </button>
+    </div>
+    <sc-if value="{{rateOpen}}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid #EEF0F4">
+        <div style="font-size: 15px; color: #5F6675">How was the room tonight?</div>
+        <div style="display: flex; gap: 6px; margin-top: 8px">
+          <sc-for list="{{stars}}" as="st" hint-placeholder-count="5">
+            <button class="cq-b" onClick="{{st.pick}}" aria-label="{{st.label}}" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: {{st.color}}">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.8-4.5 4.2 1.1 6L12 16.7l-5.4 2.9 1.1-6-4.5-4.2 6.1-.8L12 3Z"></path></svg>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </article>
+
+  <div class="cq-s" style="display: flex; gap: 8px; overflow-x: auto; margin: 14px -24px 0; padding: 0 24px 4px">
+    <sc-for list="{{dates}}" as="d" hint-placeholder-count="4">
+      <button class="cq-b" onClick="{{d.pick}}" style="{{d.style}}">{{d.label}}</button>
+    </sc-for>
+  </div>
+
+  <section style="margin-top: 22px; background: #fff; border-radius: 28px; padding: 20px 22px 12px; border: 1px solid #EEF0F4">
+    <h2 class="cq-lbl" style="margin: 0">House rules</h2>
+    <p style="{{rulesStyle}}">{{rules}}</p>
+    <button class="cq-b" onClick="{{toggleRules}}" style="color: #1E4894; font-size: 15px; font-weight: 600; min-height: 44px">{{rulesLabel}}</button>
+  </section>
+
+  <div style="position: relative; margin-top: 22px; height: 220px; border-radius: 28px; overflow: hidden; border: 1px solid #E4E7EE">
+    <svg width="342" height="220" viewBox="0 0 342 220" style="display: block" role="img" aria-label="Venue location map">
+      <defs>
+        <pattern id="cqgrid2" width="110" height="44" patternUnits="userSpaceOnUse" patternTransform="rotate(-29)">
+          <rect width="110" height="44" fill="#FFFFFF"></rect>
+          <rect x="7" y="5" width="96" height="34" rx="2" fill="#EFEDE6"></rect>
+        </pattern>
+      </defs>
+      <rect width="342" height="220" fill="url(#cqgrid2)"></rect>
+      <path d="M290 0 L342 0 L342 220 L310 220 Z" fill="#BFD9F2"></path>
+    </svg>
+    <div style="position: absolute; left: 16px; top: 16px; background: #fff; border-radius: 999px; padding: 8px 14px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(18,26,51,.12)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="#1E4894" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"></path></svg>1 location
+    </div>
+    <div style="position: absolute; left: 146px; top: 86px; width: 52px; height: 52px; border-radius: 50%; border: 3px solid #fff; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 15px; box-shadow: 0 6px 16px rgba(0,0,0,.25); background: {{v.logoBg}}">{{v.short}}</div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ============ SETS ============ -->
+<sc-if value="{{isSets}}" hint-placeholder-val="{{ false }}">
+<div class="cq-s" style="position: absolute; inset: 0; overflow-y: auto; padding: 60px 20px 150px; box-sizing: border-box">
+  <h1 class="cq-d" style="margin: 0 4px; font-size: 40px">Sets</h1>
+  <p style="margin: 6px 4px 20px; font-size: 17px; color: #5F6675">Every mic and show you have done</p>
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <sc-for list="{{sets}}" as="s" hint-placeholder-count="5">
+      <button class="cq-b" onClick="{{s.open}}" style="display: flex; align-items: center; gap: 14px; background: #fff; border-radius: 24px; padding: 14px 14px 14px 16px; border: 1px solid #EEF0F4; box-shadow: 0 4px 16px rgba(18,26,51,.05)">
+        <div style="flex: 0 0 52px; width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 15px; background: {{s.logoBg}}">{{s.short}}</div>
+        <div style="flex: 1; min-width: 0">
+          <div class="cq-d" style="font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{s.name}}</div>
+          <div style="font-size: 15px; color: #5F6675; margin-top: 2px">{{s.date}} · {{s.len}} · {{s.kind}}</div>
+        </div>
+        <div style="display: flex; gap: 6px">
+          <span title="Recording" style="width: 34px; height: 34px; border-radius: 50%; background: #DDEBFA; color: #1E4894; display: flex; align-items: center; justify-content: center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-label="Has recording" role="img"><path d="M4 12v0M8 8v8M12 5v14M16 9v6M20 11v2"></path></svg>
+          </span>
+          <span title="Set list" style="width: 34px; height: 34px; border-radius: 50%; background: #DDEBFA; color: #1E4894; display: flex; align-items: center; justify-content: center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-label="Has set list" role="img"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"></path></svg>
+          </span>
+        </div>
+      </button>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- ============ SET REVIEW ============ -->
+<sc-if value="{{isReview}}" hint-placeholder-val="{{ false }}">
+<div class="cq-s" style="position: absolute; inset: 0; overflow-y: auto; padding: 52px 20px 150px; box-sizing: border-box">
+  <button class="cq-b" onClick="{{goSets}}" aria-label="Back to sets" style="width: 52px; height: 52px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 18px rgba(18,26,51,.1)">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"></path></svg>
+  </button>
+  <div style="display: flex; align-items: center; gap: 14px; margin: 20px 4px 20px">
+    <div style="width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 18px; background: {{rs.logoBg}}">{{rs.short}}</div>
+    <div>
+      <h1 class="cq-d" style="margin: 0 0 6px; font-size: 24px">{{rs.name}}</h1>
+      <div style="font-size: 16px; color: #5F6675">{{rs.date}} · {{rs.len}} {{rs.kind}}</div>
+    </div>
+  </div>
+
+  <section style="background: #fff; border-radius: 28px; padding: 20px; border: 1px solid #EEF0F4; box-shadow: 0 6px 20px rgba(18,26,51,.06)">
+    <div class="cq-lbl">Recording</div>
+    <div style="display: flex; align-items: center; gap: 14px; margin-top: 14px">
+      <button class="cq-b" aria-label="Play recording" style="flex: 0 0 56px; width: 56px; height: 56px; border-radius: 50%; background: #1E4894; color: #fff; display: flex; align-items: center; justify-content: center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7L8 5Z"></path></svg>
+      </button>
+      <div style="flex: 1; display: flex; align-items: center; gap: 3px; height: 44px" aria-hidden="true">
+        <sc-for list="{{bars}}" as="b" hint-placeholder-count="30">
+          <span style="flex: 1; border-radius: 2px; background: {{b.c}}; height: {{b.h}}px"></span>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display: flex; justify-content: space-between; font-size: 14px; color: #5F6675; margin-top: 8px; padding-left: 70px"><span>1:48</span><span>{{rs.len}}</span></div>
+  </section>
+
+  <section style="margin-top: 14px; background: #fff; border-radius: 28px; padding: 20px; border: 1px solid #EEF0F4; box-shadow: 0 6px 20px rgba(18,26,51,.06)">
+    <div style="display: flex; justify-content: space-between; align-items: center">
+      <span class="cq-lbl">Set list</span>
+      <button class="cq-b" style="color: #1E4894; font-weight: 700; font-size: 16px; min-height: 44px">Edit</button>
+    </div>
+    <ol style="margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px">
+      <sc-for list="{{bits}}" as="bit" hint-placeholder-count="4">
+        <li style="display: flex; gap: 12px; align-items: center; font-size: 17px">
+          <span style="width: 28px; height: 28px; border-radius: 50%; background: #DDEBFA; color: #1E4894; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center">{{bit.n}}</span>
+          <span>{{bit.t}}</span>
+        </li>
+      </sc-for>
+    </ol>
+  </section>
+
+  <section style="margin-top: 14px; background: #fff; border-radius: 28px; padding: 20px; border: 1px solid #EEF0F4; box-shadow: 0 6px 20px rgba(18,26,51,.06)">
+    <label for="cq-notes" class="cq-lbl" style="display: block">Notes</label>
+    <textarea id="cq-notes" rows="4" placeholder="What hit, what died, what to cut next time" style="margin-top: 12px; width: 100%; box-sizing: border-box; border: 1px solid #D8DCE5; border-radius: 18px; padding: 14px; font: inherit; font-size: 17px; color: #08142B; background: #F4EDE1; resize: none"></textarea>
+  </section>
+</div>
+</sc-if>
+
+<!-- ============ PROFILE ============ -->
+<sc-if value="{{isProfile}}" hint-placeholder-val="{{ false }}">
+<div class="cq-s" style="position: absolute; inset: 0; overflow-y: auto; padding: 84px 0 150px; box-sizing: border-box">
+  <div style="padding: 0 24px">
+    <div aria-hidden="true" style="width: 120px; height: 120px; border-radius: 50%; background: #8FC2F5; color: #08142B; display: flex; align-items: center; justify-content: center; font-size: 42px; font-weight: 700">AM</div>
+    <h1 class="cq-d" style="margin: 20px 0 6px; font-size: 36px">Adam Malev</h1>
+    <div style="display: flex; align-items: center; gap: 6px; color: #5F6675; font-size: 18px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="0.6" fill="currentColor"></circle></svg>
+      adammalev
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 24px">
+      <button class="cq-b" style="height: 60px; border-radius: 22px; background: #fff; box-shadow: 0 6px 18px rgba(18,26,51,.08); display: flex; align-items: center; justify-content: center; gap: 8px; color: #1E4894; font-size: 17px; font-weight: 700">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="8" r="4"></circle><path d="M3 20c1.2-3.6 3.8-5.5 7-5.5 1.4 0 2.6.3 3.7 1M18 14v6M15 17h6"></path></svg>
+        Refer a Comic
+      </button>
+      <button class="cq-b" style="height: 60px; border-radius: 22px; background: #fff; box-shadow: 0 6px 18px rgba(18,26,51,.08); display: flex; align-items: center; justify-content: center; gap: 8px; color: #1E4894; font-size: 17px; font-weight: 700">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V9l8-5 8 5v12M9 21v-6h6v6"></path></svg>
+        Refer a Venue
+      </button>
+    </div>
+
+    <section style="margin-top: 22px; background: #EDEFF5; border-radius: 28px; padding: 22px">
+      <div class="cq-lbl">Comic stats</div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 18px; font-weight: 500">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="5"></circle><path d="m9 13.5-1.5 7.5 4.5-2.5 4.5 2.5-1.5-7.5"></path></svg>
+        Member since Jun 2024
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px">
+        <div><div style="font-size: 14px; color: #5F6675">Mics</div><div style="font-size: 34px; font-weight: 800">142</div></div>
+        <div><div style="font-size: 14px; color: #5F6675">Sets</div><div style="font-size: 34px; font-weight: 800">188</div></div>
+        <div><div style="font-size: 14px; color: #5F6675">Venues</div><div style="font-size: 34px; font-weight: 800">37</div></div>
+      </div>
+      <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid #D8DCE5; display: flex; justify-content: space-between; align-items: center; font-size: 16px">
+        <span style="color: #5F6675">Most played venue</span>
+        <span class="cq-d" style="font-size: 16px">The Rusty Mic</span>
+      </div>
+    </section>
+
+    <h2 style="margin: 30px 0 14px; font-size: 22px; font-weight: 700">Past mics</h2>
+  </div>
+  <div class="cq-s" style="display: flex; gap: 14px; overflow-x: auto; padding: 0 24px 8px">
+    <sc-for list="{{sets}}" as="s" hint-placeholder-count="3">
+      <button class="cq-b" onClick="{{s.open}}" style="flex: 0 0 170px; background: #fff; border-radius: 28px; padding: 22px 14px; display: flex; flex-direction: column; align-items: center; gap: 4px; border: 1px solid #EEF0F4; box-shadow: 0 6px 18px rgba(18,26,51,.06)">
+        <div style="position: relative; width: 92px; height: 92px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 26px; background: {{s.logoBg}}; margin-bottom: 10px">{{s.short}}
+          <span style="position: absolute; right: -2px; bottom: 0; width: 28px; height: 28px; border-radius: 50%; background: #1E4894; border: 3px solid #fff; display: flex; align-items: center; justify-content: center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>
+          </span>
+        </div>
+        <div class="cq-d" style="font-size: 16px; text-align: center">{{s.name}}</div>
+        <div style="font-size: 15px; color: #5F6675">{{s.kind}}</div>
+        <div style="font-size: 14px; color: #5F6675">{{s.date}}</div>
+      </button>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- ============ BOTTOM NAV ============ -->
+<nav aria-label="Main" style="position: absolute; left: 16px; right: 16px; bottom: 26px; display: flex; align-items: center; justify-content: space-between; z-index: 20">
+  <div style="display: flex; gap: 4px; padding: 6px; background: rgba(255,255,255,.94); border-radius: 999px; box-shadow: 0 10px 30px rgba(18,26,51,.16); border: 1px solid rgba(18,26,51,.06)">
+    <button class="cq-b" onClick="{{goHome}}" aria-label="Home" style="{{navHome}}">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V20h5v-6h4v6h5V9.5"></path></svg>
+    </button>
+    <button class="cq-b" onClick="{{goMap}}" aria-label="Map" style="{{navMap}}">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5L9 4Z"></path><path d="M9 4v13.5M15 6.5V20"></path></svg>
+    </button>
+    <button class="cq-b" onClick="{{goSets}}" aria-label="Sets" style="{{navSets}}">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"></path></svg>
+    </button>
+    <button class="cq-b" onClick="{{goProfile}}" aria-label="Profile" style="{{navProfile}}">
+      <span style="width: 32px; height: 32px; border-radius: 50%; background: #8FC2F5; color: #08142B; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">AM</span>
+    </button>
+  </div>
+  <button class="cq-b" aria-label="{{fabLabel}}" style="width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,.94); box-shadow: 0 10px 30px rgba(18,26,51,.16); border: 1px solid rgba(18,26,51,.06); display: flex; align-items: center; justify-content: center; color: #1E4894">
+    <sc-if value="{{fabSearch}}" hint-placeholder-val="{{ true }}">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#08142B" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+    </sc-if>
+    <sc-if value="{{fabShare}}" hint-placeholder-val="{{ false }}">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 3 3 10.5l7.2 2.3L12.5 20 21 3Z"></path></svg>
+    </sc-if>
+    <sc-if value="{{fabGear}}" hint-placeholder-val="{{ false }}">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#08142B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"></path></svg>
+    </sc-if>
+  </button>
+</nav>
+
+<!-- ============ SIGN UP SHEET ============ -->
+<sc-if value="{{sheetSignup}}" hint-placeholder-val="{{ false }}">
+<button class="cq-b" onClick="{{closeSheet}}" aria-label="Close sheet" style="position: absolute; inset: 0; background: rgba(18,26,51,.38); z-index: 30; cursor: default"></button>
+<div role="dialog" aria-label="Sign up for {{v.name}}" class="cq-s" style="position: absolute; left: 0; right: 0; top: 54px; bottom: 0; background: #fff; border-radius: 34px 34px 0 0; z-index: 31; overflow-y: auto; padding: 22px 20px 0; box-sizing: border-box">
+  <div style="width: 40px; height: 5px; border-radius: 3px; background: #D8DCE5; margin: -8px auto 14px"></div>
+  <div style="text-align: center; font-size: 19px; font-weight: 700">Register</div>
+  <div style="display: flex; align-items: center; gap: 18px; margin: 22px 0 22px">
+    <div style="flex: 0 0 104px; width: 104px; height: 104px; border-radius: 24px; overflow: hidden">
+      <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" style="width: 100%; height: 100%; display: block" aria-hidden="true"><rect width="200" height="200" fill="{{v.wall}}"></rect><path d="M0 22H200M0 44H200M0 66H200M0 88H200M0 110H200M0 132H200M0 154H200M0 176H200" stroke="rgba(0,0,0,.18)" stroke-width="1.5"></path><path d="M64 0H136L182 200H18Z" fill="rgba(255,236,190,.16)"></path><path d="M100 178V96M84 180H116" stroke="#111" stroke-width="4" stroke-linecap="round"></path><rect x="93" y="76" width="14" height="24" rx="7" fill="#111"></rect></svg>
+    </div>
+    <div>
+      <div class="cq-d" style="font-size: 23px">{{v.name}}</div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px; color: #5F6675; font-size: 17px">
+        <span style="width: 28px; height: 28px; border-radius: 50%; color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; background: {{v.logoBg}}">{{v.short}}</span>
+        Tonight · {{v.start}}
+      </div>
+    </div>
+  </div>
+  <div style="font-size: 17px; color: #5F6675; margin-bottom: 12px">Once confirmed:</div>
+
+  <div style="display: flex; flex-direction: column; gap: 14px">
+    <div style="border: 2px dashed #9DBDE8; border-radius: 26px; padding: 18px 20px">
+      <div style="display: flex; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid #EEF0F4">
+        <span style="width: 32px; height: 32px; border-radius: 50%; background: #1E4894; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center">1</span>
+        <span class="cq-lbl">Sign up</span>
+      </div>
+      <div style="font-size: 20px; font-weight: 600; margin-top: 14px">Join the list</div>
+      <div style="display: flex; gap: 8px; margin-top: 12px">
+        <span style="padding: 8px 14px; border-radius: 999px; background: #1E4894; color: #fff; font-size: 15px; font-weight: 600">Join the list</span>
+        <span style="padding: 8px 14px; border-radius: 999px; background: #F1F3F8; color: #08142B; font-size: 15px; font-weight: 600">Pick a slot</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px; color: #5F6675; font-size: 16px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+        Signup open until {{v.signupClose}}
+      </div>
+    </div>
+
+    <div style="border: 2px dashed #9DBDE8; border-radius: 26px; padding: 18px 20px">
+      <div style="display: flex; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid #EEF0F4">
+        <span style="width: 32px; height: 32px; border-radius: 50%; background: #1E4894; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center">2</span>
+        <span class="cq-lbl">Check in</span>
+      </div>
+      <div style="font-size: 20px; font-weight: 600; margin-top: 14px; line-height: 1.3">Be at {{v.address}} to lock your spot in the list order</div>
+      <div style="display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 17px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#08142B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+        {{v.address}}, New York
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E4894" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Directions" role="img"><path d="M12 2.5 21.5 12 12 21.5 2.5 12 12 2.5Z"></path><path d="M9 14v-3h5M12 8.5 14.5 11 12 13.5"></path></svg>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px; color: #5F6675; font-size: 16px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+        Check in opens 30 min before start ({{v.checkinOpens}})
+      </div>
+    </div>
+
+    <div style="border: 2px dashed #9DBDE8; border-radius: 26px; padding: 18px 20px">
+      <div style="display: flex; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid #EEF0F4">
+        <span style="width: 32px; height: 32px; border-radius: 50%; background: #1E4894; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center">3</span>
+        <span class="cq-lbl">Set</span>
+      </div>
+      <div style="font-size: 20px; font-weight: 600; margin-top: 14px">Build your set list and record your set</div>
+      <div style="display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 17px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#08142B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"></path></svg>
+        Tag {{v.handle}} if you post your set
+      </div>
+    </div>
+  </div>
+
+  <div style="position: sticky; bottom: 0; padding: 18px 0 30px; background: linear-gradient(rgba(255,255,255,0), #fff 30%)">
+    <button class="cq-b" onClick="{{confirm}}" disabled="{{confirming}}" style="{{confirmStyle}}">
+      <sc-if value="{{confirming}}" hint-placeholder-val="{{ false }}"><span class="cq-spin" role="status" aria-label="Confirming"></span></sc-if>
+      <sc-if value="{{notConfirming}}" hint-placeholder-val="{{ true }}"><span>Confirm Registration</span></sc-if>
+    </button>
+  </div>
+</div>
+</sc-if>
+
+<!-- ============ MY SIGN UP (TRACKER) SHEET ============ -->
+<sc-if value="{{sheetTracker}}" hint-placeholder-val="{{ false }}">
+<button class="cq-b" onClick="{{closeSheet}}" aria-label="Close sheet" style="position: absolute; inset: 0; background: rgba(18,26,51,.38); z-index: 30; cursor: default"></button>
+<div role="dialog" aria-label="Your mic at {{v.name}}" class="cq-s" style="position: absolute; left: 0; right: 0; top: 54px; bottom: 0; background: #FAFAF8; border-radius: 34px 34px 0 0; z-index: 31; overflow-y: auto; padding: 18px 20px 40px; box-sizing: border-box">
+  <div style="display: flex; justify-content: space-between; align-items: center">
+    <button class="cq-b" onClick="{{closeSheet}}" aria-label="Close" style="width: 52px; height: 52px; border-radius: 50%; background: #fff; box-shadow: 0 4px 14px rgba(18,26,51,.08); display: flex; align-items: center; justify-content: center">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+    </button>
+    <div style="font-size: 20px; font-weight: 700">Your Mic</div>
+    <button class="cq-b" aria-label="More options" style="width: 52px; height: 52px; border-radius: 50%; background: #fff; box-shadow: 0 4px 14px rgba(18,26,51,.08); display: flex; align-items: center; justify-content: center">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg>
+    </button>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 18px; margin: 24px 0 22px">
+    <div style="flex: 0 0 104px; width: 104px; height: 104px; border-radius: 24px; overflow: hidden">
+      <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" style="width: 100%; height: 100%; display: block" aria-hidden="true"><rect width="200" height="200" fill="{{v.wall}}"></rect><path d="M0 22H200M0 44H200M0 66H200M0 88H200M0 110H200M0 132H200M0 154H200M0 176H200" stroke="rgba(0,0,0,.18)" stroke-width="1.5"></path><path d="M64 0H136L182 200H18Z" fill="rgba(255,236,190,.16)"></path><path d="M100 178V96M84 180H116" stroke="#111" stroke-width="4" stroke-linecap="round"></path><rect x="93" y="76" width="14" height="24" rx="7" fill="#111"></rect></svg>
+    </div>
+    <div>
+      <div class="cq-d" style="font-size: 23px">{{v.name}}</div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px; color: #5F6675; font-size: 17px">
+        <span style="width: 28px; height: 28px; border-radius: 50%; color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; background: {{v.logoBg}}">{{v.short}}</span>
+        Tonight · {{v.start}}
+      </div>
+      <div style="font-size: 15px; color: #6B7280; margin-top: 4px">Signed up today at 4:02pm</div>
+    </div>
+  </div>
+
+  <!-- Step 1 -->
+  <section style="{{step1Style}}">
+    <div style="display: flex; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid #EEF0F4">
+      <sc-if value="{{atVenue}}" hint-placeholder-val="{{ false }}">
+        <span style="width: 32px; height: 32px; border-radius: 50%; background: #1F8A4C; display: flex; align-items: center; justify-content: center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>
+        </span>
+      </sc-if>
+      <sc-if value="{{notAtVenue}}" hint-placeholder-val="{{ true }}">
+        <span style="width: 32px; height: 32px; border-radius: 50%; background: #1E4894; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center">1</span>
+      </sc-if>
+      <span class="cq-lbl">Arrived</span>
+    </div>
+    <sc-if value="{{notAtVenue}}" hint-placeholder-val="{{ true }}">
+      <div style="font-size: 21px; font-weight: 600; margin-top: 14px">Get within 0.1 mi of the venue</div>
+    </sc-if>
+    <sc-if value="{{atVenue}}" hint-placeholder-val="{{ false }}">
+      <div style="font-size: 21px; font-weight: 600; margin-top: 14px; color: #1F8A4C">You're at {{v.name}}</div>
+    </sc-if>
+    <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 17px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#08142B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+      {{v.address}}
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E4894" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Directions" role="img"><path d="M12 2.5 21.5 12 12 21.5 2.5 12 12 2.5Z"></path><path d="M9 14v-3h5M12 8.5 14.5 11 12 13.5"></path></svg>
+    </div>
+    <sc-if value="{{showCheckIn}}" hint-placeholder-val="{{ false }}">
+      <button class="cq-b" onClick="{{checkIn}}" disabled="{{checking}}" style="{{checkInStyle}}">
+        <sc-if value="{{checking}}" hint-placeholder-val="{{ false }}"><span class="cq-spin" role="status" aria-label="Checking in"></span></sc-if>
+        <sc-if value="{{notChecking}}" hint-placeholder-val="{{ true }}"><span>Check In</span></sc-if>
+      </button>
+      <div style="font-size: 14px; color: #5F6675; text-align: center; margin-top: 8px">Your check-in time sets your order on the list</div>
+    </sc-if>
+    <sc-if value="{{checkedIn}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px; color: #5F6675; font-size: 16px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+        Checked in at 6:31pm
+      </div>
+    </sc-if>
+  </section>
+  <sc-if value="{{beforeRange}}" hint-placeholder-val="{{ true }}">
+    <button class="cq-b" onClick="{{arrive}}" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; margin-top: 10px; border: 1.5px dashed #9DBDE8; border-radius: 999px; color: #1E4894; font-size: 15px; font-weight: 600">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 4 4 11l7 2 2 7 7-16Z"></path></svg>
+      Prototype: simulate walking to the venue
+    </button>
+  </sc-if>
+
+  <!-- Step 2 -->
+  <section style="{{step2Style}}">
+    <div style="display: flex; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid #EEF0F4">
+      <span style="{{num2Style}}">2</span>
+      <span class="cq-lbl">Your spot</span>
+    </div>
+    <sc-if value="{{notCheckedIn}}" hint-placeholder-val="{{ true }}">
+      <div style="font-size: 21px; font-weight: 600; margin-top: 14px">Check in to get your spot</div>
+      <div style="font-size: 16px; color: #5F6675; margin-top: 6px">List order follows check-in time</div>
+    </sc-if>
+    <sc-if value="{{checkedIn}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-top: 12px">
+        <div style="font-size: 40px; font-weight: 700; line-height: 1">You're #7</div>
+        <div style="font-size: 16px; color: #5F6675">of 24 on the list</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 16px">
+        <span class="cq-live" aria-hidden="true"></span>
+        <span style="font-weight: 600; color: #1F8A4C">Live</span>
+        <span>Now up: #{{nowUp}} · about {{eta}} min to you</span>
+      </div>
+    </sc-if>
+  </section>
+
+  <!-- Step 3 -->
+  <section style="{{step3Style}}">
+    <div style="display: flex; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid #EEF0F4">
+      <span style="{{num3Style}}">3</span>
+      <span class="cq-lbl">Build and record</span>
+    </div>
+    <div style="font-size: 21px; font-weight: 600; margin-top: 14px">Build your set list, then record</div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; color: #5F6675; font-size: 16px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"></path></svg>
+      Tag {{v.handle}} if you post it
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 16px">
+      <button class="cq-b" disabled="{{notCheckedIn}}" style="height: 54px; border-radius: 999px; border: 2px solid #1E4894; color: #1E4894; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"></path></svg>
+        Build Set List
+      </button>
+      <button class="cq-b" disabled="{{notCheckedIn}}" style="height: 54px; border-radius: 999px; background: #1E4894; color: #fff; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px">
+        <span style="width: 10px; height: 10px; border-radius: 50%; background: #FF6B5E"></span>
+        Record Set
+      </button>
+    </div>
+  </section>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"scene":{"editor":"enum","options":["home","map","detail","signup","loading","before","inRange","checking","checkedIn","sets","review","profile"],"default":"home"},"$preview":{"width":390,"height":844}}'>
+const VENUES = [
+  { id: 'rusty', name: 'The Rusty Mic', short: 'RM', wall: '#6E2B22', logoBg: '#08142B', dist: '0.1 mi', address: '214 E 12th St', desc: 'Basement mic under a dive bar. Small room, honest crowd, good for working new bits.', signup: 'Online signup opens 4:00pm', signupClose: '6:45pm', start: '7:00pm', checkinOpens: '6:30pm', mins: '5 min', size: '24 comics', left: '9 left', handle: '@rustymicnyc', x: 222, y: 470 },
+  { id: 'basement', name: 'Basement Lab', short: 'BL', wall: '#2E3A4F', logoBg: '#1E4894', dist: '0.3 mi', address: '88 Avenue A', desc: 'Workshop-style mic. Hosts give quick notes after every set.', signup: 'In person at 6:30pm', signupClose: '7:15pm', start: '7:30pm', checkinOpens: '7:00pm', mins: '4 min', size: '30 comics', left: '14 left', handle: '@basementlab', x: 110, y: 620 },
+  { id: 'corner', name: 'Corner Stage', short: 'CS', wall: '#5B4A2E', logoBg: '#B4472E', dist: '0.4 mi', address: '301 E 9th St', desc: 'Bringer mic in a bar back room. Bring one guest, get a spot.', signup: 'Online signup opens 2:00pm', signupClose: '5:45pm', start: '6:00pm', checkinOpens: '5:30pm', mins: '5 min', size: '20 comics', left: '3 left', handle: '@cornerstagenyc', x: 296, y: 336 },
+  { id: 'pickle', name: 'Pickle Room', short: 'PR', wall: '#2F4A3A', logoBg: '#2F6B45', dist: '0.6 mi', address: '57 2nd Ave', desc: 'New Thursday mic with a real light and a real mic stand.', signup: 'Online signup opens 5:00pm', signupClose: '8:15pm', start: '8:30pm', checkinOpens: '8:00pm', mins: '5 min', size: '22 comics', left: '11 left', handle: '@pickleroomcomedy', x: 74, y: 300 },
+  { id: 'late', name: 'Late Set Bar', short: 'LS', wall: '#3B2F4F', logoBg: '#5B3FA0', dist: '0.9 mi', address: '12 Avenue B', desc: 'Late mic for the night owls. Loose, loud, fun.', signup: 'In person at 10:00pm', signupClose: '10:25pm', start: '10:30pm', checkinOpens: '10:00pm', mins: '6 min', size: '18 comics', left: '7 left', handle: '@latesetbar', x: 306, y: 650 },
+  { id: 'second', name: 'Second Floor', short: 'SF', wall: '#4F3A2A', logoBg: '#0E7C86', dist: '1.2 mi', address: '140 E 14th St', desc: 'Upstairs room with a proper stage. Signup fills fast.', signup: 'Online signup opens 12:00pm', signupClose: '5:30pm', start: '6:30pm', checkinOpens: '6:00pm', mins: '5 min', size: '26 comics', left: '2 left', handle: '@secondfloornyc', x: 166, y: 196 }
+];
+const SECTIONS = [
+  ['Tonight Near You', ['rusty', 'basement', 'corner', 'late']],
+  ['Signup Opens Soon', ['corner', 'rusty', 'second']],
+  ['New on Comediq', ['pickle', 'second', 'late']],
+  ['Bringer Mics', ['corner', 'second']],
+  ['Free Mics', ['rusty', 'pickle', 'late']]
+];
+const SETS = [
+  ['rusty', 'Oct 29, 2026', '5:12', 'Mic'],
+  ['basement', 'Oct 28, 2026', '4:05', 'Mic'],
+  ['second', 'Oct 26, 2026', '7:40', 'Show'],
+  ['corner', 'Oct 24, 2026', '5:00', 'Mic'],
+  ['pickle', 'Oct 23, 2026', '4:48', 'Mic'],
+  ['late', 'Oct 21, 2026', '6:02', 'Mic']
+];
+const HOOD = { rusty: 'East Village', basement: 'Alphabet City', corner: 'East Village', pickle: 'East Village', late: 'Alphabet City', second: 'Union Square' };
+const COST = { rusty: 'Free', basement: '$5 + 1 drink', corner: 'Bring 1 guest', pickle: 'Free', late: 'Free', second: '$5' };
+const RULES = 'Sets are timed. The light goes on with 30 seconds left, so wrap it up when you see it. Buy a drink if you can, the bar keeps this mic alive. Stay for at least three comics after your set, be kind to the host, and keep your phone on the table if you record.';
+const DATES = ['Tonight', 'Thu, Nov 5', 'Thu, Nov 12', 'Thu, Nov 19', 'Thu, Nov 26'];
+const BITS = ['Subway dating', 'Landlord podcast', 'Bodega cat tag', 'Closer: my mom on Hinge'];
+const SCENES = {
+  map: { screen: 'map', preview: 'rusty' },
+  detail: { screen: 'detail' },
+  signup: { screen: 'detail', sheet: 'signup' },
+  loading: { screen: 'detail', sheet: 'signup', confirming: true },
+  before: { screen: 'detail', sheet: 'tracker', signedUp: true, track: 'before' },
+  inRange: { screen: 'detail', sheet: 'tracker', signedUp: true, track: 'inRange' },
+  checking: { screen: 'detail', sheet: 'tracker', signedUp: true, track: 'checking' },
+  checkedIn: { screen: 'detail', sheet: 'tracker', signedUp: true, track: 'checked' },
+  sets: { screen: 'sets' },
+  review: { screen: 'review', setIdx: 0 },
+  profile: { screen: 'profile' }
+};
+const NAV_ON = 'width: 64px; height: 52px; border-radius: 999px; display: flex; align-items: center; justify-content: center; background: #1E4894; color: #F4EDE1';
+const NAV_OFF = 'width: 64px; height: 52px; border-radius: 999px; display: flex; align-items: center; justify-content: center; background: transparent; color: #6B7280';
+const CARD = 'margin-top: 14px; background: #fff; border-radius: 28px; padding: 18px 20px 20px; border: 1px solid #EEF0F4; box-shadow: 0 8px 24px rgba(18,26,51,.07); transition: opacity .3s';
+const FADED = CARD + '; opacity: .45';
+const NUM_ON = 'width: 32px; height: 32px; border-radius: 50%; background: #1E4894; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center';
+const NUM_OFF = 'width: 32px; height: 32px; border-radius: 50%; background: #9AA3B2; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center';
+const BTN = 'width: 100%; height: 60px; border-radius: 999px; color: #fff; font-size: 19px; font-weight: 700; display: flex; align-items: center; justify-content: center; ';
+
+class Component extends DCLogic {
+  componentDidMount() {
+    const s = SCENES[this.props.scene];
+    if (s) this.setState(Object.assign({}, s));
+    this.tick = setInterval(() => {
+      const st = this.state || {};
+      if (st.track === 'checked' && (st.nowUp || 3) < 6) this.setState({ nowUp: (st.nowUp || 3) + 1 });
+    }, 6000);
+  }
+  componentWillUnmount() {
+    clearInterval(this.tick);
+    clearTimeout(this.t1);
+    clearTimeout(this.t2);
+  }
+  renderVals() {
+    const st = this.state || {};
+    const screen = st.screen || 'home';
+    const sheet = st.sheet || null;
+    const track = st.track || 'before';
+    const confirming = !!st.confirming;
+    const venueId = st.venueId || 'rusty';
+    const byId = (id) => VENUES.find((x) => x.id === id);
+    const set = (o) => this.setState(o);
+    const openVenue = (id) => () => set({ venueId: id, screen: 'detail', sheet: null });
+    const decorate = (x) => Object.assign({}, x, {
+      open: openVenue(x.id),
+      pick: () => set({ preview: x.id }),
+      pinPos: 'left: ' + x.x + 'px; top: ' + x.y + 'px',
+      pinRing: st.preview === x.id ? 'transform: scale(1.18); outline: 3px solid #1E4894; outline-offset: 2px' : ''
+    });
+    const v = Object.assign({}, byId(venueId), { hood: HOOD[venueId], cost: COST[venueId] });
+    const dateIdx = st.dateIdx || 0;
+    const rating = st.rating || 0;
+    const PILL = 'flex: 0 0 auto; height: 44px; padding: 0 18px; border-radius: 999px; font-size: 15px; font-weight: 600; display: flex; align-items: center; ';
+    const pvId = st.preview === undefined ? 'rusty' : st.preview;
+    const pv = pvId ? byId(pvId) : null;
+    const checkedIn = track === 'checked';
+    const atVenue = track !== 'before';
+    const nowUp = st.nowUp || 3;
+    const setIdx = st.setIdx || 0;
+    const sets = SETS.map((r, i) => Object.assign({}, byId(r[0]), { date: r[1], len: r[2], kind: r[3], open: () => set({ screen: 'review', setIdx: i, sheet: null }) }));
+    const bars = [];
+    for (let i = 0; i < 34; i++) {
+      const h = 10 + Math.round(Math.abs(Math.sin(i * 1.7) * 22 + Math.cos(i * 0.6) * 10));
+      bars.push({ h: Math.min(h, 42), c: i < 12 ? '#1E4894' : '#C9D4EE' });
+    }
+    return {
+      isHome: screen === 'home' && true,
+      isMap: screen === 'map',
+      isDetail: screen === 'detail',
+      isSets: screen === 'sets',
+      isReview: screen === 'review',
+      isProfile: screen === 'profile',
+      sections: SECTIONS.map((s) => ({ title: s[0], items: s[1].map((id) => decorate(byId(id))) })),
+      venues: VENUES.map(decorate),
+      v,
+      pv: pv || VENUES[0],
+      hasPreview: !!pv,
+      openPreview: () => pv && set({ venueId: pv.id, screen: 'detail' }),
+      ctaLabel: !st.signedUp ? 'Register' : track === 'checked' ? 'Rate this mic' : 'Check In',
+      primaryAction: () => {
+        if (!st.signedUp) set({ sheet: 'signup' });
+        else if (track === 'checked') set({ rateOpen: !st.rateOpen });
+        else set({ sheet: 'tracker' });
+      },
+      rateOpen: !!st.rateOpen,
+      stars: [1, 2, 3, 4, 5].map((n) => ({ label: n + ' stars', color: n <= rating ? '#1E4894' : '#D8DCE5', pick: () => set({ rating: n }) })),
+      dates: DATES.map((label, i) => ({ label, pick: () => set({ dateIdx: i }), style: PILL + (i === dateIdx ? 'background: #1E4894; color: #F4EDE1; border: 1px solid #1E4894' : 'background: #fff; color: #08142B; border: 1px solid #E4E7EE') })),
+      rules: RULES,
+      rulesStyle: 'margin: 6px 0 0; font-size: 15px; line-height: 1.5; color: #4A5160' + (st.rulesOpen ? '' : '; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden'),
+      rulesLabel: st.rulesOpen ? 'Show less' : 'Read more',
+      toggleRules: () => set({ rulesOpen: !st.rulesOpen }),
+      goBack: () => set({ screen: 'map' }),
+      goHome: () => set({ screen: 'home', sheet: null }),
+      goMap: () => set({ screen: 'map', sheet: null }),
+      goSets: () => set({ screen: 'sets', sheet: null }),
+      goProfile: () => set({ screen: 'profile', sheet: null }),
+      navHome: screen === 'home' ? NAV_ON : NAV_OFF,
+      navMap: screen === 'map' || screen === 'detail' ? NAV_ON : NAV_OFF,
+      navSets: screen === 'sets' || screen === 'review' ? NAV_ON : NAV_OFF,
+      navProfile: screen === 'profile' ? NAV_ON : NAV_OFF,
+      fabSearch: screen === 'home' || screen === 'map' || screen === 'sets' || screen === 'review',
+      fabShare: screen === 'detail',
+      fabGear: screen === 'profile',
+      fabLabel: screen === 'detail' ? 'Share' : screen === 'profile' ? 'Settings' : 'Search',
+      sets,
+      rs: sets[setIdx],
+      bars,
+      bits: BITS.map((t, i) => ({ n: i + 1, t })),
+      openSheet: () => set({ sheet: st.signedUp ? 'tracker' : 'signup' }),
+      closeSheet: () => set({ sheet: null }),
+      sheetSignup: sheet === 'signup',
+      sheetTracker: sheet === 'tracker',
+      confirming,
+      notConfirming: !confirming,
+      confirmStyle: BTN + (confirming ? 'background: #7E97C9' : 'background: #1E4894'),
+      confirm: () => {
+        if (confirming) return;
+        set({ confirming: true });
+        this.t1 = setTimeout(() => set({ confirming: false, signedUp: true, sheet: 'tracker', track: 'before', nowUp: 3 }), 1400);
+      },
+      arrive: () => set({ track: 'inRange' }),
+      checkIn: () => {
+        if (track !== 'inRange') return;
+        set({ track: 'checking' });
+        this.t2 = setTimeout(() => set({ track: 'checked', nowUp: 3 }), 1100);
+      },
+      beforeRange: track === 'before',
+      atVenue,
+      notAtVenue: !atVenue,
+      showCheckIn: track === 'inRange' || track === 'checking',
+      checking: track === 'checking',
+      notChecking: track !== 'checking',
+      checkInStyle: BTN + 'margin-top: 16px; ' + (track === 'checking' ? 'background: #7E97C9' : 'background: #1E4894'),
+      checkedIn,
+      notCheckedIn: !checkedIn,
+      step1Style: atVenue ? CARD + '; margin-top: 0' : FADED + '; margin-top: 0',
+      step2Style: checkedIn ? CARD : FADED,
+      step3Style: checkedIn ? CARD : FADED,
+      num2Style: checkedIn ? NUM_ON : NUM_OFF,
+      num3Style: checkedIn ? NUM_ON : NUM_OFF,
+      nowUp,
+      eta: Math.max(4, (7 - nowUp) * 6)
+    };
+  }
+}
+</script>
+</body>
+</html>
