@@ -7,7 +7,8 @@ import Wordmark from "@/components/Wordmark";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOpenMics } from "@/hooks/useOpenMics";
-import { isExternalVotingLink, votingHref } from "@/config/micOfTheMonth";
+import { isExternalVotingLink, votingHref, MIC_OF_THE_MONTH_WINNER } from "@/config/micOfTheMonth";
+import { micPath } from "@/lib/seoShared";
 import {
   getUpcomingOccurrences,
   isListedDate,
@@ -163,6 +164,53 @@ const Hero = () => (
     </div>
   </section>
 );
+
+/**
+ * The most recently closed Mic of the Month winner, near the top of the home
+ * page. All mic details come from the live mics data via
+ * MIC_OF_THE_MONTH_WINNER.micId, not hardcoded here, so the card always links
+ * to the mic's real page and shows its current details. Renders nothing once
+ * the config is set back to null or the mic can't be found (e.g. deactivated).
+ */
+const MicOfTheMonth = () => {
+  const { data: mics = [] } = useOpenMics();
+  const winner = MIC_OF_THE_MONTH_WINNER;
+  const mic = winner ? mics.find((m) => m.uniqueIdentifier === winner.micId) : undefined;
+  if (!winner || !mic) return null;
+
+  const signupHref = /^https?:\/\//i.test(mic.signUpInstructions?.trim() || "")
+    ? mic.signUpInstructions.trim()
+    : undefined;
+  const schedule = [mic.day && `${mic.day}s`, [mic.startTime, mic.latestEndTime].filter(Boolean).join(" to ")]
+    .filter(Boolean)
+    .join(", ");
+  const where = [mic.venueName, mic.neighborhood].filter(Boolean).join(", ");
+
+  return (
+    <section className="mx-auto max-w-6xl px-5 pb-14 sm:px-8 md:pb-20" aria-labelledby="motm-heading">
+      <div className="rounded-md border border-[var(--lp-line)] p-6 sm:p-8">
+        <p className="lp-eyebrow">{winner.month} Mic of the Month</p>
+        <h2 id="motm-heading" className="lp-display mt-2 text-4xl sm:text-5xl">
+          {mic.openMic}
+        </h2>
+        <p className="mt-2 text-sm text-[var(--lp-muted)]">{where}</p>
+        <p className="mt-1 text-sm">
+          {schedule} &middot; {mic.cost} &middot; Hosted by {mic.hosts}
+        </p>
+        <div className="mt-5 flex flex-wrap items-center gap-4">
+          {signupHref && (
+            <a href={signupHref} target="_blank" rel="noopener noreferrer" className="lp-btn lp-btn-solid">
+              Sign up
+            </a>
+          )}
+          <Link to={micPath(mic)} className="lp-link text-sm font-semibold">
+            View on Comediq
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const Stats = () => (
   <section className="border-y border-[var(--lp-line)]">
@@ -396,6 +444,7 @@ const Landing = () => (
     <main>
       <Hero />
       <Stats />
+      <MicOfTheMonth />
       <Tonight />
       <TwoDoors />
       <Proof />
