@@ -621,6 +621,38 @@ Two consequences of building it that way, both intended:
 five mics frozen at `WEEK_START = '2026-07-06'`, which had been stale for
 months. The route is kept so old links and shares still work.
 
+### The winner's card on the home page
+
+Once a month's voting closes, the winner gets a card near the top of the home
+page (`src/components/landing/Landing.tsx`, the `MicOfTheMonth` component) —
+mic name, venue, neighborhood, schedule, cost, host, a Sign up button, and a
+link to the mic's own page.
+
+**To update it each month**, edit the one object in
+`src/config/micOfTheMonth.ts`:
+
+```ts
+export const MIC_OF_THE_MONTH_WINNER: MicOfTheMonthWinner | null = {
+  month: "October",
+  micId: "ea37784d-b08f-45fa-8eea-ae9005d3f1d7",
+  votes: 16,
+};
+```
+
+Change `month`, `micId` (the winning mic's `uniqueIdentifier` — find it in
+`/mics.json` or by searching for the mic in the admin panel) and `votes` to
+that month's result. Everything else on the card (name, venue, cost, sign-up
+link, etc.) is looked up live from the mic's own record, not retyped here, so
+it can't drift out of date. Set the whole constant to `null` to pull the card
+down between contests.
+
+This is a separate, older attempt at the same idea
+(`src/components/MicOfTheMonthWinner.tsx` and
+`src/config/micOfTheMonthWinner.ts`) that predates the current home page
+design and was never wired into it — it's still in the repo, unused, rather
+than deleted. The card described above is the one actually live on
+comediq.us.
+
 ---
 
 ## Why shows were missing from the Laugh map
