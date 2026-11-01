@@ -137,7 +137,7 @@ const Hero = () => (
   <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-14 pt-4 sm:px-8 md:grid-cols-2 md:gap-14 md:pb-20">
     <div className="sm:text-center md:text-left">
       <div className="flex items-end gap-2 sm:justify-center md:justify-start">
-        <div className="min-w-0">
+        <div className="min-w-0 text-center">
           <p className="lp-eyebrow">NYC's comedy platform</p>
           <h1 className="lp-wordmark mt-4 text-[58px] sm:text-[clamp(56px,6vw,92px)]">Comediq<span className="sr-only"> — NYC Comedy Open Mics and Shows</span></h1>
         </div>
@@ -151,11 +151,22 @@ const Hero = () => (
         <Link to="/laugh" className="lp-btn lp-btn-ghost"><Eye className="h-4 w-4" aria-hidden="true" />I Watch</Link>
       </div>
       <div className="mt-7 flex flex-col gap-2 text-sm sm:items-center md:items-start">
-        <a className="lp-link w-fit" href={MALEV_INSTAGRAM} target="_blank" rel="noopener noreferrer">
-          Made and maintained by Adam Malev @malevcomedy
+        <a
+          className="w-fit text-[var(--lp-ink)] transition-colors hover:text-[var(--lp-accent)]"
+          href={MALEV_INSTAGRAM}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Made and maintained by{" "}
+          <span className="underline decoration-[1px] underline-offset-[3px]">Adam Malev @malevcomedy</span>
         </a>
-        <a className="lp-link w-fit" href={INSTAGRAM} target="_blank" rel="noopener noreferrer">
-          Questions or collabs? DM @comediq.us
+        <a
+          className="w-fit text-[var(--lp-ink)] transition-colors hover:text-[var(--lp-accent)]"
+          href={INSTAGRAM}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Questions or collabs? DM <span className="underline decoration-[1px] underline-offset-[3px]">@comediq.us</span>
         </a>
       </div>
     </div>
