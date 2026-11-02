@@ -143,31 +143,36 @@ const Hero = () => (
         </div>
         <img src="/landing/character.png" alt="The Comediq mascot" className="order-first h-[170px] w-auto shrink-0 sm:h-[240px] md:order-last" />
       </div>
-      <p className="mt-5 max-w-md text-lg leading-snug text-[var(--lp-ink)] sm:mx-auto md:mx-0">
+      <p className="mt-5 max-w-md text-center text-lg leading-snug text-[var(--lp-ink)] mx-auto">
         Whether you're on stage or in the audience, Comediq is your home for live comedy.
       </p>
-      <div className="mt-7 flex flex-wrap gap-3 sm:justify-center md:justify-start">
+      <div className="mt-7 flex flex-wrap justify-center gap-3">
         <Link to="/perform" className="lp-btn lp-btn-solid"><Mic className="h-4 w-4" aria-hidden="true" />I Perform</Link>
         <Link to="/laugh" className="lp-btn lp-btn-ghost"><Eye className="h-4 w-4" aria-hidden="true" />I Watch</Link>
       </div>
       <div className="mt-7 flex flex-col gap-2 text-sm sm:items-center md:items-start">
-        <a
-          className="w-fit text-[var(--lp-ink)] transition-colors hover:text-[var(--lp-accent)]"
-          href={MALEV_INSTAGRAM}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Made and maintained by{" "}
-          <span className="underline decoration-[1px] underline-offset-[3px]">Adam Malev @malevcomedy</span>
-        </a>
-        <a
-          className="w-fit text-[var(--lp-ink)] transition-colors hover:text-[var(--lp-accent)]"
-          href={INSTAGRAM}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Questions or collabs? DM <span className="underline decoration-[1px] underline-offset-[3px]">@comediq.us</span>
-        </a>
+        <p className="w-fit text-[var(--lp-ink)]">
+          Made and maintained by Adam Malev{" "}
+          <a
+            className="underline decoration-[1px] underline-offset-[3px] transition-colors hover:text-[var(--lp-accent)]"
+            href={MALEV_INSTAGRAM}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            @malevcomedy
+          </a>
+        </p>
+        <p className="w-fit text-[var(--lp-ink)]">
+          Questions or collabs? DM{" "}
+          <a
+            className="underline decoration-[1px] underline-offset-[3px] transition-colors hover:text-[var(--lp-accent)]"
+            href={INSTAGRAM}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            @comediq.us
+          </a>
+        </p>
       </div>
     </div>
     <div className="aspect-[4/4.4] overflow-hidden rounded-md md:order-last">
