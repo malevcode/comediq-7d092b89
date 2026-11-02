@@ -2191,3 +2191,10 @@ guessing.
 - Wrote `docs/WEB_MAP_UPGRADE_PLAN.md`: how to make the web maps look like Partiful's
   (custom navy map style, picture pins, count bubbles, big city title, one filter pill).
 - No code changed. Phase 1 (the map style) needs a Mapbox Studio style URL.
+
+## Session: show picture "bucket not found"
+
+- Adding a show with a picture failed with "bucket not found": the `headshots` storage
+  bucket did not exist in production. New SQL `20261102120000_ensure_headshots_bucket.sql`
+  creates it (and its access rules). Safe to run twice. This is also what broke headshot uploads.
+- The add-show page now lists the show even if the picture fails, and says so in the message.
