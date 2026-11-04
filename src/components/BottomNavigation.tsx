@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Eye, User, Book, MicVocal, LayoutDashboard, Search } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { Home, Eye, User, Book, MicVocal, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAnalytics } from "@/components/AnalyticsProvider";
 
@@ -20,15 +20,13 @@ function getInitials(user: { user_metadata?: Record<string, unknown>; email?: st
 
 /**
  * Floating glass pill bottom nav: Home / Perform / Laugh / Profile in a
- * translucent pill, plus a separate round Search button beside it. Admin keeps
- * its own link.
+ * translucent pill. Admin keeps its own link.
  *
  * The highlight is one "lava lamp" blob that slides to the selected button. It
  * overshoots and squishes as it moves, so switching tabs flows instead of jumping.
  */
 const BottomNavigation = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { user, isAdmin, role } = useAuth();
   const { trackClick } = useAnalytics();
 
@@ -158,17 +156,6 @@ const BottomNavigation = () => {
           );
         })}
       </nav>
-      <button
-        type="button"
-        aria-label="Search mics and shows"
-        onClick={() => {
-          trackClick("nav_search", { target: "/search" });
-          navigate("/search");
-        }}
-        className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-white/25 bg-comediq-cream/15 text-comediq-cream shadow-[0_10px_30px_rgba(10,17,40,0.35)] backdrop-blur-xl [backdrop-filter:blur(20px)_saturate(160%)] transition-colors hover:bg-white/10"
-      >
-        <Search size={26} />
-      </button>
     </div>
   );
 };
