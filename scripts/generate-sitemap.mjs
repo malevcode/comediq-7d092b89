@@ -34,6 +34,7 @@ const routes = [
   { path: "/add-show", source: "src/pages/AddShow.tsx" },
   { path: "/advertise", source: "src/pages/AdvertiseWithUs.tsx" },
   { path: "/privacy", source: "src/pages/PrivacyPolicy.tsx" },
+  { path: "/terms", source: "src/pages/Terms.tsx" },
 ];
 
 function lastmodFor(source) {

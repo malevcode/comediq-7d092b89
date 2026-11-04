@@ -38,6 +38,7 @@ export const PUBLIC_PAGE_META = [
   ["/advertise", "Advertise to Comedians & Comedy Fans | Comediq", "Promote your comedy venue, event or brand to comedians and comedy fans. Explore Comediq banner advertising and sponsor placements for your campaign."],
   ["/privacy", "Comediq Privacy Policy & Terms of Service", "Read Comediq's privacy policy and terms of service. Learn how comedian data is collected, used and protected, including SMS notification disclosures."],
   ["/blog", "Stand-Up Comedy Blog & Open Mic Guides | Comediq", "Read Comediq's stand-up comedy blog for open mic guides, performance tips and stories for comedians in NYC, Hudson Valley, Los Angeles and Austin."],
+  ["/terms", "Comediq Terms of Service", "Read the terms for using Comediq: accounts, community mic listings, user content, Full Pass membership, set recordings and account deletion."],
   ["/slots", "Comedy Open Mic Sign-Ups & Waitlists | Comediq", "Reserve comedy open mic spots and join waitlists with Comediq Slots. Explore available sign-ups and manage your next stand-up performance."],
   ["/shows/map", "Stand-Up Comedy Shows Map & Venue Locations | Comediq", "Find stand-up comedy shows on a map. Explore comedy venue locations, upcoming events and ticket links to plan a night of live comedy with Comediq."],
 ].map(([path, title, description]) => ({ path, ...boundedMeta(title, description) }));

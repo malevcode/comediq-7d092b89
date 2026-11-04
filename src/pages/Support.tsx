@@ -90,7 +90,11 @@ const Support = () => {
               <Link to="/privacy" className="text-orange-600 hover:text-orange-700">
                 Privacy Policy
               </Link>{" "}
-              for details on what information we collect and how we use it.
+              for details on what information we collect and how we use it, and our{" "}
+              <Link to="/terms" className="text-orange-600 hover:text-orange-700">
+                Terms of Service
+              </Link>{" "}
+              for the rules of using Comediq.
             </p>
           </section>
 
