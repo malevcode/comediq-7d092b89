@@ -46,7 +46,7 @@
   </url>
   <url>
     <loc>https://comediq.us/add-show</loc>
-    <lastmod>2026-10-26</lastmod>
+    <lastmod>2026-11-02</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/advertise</loc>
@@ -55,6 +55,10 @@
   <url>
     <loc>https://comediq.us/privacy</loc>
     <lastmod>2026-10-14</lastmod>
+  </url>
+  <url>
+    <loc>https://comediq.us/terms</loc>
+    <lastmod>2026-11-04</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/open-mics/sunday</loc>
@@ -74,7 +78,7 @@
   </url>
   <url>
     <loc>https://comediq.us/open-mics/thursday</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-10-29</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/open-mics/friday</loc>
@@ -86,7 +90,7 @@
   </url>
   <url>
     <loc>https://comediq.us/open-mics/manhattan</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-10-29</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/open-mics/brooklyn</loc>
@@ -495,7 +499,7 @@
   </url>
   <url>
     <loc>https://comediq.us/mic/broadway-5</loc>
-    <lastmod>2026-04-30</lastmod>
+    <lastmod>2026-10-29</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/mic/gvcc-open-mic-77865a</loc>
@@ -1200,7 +1204,7 @@
   </url>
   <url>
     <loc>https://comediq.us/mic/producers-club-1da600</loc>
-    <lastmod>2026-07-23</lastmod>
+    <lastmod>2026-10-29</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/mic/open-mic-w-greg-giraldo</loc>
@@ -1233,6 +1237,7 @@
   </url>
   <url>
     <loc>https://comediq.us/mic/5-marks-thursday-mic</loc>
+    <lastmod>2026-10-29</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/mic/eastville-eddy</loc>
@@ -1678,7 +1683,7 @@
   </url>
   <url>
     <loc>https://comediq.us/venue/broadway-comedy-club</loc>
-    <lastmod>2026-09-01</lastmod>
+    <lastmod>2026-10-29</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/venue/brooklyn-art-haus</loc>
@@ -1960,7 +1965,7 @@
   </url>
   <url>
     <loc>https://comediq.us/venue/producers-club</loc>
-    <lastmod>2026-08-21</lastmod>
+    <lastmod>2026-10-29</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/venue/pubkey</loc>
@@ -2011,6 +2016,7 @@
   </url>
   <url>
     <loc>https://comediq.us/venue/st-marks-comedy-club</loc>
+    <lastmod>2026-10-29</lastmod>
   </url>
   <url>
     <loc>https://comediq.us/venue/starr-bar</loc>
