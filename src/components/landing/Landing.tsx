@@ -149,11 +149,11 @@ const Hero = () => (
             <p className="lp-eyebrow">NYC's comedy platform</p>
             <h1 className="lp-wordmark mt-4 text-[58px] sm:text-[clamp(56px,6vw,92px)]">Comediq<span className="sr-only"> — NYC Comedy Open Mics and Shows</span></h1>
             <p className="mt-5 max-w-md text-center text-lg leading-snug text-[var(--lp-ink)] mx-auto">
-              Whether you're on stage, in the audience, or running the show, Comediq is your home for finding live comedy
+              Whether you're on stage, in the audience, or running the show, Comediq is here for you
             </p>
-            <div className="mt-7 flex flex-wrap justify-center gap-3">
-              <Link to="/perform" className="lp-btn lp-btn-solid"><Mic className="h-4 w-4" aria-hidden="true" />I Perform</Link>
-              <Link to="/laugh" className="lp-btn lp-btn-ghost"><Eye className="h-4 w-4" aria-hidden="true" />I Watch</Link>
+            <div className="mt-7 flex flex-nowrap justify-center gap-2">
+              <Link to="/perform" className="lp-btn lp-btn-solid !px-4 !py-1.5 !text-sm"><Mic className="h-4 w-4" aria-hidden="true" />I Perform</Link>
+              <Link to="/laugh" className="lp-btn lp-btn-ghost !px-4 !py-1.5 !text-sm"><Eye className="h-4 w-4" aria-hidden="true" />I Watch</Link>
             </div>
           </div>
         </div>
