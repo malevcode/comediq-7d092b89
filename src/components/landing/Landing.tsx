@@ -141,7 +141,7 @@ const Hero = () => (
           <p className="lp-eyebrow">NYC's comedy platform</p>
           <h1 className="lp-wordmark mt-4 text-[58px] sm:text-[clamp(56px,6vw,92px)]">Comediq<span className="sr-only"> — NYC Comedy Open Mics and Shows</span></h1>
         </div>
-        <img src="/landing/character.png" alt="The Comediq mascot" className="order-first h-[170px] w-auto shrink-0 sm:h-[240px] md:order-last" />
+        <img src="/landing/character.png" alt="The Comediq mascot" className="order-first h-[170px] w-auto shrink-0 sm:h-[240px]" />
       </div>
       <p className="mt-5 max-w-md text-center text-lg leading-snug text-[var(--lp-ink)] mx-auto">
         Whether you're on stage, in the audience, or running the show, Comediq is your home for finding live comedy
@@ -150,7 +150,7 @@ const Hero = () => (
         <Link to="/perform" className="lp-btn lp-btn-solid"><Mic className="h-4 w-4" aria-hidden="true" />I Perform</Link>
         <Link to="/laugh" className="lp-btn lp-btn-ghost"><Eye className="h-4 w-4" aria-hidden="true" />I Watch</Link>
       </div>
-      <div className="mt-7 flex flex-col gap-2 text-sm sm:items-center md:items-start">
+      <div className="mt-7 flex flex-col gap-2 text-sm sm:items-center">
         <p className="w-fit text-[var(--lp-ink)]">
           Made and maintained by Adam Malev{" "}
           <a
