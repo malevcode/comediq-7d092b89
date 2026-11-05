@@ -144,7 +144,7 @@ const Hero = () => (
         <img src="/landing/character.png" alt="The Comediq mascot" className="order-first h-[170px] w-auto shrink-0 sm:h-[240px] md:order-last" />
       </div>
       <p className="mt-5 max-w-md text-center text-lg leading-snug text-[var(--lp-ink)] mx-auto">
-        Whether you're on stage or in the audience, Comediq is your home for live comedy.
+        Whether you're on stage, in the audience, or running the show, Comediq is your home for finding live comedy
       </p>
       <div className="mt-7 flex flex-wrap justify-center gap-3">
         <Link to="/perform" className="lp-btn lp-btn-solid"><Mic className="h-4 w-4" aria-hidden="true" />I Perform</Link>
