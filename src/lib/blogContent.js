@@ -1,5 +1,5 @@
 import MarkdownIt from "markdown-it";
-import catalogue from "../content/blog-posts.json";
+import catalogue from "../content/blog-posts.json" with { type: "json" };
 
 // Dates are editorial content dates, never file times or generation dates.
 export function validBlogDate(value) {
