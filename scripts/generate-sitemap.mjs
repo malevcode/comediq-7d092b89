@@ -71,6 +71,8 @@ for (const v of venues) {
   if (vm.length) routes.push({ path: `/venue/${v.slug}`, lastmod: newest(vm) });
 }
 
+routes.push(...blogSitemapEntries());
+
 const urls = routes.map(({ path, source, lastmod: given }) => {
   const lastmod = given !== undefined ? given : lastmodFor(source);
   return [

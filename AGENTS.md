@@ -8,3 +8,5 @@
 - Listing pagination is `?page=N` (page size from `PAGE_SIZE`), with "Show More" as a real `rel="next"` link; canonical includes `?page=N` for N > 1. Why: crawlers can reach every mic.
 - Build-time pages for mics/venues/filters come from `public/mics.json` + `public/venues.json` (written by `scripts/export-mics.mjs`, which must run before the sitemap). Why: static hosting has no server rendering.
 - `last_verified_at` is the single verification date shown on cards; a trigger keeps it in step with `last_confirmed_at` and `last_verified`. Why: one trustworthy date per mic.
+- Blog content uses `src/content/blog-posts.json` with stable slugs, explicit editorial dates and publication flags; app, prerender and sitemap share `blogContent.js`, with SEO helpers in `seoShared.js`. Why: published article content and dates must agree across all outputs.
+- Blog Markdown renders through markdown-it with raw HTML disabled. Why: formatted article content must remain safe in live and initial HTML.
