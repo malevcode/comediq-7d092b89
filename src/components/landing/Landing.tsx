@@ -136,19 +136,27 @@ const Nav = () => {
 const Hero = () => (
   <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-14 pt-4 sm:px-8 md:grid-cols-2 md:gap-14 md:pb-20">
     <div className="sm:text-center md:text-left">
-      <div className="flex items-end justify-center gap-2">
-        <div className="min-w-0 text-center">
-          <p className="lp-eyebrow">NYC's comedy platform</p>
-          <h1 className="lp-wordmark mt-4 text-[58px] sm:text-[clamp(56px,6vw,92px)]">Comediq<span className="sr-only"> — NYC Comedy Open Mics and Shows</span></h1>
+      {/* Grid, not a flex row: the mascot and the text get their own columns, so
+          the paragraph and buttons (centered inside the text column) line up
+          with the wordmark instead of with the mascot+wordmark group as a
+          whole. A flex row centered everything as one block, which put the
+          paragraph under empty space next to the character rather than under
+          "Comediq" itself. */}
+      <div className="flex justify-center">
+        <div className="grid grid-cols-[auto_auto] items-start gap-x-2">
+          <img src="/landing/character.png" alt="The Comediq mascot" className="h-[170px] w-auto shrink-0 sm:h-[240px]" />
+          <div className="min-w-0 text-center">
+            <p className="lp-eyebrow">NYC's comedy platform</p>
+            <h1 className="lp-wordmark mt-4 text-[58px] sm:text-[clamp(56px,6vw,92px)]">Comediq<span className="sr-only"> — NYC Comedy Open Mics and Shows</span></h1>
+            <p className="mt-5 max-w-md text-center text-lg leading-snug text-[var(--lp-ink)] mx-auto">
+              Whether you're on stage, in the audience, or running the show, Comediq is your home for finding live comedy
+            </p>
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
+              <Link to="/perform" className="lp-btn lp-btn-solid"><Mic className="h-4 w-4" aria-hidden="true" />I Perform</Link>
+              <Link to="/laugh" className="lp-btn lp-btn-ghost"><Eye className="h-4 w-4" aria-hidden="true" />I Watch</Link>
+            </div>
+          </div>
         </div>
-        <img src="/landing/character.png" alt="The Comediq mascot" className="order-first h-[170px] w-auto shrink-0 sm:h-[240px]" />
-      </div>
-      <p className="mt-5 max-w-md text-center text-lg leading-snug text-[var(--lp-ink)] mx-auto">
-        Whether you're on stage, in the audience, or running the show, Comediq is your home for finding live comedy
-      </p>
-      <div className="mt-7 flex flex-wrap justify-center gap-3">
-        <Link to="/perform" className="lp-btn lp-btn-solid"><Mic className="h-4 w-4" aria-hidden="true" />I Perform</Link>
-        <Link to="/laugh" className="lp-btn lp-btn-ghost"><Eye className="h-4 w-4" aria-hidden="true" />I Watch</Link>
       </div>
       <div className="mt-7 flex flex-col items-center gap-2 text-sm">
         <p className="w-fit text-[var(--lp-ink)]">
