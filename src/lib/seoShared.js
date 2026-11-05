@@ -86,6 +86,7 @@ export function blogPostSchema(post) {
       mainEntityOfPage: { "@type": "WebPage", "@id": url },
     },
     breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Blog", path: "/blog" }, { name: post.title, path: `/blog/${post.slug}` }]),
+    faqSchema(post.body),
   );
 }
 
@@ -349,3 +350,19 @@ export function formatVerified(iso) {
   if (isNaN(d.getTime())) return null;
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "America/New_York" });
 }
+
+export function faqSchema(body) {
+const afterHeading = String(body || "").split(/^##\s+Frequently asked questions\s*$/im)[1];
+if (!afterHeading) return null;
+const section = afterHeading.split(/^##\s+/m)[0];
+const items = [];
+const re = /^###\s+(.+?)\s*$\n+([\s\S]*?)(?=\n###\s|\n##\s|$)/gm;
+let match;
+while ((match = re.exec(section))) {
+const question = match[1].trim();
+const answer = match[2].trim().replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/\s+/g, " ");
+if (question && answer) items.push({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } });
+}
+return items.length ? { "@type": "FAQPage", mainEntity: items } : null;
+}
+
