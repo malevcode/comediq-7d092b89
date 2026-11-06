@@ -902,6 +902,14 @@
       "set": {
         "active": false
       }
+    },
+    {
+      "unique_identifier": "334c462f-8a03-4bcf-be21-92f231ad494b",
+      "note": "Throwback Mic (710 Amsterdam Ave, 3rd Tuesday of the month, host @error404theater_boy / Ross Belsky). Ross, by Instagram DM, 2026-11-06, replying to a screenshot of our listing (Next: Tue Nov 17, 4:00 PM, 'list out at 3:30'): 'hey the mic actually starts at 4:30 not 3:30, i tried to edit it myself but im a dumb fuck lol'. The listing said 4:00 PM, not 3:30, so he is reading the 3:30 in the sign-up line ('list out at 3:30') as the start. Start time 4:00 -> 4:30 PM, which is the part he stated plainly. End time shifts with it, 6:00 -> 6:30 PM, so the mic keeps the 2-hour window the row already had (comediq rule: when a start moves, the end moves too). NOT TOUCHED: the sign-up text 'First come first serve, list out at 3:30', because he did not say what time the list goes out, and an hour before the mic is plausible; flagged to Adam to ask. Name, cost (Free), stage time (6 min) and the 3rd-Tuesday schedule are unchanged. His other message in the DM, an offer to be interviewed about auditioning for his plays, is not a data change.",
+      "set": {
+        "start_time": "4:30 PM",
+        "latest_end_time": "6:30 PM"
+      }
     }
   ],
   "removals": [
