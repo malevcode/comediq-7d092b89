@@ -910,6 +910,14 @@
         "start_time": "4:30 PM",
         "latest_end_time": "6:30 PM"
       }
+    },
+    {
+      "unique_identifier": "60b43f3b-55a3-4bda-a014-859899b70e78",
+      "note": "Loose Lips Mic (Saturday 3:30 PM, Pete's Candy Store). The host account @looselipscomedy DM'd Adam on Oct 1: 'Hi please update to let people know we are sign up ahead of time mic', Adam replied 'Will do', and it was not done. On Nov 7 they checked in again: 'I tried to change it again but it's not updating to say sign up ahead of time is required.' The row said 'Sign up in person' with signup_method in_person, which is the opposite. sign_up_instructions is now 'Sign up ahead of time is required. See @looselipscomedy on Instagram for how.' signup_method in_person -> other, so the metadata stops contradicting the text. The DM does NOT say HOW to sign up ahead of time (a link, a DM, an email), so the text points at their Instagram rather than inventing a method; flagged to Adam to ask them. Likely reason their own edits did not stick: the open-edit policy on this table was dropped by supabase/migrations/20261004120000_narrow_open_mic_update_policy.sql, and the Edit Mic Details form in HostMicEditForm.tsx does not check how many rows its update changed, so a blocked save still says 'Saved!'. Not verified against the live database.",
+      "set": {
+        "sign_up_instructions": "Sign up ahead of time is required. See @looselipscomedy on Instagram for how.",
+        "signup_method": "other"
+      }
     }
   ],
   "removals": [
