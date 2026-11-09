@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Clock, CircleUser, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -53,16 +54,6 @@ function findLink(text: string): { raw: string; url: string } | null {
   if (!match) return null;
   const raw = match[1];
   return { raw, url: /^https?:\/\//i.test(raw) ? raw : `https://${raw}` };
-}
-
-/** Label on top, control below. Lives outside the card so inputs keep focus while typing. */
-function Field({ label, children, className = '' }: { label: string; children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`flex min-w-0 flex-col gap-1 ${className}`}>
-      <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
-      {children}
-    </div>
-  );
 }
 
 interface EditableMicCardProps {
@@ -169,48 +160,53 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
     });
   };
 
-  // One field look for every control: solid border, same height, label on top.
-  const field = (invalid = false) =>
-    `h-9 w-full text-sm shadow-none bg-white/70 border ${
+  // Funnel layout: each row is narrower and smaller than the one above it, so the
+  // form gets easier to finish as you go. Placeholders and icons are the labels.
+  const field = (size: string, invalid = false) =>
+    `${size} shadow-none bg-white/70 border ${
       invalid ? 'border-red-400' : 'border-gray-300'
     } dark:bg-white/5 dark:border-white/20`;
+  const row = 'mx-auto flex w-full flex-wrap items-center justify-center gap-2';
 
   return (
-    <div className="w-full rounded-xl border border-l-4 border-blue-200/70 border-l-primary bg-white/25 p-3 mb-3 shadow-[0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-white/10 dark:border-l-[#8ec5ff] dark:bg-[#102a53]/20">
-      <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 sm:grid-cols-4">
-        <Field label="Mic name *" className="col-span-2 sm:col-span-4">
-          <Input
-            placeholder="5 Buddha Room Hour Mic"
-            value={micName}
-            onChange={(e) => { setMicName(e.target.value); clearError('micName'); }}
-            className={`${field(Boolean(errors.micName))} font-semibold`}
-          />
-        </Field>
-
-        <Field label="Venue *" className="col-span-2 sm:col-span-4">
+    <div className="w-full rounded-xl border border-l-4 border-blue-200/70 border-l-primary bg-white/25 px-3 py-3 mb-3 shadow-[0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-white/10 dark:border-l-[#8ec5ff] dark:bg-[#102a53]/20">
+      <div className="flex flex-col gap-2">
+        {/* Widest and biggest: the two things everyone has to answer */}
+        <Input
+          placeholder="Mic name *"
+          value={micName}
+          onChange={(e) => { setMicName(e.target.value); clearError('micName'); }}
+          className={`${field('h-11 text-base', Boolean(errors.micName))} text-center font-semibold`}
+        />
+        <div className="mx-auto w-full sm:w-[92%]">
           <VenueAutocomplete
             value={venueQuery}
             onChange={(v) => { setVenueQuery(v); clearError('venue'); }}
             onSelect={(loc) => { setVenueLocation(loc); clearError('venue'); }}
             error={errors.venue}
           />
-        </Field>
+        </div>
 
-        <Field label="Day *">
-          <DayOfWeekPicker value={day} onChange={changeDay} className={field(Boolean(errors.day))} />
-        </Field>
-        <Field label="Starts *">
+        {/* When */}
+        <div className={`${row} sm:w-[78%]`}>
+          <DayOfWeekPicker value={day} onChange={changeDay} className={field('h-9 w-28 text-sm sm:w-36', Boolean(errors.day))} />
           <Input
-            placeholder="4:00 PM"
+            placeholder="4:00 PM *"
             value={startTime}
             onChange={(e) => { setStartTime(e.target.value); clearError('startTime'); }}
-            className={field(Boolean(errors.startTime))}
+            className={`${field('h-9 w-[5.5rem] px-2 text-sm sm:w-24', Boolean(errors.startTime))} text-center`}
           />
-        </Field>
-        <Field label="Ends">
-          <Input placeholder="5:30 PM" value={endTime} onChange={(e) => setEndTime(e.target.value)} className={field()} />
-        </Field>
-        <Field label="How often">
+          <span className="text-gray-400 text-xs">–</span>
+          <Input
+            placeholder="5:30 PM"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+            className={`${field('h-9 w-[5.5rem] px-2 text-sm sm:w-24')} text-center`}
+          />
+        </div>
+
+        {/* How it runs */}
+        <div className={`${row} sm:w-[62%]`}>
           <Select
             value={frequency}
             onValueChange={(v) => {
@@ -223,7 +219,7 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
               );
             }}
           >
-            <SelectTrigger className={field()}>
+            <SelectTrigger className={field('h-8 w-40 text-xs')}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -232,10 +228,20 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
               ))}
             </SelectContent>
           </Select>
-        </Field>
+          <Select value={lineup} onValueChange={setLineup}>
+            <SelectTrigger className={field('h-8 w-40 text-xs')}>
+              <SelectValue placeholder="Lineup order" />
+            </SelectTrigger>
+            <SelectContent>
+              {LINEUP_OPTIONS.map(o => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {needsDates && (
-          <div className="col-span-2 space-y-1 text-left sm:col-span-4">
+          <div className="mx-auto w-full space-y-1 text-center sm:w-[78%]">
             <p className="text-[11px] font-medium text-muted-foreground">
               {frequency === 'bi_weekly'
                 ? 'Which date is the next one? We will show it every other week from then.'
@@ -270,61 +276,54 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
                 value={frequencyCustomText}
                 maxLength={60}
                 onChange={(e) => setFrequencyCustomText(e.target.value)}
-                className={field()}
+                className={field('h-8 text-xs')}
               />
             )}
           </div>
         )}
 
-        <Field label="Set length">
-          <Input placeholder="5 min" value={stageTime} onChange={(e) => setStageTime(e.target.value)} className={field()} />
-        </Field>
-        <Field label="Cost">
-          <Input placeholder="Free" value={cost} onChange={(e) => setCost(e.target.value)} className={field()} />
-        </Field>
-        <Field label="Lineup order">
-          <Select value={lineup} onValueChange={setLineup}>
-            <SelectTrigger className={field()}>
-              <SelectValue placeholder="Pick one" />
-            </SelectTrigger>
-            <SelectContent>
-              {LINEUP_OPTIONS.map(o => (
-                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Host">
-          <Input placeholder="@host" value={hostInstagram} onChange={(e) => setHostInstagram(e.target.value)} className={field()} />
-        </Field>
-
-        <Field label="Sign-up" className="col-span-2 sm:col-span-4">
+        {/* Small extras, all optional */}
+        <div className={`${row} sm:w-[50%]`}>
+          <span className="flex items-center gap-1">
+            <Clock className="h-3 w-3 shrink-0 text-gray-400" />
+            <Input placeholder="5 min" value={stageTime} onChange={(e) => setStageTime(e.target.value)} className={`${field('h-7 w-[4.5rem] text-xs')} text-center`} />
+          </span>
+          <span className="flex items-center gap-1">
+            <DollarSign className="h-3 w-3 shrink-0 text-gray-400" />
+            <Input placeholder="Free" value={cost} onChange={(e) => setCost(e.target.value)} className={`${field('h-7 w-[4.5rem] text-xs')} text-center`} />
+          </span>
+          <span className="flex items-center gap-1">
+            <CircleUser className="h-3 w-3 shrink-0 text-gray-400" />
+            <Input placeholder="@host" value={hostInstagram} onChange={(e) => setHostInstagram(e.target.value)} className={`${field('h-7 w-24 text-xs')} text-center`} />
+          </span>
+        </div>
+        <div className="mx-auto w-full sm:w-[50%]">
           <Input
-            placeholder="Paste a link, or say bucket / in person list"
+            placeholder="Sign-up: paste a link, or say bucket / in person list"
             value={signUpInstructions}
             onChange={(e) => setSignUpInstructions(e.target.value)}
-            className={field()}
+            className={`${field('h-7 text-xs')} text-center`}
           />
-        </Field>
+        </div>
       </div>
 
       {Object.keys(errors).length > 0 && (
-        <p className="mt-2 text-xs text-red-500 leading-tight">
+        <p className="mt-2 text-center text-xs text-red-500 leading-tight">
           {Object.values(errors).join(' · ')}
         </p>
       )}
 
-      <div className="mt-3 flex justify-end gap-2">
-        <Button size="sm" variant="outline" onClick={onCancel} disabled={isSubmitting} className="h-9 px-4 text-sm">
-          Cancel
-        </Button>
+      <div className="mt-2.5 flex justify-center gap-2">
         <Button
           size="sm"
           onClick={handleSave}
           disabled={isSubmitting}
-          className="h-9 px-5 text-sm dark:text-[#07111f]"
+          className="h-8 px-6 text-sm dark:text-[#07111f]"
         >
           {isSubmitting ? 'Adding...' : '+ Add Mic'}
+        </Button>
+        <Button size="sm" variant="outline" onClick={onCancel} disabled={isSubmitting} className="h-8 px-4 text-sm">
+          Cancel
         </Button>
       </div>
     </div>
