@@ -1417,6 +1417,60 @@
         "start_time": "6:30 PM",
         "latest_end_time": "8:00 PM"
       }
+    },
+    {
+      "note": "New mic. Adam's Instagram DM and poster to Rodney's, 2026-11-09: weekly Sunday 5:30 PM Comediq Bringer Show at Rodney's, 1 person bringer (bring one friend, get stage time), starting Sunday 11/15. Cost per the poster: $5 plus a 1 drink min for comics and guests, Comediq subscribers skip the $5. Rodney's has not replied with a yes yet (they asked for the proposal by email), so status is trial, not verified; flip it to verified when they confirm. NAME carries a '*Starts 11/15*' label because today is Monday 11/9 and a weekly row would otherwise show as running before it exists; report_stale_labels.py will flag it once 11/15 has passed, and the label then comes off by rewriting this entry in place. Time-first naming per the comediq convention. The end time is 7:00 PM from the comediq 90 minute default, not stated on the poster. Location, borough, neighborhood and venue type are copied from the existing Rodney's mics. Sign-up is through comediq.us per the poster. Coordinates are blank, so run npm run geocode:open-mics.",
+      "row": {
+        "day": "Sunday",
+        "venue_name": "Rodney's",
+        "location": "1118 1st Ave, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "UES",
+        "venue_type": "Comedy Club",
+        "cost": "$5 + 1 drink min (free for Comediq subscribers)",
+        "stage_time": "Bring 1 friend, get up",
+        "other_rules": "Bringer show: bring one friend, get stage time. One drink minimum for comics and guests.",
+        "hosts_organizers": "Comediq",
+        "changes_updates": "@comediq.us",
+        "sign_up_instructions": "Sign up at comediq.us",
+        "signup_method": "online",
+        "signup_url": "https://www.comediq.us",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "open_mic": "5:30 Rodney's Comediq Bringer Show *Starts 11/15*",
+        "start_time": "5:30 PM",
+        "latest_end_time": "7:00 PM"
+      }
+    },
+    {
+      "note": "New mic. Adam's Instagram DM and poster to Rodney's, 2026-11-09: weekly Sunday 9:30 PM Minute Mic at Rodney's, up to 5 one-minute sets (not 5 straight minutes), starting Sunday 11/15. Cost per the poster: $5 plus a 1 drink min for comics and guests, Comediq subscribers skip the $5. Rodney's has not replied with a yes yet (they asked for the proposal by email), so status is trial, not verified; flip it to verified when they confirm. NAME carries a '*Starts 11/15*' label because today is Monday 11/9 and a weekly row would otherwise show as running before it exists; report_stale_labels.py will flag it once 11/15 has passed, and the label then comes off by rewriting this entry in place. Time-first naming per the comediq convention. The end time is 11:00 PM from the comediq 90 minute default, not stated on the poster. Location, borough, neighborhood and venue type are copied from the existing Rodney's mics. Sign-up is through comediq.us per the poster. Coordinates are blank, so run npm run geocode:open-mics.",
+      "row": {
+        "day": "Sunday",
+        "venue_name": "Rodney's",
+        "location": "1118 1st Ave, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "UES",
+        "venue_type": "Comedy Club",
+        "cost": "$5 + 1 drink min (free for Comediq subscribers)",
+        "stage_time": "Up to 5 one-minute sets, not 5 straight minutes",
+        "other_rules": "Minute mic: up to 5 one-minute sets, not 5 straight minutes. One drink minimum for comics and guests.",
+        "hosts_organizers": "Comediq",
+        "changes_updates": "@comediq.us",
+        "sign_up_instructions": "Sign up at comediq.us",
+        "signup_method": "online",
+        "signup_url": "https://www.comediq.us",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "open_mic": "9:30 Rodney's Minute Mic *Starts 11/15*",
+        "start_time": "9:30 PM",
+        "latest_end_time": "11:00 PM"
+      }
     }
   ]
 }
