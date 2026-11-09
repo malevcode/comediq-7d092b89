@@ -2198,3 +2198,15 @@ guessing.
   bucket did not exist in production. New SQL `20261102120000_ensure_headshots_bucket.sql`
   creates it (and its access rules). Safe to run twice. This is also what broke headshot uploads.
 - The add-show page now lists the show even if the picture fails, and says so in the message.
+
+## Session: two new Rodney's Sunday mics
+
+- Added two weekly Sunday mics at Rodney's to `scripts/ingest/open_mic_updates.json` (`new_mics`):
+  `5:30 Rodney's Comediq Bringer Show *Starts 11/15*` and `9:30 Rodney's Minute Mic *Starts 11/15*`.
+  Merging to main runs the "Apply open mic updates" workflow, which writes them to the table and
+  refreshes `mics.json`.
+- Status is `trial` because Rodney's has not said yes yet. When they confirm, rewrite both entries
+  in place with status `verified`. After 11/15, take `*Starts 11/15*` off both names
+  (`report_stale_labels.py` will flag them).
+- Cost on both: $5 plus a 1 drink min, free for Comediq subscribers. Coordinates are blank until
+  `npm run geocode:open-mics` runs.
