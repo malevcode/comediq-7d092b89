@@ -2198,3 +2198,15 @@ guessing.
   bucket did not exist in production. New SQL `20261102120000_ensure_headshots_bucket.sql`
   creates it (and its access rules). Safe to run twice. This is also what broke headshot uploads.
 - The add-show page now lists the show even if the picture fails, and says so in the message.
+
+### Session: add-a-mic form tidy-up
+
+`EditableMicCard.tsx` (the card behind `/add-mic` and the + on the Perform tab)
+used to scatter dashed underline boxes across three loose columns. It is now
+one simple grid: a small label on top of every field, same height, same solid
+border. Name and Venue take full rows, then Day / Starts / Ends / How often,
+then Set length / Cost / Lineup order / Host, then Sign-up. Two columns on a
+phone, four on a wider screen. Save and Cancel sit bottom right. Nothing about
+what gets saved changed. Also dropped a duplicate address line (the venue box
+already shows it). `DayOfWeekPicker` got an optional `className` so it can
+match the other fields.
