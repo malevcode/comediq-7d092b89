@@ -176,7 +176,7 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
     } dark:bg-white/5 dark:border-white/20`;
 
   return (
-    <div className="w-full rounded-xl border border-l-4 border-green-200/70 border-l-green-500 bg-white/25 p-3 mb-3 shadow-[0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-white/10 dark:border-l-green-500 dark:bg-[#102a53]/20">
+    <div className="w-full rounded-xl border border-l-4 border-blue-200/70 border-l-primary bg-white/25 p-3 mb-3 shadow-[0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-white/10 dark:border-l-[#8ec5ff] dark:bg-[#102a53]/20">
       <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 sm:grid-cols-4">
         <Field label="Mic name *" className="col-span-2 sm:col-span-4">
           <Input
@@ -322,7 +322,7 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
           size="sm"
           onClick={handleSave}
           disabled={isSubmitting}
-          className="h-9 px-5 text-sm bg-green-600 hover:bg-green-700 text-white"
+          className="h-9 px-5 text-sm dark:text-[#07111f]"
         >
           {isSubmitting ? 'Adding...' : '+ Add Mic'}
         </Button>
