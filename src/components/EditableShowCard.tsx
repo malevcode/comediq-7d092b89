@@ -183,23 +183,25 @@ export function EditableShowCard({ onSave, onCancel, isSubmitting = false }: Edi
               invalid={Boolean(errors.date)}
             />
           </div>
-          <span className="flex items-center gap-1">
-            <span className="text-[11px] text-muted-foreground">Starts *</span>
-            <Input
-              type="time"
-              value={showTime}
-              onChange={(e) => { setShowTime(e.target.value); clearError('time'); }}
-              className={field('h-8 w-28 px-2 text-xs', Boolean(errors.time))}
-            />
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="text-[11px] text-muted-foreground">Doors</span>
-            <Input
-              type="time"
-              value={doorsTime}
-              onChange={(e) => setDoorsTime(e.target.value)}
-              className={field('h-8 w-28 px-2 text-xs')}
-            />
+          <span className="flex flex-nowrap items-center gap-2">
+            <span className="flex items-center gap-1">
+              <span className="text-[11px] text-muted-foreground">Starts *</span>
+              <Input
+                type="time"
+                value={showTime}
+                onChange={(e) => { setShowTime(e.target.value); clearError('time'); }}
+                className={field('h-8 w-[5.25rem] px-1.5 text-xs [&::-webkit-calendar-picker-indicator]:hidden', Boolean(errors.time))}
+              />
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="text-[11px] text-muted-foreground">Doors</span>
+              <Input
+                type="time"
+                value={doorsTime}
+                onChange={(e) => setDoorsTime(e.target.value)}
+                className={field('h-8 w-[5.25rem] px-1.5 text-xs [&::-webkit-calendar-picker-indicator]:hidden')}
+              />
+            </span>
           </span>
         </div>
 
