@@ -39,6 +39,9 @@ export function MicOfTheDayCard({
 
   const label = mic.openMic || mic.venueName || 'Mic of the Day';
   const sourceLabel: Record<string, string> = {
+    sponsor: 'Sponsored: this mic paid to be featured today.',
+    comediq_pick: 'Picked by Comediq for today.',
+    mic_of_the_month: 'Won Mic of the Month, so it is featured whenever it runs.',
     admin_lock: 'Pinned by Comediq admin for today.',
     nomination: 'Won today by community nomination, most votes.',
     weekly_default: 'Featured as this weekday\'s default. Nominate another mic to take the spot!',
@@ -80,7 +83,7 @@ export function MicOfTheDayCard({
                 className="shrink-0 text-[9px] font-semibold text-[#1a5fb4] border-[#1a5fb4]/50 bg-white/10 gap-0.5 px-1.5 py-0"
               >
                 <Star className="h-2.5 w-2.5 fill-blue-500 text-blue-500" />
-                MIC OF THE DAY
+                {source === 'sponsor' ? 'SPONSORED' : source === 'mic_of_the_month' ? 'MIC OF THE MONTH' : 'MIC OF THE DAY'}
               </Badge>
               <TooltipProvider delayDuration={150}>
                 <Tooltip>

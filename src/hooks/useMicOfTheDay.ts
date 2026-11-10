@@ -1,7 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOpenMics } from '@/hooks/useOpenMics';
-import { OpenMic } from '@/types/openMic';
+import { allFeaturedMics } from '@/config/featuredMics';
+import { pickFeaturedMic } from '@/utils/featuredMic';
 
 function getTodayNY(): string {
   const fmt = new Intl.DateTimeFormat('en-CA', {
@@ -20,23 +22,26 @@ export interface MicOfTheDayRow {
   is_admin_locked?: boolean;
 }
 
-export type MotdSource = 'admin_lock' | 'nomination' | 'weekly_default' | 'auto_pick' | 'unknown';
+export type MotdSource = 'sponsor' | 'comediq_pick' | 'mic_of_the_month' | 'admin_lock' | 'nomination' | 'weekly_default' | 'auto_pick' | 'unknown';
 
-const MOTD_UNIQUE_ID = '41aab682-878f-4c2e-a304-f568ebb719cc';
-
+/**
+ * Today's featured mic: one mic that is really happening today, chosen from
+ * src/config/featuredMics.ts (paid sponsor, then Comediq pick, then the Mic of the Month
+ * winner). No database calls; it works from the mic list the page already has.
+ */
 export function useMicOfTheDay() {
   const today = getTodayNY();
-  const { data: mics } = useOpenMics();
+  const { data: mics, isLoading } = useOpenMics();
 
-  const mic = mics?.find((m) => m.uniqueIdentifier === MOTD_UNIQUE_ID) ?? null;
+  const pick = useMemo(() => pickFeaturedMic(mics ?? [], allFeaturedMics()), [mics, today]);
 
-  const query = useQuery({
-    queryKey: ['micOfTheDay', today],
-    queryFn: async () => ({ winner: MOTD_UNIQUE_ID, source: 'admin_lock' as MotdSource }),
-    staleTime: Infinity,
-  });
-
-  return { ...query, mic, source: 'admin_lock' as MotdSource, claimDate: today };
+  return {
+    data: pick,
+    isLoading,
+    mic: pick?.mic ?? null,
+    source: (pick?.source ?? 'unknown') as MotdSource,
+    claimDate: today,
+  };
 }
 
 export function useClaimMicOfTheDay() {
