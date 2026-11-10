@@ -2217,3 +2217,35 @@ match the other fields.
 - Claim now goes through a database function, `claim_mic_host` (SQL `20261110120000_claim_mic_host_rpc.sql`),
   which checks who is signed in and adds the host request. Same trick as `add_open_mic`.
 - Claims still start unverified and wait for admin approval.
+
+## Session: mic times always saved as "7:00 PM"
+
+**The problem.** A mic typed as "7PM" or "7-9" was saved exactly as typed. Without a clear
+AM or PM, a computer can read "7" as 7 in the morning, so the list sorted wrong.
+
+**The fix, in three layers.**
+1. **The database cleans times itself** (`supabase/migrations/20261110140000_normalize_mic_times.sql`).
+   A rule runs every time a mic is added or its times change, from any screen, script or sheet.
+   It turns "7", "7pm", "7:30p", "730" and "19:30" into "7:00 PM", "7:30 PM" and so on.
+   No AM or PM means PM, because comedy happens at night. "7-9" typed in the start box
+   becomes 7:00 PM to 9:00 PM. An end time with no AM or PM that lands before the start
+   (11 to 1) means after midnight (11:00 PM to 1:00 AM). Anything it cannot read is left alone.
+   The same SQL also fixes every mic already saved the old way.
+2. **The add-mic forms clean times first** (`src/utils/micTime.ts`), so people see
+   "7:00 PM" appear when they tap out of the box. The shared add-mic hook cleans them too.
+3. **The mic list cleans times when it reads them** (`src/hooks/useOpenMics.ts`), so the
+   old rows look right even before the SQL has run.
+
+**Shows.** Show times use real time boxes and are stored as a time, so they cannot come out
+in the wrong format. No change was needed.
+
+**Mics fixed (found in the live list file):** Chopped and Unc (7PM-9PM), Blow Me (10:00pm-11:00),
+Wednesday at Westside (12:30-2:30), Second Draft at Rodney's (6:00-7:15), Wreck the mic (8:00-9:30),
+Cackling Crowe (end time "9"). Worth a glance: Wednesday at Westside is now 12:30 PM to 2:30 PM.
+
+**How it was tested.** The JavaScript and the SQL were run on the same 25 examples in a real
+Postgres engine and gave identical answers. The backfill was run on copies of the six bad rows.
+
+## Summary of this session
+
+- Added time cleaning in the database, the forms and the list, and a one-time fix of old mics.

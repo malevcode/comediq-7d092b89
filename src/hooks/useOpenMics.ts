@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic } from "@/types/openMic";
+import { resolveMicTimes } from "@/utils/micTime";
 import {
   hasUsableCoordinateData,
   loadCachedOpenMics,
@@ -62,11 +63,17 @@ async function fetchFromStaticJson(): Promise<OpenMic[]> {
     throw new Error("Static mic data is missing coordinates");
   }
 
-  return mics as OpenMic[];
+  return (mics as OpenMic[]).map(withCleanTimes);
+}
+
+/** Shows "7PM" and "9" as "7:00 PM" and "9:00 PM" even before the database copy is fixed. */
+function withCleanTimes(mic: OpenMic): OpenMic {
+  const { start, end } = resolveMicTimes(mic.startTime || "", mic.latestEndTime || "");
+  return { ...mic, startTime: start, latestEndTime: end };
 }
 
 export function mapSupabaseRow(row: any): OpenMic {
-  return {
+  return withCleanTimes({
     id: row.unique_identifier,
     openMic: row.open_mic || "",
     day: row.day || "",
@@ -109,7 +116,7 @@ export function mapSupabaseRow(row: any): OpenMic {
     geocodingProvider: row.geocoding_provider ?? null,
     geocodingScore: row.geocoding_score ?? null,
     geocodingMatchAddress: row.geocoding_match_address ?? null,
-  };
+  });
 }
 
 async function fetchFromSupabase(): Promise<OpenMic[]> {

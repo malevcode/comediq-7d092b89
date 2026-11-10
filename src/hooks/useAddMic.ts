@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import { mapSupabaseRow } from "@/hooks/useOpenMics";
 import type { MicRequestFormData } from "@/components/host/AddMicRequestForm";
 import type { OpenMic } from "@/types/openMic";
+import { resolveMicTimes } from "@/utils/micTime";
 
 /**
  * The one way to add a mic. Used by the + on the Perform tab and by the Create
@@ -22,6 +23,8 @@ export function useAddMic() {
     try {
       // add_open_mic is a SECURITY DEFINER function so anyone, signed in or not,
       // can add a mic. It sets status, creator and submission date server-side.
+      // Whatever form it came from, save times as "7:00 PM" (no AM or PM means PM).
+      const times = resolveMicTimes(formData.start_time, formData.latest_end_time || "");
       const { data: newRow, error: histError } = await (supabase as any).rpc("add_open_mic", {
         p: {
           open_mic: formData.open_mic,
@@ -30,8 +33,8 @@ export function useAddMic() {
           neighborhood: formData.neighborhood,
           location: formData.location,
           day: formData.day,
-          start_time: formData.start_time,
-          latest_end_time: formData.latest_end_time,
+          start_time: times.start,
+          latest_end_time: times.end,
           stage_time: formData.stage_time,
           cost: formData.cost,
           venue_type: formData.venue_type,
