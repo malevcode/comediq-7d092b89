@@ -87,15 +87,9 @@ export async function claimHostStatus(micId: string) {
   
   if (!user) throw new Error('Must be authenticated');
 
-  const { data, error } = await supabase
-    .from('mic_hosts')
-    .insert({
-      user_id: user.id,
-      mic_id: micId,
-      is_verified: false
-    })
-    .select()
-    .single();
+  // The database function does the insert (and checks who is signed in), so the
+  // claim works even when the table's own insert policy is missing or different.
+  const { data, error } = await supabase.rpc('claim_mic_host', { p_mic_id: micId });
 
   if (error) throw error;
   

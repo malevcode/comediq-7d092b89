@@ -2210,3 +2210,10 @@ phone, four on a wider screen. Save and Cancel sit bottom right. Nothing about
 what gets saved changed. Also dropped a duplicate address line (the venue box
 already shows it). `DayOfWeekPicker` got an optional `className` so it can
 match the other fields.
+
+## Session: claiming a mic
+
+- Claiming a mic failed for hosts with "new row violates row-level security policy for table mic_hosts".
+- Claim now goes through a database function, `claim_mic_host` (SQL `20261110120000_claim_mic_host_rpc.sql`),
+  which checks who is signed in and adds the host request. Same trick as `add_open_mic`.
+- Claims still start unverified and wait for admin approval.
