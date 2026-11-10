@@ -446,9 +446,9 @@
     },
     {
       "unique_identifier": "3a3fbd37-f5f8-4e7a-ac14-c5a11b1bd1e5",
-      "note": "Skin Tag (McCarren Parkhouse, Monday 7:15 PM) cancelled 9/14, announced on Instagram @skintag_openmic. One skipped night, not a closure: active, day and times stay as they are. STALE LABEL, 9/14 has passed. Rewrite this same entry back to \"Skin Tag\" to clear it, do not delete it.",
+      "note": "Skin Tag (McCarren Parkhouse, Monday 7:15 PM) cancelled 9/14, announced on Instagram @skintag_openmic. One skipped night, not a closure: active, day and times stay as they are. STALE LABEL, 9/14 has passed. Rewrite this same entry back to \"Skin Tag\" to clear it, do not delete it. | LABEL CLEARED 2026-11-10 at Adam's request (9/14 was long ago; the app was still showing 'Skin Tag *SKIPS 9/14*' in the list). Name is back to 'Skin Tag'. Day, time and venue were never changed.",
       "set": {
-        "open_mic": "Skin Tag *SKIPS 9/14*"
+        "open_mic": "Skin Tag"
       }
     },
     {
@@ -918,6 +918,34 @@
         "sign_up_instructions": "Sign up ahead of time is required. See @looselipscomedy on Instagram for how.",
         "signup_method": "other"
       }
+    },
+    {
+      "unique_identifier": "0cf4485e-b91b-4f62-80a7-ffdc99356fcb",
+      "note": "Rodney's Mic w/ Ellen Maloney (Wednesday 6:00 PM, Rodney's) skips 11/11. @rodneysopenmics Instagram story, seen by Adam 2026-11-09/10: 'There will be no mics on Wed or Thurs this week' (tagging @rodneycomedyclub). This week = Wed 11/11 and Thu 11/12. One skipped night, not a closure: active, day and times unchanged. Marked the way Skin Tag was, with a '*SKIPS M/D*' label at the end of the name, which report_stale_labels.py will flag once the date has passed. TO CLEAR IT after the date, rewrite this same entry in place with the label removed; do not delete the entry.",
+      "set": {
+        "open_mic": "Rodney's Mic w/ Ellen Maloney *SKIPS 11/11*"
+      }
+    },
+    {
+      "unique_identifier": "df641def-d1de-40e2-8ac9-0da676eb8845",
+      "note": "Rodney's Mic w/ Leona/Dave/Hayley/Sam (Thursday 9:45 PM, Rodney's) skips 11/12. @rodneysopenmics Instagram story, seen by Adam 2026-11-09/10: 'There will be no mics on Wed or Thurs this week' (tagging @rodneycomedyclub). This week = Wed 11/11 and Thu 11/12. One skipped night, not a closure: active, day and times unchanged. Marked the way Skin Tag was, with a '*SKIPS M/D*' label at the end of the name, which report_stale_labels.py will flag once the date has passed. TO CLEAR IT after the date, rewrite this same entry in place with the label removed; do not delete the entry.",
+      "set": {
+        "open_mic": "Rodney's Mic w/ Leona/Dave/Hayley/Sam *SKIPS 11/12*"
+      }
+    },
+    {
+      "unique_identifier": "916a3183-259f-4d37-a393-fb15f7bbc4dd",
+      "note": "Second Draft (Thursday 6:00, Rodney's) skips 11/12. @rodneysopenmics Instagram story, seen by Adam 2026-11-09/10: 'There will be no mics on Wed or Thurs this week' (tagging @rodneycomedyclub). This week = Wed 11/11 and Thu 11/12. One skipped night, not a closure: active, day and times unchanged. Marked the way Skin Tag was, with a '*SKIPS M/D*' label at the end of the name, which report_stale_labels.py will flag once the date has passed. TO CLEAR IT after the date, rewrite this same entry in place with the label removed; do not delete the entry. This one is hosted by @the_real_jz_, not by the @rodneysopenmics account that posted the story. The story says no mics at all on Wed or Thurs, so it is included, but it is the one to confirm with its host.",
+      "set": {
+        "open_mic": "Second Draft *SKIPS 11/12*"
+      }
+    },
+    {
+      "unique_identifier": "d7107ab2-d2ad-40f7-a7e8-e7a95f37e07f",
+      "note": "Rodney's Mic w/ Adam Thomas (Wednesday 9:45 PM, Rodney's) skips 11/11. @rodneysopenmics Instagram story, seen by Adam 2026-11-09/10: 'There will be no mics on Wed or Thurs this week' (tagging @rodneycomedyclub). This week = Wed 11/11 and Thu 11/12. One skipped night, not a closure: active, day and times unchanged. Marked the way Skin Tag was, with a '*SKIPS M/D*' label at the end of the name, which report_stale_labels.py will flag once the date has passed. TO CLEAR IT after the date, rewrite this same entry in place with the label removed; do not delete the entry. MOVED from new_mics to edits: the label changes the name, and the applier matches new_mics rows on name+day+start, so renaming it there would have inserted a duplicate. Original add note, kept: New mic: Rodney's Wednesday 9:45 PM, hosted by Adam Thomas (@adamthomascomedy). Adam asked for the same details as the Thursday 9:45 mic, so cost, stage time, signup, the venue rules boilerplate, coordinates and the 9:45-11:15 window are all COPIED from that row (uid df641def), not invented. Address uses the version carrying the 10065 zip, which three other Rodney's rows have and the Thursday row lacks. NAME: follows the venue's own \"Rodney's Mic w/ <host>\" shape rather than the comediq time-first convention. That convention exists so a number in a name cannot be read as a duration, and this name has no number; the host's name is what distinguishes it from the Thursday 9:45. Say the word and it becomes \"9:45 Rodney's Mic w/ Adam Thomas\". This is the same Wednesday 9:45 slot Laughing Buddha vacated (uid 3701d276, already inactive), so the two do not collide and the slot is simply being re-used by the venue.",
+      "set": {
+        "open_mic": "Rodney's Mic w/ Adam Thomas *SKIPS 11/11*"
+      }
     }
   ],
   "removals": [
@@ -1206,35 +1234,6 @@
         "slot_duration_minutes": 5,
         "latitude": 40.729000922632,
         "longitude": -73.98931355867
-      }
-    },
-    {
-      "note": "New mic: Rodney's Wednesday 9:45 PM, hosted by Adam Thomas (@adamthomascomedy). Adam asked for the same details as the Thursday 9:45 mic, so cost, stage time, signup, the venue rules boilerplate, coordinates and the 9:45-11:15 window are all COPIED from that row (uid df641def), not invented. Address uses the version carrying the 10065 zip, which three other Rodney's rows have and the Thursday row lacks. NAME: follows the venue's own \"Rodney's Mic w/ <host>\" shape rather than the comediq time-first convention. That convention exists so a number in a name cannot be read as a duration, and this name has no number; the host's name is what distinguishes it from the Thursday 9:45. Say the word and it becomes \"9:45 Rodney's Mic w/ Adam Thomas\". This is the same Wednesday 9:45 slot Laughing Buddha vacated (uid 3701d276, already inactive), so the two do not collide and the slot is simply being re-used by the venue.",
-      "row": {
-        "open_mic": "Rodney's Mic w/ Adam Thomas",
-        "day": "Wednesday",
-        "start_time": "9:45 PM",
-        "latest_end_time": "11:15 PM",
-        "venue_name": "Rodney's",
-        "location": "1118 1st Ave, New York, NY 10065",
-        "borough": "Manhattan",
-        "neighborhood": "UES",
-        "venue_type": "Comedy Club",
-        "cost": "1 drink min",
-        "stage_time": "5 minutes",
-        "sign_up_instructions": "Show up go up",
-        "other_rules": "No guests are required to perform at our open mics. There is a one-item minimum for all comics and guests. You must purchase your item and check in with the host before your name is added to the lineup. Spots are 5 minutes; you may have extra time if we are not full. You must be 18 and older to register, or 16 accompanied by a parent or guardian. Please note, the venue does receive last-minute bookings, which can interfere with our mics. If this happens, we will let you know beforehand. Phone/Notes: You may use your phone or notes on stage. Please do not use your phone while in the audience. You may record your performance. All sales are final. No refunds or exchanges are permitted.",
-        "hosts_organizers": "Adam Thomas",
-        "changes_updates": "@adamthomascomedy",
-        "city": "New York",
-        "status": "trial",
-        "frequency": "weekly",
-        "signup_method": "in_person",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "slot_duration_minutes": 5,
-        "latitude": 40.761020924319,
-        "longitude": -73.960579388757
       }
     },
     {
