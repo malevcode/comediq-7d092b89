@@ -2249,3 +2249,32 @@ Postgres engine and gave identical answers. The backfill was run on copies of th
 ## Summary of this session
 
 - Added time cleaning in the database, the forms and the list, and a one-time fix of old mics.
+
+## Session: Mic of the Day on the Next tab
+
+**What it does.** Each day, the top of the Next tab features ONE mic that is really happening
+that day, with a badge: SPONSORED (paid), MIC OF THE DAY (a Comediq pick) or MIC OF THE MONTH
+(the contest winner). Tapping it scrolls to the mic and opens it. If none of the featured mics
+runs today, the top slot shows the normal sponsor card, like before.
+
+**How the pick works (think of a short list, checked top to bottom).**
+1. A mic that paid to be featured (`sponsor`).
+2. A mic Comediq chose (`comediq_pick`).
+3. The Mic of the Month winner (added by itself from `src/config/micOfTheMonthWinner.ts`).
+The first one on that list whose mic runs TODAY (in New York time) wins. A bi-weekly or pop-up
+mic only counts on a date we know it runs. A sponsor can have start and end dates.
+
+**Where to change it.** Edit `src/config/featuredMics.ts`: add one line per mic with its id
+(from `public/mics.json`, "uniqueIdentifier"). The picking code is `src/utils/featuredMic.ts`;
+`src/hooks/useMicOfTheDay.ts` hands it to the card. It makes no database calls.
+
+**What changed.** The old version always showed one hardcoded mic whether or not it was
+running. Now it follows the rules above.
+
+**Tested.** Picked correctly on a Monday (winner runs) and a Tuesday (nothing runs), sponsor
+beats pick beats winner, sponsor dates are respected, and late night in New York still counts
+as that evening's day.
+
+## Summary of this session
+
+- Brought back Mic of the Day with sponsor, Comediq pick and Mic of the Month sources.
