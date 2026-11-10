@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Calendar, Clock, CircleUser, DollarSign, UserRoundCheck } from 'lucide-react';
+import { Clock, CircleUser, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -35,6 +35,30 @@ function addMinutes(timeStr: string, minutes: number): string {
   const period = newHours >= 12 ? 'PM' : 'AM';
   const displayHour = newHours % 12 || 12;
   return `${displayHour}:${newMins.toString().padStart(2, '0')} ${period}`;
+}
+
+/**
+ * Turns what a comic types into the format the database uses everywhere: "7:30 PM".
+ * "7", "7pm", "7:30p", "19:30" all work. Hours 1 to 11 with no AM or PM are read as PM,
+ * since open mics are almost never in the morning. Anything unreadable is left alone.
+ */
+function normalizeTime(raw: string): string {
+  const text = raw.trim();
+  const m = text.match(/^(\d{1,2})(?::?(\d{2}))?\s*([ap])?\.?m?\.?$/i);
+  if (!m) return text;
+  let hours = parseInt(m[1], 10);
+  const mins = m[2] ? parseInt(m[2], 10) : 0;
+  if (mins > 59 || hours > 23) return text;
+  const pm = m[3] ? m[3].toLowerCase() === 'p' : hours !== 0;
+  if (hours > 12) hours -= 12;
+  if (hours === 0) hours = 12;
+  return `${hours}:${mins.toString().padStart(2, '0')} ${pm ? 'PM' : 'AM'}`;
+}
+
+/** "5" becomes "5 min". Anything with words in it ("3-5 min", "5+") is kept as typed. */
+function normalizeSetLength(raw: string): string {
+  const text = raw.trim();
+  return /^\d+$/.test(text) ? `${text} min` : text;
 }
 
 const FREQUENCY_OPTIONS: MicFrequency[] = [
@@ -128,7 +152,8 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
 
   const handleSave = () => {
     if (isSubmitting || !validate()) return;
-    const autoEndTime = endTime.trim() || addMinutes(startTime, 90);
+    const start = normalizeTime(startTime);
+    const autoEndTime = endTime.trim() ? normalizeTime(endTime) : addMinutes(start, 90);
     // One box for how to sign up. A pasted link makes it an online sign-up; plain
     // words stay as in-person instructions. The lineup order is added as a line.
     const link = findLink(signUpInstructions);
@@ -143,9 +168,9 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
       neighborhood: venueLocation?.neighborhood || '',
       location: venueLocation?.address || '',
       day,
-      start_time: startTime.trim(),
+      start_time: start,
       latest_end_time: autoEndTime,
-      stage_time: stageTime.trim(),
+      stage_time: normalizeSetLength(stageTime),
       cost: cost.trim() || 'Free',
       venue_type: venueLocation?.venueType || '',
       sign_up_instructions: signUpText,
@@ -160,222 +185,173 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
     });
   };
 
-  const ghostInput = (extraClass = '') =>
-    `border-0 border-b border-dashed bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none px-1 ${extraClass}`;
+  // Funnel layout: each row is narrower and smaller than the one above it, so the
+  // form gets easier to finish as you go. Placeholders and icons are the labels.
+  const field = (size: string, invalid = false) =>
+    `${size} shadow-none bg-white/70 border ${
+      invalid ? 'border-red-400' : 'border-gray-300'
+    } dark:bg-white/5 dark:border-white/20`;
+  const row = 'mx-auto flex w-full flex-wrap items-center justify-center gap-2';
 
   return (
-    <div className="flex flex-col md:flex-row w-full border rounded-xl p-2.5 gap-1.5 md:gap-3 overflow-x-hidden bg-white/25 border-green-200/70 border-l-4 border-l-green-500 mb-3 ring-1 ring-green-200/50 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl transition-all duration-300 hover:bg-white/35 hover:shadow-[0_34px_110px_rgba(4,20,55,0.22),0_12px_36px_rgba(4,20,55,0.12)] dark:bg-[#102a53]/20 dark:border-white/10 dark:ring-white/10 dark:shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)]">
-
-      {/* Left: Name, Venue, Day, Host */}
-      <div className="flex-1 min-w-0 mr-1 text-center">
-        <div className="flex items-center w-full mb-1.5">
-          <div className="flex-1" />
-          <Input
-            placeholder="Mic name *"
-            value={micName}
-            onChange={(e) => { setMicName(e.target.value); clearError('micName'); }}
-            className={`font-semibold text-base text-center max-w-xs ${ghostInput(errors.micName ? 'border-red-400 h-7' : 'border-gray-300 h-7')}`}
+    <div className="w-full rounded-xl border border-l-4 border-blue-200/70 border-l-primary bg-white/25 px-3 py-3 mb-3 shadow-[0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-white/10 dark:border-l-[#8ec5ff] dark:bg-[#102a53]/20">
+      <div className="flex flex-col gap-2">
+        {/* Widest and biggest: the two things everyone has to answer */}
+        <Input
+          placeholder="Mic name *"
+          value={micName}
+          onChange={(e) => { setMicName(e.target.value); clearError('micName'); }}
+          className={`${field('h-11 text-base', Boolean(errors.micName))} text-center font-semibold`}
+        />
+        <div className="mx-auto w-full sm:w-[92%]">
+          <VenueAutocomplete
+            value={venueQuery}
+            onChange={(v) => { setVenueQuery(v); clearError('venue'); }}
+            onSelect={(loc) => { setVenueLocation(loc); clearError('venue'); }}
+            error={errors.venue}
           />
-          <div className="flex-1" />
         </div>
 
-        <div className="text-xs text-muted-foreground space-y-1.5">
-          <div className="flex items-start gap-1 justify-center">
-            <MapPin className="w-3 h-3 flex-shrink-0 text-gray-400 mt-2" />
-            <div className="flex-1 max-w-xs text-left">
-              <VenueAutocomplete
-                value={venueQuery}
-                onChange={(v) => { setVenueQuery(v); clearError('venue'); }}
-                onSelect={(loc) => { setVenueLocation(loc); clearError('venue'); }}
-                error={errors.venue}
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-row gap-2 justify-center items-center flex-wrap">
-            <span className="flex items-center gap-1">
-              <Calendar className="w-3 h-3 flex-shrink-0 text-gray-400" />
-              <DayOfWeekPicker
-                value={day}
-                onChange={changeDay}
-              />
-            </span>
-            <span className="flex items-center gap-1">
-              <CircleUser className="w-3 h-3 flex-shrink-0 text-gray-400" />
-              <Input
-                placeholder="@host"
-                value={hostInstagram}
-                onChange={(e) => setHostInstagram(e.target.value)}
-                className={ghostInput('w-24 h-6 text-xs border-gray-300')}
-              />
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Middle: Times, Stage Time, Cost */}
-      <div className="flex-1 flex flex-col justify-center min-w-0 text-xs text-gray-700 mr-1 gap-2">
-        <div className="flex flex-row gap-1.5 items-center justify-center">
-          <Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />
+        {/* When */}
+        <div className={`${row} sm:w-[78%]`}>
+          <DayOfWeekPicker value={day} onChange={changeDay} className={field('h-9 w-28 text-sm sm:w-36', Boolean(errors.day))} />
           <Input
-            placeholder="4:00 PM *"
+            placeholder="7:00 PM *"
             value={startTime}
             onChange={(e) => { setStartTime(e.target.value); clearError('startTime'); }}
-            className={ghostInput(`w-20 h-6 ${errors.startTime ? 'border-red-400' : 'border-gray-300'}`)}
+            onBlur={() => setStartTime((t) => normalizeTime(t))}
+            className={`${field('h-9 w-[5.5rem] px-2 text-sm sm:w-24', Boolean(errors.startTime))} text-center`}
           />
-          <span className="text-gray-400 text-[10px]">–</span>
+          <span className="text-gray-400 text-xs">–</span>
           <Input
             placeholder="5:30 PM"
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}
-            className={ghostInput('w-20 h-6 border-gray-300')}
+            onBlur={() => setEndTime((t) => normalizeTime(t))}
+            className={`${field('h-9 w-[5.5rem] px-2 text-sm sm:w-24')} text-center`}
           />
         </div>
-        <div className="flex flex-row gap-3 items-center justify-center">
-          <span className="flex items-center gap-1">
-            <Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />
-            <Input
-              placeholder="5 min"
-              value={stageTime}
-              onChange={(e) => setStageTime(e.target.value)}
-              className={ghostInput('w-16 h-6 border-gray-300')}
+
+        {/* How it runs */}
+        <div className={`${row} sm:w-[62%]`}>
+          <Select
+            value={frequency}
+            onValueChange={(v) => {
+              const next = v as MicFrequency;
+              setFrequency(next);
+              clearError('dates');
+              // Bi-weekly takes one date. Weekly and monthly schedules take none.
+              setDates((current) =>
+                next === 'bi_weekly' ? current.slice(0, 1) : ['one_off', 'custom'].includes(next) ? current : [],
+              );
+            }}
+          >
+            <SelectTrigger className={field('h-8 w-40 text-xs')}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FREQUENCY_OPTIONS.map(f => (
+                <SelectItem key={f} value={f}>{f === 'one_off' ? 'One-Off (Pop-Up)' : FREQUENCY_LABELS[f]}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={lineup} onValueChange={setLineup}>
+            <SelectTrigger className={field('h-8 w-40 text-xs')}>
+              <SelectValue placeholder="Lineup order" />
+            </SelectTrigger>
+            <SelectContent>
+              {LINEUP_OPTIONS.map(o => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {needsDates && (
+          <div className="mx-auto w-full space-y-1 text-center sm:w-[78%]">
+            <p className="text-[11px] font-medium text-muted-foreground">
+              {frequency === 'bi_weekly'
+                ? 'Which date is the next one? We will show it every other week from then.'
+                : frequency === 'one_off'
+                  ? 'Which day is the pop-up?'
+                  : 'Which dates does it happen? We will only show it on those days.'}
+            </p>
+            <MicDatePicker
+              mode={datesMode}
+              day={day}
+              value={dates}
+              onChange={changeDates}
+              placeholder={frequency === 'bi_weekly' ? 'Pick the next date *' : 'Pick the date(s) *'}
+              invalid={Boolean(errors.dates)}
             />
+            {frequency === 'bi_weekly' && dates[0] && (
+              <p className="text-[11px] text-muted-foreground">
+                Shows on:{' '}
+                {[0, 14, 28, 42]
+                  .map((offset) => {
+                    const date = new Date(dates[0]);
+                    date.setDate(date.getDate() + offset);
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  })
+                  .join(', ')}
+                , and so on
+              </p>
+            )}
+            {frequency === 'custom' && (
+              <Input
+                placeholder="Optional note, e.g. 1st and 3rd Thursday"
+                value={frequencyCustomText}
+                maxLength={60}
+                onChange={(e) => setFrequencyCustomText(e.target.value)}
+                className={field('h-8 text-xs')}
+              />
+            )}
+          </div>
+        )}
+
+        {/* Small extras, all optional */}
+        <div className={`${row} sm:w-[50%]`}>
+          <span className="flex items-center gap-1">
+            <Clock className="h-3 w-3 shrink-0 text-gray-400" />
+            <Input placeholder="5 min" value={stageTime} onChange={(e) => setStageTime(e.target.value)} onBlur={() => setStageTime((t) => normalizeSetLength(t))} className={`${field('h-7 w-16 px-1 text-xs')} text-center`} />
           </span>
           <span className="flex items-center gap-1">
-            <DollarSign className="w-3 h-3 text-gray-400 flex-shrink-0" />
-            <Input
-              placeholder="Free"
-              value={cost}
-              onChange={(e) => setCost(e.target.value)}
-              className={ghostInput('w-16 h-6 border-gray-300')}
-            />
+            <DollarSign className="h-3 w-3 shrink-0 text-gray-400" />
+            <Input placeholder="Free" value={cost} onChange={(e) => setCost(e.target.value)} className={`${field('h-7 w-16 px-1 text-xs')} text-center`} />
           </span>
+          <span className="flex items-center gap-1">
+            <CircleUser className="h-3 w-3 shrink-0 text-gray-400" />
+            <Input placeholder="@host" value={hostInstagram} onChange={(e) => setHostInstagram(e.target.value)} className={`${field('h-7 w-24 text-xs')} text-center`} />
+          </span>
+        </div>
+        <div className="mx-auto w-full sm:w-[50%]">
+          <Input
+            placeholder="Sign-up: paste a link, or say bucket / in person list"
+            value={signUpInstructions}
+            onChange={(e) => setSignUpInstructions(e.target.value)}
+            className={`${field('h-7 text-xs')} text-center`}
+          />
         </div>
       </div>
 
-      {/* Right: Details + Save */}
-      <div className="w-full md:flex-[1.2] flex flex-col justify-center gap-0">
-        <div className="bg-white/25 border border-green-100/70 rounded-md p-2 flex flex-col gap-2 shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#102a53]/20 dark:shadow-[0_24px_80px_rgba(2,10,30,0.34)]">
-          <div className="flex items-center gap-1 text-xs">
-            <UserRoundCheck className="w-3 h-3 flex-shrink-0 text-gray-500" />
-            <span className="whitespace-nowrap text-muted-foreground text-[11px]">Sign-Up:</span>
-            <Input
-              placeholder="[paste link here] or bucket or in person list"
-              value={signUpInstructions}
-              onChange={(e) => setSignUpInstructions(e.target.value)}
-              className={ghostInput('flex-1 h-6 border-gray-300 text-[11px] placeholder:text-[11px]')}
-            />
-          </div>
+      {Object.keys(errors).length > 0 && (
+        <p className="mt-2 text-center text-xs text-red-500 leading-tight">
+          {Object.values(errors).join(' · ')}
+        </p>
+      )}
 
-          {venueLocation?.address && (
-            <div className="text-[11px] flex items-center gap-1 text-muted-foreground">
-              <MapPin className="w-3 h-3 flex-shrink-0" />
-              <span>{venueLocation.address}</span>
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-2">
-            <Select
-              value={frequency}
-              onValueChange={(v) => {
-                const next = v as MicFrequency;
-                setFrequency(next);
-                clearError('dates');
-                // Bi-weekly takes one date. Weekly and monthly schedules take none.
-                setDates((current) =>
-                  next === 'bi_weekly' ? current.slice(0, 1) : ['one_off', 'custom'].includes(next) ? current : [],
-                );
-              }}
-            >
-              <SelectTrigger className="h-7 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {FREQUENCY_OPTIONS.map(f => (
-                  <SelectItem key={f} value={f}>{f === 'one_off' ? 'One-Off (Pop-Up)' : FREQUENCY_LABELS[f]}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={lineup} onValueChange={setLineup}>
-              <SelectTrigger className="h-7 text-xs">
-                <SelectValue placeholder="Lineup order" />
-              </SelectTrigger>
-              <SelectContent>
-                {LINEUP_OPTIONS.map(o => (
-                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {needsDates && (
-            <div className="space-y-1 text-left">
-              <p className="text-[11px] font-medium text-muted-foreground">
-                {frequency === 'bi_weekly'
-                  ? 'Which date is the next one? We will show it every other week from then.'
-                  : frequency === 'one_off'
-                    ? 'Which day is the pop-up?'
-                    : 'Which dates does it happen? We will only show it on those days.'}
-              </p>
-              <MicDatePicker
-                mode={datesMode}
-                day={day}
-                value={dates}
-                onChange={changeDates}
-                placeholder={frequency === 'bi_weekly' ? 'Pick the next date *' : 'Pick the date(s) *'}
-                invalid={Boolean(errors.dates)}
-              />
-              {frequency === 'bi_weekly' && dates[0] && (
-                <p className="text-[11px] text-muted-foreground">
-                  Shows on:{' '}
-                  {[0, 14, 28, 42]
-                    .map((offset) => {
-                      const date = new Date(dates[0]);
-                      date.setDate(date.getDate() + offset);
-                      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    })
-                    .join(', ')}
-                  , and so on
-                </p>
-              )}
-              {frequency === 'custom' && (
-                <Input
-                  placeholder="Optional note, e.g. 1st and 3rd Thursday"
-                  value={frequencyCustomText}
-                  maxLength={60}
-                  onChange={(e) => setFrequencyCustomText(e.target.value)}
-                  className="h-7 text-xs"
-                />
-              )}
-            </div>
-          )}
-
-          {Object.keys(errors).length > 0 && (
-            <p className="text-[10px] text-red-500 leading-tight">
-              {Object.values(errors).join(' · ')}
-            </p>
-          )}
-
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              onClick={handleSave}
-              disabled={isSubmitting}
-              className="flex-1 h-8 text-xs bg-green-600 hover:bg-green-700 text-white"
-            >
-              {isSubmitting ? 'Adding...' : '+ Add Mic'}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSubmitting}
-              className="h-8 text-xs"
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
+      <div className="mt-2.5 flex justify-center gap-2">
+        <Button
+          size="sm"
+          onClick={handleSave}
+          disabled={isSubmitting}
+          className="h-8 px-6 text-sm dark:text-[#07111f]"
+        >
+          {isSubmitting ? 'Adding...' : '+ Add Mic'}
+        </Button>
+        <Button size="sm" variant="outline" onClick={onCancel} disabled={isSubmitting} className="h-8 px-4 text-sm">
+          Cancel
+        </Button>
       </div>
     </div>
   );

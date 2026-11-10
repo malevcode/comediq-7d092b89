@@ -812,7 +812,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                 variant="outline"
                 size="sm"
                 aria-label="Add new open mic"
-                className="flex items-center justify-center px-0 py-1 h-7 w-8 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+                className="flex items-center justify-center px-0 py-1 h-7 w-8 bg-comediq-accent border-transparent text-[#0A1128] hover:bg-comediq-accent/80 hover:text-[#0A1128]"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -937,7 +937,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                         variant="outline"
                         size="sm"
                         aria-label="Add new open mic"
-                        className="flex items-center justify-center px-0 py-1 h-7 w-8 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+                        className="flex items-center justify-center px-0 py-1 h-7 w-8 bg-comediq-accent border-transparent text-[#0A1128] hover:bg-comediq-accent/80 hover:text-[#0A1128]"
                       >
                         <Plus className="h-4 w-4" />
                       </Button>

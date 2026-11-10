@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CalendarDays, Clock, DollarSign, ImagePlus, MapPin, Repeat, Ticket, Trash2, UserRoundCheck } from 'lucide-react';
+import { DollarSign, ImagePlus, Repeat, Ticket, Trash2, UserRoundCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -40,9 +40,6 @@ interface EditableShowCardProps {
   onCancel: () => void;
   isSubmitting?: boolean;
 }
-
-const ghostInput = (extra = '') =>
-  `border-0 border-b border-dashed bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none px-1 ${extra}`;
 
 /**
  * The add-a-show card. Same look and feel as the add-a-mic card, with the
@@ -145,164 +142,166 @@ export function EditableShowCard({ onSave, onCancel, isSubmitting = false }: Edi
     });
   };
 
-  const row = 'flex items-center gap-1.5';
+  // Funnel layout: each row is narrower and smaller than the one above it, so the
+  // form gets easier to finish as you go. Placeholders and icons are the labels.
+  const field = (size: string, invalid = false) =>
+    `${size} shadow-none bg-white/70 border ${
+      invalid ? 'border-red-400' : 'border-gray-300'
+    } dark:bg-white/5 dark:border-white/20`;
+  const row = 'mx-auto flex w-full flex-wrap items-center justify-center gap-2';
   const icon = 'h-3 w-3 shrink-0 text-gray-400';
 
   return (
-    <div className="mb-3 flex w-full flex-col gap-2 overflow-x-hidden rounded-xl border border-l-4 border-green-200/70 border-l-green-500 bg-white/25 p-2.5 ring-1 ring-green-200/50 shadow-[0_30px_100px_rgba(4,20,55,0.18),0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#102a53]/20 dark:ring-white/10">
-      <Input
-        placeholder="Show name *"
-        value={title}
-        onChange={(e) => { setTitle(e.target.value); clearError('title'); }}
-        className={`mx-auto h-7 max-w-xs text-center text-base font-semibold ${ghostInput(errors.title ? 'border-red-400' : 'border-gray-300')}`}
-      />
+    <div className="mb-3 w-full rounded-xl border border-l-4 border-blue-200/70 border-l-primary bg-white/25 px-3 py-3 shadow-[0_10px_32px_rgba(4,20,55,0.10)] backdrop-blur-2xl dark:border-white/10 dark:border-l-[#8ec5ff] dark:bg-[#102a53]/20">
+      <div className="flex flex-col gap-2">
+        {/* Widest and biggest: what and where */}
+        <Input
+          placeholder="Show name *"
+          value={title}
+          onChange={(e) => { setTitle(e.target.value); clearError('title'); }}
+          className={`${field('h-11 text-base', Boolean(errors.title))} text-center font-semibold`}
+        />
+        <div className="mx-auto w-full sm:w-[92%]">
+          <VenueAutocomplete
+            value={venueQuery}
+            onChange={(v) => { setVenueQuery(v); setVenue(null); clearError('venue'); }}
+            onSelect={(loc) => { setVenue(loc); setVenueQuery(loc.venueName); clearError('venue'); }}
+            error={errors.venue}
+          />
+        </div>
 
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-        {/* Left: where and when */}
-        <div className="flex flex-col gap-2">
-          <div className={row}>
-            <MapPin className={icon} />
-            <div className="min-w-0 flex-1">
-              <VenueAutocomplete
-                value={venueQuery}
-                onChange={(v) => { setVenueQuery(v); setVenue(null); clearError('venue'); }}
-                onSelect={(loc) => { setVenue(loc); setVenueQuery(loc.venueName); clearError('venue'); }}
-                error={errors.venue}
-              />
-            </div>
+        {/* When */}
+        <div className={`${row} sm:w-[78%]`}>
+          <div className="w-36">
+            <MicDatePicker
+              mode="single"
+              day=""
+              hint=""
+              value={dates}
+              onChange={(d) => { setDates(d); clearError('date'); }}
+              placeholder="Pick the date *"
+              invalid={Boolean(errors.date)}
+            />
           </div>
-          {venue?.address && <p className="pl-5 text-[11px] text-muted-foreground">{venue.address}</p>}
-
-          <div className={row}>
-            <CalendarDays className={icon} />
-            <div className="min-w-0 flex-1">
-              <MicDatePicker
-                mode="single"
-                day=""
-                hint=""
-                value={dates}
-                onChange={(d) => { setDates(d); clearError('date'); }}
-                placeholder="Pick the date *"
-                invalid={Boolean(errors.date)}
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-            <span className={row}>
-              <Clock className={icon} />
+          <span className="flex flex-nowrap items-center gap-2">
+            <span className="flex items-center gap-1">
               <span className="text-[11px] text-muted-foreground">Starts *</span>
               <Input
                 type="time"
                 value={showTime}
                 onChange={(e) => { setShowTime(e.target.value); clearError('time'); }}
-                className={`h-6 w-28 text-xs ${ghostInput(errors.time ? 'border-red-400' : 'border-gray-300')}`}
+                className={field('h-8 w-[5.25rem] px-1.5 text-xs [&::-webkit-calendar-picker-indicator]:hidden', Boolean(errors.time))}
               />
             </span>
-            <span className={row}>
+            <span className="flex items-center gap-1">
               <span className="text-[11px] text-muted-foreground">Doors</span>
               <Input
                 type="time"
                 value={doorsTime}
                 onChange={(e) => setDoorsTime(e.target.value)}
-                className={`h-6 w-28 text-xs ${ghostInput('border-gray-300')}`}
+                className={field('h-8 w-[5.25rem] px-1.5 text-xs [&::-webkit-calendar-picker-indicator]:hidden')}
               />
             </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <Select value={repeat} onValueChange={(v) => setRepeat(v as ShowRepeat)}>
-              <SelectTrigger className="h-7 text-xs" aria-label="Does it repeat?">
-                <Repeat className="mr-1 h-3 w-3 shrink-0" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {(Object.keys(REPEAT_LABELS) as ShowRepeat[]).map((r) => (
-                  <SelectItem key={r} value={r}>{REPEAT_LABELS[r]}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={showType} onValueChange={setShowType}>
-              <SelectTrigger className="h-7 text-xs" aria-label="Type of show">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {SHOW_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>{t}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {repeat !== 'none' && (
-            <p className="text-[11px] text-muted-foreground">
-              We will list the next {repeat === 'weekly' ? '8 weeks' : repeat === 'biweekly' ? '6 shows' : '6 months'} of this show,
-              starting with the date you picked.
-            </p>
-          )}
+          </span>
         </div>
 
-        {/* Right: tickets, picture, promises */}
-        <div className="flex flex-col gap-2 rounded-md border border-green-100/70 bg-white/25 p-2 backdrop-blur-2xl dark:border-white/10 dark:bg-[#102a53]/20">
-          <div className="grid grid-cols-2 gap-2">
-            <span className={row}>
-              <DollarSign className={icon} />
-              <Input
-                placeholder="Price, e.g. $15"
-                value={ticketPrice}
-                onChange={(e) => setTicketPrice(e.target.value)}
-                className={`h-6 text-xs ${ghostInput('border-gray-300')}`}
-              />
-            </span>
-            <span className={row}>
-              <UserRoundCheck className={icon} />
-              <Input
-                placeholder="@instagram"
-                value={instagram}
-                onChange={(e) => { setInstagram(e.target.value); clearError('contact'); }}
-                className={`h-6 text-xs ${ghostInput(errors.contact ? 'border-red-400' : 'border-gray-300')}`}
-              />
-            </span>
-          </div>
-          <span className={row}>
-            <Ticket className={icon} />
+        {/* How it runs */}
+        <div className={`${row} sm:w-[62%]`}>
+          <Select value={repeat} onValueChange={(v) => setRepeat(v as ShowRepeat)}>
+            <SelectTrigger className={field('h-8 w-40 text-xs')} aria-label="Does it repeat?">
+              <Repeat className="mr-1 h-3 w-3 shrink-0" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {(Object.keys(REPEAT_LABELS) as ShowRepeat[]).map((r) => (
+                <SelectItem key={r} value={r}>{REPEAT_LABELS[r]}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={showType} onValueChange={setShowType}>
+            <SelectTrigger className={field('h-8 w-40 text-xs')} aria-label="Type of show">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {SHOW_TYPES.map((t) => (
+                <SelectItem key={t} value={t}>{t}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {repeat !== 'none' && (
+          <p className="text-center text-[11px] text-muted-foreground">
+            We will list the next {repeat === 'weekly' ? '8 weeks' : repeat === 'biweekly' ? '6 shows' : '6 months'} of this show,
+            starting with the date you picked.
+          </p>
+        )}
+
+        {/* Where people go for more: one of these two is required */}
+        <div className={`${row} sm:w-[54%]`}>
+          <span className="flex items-center gap-1">
+            <DollarSign className={icon} />
             <Input
-              placeholder="Ticket link (Eventbrite, Posh, your site)"
-              value={ticketUrl}
-              onChange={(e) => { setTicketUrl(e.target.value); clearError('contact'); }}
-              className={`h-6 flex-1 text-xs ${ghostInput(errors.contact ? 'border-red-400' : 'border-gray-300')}`}
+              placeholder="$15"
+              value={ticketPrice}
+              onChange={(e) => setTicketPrice(e.target.value)}
+              className={`${field('h-7 w-[4.5rem] text-xs')} text-center`}
             />
           </span>
+          <span className="flex items-center gap-1">
+            <UserRoundCheck className={icon} />
+            <Input
+              placeholder="@instagram"
+              value={instagram}
+              onChange={(e) => { setInstagram(e.target.value); clearError('contact'); }}
+              className={`${field('h-7 w-28 text-xs', Boolean(errors.contact))} text-center`}
+            />
+          </span>
+          <span className="flex min-w-[12rem] flex-1 items-center gap-1">
+            <Ticket className={icon} />
+            <Input
+              placeholder="Ticket link"
+              value={ticketUrl}
+              onChange={(e) => { setTicketUrl(e.target.value); clearError('contact'); }}
+              className={`${field('h-7 flex-1 text-xs', Boolean(errors.contact))} text-center`}
+            />
+          </span>
+        </div>
+
+        {/* Optional extras, smallest of all */}
+        <div className="mx-auto w-full sm:w-[50%]">
           <Textarea
             placeholder="One or two lines about the show (optional)"
             value={description}
             maxLength={280}
             rows={2}
             onChange={(e) => setDescription(e.target.value)}
-            className="min-h-0 resize-none text-xs"
+            className="min-h-0 resize-none bg-white/70 text-center text-xs shadow-none border border-gray-300 dark:bg-white/5 dark:border-white/20"
           />
+        </div>
 
-          <div className="flex items-center gap-2">
-            <input
-              ref={fileInput}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => { pickImage(e.target.files?.[0]); e.target.value = ''; }}
-            />
-            {imagePreview ? (
-              <img src={imagePreview} alt="Your show" className="h-10 w-10 rounded object-cover" />
-            ) : null}
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={() => fileInput.current?.click()}>
-              <ImagePlus className="mr-1 h-3.5 w-3.5" />
-              {imageFile ? 'Change image' : 'Add show image (recommended)'}
+        <div className={`${row} sm:w-[50%]`}>
+          <input
+            ref={fileInput}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => { pickImage(e.target.files?.[0]); e.target.value = ''; }}
+          />
+          {imagePreview ? (
+            <img src={imagePreview} alt="Your show" className="h-8 w-8 rounded object-cover" />
+          ) : null}
+          <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={() => fileInput.current?.click()}>
+            <ImagePlus className="mr-1 h-3.5 w-3.5" />
+            {imageFile ? 'Change image' : 'Add show image (recommended)'}
+          </Button>
+          {imageFile && (
+            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" aria-label="Remove image" onClick={() => setImageFile(null)}>
+              <Trash2 className="h-3.5 w-3.5" />
             </Button>
-            {imageFile && (
-              <Button type="button" variant="ghost" size="icon" className="h-7 w-7" aria-label="Remove image" onClick={() => setImageFile(null)}>
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            )}
-          </div>
+          )}
+        </div>
 
+        <div className="mx-auto flex w-full flex-col gap-1.5 sm:w-[62%]">
           <label className="flex cursor-pointer items-start gap-2 rounded-md bg-comediq-accent/15 p-2 text-left">
             <Checkbox checked={laughpass} onCheckedChange={(v) => setLaughpass(v === true)} className="mt-0.5" />
             <span className="text-[11px] leading-snug">
@@ -311,7 +310,7 @@ export function EditableShowCard({ onSave, onCancel, isSubmitting = false }: Edi
             </span>
           </label>
           {laughpass && (
-            <span className={`${row} pl-6`}>
+            <span className="flex items-center gap-2 pl-6">
               <span className="text-[11px] text-muted-foreground">Free tickets per show</span>
               <Input
                 type="number"
@@ -319,7 +318,7 @@ export function EditableShowCard({ onSave, onCancel, isSubmitting = false }: Edi
                 max={100}
                 value={laughpassLimit}
                 onChange={(e) => { setLaughpassLimit(e.target.value); clearError('limit'); }}
-                className={`h-6 w-16 text-xs ${ghostInput(errors.limit ? 'border-red-400' : 'border-gray-300')}`}
+                className={field('h-7 w-16 text-xs', Boolean(errors.limit))}
               />
             </span>
           )}
@@ -334,14 +333,14 @@ export function EditableShowCard({ onSave, onCancel, isSubmitting = false }: Edi
       </div>
 
       {Object.keys(errors).length > 0 && (
-        <p className="text-[10px] leading-tight text-red-500">{Object.values(errors).join(' · ')}</p>
+        <p className="mt-2 text-center text-xs text-red-500 leading-tight">{Object.values(errors).join(' · ')}</p>
       )}
 
-      <div className="flex gap-2">
-        <Button size="sm" onClick={handleSave} disabled={isSubmitting} className="h-8 flex-1 bg-green-600 text-xs text-white hover:bg-green-700">
+      <div className="mt-2.5 flex justify-center gap-2">
+        <Button size="sm" onClick={handleSave} disabled={isSubmitting} className="h-8 px-6 text-sm dark:text-[#07111f]">
           {isSubmitting ? 'Submitting...' : 'Submit show'}
         </Button>
-        <Button size="sm" variant="outline" onClick={onCancel} disabled={isSubmitting} className="h-8 text-xs">
+        <Button size="sm" variant="outline" onClick={onCancel} disabled={isSubmitting} className="h-8 px-4 text-sm">
           Cancel
         </Button>
       </div>
