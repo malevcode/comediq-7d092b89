@@ -7,6 +7,7 @@ import VenueAutocomplete, { type VenueLocation } from '@/components/host/VenueAu
 import DayOfWeekPicker from '@/components/ui/DayOfWeekPicker';
 import MicDatePicker from '@/components/MicDatePicker';
 import { toIsoDate } from '@/utils/micOccurrences';
+import { resolveMicTimes } from '@/utils/micTime';
 import { MicFrequency, FREQUENCY_LABELS } from '@/types/openMic';
 import { MicRequestFormData } from '@/components/host/AddMicRequestForm';
 
@@ -35,24 +36,6 @@ function addMinutes(timeStr: string, minutes: number): string {
   const period = newHours >= 12 ? 'PM' : 'AM';
   const displayHour = newHours % 12 || 12;
   return `${displayHour}:${newMins.toString().padStart(2, '0')} ${period}`;
-}
-
-/**
- * Turns what a comic types into the format the database uses everywhere: "7:30 PM".
- * "7", "7pm", "7:30p", "19:30" all work. Hours 1 to 11 with no AM or PM are read as PM,
- * since open mics are almost never in the morning. Anything unreadable is left alone.
- */
-function normalizeTime(raw: string): string {
-  const text = raw.trim();
-  const m = text.match(/^(\d{1,2})(?::?(\d{2}))?\s*([ap])?\.?m?\.?$/i);
-  if (!m) return text;
-  let hours = parseInt(m[1], 10);
-  const mins = m[2] ? parseInt(m[2], 10) : 0;
-  if (mins > 59 || hours > 23) return text;
-  const pm = m[3] ? m[3].toLowerCase() === 'p' : hours !== 0;
-  if (hours > 12) hours -= 12;
-  if (hours === 0) hours = 12;
-  return `${hours}:${mins.toString().padStart(2, '0')} ${pm ? 'PM' : 'AM'}`;
 }
 
 /** "5" becomes "5 min". Anything with words in it ("3-5 min", "5+") is kept as typed. */
@@ -152,8 +135,10 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
 
   const handleSave = () => {
     if (isSubmitting || !validate()) return;
-    const start = normalizeTime(startTime);
-    const autoEndTime = endTime.trim() ? normalizeTime(endTime) : addMinutes(start, 90);
+    // "7-9" in the start box, "7" and "7pm" all become "7:00 PM" (no AM or PM means PM).
+    const times = resolveMicTimes(startTime, endTime);
+    const start = times.start;
+    const autoEndTime = times.end || addMinutes(start, 90);
     // One box for how to sign up. A pasted link makes it an online sign-up; plain
     // words stay as in-person instructions. The lineup order is added as a line.
     const link = findLink(signUpInstructions);
@@ -219,7 +204,11 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
             placeholder="7:00 PM *"
             value={startTime}
             onChange={(e) => { setStartTime(e.target.value); clearError('startTime'); }}
-            onBlur={() => setStartTime((t) => normalizeTime(t))}
+            onBlur={() => {
+              const { start, end } = resolveMicTimes(startTime, endTime);
+              setStartTime(start);
+              if (end && !endTime.trim()) setEndTime(end);
+            }}
             className={`${field('h-9 w-[5.5rem] px-2 text-sm sm:w-24', Boolean(errors.startTime))} text-center`}
           />
           <span className="text-gray-400 text-xs">–</span>
@@ -227,7 +216,7 @@ export function EditableMicCard({ onSave, onCancel, isSubmitting = false }: Edit
             placeholder="5:30 PM"
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}
-            onBlur={() => setEndTime((t) => normalizeTime(t))}
+            onBlur={() => setEndTime(resolveMicTimes(startTime, endTime).end)}
             className={`${field('h-9 w-[5.5rem] px-2 text-sm sm:w-24')} text-center`}
           />
         </div>
