@@ -12,11 +12,13 @@ import { useHostStatus } from '@/hooks/useHostStatus';
 import { useToast } from '@/hooks/use-toast';
 import { claimHostStatus } from '@/api/signups';
 import { invokeSupabaseFunction } from '@/utils/supabaseFunctions';
-import { motdDayForTab, useEnterMicOfTheDay, useMotdWeek, type MotdDay, type MotdWeek } from '@/hooks/useMicOfTheDay';
+import { micKnownToRunOn } from '@/utils/micOccurrences';
+import { motdDayForTab, useClaimFreeMicOfTheDay, useMotdWeek, type MotdDay, type MotdWeek } from '@/hooks/useMicOfTheDay';
 import {
   MOTD_HOST_PITCH,
-  motdPayByLabel,
-  motdPrice,
+  motdAuctionRules,
+  motdDollars,
+  motdLocalDate,
   motdPriceLine,
   motdShortDate,
   motdWeekday,
@@ -28,17 +30,19 @@ const panelClass =
 
 const SOURCE_NOTE: Record<string, string> = {
   standing: "Comediq's standing pick for this day",
-  draw: 'Drawn from the hosts who entered',
+  bid: 'Claimed by its host',
+  free: 'Claimed by its host',
+  draw: 'Claimed by its host',
   admin: 'Picked by Comediq',
 };
 
 /**
  * The pinned spot at the top of the listings, for the day the current tab is showing.
  *
- *   pinned            the mic, with the Mic of the Day sticker
- *   awaiting payment  the winner sees a pay button; everyone else sees the fallback
- *   open, future day  the claim button for hosts
- *   open today, or deliberately cleared: the fallback (the sponsor card, or nothing)
+ *   pinned   the mic, with the Mic of the Day sticker. If the spot can be bought, hosts get
+ *            a "Take this spot for $20" link under it.
+ *   open     the claim button: free before the paid start date, $15 after.
+ *   cleared  (Comediq blanked the day) or nothing to show: the fallback.
  */
 export function MicOfTheDaySlot({
   tab,
@@ -56,88 +60,18 @@ export function MicOfTheDaySlot({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [claimOpen, setClaimOpen] = useState(false);
-  const [paying, setPaying] = useState(false);
 
   const day = motdDayForTab(week, tab);
   if (!week || !day) return <>{fallback}</>;
 
   const micById = (id: string | null | undefined) =>
     id ? mics?.find((m) => m.uniqueIdentifier === id) ?? null : null;
-  const myEntry = week.mine.find((e) => e.date === day.date) ?? null;
   const isToday = day.date === week.today;
   const isTomorrow = week.days[1]?.date === day.date;
-  const dateLabel = isToday ? 'today' : isTomorrow ? 'tomorrow' : motdShortDate(day.date);
+  const myBid = week.mine.find((b) => b.date === day.date) ?? null;
+  const wasOutbid = !day.mine && myBid?.status === 'outbid';
+  const forSale = day.price_cents !== null;
 
-  // 1. A mic is pinned.
-  if (day.state === 'pinned') {
-    const mic = micById(day.mic_id);
-    if (!mic) return <>{fallback}</>;
-    return (
-      <button
-        type="button"
-        onClick={() => onSelect?.(mic)}
-        className={`${panelClass} block w-full text-left transition-colors hover:bg-[#102a53]`}
-        aria-label={`View ${mic.openMic}, Mic of the Day`}
-      >
-        <ComediqSticker label="Mic of the Day" tone="blue" className="absolute right-2 top-2" />
-        <p className="pr-28 text-base font-bold leading-tight">{mic.openMic}</p>
-        <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-white/70">
-          <span className="flex items-center gap-1">
-            <MapPin className="h-3 w-3" />
-            {mic.venueName}
-          </span>
-          {mic.startTime && (
-            <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              {motdWeekday(day.date)} {mic.startTime}
-            </span>
-          )}
-        </p>
-        <p className="mt-1 flex items-center gap-1 text-[11px] text-[#8ec5ff]">
-          {SOURCE_NOTE[day.source ?? ''] ?? 'Mic of the Day'}
-          <ArrowRight className="h-3 w-3" />
-        </p>
-      </button>
-    );
-  }
-
-  // 2. Drawn, waiting for the winner to pay. Only the winner sees anything.
-  if (day.state === 'awaiting_payment') {
-    if (myEntry?.status !== 'won') return <>{fallback}</>;
-    const mic = micById(myEntry.mic_id);
-    const pay = async () => {
-      setPaying(true);
-      const { data, error } = await invokeSupabaseFunction<{ url?: string }>('create-checkout-session', {
-        body: { kind: 'mic_of_the_day', entryId: myEntry.id },
-      });
-      if (error || !data?.url) {
-        setPaying(false);
-        toast({ title: 'Could not start checkout', description: error?.message, variant: 'destructive' });
-        return;
-      }
-      window.location.href = data.url;
-    };
-    return (
-      <div className={panelClass}>
-        <ComediqSticker label="Mic of the Day" tone="blue" className="absolute right-2 top-2" />
-        <p className="pr-28 text-base font-bold leading-tight">You won {dateLabel}!</p>
-        <p className="mt-1 text-xs text-white/75">
-          Pay {motdPrice(week.config)} by {motdPayByLabel(week.config)} ET to pin {mic?.openMic ?? 'your mic'} to
-          the top of the listings all day. After that the spot goes to another host.
-        </p>
-        <Button onClick={pay} disabled={paying} size="sm" className="mt-2 bg-white font-bold text-[#1a5fb4] hover:bg-blue-50">
-          {paying && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}
-          Pay {motdPrice(week.config)} to pin
-        </Button>
-      </div>
-    );
-  }
-
-  // 3. Today with nobody drawn, or a day Comediq blanked on purpose: leave it empty.
-  if (day.state !== 'open' || isToday) return <>{fallback}</>;
-
-  // 4. An open future day: hosts can enter.
-  const enteredMic = myEntry?.status === 'entered' ? micById(myEntry.mic_id) : null;
   const openClaim = () => {
     if (!user) {
       toast({ title: 'Sign in to claim', description: 'Sign in, then pick the mic you host.' });
@@ -147,63 +81,111 @@ export function MicOfTheDaySlot({
     setClaimOpen(true);
   };
 
+  const dialog = claimOpen && forSale && (
+    <ClaimDialog day={day} week={week} mics={mics ?? []} onClose={() => setClaimOpen(false)} />
+  );
+
+  const outbidNote = wasOutbid && (
+    <p className="mt-1.5 text-[11px] text-white">
+      You were outbid on this day.
+      {myBid?.refund_cents ? ` Your ${motdDollars(myBid.refund_cents)} is being refunded.` : ''}
+    </p>
+  );
+
+  // 1. A mic is pinned.
+  if (day.state === 'pinned') {
+    const mic = micById(day.mic_id);
+    if (!mic) return <>{fallback}</>;
+    return (
+      <div className={panelClass}>
+        <ComediqSticker label="Mic of the Day" tone="blue" className="absolute right-2 top-2" />
+        <button
+          type="button"
+          onClick={() => onSelect?.(mic)}
+          className="block w-full text-left"
+          aria-label={`View ${mic.openMic}, Mic of the Day`}
+        >
+          <p className="pr-28 text-base font-bold leading-tight">{mic.openMic}</p>
+          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-white/70">
+            <span className="flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              {mic.venueName}
+            </span>
+            {mic.startTime && (
+              <span className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {motdWeekday(day.date)} {mic.startTime}
+              </span>
+            )}
+          </p>
+          <p className="mt-1 flex items-center gap-1 text-[11px] text-[#8ec5ff]">
+            {day.mine ? 'Your mic is pinned for everyone' : SOURCE_NOTE[day.source ?? ''] ?? 'Mic of the Day'}
+            <ArrowRight className="h-3 w-3" />
+          </p>
+        </button>
+        {forSale && !day.mine && (
+          <button type="button" onClick={openClaim} className="mt-1.5 text-[11px] font-semibold text-white underline">
+            Hosts: take this spot for {motdDollars(day.price_cents!)}
+          </button>
+        )}
+        {outbidNote}
+        {dialog}
+      </div>
+    );
+  }
+
+  // 2. Blanked on purpose, or nothing a host can do here.
+  if (day.state !== 'open' || !forSale) return <>{fallback}</>;
+
+  // 3. Open: hosts can claim it.
+  const when = isToday ? "Today's" : isTomorrow ? "Tomorrow's" : `${motdShortDate(day.date)}:`;
   return (
     <div className={panelClass}>
       <ComediqSticker label="Mic of the Day" tone="blue" className="absolute right-2 top-2" />
-      <p className="pr-28 text-sm font-bold leading-snug">
-        {isTomorrow ? "Tomorrow's Mic of the Day is open" : `${motdShortDate(day.date)} is open`}
-      </p>
-      {!isTomorrow && <p className="mt-1 text-xs text-white/75">{MOTD_HOST_PITCH}</p>}
-
-      {enteredMic ? (
-        <p className="mt-2 text-xs text-[#8ec5ff]">
-          You entered {enteredMic.openMic}. One entry is drawn at midnight.{' '}
-          <button type="button" onClick={openClaim} className="underline">
-            Change mic
-          </button>
-        </p>
-      ) : (
-        <Button
-          onClick={openClaim}
-          size="sm"
-          className="mt-2 flex h-auto flex-col items-start gap-0 bg-white px-3 py-1.5 text-left text-[#1a5fb4] hover:bg-blue-50"
-        >
-          <span className="text-sm font-bold">
-            {isTomorrow ? 'Claim your mic for tomorrow' : 'Claim Mic of the Day'}
-          </span>
-          <span className="text-[11px] font-medium">{motdPriceLine(day.date, week.config)}</span>
-        </Button>
-      )}
-
-      {(isTomorrow || day.entries > 0) && (
-        <p className="mt-1.5 text-[11px] text-white/60">
-          {day.entries === 0
-            ? 'No hosts have entered yet'
-            : `${day.entries} host${day.entries === 1 ? ' has' : 's have'} entered so far`}
-        </p>
-      )}
-
-      {claimOpen && <ClaimDialog day={day} week={week} mics={mics ?? []} onClose={() => setClaimOpen(false)} />}
+      <p className="pr-28 text-sm font-bold leading-snug">{when} Mic of the Day is open</p>
+      <p className="mt-1 text-xs text-white/75">{MOTD_HOST_PITCH}</p>
+      <Button
+        onClick={openClaim}
+        size="sm"
+        className="mt-2 flex h-auto flex-col items-start gap-0 bg-white px-3 py-1.5 text-left text-[#1a5fb4] hover:bg-blue-50"
+      >
+        <span className="text-sm font-bold">
+          {isToday ? 'Claim your mic for today' : isTomorrow ? 'Claim your mic for tomorrow' : 'Claim Mic of the Day'}
+        </span>
+        <span className="text-[11px] font-medium">{motdPriceLine(day.price_cents!, false)}</span>
+      </Button>
+      {outbidNote}
+      {dialog}
     </div>
   );
 }
 
 /**
- * Pick the mic to enter. A host who has already connected a mic picks it from "Your mics".
- * A host who has not is walked through connecting it first ("This is my mic"), which sends
- * the normal host claim and then enters them. Getting that connection is the point.
+ * Pick the mic to claim the date with. Only mics that really run on that date are offered
+ * (a bi-weekly or monthly mic only shows on its own dates). A host who has already
+ * connected a mic picks it from "Your mics". A host who has not is walked through
+ * connecting it first ("This is my mic"), which sends the normal host claim and carries on.
+ * Getting that connection is the point.
  */
 function ClaimDialog({ day, week, mics, onClose }: { day: MotdDay; week: MotdWeek; mics: OpenMic[]; onClose: () => void }) {
   const { data: hostRows = [] } = useHostStatus();
-  const enter = useEnterMicOfTheDay();
+  const claimFree = useClaimFreeMicOfTheDay();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
 
+  const price = day.price_cents ?? 0;
+  const free = price === 0;
+  const taking = day.state === 'pinned';
   const weekday = motdWeekday(day.date);
+  const dateLabel = motdShortDate(day.date);
+
   const hosted = useMemo(() => new Map((hostRows as any[]).map((h) => [h.mic_id as string, !!h.is_verified])), [hostRows]);
-  const dayMics = useMemo(() => mics.filter((m) => m.day === weekday), [mics, weekday]);
+  const dayMics = useMemo(() => {
+    const date = motdLocalDate(day.date);
+    return mics.filter((m) => micKnownToRunOn(m, date));
+  }, [mics, day.date]);
   const myMics = dayMics.filter((m) => hosted.has(m.uniqueIdentifier));
   const term = search.trim().toLowerCase();
   const found = term
@@ -220,17 +202,25 @@ function ClaimDialog({ day, week, mics, onClose }: { day: MotdDay; week: MotdWee
         await claimHostStatus(mic.uniqueIdentifier);
         queryClient.invalidateQueries({ queryKey: ['hostStatus'] });
       }
-      const result = await enter.mutateAsync({ micId: mic.uniqueIdentifier, date: day.date });
-      toast({
-        title: `${mic.openMic} is entered for ${motdShortDate(day.date)}`,
-        description: result.host_verified
-          ? 'One entry is drawn at midnight New York time.'
-          : 'Your host claim is with Comediq to verify. Your entry is in the draw once it is verified, so claim early.',
+
+      if (free) {
+        await claimFree.mutateAsync({ micId: mic.uniqueIdentifier, date: day.date });
+        toast({ title: `${mic.openMic} is Mic of the Day for ${dateLabel}`, description: 'It is pinned to the top of the listings for everyone.' });
+        onClose();
+        return;
+      }
+
+      const { data, error } = await invokeSupabaseFunction<{ url?: string }>('create-checkout-session', {
+        body: { kind: 'mic_of_the_day', micId: mic.uniqueIdentifier, date: day.date },
       });
-      onClose();
+      if (error || !data?.url) throw new Error(error?.message ?? 'Could not start checkout.');
+      window.location.href = data.url;
     } catch (err: any) {
-      toast({ title: 'Could not enter', description: err?.message ?? 'Please try again.', variant: 'destructive' });
-    } finally {
+      toast({
+        title: connectFirst ? 'Your host claim is sent' : 'Could not claim',
+        description: err?.message ?? 'Please try again.',
+        variant: connectFirst ? undefined : 'destructive',
+      });
       setBusyId(null);
     }
   };
@@ -255,47 +245,55 @@ function ClaimDialog({ day, week, mics, onClose }: { day: MotdDay; week: MotdWee
     </div>
   );
 
+  const payLabel = free ? 'Claim free' : `Pay ${motdDollars(price)}`;
+
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Mic of the Day, {motdShortDate(day.date)}</DialogTitle>
+          <DialogTitle>Mic of the Day, {dateLabel}</DialogTitle>
           <DialogDescription>
-            Enter one {weekday} mic you host. One entry is drawn at midnight and pinned to the top of the listings
-            all day. {motdPriceLine(day.date, week.config)}.
+            {free
+              ? `Pin a mic you host to the top of the listings for ${dateLabel}. Free for a limited time, one day per host.`
+              : `${motdDollars(price)} ${taking ? 'takes the spot and pins' : 'pins'} a mic you host to the top of the listings for ${dateLabel}, so everyone sees it first. ${motdAuctionRules(week.config)}`}
           </DialogDescription>
         </DialogHeader>
 
         <div>
-          <p className="text-xs font-bold text-[#1a5fb4]">Your mics</p>
+          <p className="text-xs font-bold text-[#1a5fb4]">Your mics running {dateLabel}</p>
           {myMics.length > 0 ? (
             <div className="divide-y">
-              {myMics.map((m) => row(m, 'Enter', false, hosted.get(m.uniqueIdentifier) ? undefined : 'claim pending'))}
+              {myMics.map((m) => row(m, payLabel, false, hosted.get(m.uniqueIdentifier) ? undefined : 'host claim pending'))}
             </div>
           ) : (
             <p className="py-2 text-sm text-muted-foreground">
               {hosted.size > 0
-                ? `None of the mics connected to your account run on ${weekday}.`
+                ? `None of the mics connected to your account are listed as running on ${dateLabel}.`
                 : 'No mic is connected to your Comediq account yet. Connect yours below, it takes one tap.'}
             </p>
           )}
         </div>
 
         <div>
-          <p className="text-xs font-bold text-[#1a5fb4]">Host a {weekday} mic that is not connected yet?</p>
+          <p className="text-xs font-bold text-[#1a5fb4]">Host a mic that is not connected yet?</p>
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={`Search ${weekday} mics by name or venue`}
+            placeholder={`Search mics running ${dateLabel}`}
             className="mt-1"
           />
           {found.length > 0 && <div className="divide-y">{found.map((m) => row(m, 'This is my mic', true))}</div>}
           {term && found.length === 0 && (
-            <p className="py-2 text-sm text-muted-foreground">No {weekday} mic matches. Add your mic to Comediq first.</p>
+            <p className="py-2 text-sm text-muted-foreground">
+              No mic running that day matches. Only {weekday} mics on their real dates can be claimed; a bi-weekly or
+              monthly mic shows up on the days it runs.
+            </p>
           )}
           <p className="mt-2 text-[11px] text-muted-foreground">
-            "This is my mic" connects the mic to your account as its host and enters it. Comediq verifies new hosts,
-            and only verified hosts are in the draw.
+            "This is my mic" connects the mic to your account as its host
+            {free
+              ? '. Comediq verifies new hosts before a free day can be claimed.'
+              : ` and takes you to pay ${motdDollars(price)}.`}
           </p>
         </div>
       </DialogContent>

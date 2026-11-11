@@ -2289,10 +2289,10 @@ as that evening's day.
 - Not done yet: signups for this mic (`signup_enabled` is false until its signup event exists) and the map pin
   (`npm run geocode:open-mics`). The three months free Premium idea was dropped.
 
-## Session: "By Comediq" sticker and the Mic of the Day draw
+## Session: "By Comediq" sticker and Mic of the Day (host claims and auction)
 
-All of the database side is one file, `supabase/migrations/20261111120000_mic_of_the_day_draw.sql`
-(also appended to `supabase/RUN_ME_pending.sql`). Nothing below works until that SQL has been run.
+The database side is two files run in order, `20261111120000_mic_of_the_day_draw.sql` then `20261111180000_mic_of_the_day_auction.sql`
+(also appended to `supabase/RUN_ME_pending.sql`). `supabase/RUN_ME_mic_of_the_day.sql` is just those two, in order, for pasting into the Supabase SQL editor. Nothing below works until that SQL has been run.
 
 ### The "By Comediq" sticker
 
@@ -2306,60 +2306,88 @@ Gdrink at Gnihton is the first: the SQL also turns its sign-up on, sets the host
 
 ### Mic of the Day: how a day gets its mic
 
-Think of a hat. Hosts put one of their mics in the hat for a future date. Just after midnight
-in New York, one name is pulled out for that day and pinned to the top of the listings.
+It started the day as a random draw and was changed the same day to an auction. The draw's
+SQL file is still needed (it creates the tables); the auction file runs after it:
+`supabase/migrations/20261111180000_mic_of_the_day_auction.sql`.
 
-1. **Standing picks skip the hat.** Monday is Crash Landing Comedy and Thursday is Gdrink at
-   Gnihton. These are rows in the table `mic_of_the_day_standing` (0 = Sunday ... 6 = Saturday).
-2. **Other days are a draw.** Hosts enter from the pinned spot on any day tab ("Claim your mic
-   for tomorrow"). One entry per host per date, and the mic must run on that weekday.
-3. **Nobody entered: the day stays empty.** Nothing is auto-picked.
+Think of the pinned spot as a parking space with a price on it.
 
-A host who has not connected their mic to their account is walked through it in the same
-dialog ("This is my mic" sends the normal host claim, then enters them). Only hosts Comediq
-has verified are in the draw, so new claims need verifying in Admin before midnight.
+1. **Standing picks.** Monday is Crash Landing Comedy and Thursday is Gdrink at Gnihton (rows
+   in `mic_of_the_day_standing`, 0 = Sunday ... 6 = Saturday). They hold their day for $0.
+2. **Before `paid_from` (Dec 1, 2026): free, first come.** The first verified host to claim
+   an open date gets it and cannot be outbid. One free day per host
+   (`free_claims_per_host`). Standing days cannot be claimed in this period.
+3. **From `paid_from`: an auction.** The first claim costs `start_price_cents` ($15). Any
+   other host can take the spot by paying `increment_cents` ($5) more than the current
+   holder paid: $20, then $25, and so on. A standing day can be taken for $15. This works
+   ahead of time and during the day itself.
+4. **Nobody claims: the day stays empty.**
 
-### Money
+Hosts claim from the pinned spot on the Next tab (today) or any day tab (up to six days
+ahead). A host who has not connected their mic is walked through it in the same dialog
+("This is my mic" sends the normal host claim, then carries on to pay). A free claim needs
+a host Comediq has verified, because it goes live at once; a paid claim only needs the host
+claim to exist.
 
-Entering is always free. The settings are one row in `mic_of_the_day_config`:
+### Only on a day the mic really runs
 
-- Before `paid_from` (Dec 1, 2026): the winner is pinned right away, free. The button says
-  "Free for a limited time".
-- From `paid_from`: the winner has until `pay_by_hour` (10 AM New York) to pay `price_cents`
-  ($25) with a one-time Stripe Checkout payment. Paid means pinned. Not paid means forfeited,
-  and the next hourly check draws again from the entries that are left (that winner gets
-  `redraw_pay_hours`, 2 hours). The button says "Free to enter, $25 if you win".
+A mic can only be claimed for a date it runs on (`motd_runs_on` in the database, the same
+rules as `micKnownToRunOn` in `src/utils/micOccurrences.ts`):
 
-The payment reuses the two existing Stripe functions: `create-checkout-session` (called with
-`kind: 'mic_of_the_day'`) and `stripe-webhook`, which marks the entry paid. The winner email is
-`supabase/functions/motd-notify`. Comediq had no email sender, so that function needs one
-secret, `RESEND_API_KEY`; without it no email goes out and the winner only sees the
-"Pay $25 to pin" button on the site.
+- weekly: its weekday
+- 1st, 2nd, 3rd, 4th or last of the month: that one date each month
+- bi-weekly: only if its schedule text carries an anchor, written `anchor 2026-10-21`
+- pop-up or custom: only on dates listed in its schedule text, written `dates 2026-11-10,2026-12-01`
+
+A bi-weekly mic with no anchor, or a custom mic with only free text ("1st & 3rd Wednesday"),
+cannot be claimed at all until someone adds the anchor or the dates. That is on purpose: we
+do not pin a mic on a night we are only guessing it runs.
+
+### Money and refunds
+
+- Payment is a one-time Stripe Checkout through the existing `create-checkout-session`
+  function (called with `kind: 'mic_of_the_day'`). The database sets the amount. The spot
+  changes hands only in `stripe-webhook`, after the payment has succeeded.
+- **Outbid within the hour: full refund, automatically.** When a holder is replaced, the
+  database works out how long they were pinned *on the day itself* (`listed_seconds`). Under
+  `refund_under_minutes` (60) the webhook refunds them through Stripe and records it. Being
+  outbid before the day starts counts as zero minutes, so it is always refunded. Pinned for
+  an hour or more and then outbid: no refund.
+- **Two hosts paying the same price at once.** Starting checkout does not hold the date. The
+  first payment to succeed gets it; the second is refunded in full at once ("Paid too late").
+- **Refunds that did not go out** (Stripe was down, or an admin replaced a paying host) show
+  under "Refunds owed" in Admin > MOTD, to be sent from the Stripe dashboard and marked.
 
 ### The moving parts
 
-- `mic_of_the_day_entries`: every entry, with a status (`entered`, `won`, `lost`, `paid`,
-  `forfeited`). A database rule allows one entry per host per date and one winner per date.
-- `motd_tick()`: run every hour by pg_cron (`mic-of-the-day-tick`). Hourly instead of "at
-  midnight" because cron runs in UTC and New York changes its clocks; the first run after
-  midnight does the draw, once. Every draw, forfeit and admin change is written to
-  `mic_of_the_day_draw_log`.
-- `motd_week()`: the ONE call the site makes. It returns today plus six days, the settings and
-  the signed-in host's entries, and is cached for 15 minutes (`src/hooks/useMicOfTheDay.ts`).
+- `mic_of_the_day_entries`: the history. Every claim and bid is a row and none is deleted:
+  the date, the mic, the host, the price, when it went live, when it was outbid, minutes
+  pinned, and the refund (owed, sent, why). Status is `pending` (checkout started), `paid` or
+  `won` (holds the spot; `won` is a free one), `outbid`, or `void` (paid too late).
+- `mic_of_the_day_config`: one row of settings. Change a number there and the site follows.
+- `motd_week()`: the ONE call the site makes. It returns today plus six days (who is pinned,
+  what it costs to take), the settings and the signed-in host's latest bid per date, cached
+  for 15 minutes (`src/hooks/useMicOfTheDay.ts`).
 - `src/components/MicOfTheDaySlot.tsx`: the pinned spot and the claim dialog.
-- Admin > MOTD (`src/components/admin/AdminMicOfTheDay.tsx`): override, comp, clear or reset
-  any date, see the log, and run the draw check by hand.
+- Admin > MOTD (`src/components/admin/AdminMicOfTheDay.tsx`): the week, override (which is
+  also how to comp a day), clear, reset, refunds owed and the bid history.
+- `mic_of_the_day_draw_log`: a plain log of payments, refunds and admin changes.
 
 ### What was switched off, not deleted
 
-The config-file version from the day before (`src/config/featuredMics.ts`,
-`src/utils/featuredMic.ts`), the older fixed card (`MicOfTheDayCard.tsx`), the instant claim
-button (`ClaimMicOfDayButton.tsx`) and the old admin panel (`AdminMotdControl.tsx`, now folded
-under "Older Mic of the Day tools") are all still in the repo. The old tables
-(`mic_of_the_day`, `motd_weekly_defaults`, `motd_nominations`) are untouched and unused.
+- The random draw: its database functions (`motd_enter`, `motd_draw`, `motd_tick`) are still
+  there but nobody can call them, and the hourly job is unscheduled. The winner email
+  function (`supabase/functions/motd-notify`) is unused; nothing emails hosts today, so a
+  host finds out they were outbid by looking at the site.
+- The config-file version from the day before (`src/config/featuredMics.ts`,
+  `src/utils/featuredMic.ts`), the older fixed card (`MicOfTheDayCard.tsx`), the instant claim
+  button (`ClaimMicOfDayButton.tsx`) and the old admin panel (`AdminMotdControl.tsx`, now folded
+  under "Older Mic of the Day tools") are all still in the repo. The old tables
+  (`mic_of_the_day`, `motd_weekly_defaults`, `motd_nominations`) are untouched and unused.
 
 ## Summary of this session
 
 - Added the "By Comediq" sticker and marked Gdrink at Gnihton as Comediq-run with sign-up on.
-- Replaced Mic of the Day with a daily host draw, standing Monday and Thursday picks, a paid
-  winner step from Dec 1, 2026, and admin controls.
+- Mic of the Day is now claimed by hosts: free and first come before Dec 1, 2026, then an
+  auction from $15 in $5 steps, with an automatic refund for anyone outbid within an hour.
+- A mic can only be claimed for a date it really runs on, including bi-weekly and monthly mics.
