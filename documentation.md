@@ -2278,3 +2278,13 @@ as that evening's day.
 ## Summary of this session
 
 - Brought back Mic of the Day with sponsor, Comediq pick and Mic of the Month sources.
+
+## Session: new Thursday mic from the poster
+
+- Queued "Gdrink at Gnihton" (Thursdays 6:00 to 7:30 PM, 528 E 11th St, East Village, free with a
+  Comediq account plus a one drink minimum) in `scripts/ingest/open_mic_updates.json`. Merging that file
+  runs the "apply open mic updates" workflow, which adds the mic; the mic list file refreshes minutes later.
+- The poster is the only source. The name is copied as printed and the venue name "Gnihton" is read from
+  "at Gnihton", so both should be confirmed. No host or end time was given (end time uses the 90 minute default).
+- Not done yet: signups for this mic (`signup_enabled` is false until its signup event exists) and the map pin
+  (`npm run geocode:open-mics`). The three months free Premium idea was dropped.
