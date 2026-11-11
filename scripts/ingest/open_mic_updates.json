@@ -1416,6 +1416,31 @@
         "start_time": "6:30 PM",
         "latest_end_time": "8:00 PM"
       }
+    },
+    {
+      "note": "New mic from Adam's 'New Thursday Mic' poster (2026-11-11): 'Gdrink at Gnihton', every Thursday at 6 PM, 528 E 11th St, East Village. Free with a Comediq account + 1 drink minimum ($5 struck through on the poster). The poster is the only source: the NAME is copied exactly as printed, and VENUE NAME 'Gnihton' is READ from 'at Gnihton' in it, so confirm both. No end time on the poster, so the 90-minute default gives 6:00-7:30 PM. No host or Instagram is given. Sign up is 'comediq.us' per the poster; signup_enabled stays false until the time-block signup event for this mic exists. Coordinates are blank: run npm run geocode:open-mics.",
+      "row": {
+        "open_mic": "Gdrink at Gnihton",
+        "day": "Thursday",
+        "start_time": "6:00 PM",
+        "latest_end_time": "7:30 PM",
+        "venue_name": "Gnihton",
+        "location": "528 E 11th St, New York, NY 10009",
+        "borough": "Manhattan",
+        "neighborhood": "East Village",
+        "venue_type": "Bar",
+        "cost": "Free with a Comediq account + 1 drink minimum",
+        "stage_time": "",
+        "sign_up_instructions": "Sign up at comediq.us",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "online",
+        "signup_url": "https://comediq.us",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "other_rules": ""
+      }
     }
   ]
 }
