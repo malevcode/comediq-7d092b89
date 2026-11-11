@@ -8,18 +8,40 @@ import { supabase } from '@/integrations/supabase/client';
 import { useOpenMics } from '@/hooks/useOpenMics';
 import { useToast } from '@/hooks/use-toast';
 import { motdRpc, useMotdWeek } from '@/hooks/useMicOfTheDay';
-import { motdShortDate } from '@/config/micOfTheDay';
+import { motdDollars, motdShortDate } from '@/config/micOfTheDay';
 
 const STATE_LABEL: Record<string, string> = {
   pinned: 'Pinned',
-  awaiting_payment: 'Winner drawn, waiting for payment',
   cleared: 'Blank (cleared by admin)',
   open: 'Open',
 };
 
+const STATUS_LABEL: Record<string, string> = {
+  pending: 'Checkout started, not paid',
+  paid: 'Holds the spot',
+  won: 'Holds the spot (free)',
+  outbid: 'Outbid',
+  void: 'Paid too late',
+};
+
+type BidRow = {
+  id: string;
+  target_date: string;
+  mic_id: string | null;
+  status: string;
+  source: string;
+  price_paid_cents: number | null;
+  created_at: string;
+  listed_seconds: number | null;
+  refund_cents: number | null;
+  refund_reason: string | null;
+  refunded_at: string | null;
+};
+
 /**
- * Admin control for the Mic of the Day draw: see the week, and override, comp, clear or
- * reset any date. Standing picks and pricing are plain rows in Supabase
+ * Admin control for Mic of the Day: see the week and what each day costs to take, override,
+ * clear or reset any date, and see every bid with how long it was pinned and whether its
+ * refund went out. Standing picks and pricing are plain rows in Supabase
  * (mic_of_the_day_standing, mic_of_the_day_config) and are edited in the table editor.
  */
 export default function AdminMicOfTheDay() {
@@ -32,21 +54,21 @@ export default function AdminMicOfTheDay() {
   const [micId, setMicId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const log = useQuery({
-    queryKey: ['micOfTheDay', 'log'],
+  const bids = useQuery({
+    queryKey: ['micOfTheDay', 'bids'],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
-        .from('mic_of_the_day_draw_log')
-        .select('id, target_date, happened_at, event, entry_count, detail')
-        .order('id', { ascending: false })
-        .limit(15);
+        .from('mic_of_the_day_entries')
+        .select('id, target_date, mic_id, status, source, price_paid_cents, created_at, listed_seconds, refund_cents, refund_reason, refunded_at')
+        .order('created_at', { ascending: false })
+        .limit(40);
       if (error) throw error;
-      return data as Array<{ id: number; target_date: string; happened_at: string; event: string; entry_count: number | null; detail: string | null }>;
+      return data as BidRow[];
     },
     staleTime: 60 * 1000,
   });
 
-  const micName = (id: string | null) => mics.find((m) => m.uniqueIdentifier === id)?.openMic ?? id ?? '';
+  const micName = (id: string | null) => mics.find((m) => m.uniqueIdentifier === id)?.openMic ?? id ?? '(blank)';
   const targetDate = date || week?.today || '';
   const term = search.trim().toLowerCase();
   const matches = useMemo(
@@ -56,6 +78,7 @@ export default function AdminMicOfTheDay() {
         : [],
     [mics, term],
   );
+  const refundsOwed = (bids.data ?? []).filter((b) => b.refund_cents && !b.refunded_at);
 
   const run = async (label: string, call: () => PromiseLike<{ error: any }>) => {
     setBusy(true);
@@ -69,7 +92,7 @@ export default function AdminMicOfTheDay() {
     queryClient.invalidateQueries({ queryKey: ['micOfTheDay'] });
   };
 
-  const act = (action: 'set' | 'comp' | 'clear' | 'reset', label: string) =>
+  const act = (action: 'set' | 'clear' | 'reset', label: string) =>
     run(label, () =>
       motdRpc('motd_admin_set_day', { p_date: targetDate, p_action: action, p_mic_id: action === 'set' ? micId : null }),
     );
@@ -105,10 +128,12 @@ export default function AdminMicOfTheDay() {
               <span className="min-w-0 flex-1 truncate">
                 {d.mic_id ? micName(d.mic_id) : '—'}
                 <span className="text-muted-foreground">
-                  {' '}· {STATE_LABEL[d.state]}{d.source ? ` (${d.source})` : ''}
+                  {' '}· {STATE_LABEL[d.state]}{d.source ? ` (${d.source}${d.holder_price_cents ? `, ${motdDollars(d.holder_price_cents)}` : ''})` : ''}
                 </span>
               </span>
-              <span className="shrink-0 text-xs text-muted-foreground">{d.entries} entered</span>
+              <span className="shrink-0 text-xs text-muted-foreground">
+                {d.price_cents === null ? 'not for sale' : d.price_cents === 0 ? 'free to claim' : `${motdDollars(d.price_cents)} to take`}
+              </span>
             </button>
           ))}
         </div>
@@ -147,10 +172,7 @@ export default function AdminMicOfTheDay() {
         )}
         <div className="flex flex-wrap gap-2">
           <Button size="sm" disabled={busy || !micId || !targetDate} onClick={() => act('set', 'Override')}>
-            Override: pin this mic (free)
-          </Button>
-          <Button size="sm" variant="outline" disabled={busy || !targetDate} onClick={() => act('comp', 'Comp')}>
-            Comp the winner (no payment)
+            Override or comp: pin this mic free
           </Button>
           <Button size="sm" variant="outline" disabled={busy || !targetDate} onClick={() => act('clear', 'Clear')}>
             Clear the day (leave blank)
@@ -160,34 +182,56 @@ export default function AdminMicOfTheDay() {
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Override and Clear replace whatever is on that date, including a standing pick. Back to automatic undoes an
-          Override or Clear. Standing picks and pricing are rows in Supabase: mic_of_the_day_standing and
-          mic_of_the_day_config.
+          Override and Clear replace whatever is on that date, including a standing pick, and the date can no longer
+          be bought. A paying host who is replaced is listed under Refunds owed. Back to automatic undoes an Override
+          or Clear. Standing picks and pricing are rows in Supabase: mic_of_the_day_standing and mic_of_the_day_config.
         </p>
       </div>
 
-      <div>
-        <div className="flex items-center justify-between gap-2">
-          <h3 className="text-base font-bold">Draw log</h3>
-          <Button size="sm" variant="outline" disabled={busy} onClick={() => run('Draw check', () => motdRpc('motd_tick'))}>
-            Run the draw check now
-          </Button>
+      {refundsOwed.length > 0 && (
+        <div>
+          <h3 className="text-base font-bold">Refunds owed</h3>
+          <p className="text-xs text-muted-foreground">
+            Refunds normally go out by themselves. These have not: send each from the Stripe dashboard, then mark it.
+          </p>
+          <div className="mt-2 divide-y rounded-md border text-sm">
+            {refundsOwed.map((b) => (
+              <div key={b.id} className="flex items-center justify-between gap-3 p-2">
+                <span className="min-w-0 flex-1 truncate">
+                  {motdDollars(b.refund_cents!)} · {micName(b.mic_id)} · {b.target_date}
+                  <span className="text-muted-foreground"> · {b.refund_reason}</span>
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() => run('Marked as sent', () => motdRpc('motd_mark_refunded', { p_entry_id: b.id, p_refund_id: 'manual' }))}
+                >
+                  Mark refund sent
+                </Button>
+              </div>
+            ))}
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground">
-          The check runs by itself every hour. It draws today's winner once (just after midnight New York time),
-          forfeits unpaid winners and redraws.
-        </p>
+      )}
+
+      <div>
+        <h3 className="text-base font-bold">Bid history</h3>
         <div className="mt-2 divide-y rounded-md border text-xs">
-          {(log.data ?? []).map((l) => (
-            <div key={l.id} className="flex gap-3 p-2">
-              <span className="w-20 shrink-0 font-semibold">{l.target_date}</span>
-              <span className="w-28 shrink-0">{l.event}</span>
-              <span className="min-w-0 flex-1 text-muted-foreground">
-                {l.entry_count != null ? `${l.entry_count} in the draw. ` : ''}{l.detail}
+          {(bids.data ?? []).map((b) => (
+            <div key={b.id} className="flex flex-wrap gap-x-3 gap-y-0.5 p-2">
+              <span className="w-20 shrink-0 font-semibold">{b.target_date}</span>
+              <span className="min-w-0 flex-1 truncate">{micName(b.mic_id)}</span>
+              <span className="w-12 shrink-0">{b.price_paid_cents ? motdDollars(b.price_paid_cents) : 'free'}</span>
+              <span className="w-full text-muted-foreground sm:w-auto">
+                {b.source === 'admin' ? 'Admin · ' : ''}
+                {STATUS_LABEL[b.status] ?? b.status}
+                {b.listed_seconds != null ? ` after ${Math.floor(b.listed_seconds / 60)} min pinned` : ''}
+                {b.refund_cents ? ` · refund ${motdDollars(b.refund_cents)} ${b.refunded_at ? 'sent' : 'OWED'}` : ''}
               </span>
             </div>
           ))}
-          {log.data?.length === 0 && <p className="p-2 text-muted-foreground">Nothing drawn yet.</p>}
+          {bids.data?.length === 0 && <p className="p-2 text-muted-foreground">No claims yet.</p>}
         </div>
       </div>
     </div>

@@ -5,38 +5,44 @@ import { supabase } from '@/integrations/supabase/client';
 import { MOTD_FALLBACK_CONFIG, motdWeekday, type MotdConfig } from '@/config/micOfTheDay';
 
 /**
- * Mic of the Day, daily draw version.
+ * Mic of the Day, auction version.
  *
- * Everything comes from ONE small database call, motd_week(): today plus the next few days,
- * the pricing settings, and the signed-in host's own entries. It is cached for 15 minutes.
+ * Everything comes from ONE small database call, motd_week(): today plus the next few days
+ * (who is pinned and what it costs to take the spot), the settings, and the signed-in
+ * host's own latest bid per date. It is cached for 15 minutes.
  *
- * The earlier version picked from src/config/featuredMics.ts (sponsor, Comediq pick, Mic of
- * the Month winner). That file and src/utils/featuredMic.ts are still in the repo but nothing
- * calls them now.
+ * Earlier versions are still in the repo but nothing calls them: the config-file picker
+ * (src/config/featuredMics.ts, src/utils/featuredMic.ts) and, in the database, the random
+ * draw (motd_enter, motd_draw, motd_tick).
  */
 
 export type MotdDay = {
   date: string;
   mic_id: string | null;
-  source: 'standing' | 'draw' | 'admin' | null;
-  state: 'pinned' | 'awaiting_payment' | 'cleared' | 'open';
-  /** Hosts in the draw for this date so far. */
-  entries: number;
+  source: 'standing' | 'bid' | 'free' | 'admin' | 'draw' | null;
+  state: 'pinned' | 'cleared' | 'open';
+  /** What a host pays to take this date now. 0 = free claim. null = not available. */
+  price_cents: number | null;
+  /** What the current holder paid. */
+  holder_price_cents: number;
+  /** The signed-in host holds this date. */
+  mine: boolean;
 };
 
-export type MotdMyEntry = {
+export type MotdMyBid = {
   id: string;
   date: string;
   mic_id: string | null;
-  status: 'entered' | 'won' | 'lost' | 'paid' | 'forfeited';
-  pay_by: string | null;
+  status: 'won' | 'paid' | 'outbid' | 'void';
+  price_cents: number | null;
+  refund_cents: number | null;
 };
 
 export type MotdWeek = {
   today: string;
   config: MotdConfig;
   days: MotdDay[];
-  mine: MotdMyEntry[];
+  mine: MotdMyBid[];
 };
 
 // The generated Supabase types do not know the motd_* functions yet.
@@ -66,15 +72,15 @@ export function motdDayForTab(week: MotdWeek | undefined, tab: string): MotdDay 
   return week.days.find((d) => motdWeekday(d.date) === tab) ?? null;
 }
 
-/** Enter one of your mics in the draw for a date. Entering is always free. */
-export function useEnterMicOfTheDay() {
+/** Claim a free date (only before the paid start date). Paid claims go through checkout. */
+export function useClaimFreeMicOfTheDay() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ micId, date }: { micId: string; date: string }) => {
-      const { data, error } = await motdRpc('motd_enter', { p_mic_id: micId, p_date: date });
+      const { data, error } = await motdRpc('motd_claim_free', { p_mic_id: micId, p_date: date });
       if (error) throw error;
-      return data as { id: string; date: string; mic_id: string; host_verified: boolean };
+      return data as { id: string; date: string; mic_id: string };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['micOfTheDay'] });
@@ -105,11 +111,11 @@ export function useMicOfTheDay() {
   };
 }
 
-/** Deactivated. The old instant claim is replaced by the draw; see useEnterMicOfTheDay. */
+/** Deactivated. The old instant claim is replaced; see MicOfTheDaySlot. */
 export function useClaimMicOfTheDay() {
   return useMutation({
     mutationFn: async (_micUniqueIdentifier: string) => {
-      throw new Error('Mic of the Day is now a daily draw. Use "Claim Mic of the Day" at the top of the list.');
+      throw new Error('Use "Claim Mic of the Day" at the top of the list.');
     },
   });
 }

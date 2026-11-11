@@ -31,13 +31,23 @@ set is_comediq_run = true,
     last_verified_at = now()
 where unique_identifier = '21c4c8b9-8cc2-42d6-8a60-2534c75dfdaf';
 
+-- Written without ON CONFLICT: the live mic_hosts table has no unique rule on
+-- (user_id, mic_id), so ON CONFLICT fails there with error 42P10.
+update public.mic_hosts h
+set is_verified = true
+from public.profiles p
+where p.isadmin = true
+  and h.user_id = p.user_id
+  and h.mic_id = '21c4c8b9-8cc2-42d6-8a60-2534c75dfdaf';
+
 insert into public.mic_hosts (user_id, mic_id, is_verified)
 select p.user_id, m.unique_identifier, true
 from public.profiles p
 cross join public.open_mics_historical m
 where p.isadmin = true
   and m.unique_identifier = '21c4c8b9-8cc2-42d6-8a60-2534c75dfdaf'
-on conflict (user_id, mic_id) do update set is_verified = true;
+  and not exists (select 1 from public.mic_hosts h
+                  where h.user_id = p.user_id and h.mic_id = m.unique_identifier);
 
 -- ===== 3. Tables =====
 
@@ -137,7 +147,9 @@ $$;
 
 -- What a single date resolves to.
 --   state: 'pinned' | 'awaiting_payment' | 'cleared' | 'open'
-create or replace function public.motd_resolve(p_date date)
+-- Dropped first so this file can be run again after the auction file changed its shape.
+drop function if exists public.motd_resolve(date);
+create function public.motd_resolve(p_date date)
 returns table (mic_id uuid, source text, state text, entry_id uuid)
 language plpgsql
 stable

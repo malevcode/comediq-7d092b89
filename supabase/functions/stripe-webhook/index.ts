@@ -155,7 +155,10 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-  // Mic of the Day: a one-time payment by the drawn winner. Paid means pinned.
+  // Mic of the Day auction: a one-time payment to take the pinned spot. The database
+  // decides whether this payment wins the spot and which payments are owed back: the
+  // previous holder if they were pinned for under an hour, or this payer if someone else
+  // got there first. Each refund is sent here and then recorded.
   if (session.metadata?.kind === 'mic_of_the_day') {
     if (session.payment_status !== 'paid') {
       console.warn(`Ignoring unpaid Mic of the Day session ${session.id}`)
@@ -165,9 +168,32 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       p_entry_id: session.metadata.entry_id,
       p_session_id: session.id,
       p_amount_cents: session.amount_total ?? 0,
+      p_payment_intent: typeof session.payment_intent === 'string' ? session.payment_intent : null,
     })
     if (error) throw error
-    console.log(`Mic of the Day payment ${session.id}: ${data}`)
+    console.log(`Mic of the Day payment ${session.id}: ${data?.result}`)
+
+    const refunds = (data?.refunds ?? []) as Array<{ entry_id: string; payment_intent: string; amount_cents: number }>
+    for (const owed of refunds) {
+      let refundId: string
+      try {
+        const refund = await stripe.refunds.create(
+          { payment_intent: owed.payment_intent, amount: owed.amount_cents, metadata: { motd_entry_id: owed.entry_id } },
+          // Same key on a retry, so a refund is never sent twice.
+          { idempotencyKey: `motd-refund-${owed.entry_id}` },
+        )
+        refundId = refund.id
+      } catch (err) {
+        if ((err as { code?: string })?.code !== 'charge_already_refunded') throw err
+        refundId = 'already_refunded'
+      }
+      const { error: markError } = await supabase.rpc('motd_mark_refunded', {
+        p_entry_id: owed.entry_id,
+        p_refund_id: refundId,
+      })
+      if (markError) throw markError
+      console.log(`Mic of the Day refund ${refundId} for entry ${owed.entry_id}`)
+    }
     return
   }
 

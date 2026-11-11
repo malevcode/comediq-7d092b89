@@ -1,14 +1,16 @@
 /**
  * Mic of the Day: wording and small date helpers.
  *
- * The real settings (the date winning stops being free, the price, the pay-by hour) live in
- * the database table `mic_of_the_day_config`, so they can change without a code edit. The
- * numbers below are only what the site shows if that table cannot be read.
+ * The real settings (the date it stops being free, the starting price, the step between
+ * bids, the refund window) live in the database table `mic_of_the_day_config`, so they can
+ * change without a code edit. The numbers below are only what the site shows if that table
+ * cannot be read.
  */
 export const MOTD_FALLBACK_CONFIG = {
   paid_from: "2026-12-01",
-  price_cents: 2500,
-  pay_by_hour: 10,
+  start_price_cents: 1500,
+  increment_cents: 500,
+  refund_under_minutes: 60,
 };
 
 export type MotdConfig = typeof MOTD_FALLBACK_CONFIG;
@@ -16,16 +18,21 @@ export type MotdConfig = typeof MOTD_FALLBACK_CONFIG;
 export const MOTD_HOST_PITCH =
   "Hosts: claim your mic to be the pinned Mic of the Day for everyone to find first";
 
-export const motdPrice = (config: MotdConfig) => `$${Math.round(config.price_cents / 100)}`;
+/** 1500 -> "$15" */
+export const motdDollars = (cents: number) => `$${Math.round(cents / 100)}`;
 
-/** A win on this date costs money (dates are YYYY-MM-DD, so plain comparison works). */
-export const motdIsPaidDate = (dateIso: string, config: MotdConfig) => dateIso >= config.paid_from;
+/** The small line on the claim button. priceCents is what it costs to take the day now. */
+export const motdPriceLine = (priceCents: number, taking: boolean) =>
+  priceCents === 0
+    ? "Free for a limited time"
+    : taking
+      ? `${motdDollars(priceCents)} takes the spot`
+      : `${motdDollars(priceCents)} and everyone sees your mic first`;
 
-/** The line under the claim button. */
-export const motdPriceLine = (dateIso: string, config: MotdConfig) =>
-  motdIsPaidDate(dateIso, config)
-    ? `Free to enter, ${motdPrice(config)} if you win`
-    : "Free for a limited time";
+/** The rules, in one sentence, for the claim dialog. */
+export const motdAuctionRules = (config: MotdConfig) =>
+  `Another host can take the spot by paying ${motdDollars(config.increment_cents)} more than you did. ` +
+  `If that happens before your mic has been pinned for ${config.refund_under_minutes} minutes, you get a full refund automatically.`;
 
 const noonUtc = (dateIso: string) => new Date(`${dateIso}T12:00:00Z`);
 
@@ -39,6 +46,8 @@ export const motdShortDate = (dateIso: string) =>
     noonUtc(dateIso),
   );
 
-/** "10 AM" */
-export const motdPayByLabel = (config: MotdConfig) =>
-  `${((config.pay_by_hour + 11) % 12) + 1} ${config.pay_by_hour < 12 ? "AM" : "PM"}`;
+/** The calendar day as a local Date, for the "does this mic run on this date" check. */
+export const motdLocalDate = (dateIso: string) => {
+  const [y, m, d] = dateIso.split("-").map(Number);
+  return new Date(y, m - 1, d);
+};
