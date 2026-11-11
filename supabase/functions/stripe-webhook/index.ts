@@ -155,6 +155,22 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+  // Mic of the Day: a one-time payment by the drawn winner. Paid means pinned.
+  if (session.metadata?.kind === 'mic_of_the_day') {
+    if (session.payment_status !== 'paid') {
+      console.warn(`Ignoring unpaid Mic of the Day session ${session.id}`)
+      return
+    }
+    const { data, error } = await supabase.rpc('motd_mark_paid', {
+      p_entry_id: session.metadata.entry_id,
+      p_session_id: session.id,
+      p_amount_cents: session.amount_total ?? 0,
+    })
+    if (error) throw error
+    console.log(`Mic of the Day payment ${session.id}: ${data}`)
+    return
+  }
+
   const priceId = await getPriceIdFromCheckoutSession(session)
   if (priceId !== fullPassPriceId) {
     console.warn(`Ignoring checkout session ${session.id} for unknown price ${priceId}`)

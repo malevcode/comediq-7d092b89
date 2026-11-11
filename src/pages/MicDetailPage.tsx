@@ -12,6 +12,7 @@ import ClaimMicButton from "@/components/host/ClaimMicButton";
 import EditMicButton from "@/components/mic/EditMicButton";
 import { useAuth } from "@/contexts/AuthContext";
 import PageHeader from "@/components/PageHeader";
+import { ComediqSticker } from "@/components/ComediqSticker";
 
 function getMapUrl(location: string, venueName: string) {
   const searchQuery = encodeURIComponent(`${venueName}, ${location}`);
@@ -110,6 +111,12 @@ const MicDetailPage = () => {
               </button>
               <span className="truncate text-right">{mic.neighborhood?.toLowerCase()} · {mic.borough?.toLowerCase()}</span>
             </div>
+
+            {mic.isComediqRun && (
+              <div className="mb-3 flex justify-end">
+                <ComediqSticker className="px-3 py-1 text-sm" />
+              </div>
+            )}
 
             {/* Display name */}
             <h1

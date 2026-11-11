@@ -63,6 +63,7 @@ const COLUMNS = [
   "geocoding_provider",
   "geocoding_score",
   "geocoding_match_address",
+  "is_comediq_run",
 ].join(",");
 
 const OUT_PATH = join(process.cwd(), "public", "mics.json");
@@ -92,6 +93,7 @@ function mapRow(row) {
     uniqueIdentifier: row.unique_identifier || "",
     city: row.city || "",
     signupEnabled: row.signup_enabled || false,
+    isComediqRun: row.is_comediq_run || undefined,
     otherRules: row.other_rules || "",
     coverImageUrl: row.cover_image_url || undefined,
     status: row.status || "verified",
@@ -130,7 +132,16 @@ async function fetchPage(from, size, table = "open_mics_historical", select = CO
     },
   });
 
-  if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`);
+  if (!res.ok) {
+    const text = await res.text();
+    // is_comediq_run is new. If its migration has not been run yet, export without it
+    // rather than failing the whole refresh.
+    if (text.includes("is_comediq_run") && select.includes(",is_comediq_run")) {
+      console.warn("[export-mics] is_comediq_run column not found, exporting without it");
+      return fetchPage(from, size, table, select.replace(",is_comediq_run", ""), filters);
+    }
+    throw new Error(`Supabase ${res.status}: ${text}`);
+  }
   return res.json();
 }
 

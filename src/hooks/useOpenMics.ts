@@ -97,6 +97,7 @@ export function mapSupabaseRow(row: any): OpenMic {
     uniqueIdentifier: row.unique_identifier || "",
     city: row.city || "",
     signupEnabled: row.signup_enabled || false,
+    isComediqRun: row.is_comediq_run || false,
     otherRules: row.other_rules || "",
     coverImageUrl: row.cover_image_url || undefined,
     status: row.status || "verified",
@@ -119,17 +120,29 @@ export function mapSupabaseRow(row: any): OpenMic {
   });
 }
 
-async function fetchFromSupabase(): Promise<OpenMic[]> {
-  const { data, error } = await supabase
-    .from("open_mics_historical")
-    .select(LIVE_COLUMNS)
-    .eq("active", true)
-    .neq("status", "pending")
-    .order("day", { ascending: true })
-    .order("start_time", { ascending: true });
+// is_comediq_run is a new column. Ask for it, and if the database does not have it yet
+// (its migration has not been run) ask again without it, so the mic list never breaks.
+async function selectMics(
+  build: (columns: string) => PromiseLike<{ data: any[] | null; error: any }>,
+): Promise<OpenMic[]> {
+  let res = await build(`${LIVE_COLUMNS},is_comediq_run`);
+  if (res.error && String(res.error.message ?? "").includes("is_comediq_run")) {
+    res = await build(LIVE_COLUMNS);
+  }
+  if (res.error) throw res.error;
+  return (res.data || []).map(mapSupabaseRow);
+}
 
-  if (error) throw error;
-  return (data || []).map(mapSupabaseRow);
+async function fetchFromSupabase(): Promise<OpenMic[]> {
+  return selectMics((columns) =>
+    supabase
+      .from("open_mics_historical")
+      .select(columns)
+      .eq("active", true)
+      .neq("status", "pending")
+      .order("day", { ascending: true })
+      .order("start_time", { ascending: true }),
+  );
 }
 
 // mics.json refreshes a few minutes after a change, so fetch the last 30 days of
@@ -137,15 +150,14 @@ async function fetchFromSupabase(): Promise<OpenMic[]> {
 // everyone right away.
 async function fetchRecentFromSupabase(): Promise<OpenMic[]> {
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const { data, error } = await supabase
-    .from("open_mics_historical")
-    .select(LIVE_COLUMNS)
-    .eq("active", true)
-    .neq("status", "pending")
-    .gte("submission_date", since);
-
-  if (error) throw error;
-  return (data || []).map(mapSupabaseRow);
+  return selectMics((columns) =>
+    supabase
+      .from("open_mics_historical")
+      .select(columns)
+      .eq("active", true)
+      .neq("status", "pending")
+      .gte("submission_date", since),
+  );
 }
 
 function mergeRecent(base: OpenMic[], recent: OpenMic[]): OpenMic[] {

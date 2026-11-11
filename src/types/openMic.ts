@@ -50,6 +50,8 @@ export interface OpenMic {
   uniqueIdentifier: string;
   city: string;
   signupEnabled: boolean;
+  /** Comediq runs this mic itself. Shows the "By Comediq" sticker. */
+  isComediqRun?: boolean;
   otherRules: string;
   coverImageUrl?: string;
   status: MicStatus;

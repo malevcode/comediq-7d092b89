@@ -481,7 +481,8 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           nextHref={`${filterParam ? `/open-mics/${filterParam}` : "/open-mics"}?page=${Math.floor(visibleCount / PAGE_SIZE) + 1}`}
           onLoadMore={(n) => setSearchParams(p => { const q = new URLSearchParams(p); q.set("page", String(Math.ceil(n / PAGE_SIZE))); return q; }, { replace: true, preventScrollReset: true })}
           showSponsor={activeTab === "next"}
-          showMicOfDay={activeTab === "next"}
+          showMicOfDay={activeTab === "next" || daysOfWeek.includes(activeTab)}
+          micOfDayTab={activeTab}
           sinkFinishedToday={!daysOfWeek.includes(tabName)}
           onOpenMic={setSelectedMic}
         />

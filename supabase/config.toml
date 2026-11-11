@@ -4,6 +4,10 @@ project_id = "wwqoztrqprqksdubjwgj"
 enabled = true
 verify_jwt = false
 
+[functions.motd-notify]
+enabled = true
+verify_jwt = false
+
 [functions.create-billing-portal-session]
 enabled = true
 verify_jwt = false

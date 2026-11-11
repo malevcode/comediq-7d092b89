@@ -1,3 +1,4 @@
+import { ComediqSticker } from "@/components/ComediqSticker";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
@@ -346,6 +347,7 @@ const MicDetailModal = ({ mic, onClose, onAddToSchedule }: MicDetailModalProps) 
               submissionDate={mic.submissionDate}
               size="md"
             />
+            {mic.isComediqRun && <ComediqSticker className="ml-auto" />}
           </div>
 
           <h2 className="text-[26px] font-bold leading-[1.1] tracking-tight">
