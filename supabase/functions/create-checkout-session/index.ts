@@ -130,7 +130,7 @@ Deno.serve(async (req) => {
     if (!user?.email) return json({ error: 'Not authenticated' }, 401)
     console.log('Creating checkout session for user', user.id)
 
-    const { returnPath, returnUrl } = await req.json().catch(() => ({ returnPath: '/' }))
+    const { returnPath, returnUrl, kind, entryId } = await req.json().catch(() => ({ returnPath: '/' }))
     const safeReturnPath = getSafeReturnPath(returnPath)
     const safeReturnUrl = getSafeReturnUrl(returnUrl)
 
@@ -140,6 +140,41 @@ Deno.serve(async (req) => {
         persistSession: false,
       },
     })
+
+    // Mic of the Day: the drawn winner pays once to pin their mic. Not a subscription.
+    // The date is only marked paid by stripe-webhook, after the payment succeeds.
+    if (kind === 'mic_of_the_day') {
+      const { data: entry } = await admin
+        .from('mic_of_the_day_entries')
+        .select('id, target_date, host_user_id, status, pay_by')
+        .eq('id', entryId ?? '')
+        .maybeSingle()
+      if (!entry || entry.host_user_id !== user.id) return json({ error: 'Entry not found' }, 404)
+      if (entry.status !== 'won' || !entry.pay_by || new Date(entry.pay_by) <= new Date()) {
+        return json({ error: 'This spot is no longer waiting for payment' }, 409)
+      }
+      const { data: config } = await admin.from('mic_of_the_day_config').select('price_cents').maybeSingle()
+
+      const motdSession = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        customer_email: user.email,
+        client_reference_id: user.id,
+        line_items: [
+          {
+            quantity: 1,
+            price_data: {
+              currency: 'usd',
+              unit_amount: config?.price_cents ?? 2500,
+              product_data: { name: `Comediq Mic of the Day, ${entry.target_date}` },
+            },
+          },
+        ],
+        metadata: { kind: 'mic_of_the_day', entry_id: entry.id },
+        success_url: `${siteUrl}/open-mics?motd=paid`,
+        cancel_url: `${siteUrl}/open-mics`,
+      })
+      return json({ url: motdSession.url })
+    }
 
     const { data: profile, error: profileError } = await admin
       .from('profiles')

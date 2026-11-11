@@ -18,11 +18,10 @@ import EditMicButton from '@/components/mic/EditMicButton';
 import MicCommentSection from '@/components/mic/MicCommentSection';
 import { FREQUENCY_LABELS } from '@/types/openMic';
 import { SponsorCard } from '@/components/SponsorCard';
-import { MicOfTheDayCard } from '@/components/MicOfTheDayCard';
-import { useMicOfTheDay } from '@/hooks/useMicOfTheDay';
+// MicOfTheDayCard (the older fixed card) is no longer shown; MicOfTheDaySlot replaces it.
+import { MicOfTheDaySlot } from '@/components/MicOfTheDaySlot';
+import { ComediqSticker } from '@/components/ComediqSticker';
 import ClaimMicButton from '@/components/host/ClaimMicButton';
-import ClaimMicOfDayButton from '@/components/host/ClaimMicOfDayButton';
-import NominateMotdButton from '@/components/motd/NominateMotdButton';
 import { getBoroughOutline } from "@/utils/boroughColors";
 import CalendarSheet from "@/components/mic/CalendarSheet";
 
@@ -139,10 +138,13 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
   return (
     <div
       ref={(el) => onRegisterRow?.(mic.uniqueIdentifier, el)}
-      className={`flex pb-1 mb-0 flex-col md:flex-row w-full rounded-xl p-2.5 gap-0.5 md:gap-3 overflow-x-hidden transition-transform duration-300 hover:scale-[1.01] hover:bg-white/35 hover:shadow-[0_34px_110px_rgba(4,20,55,0.22),0_12px_36px_rgba(4,20,55,0.12)] dark:hover:bg-white/16 dark:hover:shadow-[0_34px_110px_rgba(2,10,30,0.5),0_12px_36px_rgba(2,10,30,0.3)] ${cardSurfaceClass} ${flash ? 'ring-2 ring-blue-400 ring-offset-2' : ''}`}
+      className={`relative flex pb-1 mb-0 flex-col md:flex-row w-full rounded-xl p-2.5 gap-0.5 md:gap-3 overflow-x-hidden transition-transform duration-300 hover:scale-[1.01] hover:bg-white/35 hover:shadow-[0_34px_110px_rgba(4,20,55,0.22),0_12px_36px_rgba(4,20,55,0.12)] dark:hover:bg-white/16 dark:hover:shadow-[0_34px_110px_rgba(2,10,30,0.5),0_12px_36px_rgba(2,10,30,0.3)] ${cardSurfaceClass} ${flash ? 'ring-2 ring-blue-400 ring-offset-2' : ''}`}
       id={mic.id}
       style={cardStyle}
     >
+      {mic.isComediqRun && (
+        <ComediqSticker className="absolute right-1.5 top-1.5 z-10" />
+      )}
       {/* Left: Name, Location, Date */}
       <div className="flex-1 min-w-0 mr-1 text-center">
         <div className="flex items-center w-full">
@@ -267,7 +269,8 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
       <div className="w-full md:flex-[1.2] flex flex-col justify-center gap-0">
         {expanded && (
           <div className="mb-2 flex flex-col gap-1.5 rounded-md bg-white/25 p-2 text-[#07111f]/70 shadow-[0_20px_70px_rgba(2,10,30,0.14),0_8px_24px_rgba(2,10,30,0.08)] backdrop-blur-2xl dark:bg-[#102a53]/20 dark:text-white/70 dark:shadow-[0_24px_80px_rgba(2,10,30,0.34),0_8px_28px_rgba(2,10,30,0.2)]">
-            {/* Nominate for Mic of the Day, subtle inline text link */}
+            {/* Deactivated: nominations were switched off earlier and Mic of the Day is now
+                a host draw, so this link went nowhere.
             <div onClick={(e) => e.stopPropagation()}>
               <NominateMotdButton
                 micUniqueIdentifier={mic.uniqueIdentifier}
@@ -275,6 +278,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
                 variant="inline"
               />
             </div>
+            */}
 
             {mic.legacyTag && (
               <div className="flex items-center gap-1 text-[10px]">
@@ -379,10 +383,13 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
               venueName={mic.venueName}
             />
             {/* Mic of the Day claim (only renders for verified hosts) */}
+            {/* Deactivated: Mic of the Day is now a draw, entered from the pinned spot at the
+                top of the list (MicOfTheDaySlot).
             <ClaimMicOfDayButton
               micUniqueIdentifier={mic.uniqueIdentifier}
               micName={mic.openMic}
             />
+            */}
             {/* Nominate button moved to top of expanded panel */}
             <CalendarSheet mic={mic} open={calendarSheetOpen} onOpenChange={setCalendarSheetOpen} />
           </div>
@@ -415,6 +422,7 @@ export default function OpenMicsDetailedList({
   setVisibleCount,
   showSponsor = true,
   showMicOfDay = false,
+  micOfDayTab = 'next',
   selectedMicId = null,
   onOpenMic,
   sinkFinishedToday = true,
@@ -427,6 +435,8 @@ export default function OpenMicsDetailedList({
   setVisibleCount: React.Dispatch<React.SetStateAction<number>>;
   showSponsor?: boolean;
   showMicOfDay?: boolean;
+  /** Which day the Mic of the Day spot is for: "next" (today) or a weekday name. */
+  micOfDayTab?: string;
   selectedMicId?: string | null;
   onOpenMic?: (mic: OpenMic) => void;
   /**
@@ -459,7 +469,6 @@ export default function OpenMicsDetailedList({
   const rowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const { user } = useAuth();
   const { toast } = useToast();
-  const { mic: micOfDay } = useMicOfTheDay();
 
   const registerRow = (id: string, el: HTMLDivElement | null) => {
     if (el) rowRefs.current.set(id, el);
@@ -510,15 +519,23 @@ export default function OpenMicsDetailedList({
 
   return (
     <div className="flex flex-col gap-3">
-      {(showSponsor || showMicOfDay) && (
-        showMicOfDay && micOfDay ? (
-          // Premium full-width MOTD takes the whole top slot
-          <MicOfTheDayCard variant="premium" onSelect={handleSelectMicOfDay} />
-        ) : showSponsor ? (
-          // Fallback to sponsor ad if no MOTD is set today
+      {(showSponsor || showMicOfDay) && (() => {
+        const sponsor = showSponsor ? (
           <SponsorCard placement="mic_list" className="border-white/10 bg-white/10 text-white shadow-[0_30px_100px_rgba(2,10,30,0.44),0_10px_32px_rgba(2,10,30,0.28)] backdrop-blur-2xl" />
-        ) : null
-      )}
+        ) : null;
+        // Mic of the Day takes the top spot. With nothing pinned or claimable, the sponsor
+        // card shows instead (on the Next tab), like before.
+        return showMicOfDay ? (
+          <MicOfTheDaySlot
+            tab={micOfDayTab}
+            fallback={sponsor}
+            onSelect={(m) => {
+              if (validMics.some((v) => v.uniqueIdentifier === m.uniqueIdentifier)) handleSelectMicOfDay(m.uniqueIdentifier);
+              else onOpenMic?.(m);
+            }}
+          />
+        ) : sponsor;
+      })()}
       {validMics.slice(0, visibleCount).map((mic) => (
         <OpenMicDetailedCard
           key={mic.id}

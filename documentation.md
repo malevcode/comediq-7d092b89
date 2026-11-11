@@ -2288,3 +2288,78 @@ as that evening's day.
   "at Gnihton", so both should be confirmed. No host or end time was given (end time uses the 90 minute default).
 - Not done yet: signups for this mic (`signup_enabled` is false until its signup event exists) and the map pin
   (`npm run geocode:open-mics`). The three months free Premium idea was dropped.
+
+## Session: "By Comediq" sticker and the Mic of the Day draw
+
+All of the database side is one file, `supabase/migrations/20261111120000_mic_of_the_day_draw.sql`
+(also appended to `supabase/RUN_ME_pending.sql`). Nothing below works until that SQL has been run.
+
+### The "By Comediq" sticker
+
+`open_mics_historical.is_comediq_run` (true or false, default false) marks a mic Comediq runs
+itself. When it is true the mic shows a tilted blue and white "By Comediq" sticker in the top
+right corner of its listing card, on its detail page and in the quick-view. The sticker is one
+component, `src/components/ComediqSticker.tsx`; Mic of the Day uses the same one in blue.
+To mark another mic, set the column to true in Supabase and run **Refresh mics.json**.
+Gdrink at Gnihton is the first: the SQL also turns its sign-up on, sets the host text to
+"Comediq" and makes every admin account a verified host of it.
+
+### Mic of the Day: how a day gets its mic
+
+Think of a hat. Hosts put one of their mics in the hat for a future date. Just after midnight
+in New York, one name is pulled out for that day and pinned to the top of the listings.
+
+1. **Standing picks skip the hat.** Monday is Crash Landing Comedy and Thursday is Gdrink at
+   Gnihton. These are rows in the table `mic_of_the_day_standing` (0 = Sunday ... 6 = Saturday).
+2. **Other days are a draw.** Hosts enter from the pinned spot on any day tab ("Claim your mic
+   for tomorrow"). One entry per host per date, and the mic must run on that weekday.
+3. **Nobody entered: the day stays empty.** Nothing is auto-picked.
+
+A host who has not connected their mic to their account is walked through it in the same
+dialog ("This is my mic" sends the normal host claim, then enters them). Only hosts Comediq
+has verified are in the draw, so new claims need verifying in Admin before midnight.
+
+### Money
+
+Entering is always free. The settings are one row in `mic_of_the_day_config`:
+
+- Before `paid_from` (Dec 1, 2026): the winner is pinned right away, free. The button says
+  "Free for a limited time".
+- From `paid_from`: the winner has until `pay_by_hour` (10 AM New York) to pay `price_cents`
+  ($25) with a one-time Stripe Checkout payment. Paid means pinned. Not paid means forfeited,
+  and the next hourly check draws again from the entries that are left (that winner gets
+  `redraw_pay_hours`, 2 hours). The button says "Free to enter, $25 if you win".
+
+The payment reuses the two existing Stripe functions: `create-checkout-session` (called with
+`kind: 'mic_of_the_day'`) and `stripe-webhook`, which marks the entry paid. The winner email is
+`supabase/functions/motd-notify`. Comediq had no email sender, so that function needs one
+secret, `RESEND_API_KEY`; without it no email goes out and the winner only sees the
+"Pay $25 to pin" button on the site.
+
+### The moving parts
+
+- `mic_of_the_day_entries`: every entry, with a status (`entered`, `won`, `lost`, `paid`,
+  `forfeited`). A database rule allows one entry per host per date and one winner per date.
+- `motd_tick()`: run every hour by pg_cron (`mic-of-the-day-tick`). Hourly instead of "at
+  midnight" because cron runs in UTC and New York changes its clocks; the first run after
+  midnight does the draw, once. Every draw, forfeit and admin change is written to
+  `mic_of_the_day_draw_log`.
+- `motd_week()`: the ONE call the site makes. It returns today plus six days, the settings and
+  the signed-in host's entries, and is cached for 15 minutes (`src/hooks/useMicOfTheDay.ts`).
+- `src/components/MicOfTheDaySlot.tsx`: the pinned spot and the claim dialog.
+- Admin > MOTD (`src/components/admin/AdminMicOfTheDay.tsx`): override, comp, clear or reset
+  any date, see the log, and run the draw check by hand.
+
+### What was switched off, not deleted
+
+The config-file version from the day before (`src/config/featuredMics.ts`,
+`src/utils/featuredMic.ts`), the older fixed card (`MicOfTheDayCard.tsx`), the instant claim
+button (`ClaimMicOfDayButton.tsx`) and the old admin panel (`AdminMotdControl.tsx`, now folded
+under "Older Mic of the Day tools") are all still in the repo. The old tables
+(`mic_of_the_day`, `motd_weekly_defaults`, `motd_nominations`) are untouched and unused.
+
+## Summary of this session
+
+- Added the "By Comediq" sticker and marked Gdrink at Gnihton as Comediq-run with sign-up on.
+- Replaced Mic of the Day with a daily host draw, standing Monday and Thursday picks, a paid
+  winner step from Dec 1, 2026, and admin controls.
