@@ -946,17 +946,6 @@
       "set": {
         "open_mic": "Rodney's Mic w/ Adam Thomas *SKIPS 11/11*"
       }
-    },
-    {
-      "unique_identifier": "21c4c8b9-8cc2-42d6-8a60-2534c75dfdaf",
-      "note": "Gdrink at Gnihton, Adam 2026-11-11: price text becomes '$5 or Subscribe!' (replacing 'Free with a Comediq account + 1 drink minimum'), and the mic takes sign-ups on Comediq's own sign-up sheet, so Register opens the sheet instead of the comediq.us home page. Host is Comediq. Start time, end time and name are unchanged.",
-      "set": {
-        "cost": "$5 or Subscribe!",
-        "signup_enabled": true,
-        "slots_enabled": true,
-        "signup_method": "comediq_slots",
-        "hosts_organizers": "Comediq"
-      }
     }
   ],
   "removals": [
@@ -1429,7 +1418,7 @@
       }
     },
     {
-      "note": "New mic from Adam's 'New Thursday Mic' poster (2026-11-11): 'Gdrink at Gnihton', every Thursday at 6 PM, 528 E 11th St, East Village. Free with a Comediq account + 1 drink minimum ($5 struck through on the poster). The poster is the only source: the NAME is copied exactly as printed, and VENUE NAME 'Gnihton' is READ from 'at Gnihton' in it, so confirm both. No end time on the poster, so the 90-minute default gives 6:00-7:30 PM. No host or Instagram is given. Sign up is 'comediq.us' per the poster; signup_enabled stays false until the time-block signup event for this mic exists. Coordinates are blank: run npm run geocode:open-mics.",
+      "note": "New mic from Adam's 'New Thursday Mic' poster (2026-11-11): 'Gdrink at Gnihton', every Thursday at 6 PM, 528 E 11th St, East Village. Free with a Comediq account + 1 drink minimum ($5 struck through on the poster). The poster is the only source: the NAME is copied exactly as printed, and VENUE NAME 'Gnihton' is READ from 'at Gnihton' in it, so confirm both. No end time on the poster, so the 90-minute default gives 6:00-7:30 PM. No host or Instagram is given. Sign up is 'comediq.us' per the poster; signup_enabled stays false until the time-block signup event for this mic exists. Coordinates are blank: run npm run geocode:open-mics. UPDATED 2026-11-11 (Adam): this is Comediq's own mic. Price text is now '$5 or Subscribe!', sign-ups run on Comediq's sign-up sheet (signup_method comediq_slots, slots_enabled and signup_enabled true), host is Comediq and status is verified so the trial expiry never hides it. This entry is re-asserted on every run, so change the mic HERE, not with a separate edit.",
       "row": {
         "open_mic": "Gdrink at Gnihton",
         "day": "Thursday",
@@ -1440,17 +1429,18 @@
         "borough": "Manhattan",
         "neighborhood": "East Village",
         "venue_type": "Bar",
-        "cost": "Free with a Comediq account + 1 drink minimum",
+        "cost": "$5 or Subscribe!",
         "stage_time": "",
         "sign_up_instructions": "Sign up at comediq.us",
         "city": "New York",
-        "status": "trial",
+        "status": "verified",
         "frequency": "weekly",
-        "signup_method": "online",
+        "signup_method": "comediq_slots",
         "signup_url": "https://comediq.us",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "other_rules": ""
+        "signup_enabled": true,
+        "slots_enabled": true,
+        "other_rules": "",
+        "hosts_organizers": "Comediq"
       }
     }
   ]
