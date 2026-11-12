@@ -2416,3 +2416,7 @@ do not pin a mic on a night we are only guessing it runs.
   written in the batch file so the next run does not turn the Sign Up for Spots button off. Adam claims the mic
   himself on his own account.
 - Still needs the signup SQL from `supabase/RUN_ME_pending.sql` run in Supabase, or the sheet cannot be created.
+
+- Running `RUN_ME_pending.sql` stopped at the ShowTN view with "operator does not exist: text >= date": in the live
+  database `audience_shows.show_date` is text. The view now casts it (`show_date::date`) and was tested on both a
+  text and a date column. Re-run the whole file; every statement is safe to repeat.

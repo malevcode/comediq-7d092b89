@@ -251,7 +251,7 @@ where s.verified is true
   and s.status = 'active'
   and s.is_active is true
   and coalesce(s.is_recurring, false) = false
-  and s.show_date >= (now() at time zone 'America/New_York')::date
+  and s.show_date::date >= (now() at time zone 'America/New_York')::date
   and (
     s.source is null
     or exists (
