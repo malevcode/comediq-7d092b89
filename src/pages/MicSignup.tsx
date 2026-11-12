@@ -8,13 +8,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import SEO from '@/components/SEO';
-import { ArrowLeft, Calendar, Clock, Loader2, MapPin, UserCheck, UserPlus } from 'lucide-react';
+import { ArrowLeft, Loader2, UserPlus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cancelSignup, getOrCreateNextEvent, signUpForEvent } from '@/api/signups';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { generateVenueSlug } from '@/utils/slugify';
+import { OpenMicFullCard } from '@/components/OpenMicsDetailedList';
 
 const glassCardClass = "border-0 bg-white/40 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 dark:bg-[#07111f]/60 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.34)]";
 const glassPanelClass = "rounded-lg border-0 bg-white/30 p-4 text-[#07111f] shadow-[0_10px_30px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#07111f]/50 dark:text-white dark:shadow-[0_10px_30px_rgba(2,10,30,0.22)]";
@@ -363,53 +364,8 @@ export default function MicSignup() {
           </div>
         )}
 
-        <Card className={glassCardClass}>
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-3xl mb-2 text-[#07111f] dark:text-white">{mic.openMic}</CardTitle>
-                <CardDescription className="text-lg text-[#07111f]/60 dark:text-white/60">{mic.venueName}</CardDescription>
-              </div>
-              <Badge variant="outline" className="border-[#07111f]/10 bg-white/40 text-sm text-[#07111f] dark:border-white/10 dark:bg-white/10 dark:text-white">
-                {mic.borough}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex items-center gap-2 text-[#07111f]/60 dark:text-white/60">
-              <Calendar className="w-4 h-4" />
-              <span>{mic.day}</span>
-            </div>
-            <div className="flex items-center gap-2 text-[#07111f]/60 dark:text-white/60">
-              <Clock className="w-4 h-4" />
-              <span>{mic.startTime} - {mic.latestEndTime}</span>
-            </div>
-            <div className="flex items-center gap-2 text-[#07111f]/60 dark:text-white/60">
-              <MapPin className="w-4 h-4" />
-              <span>{mic.location}</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Host Claim CTA */}
-        <Card className={glassCardClass}>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <UserCheck className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="font-medium text-[#07111f] dark:text-white">Are you the host of this mic?</p>
-                  <p className="text-sm text-[#07111f]/60 dark:text-white/60">Claim it to manage signups and keep info updated</p>
-                </div>
-              </div>
-              <Button asChild variant="outline" size="sm">
-                <Link to={`/host-dashboard?claim=${mic.uniqueIdentifier}`}>
-                  Claim This Mic
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* The full mic card, so this page shows everything the list does. */}
+        <OpenMicFullCard mic={mic} />
 
       </div>
     </>
