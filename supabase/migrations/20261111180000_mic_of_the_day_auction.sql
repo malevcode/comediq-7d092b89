@@ -18,7 +18,6 @@
 
 -- ===== 1. Switch the draw off (left in place, not dropped) =====
 
-select cron.unschedule(jobid) from cron.job where jobname = 'mic-of-the-day-tick';
 revoke all on function public.motd_enter(uuid, date) from public, anon, authenticated;
 revoke all on function public.motd_tick() from public, anon, authenticated;
 revoke all on function public.motd_draw(date) from public, anon, authenticated;
@@ -61,7 +60,7 @@ create index if not exists mic_of_the_day_entries_date on public.mic_of_the_day_
 -- Same rules as micKnownToRunOn in src/utils/micOccurrences.ts. When the schedule does not
 -- pin the date down (bi-weekly with no "anchor 2026-10-21", custom with no "dates ..."),
 -- the answer is no, so nobody is pinned on a night their mic is dark.
-create or replace function public.motd_runs_on(p_mic_id uuid, p_date date)
+create or replace function public.motd_runs_on(p_mic_id text, p_date date)
 returns boolean
 language plpgsql
 stable
@@ -81,7 +80,7 @@ begin
   select m.day, coalesce(m.frequency::text, 'weekly'), m.frequency_custom_text
   into v_day, v_freq, v_text
   from public.open_mics_historical m
-  where m.unique_identifier = p_mic_id and m.active = true;
+  where m.unique_identifier::text = p_mic_id and m.active = true;
   if not found then
     return false;
   end if;
@@ -130,7 +129,7 @@ $$;
 -- price_cents: what a host pays to take the date now. 0 = free claim. null = not available.
 drop function if exists public.motd_resolve(date);
 create function public.motd_resolve(p_date date)
-returns table (mic_id uuid, source text, state text, entry_id uuid,
+returns table (mic_id text, source text, state text, entry_id uuid,
                holder_user_id uuid, holder_price_cents integer, price_cents integer)
 language plpgsql
 stable
@@ -140,7 +139,7 @@ as $$
 declare
   c public.mic_of_the_day_config;
   w public.mic_of_the_day_entries;
-  s uuid;
+  s text;
   v_paid_day boolean;
 begin
   select * into c from public.mic_of_the_day_config limit 1;
@@ -168,7 +167,7 @@ begin
     return;
   end if;
 
-  return query select null::uuid, null::text, 'open'::text, null::uuid, null::uuid, 0,
+  return query select null::text, null::text, 'open'::text, null::uuid, null::uuid, 0,
     case when v_paid_day then c.start_price_cents else 0 end;
 end;
 $$;
@@ -230,7 +229,7 @@ end;
 $$;
 
 -- ===== 5. Shared checks for a claim =====
-create or replace function public.motd_check_claim(p_user uuid, p_mic_id uuid, p_date date)
+create or replace function public.motd_check_claim(p_user uuid, p_mic_id text, p_date date)
 returns void
 language plpgsql
 stable
@@ -249,7 +248,7 @@ begin
   if p_date < v_today or p_date > v_today + c.days_ahead then
     raise exception 'You can claim today or up to % days ahead.', c.days_ahead;
   end if;
-  if not exists (select 1 from public.mic_hosts h where h.user_id = p_user and h.mic_id = p_mic_id) then
+  if not exists (select 1 from public.mic_hosts h where h.user_id = p_user and h.mic_id::text = p_mic_id) then
     raise exception 'Claim this mic as its host first.';
   end if;
   if not public.motd_runs_on(p_mic_id, p_date) then
@@ -259,7 +258,7 @@ end;
 $$;
 
 -- ===== 6. Free claim (dates before paid_from) =====
-create or replace function public.motd_claim_free(p_mic_id uuid, p_date date)
+create or replace function public.motd_claim_free(p_mic_id text, p_date date)
 returns jsonb
 language plpgsql
 security definer
@@ -277,7 +276,7 @@ begin
 
   -- Free pins go live at once, so only hosts Comediq has verified can take one.
   if not exists (select 1 from public.mic_hosts h
-                 where h.user_id = v_user and h.mic_id = p_mic_id and h.is_verified) then
+                 where h.user_id = v_user and h.mic_id::text = p_mic_id and h.is_verified) then
     raise exception 'Your host claim is waiting for Comediq to verify it. You can claim a free day as soon as it is.';
   end if;
 
@@ -305,7 +304,7 @@ $$;
 -- ===== 7. Paid claim: start (called by create-checkout-session) =====
 -- Returns the amount to charge. Starting a checkout does not hold the date; whoever's
 -- payment succeeds first at the current price gets it.
-create or replace function public.motd_start_bid(p_user uuid, p_mic_id uuid, p_date date)
+create or replace function public.motd_start_bid(p_user uuid, p_mic_id text, p_date date)
 returns jsonb
 language plpgsql
 security definer
@@ -446,7 +445,8 @@ $$;
 --   reset  undo an admin set/clear, back to the standing pick or open
 -- A paying host who is displaced is recorded as owed a full refund; it shows under
 -- "Refunds owed" in Admin and is sent from the Stripe dashboard.
-create or replace function public.motd_admin_set_day(p_date date, p_action text, p_mic_id uuid default null)
+drop function if exists public.motd_admin_set_day(date, text, uuid);
+create or replace function public.motd_admin_set_day(p_date date, p_action text, p_mic_id text default null)
 returns jsonb
 language plpgsql
 security definer
@@ -480,31 +480,34 @@ begin
   end if;
 
   insert into public.mic_of_the_day_draw_log (target_date, event, detail)
-  values (p_date, 'admin_' || p_action, coalesce(p_mic_id::text, ''));
+  values (p_date, 'admin_' || p_action, coalesce(p_mic_id, ''));
   return public.motd_week();
 end;
 $$;
 
 -- ===== 10. Who may call what =====
-revoke all on function public.motd_runs_on(uuid, date) from public;
+revoke all on function public.motd_runs_on(text, date) from public;
 revoke all on function public.motd_resolve(date) from public;
-revoke all on function public.motd_check_claim(uuid, uuid, date) from public;
-revoke all on function public.motd_claim_free(uuid, date) from public;
-revoke all on function public.motd_start_bid(uuid, uuid, date) from public;
+revoke all on function public.motd_check_claim(uuid, text, date) from public;
+revoke all on function public.motd_claim_free(text, date) from public;
+revoke all on function public.motd_start_bid(uuid, text, date) from public;
 revoke all on function public.motd_mark_paid(uuid, text, integer, text) from public;
 revoke all on function public.motd_mark_refunded(uuid, text) from public;
 
 grant execute on function public.motd_week() to anon, authenticated;
-grant execute on function public.motd_claim_free(uuid, date) to authenticated;
-grant execute on function public.motd_admin_set_day(date, text, uuid) to authenticated;
+grant execute on function public.motd_claim_free(text, date) to authenticated;
+grant execute on function public.motd_admin_set_day(date, text, text) to authenticated;
 grant execute on function public.motd_mark_refunded(uuid, text) to authenticated, service_role;
-grant execute on function public.motd_start_bid(uuid, uuid, date) to service_role;
+grant execute on function public.motd_start_bid(uuid, text, date) to service_role;
 grant execute on function public.motd_mark_paid(uuid, text, integer, text) to service_role;
 
--- ===== 11. Host claiming: same ON CONFLICT problem =====
--- claim_mic_host used ON CONFLICT (user_id, mic_id), which the live mic_hosts table cannot
--- satisfy, so "Claim This Mic" would fail. Same behaviour, written without it.
-create or replace function public.claim_mic_host(p_mic_id uuid)
+-- ===== 11. Host claiming =====
+-- claim_mic_host is what "Claim This Mic" and "This is my mic" call. It was missing on the
+-- live database. The mic id is text here and the insert is built as a statement so it
+-- works whether mic_hosts.mic_id is text or uuid. No ON CONFLICT: the live table has no
+-- unique rule on (user_id, mic_id).
+drop function if exists public.claim_mic_host(uuid);
+create or replace function public.claim_mic_host(p_mic_id text)
 returns public.mic_hosts
 language plpgsql
 security definer
@@ -517,20 +520,25 @@ begin
   if v_user is null then
     raise exception 'Must be authenticated';
   end if;
+  if not exists (select 1 from public.open_mics_historical m where m.unique_identifier::text = p_mic_id) then
+    raise exception 'That mic was not found.';
+  end if;
 
-  select * into v_row from public.mic_hosts
-  where user_id = v_user and mic_id = p_mic_id
+  select * into v_row from public.mic_hosts h
+  where h.user_id = v_user and h.mic_id::text = p_mic_id
   limit 1;
 
   if not found then
-    insert into public.mic_hosts (user_id, mic_id, is_verified)
-    values (v_user, p_mic_id, false)
-    returning * into v_row;
+    execute format('insert into public.mic_hosts (user_id, mic_id, is_verified) values (%L, %L, false)',
+                   v_user, p_mic_id);
+    select * into v_row from public.mic_hosts h
+    where h.user_id = v_user and h.mic_id::text = p_mic_id
+    limit 1;
   end if;
 
   return v_row;
 end;
 $$;
 
-revoke all on function public.claim_mic_host(uuid) from public;
-grant execute on function public.claim_mic_host(uuid) to authenticated;
+revoke all on function public.claim_mic_host(text) from public;
+grant execute on function public.claim_mic_host(text) to authenticated;
