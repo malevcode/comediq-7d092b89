@@ -2444,3 +2444,7 @@ do not pin a mic on a night we are only guessing it runs.
 - The signup page now shows the same full mic card as the list (name, venue, day, time, set length, cost, host, sign-up
   notes, rules, map, actions) under the signup sheet. It replaces the short details box and the separate "Are you the
   host?" box (the card has Claim This Mic). The Sign Up for Spots button is hidden there, since you are already on it.
+
+- Signup sheet on desktop (large screens only): the sheet is centered on the page (up to 56rem wide), with the
+  Join form on the left and the "Who has signed up" list on the right. Phones are unchanged (list, then form).
+  Signing up works: it was confirmed live on the Gdrink signup page.

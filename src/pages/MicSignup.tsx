@@ -101,7 +101,7 @@ function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
   };
 
   return (
-    <Card className={glassCardClass}>
+    <Card className={`${glassCardClass} mx-auto w-full max-w-4xl`}>
       <CardHeader>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -121,8 +121,9 @@ function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
           </CardDescription>
         )}
       </CardHeader>
-      <CardContent className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
-        <div>
+      <CardContent className="grid gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:items-start">
+        {/* Phone: the list first, then the form. Desktop: the form on the left, the list on the right. */}
+        <div className="lg:order-2">
           <div className="mb-3 flex items-center justify-between gap-3 text-sm">
             <p className="font-semibold text-[#07111f] dark:text-white">Who has signed up</p>
             <span className="font-semibold text-[#07111f] dark:text-white">
@@ -167,7 +168,7 @@ function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
           )}
         </div>
 
-        <div className={glassPanelClass}>
+        <div className={`${glassPanelClass} lg:order-1`}>
           <div className="mb-4 flex items-center gap-2">
             <UserPlus className="h-4 w-4 text-[#1a5fb4]" />
             <h3 className="font-semibold text-[#07111f] dark:text-white">Join the signup sheet</h3>
