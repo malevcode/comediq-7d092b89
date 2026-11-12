@@ -2406,3 +2406,17 @@ do not pin a mic on a night we are only guessing it runs.
   `20261112120000_fix_signup_text_uuid.sql` rewrites that function, the claim function and the event insert
   rule to compare as text, which works for either column type. Also appended to `supabase/RUN_ME_pending.sql`.
 - Reproduced the exact error in a test database with a text column, and checked the fix there and on a normal one.
+
+## Session: sign up for spots goes straight to the sheet
+
+- `/mic/<slug>/signup` now opens with the signup sheet at the top: "X of 15 spots taken", the list of who is
+  signed up, and the Sign Up button. The mic's details and the "Are you the host?" box moved below it.
+- If the sheet cannot be opened, the page says why and has a Try Again button (before it only said "check back later").
+- Gdrink at Gnihton: host set to @malevcomedy, and its signup settings (comediq_slots, signups and slots on) are
+  written in the batch file so the next run does not turn the Sign Up for Spots button off. Adam claims the mic
+  himself on his own account.
+- Still needs the signup SQL from `supabase/RUN_ME_pending.sql` run in Supabase, or the sheet cannot be created.
+
+- Running `RUN_ME_pending.sql` stopped at the ShowTN view with "operator does not exist: text >= date": in the live
+  database `audience_shows.show_date` is text. The view now casts it (`show_date::date`) and was tested on both a
+  text and a date column. Re-run the whole file; every statement is safe to repeat.

@@ -124,7 +124,10 @@ function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
         <div>
           <div className="mb-3 flex items-center justify-between gap-3 text-sm">
             <p className="font-semibold text-[#07111f] dark:text-white">Who has signed up</p>
-            <span className="text-[#07111f]/60 dark:text-white/60">{spotsRemaining} remaining</span>
+            <span className="font-semibold text-[#07111f] dark:text-white">
+              {confirmedSignups.length} of {event.total_spots} spots taken
+              <span className="font-normal text-[#07111f]/60 dark:text-white/60"> · {spotsRemaining} left</span>
+            </span>
           </div>
           {isLoading ? (
             <p className="text-sm text-[#07111f]/60 dark:text-white/60">Loading signups...</p>
@@ -236,6 +239,7 @@ export default function MicSignup() {
   const { toast } = useToast();
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
   const [attemptedEventCreationFor, setAttemptedEventCreationFor] = useState<string | null>(null);
+  const [sheetError, setSheetError] = useState<string | null>(null);
 
   const mic = mics?.find(m => generateVenueSlug(m) === slug);
 
@@ -253,12 +257,14 @@ export default function MicSignup() {
       if (activeEvents.length > 0 || eventsLoading) return;
 
       setAttemptedEventCreationFor(mic.uniqueIdentifier);
+      setSheetError(null);
       setIsCreatingEvent(true);
       try {
         await getOrCreateNextEvent(mic.uniqueIdentifier, mic.day, mic.startTime);
         await refetchEvents();
       } catch (error: any) {
         console.error('Failed to open Comediq signup event:', error);
+        setSheetError(error?.message || 'Please try again later.');
         toast({
           title: "Couldn't load signup sheet",
           description: error.message || "Please try again later.",
@@ -310,6 +316,53 @@ export default function MicSignup() {
           Back
         </Button>
 
+        {/* The signup sheet comes first: this page is for grabbing a spot. */}
+        {isCreatingEvent ? (
+          <Card className={glassCardClass}>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <CardTitle className="text-[#07111f] dark:text-white">Loading signup sheet...</CardTitle>
+              </div>
+              <CardDescription className="text-[#07111f]/60 dark:text-white/60">
+                Preparing the active signup list for this mic.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        ) : activeEvents.length === 0 ? (
+          <Card className={glassCardClass}>
+            <CardHeader>
+              <CardTitle className="text-[#07111f] dark:text-white">No Active Signups</CardTitle>
+              <CardDescription className="text-[#07111f]/60 dark:text-white/60">
+                {!user
+                  ? "Sign in to open this mic's signup sheet."
+                  : sheetError
+                    ? `We could not open the signup sheet (${sheetError}).`
+                    : "Check back later for signup availability."}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!user ? (
+                <Button asChild variant="outline">
+                  <Link to={`/auth?next=${encodeURIComponent(window.location.pathname)}`}>Sign In</Link>
+                </Button>
+              ) : sheetError ? (
+                <Button type="button" variant="outline" onClick={() => setAttemptedEventCreationFor(null)}>
+                  Try Again
+                </Button>
+              ) : null}
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-6">
+            {activeEvents.map(event => {
+              return (
+                <SignupSheet key={event.id} event={event} micId={mic.uniqueIdentifier} isHost={isHost} />
+              );
+            })}
+          </div>
+        )}
+
         <Card className={glassCardClass}>
           <CardHeader>
             <div className="flex items-start justify-between">
@@ -358,45 +411,6 @@ export default function MicSignup() {
           </CardContent>
         </Card>
 
-        {isCreatingEvent ? (
-          <Card className={glassCardClass}>
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <CardTitle className="text-[#07111f] dark:text-white">Loading signup sheet...</CardTitle>
-              </div>
-              <CardDescription className="text-[#07111f]/60 dark:text-white/60">
-                Preparing the active signup list for this mic.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        ) : activeEvents.length === 0 ? (
-          <Card className={glassCardClass}>
-            <CardHeader>
-              <CardTitle className="text-[#07111f] dark:text-white">No Active Signups</CardTitle>
-              <CardDescription className="text-[#07111f]/60 dark:text-white/60">
-                {!user 
-                  ? "No signup sheet is open for this mic yet."
-                  : "Check back later for signup availability."}
-              </CardDescription>
-            </CardHeader>
-            {!user && (
-              <CardContent>
-                <Button asChild variant="outline">
-                  <Link to="/auth">Sign In</Link>
-                </Button>
-              </CardContent>
-            )}
-          </Card>
-        ) : (
-          <div className="space-y-6">
-            {activeEvents.map(event => {
-              return (
-                <SignupSheet key={event.id} event={event} micId={mic.uniqueIdentifier} isHost={isHost} />
-              );
-            })}
-          </div>
-        )}
       </div>
     </>
   );
