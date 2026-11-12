@@ -2420,3 +2420,7 @@ do not pin a mic on a night we are only guessing it runs.
 - Running `RUN_ME_pending.sql` stopped at the ShowTN view with "operator does not exist: text >= date": in the live
   database `audience_shows.show_date` is text. The view now casts it (`show_date::date`) and was tested on both a
   text and a date column. Re-run the whole file; every statement is safe to repeat.
+
+- The ShowTN view now lives in its own file, `supabase/RUN_ME_showtn_view.sql`, run AFTER `RUN_ME_pending.sql`,
+  so a problem with the view cannot undo the rest. `RUN_ME_pending.sql` also holds other migrations (the Mic of the
+  Day draw and auction ones, `20261111...`) that were added by a different session; they were not written or tested here.
