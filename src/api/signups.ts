@@ -263,6 +263,22 @@ export async function fetchEventSignups(eventId: string) {
   return data || [];
 }
 
+export type LineupRow = {
+  signup_id: string;
+  user_id: string;
+  display_name: string;
+  signed_up_at: string;
+  checked_in_at: string | null;
+  lineup_position: number;
+};
+
+// Everyone on a sheet in running order: checked in (at the venue) by arrival time, then the rest.
+export async function fetchEventLineup(eventId: string): Promise<LineupRow[]> {
+  const { data, error } = await (supabase as any).rpc('get_event_lineup', { p_event_id: eventId });
+  if (error) throw error;
+  return (data || []) as LineupRow[];
+}
+
 // Cancel a signup
 export async function cancelSignup(signupId: string) {
   const { error } = await supabase

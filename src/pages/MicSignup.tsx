@@ -1,6 +1,8 @@
 import { useParams, Navigate, Link, useNavigate } from 'react-router-dom';
 import { useOpenMics } from '@/hooks/useOpenMics';
-import { useCurrentUserHostForMic, useEventSignups, useSignupEvents } from '@/hooks/useSignupEvents';
+import { useCurrentUserHostForMic, useEventLineup, useEventSignups, useSignupEvents } from '@/hooks/useSignupEvents';
+import { ArrivalCheckIn } from '@/components/signup/ArrivalCheckIn';
+import type { OpenMic } from '@/types/openMic';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,11 +25,15 @@ const glassPanelClass = "rounded-lg border-0 bg-white/30 p-4 text-[#07111f] shad
 interface SignupSheetProps {
   event: any;
   micId: string;
+  mic: OpenMic;
   isHost: boolean;
 }
 
-function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
+function SignupSheet({ event, micId, mic, isHost }: SignupSheetProps) {
   const { data: signups, isLoading } = useEventSignups(event.id);
+  // Some mics run the lineup by arrival: the order is who checks in at the venue first.
+  const lineupByCheckin = !!event.lineup_by_checkin;
+  const { data: lineup } = useEventLineup(event.id, lineupByCheckin);
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -43,6 +49,7 @@ function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
     : null;
   const refreshSignupData = () => {
     queryClient.invalidateQueries({ queryKey: ['eventSignups', event.id] });
+    queryClient.invalidateQueries({ queryKey: ['eventLineup', event.id] });
     queryClient.invalidateQueries({ queryKey: ['signupEvents', micId] });
     queryClient.invalidateQueries({ queryKey: ['allSignupEvents'] });
     queryClient.invalidateQueries({ queryKey: ['userSignups'] });
@@ -137,6 +144,43 @@ function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
             <div className={`${glassPanelClass} border border-dashed border-[#07111f]/10 text-sm dark:border-white/10`}>
               No signups yet. Be the first on the list.
             </div>
+          ) : lineupByCheckin && lineup ? (
+            <div className="space-y-2">
+              <p className="text-xs text-[#07111f]/60 dark:text-white/60">
+                The lineup is set by when you check in at the mic, not when you sign up.
+              </p>
+              {lineup.map((row) => {
+                const here = !!row.checked_in_at;
+                return (
+                  <div
+                    key={row.signup_id}
+                    className={`flex items-center gap-3 rounded-lg border-0 px-3 py-2 text-sm text-[#07111f] shadow-[0_8px_24px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:text-white ${here ? 'bg-white/30 dark:bg-[#07111f]/40' : 'bg-white/10 opacity-70 dark:bg-[#07111f]/20'}`}
+                  >
+                    <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${here ? 'bg-[#1a5fb4] text-white' : 'bg-[#07111f]/10 text-[#07111f]/60 dark:bg-white/10 dark:text-white/60'}`}>
+                      {here ? row.lineup_position : '-'}
+                    </span>
+                    <span className="font-medium">{row.display_name}</span>
+                    <span className="text-xs text-[#07111f]/60 dark:text-white/60">
+                      {here
+                        ? `arrived ${new Date(row.checked_in_at as string).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' })}`
+                        : 'not here yet'}
+                    </span>
+                    {(row.user_id === user?.id || isHost) && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="ml-auto h-7 px-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+                        disabled={cancelMutation.isPending}
+                        onClick={() => cancelMutation.mutate(row.signup_id)}
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           ) : (
             <div className="space-y-2">
               {confirmedSignups.map((signup: any, index: number) => (
@@ -225,6 +269,9 @@ function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
                       ? 'Signing up...'
                       : 'Sign Up'}
               </Button>
+              {lineupByCheckin && currentUserSignup && (
+                <ArrivalCheckIn mic={mic} myRow={lineup?.find((row) => row.user_id === user?.id)} />
+              )}
             </div>
           )}
         </div>
@@ -359,7 +406,7 @@ export default function MicSignup() {
           <div className="space-y-6">
             {activeEvents.map(event => {
               return (
-                <SignupSheet key={event.id} event={event} micId={mic.uniqueIdentifier} isHost={isHost} />
+                <SignupSheet key={event.id} event={event} micId={mic.uniqueIdentifier} mic={mic} isHost={isHost} />
               );
             })}
           </div>

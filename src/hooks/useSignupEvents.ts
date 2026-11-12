@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchCurrentUserHostForMic, fetchSignupEvents, fetchEventSignups } from '@/api/signups';
+import { fetchCurrentUserHostForMic, fetchSignupEvents, fetchEventSignups, fetchEventLineup } from '@/api/signups';
 
 export function useSignupEvents(micId: string) {
   return useQuery({
@@ -22,5 +22,15 @@ export function useCurrentUserHostForMic(micId: string, enabled = true) {
     queryKey: ['currentUserHostForMic', micId],
     queryFn: () => fetchCurrentUserHostForMic(micId),
     enabled: enabled && !!micId,
+  });
+}
+
+/** The running order for a sheet whose lineup is set by check-in. Refreshes while the page is open. */
+export function useEventLineup(eventId: string, enabled = true) {
+  return useQuery({
+    queryKey: ['eventLineup', eventId],
+    queryFn: () => fetchEventLineup(eventId),
+    enabled: enabled && !!eventId,
+    refetchInterval: 20000,
   });
 }
