@@ -2448,3 +2448,26 @@ do not pin a mic on a night we are only guessing it runs.
 - Signup sheet on desktop (large screens only): the sheet is centered on the page (up to 56rem wide), with the
   Join form on the left and the "Who has signed up" list on the right. Phones are unchanged (list, then form).
   Signing up works: it was confirmed live on the Gdrink signup page.
+
+## Session: lineup by arrival and check-in on the signup page
+
+**What it is.** For Gdrink at Gnihton, signing up holds one of 15 spots, but the running order is set by when
+people ARRIVE and check in at the mic (not first come, first served). On the signup page, people who have checked in
+are numbered by arrival time, with "arrived 6:12 PM". People who signed up but are not there yet wait below, greyed out,
+marked "not here yet". Tapping "I'm here, check me in" asks for your location once (on the phone app it comes from the
+device with no browser prompt) and checks you in if you are within about 150 m of the venue.
+
+**How it works inside.**
+- It reuses the check-in the app already had (`check_in_mic`: your GPS against the venue's coordinates, window opens 30
+  minutes before the start). Only verified check-ins (really at the venue) count toward the lineup.
+- `supabase/migrations/20261112140000_checkin_lineup.sql` adds `mic_signup_events.lineup_by_checkin` (set on for Gdrink; a
+  new weekly sheet keeps the setting of the last one), `get_event_lineup` (the running order) and the updated
+  `get_or_create_signup_event`. Tested with text and uuid columns.
+- `src/components/signup/ArrivalCheckIn.tsx` is the button; `MicSignup.tsx` shows the lineup (refreshes every 20 seconds).
+- The sign-up note for the mic now reads "Your place in the lineup is set by when you arrive and check in at the mic."
+
+**Needs coordinates.** A venue with no map coordinates cannot verify anyone, so nobody would show as checked in. Gdrink had
+none yet. New workflow `geocode_open_mics.yaml` fills missing coordinates after each mic batch and every three hours
+(or run it by hand from the Actions tab).
+
+**Not browser-tested here.** The SQL was tested in a test database; the page code is type-checked only.

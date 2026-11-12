@@ -1418,7 +1418,7 @@
       }
     },
     {
-      "note": "New mic from Adam's 'New Thursday Mic' poster (2026-11-11): 'Gdrink at Gnihton', every Thursday at 6 PM, 528 E 11th St, East Village. Free with a Comediq account + 1 drink minimum ($5 struck through on the poster). The poster is the only source: the NAME is copied exactly as printed, and VENUE NAME 'Gnihton' is READ from 'at Gnihton' in it, so confirm both. No end time on the poster, so the 90-minute default gives 6:00-7:30 PM. No host or Instagram is given. Sign up is 'comediq.us' per the poster; signup_enabled stays false until the time-block signup event for this mic exists. Coordinates are blank: run npm run geocode:open-mics. UPDATED 2026-11-11 (Adam): this is Comediq's own mic. Price text is now '$5 or Subscribe!', sign-ups run on Comediq's sign-up sheet (signup_method comediq_slots, slots_enabled and signup_enabled true), host is Comediq and status is verified so the trial expiry never hides it. This entry is re-asserted on every run, so change the mic HERE, not with a separate edit. UPDATE 2026-11-12 (Adam): host is @malevcomedy (Adam claims the mic on his own account). Signups run through Comediq spots (signup_method comediq_slots, 15 spots), so signup_method, signup_enabled and slots_enabled are asserted here, otherwise the next run would switch the Sign Up for Spots button off.",
+      "note": "New mic from Adam's 'New Thursday Mic' poster (2026-11-11): 'Gdrink at Gnihton', every Thursday at 6 PM, 528 E 11th St, East Village. Free with a Comediq account + 1 drink minimum ($5 struck through on the poster). The poster is the only source: the NAME is copied exactly as printed, and VENUE NAME 'Gnihton' is READ from 'at Gnihton' in it, so confirm both. No end time on the poster, so the 90-minute default gives 6:00-7:30 PM. No host or Instagram is given. Sign up is 'comediq.us' per the poster; signup_enabled stays false until the time-block signup event for this mic exists. Coordinates are blank: run npm run geocode:open-mics. UPDATED 2026-11-11 (Adam): this is Comediq's own mic. Price text is now '$5 or Subscribe!', sign-ups run on Comediq's sign-up sheet (signup_method comediq_slots, slots_enabled and signup_enabled true), host is Comediq and status is verified so the trial expiry never hides it. This entry is re-asserted on every run, so change the mic HERE, not with a separate edit. UPDATE 2026-11-12 (Adam): host is @malevcomedy (Adam claims the mic on his own account). Signups run through Comediq spots (signup_method comediq_slots, 15 spots), so signup_method, signup_enabled and slots_enabled are asserted here, otherwise the next run would switch the Sign Up for Spots button off. UPDATE 2026-11-12 (Adam): lineup is by arrival, not first come first served. Signing up holds one of 15 spots; the running order is the order people check in at the venue by GPS (events.lineup_by_checkin).",
       "row": {
         "open_mic": "Gdrink at Gnihton",
         "day": "Thursday",
@@ -1431,7 +1431,7 @@
         "venue_type": "Bar",
         "cost": "$5 or Subscribe!",
         "stage_time": "",
-        "sign_up_instructions": "Sign up on comediq.us. 15 spots, first come first served.",
+        "sign_up_instructions": "Sign up on comediq.us (15 spots). Your place in the lineup is set by when you arrive and check in at the mic.",
         "city": "New York",
         "status": "verified",
         "frequency": "weekly",
