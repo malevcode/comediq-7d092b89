@@ -2391,3 +2391,8 @@ do not pin a mic on a night we are only guessing it runs.
 - Mic of the Day is now claimed by hosts: free and first come before Dec 1, 2026, then an
   auction from $15 in $5 steps, with an automatic refund for anyone outbid within an hour.
 - A mic can only be claimed for a date it really runs on, including bi-weekly and monthly mics.
+- Gdrink at Gnihton: the price text is "$5 or Subscribe!" and the mic uses Comediq's own sign-up sheet
+  (`signup_method = comediq_slots`). For any such mic the Register button on the listing card now opens
+  its sheet (`/mic/<venue>-<neighborhood>/signup`) instead of the link in the sign-up instructions.
+- The Next tab always leads with a pinned mic when the week has one: today's, or if today has none,
+  the next day that does. Today stays claimable from a link under it.

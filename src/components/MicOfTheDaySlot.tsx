@@ -59,10 +59,20 @@ export function MicOfTheDaySlot({
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [claimOpen, setClaimOpen] = useState(false);
+  // The date the claim dialog is open for, when it is open.
+  const [claimDate, setClaimDate] = useState<string | null>(null);
 
-  const day = motdDayForTab(week, tab);
-  if (!week || !day) return <>{fallback}</>;
+  const tabDay = motdDayForTab(week, tab);
+  if (!week || !tabDay) return <>{fallback}</>;
+
+  // The Next tab always leads with a pinned mic when the week has one: today's, or if
+  // today has none, the next day that does. Today stays claimable from a link under it.
+  const upcomingPinned =
+    tab === 'next' && tabDay.state !== 'pinned'
+      ? week.days.find((d) => d.date > tabDay.date && d.state === 'pinned' && d.mic_id)
+      : undefined;
+  const day = upcomingPinned ?? tabDay;
+  const todayOpen = upcomingPinned && tabDay.state === 'open' && tabDay.price_cents !== null ? tabDay : null;
 
   const micById = (id: string | null | undefined) =>
     id ? mics?.find((m) => m.uniqueIdentifier === id) ?? null : null;
@@ -72,17 +82,18 @@ export function MicOfTheDaySlot({
   const wasOutbid = !day.mine && myBid?.status === 'outbid';
   const forSale = day.price_cents !== null;
 
-  const openClaim = () => {
+  const openClaim = (date: string) => {
     if (!user) {
       toast({ title: 'Sign in to claim', description: 'Sign in, then pick the mic you host.' });
       navigate('/auth');
       return;
     }
-    setClaimOpen(true);
+    setClaimDate(date);
   };
 
-  const dialog = claimOpen && forSale && (
-    <ClaimDialog day={day} week={week} mics={mics ?? []} onClose={() => setClaimOpen(false)} />
+  const claimDay = week.days.find((d) => d.date === claimDate);
+  const dialog = claimDay && claimDay.price_cents !== null && (
+    <ClaimDialog day={claimDay} week={week} mics={mics ?? []} onClose={() => setClaimDate(null)} />
   );
 
   const outbidNote = wasOutbid && (
@@ -124,8 +135,13 @@ export function MicOfTheDaySlot({
           </p>
         </button>
         {forSale && !day.mine && (
-          <button type="button" onClick={openClaim} className="mt-1.5 text-[11px] font-semibold text-white underline">
+          <button type="button" onClick={() => openClaim(day.date)} className="mt-1.5 block text-[11px] font-semibold text-white underline">
             Hosts: take this spot for {motdDollars(day.price_cents!)}
+          </button>
+        )}
+        {todayOpen && (
+          <button type="button" onClick={() => openClaim(todayOpen.date)} className="mt-1.5 block text-[11px] font-semibold text-white underline">
+            Hosts: today is still open. Claim it{todayOpen.price_cents === 0 ? ' free' : ` for ${motdDollars(todayOpen.price_cents!)}`}
           </button>
         )}
         {outbidNote}
@@ -145,7 +161,7 @@ export function MicOfTheDaySlot({
       <p className="pr-28 text-sm font-bold leading-snug">{when} Mic of the Day is open</p>
       <p className="mt-1 text-xs text-white/75">{MOTD_HOST_PITCH}</p>
       <Button
-        onClick={openClaim}
+        onClick={() => openClaim(day.date)}
         size="sm"
         className="mt-2 flex h-auto flex-col items-start gap-0 bg-white px-3 py-1.5 text-left text-[#1a5fb4] hover:bg-blue-50"
       >

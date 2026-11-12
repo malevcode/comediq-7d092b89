@@ -21,6 +21,7 @@ import { SponsorCard } from '@/components/SponsorCard';
 // MicOfTheDayCard (the older fixed card) is no longer shown; MicOfTheDaySlot replaces it.
 import { MicOfTheDaySlot } from '@/components/MicOfTheDaySlot';
 import { ComediqSticker } from '@/components/ComediqSticker';
+import { generateVenueSlug } from '@/utils/slugify';
 import ClaimMicButton from '@/components/host/ClaimMicButton';
 import { getBoroughOutline } from "@/utils/boroughColors";
 import CalendarSheet from "@/components/mic/CalendarSheet";
@@ -402,6 +403,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
           signUpInstructions={mic.signUpInstructions}
           venueAddress={mic.location || mic.venueName}
           hostInstagram={mic.instagramHandle}
+          signupSheetPath={isComediqPartner ? `/mic/${generateVenueSlug(mic)}/signup` : undefined}
           sharedRatings={sharedRatings}
         />
 

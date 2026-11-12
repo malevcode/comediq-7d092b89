@@ -29,6 +29,9 @@ comment on column public.open_mics_historical.is_comediq_run is
 update public.open_mics_historical
 set is_comediq_run = true,
     signup_enabled = true,
+    slots_enabled = true,
+    signup_method = 'comediq_slots',   -- Register opens Comediq's own sign-up sheet
+    cost = '$5 or Subscribe!',
     hosts_organizers = 'Comediq',
     status = 'verified',
     last_verified_at = now()
