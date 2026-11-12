@@ -2396,3 +2396,13 @@ do not pin a mic on a night we are only guessing it runs.
   its sheet (`/mic/<venue>-<neighborhood>/signup`) instead of the link in the sign-up instructions.
 - The Next tab always leads with a pinned mic when the week has one: today's, or if today has none,
   the next day that does. Today stays claimable from a link under it.
+
+## Session: signup button color and the signup sheet error
+
+- "Sign Up for Spots" on a mic card is now light blue (it was orange).
+- Opening a mic's signup page (for example /mic/gnihton-east-village/signup) showed "Couldn't load signup
+  sheet: operator does not exist: text = uuid". The page creates the next signup sheet through a database
+  function that compares a mic id to a uuid; if that column is text in the live database, the compare fails.
+  `20261112120000_fix_signup_text_uuid.sql` rewrites that function, the claim function and the event insert
+  rule to compare as text, which works for either column type. Also appended to `supabase/RUN_ME_pending.sql`.
+- Reproduced the exact error in a test database with a text column, and checked the fix there and on a normal one.
