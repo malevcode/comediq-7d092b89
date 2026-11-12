@@ -25,6 +25,11 @@ interface MicActionBarProps {
   venueAddress?: string;
   /** Freeform host Instagram text (a handle, a URL, or both). */
   hostInstagram?: string;
+  /**
+   * For a mic that takes sign-ups on Comediq: the path of its sign-up sheet. When set,
+   * Register opens that sheet instead of whatever link is in the sign-up instructions.
+   */
+  signupSheetPath?: string;
   // Legacy props (kept for backward compatibility, no-op)
   onCommentClick?: () => void;
   showCommentSection?: boolean;
@@ -87,6 +92,7 @@ export default function MicActionBar({
   signUpInstructions,
   venueAddress,
   hostInstagram,
+  signupSheetPath,
   className,
   sharedRatings,
 }: MicActionBarProps) {
@@ -138,6 +144,10 @@ export default function MicActionBar({
   };
 
   const handleSignUp = () => {
+    if (signupSheetPath) {
+      navigate(signupSheetPath);
+      return;
+    }
     if (!signUpUrl) return;
     window.open(signUpUrl, "_blank", "noopener,noreferrer");
   };
@@ -266,7 +276,7 @@ export default function MicActionBar({
       {/* Middle: Register, only when the mic has a signup link. Kept out of
           the icon row so those icons sit in the same spot on every card. */}
       <div className="flex justify-center">
-        {signUpUrl && (
+        {(signupSheetPath || signUpUrl) && (
           <Button
             size="sm"
             onClick={handleSignUp}

@@ -946,6 +946,17 @@
       "set": {
         "open_mic": "Rodney's Mic w/ Adam Thomas *SKIPS 11/11*"
       }
+    },
+    {
+      "unique_identifier": "21c4c8b9-8cc2-42d6-8a60-2534c75dfdaf",
+      "note": "Gdrink at Gnihton, Adam 2026-11-11: price text becomes '$5 or Subscribe!' (replacing 'Free with a Comediq account + 1 drink minimum'), and the mic takes sign-ups on Comediq's own sign-up sheet, so Register opens the sheet instead of the comediq.us home page. Host is Comediq. Start time, end time and name are unchanged.",
+      "set": {
+        "cost": "$5 or Subscribe!",
+        "signup_enabled": true,
+        "slots_enabled": true,
+        "signup_method": "comediq_slots",
+        "hosts_organizers": "Comediq"
+      }
     }
   ],
   "removals": [
