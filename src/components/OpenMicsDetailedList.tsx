@@ -342,7 +342,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
                 <Button
                   size="sm"
                   variant="default"
-                  className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
+                  className="flex items-center justify-center gap-2 bg-[#8ec5ff] text-[#07111f] hover:bg-[#6fb4f5]"
                   asChild
                 >
                   <Link to={linkManager.micSignup(mic)}>
