@@ -8,7 +8,7 @@
 -- it under the mic's verified host (or, if there is none, under the caller as a new
 -- unverified host). Any signed-in visitor can call it; it only ever makes a plain first-come,
 -- 15 spot sheet for a date and cannot do anything else. Works whether the id columns are
--- text or uuid.
+-- text or uuid, and whether event_date is a date or text (the live one is text).
 
 create or replace function public.get_or_create_signup_event(
   p_mic_id text,
@@ -36,7 +36,7 @@ begin
   from public.mic_signup_events e
   where e.mic_id::text = p_mic_id
     and e.is_active = true
-    and e.event_date >= (now() at time zone 'America/New_York')::date
+    and e.event_date::text >= to_char(now() at time zone 'America/New_York', 'YYYY-MM-DD')
   order by e.event_date asc
   limit 1;
 

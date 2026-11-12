@@ -87,7 +87,7 @@ function truncateMicName(name: string, maxLength: number = 15): string {
 }
 
 // Helper to format time compactly (e.g., "5:00 PM" → "5 PM", "5:30 PM" → "5:30 PM")
-function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, onRegisterRow, flash, sharedRatings }: { mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void; onOpenMic?: (mic: OpenMic) => void; forceExpanded?: boolean; onRegisterRow?: (id: string, el: HTMLDivElement | null) => void; flash?: boolean; sharedRatings?: SharedMicRatingData }) {
+function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, onRegisterRow, flash, sharedRatings, hideSpotsButton }: { hideSpotsButton?: boolean; mic: OpenMic; onAddToCalendar: (mic: OpenMic) => void; onOpenMic?: (mic: OpenMic) => void; forceExpanded?: boolean; onRegisterRow?: (id: string, el: HTMLDivElement | null) => void; flash?: boolean; sharedRatings?: SharedMicRatingData }) {
   const [expanded, setExpanded] = useState(false);
   useEffect(() => { setExpanded(!!forceExpanded); }, [forceExpanded]);
   const [showComments, setShowComments] = useState(false);
@@ -338,7 +338,7 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
               </div>
             )}
             <div className="flex flex-col gap-2">
-              {isComediqPartner && (
+              {isComediqPartner && !hideSpotsButton && (
                 <Button
                   size="sm"
                   variant="default"
@@ -415,6 +415,38 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
         />
         </div>
       </div>
+  );
+}
+
+/**
+ * The same full mic card the list shows (name, venue, day, time, set length, cost, host, sign-up
+ * notes, rules, map, actions), already open. Used on a mic's signup page so it shows everything.
+ */
+export function OpenMicFullCard({ mic }: { mic: OpenMic }) {
+  const sharedRatings = useSharedMicRatingData();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const handleAddToCalendar = async (m: OpenMic) => {
+    if (!user) return;
+    const { error } = await supabase.from('profile_open_mics').insert([
+      { profile_id: user.id, open_mic_id: m.uniqueIdentifier, schedule_type: 'upcoming' },
+    ]);
+    if (error) {
+      toast({ title: 'Error', description: error.message || 'Failed to add to your schedule.', variant: 'destructive' });
+    } else {
+      toast({ title: 'Added to Schedule', description: 'This open mic has been added to your schedule.' });
+    }
+  };
+
+  return (
+    <OpenMicDetailedCard
+      mic={mic}
+      onAddToCalendar={handleAddToCalendar}
+      forceExpanded
+      sharedRatings={sharedRatings}
+      hideSpotsButton
+    />
   );
 }
 

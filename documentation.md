@@ -2437,3 +2437,10 @@ do not pin a mic on a night we are only guessing it runs.
 - The date is now worked out in the visitor's own calendar day (it used the UTC day before, which is wrong after 8 PM in New York).
 - Tested in a test database with text and uuid id columns: a normal visitor gets a sheet under the admin's host, a second
   visitor reuses it, and a mic with no host makes the visitor its host.
+
+- The signup page failed again with "operator does not exist: text >= date": `mic_signup_events.event_date` is text in the live
+  database too. `get_or_create_signup_event` now compares dates as text ('YYYY-MM-DD'), and was tested with every mix of
+  text/uuid ids and text/date event dates. Re-run `20261112130000_open_signup_event_rpc.sql` (it replaces the function).
+- The signup page now shows the same full mic card as the list (name, venue, day, time, set length, cost, host, sign-up
+  notes, rules, map, actions) under the signup sheet. It replaces the short details box and the separate "Are you the
+  host?" box (the card has Claim This Mic). The Sign Up for Spots button is hidden there, since you are already on it.
