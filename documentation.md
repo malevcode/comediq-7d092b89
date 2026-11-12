@@ -2424,3 +2424,16 @@ do not pin a mic on a night we are only guessing it runs.
 - The ShowTN view now lives in its own file, `supabase/RUN_ME_showtn_view.sql`, run AFTER `RUN_ME_pending.sql`,
   so a problem with the view cannot undo the rest. `RUN_ME_pending.sql` also holds other migrations (the Mic of the
   Day draw and auction ones, `20261111...`) that were added by a different session; they were not written or tested here.
+
+## Session: opening a signup sheet (row-level security error)
+
+- After the text/uuid fix, the Gdrink signup page said: new row violates row-level security policy for table
+  "mic_signup_events". Cause: the page created the sheet from the visitor's browser, and the rule only allows it under
+  a host row the visitor owns. Gdrink already has verified hosts (the admins, added by the Mic of the Day SQL), so the
+  page was handed someone else's host row and the insert was refused.
+- Now a database function, `get_or_create_signup_event` (`20261112130000_open_signup_event_rpc.sql`), opens the sheet:
+  it returns the mic's next open sheet or makes one (first come, 15 spots) under the mic's verified host, or under the
+  visitor as a new unverified host if the mic has none. `getOrCreateNextEvent` in `src/api/signups.ts` calls it.
+- The date is now worked out in the visitor's own calendar day (it used the UTC day before, which is wrong after 8 PM in New York).
+- Tested in a test database with text and uuid id columns: a normal visitor gets a sheet under the admin's host, a second
+  visitor reuses it, and a mic with no host makes the visitor its host.
