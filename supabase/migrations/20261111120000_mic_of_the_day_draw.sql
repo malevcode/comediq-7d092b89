@@ -1,6 +1,10 @@
 -- Mic of the Day (daily draw), the "By Comediq" flag, and Gdrink at Gnihton as a Comediq-run mic.
 -- Safe to run more than once.
 --
+-- Mic ids are kept as TEXT with no foreign key. On the live database
+-- open_mics_historical.unique_identifier and mic_hosts.mic_id are text, not uuid as the
+-- older migration files in this repo say, and a uuid column cannot reference a text one.
+--
 -- How the draw works, in short:
 --   * Hosts enter one of their mics for a future date (motd_enter).
 --   * Every hour pg_cron calls motd_tick(). On the first tick after midnight in New York it
@@ -44,13 +48,13 @@ where p.isadmin = true
   and h.mic_id = '21c4c8b9-8cc2-42d6-8a60-2534c75dfdaf';
 
 insert into public.mic_hosts (user_id, mic_id, is_verified)
-select p.user_id, m.unique_identifier, true
+select p.user_id, '21c4c8b9-8cc2-42d6-8a60-2534c75dfdaf', true
 from public.profiles p
 cross join public.open_mics_historical m
 where p.isadmin = true
   and m.unique_identifier = '21c4c8b9-8cc2-42d6-8a60-2534c75dfdaf'
   and not exists (select 1 from public.mic_hosts h
-                  where h.user_id = p.user_id and h.mic_id = m.unique_identifier);
+                  where h.user_id = p.user_id and h.mic_id::text = m.unique_identifier::text);
 
 -- ===== 3. Tables =====
 
@@ -71,22 +75,22 @@ on conflict (id) do nothing;
 -- Standing weekly picks. 0 = Sunday ... 6 = Saturday. These days skip the draw.
 create table if not exists public.mic_of_the_day_standing (
   day_of_week smallint primary key check (day_of_week between 0 and 6),
-  mic_id uuid not null references public.open_mics_historical(unique_identifier) on delete cascade
+  mic_id text not null
 );
 insert into public.mic_of_the_day_standing (day_of_week, mic_id)
-select v.dow, m.unique_identifier
+select v.dow, v.mic
 from (values
-  (1, '0e94c622-2b8b-4c7c-a4d0-3f1937d3c1fd'::uuid),  -- Monday: Crash Landing Comedy
-  (4, '21c4c8b9-8cc2-42d6-8a60-2534c75dfdaf'::uuid)   -- Thursday: Gdrink at Gnihton
+  (1, '0e94c622-2b8b-4c7c-a4d0-3f1937d3c1fd'::text),  -- Monday: Crash Landing Comedy
+  (4, '21c4c8b9-8cc2-42d6-8a60-2534c75dfdaf'::text)   -- Thursday: Gdrink at Gnihton
 ) as v(dow, mic)
-join public.open_mics_historical m on m.unique_identifier = v.mic
+join public.open_mics_historical m on m.unique_identifier::text = v.mic
 on conflict (day_of_week) do nothing;
 
 create table if not exists public.mic_of_the_day_entries (
   id uuid primary key default gen_random_uuid(),
   target_date date not null,
   -- null only on an admin "clear" row, which means "this day is deliberately blank"
-  mic_id uuid references public.open_mics_historical(unique_identifier) on delete cascade,
+  mic_id text,
   host_user_id uuid not null,
   created_at timestamptz not null default now(),
   status text not null default 'entered'
@@ -544,11 +548,6 @@ grant execute on function public.motd_tick() to authenticated, service_role;
 grant execute on function public.motd_admin_set_day(date, text, uuid) to authenticated;
 grant execute on function public.motd_mark_paid(uuid, text, integer) to service_role;
 
--- ===== 9. The schedule =====
--- Hourly, so it lands on 12:00 AM New York in both summer and winter time (cron runs in UTC).
-
-create extension if not exists pg_cron with schema pg_catalog;
-create extension if not exists pg_net with schema extensions;
-
-select cron.unschedule(jobid) from cron.job where jobname = 'mic-of-the-day-tick';
-select cron.schedule('mic-of-the-day-tick', '0 * * * *', $$select public.motd_tick();$$);
+-- ===== 9. (removed) =====
+-- This file used to schedule an hourly draw with pg_cron. The draw was replaced by the
+-- auction (next file), so nothing is scheduled.
