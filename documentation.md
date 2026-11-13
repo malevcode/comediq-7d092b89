@@ -2471,3 +2471,11 @@ none yet. New workflow `geocode_open_mics.yaml` fills missing coordinates after 
 (or run it by hand from the Actions tab).
 
 **Not browser-tested here.** The SQL was tested in a test database; the page code is type-checked only.
+
+## Session: Claim This Mic error (two versions of the function)
+
+- "Claim This Mic" showed "Could not choose the best candidate function between public.claim_mic_host(p_mic_id => text) and
+  public.claim_mic_host(p_mic_id => uuid)". Two versions of the function existed: the text one from the Mic of the Day
+  auction SQL, and a uuid one that my signup fix section re-created after it. The database cannot tell which to call.
+- Fix: `20261113120000_drop_claim_mic_host_uuid.sql` drops the uuid one, and the signup fix no longer re-creates it.
+  Anyone who already ran the old signup fix just needs to run: `drop function if exists public.claim_mic_host(uuid);`

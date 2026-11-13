@@ -1369,35 +1369,9 @@ $$;
 
 grant execute on function public.get_or_create_system_host(uuid) to authenticated;
 
-create or replace function public.claim_mic_host(p_mic_id uuid)
-returns public.mic_hosts
-language plpgsql
-security definer
-set search_path = public
-as $$
-declare
-  v_user uuid := auth.uid();
-  v_row public.mic_hosts;
-begin
-  if v_user is null then
-    raise exception 'Must be authenticated';
-  end if;
-
-  select * into v_row from public.mic_hosts
-  where user_id::text = v_user::text and mic_id::text = p_mic_id::text;
-
-  if v_row.id is null then
-    insert into public.mic_hosts (user_id, mic_id, is_verified)
-    values (v_user, p_mic_id, false)
-    returning * into v_row;
-  end if;
-
-  return v_row;
-end;
-$$;
-
-revoke all on function public.claim_mic_host(uuid) from public;
-grant execute on function public.claim_mic_host(uuid) to authenticated;
+-- claim_mic_host lives in the Mic of the Day auction migration (text version). Do not add a uuid copy:
+-- two versions make the claim call ambiguous.
+drop function if exists public.claim_mic_host(uuid);
 
 drop policy if exists "Authenticated users can create events" on public.mic_signup_events;
 create policy "Authenticated users can create events"
