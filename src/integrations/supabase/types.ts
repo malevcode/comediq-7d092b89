@@ -326,6 +326,8 @@ export type Database = {
           showtn_offer_description: string | null
           source: string | null
           source_event_id: string | null
+          source_platform: string | null
+          source_url: string | null
           status: string | null
           submitted_by: string | null
           ticket_price: string | null
@@ -377,6 +379,8 @@ export type Database = {
           showtn_offer_description?: string | null
           source?: string | null
           source_event_id?: string | null
+          source_platform?: string | null
+          source_url?: string | null
           status?: string | null
           submitted_by?: string | null
           ticket_price?: string | null
@@ -428,6 +432,8 @@ export type Database = {
           showtn_offer_description?: string | null
           source?: string | null
           source_event_id?: string | null
+          source_platform?: string | null
+          source_url?: string | null
           status?: string | null
           submitted_by?: string | null
           ticket_price?: string | null

@@ -2479,3 +2479,34 @@ none yet. New workflow `geocode_open_mics.yaml` fills missing coordinates after 
   auction SQL, and a uuid one that my signup fix section re-created after it. The database cannot tell which to call.
 - Fix: `20261113120000_drop_claim_mic_host_uuid.sql` drops the uuid one, and the signup fix no longer re-creates it.
   Anyone who already ran the old signup fix just needs to run: `drop function if exists public.claim_mic_host(uuid);`
+
+## List your show (/list-your-show) and the link auto-fill
+
+A landing page for independent producers. They paste an Eventbrite, Posh, Luma or Partiful
+link, we fill in the show, they review it, and it posts as a normal show on the Laugh tab.
+
+- **Page:** `src/pages/ListYourShow.tsx` (the sales page and the link box) and
+  `src/components/ListYourShowForm.tsx` (the review form, biggest field first). The stats row
+  numbers live in `src/config/listYourShow.ts`, the one place to update them. It reuses the
+  existing `submitShowListing()` save, so the show lands in `audience_shows` with
+  `submitted_by` set to the producer. The old `/add-show` flow is untouched.
+- **Auto-fill:** the edge function `parse-show-link` fetches the page on the server (no paid
+  services) and reads, in order: schema.org Event JSON-LD, then the platform's own page data
+  (Posh and Partiful hide theirs outside the normal place), then Open Graph tags, then the page
+  title. The parsing code is `supabase/functions/parse-show-link/parse.ts`. Only the four
+  platforms are accepted, and redirects are followed by hand so they can never leave those sites.
+  Times are shown in New York time.
+- **One parse per paste.** The form edits never call the function again.
+- **Never a dead end:** if the page can't be read, the form opens with the link and blank fields.
+- **Logged out:** the form is saved in the browser (`comediq:list-your-show-draft`), they go to
+  log in, and the page restores it when they come back to `/list-your-show`.
+- **Duplicates:** new columns `source_platform` and `source_url` on `audience_shows`. `source_url`
+  is unique, so the same link can't be posted twice. Not the same as the old `source` column,
+  which must stay empty or the show disappears from the feed.
+- **Ticket button** on the show links to the producer's original page (`ticket_url`).
+- **Limit:** about 10 parses per signed-in user, or per IP when logged out, per hour. Counted in
+  the `show_parse_requests` table (the function clears rows older than a day).
+- **SQL to run:** `20261115120000_list_your_show.sql`. Deploy the function with
+  `supabase functions deploy parse-show-link`.
+- Fonts: the page asks for Potato Sans and falls back to Nunito (now loaded at weights up to 900).
+  Potato Sans isn't in the repo, so it renders in Nunito until the font files are added.
