@@ -100,7 +100,14 @@ export default function ListYourShow() {
   };
 
   return (
-    <main className="min-h-screen overflow-x-hidden pb-20 md:pb-0" style={{ background: CREAM, color: BLUE, fontFamily: FONT }}>
+    <main className="lys min-h-screen overflow-x-hidden pb-20 md:pb-0" style={{ background: CREAM, color: BLUE, fontFamily: FONT }}>
+      {/* The site stylesheet sets headings to condensed Archivo and forces dark form fields; undo both here. */}
+      <style>{`
+        .lys h1, .lys h2 { font-family: ${FONT} !important; font-stretch: 100% !important; text-transform: none !important; letter-spacing: -0.01em !important; }
+        .lys form input, .lys form textarea, .lys form select { color: ${BLUE} !important; background-color: #fff !important; border-width: 1px !important; box-shadow: none !important; backdrop-filter: none !important; }
+        .lys form input::placeholder, .lys form textarea::placeholder { color: rgba(41,71,143,0.55) !important; opacity: 1 !important; }
+        .lys form .lys-link { background-color: transparent !important; border-width: 0 !important; }
+      `}</style>
       <SEO
         title="List Your Indie Comedy Show on Comediq | Comediq"
         description="Paste your Eventbrite, Posh, Luma or Partiful link and list your show on Comediq.com. Free through the end of 2026."
@@ -139,7 +146,7 @@ export default function ListYourShow() {
                   placeholder="Paste your Eventbrite, Posh, Luma or Partiful link"
                   aria-label="Link to your show"
                   inputMode="url"
-                  className="min-w-0 flex-1 bg-transparent py-3 text-base outline-none placeholder:opacity-50"
+                  className="lys-link min-w-0 flex-1 py-3 text-base outline-none"
                   style={{ color: BLUE }}
                 />
               </div>
