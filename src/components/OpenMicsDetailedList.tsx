@@ -22,6 +22,7 @@ import { SponsorCard } from '@/components/SponsorCard';
 import { MicOfTheDaySlot } from '@/components/MicOfTheDaySlot';
 import { ComediqSticker } from '@/components/ComediqSticker';
 import { generateVenueSlug } from '@/utils/slugify';
+import { isUnconfirmed } from '@/utils/micConfirmation';
 import ClaimMicButton from '@/components/host/ClaimMicButton';
 import { getBoroughOutline } from "@/utils/boroughColors";
 import CalendarSheet from "@/components/mic/CalendarSheet";
@@ -182,7 +183,14 @@ function OpenMicDetailedCard({ mic, onAddToCalendar, onOpenMic, forceExpanded, o
           </div>
         </div>
         <div className="mb-0.5 text-xs text-[#07111f]/60 dark:text-white/60">
-          {formatVerified(mic.lastVerifiedAt) && (
+          {isUnconfirmed(mic) ? (
+            <span
+              className="mx-auto mb-0.5 block w-fit rounded-full bg-gray-500/20 px-2 py-0.5 text-[10px] font-semibold text-gray-300"
+              title="Nobody has confirmed this mic in over 60 days. Hosts can confirm it from their dashboard."
+            >
+              Unconfirmed
+            </span>
+          ) : formatVerified(mic.lastVerifiedAt) && (
             <span className="block text-center text-[10px] text-[#07111f]/50 dark:text-white/45">
               Verified {formatVerified(mic.lastVerifiedAt)}
             </span>

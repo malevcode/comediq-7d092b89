@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { confirmedFirst } from "@/utils/micConfirmation";
 import { Search, HelpCircle, LogIn, Plus, Map, List } from "lucide-react";
 import SEO from "@/components/SEO";
 import { Input } from "@/components/ui/input";
@@ -425,6 +426,8 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       );
     } else {
       filtered.sort((a, b) => getNextOccurrence(a).getTime() - getNextOccurrence(b).getTime());
+      // Mics nobody has confirmed in 60+ days are listed after the confirmed ones, not hidden.
+      if (tabType === "next") filtered = confirmedFirst(filtered);
     }
 
     
