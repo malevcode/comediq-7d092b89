@@ -2524,3 +2524,15 @@ link, we fill in the show, they review it, and it posts as a normal show on the 
 - Tested: the SQL in a test database with text and uuid id columns (a stranger is refused, a host confirm sets both dates,
   an admin "ended" turns the mic off, one verified check-in is not enough, two are, unverified ones never count), and the
   60 day rule on sample dates.
+
+## Session: SQL run directly on the live database
+
+- A Supabase access token (saved on the session environment, never shown) lets the assistant run SQL through the Supabase
+  Management API. Found and fixed, all verified against the live database:
+  - `claim_mic_host` had two versions (text and uuid); the uuid one was dropped, so Claim This Mic works.
+  - The verified check-in SQL from September had never been applied (no `check_in_mic`, no `is_verified` column).
+    `20261116130000_verified_checkins_live_fix.sql` applies it for the live column types (mic_id and checkin_date are text).
+  - The lineup-by-arrival SQL (`20261112140000_checkin_lineup.sql`) is now applied; the Gdrink sheet has the lineup rule.
+  - Tested inside a rolled-back transaction: a check-in at the venue is verified, a second one the same day is refused, one
+    5 km away is `too_far`, and two verified people confirm the mic by use.
+- Still needed for Gdrink check-in: map coordinates (22 active mics have none). Nothing here can reach a geocoder.
