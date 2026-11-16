@@ -1,13 +1,13 @@
 -- Mic confirmation without Instagram DMs.
 --
--- Two ways a mic gets confirmed, both recorded in mic_confirmations:
+-- Two ways a mic gets confirmed, both recorded in mic_confirmation_log:
 --   1. The host (or an admin) taps "Yes, still running" or "It ended" in the host dashboard.
 --   2. Real use: when two different people have checked in at the venue (GPS verified) within
 --      14 days, the mic counts as confirmed. No host effort at all.
 -- Confirming sets last_confirmed_at and last_verified_at, which drives the "Verified <date>" label.
 -- Works whether the live id columns are text or uuid.
 
-create table if not exists public.mic_confirmations (
+create table if not exists public.mic_confirmation_log (
   id uuid primary key default gen_random_uuid(),
   mic_id text not null,
   user_id uuid,
@@ -15,8 +15,8 @@ create table if not exists public.mic_confirmations (
   outcome text not null check (outcome in ('running', 'ended')),
   created_at timestamptz not null default now()
 );
-create index if not exists mic_confirmations_mic_idx on public.mic_confirmations (mic_id, created_at desc);
-alter table public.mic_confirmations enable row level security;
+create index if not exists mic_confirmation_log_mic_idx on public.mic_confirmation_log (mic_id, created_at desc);
+alter table public.mic_confirmation_log enable row level security;
 -- no policies on purpose: only the functions below read or write it
 
 create or replace function public.confirm_mic_status(p_mic_id text, p_outcome text)
@@ -63,7 +63,7 @@ begin
     where unique_identifier::text = p_mic_id;
   end if;
 
-  insert into public.mic_confirmations (mic_id, user_id, kind, outcome)
+  insert into public.mic_confirmation_log (mic_id, user_id, kind, outcome)
   values (p_mic_id, v_user, case when v_is_host then 'host' else 'admin' end, p_outcome);
 
   return jsonb_build_object('status', p_outcome);
@@ -95,7 +95,7 @@ begin
 
   if v_people >= 2
      and not exists (
-       select 1 from public.mic_confirmations x
+       select 1 from public.mic_confirmation_log x
        where x.mic_id = new.mic_id::text and x.kind = 'checkins'
          and x.created_at >= now() - interval '7 days'
      ) then
@@ -103,7 +103,7 @@ begin
     set last_confirmed_at = now(), last_verified_at = now()
     where unique_identifier::text = new.mic_id::text;
 
-    insert into public.mic_confirmations (mic_id, user_id, kind, outcome)
+    insert into public.mic_confirmation_log (mic_id, user_id, kind, outcome)
     values (new.mic_id::text, null, 'checkins', 'running');
   end if;
 
