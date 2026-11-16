@@ -1,4 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
+import { ConfirmStillRunning } from '@/components/host/ConfirmStillRunning';
 import { useHostStatus } from '@/hooks/useHostStatus';
 import { Navigate } from 'react-router-dom';
 import { ClaimMicForm } from '@/components/host/ClaimMicForm';
@@ -131,6 +132,8 @@ function HostMicPanel({ hostId, micId, micName }: { hostId: string; micId: strin
 
       {/* First, because an event created while signups are off is a real event
           with no way for anyone to reach it. */}
+      <ConfirmStillRunning micId={micId} micName={micName} mic={mic} />
+
       <SignupSheetToggle micId={micId} micSlug={micSlug} />
 
       <HostConfirmationTexts micId={micId} micName={micName} />
