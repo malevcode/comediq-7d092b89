@@ -26,7 +26,7 @@ const STEPS = [
 const PERKS = [
   ["You keep your ticketing.", "Paid tickets still sell on your own page."],
   ["Members fill the gaps.", "Free seats stop once your show sells out."],
-  ["Fans see your show first.", "LaughPass members pay us to browse independently produced shows on Comediq.com every week."],
+  ["Fans see your show first.", "LaughPass members browse shows on Comediq.com every week."],
 ] as const;
 
 const emptyDraft = (platform: string, source_url: string): ShowDraft => ({
@@ -103,7 +103,7 @@ export default function ListYourShow() {
     <main className="lys min-h-screen overflow-x-hidden pb-20 md:pb-0" style={{ background: CREAM, color: BLUE, fontFamily: FONT }}>
       {/* The site stylesheet sets headings to condensed Archivo and forces dark form fields; undo both here. */}
       <style>{`
-        .lys h1, .lys h2 { font-family: ${FONT} !important; font-stretch: 112% !important; font-weight: 800 !important; text-transform: none !important; letter-spacing: -0.03em !important; line-height: 1.02 !important; }
+        .lys h1, .lys h2 { font-family: ${FONT} !important; font-stretch: 112% !important; font-weight: 900 !important; text-transform: none !important; letter-spacing: -0.03em !important; line-height: 1.02 !important; }
         .lys input, .lys textarea, .lys select { font-family: ${FONT} !important; font-stretch: 100% !important; }
         .lys form input, .lys form textarea, .lys form select { color: ${BLUE} !important; background-color: #fff !important; border-width: 1px !important; box-shadow: none !important; backdrop-filter: none !important; }
         .lys form input::placeholder, .lys form textarea::placeholder { color: rgba(41,71,143,0.55) !important; opacity: 1 !important; }

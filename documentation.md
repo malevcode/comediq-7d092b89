@@ -2536,3 +2536,10 @@ link, we fill in the show, they review it, and it posts as a normal show on the 
   - Tested inside a rolled-back transaction: a check-in at the venue is verified, a second one the same day is refused, one
     5 km away is `too_far`, and two verified people confirm the mic by use.
 - Still needed for Gdrink check-in: map coordinates (22 active mics have none). Nothing here can reach a geocoder.
+
+- **Spec check (2026-11-16):** the `/list-your-show` build already matched the brief, so only two copy and weight tweaks were made:
+  the third LaughPass card now reads "LaughPass members browse shows on Comediq.com every week." and headlines use weight 900.
+  The brief mentions Potato Sans / Nunito; those are not in the repo. The site's brand font since the October redesign is Archivo
+  (with Instrument Sans), which the page uses to match the logo wordmark, so it was left alone. Verified live: the `source_platform`
+  and `source_url` columns, the unique link rule, the rate-limit table and the deployed `parse-show-link` function (version 2) all exist.
+  The parser was run on sample pages shaped like each platform's markup; it has not been run against live pages from here.
