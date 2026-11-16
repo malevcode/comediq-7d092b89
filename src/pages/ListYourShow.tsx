@@ -11,7 +11,7 @@ import { LIST_YOUR_SHOW_STATS, isAcceptedLink } from "@/config/listYourShow";
 const BLUE = "#29478F";
 const CREAM = "#F3ECDF";
 const LIGHT = "#9DB8F0";
-const FONT = "'Potato Sans', 'Nunito', sans-serif";
+const FONT = "'Archivo', 'Instrument Sans', sans-serif"; // same family as the logo wordmark
 
 const Label = ({ children, color = LIGHT }: { children: React.ReactNode; color?: string }) => (
   <p className="text-xs font-bold uppercase tracking-[0.22em]" style={{ color }}>{children}</p>
@@ -103,7 +103,8 @@ export default function ListYourShow() {
     <main className="lys min-h-screen overflow-x-hidden pb-20 md:pb-0" style={{ background: CREAM, color: BLUE, fontFamily: FONT }}>
       {/* The site stylesheet sets headings to condensed Archivo and forces dark form fields; undo both here. */}
       <style>{`
-        .lys h1, .lys h2 { font-family: ${FONT} !important; font-stretch: 100% !important; text-transform: none !important; letter-spacing: -0.01em !important; }
+        .lys h1, .lys h2 { font-family: ${FONT} !important; font-stretch: 112% !important; font-weight: 800 !important; text-transform: none !important; letter-spacing: -0.03em !important; line-height: 1.02 !important; }
+        .lys input, .lys textarea, .lys select { font-family: ${FONT} !important; font-stretch: 100% !important; }
         .lys form input, .lys form textarea, .lys form select { color: ${BLUE} !important; background-color: #fff !important; border-width: 1px !important; box-shadow: none !important; backdrop-filter: none !important; }
         .lys form input::placeholder, .lys form textarea::placeholder { color: rgba(41,71,143,0.55) !important; opacity: 1 !important; }
         .lys form .lys-link { background-color: transparent !important; border-width: 0 !important; }
@@ -129,7 +130,7 @@ export default function ListYourShow() {
         <div className="mx-auto max-w-6xl px-5 pb-10 pt-8 sm:px-8 sm:pt-12 md:pb-16">
           <div className="max-w-2xl">
             <Label>For independent comedy producers</Label>
-            <h1 className="mt-4 text-5xl font-black leading-[1.02] sm:text-6xl md:text-7xl">
+            <h1 className="mt-4 text-4xl font-black sm:text-6xl md:text-7xl">
               Fill your indie show with NYC comedy fans.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed opacity-95">
@@ -196,7 +197,7 @@ export default function ListYourShow() {
           </div>
         </div>
         <div>
-          <h2 className="text-4xl font-black leading-tight sm:text-5xl">One link in. A Comediq show page out.</h2>
+          <h2 className="text-3xl font-black sm:text-5xl">One link in. A Comediq show page out.</h2>
           <ol className="mt-8 space-y-6">
             {STEPS.map(([head, body], i) => (
               <li key={head} className="flex gap-4">
@@ -213,7 +214,7 @@ export default function ListYourShow() {
         <div className="grid gap-8 rounded-[2rem] p-6 sm:p-10 md:grid-cols-2 md:gap-12" style={{ background: BLUE, color: CREAM }}>
           <div>
             <Label>LaughPass</Label>
-            <h2 className="mt-3 text-4xl font-black leading-tight sm:text-5xl">Empty seats? We'll send you a crowd.</h2>
+            <h2 className="mt-3 text-3xl font-black sm:text-5xl">Empty seats? We'll send you a crowd.</h2>
             <p className="mt-5 leading-relaxed opacity-95">
               LaughPass members get free entry to indie shows that need seats filled, as long as regular tickets are still available. You get a fuller room and a better show. They get a reason to come back every week.
             </p>
@@ -241,7 +242,7 @@ export default function ListYourShow() {
 
       {/* 5. Closing CTA */}
       <section className="mx-auto max-w-3xl px-5 pb-20 pt-6 text-center sm:px-8">
-        <h2 className="text-4xl font-black leading-tight sm:text-5xl">We built the comedy audience so you don't have to.</h2>
+        <h2 className="text-3xl font-black sm:text-5xl">We built the comedy audience so you don't have to.</h2>
         <p className="mx-auto mt-5 max-w-lg leading-relaxed">
           Comedians and fans already use Comediq to find what's on tonight. Your show belongs in that list.
         </p>

@@ -2508,5 +2508,5 @@ link, we fill in the show, they review it, and it posts as a normal show on the 
   the `show_parse_requests` table (the function clears rows older than a day).
 - **SQL to run:** `20261115120000_list_your_show.sql`. Deploy the function with
   `supabase functions deploy parse-show-link`.
-- Fonts: the page asks for Potato Sans and falls back to Nunito (now loaded at weights up to 900).
-  Potato Sans isn't in the repo, so it renders in Nunito until the font files are added.
+- Fonts: the page uses Archivo (wide, like the logo wordmark) throughout.
+
