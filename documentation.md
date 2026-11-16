@@ -2516,7 +2516,7 @@ link, we fill in the show, they review it, and it posts as a normal show on the 
 - **Host confirm.** In the host dashboard, a verified host sees "Is this mic still running?" with "Yes, still running",
   "It changed" (opens the edit form) and "It ended" (removes the mic, with a warning). Yes updates the "Verified <date>" label.
 - **Confirm by use.** When two different people have a location-verified check-in at a mic within 14 days, it counts as
-  confirmed automatically. Every confirmation is saved in a log (`mic_confirmations`).
+  confirmed automatically. Every confirmation is saved in a log (`mic_confirmation_log`).
 - **Unconfirmed label.** A mic nobody has confirmed for 60 days gets a grey "Unconfirmed" label and sorts below confirmed
   mics on the Next tab. It is never hidden. Because most mics are older than 60 days, the clock starts on 2026-11-16
   (`GRACE_STARTS` in `src/utils/micConfirmation.ts`), so the first labels appear 2027-01-15.

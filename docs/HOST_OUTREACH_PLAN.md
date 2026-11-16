@@ -19,7 +19,7 @@ reaching hosts. Stop relying on it. Outreach stays human (a person sending DMs f
 - **Host confirm, in the host dashboard** (logged in as a verified host): "Yes, still running", "It changed" (edit),
   "It ended". `confirm_mic_status` in `20261116120000_confirm_mics.sql`. Sets the "Verified <date>" label.
 - **Confirm from real use:** two different people with a GPS-verified check-in at the mic within 14 days counts as
-  confirmed (trigger `confirm_mic_from_checkins`). Everything is logged in `mic_confirmations`.
+  confirmed (trigger `confirm_mic_from_checkins`). Everything is logged in `mic_confirmation_log`.
 - **Unconfirmed label:** after 60 days with no confirmation, a grey "Unconfirmed" label and the mic sorts after
   confirmed ones on the Next tab. Not hidden. `src/utils/micConfirmation.ts`.
   **Grace period:** 57 percent of mics (240 of 420) were last verified over 60 days ago, so the 60 days count from
@@ -30,7 +30,7 @@ reaching hosts. Stop relying on it. Outreach stays human (a person sending DMs f
 for the value-add offered (Mic of the Day, home page, Instagram shoutout, street interview), and a status
 (not contacted, contacted, replied, claimed). Needs a small table (`host_outreach`: mic id, status, offers, notes,
 last contacted, who) and an admin page that reads stale mics from the mic list. Reuse the admin area and
-`mic_confirmations` for "last confirmed".
+`mic_confirmation_log` for "last confirmed".
 
 ## Decisions and ideas to keep
 - **Meta developer account:** worth applying, but set expectations. The official Instagram API (Instagram Login, messaging)
