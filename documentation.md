@@ -2543,3 +2543,25 @@ link, we fill in the show, they review it, and it posts as a normal show on the 
   (with Instrument Sans), which the page uses to match the logo wordmark, so it was left alone. Verified live: the `source_platform`
   and `source_url` columns, the unique link rule, the rate-limit table and the deployed `parse-show-link` function (version 2) all exist.
   The parser was run on sample pages shaped like each platform's markup; it has not been run against live pages from here.
+
+## Session: easy claiming and bulk edits for hosts
+
+**What was wrong.** On the live database every host claim (43 rows) was still waiting for approval and nobody had ever been verified.
+Worse, a verified host had no permission to edit their own mic (only admins could update the table). So the host dashboard
+could not do anything for anyone.
+
+**What a host can do now.**
+- **Claim many mics at once.** Pick one mic and the form offers every other mic at the same venue, or run by the same Instagram
+  handle, already ticked. One tap claims them all (up to 30 at a time).
+- **Instant approval for the first claim.** A mic with no verified host is approved on the spot; a person can hold 40
+  auto-approved mics. Any later claim on a mic that already has a host waits for an admin. To take a host off a mic, set
+  `is_verified` to false on that row of `mic_hosts`.
+- **Change many mics at once.** In the Host Dashboard, "Change many mics at once": tick mics (or "select all" for a venue), tick the
+  fields to change (Instagram, house rules, price, set length, sign-up instructions), type the new values, apply.
+- **Change one mic.** The mic's own tab edit form, which now also saves through the database.
+- Every change keeps the old value in `mic_edit_history` so it can be undone. The public mic list refreshes once per apply.
+
+**Inside.** SQL `20261117120000_host_bulk_tools.sql` (already run on the live database): `claim_mic_hosts`, `host_update_mics`,
+`mic_edit_history`, and `claim_mic_host` now uses the same rule. Code: `src/api/hostTools.ts`,
+`src/components/host/HostBulkEdit.tsx`, `ClaimMicForm.tsx` (venue siblings), `HostMicEditForm.tsx` (saves through the function).
+Tested in a test database with text and uuid ids and on the live one in a rolled-back run.
