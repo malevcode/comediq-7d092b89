@@ -37,6 +37,58 @@ const LOGO_DOT_IMAGE_URL = '/map-pins/comediq_logo_pin.png';
 const LOGO_PIN_PIXEL_RATIO = 1.5;
 const LOGO_DOT_PIXEL_RATIO = 1.5;
 const PIN_ZOOM_THRESHOLD = 12.5;
+
+// Storytime-style bubbles. Every venue is a round bubble (cover photo, or initials on a
+// Comediq blue). Bubbles overlap freely when zoomed out and spread apart when zoomed in.
+// A venue with several mics shows one bubble per mic, stacked. Set to false to bring back
+// the old Comediq pin layers (they are still in the file, just hidden).
+const USE_BUBBLE_MARKERS = true;
+const BUBBLE_SIZE_COMEDIQ = 54;
+const BUBBLE_SIZE_TODAY = 44;
+const BUBBLE_SIZE_OTHER = 34;
+const BUBBLE_STACK_MAX = 3;
+const BUBBLE_COLORS: Array<[string, string]> = [
+  ['#1E4894', '#FFFFFF'],
+  ['#173A7A', '#FFFFFF'],
+  ['#2B56A6', '#FFFFFF'],
+  ['#0F2A5C', '#FFFFFF'],
+  ['#3D6FD1', '#FFFFFF'],
+  ['#8FC2F5', '#0F2A5C'],
+  ['#FFFFFF', '#1E4894'],
+];
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+type VenueGroup = { key: string; latitude: number; longitude: number; venueName: string; mics: OpenMic[]; size: number };
+
+function venueInitials(name: string): string {
+  const words = (name || '?').replace(/^the\s+/i, '').split(/\s+/).filter(Boolean);
+  return words.slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
+}
+
+function venueColor(name: string): [string, string] {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0;
+  return BUBBLE_COLORS[Math.abs(hash) % BUBBLE_COLORS.length];
+}
+
+function runsToday(mic: OpenMic, date = new Date()): boolean {
+  return mic.day?.trim().toLowerCase() === DAY_NAMES[date.getDay()].toLowerCase();
+}
+
+function bubbleSizeFor(mic: OpenMic): number {
+  if (mic.isComediqRun) return BUBBLE_SIZE_COMEDIQ;
+  return runsToday(mic) ? BUBBLE_SIZE_TODAY : BUBBLE_SIZE_OTHER;
+}
+
+/** Smaller when zoomed out (dense overlap), full size from zoom 14 in. */
+function bubbleScaleForZoom(zoom: number): number {
+  return Math.max(0.45, Math.min(1, 0.45 + (zoom - 10) * 0.14));
+}
+
+function whenLabel(mic: OpenMic): string {
+  const time = formatTime(mic.startTime);
+  return runsToday(mic) ? `Tonight ${time}` : `${mic.day} ${time}`;
+}
 const EMPTY_FEATURE_COLLECTION: FeatureCollection<Point, MicFeatureProperties> = {
   type: 'FeatureCollection',
   features: [],
@@ -261,6 +313,8 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, variant = 'boxed' }: OpenMic
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [legendOpen, setLegendOpen] = useState(false);
   const mapStyle = resolvedTheme === 'dark' ? DARK_MAP_STYLE : LIGHT_MAP_STYLE;
+  const [selectedVenueKey, setSelectedVenueKey] = useState<string | null>(null);
+  const bubbleMarkersRef = useRef<mapboxgl.Marker[]>([]);
 
   useEffect(() => {
     onMicSelectRef.current = onMicSelect;
@@ -278,6 +332,34 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, variant = 'boxed' }: OpenMic
   );
 
   const representativeMappedMics = useMemo(() => getRepresentativeMappedMics(mappedMics), [mappedMics]);
+
+  // One group per venue, holding every mic there, soonest first
+  const venueGroups = useMemo<VenueGroup[]>(() => {
+    const byVenue = new Map<string, MappedMic[]>();
+    mappedMics.forEach((mapped) => {
+      const key = normalizeVenueGroupKey(mapped.mic);
+      const list = byVenue.get(key);
+      if (list) list.push(mapped);
+      else byVenue.set(key, [mapped]);
+    });
+    return Array.from(byVenue.entries()).map(([key, list]) => {
+      const sorted = [...list].sort((a, b) => getMinutesUntilNextMic(a.mic) - getMinutesUntilNextMic(b.mic));
+      const micsAtVenue = sorted.map((m) => m.mic);
+      return {
+        key,
+        latitude: sorted[0].latitude,
+        longitude: sorted[0].longitude,
+        venueName: sorted[0].mic.venueName || sorted[0].mic.openMic,
+        mics: micsAtVenue,
+        size: Math.max(...micsAtVenue.map(bubbleSizeFor)),
+      };
+    });
+  }, [mappedMics]);
+
+  const selectedGroup = useMemo(
+    () => venueGroups.find((group) => group.key === selectedVenueKey) ?? null,
+    [venueGroups, selectedVenueKey],
+  );
 
   const micGeoJson = useMemo<FeatureCollection<Point, MicFeatureProperties>>(
     () => ({
@@ -497,6 +579,12 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, variant = 'boxed' }: OpenMic
           });
         }
 
+        if (USE_BUBBLE_MARKERS) {
+          ['open-mic-dots', 'open-mic-pins'].forEach((layerId) => {
+            if (map.getLayer(layerId)) map.setLayoutProperty(layerId, 'visibility', 'none');
+          });
+        }
+
         setMapReady(true);
       };
 
@@ -532,6 +620,97 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, variant = 'boxed' }: OpenMic
     const source = mapRef.current ? getSource(mapRef.current) : undefined;
     source?.setData(micGeoJson);
   }, [micGeoJson, mapReady]);
+
+  // Bubble markers (Storytime style)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!USE_BUBBLE_MARKERS || !mapReady || !map) return;
+
+    const container = map.getContainer();
+    const applyScale = () => container.style.setProperty('--cq-bubble-scale', String(bubbleScaleForZoom(map.getZoom())));
+    applyScale();
+    map.on('zoom', applyScale);
+
+    const handleMapClick = (event: mapboxgl.MapMouseEvent) => {
+      const target = event.originalEvent?.target as HTMLElement | null;
+      if (target?.closest?.('.cq-bubble-btn')) return;
+      setSelectedVenueKey(null);
+    };
+    map.on('click', handleMapClick);
+
+    // Smaller bubbles first so the big ones sit on top
+    const ordered = [...venueGroups].sort((a, b) => a.size - b.size);
+    bubbleMarkersRef.current = ordered.map((group, index) => {
+      const shown = group.mics.slice(0, BUBBLE_STACK_MAX);
+      const offset = Math.round(group.size * 0.42);
+      const wrap = document.createElement('div');
+      wrap.style.zIndex = String(group.size * 1000 + index);
+
+      const inner = document.createElement('div');
+      inner.className = 'cq-bubble-wrap';
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'cq-bubble-btn';
+      button.style.width = `${group.size + offset * (shown.length - 1)}px`;
+      button.style.height = `${group.size}px`;
+      button.setAttribute(
+        'aria-label',
+        `${group.venueName}, ${group.mics.length} ${group.mics.length === 1 ? 'mic' : 'mics'}`,
+      );
+
+      shown.forEach((mic, i) => {
+        const size = group.size;
+        const bubble = document.createElement('span');
+        bubble.className = 'cq-bubble' + (isVerifiedMicStatus(mic) ? '' : ' cq-bubble--muted');
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.left = `${i * offset}px`;
+        bubble.style.zIndex = String(BUBBLE_STACK_MAX - i);
+        if (mic.isComediqRun) {
+          bubble.style.background = '#FFFFFF';
+          bubble.style.backgroundImage = `url(${LOGO_PIN_IMAGE_URL})`;
+          bubble.style.backgroundSize = '62%';
+          bubble.style.backgroundRepeat = 'no-repeat';
+        } else if (mic.coverImageUrl) {
+          bubble.style.backgroundImage = `url("${mic.coverImageUrl.replace(/"/g, '%22')}")`;
+        } else {
+          const [bg, fg] = venueColor(group.venueName);
+          bubble.style.background = bg;
+          bubble.style.color = fg;
+          bubble.style.fontSize = `${Math.round(size * 0.34)}px`;
+          bubble.textContent = venueInitials(group.venueName);
+        }
+        button.appendChild(bubble);
+      });
+
+      if (group.mics.length > BUBBLE_STACK_MAX) {
+        const count = document.createElement('span');
+        count.className = 'cq-bubble-count';
+        count.textContent = `+${group.mics.length - BUBBLE_STACK_MAX}`;
+        button.appendChild(count);
+      }
+
+      button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        setSelectedVenueKey(group.key);
+        map.easeTo({ center: [group.longitude, group.latitude], zoom: Math.max(map.getZoom(), 14), duration: 500 });
+      });
+
+      inner.appendChild(button);
+      wrap.appendChild(inner);
+      return new mapboxgl.Marker({ element: wrap, anchor: 'center' })
+        .setLngLat([group.longitude, group.latitude])
+        .addTo(map);
+    });
+
+    return () => {
+      map.off('zoom', applyScale);
+      map.off('click', handleMapClick);
+      bubbleMarkersRef.current.forEach((marker) => marker.remove());
+      bubbleMarkersRef.current = [];
+    };
+  }, [mapReady, venueGroups]);
 
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
@@ -669,6 +848,77 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, variant = 'boxed' }: OpenMic
         {!mapReady && !error && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-muted-foreground">
             Loading map...
+          </div>
+        )}
+
+        {USE_BUBBLE_MARKERS && (
+          <style>{`
+            .cq-bubble-wrap{transform:scale(var(--cq-bubble-scale,1));transform-origin:center;transition:transform .15s ease-out}
+            .cq-bubble-btn{position:relative;display:block;background:none;border:0;padding:0;cursor:pointer}
+            .cq-bubble{position:absolute;top:0;border-radius:9999px;border:2.5px solid #fff;box-shadow:0 4px 12px rgba(8,20,43,.28);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-weight:800;letter-spacing:-.02em;overflow:hidden;box-sizing:border-box}
+            .cq-bubble--muted{opacity:.6}
+            .cq-bubble-count{position:absolute;right:-6px;top:-6px;z-index:10;min-width:22px;height:22px;padding:0 5px;border-radius:11px;background:#fff;color:#1E4894;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(8,20,43,.25)}
+            .cq-bubble-btn:focus-visible{outline:3px solid #8FC2F5;outline-offset:3px;border-radius:9999px}
+          `}</style>
+        )}
+
+        {/* Storytime-style preview: one swipeable card per mic at the tapped venue */}
+        {selectedGroup && (
+          <div
+            className="absolute inset-x-0 z-20 px-3"
+            style={variant === 'full' ? { top: 84 } : { bottom: 12 }}
+            role="dialog"
+            aria-label={`Mics at ${selectedGroup.venueName}`}
+          >
+            <div className="mx-auto max-w-md">
+              <div className="mb-2 flex items-center justify-between gap-2 rounded-full bg-white/95 py-1.5 pl-4 pr-1.5 text-[#08142B] shadow-lg">
+                <span className="truncate text-sm font-bold">
+                  {selectedGroup.venueName}
+                  <span className="ml-2 font-medium text-[#5F6675]">
+                    {selectedGroup.mics.length} {selectedGroup.mics.length === 1 ? 'mic' : 'mics'}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  aria-label="Close"
+                  onClick={() => setSelectedVenueKey(null)}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FA] text-lg leading-none text-[#1E4894]"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {selectedGroup.mics.map((mic) => (
+                  <article
+                    key={mic.uniqueIdentifier}
+                    className={`${selectedGroup.mics.length > 1 ? 'w-[82%]' : 'w-full'} shrink-0 snap-center overflow-hidden rounded-[24px] bg-white text-[#08142B] shadow-xl`}
+                  >
+                    {mic.coverImageUrl && (
+                      <div className="h-24 w-full bg-cover bg-center" style={{ backgroundImage: `url("${mic.coverImageUrl}")` }} />
+                    )}
+                    <div className="p-4">
+                      <div className="text-xs font-semibold text-[#1E4894]">
+                        {whenLabel(mic)}
+                        {mic.isComediqRun ? ' · By Comediq' : ''}
+                      </div>
+                      <h3 className="mt-1 text-lg font-bold leading-tight">{mic.openMic}</h3>
+                      <div className="mt-1 text-sm text-[#5F6675]">
+                        {[formatCost(mic.cost), mic.stageTime ? `${formatStageTime(mic.stageTime)} sets` : '']
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => onMicSelectRef.current(mic)}
+                        className="mt-3 h-11 w-full rounded-full bg-[#1E4894] text-sm font-bold text-white"
+                      >
+                        View mic
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 

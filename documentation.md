@@ -2565,3 +2565,13 @@ could not do anything for anyone.
 `mic_edit_history`, and `claim_mic_host` now uses the same rule. Code: `src/api/hostTools.ts`,
 `src/components/host/HostBulkEdit.tsx`, `ClaimMicForm.tsx` (venue siblings), `HostMicEditForm.tsx` (saves through the function).
 Tested in a test database with text and uuid ids and on the live one in a rolled-back run.
+
+
+## Map: Storytime-style bubbles (2026-11-17)
+- File: `src/components/map/OpenMicsMapRefactored.tsx`. Switch: `USE_BUBBLE_MARKERS` (true). Set it to false to bring back the old Comediq pin layers, which are still in the file, just hidden.
+- Every venue is a round bubble: the mic's cover photo, the Comediq logo for Comediq-run mics, or the venue's initials on a Comediq blue.
+- Sizes: Comediq-run 54px, running today 44px, other days 34px. Unverified mics are faded. Bigger bubbles sit on top.
+- Zoom: bubbles shrink to 45% when zoomed far out (so Manhattan looks dense, like Storytime) and grow to full size from zoom 14 in. No clustering into number dots.
+- A venue with several mics shows one bubble per mic, stacked side by side (up to 3, then a "+N" count).
+- Tapping a bubble opens a preview: venue name plus one swipeable card per mic there (time, cost, set length, "View mic"). "View mic" does what tapping a pin did before.
+- Plan for web layouts and the host Manage tab: `docs/design/storytime-redesign/WEB_AND_HOST_PLAN.md`.
