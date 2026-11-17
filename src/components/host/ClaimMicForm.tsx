@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { claimHostStatus } from '@/api/signups';
+import { claimMicHosts } from '@/api/hostTools';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useOpenMics } from '@/hooks/useOpenMics';
@@ -26,15 +27,36 @@ export function ClaimMicForm() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Other mics at the same venue, or run by the same Instagram handle: offered together, all ticked.
+  const [extraIds, setExtraIds] = useState<Set<string>>(new Set());
+  const siblings = useMemo(() => {
+    if (!selectedMic || !mics) return [];
+    const chosen = mics.find((m) => m.uniqueIdentifier === selectedMic.id);
+    const handle = (chosen?.hosts || '').match(/@[\w.]+/)?.[0]?.toLowerCase();
+    return mics
+      .filter((m) => m.uniqueIdentifier !== selectedMic.id)
+      .filter((m) => m.venueName === selectedMic.venue || (!!handle && (m.hosts || '').toLowerCase().includes(handle)))
+      .slice(0, 29);
+  }, [selectedMic, mics]);
+
+  // Tick every sibling by default: most hosts run the whole venue.
+  useEffect(() => {
+    setExtraIds(new Set(siblings.map((m) => m.uniqueIdentifier)));
+  }, [siblings]);
+
   const claimMutation = useMutation({
-    mutationFn: claimHostStatus,
-    onSuccess: () => {
+    mutationFn: (ids: string[]) => claimMicHosts(ids),
+    onSuccess: (result) => {
       toast({
-        title: 'Claim submitted',
-        description: 'Your host claim is pending admin verification.',
+        title: result.approved > 0 ? 'You are the host' : 'Claim submitted',
+        description:
+          result.approved > 0
+            ? `${result.approved} mic${result.approved === 1 ? ' is' : 's are'} yours now.${result.pending > 0 ? ` ${result.pending} already had a host, so an admin will review ${result.pending === 1 ? 'it' : 'them'}.` : ''}`
+            : 'These mics already have a host, so an admin will review your claim.',
       });
       queryClient.invalidateQueries({ queryKey: ['hostStatus'] });
       setSelectedMic(null);
+      setExtraIds(new Set());
     },
     onError: (error: any) => {
       toast({
@@ -61,7 +83,7 @@ export function ClaimMicForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedMic) {
-      claimMutation.mutate(selectedMic.id);
+      claimMutation.mutate([selectedMic.id, ...extraIds]);
     }
   };
 
@@ -160,9 +182,31 @@ export function ClaimMicForm() {
             </PopoverContent>
           </Popover>
 
+          {selectedMic && siblings.length > 0 && (
+            <div className={`rounded-lg border p-3 text-sm ${glassFieldClass}`}>
+              <p className="mb-2 font-semibold">Do you run these too? Claim them together.</p>
+              <div className="space-y-1">
+                {siblings.map((m) => (
+                  <label key={m.uniqueIdentifier} className="flex items-center gap-2">
+                    <Checkbox
+                      checked={extraIds.has(m.uniqueIdentifier)}
+                      onCheckedChange={() => {
+                        const next = new Set(extraIds);
+                        if (next.has(m.uniqueIdentifier)) next.delete(m.uniqueIdentifier);
+                        else next.add(m.uniqueIdentifier);
+                        setExtraIds(next);
+                      }}
+                    />
+                    <span>{m.openMic} <span className={mutedTextClass}>· {m.venueName} · {m.day} {m.startTime}</span></span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-2">
             <Button type="submit" disabled={!selectedMic || claimMutation.isPending} className="flex-1">
-              {claimMutation.isPending ? 'Submitting...' : 'Submit Claim'}
+              {claimMutation.isPending ? 'Submitting...' : extraIds.size > 0 ? `Claim ${extraIds.size + 1} mics` : 'Claim this mic'}
             </Button>
           </div>
 

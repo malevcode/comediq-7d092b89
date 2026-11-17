@@ -1,5 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { ConfirmStillRunning } from '@/components/host/ConfirmStillRunning';
+import { HostBulkEdit } from '@/components/host/HostBulkEdit';
 import { useHostStatus } from '@/hooks/useHostStatus';
 import { Navigate } from 'react-router-dom';
 import { ClaimMicForm } from '@/components/host/ClaimMicForm';
@@ -82,11 +83,13 @@ export default function HostDashboard() {
             <ClaimMicForm />
           </div>
         ) : (
+          <>
+          <HostBulkEdit micIds={verifiedHosts.map((h) => h.mic_id)} />
           <Tabs defaultValue={verifiedHosts[0].id} className="space-y-4">
             <TabsList className="border border-[#07111f]/10 bg-white/30 shadow-[0_10px_30px_rgba(2,10,30,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/10">
               {verifiedHosts.map(host => (
                 <TabsTrigger key={host.id} value={host.id}>
-                  {(host as any).open_mics_historical?.venue_name}
+                  {(host as any).open_mics_historical?.open_mic || (host as any).open_mics_historical?.venue_name}
                 </TabsTrigger>
               ))}
               <TabsTrigger value="claim">+ Claim Another</TabsTrigger>
@@ -106,6 +109,7 @@ export default function HostDashboard() {
               <ClaimMicForm />
             </TabsContent>
           </Tabs>
+          </>
         )}
       </div>
     </>
