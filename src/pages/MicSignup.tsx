@@ -19,6 +19,11 @@ import { useToast } from '@/hooks/use-toast';
 import { generateVenueSlug } from '@/utils/slugify';
 import { OpenMicFullCard } from '@/components/OpenMicsDetailedList';
 
+/** Today in New York as YYYY-MM-DD. Last week's sheet must never show as the live list. */
+const todayNY = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date());
+const isLiveSheet = (e: { is_active?: boolean; event_date?: unknown }) =>
+  !!e.is_active && String(e.event_date).slice(0, 10) >= todayNY();
+
 const glassCardClass = "border-0 bg-white/40 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 dark:bg-[#07111f]/60 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.34)]";
 const glassPanelClass = "rounded-lg border-0 bg-white/30 p-4 text-[#07111f] shadow-[0_10px_30px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#07111f]/50 dark:text-white dark:shadow-[0_10px_30px_rgba(2,10,30,0.22)]";
 
@@ -302,7 +307,7 @@ export default function MicSignup() {
       if (mic.signupMethod !== 'comediq_slots' && !mic.slotsEnabled) return;
       if (attemptedEventCreationFor === mic.uniqueIdentifier) return;
 
-      const activeEvents = events?.filter(e => e.is_active) || [];
+      const activeEvents = events?.filter(isLiveSheet) || [];
       if (activeEvents.length > 0 || eventsLoading) return;
 
       setAttemptedEventCreationFor(mic.uniqueIdentifier);
@@ -339,7 +344,7 @@ export default function MicSignup() {
     return <Navigate to="/open-mics" />;
   }
 
-  const activeEvents = events?.filter(e => e.is_active) || [];
+  const activeEvents = events?.filter(isLiveSheet) || [];
 
   return (
     <>

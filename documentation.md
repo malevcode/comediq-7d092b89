@@ -2575,3 +2575,15 @@ Tested in a test database with text and uuid ids and on the live one in a rolled
 - A venue with several mics shows one bubble per mic, stacked side by side (up to 3, then a "+N" count).
 - Tapping a bubble opens a preview: venue name plus one swipeable card per mic there (time, cost, set length, "View mic"). "View mic" does what tapping a pin did before.
 - Plan for web layouts and the host Manage tab: `docs/design/storytime-redesign/WEB_AND_HOST_PLAN.md`.
+
+## Session: a fresh signup sheet every week
+
+- **Problem:** the signup page showed every active sheet and only made a new one when there were none, so last week's list stayed
+  live (Gdrink showed Nov 12's lineup on Nov 19).
+- **Now:** "Archived" means a sheet is switched off but kept, with everyone who was on it. The page only shows sheets dated today or
+  later (New York time). A database function, `ensure_weekly_signup_events()`, archives past sheets and opens the next sheet for every
+  weekly Comediq-signup mic, copying the host and the lineup-by-check-in rule from the last sheet. The workflow
+  `.github/workflows/weekly_signup_sheets.yaml` runs it every morning around 6-7 AM New York (or run it by hand from the Actions tab).
+  Opening the page also archives old sheets. Bi-weekly mics are skipped (their sheet is made when someone opens the page).
+- SQL `20261119120000_weekly_signup_sheets.sql` is already applied on the live database. Tonight's Gdrink sheet (Nov 19) was opened by
+  hand and Nov 12's is archived with its 10 signups kept. Tested in a test database with text/uuid ids and text/date event dates.
