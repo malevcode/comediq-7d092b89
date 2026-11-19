@@ -1456,7 +1456,8 @@
         "signup_enabled": true,
         "slots_enabled": true,
         "other_rules": "",
-        "hosts_organizers": "@malevcomedy"
+        "hosts_organizers": "@malevcomedy",
+        "changes_updates": "@malevcomedy"
       }
     },
     {
