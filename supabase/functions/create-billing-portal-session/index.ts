@@ -5,7 +5,7 @@ const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-const siteUrl = Deno.env.get('SITE_URL') ?? 'https://comediq.us'
+const siteUrl = Deno.env.get('SITE_URL') ?? 'https://comediq.com'
 
 const stripe = new Stripe(stripeSecretKey, {
   apiVersion: '2024-06-20',

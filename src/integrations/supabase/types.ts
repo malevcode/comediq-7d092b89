@@ -326,6 +326,8 @@ export type Database = {
           showtn_offer_description: string | null
           source: string | null
           source_event_id: string | null
+          source_platform: string | null
+          source_url: string | null
           status: string | null
           submitted_by: string | null
           ticket_price: string | null
@@ -377,6 +379,8 @@ export type Database = {
           showtn_offer_description?: string | null
           source?: string | null
           source_event_id?: string | null
+          source_platform?: string | null
+          source_url?: string | null
           status?: string | null
           submitted_by?: string | null
           ticket_price?: string | null
@@ -428,6 +432,8 @@ export type Database = {
           showtn_offer_description?: string | null
           source?: string | null
           source_event_id?: string | null
+          source_platform?: string | null
+          source_url?: string | null
           status?: string | null
           submitted_by?: string | null
           ticket_price?: string | null
@@ -3224,6 +3230,17 @@ export type Database = {
       }
     }
     Functions: {
+      claim_mic_host: {
+        Args: { p_mic_id: string }
+        Returns: {
+          created_at: string
+          id: string
+          is_verified: boolean
+          mic_id: string
+          updated_at: string
+          user_id: string
+        }
+      }
       add_open_mic: {
         Args: { p: Json }
         Returns: {

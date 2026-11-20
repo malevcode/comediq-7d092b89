@@ -84,7 +84,7 @@ const YearInReview = () => {
       <SEO
         title="Comediq 2025 Year in Review - NYC Comedy Stats"
         description="Discover the NYC comedy scene by the numbers. See how many open mics, comedians, and neighborhoods Comediq tracked in 2025."
-        url="https://comediq.us/2025-review"
+        url="https://comediq.com/2025-review"
       />
       
       <div className="relative min-h-screen overflow-hidden">

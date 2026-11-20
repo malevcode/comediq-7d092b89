@@ -12,6 +12,7 @@ import ClaimMicButton from "@/components/host/ClaimMicButton";
 import EditMicButton from "@/components/mic/EditMicButton";
 import { useAuth } from "@/contexts/AuthContext";
 import PageHeader from "@/components/PageHeader";
+import { ComediqSticker } from "@/components/ComediqSticker";
 
 function getMapUrl(location: string, venueName: string) {
   const searchQuery = encodeURIComponent(`${venueName}, ${location}`);
@@ -94,7 +95,7 @@ const MicDetailPage = () => {
       <SEO
         {...micMeta(mic)}
         keywords={`${mic.venueName} open mic, ${mic.neighborhood} comedy, ${mic.borough} open mic, ${mic.day} comedy NYC, ${mic.cost === 'Free' ? 'free' : 'paid'} open mic`}
-        url={`https://comediq.us${micPath(mic)}`}
+        url={`https://comediq.com${micPath(mic)}`}
         type="article"
         structuredData={structuredData}
       />
@@ -110,6 +111,12 @@ const MicDetailPage = () => {
               </button>
               <span className="truncate text-right">{mic.neighborhood?.toLowerCase()} · {mic.borough?.toLowerCase()}</span>
             </div>
+
+            {mic.isComediqRun && (
+              <div className="mb-3 flex justify-end">
+                <ComediqSticker className="px-3 py-1 text-sm" />
+              </div>
+            )}
 
             {/* Display name */}
             <h1

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { OpenMic } from "@/types/openMic";
+import { resolveMicTimes } from "@/utils/micTime";
 import {
   hasUsableCoordinateData,
   loadCachedOpenMics,
@@ -62,11 +63,17 @@ async function fetchFromStaticJson(): Promise<OpenMic[]> {
     throw new Error("Static mic data is missing coordinates");
   }
 
-  return mics as OpenMic[];
+  return (mics as OpenMic[]).map(withCleanTimes);
+}
+
+/** Shows "7PM" and "9" as "7:00 PM" and "9:00 PM" even before the database copy is fixed. */
+function withCleanTimes(mic: OpenMic): OpenMic {
+  const { start, end } = resolveMicTimes(mic.startTime || "", mic.latestEndTime || "");
+  return { ...mic, startTime: start, latestEndTime: end };
 }
 
 export function mapSupabaseRow(row: any): OpenMic {
-  return {
+  return withCleanTimes({
     id: row.unique_identifier,
     openMic: row.open_mic || "",
     day: row.day || "",
@@ -90,6 +97,7 @@ export function mapSupabaseRow(row: any): OpenMic {
     uniqueIdentifier: row.unique_identifier || "",
     city: row.city || "",
     signupEnabled: row.signup_enabled || false,
+    isComediqRun: row.is_comediq_run || false,
     otherRules: row.other_rules || "",
     coverImageUrl: row.cover_image_url || undefined,
     status: row.status || "verified",
@@ -109,20 +117,32 @@ export function mapSupabaseRow(row: any): OpenMic {
     geocodingProvider: row.geocoding_provider ?? null,
     geocodingScore: row.geocoding_score ?? null,
     geocodingMatchAddress: row.geocoding_match_address ?? null,
-  };
+  });
+}
+
+// is_comediq_run is a new column. Ask for it, and if the database does not have it yet
+// (its migration has not been run) ask again without it, so the mic list never breaks.
+async function selectMics(
+  build: (columns: string) => PromiseLike<{ data: any[] | null; error: any }>,
+): Promise<OpenMic[]> {
+  let res = await build(`${LIVE_COLUMNS},is_comediq_run`);
+  if (res.error && String(res.error.message ?? "").includes("is_comediq_run")) {
+    res = await build(LIVE_COLUMNS);
+  }
+  if (res.error) throw res.error;
+  return (res.data || []).map(mapSupabaseRow);
 }
 
 async function fetchFromSupabase(): Promise<OpenMic[]> {
-  const { data, error } = await supabase
-    .from("open_mics_historical")
-    .select(LIVE_COLUMNS)
-    .eq("active", true)
-    .neq("status", "pending")
-    .order("day", { ascending: true })
-    .order("start_time", { ascending: true });
-
-  if (error) throw error;
-  return (data || []).map(mapSupabaseRow);
+  return selectMics((columns) =>
+    supabase
+      .from("open_mics_historical")
+      .select(columns)
+      .eq("active", true)
+      .neq("status", "pending")
+      .order("day", { ascending: true })
+      .order("start_time", { ascending: true }),
+  );
 }
 
 // mics.json refreshes a few minutes after a change, so fetch the last 30 days of
@@ -130,15 +150,14 @@ async function fetchFromSupabase(): Promise<OpenMic[]> {
 // everyone right away.
 async function fetchRecentFromSupabase(): Promise<OpenMic[]> {
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const { data, error } = await supabase
-    .from("open_mics_historical")
-    .select(LIVE_COLUMNS)
-    .eq("active", true)
-    .neq("status", "pending")
-    .gte("submission_date", since);
-
-  if (error) throw error;
-  return (data || []).map(mapSupabaseRow);
+  return selectMics((columns) =>
+    supabase
+      .from("open_mics_historical")
+      .select(columns)
+      .eq("active", true)
+      .neq("status", "pending")
+      .gte("submission_date", since),
+  );
 }
 
 function mergeRecent(base: OpenMic[], recent: OpenMic[]): OpenMic[] {

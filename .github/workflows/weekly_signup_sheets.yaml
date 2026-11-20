@@ -1,0 +1,34 @@
+name: Weekly signup sheets
+
+# Archives last week's signup sheets and opens this week's, for every weekly Comediq-signup mic.
+# Runs every morning (New York time) so a fresh, empty list is waiting before people look for it.
+# Calls the database function ensure_weekly_signup_events() with the same Supabase secrets the other workflows use.
+# Archived sheets keep every name on them; they just stop being the live list.
+
+on:
+  schedule:
+    - cron: "0 11 * * *"   # 6-7 AM New York
+  workflow_dispatch:
+
+concurrency:
+  group: weekly-signup-sheets
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Open this week's sheets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          out=$(curl -sS --fail-with-body -X POST "${SUPABASE_URL%/}/rest/v1/rpc/ensure_weekly_signup_events" \
+            -H "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Content-Type: application/json" -d '{}')
+          echo "Result: $out"
+          echo "## Weekly signup sheets" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`$out\`" >> "$GITHUB_STEP_SUMMARY"

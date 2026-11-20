@@ -32,7 +32,7 @@ export default function ClaimMicButton({ micUniqueIdentifier, micName, venueName
   const claimMutation = useMutation({
     mutationFn: () => claimHostStatus(micUniqueIdentifier),
     onSuccess: () => {
-      toast({ title: 'Claim submitted!', description: 'Your request is pending admin verification.' });
+      toast({ title: 'Claim submitted!', description: 'If nobody else hosts this mic it is yours right away. Check your Host Dashboard.' });
       queryClient.invalidateQueries({ queryKey: ['hostStatus'] });
     },
     onError: (error: any) => {

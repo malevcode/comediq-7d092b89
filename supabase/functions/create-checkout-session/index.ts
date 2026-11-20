@@ -6,7 +6,7 @@ const fullPassPriceId = Deno.env.get('STRIPE_PRICE_PAID') ?? ''
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-const siteUrl = Deno.env.get('SITE_URL') ?? 'https://comediq.us'
+const siteUrl = Deno.env.get('SITE_URL') ?? 'https://comediq.com'
 
 const stripe = new Stripe(stripeSecretKey, {
   apiVersion: '2024-06-20',
@@ -130,7 +130,7 @@ Deno.serve(async (req) => {
     if (!user?.email) return json({ error: 'Not authenticated' }, 401)
     console.log('Creating checkout session for user', user.id)
 
-    const { returnPath, returnUrl } = await req.json().catch(() => ({ returnPath: '/' }))
+    const { returnPath, returnUrl, kind, micId, date } = await req.json().catch(() => ({ returnPath: '/' }))
     const safeReturnPath = getSafeReturnPath(returnPath)
     const safeReturnUrl = getSafeReturnUrl(returnUrl)
 
@@ -140,6 +140,40 @@ Deno.serve(async (req) => {
         persistSession: false,
       },
     })
+
+    // Mic of the Day auction: a host pays once to take the pinned spot for a date. Not a
+    // subscription. The database checks the host, the mic and the date, and sets the price
+    // ($15 to start, $5 more than the current holder after that). The spot only changes
+    // hands in stripe-webhook, after the payment succeeds.
+    if (kind === 'mic_of_the_day') {
+      const { data: bid, error: bidError } = await admin.rpc('motd_start_bid', {
+        p_user: user.id,
+        p_mic_id: micId,
+        p_date: date,
+      })
+      if (bidError || !bid) return json({ error: bidError?.message ?? 'Could not start the claim' }, 409)
+      const entry = { id: bid.id as string, target_date: bid.date as string }
+
+      const motdSession = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        customer_email: user.email,
+        client_reference_id: user.id,
+        line_items: [
+          {
+            quantity: 1,
+            price_data: {
+              currency: 'usd',
+              unit_amount: bid.amount_cents as number,
+              product_data: { name: `Comediq Mic of the Day, ${entry.target_date}` },
+            },
+          },
+        ],
+        metadata: { kind: 'mic_of_the_day', entry_id: entry.id },
+        success_url: `${siteUrl}/open-mics?motd=paid`,
+        cancel_url: `${siteUrl}/open-mics`,
+      })
+      return json({ url: motdSession.url })
+    }
 
     const { data: profile, error: profileError } = await admin
       .from('profiles')

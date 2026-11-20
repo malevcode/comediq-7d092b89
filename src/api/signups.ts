@@ -36,49 +36,21 @@ export async function getOrCreateNextEvent(micId: string, micDay: string, micSta
   
   if (!user) throw new Error('Must be authenticated');
 
-  const today = new Date().toISOString().split('T')[0];
-  
-  const { data: existingEvents, error: fetchError } = await supabase
-    .from('mic_signup_events')
-    .select('*')
-    .eq('mic_id', micId)
-    .eq('is_active', true)
-    .gte('event_date', today)
-    .order('event_date', { ascending: true })
-    .limit(1);
-
-  if (fetchError) throw fetchError;
-
-  if (existingEvents && existingEvents.length > 0) {
-    return existingEvents[0];
-  }
-
-  const { data: hostId, error: hostError } = await (supabase as any)
-    .rpc('get_or_create_system_host', { mic_id_param: micId });
-
-  if (hostError) throw hostError;
-  if (!hostId) throw new Error('Could not find or create a signup host for this mic.');
-
+  // The database function opens the sheet: it returns the mic's next open sheet or creates it
+  // under the mic's host, so it works for any signed-in visitor.
   const nextDate = getNextOccurrence(micDay);
-  const eventDate = nextDate.toISOString().split('T')[0];
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const eventDate = `${nextDate.getFullYear()}-${pad(nextDate.getMonth() + 1)}-${pad(nextDate.getDate())}`;
 
-  const { data: newEvent, error: createError } = await supabase
-    .from('mic_signup_events')
-    .insert({
-      mic_id: micId,
-      host_id: hostId,
-      event_date: eventDate,
-      event_time: micStartTime || null,
-      total_spots: 15,
-      spots_remaining: 15,
-      signup_mode: 'first_come' as const,
-      is_active: true,
-    })
-    .select()
-    .single();
+  const { data, error } = await (supabase as any).rpc('get_or_create_signup_event', {
+    p_mic_id: micId,
+    p_event_date: eventDate,
+    p_event_time: micStartTime || null,
+  });
 
-  if (createError) throw createError;
-  return newEvent;
+  if (error) throw error;
+  if (!data) throw new Error('Could not open the signup sheet for this mic.');
+  return data;
 }
 
 // Claim to be a host for a mic
@@ -87,15 +59,9 @@ export async function claimHostStatus(micId: string) {
   
   if (!user) throw new Error('Must be authenticated');
 
-  const { data, error } = await supabase
-    .from('mic_hosts')
-    .insert({
-      user_id: user.id,
-      mic_id: micId,
-      is_verified: false
-    })
-    .select()
-    .single();
+  // The database function does the insert (and checks who is signed in), so the
+  // claim works even when the table's own insert policy is missing or different.
+  const { data, error } = await supabase.rpc('claim_mic_host', { p_mic_id: micId });
 
   if (error) throw error;
   
@@ -295,6 +261,22 @@ export async function fetchEventSignups(eventId: string) {
 
   if (error) throw error;
   return data || [];
+}
+
+export type LineupRow = {
+  signup_id: string;
+  user_id: string;
+  display_name: string;
+  signed_up_at: string;
+  checked_in_at: string | null;
+  lineup_position: number;
+};
+
+// Everyone on a sheet in running order: checked in (at the venue) by arrival time, then the rest.
+export async function fetchEventLineup(eventId: string): Promise<LineupRow[]> {
+  const { data, error } = await (supabase as any).rpc('get_event_lineup', { p_event_id: eventId });
+  if (error) throw error;
+  return (data || []) as LineupRow[];
 }
 
 // Cancel a signup

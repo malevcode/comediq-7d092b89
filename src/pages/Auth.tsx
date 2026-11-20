@@ -975,7 +975,7 @@ const Auth = () => {
         </button>
       </form>
       <p className="mt-4 text-xs text-gray-400 text-center leading-relaxed">
-        By signing up you agree to our <a href="/privacy" className="underline hover:text-gray-600">Privacy Policy</a>.
+        By signing up you agree to our <a href="/terms" className="underline hover:text-gray-600">Terms of Service</a> and <a href="/privacy" className="underline hover:text-gray-600">Privacy Policy</a>.
       </p>
     </>
   );
@@ -1037,7 +1037,7 @@ const Auth = () => {
   }[step];
   return (
     <>
-      <SEO title={seoTitle} description="Sign in or create a free Comediq account to save open mics, track your comedy journey, and connect with the NYC comedy community." url="https://comediq.us/auth" noindex={true} />
+      <SEO title={seoTitle} description="Sign in or create a free Comediq account to save open mics, track your comedy journey, and connect with the NYC comedy community." url="https://comediq.com/auth" noindex={true} />
       <div className="min-h-screen flex">
         <div className="relative hidden overflow-hidden lg:flex lg:w-[36%] xl:w-[34%] flex-col justify-between p-12 text-white">
           <video

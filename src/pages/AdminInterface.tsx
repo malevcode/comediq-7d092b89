@@ -25,6 +25,7 @@ import { SmartUpdateInterface } from '@/components/admin/SmartUpdateInterface';
 import { AdminContributionsPanel } from '@/components/admin/AdminContributionsPanel';
 import AdminGrowthManager from '@/components/admin/AdminGrowthManager';
 import AdminMotdControl from '@/components/admin/AdminMotdControl';
+import AdminMicOfTheDay from '@/components/admin/AdminMicOfTheDay';
 import { InstagramCommentCollector } from '@/components/admin/InstagramCommentCollector';
 import { AdminMicFlagsPanel } from '@/components/admin/AdminMicFlagsPanel';
 import { MicsJsonRefreshButton } from '@/components/admin/MicsJsonRefreshButton';
@@ -491,7 +492,13 @@ const AdminInterface = () => {
           <TabsContent value="motd">
             <Card className="mb-6 shadow-lg rounded-2xl border-0">
               <CardContent className="p-4 md:p-8">
-                <AdminMotdControl />
+                <AdminMicOfTheDay />
+                {/* The older controls below write to the old tables, which no longer decide
+                    what the site shows. Kept for the Canva post tools. */}
+                <details className="mt-8">
+                  <summary className="cursor-pointer text-sm text-muted-foreground">Older Mic of the Day tools (Canva posts, old locks and defaults)</summary>
+                  <div className="mt-4"><AdminMotdControl /></div>
+                </details>
               </CardContent>
             </Card>
           </TabsContent>

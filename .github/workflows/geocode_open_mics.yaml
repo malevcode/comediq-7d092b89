@@ -1,0 +1,70 @@
+name: Geocode open mics
+
+# Fills latitude and longitude on open_mics_historical for mics that have none.
+# GPS check-in (and the lineup that depends on it) measures your distance to these coordinates;
+# a mic with no coordinates cannot verify anyone. It runs:
+#   - after "Apply open mic updates" finishes, so a mic just added gets coordinates right away,
+#   - every three hours, to catch mics added through the app,
+#   - manually, where dry run is on by default.
+# No new secrets: the same Supabase credentials as the other workflows and the free ArcGIS geocoder.
+
+on:
+  workflow_run:
+    workflows: ["Apply open mic updates"]
+    types: [completed]
+  schedule:
+    - cron: "17 */3 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview only, write nothing"
+        type: boolean
+        default: true
+
+concurrency:
+  group: geocode-open-mics
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Geocode mics missing coordinates
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && 'true' || 'false' }}
+        run: |
+          set -o pipefail
+          npm run geocode:open-mics 2>&1 | tee geocode.log
+
+      - name: Report
+        if: always()
+        run: |
+          {
+            echo "## Open mic geocoding"
+            echo
+            if [ -f geocode.log ]; then
+              echo '```'
+              grep -E '^(Found|Done\.)' geocode.log || tail -5 geocode.log
+              echo '```'
+            else
+              echo "The geocoder produced no log."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

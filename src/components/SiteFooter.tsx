@@ -135,7 +135,17 @@ const SiteFooter = () => {
               </li>
               <li>
                 <Link to="/privacy" className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#1a5fb4]">
-                  Privacy Policy & Terms
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#1a5fb4]">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog" className="text-sm text-muted-foreground transition-colors hover:text-accent">
+                  Blog
                 </Link>
               </li>
             </ul>

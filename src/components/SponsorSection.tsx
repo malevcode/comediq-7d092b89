@@ -58,8 +58,9 @@ export default function SponsorSection() {
                   target={sponsor.external ? '_blank' : undefined}
                   rel={sponsor.external ? 'noopener noreferrer' : undefined}
                   onClick={handleClick}
+                  aria-label={`${sponsor.cta_text || 'Visit sponsor'}: ${sponsor.label}`}
                 >
-                  {sponsor.cta_text || 'Learn More'}
+                  {sponsor.cta_text || `Visit ${sponsor.label}`}
                   {sponsor.external && <ExternalLink className="ml-1.5 h-3.5 w-3.5" />}
                 </a>
               </Button>

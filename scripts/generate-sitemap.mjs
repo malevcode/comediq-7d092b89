@@ -14,8 +14,9 @@ import { execFileSync } from "child_process";
 import { writeFileSync, existsSync, readFileSync } from "fs";
 import { DAYS, slugify, micPath, venueSlugOf, boroughSlugs } from "../src/lib/seoShared.js";
 import { resolve } from "path";
+import { blogSitemapEntries } from "../src/lib/blogContent.js";
 
-const BASE_URL = "https://comediq.us";
+const BASE_URL = "https://comediq.com";
 
 // path -> source file whose mtime is the page's last meaningful change
 const routes = [
@@ -33,6 +34,7 @@ const routes = [
   { path: "/add-show", source: "src/pages/AddShow.tsx" },
   { path: "/advertise", source: "src/pages/AdvertiseWithUs.tsx" },
   { path: "/privacy", source: "src/pages/PrivacyPolicy.tsx" },
+  { path: "/terms", source: "src/pages/Terms.tsx" },
 ];
 
 function lastmodFor(source) {
@@ -68,6 +70,8 @@ for (const v of venues) {
   const vm = mics.filter((m) => venueSlugOf(m) === v.slug);
   if (vm.length) routes.push({ path: `/venue/${v.slug}`, lastmod: newest(vm) });
 }
+
+routes.push(...blogSitemapEntries());
 
 const urls = routes.map(({ path, source, lastmod: given }) => {
   const lastmod = given !== undefined ? given : lastmodFor(source);

@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { confirmedFirst } from "@/utils/micConfirmation";
 import { Search, HelpCircle, LogIn, Plus, Map, List } from "lucide-react";
 import SEO from "@/components/SEO";
 import { Input } from "@/components/ui/input";
@@ -425,6 +426,8 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
       );
     } else {
       filtered.sort((a, b) => getNextOccurrence(a).getTime() - getNextOccurrence(b).getTime());
+      // Mics nobody has confirmed in 60+ days are listed after the confirmed ones, not hidden.
+      if (tabType === "next") filtered = confirmedFirst(filtered);
     }
 
     
@@ -481,7 +484,8 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           nextHref={`${filterParam ? `/open-mics/${filterParam}` : "/open-mics"}?page=${Math.floor(visibleCount / PAGE_SIZE) + 1}`}
           onLoadMore={(n) => setSearchParams(p => { const q = new URLSearchParams(p); q.set("page", String(Math.ceil(n / PAGE_SIZE))); return q; }, { replace: true, preventScrollReset: true })}
           showSponsor={activeTab === "next"}
-          showMicOfDay={activeTab === "next"}
+          showMicOfDay={activeTab === "next" || daysOfWeek.includes(activeTab)}
+          micOfDayTab={activeTab}
           sinkFinishedToday={!daysOfWeek.includes(tabName)}
           onOpenMic={setSelectedMic}
         />
@@ -812,7 +816,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                 variant="outline"
                 size="sm"
                 aria-label="Add new open mic"
-                className="flex items-center justify-center px-0 py-1 h-7 w-8 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+                className="flex items-center justify-center px-0 py-1 h-7 w-8 bg-comediq-accent border-transparent text-[#0A1128] hover:bg-comediq-accent/80 hover:text-[#0A1128]"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -937,7 +941,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                         variant="outline"
                         size="sm"
                         aria-label="Add new open mic"
-                        className="flex items-center justify-center px-0 py-1 h-7 w-8 bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+                        className="flex items-center justify-center px-0 py-1 h-7 w-8 bg-comediq-accent border-transparent text-[#0A1128] hover:bg-comediq-accent/80 hover:text-[#0A1128]"
                       >
                         <Plus className="h-4 w-4" />
                       </Button>

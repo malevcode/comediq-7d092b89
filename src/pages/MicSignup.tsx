@@ -1,6 +1,8 @@
 import { useParams, Navigate, Link, useNavigate } from 'react-router-dom';
 import { useOpenMics } from '@/hooks/useOpenMics';
-import { useCurrentUserHostForMic, useEventSignups, useSignupEvents } from '@/hooks/useSignupEvents';
+import { useCurrentUserHostForMic, useEventLineup, useEventSignups, useSignupEvents } from '@/hooks/useSignupEvents';
+import { ArrivalCheckIn } from '@/components/signup/ArrivalCheckIn';
+import type { OpenMic } from '@/types/openMic';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,13 +10,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import SEO from '@/components/SEO';
-import { ArrowLeft, Calendar, Clock, Loader2, MapPin, UserCheck, UserPlus } from 'lucide-react';
+import { ArrowLeft, Loader2, UserPlus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cancelSignup, getOrCreateNextEvent, signUpForEvent } from '@/api/signups';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { generateVenueSlug } from '@/utils/slugify';
+import { OpenMicFullCard } from '@/components/OpenMicsDetailedList';
+
+/** Today in New York as YYYY-MM-DD. Last week's sheet must never show as the live list. */
+const todayNY = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date());
+const isLiveSheet = (e: { is_active?: boolean; event_date?: unknown }) =>
+  !!e.is_active && String(e.event_date).slice(0, 10) >= todayNY();
 
 const glassCardClass = "border-0 bg-white/40 text-[#07111f] shadow-[0_18px_60px_rgba(4,20,55,0.18)] backdrop-blur-xl transition-all duration-300 dark:bg-[#07111f]/60 dark:text-white dark:shadow-[0_18px_60px_rgba(4,20,55,0.34)]";
 const glassPanelClass = "rounded-lg border-0 bg-white/30 p-4 text-[#07111f] shadow-[0_10px_30px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:bg-[#07111f]/50 dark:text-white dark:shadow-[0_10px_30px_rgba(2,10,30,0.22)]";
@@ -22,11 +30,15 @@ const glassPanelClass = "rounded-lg border-0 bg-white/30 p-4 text-[#07111f] shad
 interface SignupSheetProps {
   event: any;
   micId: string;
+  mic: OpenMic;
   isHost: boolean;
 }
 
-function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
+function SignupSheet({ event, micId, mic, isHost }: SignupSheetProps) {
   const { data: signups, isLoading } = useEventSignups(event.id);
+  // Some mics run the lineup by arrival: the order is who checks in at the venue first.
+  const lineupByCheckin = !!event.lineup_by_checkin;
+  const { data: lineup } = useEventLineup(event.id, lineupByCheckin);
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -42,6 +54,7 @@ function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
     : null;
   const refreshSignupData = () => {
     queryClient.invalidateQueries({ queryKey: ['eventSignups', event.id] });
+    queryClient.invalidateQueries({ queryKey: ['eventLineup', event.id] });
     queryClient.invalidateQueries({ queryKey: ['signupEvents', micId] });
     queryClient.invalidateQueries({ queryKey: ['allSignupEvents'] });
     queryClient.invalidateQueries({ queryKey: ['userSignups'] });
@@ -100,7 +113,7 @@ function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
   };
 
   return (
-    <Card className={glassCardClass}>
+    <Card className={`${glassCardClass} mx-auto w-full max-w-4xl`}>
       <CardHeader>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -120,17 +133,58 @@ function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
           </CardDescription>
         )}
       </CardHeader>
-      <CardContent className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
-        <div>
+      <CardContent className="grid gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:items-start">
+        {/* Phone: the list first, then the form. Desktop: the form on the left, the list on the right. */}
+        <div className="lg:order-2">
           <div className="mb-3 flex items-center justify-between gap-3 text-sm">
             <p className="font-semibold text-[#07111f] dark:text-white">Who has signed up</p>
-            <span className="text-[#07111f]/60 dark:text-white/60">{spotsRemaining} remaining</span>
+            <span className="font-semibold text-[#07111f] dark:text-white">
+              {confirmedSignups.length} of {event.total_spots} spots taken
+              <span className="font-normal text-[#07111f]/60 dark:text-white/60"> · {spotsRemaining} left</span>
+            </span>
           </div>
           {isLoading ? (
             <p className="text-sm text-[#07111f]/60 dark:text-white/60">Loading signups...</p>
           ) : confirmedSignups.length === 0 ? (
             <div className={`${glassPanelClass} border border-dashed border-[#07111f]/10 text-sm dark:border-white/10`}>
               No signups yet. Be the first on the list.
+            </div>
+          ) : lineupByCheckin && lineup ? (
+            <div className="space-y-2">
+              <p className="text-xs text-[#07111f]/60 dark:text-white/60">
+                The lineup is set by when you check in at the mic, not when you sign up.
+              </p>
+              {lineup.map((row) => {
+                const here = !!row.checked_in_at;
+                return (
+                  <div
+                    key={row.signup_id}
+                    className={`flex items-center gap-3 rounded-lg border-0 px-3 py-2 text-sm text-[#07111f] shadow-[0_8px_24px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:text-white ${here ? 'bg-white/30 dark:bg-[#07111f]/40' : 'bg-white/10 opacity-70 dark:bg-[#07111f]/20'}`}
+                  >
+                    <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${here ? 'bg-[#1a5fb4] text-white' : 'bg-[#07111f]/10 text-[#07111f]/60 dark:bg-white/10 dark:text-white/60'}`}>
+                      {here ? row.lineup_position : '-'}
+                    </span>
+                    <span className="font-medium">{row.display_name}</span>
+                    <span className="text-xs text-[#07111f]/60 dark:text-white/60">
+                      {here
+                        ? `arrived ${new Date(row.checked_in_at as string).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' })}`
+                        : 'not here yet'}
+                    </span>
+                    {(row.user_id === user?.id || isHost) && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="ml-auto h-7 px-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+                        disabled={cancelMutation.isPending}
+                        onClick={() => cancelMutation.mutate(row.signup_id)}
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="space-y-2">
@@ -163,7 +217,7 @@ function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
           )}
         </div>
 
-        <div className={glassPanelClass}>
+        <div className={`${glassPanelClass} lg:order-1`}>
           <div className="mb-4 flex items-center gap-2">
             <UserPlus className="h-4 w-4 text-[#1a5fb4]" />
             <h3 className="font-semibold text-[#07111f] dark:text-white">Join the signup sheet</h3>
@@ -220,6 +274,9 @@ function SignupSheet({ event, micId, isHost }: SignupSheetProps) {
                       ? 'Signing up...'
                       : 'Sign Up'}
               </Button>
+              {lineupByCheckin && currentUserSignup && (
+                <ArrivalCheckIn mic={mic} myRow={lineup?.find((row) => row.user_id === user?.id)} />
+              )}
             </div>
           )}
         </div>
@@ -236,6 +293,7 @@ export default function MicSignup() {
   const { toast } = useToast();
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
   const [attemptedEventCreationFor, setAttemptedEventCreationFor] = useState<string | null>(null);
+  const [sheetError, setSheetError] = useState<string | null>(null);
 
   const mic = mics?.find(m => generateVenueSlug(m) === slug);
 
@@ -249,16 +307,18 @@ export default function MicSignup() {
       if (mic.signupMethod !== 'comediq_slots' && !mic.slotsEnabled) return;
       if (attemptedEventCreationFor === mic.uniqueIdentifier) return;
 
-      const activeEvents = events?.filter(e => e.is_active) || [];
+      const activeEvents = events?.filter(isLiveSheet) || [];
       if (activeEvents.length > 0 || eventsLoading) return;
 
       setAttemptedEventCreationFor(mic.uniqueIdentifier);
+      setSheetError(null);
       setIsCreatingEvent(true);
       try {
         await getOrCreateNextEvent(mic.uniqueIdentifier, mic.day, mic.startTime);
         await refetchEvents();
       } catch (error: any) {
         console.error('Failed to open Comediq signup event:', error);
+        setSheetError(error?.message || 'Please try again later.');
         toast({
           title: "Couldn't load signup sheet",
           description: error.message || "Please try again later.",
@@ -284,7 +344,7 @@ export default function MicSignup() {
     return <Navigate to="/open-mics" />;
   }
 
-  const activeEvents = events?.filter(e => e.is_active) || [];
+  const activeEvents = events?.filter(isLiveSheet) || [];
 
   return (
     <>
@@ -310,54 +370,7 @@ export default function MicSignup() {
           Back
         </Button>
 
-        <Card className={glassCardClass}>
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-3xl mb-2 text-[#07111f] dark:text-white">{mic.openMic}</CardTitle>
-                <CardDescription className="text-lg text-[#07111f]/60 dark:text-white/60">{mic.venueName}</CardDescription>
-              </div>
-              <Badge variant="outline" className="border-[#07111f]/10 bg-white/40 text-sm text-[#07111f] dark:border-white/10 dark:bg-white/10 dark:text-white">
-                {mic.borough}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex items-center gap-2 text-[#07111f]/60 dark:text-white/60">
-              <Calendar className="w-4 h-4" />
-              <span>{mic.day}</span>
-            </div>
-            <div className="flex items-center gap-2 text-[#07111f]/60 dark:text-white/60">
-              <Clock className="w-4 h-4" />
-              <span>{mic.startTime} - {mic.latestEndTime}</span>
-            </div>
-            <div className="flex items-center gap-2 text-[#07111f]/60 dark:text-white/60">
-              <MapPin className="w-4 h-4" />
-              <span>{mic.location}</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Host Claim CTA */}
-        <Card className={glassCardClass}>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <UserCheck className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="font-medium text-[#07111f] dark:text-white">Are you the host of this mic?</p>
-                  <p className="text-sm text-[#07111f]/60 dark:text-white/60">Claim it to manage signups and keep info updated</p>
-                </div>
-              </div>
-              <Button asChild variant="outline" size="sm">
-                <Link to={`/host-dashboard?claim=${mic.uniqueIdentifier}`}>
-                  Claim This Mic
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
+        {/* The signup sheet comes first: this page is for grabbing a spot. */}
         {isCreatingEvent ? (
           <Card className={glassCardClass}>
             <CardHeader>
@@ -375,28 +388,38 @@ export default function MicSignup() {
             <CardHeader>
               <CardTitle className="text-[#07111f] dark:text-white">No Active Signups</CardTitle>
               <CardDescription className="text-[#07111f]/60 dark:text-white/60">
-                {!user 
-                  ? "No signup sheet is open for this mic yet."
-                  : "Check back later for signup availability."}
+                {!user
+                  ? "Sign in to open this mic's signup sheet."
+                  : sheetError
+                    ? `We could not open the signup sheet (${sheetError}).`
+                    : "Check back later for signup availability."}
               </CardDescription>
             </CardHeader>
-            {!user && (
-              <CardContent>
+            <CardContent>
+              {!user ? (
                 <Button asChild variant="outline">
-                  <Link to="/auth">Sign In</Link>
+                  <Link to={`/auth?next=${encodeURIComponent(window.location.pathname)}`}>Sign In</Link>
                 </Button>
-              </CardContent>
-            )}
+              ) : sheetError ? (
+                <Button type="button" variant="outline" onClick={() => setAttemptedEventCreationFor(null)}>
+                  Try Again
+                </Button>
+              ) : null}
+            </CardContent>
           </Card>
         ) : (
           <div className="space-y-6">
             {activeEvents.map(event => {
               return (
-                <SignupSheet key={event.id} event={event} micId={mic.uniqueIdentifier} isHost={isHost} />
+                <SignupSheet key={event.id} event={event} micId={mic.uniqueIdentifier} mic={mic} isHost={isHost} />
               );
             })}
           </div>
         )}
+
+        {/* The full mic card, so this page shows everything the list does. */}
+        <OpenMicFullCard mic={mic} />
+
       </div>
     </>
   );

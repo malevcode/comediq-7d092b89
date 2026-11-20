@@ -40,10 +40,10 @@ const MicsByNeighborhood = () => {
     '@context': 'https://schema.org',
     '@graph': [
       generateBreadcrumbSchema([
-        { name: 'Home', url: 'https://comediq.us' },
-        { name: 'Open Mics', url: 'https://comediq.us/open-mics' },
-        ...(firstMic ? [{ name: firstMic.borough, url: `https://comediq.us${linkManager.borough(firstMic.borough)}` }] : []),
-        { name: neighborhoodName, url: `https://comediq.us/neighborhoods/${neighborhood}` },
+        { name: 'Home', url: 'https://comediq.com' },
+        { name: 'Open Mics', url: 'https://comediq.com/open-mics' },
+        ...(firstMic ? [{ name: firstMic.borough, url: `https://comediq.com${linkManager.borough(firstMic.borough)}` }] : []),
+        { name: neighborhoodName, url: `https://comediq.com/neighborhoods/${neighborhood}` },
       ]),
       ...localBusinessSchemas,
       {
@@ -63,7 +63,7 @@ const MicsByNeighborhood = () => {
               address: mic.location,
             },
             description: `${mic.day} ${mic.startTime} – ${mic.latestEndTime}. ${mic.cost}.`,
-            url: `https://comediq.us${linkManager.micDetail(mic)}`,
+            url: `https://comediq.com${linkManager.micDetail(mic)}`,
           },
         })),
       },
@@ -90,7 +90,7 @@ const MicsByNeighborhood = () => {
       <SEO
         {...neighborhoodMeta(neighborhoodName, filteredMics)}
         keywords={`${neighborhoodName} open mic, ${neighborhoodName} comedy, NYC ${neighborhoodName} stand up, comedy shows ${neighborhoodName}`}
-        url={`https://comediq.us/neighborhoods/${neighborhood}`}
+        url={`https://comediq.com/neighborhoods/${neighborhood}`}
         structuredData={structuredData}
       />
 

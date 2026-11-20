@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { Save, X, Loader2 } from 'lucide-react';
 import { awardPoints } from '@/services/pointsService';
+import { hostUpdateMics } from '@/api/hostTools';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const BOROUGHS = ['Manhattan', 'Brooklyn', 'Queens', 'Bronx', 'Staten Island'];
@@ -67,58 +68,22 @@ export default function HostMicEditForm({ micUniqueIdentifier, onClose }: HostMi
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Save the old value of every changed field before overwriting it
-      // (revert foundation, see EDITING_MODEL_PLAN.md). Best-effort: a
-      // failure here must never block the edit itself.
-      if (mic) {
-        const oldValues: Record<string, string> = {
-          day: mic.day || '',
-          start_time: mic.startTime || '',
-          latest_end_time: mic.latestEndTime || '',
-          cost: mic.cost || '',
-          stage_time: mic.stageTime || '',
-          hosts_organizers: mic.hosts || '',
-          sign_up_instructions: mic.signUpInstructions || '',
-          location: mic.location || '',
-          venue_name: mic.venueName || '',
-          borough: mic.borough || '',
-          neighborhood: mic.neighborhood || '',
-          other_rules: mic.otherRules || '',
-        };
-        const historyRows = Object.entries(oldValues)
-          .filter(([field, oldValue]) => form[field as keyof typeof form] !== oldValue)
-          .map(([field, oldValue]) => ({
-            mic_unique_identifier: micUniqueIdentifier,
-            editor_id: user?.id || null,
-            field_name: field,
-            old_value: oldValue,
-            new_value: form[field as keyof typeof form],
-          }));
-        if (historyRows.length > 0) {
-          const { error: historyError } = await (supabase as any).from('mic_edit_history').insert(historyRows);
-          if (historyError) console.error('Failed to record edit history:', historyError);
-        }
-      }
-
-      const { error } = await supabase
-        .from('open_mics_historical')
-        .update({
-          day: form.day,
-          start_time: form.start_time,
-          latest_end_time: form.latest_end_time,
-          cost: form.cost,
-          stage_time: form.stage_time,
-          hosts_organizers: form.hosts_organizers,
-          sign_up_instructions: form.sign_up_instructions,
-          location: form.location,
-          venue_name: form.venue_name,
-          borough: form.borough,
-          neighborhood: form.neighborhood,
-          other_rules: form.other_rules,
-        })
-        .eq('unique_identifier', micUniqueIdentifier);
-
-      if (error) throw error;
+      // The database function checks you are this mic's verified host, saves the old values
+      // (so a change can be undone) and applies the new ones.
+      await hostUpdateMics([micUniqueIdentifier], {
+        day: form.day,
+        start_time: form.start_time,
+        latest_end_time: form.latest_end_time,
+        cost: form.cost,
+        stage_time: form.stage_time,
+        hosts_organizers: form.hosts_organizers,
+        sign_up_instructions: form.sign_up_instructions,
+        location: form.location,
+        venue_name: form.venue_name,
+        borough: form.borough,
+        neighborhood: form.neighborhood,
+        other_rules: form.other_rules,
+      });
 
       toast({ title: 'Saved!', description: 'Mic details updated successfully.' });
       queryClient.invalidateQueries({ queryKey: ['openMics'] });

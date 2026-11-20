@@ -32,7 +32,7 @@ const PrivacyPolicy = () => {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Information We Collect</h3>
                 <p className="text-sm leading-relaxed">
-                  This policy covers both comediq.us and the Comediq mobile app. We collect information you provide directly, including:
+                  This policy covers both comediq.com and the Comediq mobile app. We collect information you provide directly, including:
                 </p>
                 <ul className="list-disc list-inside text-sm mt-2 space-y-1 ml-2">
                   <li>Account information (name, email, phone number)</li>

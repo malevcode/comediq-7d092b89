@@ -36,3 +36,30 @@ export const isExternalVotingLink = () => MIC_OF_THE_MONTH_FORM_URL.trim().lengt
 /** Where the bar sends people: the form once it is set, the leaderboard until then. */
 export const votingHref = () =>
   isExternalVotingLink() ? MIC_OF_THE_MONTH_FORM_URL.trim() : "/leaderboard";
+
+/**
+ * The most recently closed Mic of the Month contest, shown in its own card on
+ * the home page. Everything about the mic itself (name, venue, neighborhood,
+ * schedule, cost, host, sign-up link) is looked up live from the mics data by
+ * `micId`, so this only needs to carry what the contest decided.
+ *
+ * To crown next month's winner: change `month`, `micId` (the mic's
+ * `uniqueIdentifier`, findable in /mics.json or the admin mic search) and
+ * `votes` to that month's result. Set to `null` between contests, or once a
+ * winner's month has clearly passed, to pull the card down.
+ */
+export type MicOfTheMonthWinner = {
+  /** The month the mic is featured for, e.g. "October". */
+  month: string;
+  /** The winning mic's `uniqueIdentifier`. */
+  micId: string;
+  /** Final vote count when the contest closed. Not live-queried: November's
+   * voting starts over, and this is a record of October's result. */
+  votes: number;
+};
+
+export const MIC_OF_THE_MONTH_WINNER: MicOfTheMonthWinner | null = {
+  month: "October",
+  micId: "ea37784d-b08f-45fa-8eea-ae9005d3f1d7", // Bent Over Laughing @ N&M Pizza Bar
+  votes: 16,
+};

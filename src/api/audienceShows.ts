@@ -323,6 +323,10 @@ export interface ShowListingInput {
   laughpass_free_ticket: boolean;
   laughpass_ticket_limit: number | null;
   confirm_active_agreed: boolean;
+  // Set by /list-your-show for shows imported from a ticket link.
+  source_platform?: string | null;
+  source_url?: string | null;
+  is_independently_produced?: boolean;
 }
 
 /**

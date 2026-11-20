@@ -38,21 +38,28 @@ export default function AddShow() {
       // The picture goes in the user's own folder of the public headshots bucket,
       // the one place every signed-in user is already allowed to upload.
       let imageUrl: string | null = null;
+      let imageFailed = false;
       if (data.imageFile) {
-        const { blob, ext, type } = await prepareImage(data.imageFile);
-        const path = `${user.id}/show-${Date.now()}.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from('headshots')
-          .upload(path, blob, { contentType: type, cacheControl: '3600' });
-        if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`);
-        imageUrl = supabase.storage.from('headshots').getPublicUrl(path).data.publicUrl;
+        try {
+          const { blob, ext, type } = await prepareImage(data.imageFile);
+          const path = `${user.id}/show-${Date.now()}.${ext}`;
+          const { error: uploadError } = await supabase.storage
+            .from('headshots')
+            .upload(path, blob, { contentType: type, cacheControl: '3600' });
+          if (uploadError) throw uploadError;
+          imageUrl = supabase.storage.from('headshots').getPublicUrl(path).data.publicUrl;
+        } catch (uploadError) {
+          // A broken picture should never stop the show from being listed.
+          console.error('Show image upload failed:', uploadError);
+          imageFailed = true;
+        }
       }
 
       const { imageFile: _imageFile, ...fields } = data;
       await submitShowListing(user.id, { ...fields, image_url: imageUrl });
 
       toast({
-        title: 'Show submitted!',
+        title: imageFailed ? 'Show submitted, but the picture did not upload' : 'Show submitted!',
         description:
           data.repeat === 'none'
             ? 'It is now live on the Laugh tab.'

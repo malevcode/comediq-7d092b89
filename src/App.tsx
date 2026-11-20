@@ -52,7 +52,9 @@ import { Navigate } from "react-router-dom";
 import AdvertiseWithUs from "./pages/AdvertiseWithUs";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Support from "./pages/Support";
+import Terms from "./pages/Terms";
 import AddShow from "./pages/AddShow";
+import ListYourShow from "./pages/ListYourShow";
 import SavedMics from "./pages/SavedMics";
 import DevView from "./pages/DevView";
 import LikedMics from "./pages/LikedMics";
@@ -63,6 +65,8 @@ import ComedianOnboardingDialog from "@/components/ComedianOnboardingDialog";
 import Strip from "./pages/Strip";
 import CanonicalTag from "@/components/CanonicalTag";
 import SetBuildPrivacy from "./pages/SetBuildPrivacy";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 
 
 const queryClient = new QueryClient({
@@ -194,9 +198,13 @@ function AppShell() {
             <Route path="/job-board/create" element={<Navigate to="/growth" replace />} />
             <Route path="/advertise" element={<AdvertiseWithUs />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/support" element={<Support />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/setbuild-privacy" element={<SetBuildPrivacy />} />
             <Route path="/add-show" element={<AddShow />} />
+            <Route path="/list-your-show" element={<ListYourShow />} />
             <Route path="/add-mic" element={<AddMic />} />
             <Route path="/listing" element={<Listing />} />
             <Route path="/search" element={<Search />} />

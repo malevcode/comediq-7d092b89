@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 interface DayOfWeekPickerProps {
   value: string;
   onChange: (value: string) => void;
+  className?: string;
 }
 
 const days = [
@@ -16,9 +17,9 @@ const days = [
   'Saturday',
 ];
 
-const DayOfWeekPicker: React.FC<DayOfWeekPickerProps> = ({ value, onChange }) => (
+const DayOfWeekPicker: React.FC<DayOfWeekPickerProps> = ({ value, onChange, className = 'w-40' }) => (
   <Select value={value} onValueChange={onChange}>
-    <SelectTrigger className="w-40">
+    <SelectTrigger className={className}>
       <SelectValue placeholder="Select day" />
     </SelectTrigger>
     <SelectContent>

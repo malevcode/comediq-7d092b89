@@ -621,6 +621,38 @@ Two consequences of building it that way, both intended:
 five mics frozen at `WEEK_START = '2026-07-06'`, which had been stale for
 months. The route is kept so old links and shares still work.
 
+### The winner's card on the home page
+
+Once a month's voting closes, the winner gets a card near the top of the home
+page (`src/components/landing/Landing.tsx`, the `MicOfTheMonth` component) —
+mic name, venue, neighborhood, schedule, cost, host, a Sign up button, and a
+link to the mic's own page.
+
+**To update it each month**, edit the one object in
+`src/config/micOfTheMonth.ts`:
+
+```ts
+export const MIC_OF_THE_MONTH_WINNER: MicOfTheMonthWinner | null = {
+  month: "October",
+  micId: "ea37784d-b08f-45fa-8eea-ae9005d3f1d7",
+  votes: 16,
+};
+```
+
+Change `month`, `micId` (the winning mic's `uniqueIdentifier` — find it in
+`/mics.json` or by searching for the mic in the admin panel) and `votes` to
+that month's result. Everything else on the card (name, venue, cost, sign-up
+link, etc.) is looked up live from the mic's own record, not retyped here, so
+it can't drift out of date. Set the whole constant to `null` to pull the card
+down between contests.
+
+This is a separate, older attempt at the same idea
+(`src/components/MicOfTheMonthWinner.tsx` and
+`src/config/micOfTheMonthWinner.ts`) that predates the current home page
+design and was never wired into it — it's still in the repo, unused, rather
+than deleted. The card described above is the one actually live on
+comediq.us.
+
 ---
 
 ## Why shows were missing from the Laugh map
@@ -2159,3 +2191,399 @@ guessing.
 - Wrote `docs/WEB_MAP_UPGRADE_PLAN.md`: how to make the web maps look like Partiful's
   (custom navy map style, picture pins, count bubbles, big city title, one filter pill).
 - No code changed. Phase 1 (the map style) needs a Mapbox Studio style URL.
+
+## Session: show picture "bucket not found"
+
+- Adding a show with a picture failed with "bucket not found": the `headshots` storage
+  bucket did not exist in production. New SQL `20261102120000_ensure_headshots_bucket.sql`
+  creates it (and its access rules). Safe to run twice. This is also what broke headshot uploads.
+- The add-show page now lists the show even if the picture fails, and says so in the message.
+
+### Session: add-a-mic form tidy-up
+
+`EditableMicCard.tsx` (the card behind `/add-mic` and the + on the Perform tab)
+used to scatter dashed underline boxes across three loose columns. It is now
+one simple grid: a small label on top of every field, same height, same solid
+border. Name and Venue take full rows, then Day / Starts / Ends / How often,
+then Set length / Cost / Lineup order / Host, then Sign-up. Two columns on a
+phone, four on a wider screen. Save and Cancel sit bottom right. Nothing about
+what gets saved changed. Also dropped a duplicate address line (the venue box
+already shows it). `DayOfWeekPicker` got an optional `className` so it can
+match the other fields.
+
+## Session: claiming a mic
+
+- Claiming a mic failed for hosts with "new row violates row-level security policy for table mic_hosts".
+- Claim now goes through a database function, `claim_mic_host` (SQL `20261110120000_claim_mic_host_rpc.sql`),
+  which checks who is signed in and adds the host request. Same trick as `add_open_mic`.
+- Claims still start unverified and wait for admin approval.
+
+## Session: mic times always saved as "7:00 PM"
+
+**The problem.** A mic typed as "7PM" or "7-9" was saved exactly as typed. Without a clear
+AM or PM, a computer can read "7" as 7 in the morning, so the list sorted wrong.
+
+**The fix, in three layers.**
+1. **The database cleans times itself** (`supabase/migrations/20261110140000_normalize_mic_times.sql`).
+   A rule runs every time a mic is added or its times change, from any screen, script or sheet.
+   It turns "7", "7pm", "7:30p", "730" and "19:30" into "7:00 PM", "7:30 PM" and so on.
+   No AM or PM means PM, because comedy happens at night. "7-9" typed in the start box
+   becomes 7:00 PM to 9:00 PM. An end time with no AM or PM that lands before the start
+   (11 to 1) means after midnight (11:00 PM to 1:00 AM). Anything it cannot read is left alone.
+   The same SQL also fixes every mic already saved the old way.
+2. **The add-mic forms clean times first** (`src/utils/micTime.ts`), so people see
+   "7:00 PM" appear when they tap out of the box. The shared add-mic hook cleans them too.
+3. **The mic list cleans times when it reads them** (`src/hooks/useOpenMics.ts`), so the
+   old rows look right even before the SQL has run.
+
+**Shows.** Show times use real time boxes and are stored as a time, so they cannot come out
+in the wrong format. No change was needed.
+
+**Mics fixed (found in the live list file):** Chopped and Unc (7PM-9PM), Blow Me (10:00pm-11:00),
+Wednesday at Westside (12:30-2:30), Second Draft at Rodney's (6:00-7:15), Wreck the mic (8:00-9:30),
+Cackling Crowe (end time "9"). Worth a glance: Wednesday at Westside is now 12:30 PM to 2:30 PM.
+
+**How it was tested.** The JavaScript and the SQL were run on the same 25 examples in a real
+Postgres engine and gave identical answers. The backfill was run on copies of the six bad rows.
+
+## Summary of this session
+
+- Added time cleaning in the database, the forms and the list, and a one-time fix of old mics.
+
+## Session: Mic of the Day on the Next tab
+
+**What it does.** Each day, the top of the Next tab features ONE mic that is really happening
+that day, with a badge: SPONSORED (paid), MIC OF THE DAY (a Comediq pick) or MIC OF THE MONTH
+(the contest winner). Tapping it scrolls to the mic and opens it. If none of the featured mics
+runs today, the top slot shows the normal sponsor card, like before.
+
+**How the pick works (think of a short list, checked top to bottom).**
+1. A mic that paid to be featured (`sponsor`).
+2. A mic Comediq chose (`comediq_pick`).
+3. The Mic of the Month winner (added by itself from `src/config/micOfTheMonthWinner.ts`).
+The first one on that list whose mic runs TODAY (in New York time) wins. A bi-weekly or pop-up
+mic only counts on a date we know it runs. A sponsor can have start and end dates.
+
+**Where to change it.** Edit `src/config/featuredMics.ts`: add one line per mic with its id
+(from `public/mics.json`, "uniqueIdentifier"). The picking code is `src/utils/featuredMic.ts`;
+`src/hooks/useMicOfTheDay.ts` hands it to the card. It makes no database calls.
+
+**What changed.** The old version always showed one hardcoded mic whether or not it was
+running. Now it follows the rules above.
+
+**Tested.** Picked correctly on a Monday (winner runs) and a Tuesday (nothing runs), sponsor
+beats pick beats winner, sponsor dates are respected, and late night in New York still counts
+as that evening's day.
+
+## Summary of this session
+
+- Brought back Mic of the Day with sponsor, Comediq pick and Mic of the Month sources.
+
+## Session: new Thursday mic from the poster
+
+- Queued "Gdrink at Gnihton" (Thursdays 6:00 to 7:30 PM, 528 E 11th St, East Village, free with a
+  Comediq account plus a one drink minimum) in `scripts/ingest/open_mic_updates.json`. Merging that file
+  runs the "apply open mic updates" workflow, which adds the mic; the mic list file refreshes minutes later.
+- The poster is the only source. The name is copied as printed and the venue name "Gnihton" is read from
+  "at Gnihton", so both should be confirmed. No host or end time was given (end time uses the 90 minute default).
+- Not done yet: signups for this mic (`signup_enabled` is false until its signup event exists) and the map pin
+  (`npm run geocode:open-mics`). The three months free Premium idea was dropped.
+
+## Session: "By Comediq" sticker and Mic of the Day (host claims and auction)
+
+The database side is two files run in order, `20261111120000_mic_of_the_day_draw.sql` then `20261111180000_mic_of_the_day_auction.sql`
+(also appended to `supabase/RUN_ME_pending.sql`). `supabase/RUN_ME_mic_of_the_day.sql` is just those two, in order, for pasting into the Supabase SQL editor. Nothing below works until that SQL has been run.
+
+### The "By Comediq" sticker
+
+`open_mics_historical.is_comediq_run` (true or false, default false) marks a mic Comediq runs
+itself. When it is true the mic shows a tilted blue and white "By Comediq" sticker in the top
+right corner of its listing card, on its detail page and in the quick-view. The sticker is one
+component, `src/components/ComediqSticker.tsx`; Mic of the Day uses the same one in blue.
+To mark another mic, set the column to true in Supabase and run **Refresh mics.json**.
+Gdrink at Gnihton is the first: the SQL also turns its sign-up on, sets the host text to
+"Comediq" and makes every admin account a verified host of it.
+
+### Mic of the Day: how a day gets its mic
+
+It started the day as a random draw and was changed the same day to an auction. The draw's
+SQL file is still needed (it creates the tables); the auction file runs after it:
+`supabase/migrations/20261111180000_mic_of_the_day_auction.sql`.
+
+Think of the pinned spot as a parking space with a price on it.
+
+1. **Standing picks.** Monday is Crash Landing Comedy and Thursday is Gdrink at Gnihton (rows
+   in `mic_of_the_day_standing`, 0 = Sunday ... 6 = Saturday). They hold their day for $0.
+2. **Before `paid_from` (Dec 1, 2026): free, first come.** The first verified host to claim
+   an open date gets it and cannot be outbid. One free day per host
+   (`free_claims_per_host`). Standing days cannot be claimed in this period.
+3. **From `paid_from`: an auction.** The first claim costs `start_price_cents` ($15). Any
+   other host can take the spot by paying `increment_cents` ($5) more than the current
+   holder paid: $20, then $25, and so on. A standing day can be taken for $15. This works
+   ahead of time and during the day itself.
+4. **Nobody claims: the day stays empty.**
+
+Hosts claim from the pinned spot on the Next tab (today) or any day tab (up to six days
+ahead). A host who has not connected their mic is walked through it in the same dialog
+("This is my mic" sends the normal host claim, then carries on to pay). A free claim needs
+a host Comediq has verified, because it goes live at once; a paid claim only needs the host
+claim to exist.
+
+### Only on a day the mic really runs
+
+A mic can only be claimed for a date it runs on (`motd_runs_on` in the database, the same
+rules as `micKnownToRunOn` in `src/utils/micOccurrences.ts`):
+
+- weekly: its weekday
+- 1st, 2nd, 3rd, 4th or last of the month: that one date each month
+- bi-weekly: only if its schedule text carries an anchor, written `anchor 2026-10-21`
+- pop-up or custom: only on dates listed in its schedule text, written `dates 2026-11-10,2026-12-01`
+
+A bi-weekly mic with no anchor, or a custom mic with only free text ("1st & 3rd Wednesday"),
+cannot be claimed at all until someone adds the anchor or the dates. That is on purpose: we
+do not pin a mic on a night we are only guessing it runs.
+
+### Money and refunds
+
+- Payment is a one-time Stripe Checkout through the existing `create-checkout-session`
+  function (called with `kind: 'mic_of_the_day'`). The database sets the amount. The spot
+  changes hands only in `stripe-webhook`, after the payment has succeeded.
+- **Outbid within the hour: full refund, automatically.** When a holder is replaced, the
+  database works out how long they were pinned *on the day itself* (`listed_seconds`). Under
+  `refund_under_minutes` (60) the webhook refunds them through Stripe and records it. Being
+  outbid before the day starts counts as zero minutes, so it is always refunded. Pinned for
+  an hour or more and then outbid: no refund.
+- **Two hosts paying the same price at once.** Starting checkout does not hold the date. The
+  first payment to succeed gets it; the second is refunded in full at once ("Paid too late").
+- **Refunds that did not go out** (Stripe was down, or an admin replaced a paying host) show
+  under "Refunds owed" in Admin > MOTD, to be sent from the Stripe dashboard and marked.
+
+### The moving parts
+
+- `mic_of_the_day_entries`: the history. Every claim and bid is a row and none is deleted:
+  the date, the mic, the host, the price, when it went live, when it was outbid, minutes
+  pinned, and the refund (owed, sent, why). Status is `pending` (checkout started), `paid` or
+  `won` (holds the spot; `won` is a free one), `outbid`, or `void` (paid too late).
+- `mic_of_the_day_config`: one row of settings. Change a number there and the site follows.
+- `motd_week()`: the ONE call the site makes. It returns today plus six days (who is pinned,
+  what it costs to take), the settings and the signed-in host's latest bid per date, cached
+  for 15 minutes (`src/hooks/useMicOfTheDay.ts`).
+- `src/components/MicOfTheDaySlot.tsx`: the pinned spot and the claim dialog.
+- Admin > MOTD (`src/components/admin/AdminMicOfTheDay.tsx`): the week, override (which is
+  also how to comp a day), clear, reset, refunds owed and the bid history.
+- `mic_of_the_day_draw_log`: a plain log of payments, refunds and admin changes.
+
+### What was switched off, not deleted
+
+- The random draw: its database functions (`motd_enter`, `motd_draw`, `motd_tick`) are still
+  there but nobody can call them, and the hourly job is unscheduled. The winner email
+  function (`supabase/functions/motd-notify`) is unused; nothing emails hosts today, so a
+  host finds out they were outbid by looking at the site.
+- The config-file version from the day before (`src/config/featuredMics.ts`,
+  `src/utils/featuredMic.ts`), the older fixed card (`MicOfTheDayCard.tsx`), the instant claim
+  button (`ClaimMicOfDayButton.tsx`) and the old admin panel (`AdminMotdControl.tsx`, now folded
+  under "Older Mic of the Day tools") are all still in the repo. The old tables
+  (`mic_of_the_day`, `motd_weekly_defaults`, `motd_nominations`) are untouched and unused.
+
+## Summary of this session
+
+- Added the "By Comediq" sticker and marked Gdrink at Gnihton as Comediq-run with sign-up on.
+- Mic of the Day is now claimed by hosts: free and first come before Dec 1, 2026, then an
+  auction from $15 in $5 steps, with an automatic refund for anyone outbid within an hour.
+- A mic can only be claimed for a date it really runs on, including bi-weekly and monthly mics.
+- Gdrink at Gnihton: the price text is "$5 or Subscribe!" and the mic uses Comediq's own sign-up sheet
+  (`signup_method = comediq_slots`). For any such mic the Register button on the listing card now opens
+  its sheet (`/mic/<venue>-<neighborhood>/signup`) instead of the link in the sign-up instructions.
+- The Next tab always leads with a pinned mic when the week has one: today's, or if today has none,
+  the next day that does. Today stays claimable from a link under it.
+
+## Session: signup button color and the signup sheet error
+
+- "Sign Up for Spots" on a mic card is now light blue (it was orange).
+- Opening a mic's signup page (for example /mic/gnihton-east-village/signup) showed "Couldn't load signup
+  sheet: operator does not exist: text = uuid". The page creates the next signup sheet through a database
+  function that compares a mic id to a uuid; if that column is text in the live database, the compare fails.
+  `20261112120000_fix_signup_text_uuid.sql` rewrites that function, the claim function and the event insert
+  rule to compare as text, which works for either column type. Also appended to `supabase/RUN_ME_pending.sql`.
+- Reproduced the exact error in a test database with a text column, and checked the fix there and on a normal one.
+
+## Session: sign up for spots goes straight to the sheet
+
+- `/mic/<slug>/signup` now opens with the signup sheet at the top: "X of 15 spots taken", the list of who is
+  signed up, and the Sign Up button. The mic's details and the "Are you the host?" box moved below it.
+- If the sheet cannot be opened, the page says why and has a Try Again button (before it only said "check back later").
+- Gdrink at Gnihton: host set to @malevcomedy, and its signup settings (comediq_slots, signups and slots on) are
+  written in the batch file so the next run does not turn the Sign Up for Spots button off. Adam claims the mic
+  himself on his own account.
+- Still needs the signup SQL from `supabase/RUN_ME_pending.sql` run in Supabase, or the sheet cannot be created.
+
+- Running `RUN_ME_pending.sql` stopped at the ShowTN view with "operator does not exist: text >= date": in the live
+  database `audience_shows.show_date` is text. The view now casts it (`show_date::date`) and was tested on both a
+  text and a date column. Re-run the whole file; every statement is safe to repeat.
+
+- The ShowTN view now lives in its own file, `supabase/RUN_ME_showtn_view.sql`, run AFTER `RUN_ME_pending.sql`,
+  so a problem with the view cannot undo the rest. `RUN_ME_pending.sql` also holds other migrations (the Mic of the
+  Day draw and auction ones, `20261111...`) that were added by a different session; they were not written or tested here.
+
+## Session: opening a signup sheet (row-level security error)
+
+- After the text/uuid fix, the Gdrink signup page said: new row violates row-level security policy for table
+  "mic_signup_events". Cause: the page created the sheet from the visitor's browser, and the rule only allows it under
+  a host row the visitor owns. Gdrink already has verified hosts (the admins, added by the Mic of the Day SQL), so the
+  page was handed someone else's host row and the insert was refused.
+- Now a database function, `get_or_create_signup_event` (`20261112130000_open_signup_event_rpc.sql`), opens the sheet:
+  it returns the mic's next open sheet or makes one (first come, 15 spots) under the mic's verified host, or under the
+  visitor as a new unverified host if the mic has none. `getOrCreateNextEvent` in `src/api/signups.ts` calls it.
+- The date is now worked out in the visitor's own calendar day (it used the UTC day before, which is wrong after 8 PM in New York).
+- Tested in a test database with text and uuid id columns: a normal visitor gets a sheet under the admin's host, a second
+  visitor reuses it, and a mic with no host makes the visitor its host.
+
+- The signup page failed again with "operator does not exist: text >= date": `mic_signup_events.event_date` is text in the live
+  database too. `get_or_create_signup_event` now compares dates as text ('YYYY-MM-DD'), and was tested with every mix of
+  text/uuid ids and text/date event dates. Re-run `20261112130000_open_signup_event_rpc.sql` (it replaces the function).
+- The signup page now shows the same full mic card as the list (name, venue, day, time, set length, cost, host, sign-up
+  notes, rules, map, actions) under the signup sheet. It replaces the short details box and the separate "Are you the
+  host?" box (the card has Claim This Mic). The Sign Up for Spots button is hidden there, since you are already on it.
+
+- Signup sheet on desktop (large screens only): the sheet is centered on the page (up to 56rem wide), with the
+  Join form on the left and the "Who has signed up" list on the right. Phones are unchanged (list, then form).
+  Signing up works: it was confirmed live on the Gdrink signup page.
+
+## Session: lineup by arrival and check-in on the signup page
+
+**What it is.** For Gdrink at Gnihton, signing up holds one of 15 spots, but the running order is set by when
+people ARRIVE and check in at the mic (not first come, first served). On the signup page, people who have checked in
+are numbered by arrival time, with "arrived 6:12 PM". People who signed up but are not there yet wait below, greyed out,
+marked "not here yet". Tapping "I'm here, check me in" asks for your location once (on the phone app it comes from the
+device with no browser prompt) and checks you in if you are within about 150 m of the venue.
+
+**How it works inside.**
+- It reuses the check-in the app already had (`check_in_mic`: your GPS against the venue's coordinates, window opens 30
+  minutes before the start). Only verified check-ins (really at the venue) count toward the lineup.
+- `supabase/migrations/20261112140000_checkin_lineup.sql` adds `mic_signup_events.lineup_by_checkin` (set on for Gdrink; a
+  new weekly sheet keeps the setting of the last one), `get_event_lineup` (the running order) and the updated
+  `get_or_create_signup_event`. Tested with text and uuid columns.
+- `src/components/signup/ArrivalCheckIn.tsx` is the button; `MicSignup.tsx` shows the lineup (refreshes every 20 seconds).
+- The sign-up note for the mic now reads "Your place in the lineup is set by when you arrive and check in at the mic."
+
+**Needs coordinates.** A venue with no map coordinates cannot verify anyone, so nobody would show as checked in. Gdrink had
+none yet. New workflow `geocode_open_mics.yaml` fills missing coordinates after each mic batch and every three hours
+(or run it by hand from the Actions tab).
+
+**Not browser-tested here.** The SQL was tested in a test database; the page code is type-checked only.
+
+## Session: Claim This Mic error (two versions of the function)
+
+- "Claim This Mic" showed "Could not choose the best candidate function between public.claim_mic_host(p_mic_id => text) and
+  public.claim_mic_host(p_mic_id => uuid)". Two versions of the function existed: the text one from the Mic of the Day
+  auction SQL, and a uuid one that my signup fix section re-created after it. The database cannot tell which to call.
+- Fix: `20261113120000_drop_claim_mic_host_uuid.sql` drops the uuid one, and the signup fix no longer re-creates it.
+  Anyone who already ran the old signup fix just needs to run: `drop function if exists public.claim_mic_host(uuid);`
+
+## List your show (/list-your-show) and the link auto-fill
+
+A landing page for independent producers. They paste an Eventbrite, Posh, Luma or Partiful
+link, we fill in the show, they review it, and it posts as a normal show on the Laugh tab.
+
+- **Page:** `src/pages/ListYourShow.tsx` (the sales page and the link box) and
+  `src/components/ListYourShowForm.tsx` (the review form, biggest field first). The stats row
+  numbers live in `src/config/listYourShow.ts`, the one place to update them. It reuses the
+  existing `submitShowListing()` save, so the show lands in `audience_shows` with
+  `submitted_by` set to the producer. The old `/add-show` flow is untouched.
+- **Auto-fill:** the edge function `parse-show-link` fetches the page on the server (no paid
+  services) and reads, in order: schema.org Event JSON-LD, then the platform's own page data
+  (Posh and Partiful hide theirs outside the normal place), then Open Graph tags, then the page
+  title. The parsing code is `supabase/functions/parse-show-link/parse.ts`. Only the four
+  platforms are accepted, and redirects are followed by hand so they can never leave those sites.
+  Times are shown in New York time.
+- **One parse per paste.** The form edits never call the function again.
+- **Never a dead end:** if the page can't be read, the form opens with the link and blank fields.
+- **Logged out:** the form is saved in the browser (`comediq:list-your-show-draft`), they go to
+  log in, and the page restores it when they come back to `/list-your-show`.
+- **Duplicates:** new columns `source_platform` and `source_url` on `audience_shows`. `source_url`
+  is unique, so the same link can't be posted twice. Not the same as the old `source` column,
+  which must stay empty or the show disappears from the feed.
+- **Ticket button** on the show links to the producer's original page (`ticket_url`).
+- **Limit:** about 10 parses per signed-in user, or per IP when logged out, per hour. Counted in
+  the `show_parse_requests` table (the function clears rows older than a day).
+- **SQL to run:** `20261115120000_list_your_show.sql`. Deploy the function with
+  `supabase functions deploy parse-show-link`.
+- Fonts: the page uses Archivo (wide, like the logo wordmark) throughout.
+
+
+## Session: confirming mics without Instagram DMs
+
+- **Host confirm.** In the host dashboard, a verified host sees "Is this mic still running?" with "Yes, still running",
+  "It changed" (opens the edit form) and "It ended" (removes the mic, with a warning). Yes updates the "Verified <date>" label.
+- **Confirm by use.** When two different people have a location-verified check-in at a mic within 14 days, it counts as
+  confirmed automatically. Every confirmation is saved in a log (`mic_confirmation_log`).
+- **Unconfirmed label.** A mic nobody has confirmed for 60 days gets a grey "Unconfirmed" label and sorts below confirmed
+  mics on the Next tab. It is never hidden. Because most mics are older than 60 days, the clock starts on 2026-11-16
+  (`GRACE_STARTS` in `src/utils/micConfirmation.ts`), so the first labels appear 2027-01-15.
+- SQL: `supabase/migrations/20261116120000_confirm_mics.sql`. Plan and next steps: `docs/HOST_OUTREACH_PLAN.md`.
+- Tested: the SQL in a test database with text and uuid id columns (a stranger is refused, a host confirm sets both dates,
+  an admin "ended" turns the mic off, one verified check-in is not enough, two are, unverified ones never count), and the
+  60 day rule on sample dates.
+
+## Session: SQL run directly on the live database
+
+- A Supabase access token (saved on the session environment, never shown) lets the assistant run SQL through the Supabase
+  Management API. Found and fixed, all verified against the live database:
+  - `claim_mic_host` had two versions (text and uuid); the uuid one was dropped, so Claim This Mic works.
+  - The verified check-in SQL from September had never been applied (no `check_in_mic`, no `is_verified` column).
+    `20261116130000_verified_checkins_live_fix.sql` applies it for the live column types (mic_id and checkin_date are text).
+  - The lineup-by-arrival SQL (`20261112140000_checkin_lineup.sql`) is now applied; the Gdrink sheet has the lineup rule.
+  - Tested inside a rolled-back transaction: a check-in at the venue is verified, a second one the same day is refused, one
+    5 km away is `too_far`, and two verified people confirm the mic by use.
+- Still needed for Gdrink check-in: map coordinates (22 active mics have none). Nothing here can reach a geocoder.
+
+- **Spec check (2026-11-16):** the `/list-your-show` build already matched the brief, so only two copy and weight tweaks were made:
+  the third LaughPass card now reads "LaughPass members browse shows on Comediq.com every week." and headlines use weight 900.
+  The brief mentions Potato Sans / Nunito; those are not in the repo. The site's brand font since the October redesign is Archivo
+  (with Instrument Sans), which the page uses to match the logo wordmark, so it was left alone. Verified live: the `source_platform`
+  and `source_url` columns, the unique link rule, the rate-limit table and the deployed `parse-show-link` function (version 2) all exist.
+  The parser was run on sample pages shaped like each platform's markup; it has not been run against live pages from here.
+
+## Session: easy claiming and bulk edits for hosts
+
+**What was wrong.** On the live database every host claim (43 rows) was still waiting for approval and nobody had ever been verified.
+Worse, a verified host had no permission to edit their own mic (only admins could update the table). So the host dashboard
+could not do anything for anyone.
+
+**What a host can do now.**
+- **Claim many mics at once.** Pick one mic and the form offers every other mic at the same venue, or run by the same Instagram
+  handle, already ticked. One tap claims them all (up to 30 at a time).
+- **Instant approval for the first claim.** A mic with no verified host is approved on the spot; a person can hold 40
+  auto-approved mics. Any later claim on a mic that already has a host waits for an admin. To take a host off a mic, set
+  `is_verified` to false on that row of `mic_hosts`.
+- **Change many mics at once.** In the Host Dashboard, "Change many mics at once": tick mics (or "select all" for a venue), tick the
+  fields to change (Instagram, house rules, price, set length, sign-up instructions), type the new values, apply.
+- **Change one mic.** The mic's own tab edit form, which now also saves through the database.
+- Every change keeps the old value in `mic_edit_history` so it can be undone. The public mic list refreshes once per apply.
+
+**Inside.** SQL `20261117120000_host_bulk_tools.sql` (already run on the live database): `claim_mic_hosts`, `host_update_mics`,
+`mic_edit_history`, and `claim_mic_host` now uses the same rule. Code: `src/api/hostTools.ts`,
+`src/components/host/HostBulkEdit.tsx`, `ClaimMicForm.tsx` (venue siblings), `HostMicEditForm.tsx` (saves through the function).
+Tested in a test database with text and uuid ids and on the live one in a rolled-back run.
+
+
+## Map: Storytime-style bubbles (2026-11-17)
+- File: `src/components/map/OpenMicsMapRefactored.tsx`. Switch: `USE_BUBBLE_MARKERS` (true). Set it to false to bring back the old Comediq pin layers, which are still in the file, just hidden.
+- Every venue is a round bubble: the mic's cover photo, the Comediq logo for Comediq-run mics, or the venue's initials on a Comediq blue.
+- Sizes: Comediq-run 54px, running today 44px, other days 34px. Unverified mics are faded. Bigger bubbles sit on top.
+- Zoom: bubbles shrink to 45% when zoomed far out (so Manhattan looks dense, like Storytime) and grow to full size from zoom 14 in. No clustering into number dots.
+- A venue with several mics shows one bubble per mic, stacked side by side (up to 3, then a "+N" count).
+- Tapping a bubble opens a preview: venue name plus one swipeable card per mic there (time, cost, set length, "View mic"). "View mic" does what tapping a pin did before.
+- Plan for web layouts and the host Manage tab: `docs/design/storytime-redesign/WEB_AND_HOST_PLAN.md`.
+
+## Session: a fresh signup sheet every week
+
+- **Problem:** the signup page showed every active sheet and only made a new one when there were none, so last week's list stayed
+  live (Gdrink showed Nov 12's lineup on Nov 19).
+- **Now:** "Archived" means a sheet is switched off but kept, with everyone who was on it. The page only shows sheets dated today or
+  later (New York time). A database function, `ensure_weekly_signup_events()`, archives past sheets and opens the next sheet for every
+  weekly Comediq-signup mic, copying the host and the lineup-by-check-in rule from the last sheet. The workflow
+  `.github/workflows/weekly_signup_sheets.yaml` runs it every morning around 6-7 AM New York (or run it by hand from the Actions tab).
+  Opening the page also archives old sheets. Bi-weekly mics are skipped (their sheet is made when someone opens the page).
+- SQL `20261119120000_weekly_signup_sheets.sql` is already applied on the live database. Tonight's Gdrink sheet (Nov 19) was opened by
+  hand and Nov 12's is archived with its 10 signups kept. Tested in a test database with text/uuid ids and text/date event dates.

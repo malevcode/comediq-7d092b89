@@ -446,9 +446,9 @@
     },
     {
       "unique_identifier": "3a3fbd37-f5f8-4e7a-ac14-c5a11b1bd1e5",
-      "note": "Skin Tag (McCarren Parkhouse, Monday 7:15 PM) cancelled 9/14, announced on Instagram @skintag_openmic. One skipped night, not a closure: active, day and times stay as they are. STALE LABEL, 9/14 has passed. Rewrite this same entry back to \"Skin Tag\" to clear it, do not delete it.",
+      "note": "Skin Tag (McCarren Parkhouse, Monday 7:15 PM) cancelled 9/14, announced on Instagram @skintag_openmic. One skipped night, not a closure: active, day and times stay as they are. STALE LABEL, 9/14 has passed. Rewrite this same entry back to \"Skin Tag\" to clear it, do not delete it. | LABEL CLEARED 2026-11-10 at Adam's request (9/14 was long ago; the app was still showing 'Skin Tag *SKIPS 9/14*' in the list). Name is back to 'Skin Tag'. Day, time and venue were never changed.",
       "set": {
-        "open_mic": "Skin Tag *SKIPS 9/14*"
+        "open_mic": "Skin Tag"
       }
     },
     {
@@ -756,10 +756,11 @@
     },
     {
       "unique_identifier": "92a570e4-a5f1-4503-8ad7-96ef73ea663d",
-      "note": "Adam, 2026-10-05: tag as Variety mic (mixed open mic that lets non-comedy acts sign up). legacy_tag 'Pre-March 2026' -> 'Variety'; the Pre-March 2026 provenance is recorded here. The comediq Mic Type filter matches this tag. | RENAMED 'The Open Mic Downstairs' -> 'The Variety Mic' at Adam's request, 2026-10-05. No number in the name, so the time-first convention does not apply. The Instagram handle @theopenmicdownstairs is unchanged.",
+      "note": "Adam, 2026-10-05: tag as Variety mic (mixed open mic that lets non-comedy acts sign up). legacy_tag 'Pre-March 2026' -> 'Variety'; the Pre-March 2026 provenance is recorded here. The comediq Mic Type filter matches this tag. | RENAMED 'The Open Mic Downstairs' -> 'The Variety Mic' at Adam's request, 2026-10-05. No number in the name, so the time-first convention does not apply. The Instagram handle @theopenmicdownstairs is unchanged. | NOTE ADDED 2026-11-16 at Adam's request, to other_rules (the notes field). Live other_rules was empty, so nothing was overwritten; if it ever holds text, this entry must be rewritten to keep that text first. The value is the full final string, so re-applying changes nothing. FIELD CHOICE: the /mic/<slug> page builds its description from structured fields and does not render other_rules at all; the note shows in the in-app detail window and list instead. Adam chose this over putting it in sign_up_instructions (which holds the ticket link) or changing the page.",
       "set": {
         "legacy_tag": "Variety",
-        "open_mic": "The Variety Mic"
+        "open_mic": "The Variety Mic",
+        "other_rules": "Mixed mic with mostly singing and poetry, plus some comedy. Adam recommends the room after visiting. The host said signup closes at midnight, even though the mic runs later."
       }
     },
     {
@@ -901,6 +902,66 @@
       "note": "Girls Night Mic (Thursday 11:00 PM at Flop House) is NO LONGER ACTIVE. Adam, 2026-10-16: 'the fun girls mic we just added at flop house is no longer active sadly', and he listed the only active Flop House mics as Sun 4:00-6:30, Mon 6:30-7:15, Tue 6:30-7:45, Wed 6:30-7:45, Fri 6:30-7:45, Sat 4:30-6:30 and Thursday (the Thursday time was cut off). This row was added the day before, so it was live for about a day. Moved here from new_mics because a new_mics entry is re-applied whole on every run and its applier default (active true) would switch the row back on; an edits entry keyed by uid with active false cannot. To bring it back, rewrite this entry in place with active true. Original add note, kept for the record: New Flop House Thursday late mic. Adam, 2026-10-15, from a @girlsnightmic Instagram post (posted 'April 29', no year shown, so this year) by @flophousecomedyclub collab: 'GIRLS NIGHT MIC. Thursdays @ 11PM, Flophouse Comedy Club. Hosted by Steph Brown & Jaclyn Lore Edwards.' Caption handles @jacksowack and @stephbrown.jpg. The older never-applied May 2026 migration also listed a Thursday 11:00 PM Flop House slot. End 12:30 AM is the 90-minute default. SIGN-UP AND COST LEFT BLANK ON PURPOSE: Adam asked for the @flophouseopenmic link on every Flop House mic, but the Square form lists no Thursday 11 PM option, so that link would send comics to the wrong slot. Held for Adam. Venue fields copied from the verified Pure Chaos row (uid ca4ac065). Status trial.",
       "set": {
         "active": false
+      }
+    },
+    {
+      "unique_identifier": "334c462f-8a03-4bcf-be21-92f231ad494b",
+      "note": "Throwback Mic (710 Amsterdam Ave, 3rd Tuesday of the month, host @error404theater_boy / Ross Belsky). Ross, by Instagram DM, 2026-11-06, replying to a screenshot of our listing (Next: Tue Nov 17, 4:00 PM, 'list out at 3:30'): 'hey the mic actually starts at 4:30 not 3:30, i tried to edit it myself but im a dumb fuck lol'. The listing said 4:00 PM, not 3:30, so he is reading the 3:30 in the sign-up line ('list out at 3:30') as the start. Start time 4:00 -> 4:30 PM, which is the part he stated plainly. End time shifts with it, 6:00 -> 6:30 PM, so the mic keeps the 2-hour window the row already had (comediq rule: when a start moves, the end moves too). NOT TOUCHED: the sign-up text 'First come first serve, list out at 3:30', because he did not say what time the list goes out, and an hour before the mic is plausible; flagged to Adam to ask. Name, cost (Free), stage time (6 min) and the 3rd-Tuesday schedule are unchanged. His other message in the DM, an offer to be interviewed about auditioning for his plays, is not a data change.",
+      "set": {
+        "start_time": "4:30 PM",
+        "latest_end_time": "6:30 PM"
+      }
+    },
+    {
+      "unique_identifier": "60b43f3b-55a3-4bda-a014-859899b70e78",
+      "note": "Loose Lips Mic (Saturday 3:30 PM, Pete's Candy Store). The host account @looselipscomedy DM'd Adam on Oct 1: 'Hi please update to let people know we are sign up ahead of time mic', Adam replied 'Will do', and it was not done. On Nov 7 they checked in again: 'I tried to change it again but it's not updating to say sign up ahead of time is required.' The row said 'Sign up in person' with signup_method in_person, which is the opposite. sign_up_instructions is now 'Sign up ahead of time is required. See @looselipscomedy on Instagram for how.' signup_method in_person -> other, so the metadata stops contradicting the text. The DM does NOT say HOW to sign up ahead of time (a link, a DM, an email), so the text points at their Instagram rather than inventing a method; flagged to Adam to ask them. Likely reason their own edits did not stick: the open-edit policy on this table was dropped by supabase/migrations/20261004120000_narrow_open_mic_update_policy.sql, and the Edit Mic Details form in HostMicEditForm.tsx does not check how many rows its update changed, so a blocked save still says 'Saved!'. Not verified against the live database.",
+      "set": {
+        "sign_up_instructions": "Sign up ahead of time is required. See @looselipscomedy on Instagram for how.",
+        "signup_method": "other"
+      }
+    },
+    {
+      "unique_identifier": "0cf4485e-b91b-4f62-80a7-ffdc99356fcb",
+      "note": "Rodney's Mic w/ Ellen Maloney (Wednesday 6:00 PM, Rodney's) skips 11/11. @rodneysopenmics Instagram story, seen by Adam 2026-11-09/10: 'There will be no mics on Wed or Thurs this week' (tagging @rodneycomedyclub). This week = Wed 11/11 and Thu 11/12. One skipped night, not a closure: active, day and times unchanged. Marked the way Skin Tag was, with a '*SKIPS M/D*' label at the end of the name, which report_stale_labels.py will flag once the date has passed. TO CLEAR IT after the date, rewrite this same entry in place with the label removed; do not delete the entry.",
+      "set": {
+        "open_mic": "Rodney's Mic w/ Ellen Maloney *SKIPS 11/11*"
+      }
+    },
+    {
+      "unique_identifier": "df641def-d1de-40e2-8ac9-0da676eb8845",
+      "note": "Rodney's Mic w/ Leona/Dave/Hayley/Sam (Thursday 9:45 PM, Rodney's) skips 11/12. @rodneysopenmics Instagram story, seen by Adam 2026-11-09/10: 'There will be no mics on Wed or Thurs this week' (tagging @rodneycomedyclub). This week = Wed 11/11 and Thu 11/12. One skipped night, not a closure: active, day and times unchanged. Marked the way Skin Tag was, with a '*SKIPS M/D*' label at the end of the name, which report_stale_labels.py will flag once the date has passed. TO CLEAR IT after the date, rewrite this same entry in place with the label removed; do not delete the entry.",
+      "set": {
+        "open_mic": "Rodney's Mic w/ Leona/Dave/Hayley/Sam *SKIPS 11/12*"
+      }
+    },
+    {
+      "unique_identifier": "916a3183-259f-4d37-a393-fb15f7bbc4dd",
+      "note": "Second Draft (Thursday 6:00, Rodney's) skips 11/12. @rodneysopenmics Instagram story, seen by Adam 2026-11-09/10: 'There will be no mics on Wed or Thurs this week' (tagging @rodneycomedyclub). This week = Wed 11/11 and Thu 11/12. One skipped night, not a closure: active, day and times unchanged. Marked the way Skin Tag was, with a '*SKIPS M/D*' label at the end of the name, which report_stale_labels.py will flag once the date has passed. TO CLEAR IT after the date, rewrite this same entry in place with the label removed; do not delete the entry. This one is hosted by @the_real_jz_, not by the @rodneysopenmics account that posted the story. The story says no mics at all on Wed or Thurs, so it is included, but it is the one to confirm with its host.",
+      "set": {
+        "open_mic": "Second Draft *SKIPS 11/12*"
+      }
+    },
+    {
+      "unique_identifier": "d7107ab2-d2ad-40f7-a7e8-e7a95f37e07f",
+      "note": "Rodney's Mic w/ Adam Thomas (Wednesday 9:45 PM, Rodney's) skips 11/11. @rodneysopenmics Instagram story, seen by Adam 2026-11-09/10: 'There will be no mics on Wed or Thurs this week' (tagging @rodneycomedyclub). This week = Wed 11/11 and Thu 11/12. One skipped night, not a closure: active, day and times unchanged. Marked the way Skin Tag was, with a '*SKIPS M/D*' label at the end of the name, which report_stale_labels.py will flag once the date has passed. TO CLEAR IT after the date, rewrite this same entry in place with the label removed; do not delete the entry. MOVED from new_mics to edits: the label changes the name, and the applier matches new_mics rows on name+day+start, so renaming it there would have inserted a duplicate. Original add note, kept: New mic: Rodney's Wednesday 9:45 PM, hosted by Adam Thomas (@adamthomascomedy). Adam asked for the same details as the Thursday 9:45 mic, so cost, stage time, signup, the venue rules boilerplate, coordinates and the 9:45-11:15 window are all COPIED from that row (uid df641def), not invented. Address uses the version carrying the 10065 zip, which three other Rodney's rows have and the Thursday row lacks. NAME: follows the venue's own \"Rodney's Mic w/ <host>\" shape rather than the comediq time-first convention. That convention exists so a number in a name cannot be read as a duration, and this name has no number; the host's name is what distinguishes it from the Thursday 9:45. Say the word and it becomes \"9:45 Rodney's Mic w/ Adam Thomas\". This is the same Wednesday 9:45 slot Laughing Buddha vacated (uid 3701d276, already inactive), so the two do not collide and the slot is simply being re-used by the venue.",
+      "set": {
+        "open_mic": "Rodney's Mic w/ Adam Thomas *SKIPS 11/11*"
+      }
+    },
+    {
+      "unique_identifier": "a0fcf3c5-a41e-4efa-9e43-e5abdc6c8a16",
+      "note": "Gladys Simon Comic Strip (Thursday 6:00-7:45 PM, Comic Strip Live, 1568 2nd Ave). Adam, 2026-11-16: make sure it is active. It is NOT in today's public/mics.json, so it is inactive or pending in the database. It was in the exports up to 2026-07-30 (git 93cfa9b to cc53082) and left the export between then and 2026-08-10 with no batch entry, so nothing in this repo deactivated it. Only active is set, true, so the existing record, including cost $14, signup via gladyscomedy@yahoo.com and host Gladys Simon @gladyscomedy, is left as the database has it. That data is last seen in July with lastVerified 'Unverified', so it needs a fresh check with the host. If the row is status pending it will stay hidden even after this; the export check afterwards shows which. If the uid no longer exists the apply run reports 'matched 0 rows' instead of passing silently.",
+      "set": {
+        "active": true
+      }
+    },
+    {
+      "unique_identifier": "1d9817e6-385c-49e6-8cb2-353cea55372a",
+      "note": "Goodnight Mic (Friday 11:30 PM, Eastville Comedy Club, 487 Atlantic Ave). Adam, 2026-11-17: 'the host of 11:30 PM fridays mic is no longer @goodnightmic and is @thegetitgoingmic instead. pls update the db.' The Friday 11:30 PM mics are Goodnight Mic (Eastville), The Secret Mic (The Pit) and the Buddha Room 11:30; only Goodnight Mic carried the handle @goodnightmic, so that is the row. The account the site shows for the mic is the handle column (changes_updates), so that moves @goodnightmic -> @thegetitgoingmic. The hosts column (names, 'Josh Blume/Angel Contreras') is NOT touched: Adam named an account, not people, and that account change may or may not mean the people changed. The mic NAME 'Goodnight Mic' is also untouched; if the Get It Goin crew has taken it over under their own name, that is a rename to confirm with Adam. Schedule, cost, stage time and sign-up unchanged. Related: the 'Get It Goin Mic' at St. Marks (uid bfec3020) is a separate listing and is unchanged. | RENAMED 2026-11-17 at Adam's request ('call it The Get It Going Mic'): 'Goodnight Mic' -> 'The Get It Going Mic', to match the new account @thegetitgoingmic. The name has no number in it, so the comediq time-first rule does not apply. Spelled 'Going' as Adam wrote it; the St. Marks listing (uid bfec3020) is spelled 'Goin' and is a separate mic. The hosts column is still 'Josh Blume/Angel Contreras': Adam did not say who the hosts are now. | HOSTS 2026-11-17: Adam answered my question 'if it's the same two people, say so' with 'same 2 ppl yes josue reveles and cesh reyes'. The names he gave are Josue Reveles and Cesh Reyes, which are NOT the names that were on the row (Josh Blume/Angel Contreras), so his 'same 2 people' most likely means the two people behind @thegetitgoingmic. I used the names he typed. If he meant the old names to stay, rewrite this entry in place.",
+      "set": {
+        "changes_updates": "@thegetitgoingmic",
+        "open_mic": "The Get It Going Mic",
+        "hosts_organizers": "Josue Reveles and Cesh Reyes"
       }
     }
   ],
@@ -1193,35 +1254,6 @@
       }
     },
     {
-      "note": "New mic: Rodney's Wednesday 9:45 PM, hosted by Adam Thomas (@adamthomascomedy). Adam asked for the same details as the Thursday 9:45 mic, so cost, stage time, signup, the venue rules boilerplate, coordinates and the 9:45-11:15 window are all COPIED from that row (uid df641def), not invented. Address uses the version carrying the 10065 zip, which three other Rodney's rows have and the Thursday row lacks. NAME: follows the venue's own \"Rodney's Mic w/ <host>\" shape rather than the comediq time-first convention. That convention exists so a number in a name cannot be read as a duration, and this name has no number; the host's name is what distinguishes it from the Thursday 9:45. Say the word and it becomes \"9:45 Rodney's Mic w/ Adam Thomas\". This is the same Wednesday 9:45 slot Laughing Buddha vacated (uid 3701d276, already inactive), so the two do not collide and the slot is simply being re-used by the venue.",
-      "row": {
-        "open_mic": "Rodney's Mic w/ Adam Thomas",
-        "day": "Wednesday",
-        "start_time": "9:45 PM",
-        "latest_end_time": "11:15 PM",
-        "venue_name": "Rodney's",
-        "location": "1118 1st Ave, New York, NY 10065",
-        "borough": "Manhattan",
-        "neighborhood": "UES",
-        "venue_type": "Comedy Club",
-        "cost": "1 drink min",
-        "stage_time": "5 minutes",
-        "sign_up_instructions": "Show up go up",
-        "other_rules": "No guests are required to perform at our open mics. There is a one-item minimum for all comics and guests. You must purchase your item and check in with the host before your name is added to the lineup. Spots are 5 minutes; you may have extra time if we are not full. You must be 18 and older to register, or 16 accompanied by a parent or guardian. Please note, the venue does receive last-minute bookings, which can interfere with our mics. If this happens, we will let you know beforehand. Phone/Notes: You may use your phone or notes on stage. Please do not use your phone while in the audience. You may record your performance. All sales are final. No refunds or exchanges are permitted.",
-        "hosts_organizers": "Adam Thomas",
-        "changes_updates": "@adamthomascomedy",
-        "city": "New York",
-        "status": "trial",
-        "frequency": "weekly",
-        "signup_method": "in_person",
-        "signup_enabled": false,
-        "slots_enabled": false,
-        "slot_duration_minutes": 5,
-        "latitude": 40.761020924319,
-        "longitude": -73.960579388757
-      }
-    },
-    {
       "note": "Laughing Buddha schedule email, 2026-10-05 (full list of their open mics, sent to update the site): new Tuesday 8:00 PM mic at The Buddha Room, listed as 'Mic'. No Tuesday 8 PM Buddha row existed live or in this batch. Venue, address, coordinates, cost, stage time, sign-up and rules are COPIED from the Tuesday 6:30 Buddha Room row (uid e9e8c956), not invented. 8:00-9:30 PM because the list does not say one hour. Name follows the time-first convention, matching '8 Buddha Room' and '8 Buddha Room Show Mic'.",
       "row": {
         "open_mic": "8 Buddha Room Mic",
@@ -1400,6 +1432,322 @@
         "open_mic": "6:30 Rose Mic *Starts 10/29*",
         "start_time": "6:30 PM",
         "latest_end_time": "8:00 PM"
+      }
+    },
+    {
+      "note": "New mic from Adam's 'New Thursday Mic' poster (2026-11-11): 'Gdrink at Gnihton', every Thursday at 6 PM, 528 E 11th St, East Village. Free with a Comediq account + 1 drink minimum ($5 struck through on the poster). The poster is the only source: the NAME is copied exactly as printed, and VENUE NAME 'Gnihton' is READ from 'at Gnihton' in it, so confirm both. No end time on the poster, so the 90-minute default gives 6:00-7:30 PM. No host or Instagram is given. Sign up is 'comediq.com' per the poster; signup_enabled stays false until the time-block signup event for this mic exists. Coordinates are blank: run npm run geocode:open-mics. UPDATED 2026-11-11 (Adam): this is Comediq's own mic. Price text is now '$5 or Subscribe!', sign-ups run on Comediq's sign-up sheet (signup_method comediq_slots, slots_enabled and signup_enabled true), host is Comediq and status is verified so the trial expiry never hides it. This entry is re-asserted on every run, so change the mic HERE, not with a separate edit. UPDATE 2026-11-12 (Adam): host is @malevcomedy (Adam claims the mic on his own account). Signups run through Comediq spots (signup_method comediq_slots, 15 spots), so signup_method, signup_enabled and slots_enabled are asserted here, otherwise the next run would switch the Sign Up for Spots button off. UPDATE 2026-11-12 (Adam): lineup is by arrival, not first come first served. Signing up holds one of 15 spots; the running order is the order people check in at the venue by GPS (events.lineup_by_checkin).",
+      "row": {
+        "open_mic": "Gdrink at Gnihton",
+        "day": "Thursday",
+        "start_time": "6:00 PM",
+        "latest_end_time": "7:30 PM",
+        "venue_name": "Gnihton",
+        "location": "528 E 11th St, New York, NY 10009",
+        "borough": "Manhattan",
+        "neighborhood": "East Village",
+        "venue_type": "Bar",
+        "cost": "$5 or Subscribe!",
+        "stage_time": "",
+        "sign_up_instructions": "Sign up on comediq.com (15 spots). Your place in the lineup is set by when you arrive and check in at the mic.",
+        "city": "New York",
+        "status": "verified",
+        "frequency": "weekly",
+        "signup_method": "comediq_slots",
+        "signup_enabled": true,
+        "slots_enabled": true,
+        "other_rules": "",
+        "hosts_organizers": "@malevcomedy",
+        "changes_updates": "@malevcomedy"
+      }
+    },
+    {
+      "note": "BYOT (Bring Your Own Thing) at UCB Theatre NY. Adam, 2026-11-16, from a screenshot of the @byotmic Instagram profile ('BYOT (Bring Your Own Thing) at UCB Theatre NY'; bio: 'Bring Your Own Thing! 2nd & 4th Sundays at 9pm at @ucbtny! BUCKET @ 8:40 LIMITED SPOTS Hosts @blumpkinimprov', plus a sign-up form link that is cut off in the screenshot) and its pinned post ('UCB's Bring Your Own Thing Open Mic, every 2nd & 4th Sunday, hosted by Blumpkin. Bring: stand up, an improv team, clown, character, bits, anything!'). Adam had asked for the 'Sunday 10 pm' BYOT mic and said it has new details and rules. DISAGREEMENT: the account says 9 PM, not 10 PM; the profile is the room's own current word, so 9:00 PM is used and the 10 PM Adam remembered is flagged. No BYOT or Sunday UCB row exists in the live export or in any sampled earlier export, so this adds one; if a hidden inactive row exists under another name or time, it stays hidden. Stored the way the other 2nd/4th mics are: a '*2nd/4th Sun*' name prefix, bi_weekly, frequency_custom_text '2nd/4th Sun'. End 10:30 PM is the comediq 90-minute default, since no end time is given. Venue, address, type, neighborhood and coordinates are COPIED from the UCB row '2nd/4th UCB IMPROV JAM' (uid a644954b, 242 E 14th St, which matches '242 E. 14TH' on BYOT's own posters), not invented. HOSTS: the bio and pinned post say Blumpkin (@blumpkinimprov); an older 'Best of BYOT' show card lists Ethan Beach and Chris Blanco, so Blumpkin is used as the current host. LEFT BLANK: cost and stage time, which the profile does not state. The sign-up form link is cut off in the screenshot, so the listing points at the Instagram bio instead of using a partial link. Part of one post's rule text is cropped ('open mic for all comedy & all ...') and is not guessed at. Status trial. | UPDATED 2026-11-16 from Adam's screenshot of BYOT's own Google Form sign-up page (link supplied by Adam): 'Sign-up for a slot on the next installment of Bring Your Own Thing at UCB Theatre NY tonight - Sunday, September 20th at 9:30PM. If you sign up here, please wait for an email confirmation from us day of. We also have standby sign-ups at the theatre! Slots are 4 minutes each (feel free to use less than 4 minutes if desired). This is a comedy open mic that is open to ALL live comedy performance formats and ALL people! All types of comedy are encouraged. BYOT is (usually) in the UCB upstairs space, so tech is limited! (we can only do sound and lights). WE WILL DO AN OPTIONAL IMPROV JAM AT THE END!' Applied: the form link (exact, as given) in the sign-up text and in signup_url, signup_method online, stage time 4 minutes, and the rules rewritten with the form's wording. STILL OPEN: (1) the start time. The form is a leftover from one installment and says 9:30 PM for Sunday Sept 20, the bio says 9pm, and Adam said 10 pm, so three numbers; 9:00 PM stays until someone says which is the standing time. (2) Cost: the visible part of the form does not say; left blank. (3) Sept 20 2026 was the 3rd Sunday, not a 2nd or 4th, so either that installment was a one-off or the 2nd/4th schedule has exceptions. | UPDATED 2026-11-16 from the host's own Instagram DM reply (@byotmic, answering Adam's questions 'What's your start time / how do you do sign up / your Google form is outdated'): 'We are the 2nd and 4th Sunday at 9 and we put a bucket out at 8:45. We switched to a bucket mic, I'm gonna take the form down rn.' This SETTLES the start time: 9:00 PM on the 2nd and 4th Sundays (not the 9:30 PM on the old form, not the 10 PM Adam remembered), so the start and the 90-minute end are unchanged. CORRECTS the bucket time: 8:45, not the 8:40 in their Instagram bio. REMOVES online sign-up: the Google form link is gone from sign_up_instructions and signup_url (the form is being taken down, and signup_method goes back to in_person), and the rules no longer mention email confirmation or standby sign-ups, which belonged to the form. KEPT, now unconfirmed: the 4 minute slots and the upstairs-space / sound-and-lights-only / optional improv jam lines came from that form and the host did not repeat them. COST: Free, per Adam 2026-11-16 (\"and free\", right after the host DM above). Adam relayed it without quoting where it came from, so the source is Adam, not a screenshot. Nothing is open on this row except confirming the 4 minute slots and the form-era rules. | CAP: sign-ups are capped at 12-13 people, per Adam 2026-11-16 ('signups capped at 12-13 people'), relayed with no quote, so the source is Adam. Written into the sign-up text in place of the bio's vaguer 'limited spots'.",
+      "row": {
+        "open_mic": "*2nd/4th Sun* BYOT (Bring Your Own Thing)",
+        "day": "Sunday",
+        "start_time": "9:00 PM",
+        "latest_end_time": "10:30 PM",
+        "venue_name": "UCB",
+        "location": "242 E 14th St, New York, NY 10003",
+        "borough": "Manhattan",
+        "neighborhood": "East Village",
+        "venue_type": "Theatre Space",
+        "sign_up_instructions": "Bucket mic: the bucket goes out at 8:45. Limited spots: sign-ups are capped at 12 to 13 people.",
+        "other_rules": "Open to ALL live comedy performance formats and ALL people: stand-up, an improv team, clown, a character, bits, anything. Usually in the UCB upstairs space, so tech is limited to sound and lights. There is an optional improv jam at the end. Held on the 2nd and 4th Sundays of the month.",
+        "hosts_organizers": "Blumpkin (@blumpkinimprov)",
+        "changes_updates": "@byotmic",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "bi_weekly",
+        "frequency_custom_text": "2nd/4th Sun",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "latitude": 40.732445801018,
+        "longitude": -73.985566261218,
+        "signup_method": "in_person",
+        "signup_url": null,
+        "stage_time": "4 minutes",
+        "cost": "Free"
+      }
+    },
+    {
+      "note": "New one-time pop-up mic. Adam, 2026-11-17: 'we need to add these as 1 time pop up mics on comediq', from the SESH Comedy open mic sign-up page https://seshcomedy.com/mics.php (SESH Comedy, 55 Chrystie St, NYC) read by Adam on 2026-11-17 at 3:50 PM. One-time pop-up mics are stored with frequency one_off and the exact date in frequency_custom_text ('dates YYYY-MM-DD', per documentation.md), so each shows only on that date and never on later weeks of the same weekday. This is Tuesday 2026-11-17 6:00 PM-7:00 PM, sign-up anchor #m19 on that page (each mic has its own anchor; Adam's link was the last one, #m28). Venue, hours, cost, 5 minute sets and rules are from the page. NOT on the page, so left out or inferred: the zip code (not invented), the neighborhood (Lower East Side, my inference from the address), the venue type (Other), any host handle. No coordinates, so it has no map pin until the geocoder runs. Status trial. After 2026-11-17 the row is inert (nothing shows it) but still exists.",
+      "row": {
+        "open_mic": "6 SESH Open Mic",
+        "day": "Tuesday",
+        "start_time": "6:00 PM",
+        "latest_end_time": "7:00 PM",
+        "venue_name": "SESH Comedy",
+        "location": "55 Chrystie St, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "Lower East Side",
+        "venue_type": "Other",
+        "cost": "$5",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up online, $5 holds your spot (the waitlist is free): https://seshcomedy.com/mics.php#m19. Canceled and refunded if fewer than 8 sign up an hour before.",
+        "other_rules": "Each mic needs 8 sign-ups: if it has fewer than 8 one hour before start, it is canceled and everyone is refunded. $5 holds your spot (paid when you sign up); the waitlist is free and you have 30 minutes to pay if a spot opens. Release your spot before the mic starts for a full refund. Stay for the whole mic. No-shows sit out 14 days. 12 spots, 5 minute sets, one hour long.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "one_off",
+        "frequency_custom_text": "dates 2026-11-17",
+        "signup_method": "online",
+        "signup_url": "https://seshcomedy.com/mics.php#m19",
+        "signup_enabled": false,
+        "slots_enabled": false
+      }
+    },
+    {
+      "note": "New one-time pop-up mic. Adam, 2026-11-17: 'we need to add these as 1 time pop up mics on comediq', from the SESH Comedy open mic sign-up page https://seshcomedy.com/mics.php (SESH Comedy, 55 Chrystie St, NYC) read by Adam on 2026-11-17 at 3:50 PM. One-time pop-up mics are stored with frequency one_off and the exact date in frequency_custom_text ('dates YYYY-MM-DD', per documentation.md), so each shows only on that date and never on later weeks of the same weekday. This is Tuesday 2026-11-17 7:00 PM-8:00 PM, sign-up anchor #m20 on that page (each mic has its own anchor; Adam's link was the last one, #m28). Venue, hours, cost, 5 minute sets and rules are from the page. NOT on the page, so left out or inferred: the zip code (not invented), the neighborhood (Lower East Side, my inference from the address), the venue type (Other), any host handle. No coordinates, so it has no map pin until the geocoder runs. Status trial. After 2026-11-17 the row is inert (nothing shows it) but still exists.",
+      "row": {
+        "open_mic": "7 SESH Open Mic",
+        "day": "Tuesday",
+        "start_time": "7:00 PM",
+        "latest_end_time": "8:00 PM",
+        "venue_name": "SESH Comedy",
+        "location": "55 Chrystie St, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "Lower East Side",
+        "venue_type": "Other",
+        "cost": "$5",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up online, $5 holds your spot (the waitlist is free): https://seshcomedy.com/mics.php#m20. Canceled and refunded if fewer than 8 sign up an hour before.",
+        "other_rules": "Each mic needs 8 sign-ups: if it has fewer than 8 one hour before start, it is canceled and everyone is refunded. $5 holds your spot (paid when you sign up); the waitlist is free and you have 30 minutes to pay if a spot opens. Release your spot before the mic starts for a full refund. Stay for the whole mic. No-shows sit out 14 days. 12 spots, 5 minute sets, one hour long.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "one_off",
+        "frequency_custom_text": "dates 2026-11-17",
+        "signup_method": "online",
+        "signup_url": "https://seshcomedy.com/mics.php#m20",
+        "signup_enabled": false,
+        "slots_enabled": false
+      }
+    },
+    {
+      "note": "New one-time pop-up mic. Adam, 2026-11-17: 'we need to add these as 1 time pop up mics on comediq', from the SESH Comedy open mic sign-up page https://seshcomedy.com/mics.php (SESH Comedy, 55 Chrystie St, NYC) read by Adam on 2026-11-17 at 3:50 PM. One-time pop-up mics are stored with frequency one_off and the exact date in frequency_custom_text ('dates YYYY-MM-DD', per documentation.md), so each shows only on that date and never on later weeks of the same weekday. This is Wednesday 2026-11-18 4:30 PM-5:30 PM, sign-up anchor #m21 on that page (each mic has its own anchor; Adam's link was the last one, #m28). Venue, hours, cost, 5 minute sets and rules are from the page. NOT on the page, so left out or inferred: the zip code (not invented), the neighborhood (Lower East Side, my inference from the address), the venue type (Other), any host handle. No coordinates, so it has no map pin until the geocoder runs. Status trial. After 2026-11-18 the row is inert (nothing shows it) but still exists.",
+      "row": {
+        "open_mic": "4:30 SESH Open Mic",
+        "day": "Wednesday",
+        "start_time": "4:30 PM",
+        "latest_end_time": "5:30 PM",
+        "venue_name": "SESH Comedy",
+        "location": "55 Chrystie St, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "Lower East Side",
+        "venue_type": "Other",
+        "cost": "$5",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up online, $5 holds your spot (the waitlist is free): https://seshcomedy.com/mics.php#m21. Canceled and refunded if fewer than 8 sign up an hour before.",
+        "other_rules": "Each mic needs 8 sign-ups: if it has fewer than 8 one hour before start, it is canceled and everyone is refunded. $5 holds your spot (paid when you sign up); the waitlist is free and you have 30 minutes to pay if a spot opens. Release your spot before the mic starts for a full refund. Stay for the whole mic. No-shows sit out 14 days. 12 spots, 5 minute sets, one hour long.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "one_off",
+        "frequency_custom_text": "dates 2026-11-18",
+        "signup_method": "online",
+        "signup_url": "https://seshcomedy.com/mics.php#m21",
+        "signup_enabled": false,
+        "slots_enabled": false
+      }
+    },
+    {
+      "note": "New one-time pop-up mic. Adam, 2026-11-17: 'we need to add these as 1 time pop up mics on comediq', from the SESH Comedy open mic sign-up page https://seshcomedy.com/mics.php (SESH Comedy, 55 Chrystie St, NYC) read by Adam on 2026-11-17 at 3:50 PM. One-time pop-up mics are stored with frequency one_off and the exact date in frequency_custom_text ('dates YYYY-MM-DD', per documentation.md), so each shows only on that date and never on later weeks of the same weekday. This is Wednesday 2026-11-18 5:30 PM-6:30 PM, sign-up anchor #m22 on that page (each mic has its own anchor; Adam's link was the last one, #m28). Venue, hours, cost, 5 minute sets and rules are from the page. NOT on the page, so left out or inferred: the zip code (not invented), the neighborhood (Lower East Side, my inference from the address), the venue type (Other), any host handle. No coordinates, so it has no map pin until the geocoder runs. Status trial. After 2026-11-18 the row is inert (nothing shows it) but still exists.",
+      "row": {
+        "open_mic": "5:30 SESH Open Mic",
+        "day": "Wednesday",
+        "start_time": "5:30 PM",
+        "latest_end_time": "6:30 PM",
+        "venue_name": "SESH Comedy",
+        "location": "55 Chrystie St, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "Lower East Side",
+        "venue_type": "Other",
+        "cost": "$5",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up online, $5 holds your spot (the waitlist is free): https://seshcomedy.com/mics.php#m22. Canceled and refunded if fewer than 8 sign up an hour before.",
+        "other_rules": "Each mic needs 8 sign-ups: if it has fewer than 8 one hour before start, it is canceled and everyone is refunded. $5 holds your spot (paid when you sign up); the waitlist is free and you have 30 minutes to pay if a spot opens. Release your spot before the mic starts for a full refund. Stay for the whole mic. No-shows sit out 14 days. 12 spots, 5 minute sets, one hour long.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "one_off",
+        "frequency_custom_text": "dates 2026-11-18",
+        "signup_method": "online",
+        "signup_url": "https://seshcomedy.com/mics.php#m22",
+        "signup_enabled": false,
+        "slots_enabled": false
+      }
+    },
+    {
+      "note": "New one-time pop-up mic. Adam, 2026-11-17: 'we need to add these as 1 time pop up mics on comediq', from the SESH Comedy open mic sign-up page https://seshcomedy.com/mics.php (SESH Comedy, 55 Chrystie St, NYC) read by Adam on 2026-11-17 at 3:50 PM. One-time pop-up mics are stored with frequency one_off and the exact date in frequency_custom_text ('dates YYYY-MM-DD', per documentation.md), so each shows only on that date and never on later weeks of the same weekday. This is Thursday 2026-11-19 5:30 PM-6:30 PM, sign-up anchor #m23 on that page (each mic has its own anchor; Adam's link was the last one, #m28). Venue, hours, cost, 5 minute sets and rules are from the page. NOT on the page, so left out or inferred: the zip code (not invented), the neighborhood (Lower East Side, my inference from the address), the venue type (Other), any host handle. No coordinates, so it has no map pin until the geocoder runs. Status trial. After 2026-11-19 the row is inert (nothing shows it) but still exists.",
+      "row": {
+        "open_mic": "5:30 SESH Open Mic",
+        "day": "Thursday",
+        "start_time": "5:30 PM",
+        "latest_end_time": "6:30 PM",
+        "venue_name": "SESH Comedy",
+        "location": "55 Chrystie St, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "Lower East Side",
+        "venue_type": "Other",
+        "cost": "$5",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up online, $5 holds your spot (the waitlist is free): https://seshcomedy.com/mics.php#m23. Canceled and refunded if fewer than 8 sign up an hour before.",
+        "other_rules": "Each mic needs 8 sign-ups: if it has fewer than 8 one hour before start, it is canceled and everyone is refunded. $5 holds your spot (paid when you sign up); the waitlist is free and you have 30 minutes to pay if a spot opens. Release your spot before the mic starts for a full refund. Stay for the whole mic. No-shows sit out 14 days. 12 spots, 5 minute sets, one hour long.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "one_off",
+        "frequency_custom_text": "dates 2026-11-19",
+        "signup_method": "online",
+        "signup_url": "https://seshcomedy.com/mics.php#m23",
+        "signup_enabled": false,
+        "slots_enabled": false
+      }
+    },
+    {
+      "note": "New one-time pop-up mic. Adam, 2026-11-17: 'we need to add these as 1 time pop up mics on comediq', from the SESH Comedy open mic sign-up page https://seshcomedy.com/mics.php (SESH Comedy, 55 Chrystie St, NYC) read by Adam on 2026-11-17 at 3:50 PM. One-time pop-up mics are stored with frequency one_off and the exact date in frequency_custom_text ('dates YYYY-MM-DD', per documentation.md), so each shows only on that date and never on later weeks of the same weekday. This is Thursday 2026-11-19 6:30 PM-7:30 PM, sign-up anchor #m24 on that page (each mic has its own anchor; Adam's link was the last one, #m28). Venue, hours, cost, 5 minute sets and rules are from the page. NOT on the page, so left out or inferred: the zip code (not invented), the neighborhood (Lower East Side, my inference from the address), the venue type (Other), any host handle. No coordinates, so it has no map pin until the geocoder runs. Status trial. After 2026-11-19 the row is inert (nothing shows it) but still exists.",
+      "row": {
+        "open_mic": "6:30 SESH Open Mic",
+        "day": "Thursday",
+        "start_time": "6:30 PM",
+        "latest_end_time": "7:30 PM",
+        "venue_name": "SESH Comedy",
+        "location": "55 Chrystie St, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "Lower East Side",
+        "venue_type": "Other",
+        "cost": "$5",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up online, $5 holds your spot (the waitlist is free): https://seshcomedy.com/mics.php#m24. Canceled and refunded if fewer than 8 sign up an hour before.",
+        "other_rules": "Each mic needs 8 sign-ups: if it has fewer than 8 one hour before start, it is canceled and everyone is refunded. $5 holds your spot (paid when you sign up); the waitlist is free and you have 30 minutes to pay if a spot opens. Release your spot before the mic starts for a full refund. Stay for the whole mic. No-shows sit out 14 days. 12 spots, 5 minute sets, one hour long.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "one_off",
+        "frequency_custom_text": "dates 2026-11-19",
+        "signup_method": "online",
+        "signup_url": "https://seshcomedy.com/mics.php#m24",
+        "signup_enabled": false,
+        "slots_enabled": false
+      }
+    },
+    {
+      "note": "New one-time pop-up mic. Adam, 2026-11-17: 'we need to add these as 1 time pop up mics on comediq', from the SESH Comedy open mic sign-up page https://seshcomedy.com/mics.php (SESH Comedy, 55 Chrystie St, NYC) read by Adam on 2026-11-17 at 3:50 PM. One-time pop-up mics are stored with frequency one_off and the exact date in frequency_custom_text ('dates YYYY-MM-DD', per documentation.md), so each shows only on that date and never on later weeks of the same weekday. This is Friday 2026-11-20 6:30 PM-7:30 PM, sign-up anchor #m25 on that page (each mic has its own anchor; Adam's link was the last one, #m28). Venue, hours, cost, 5 minute sets and rules are from the page. NOT on the page, so left out or inferred: the zip code (not invented), the neighborhood (Lower East Side, my inference from the address), the venue type (Other), any host handle. No coordinates, so it has no map pin until the geocoder runs. Status trial. After 2026-11-20 the row is inert (nothing shows it) but still exists.",
+      "row": {
+        "open_mic": "6:30 SESH Open Mic",
+        "day": "Friday",
+        "start_time": "6:30 PM",
+        "latest_end_time": "7:30 PM",
+        "venue_name": "SESH Comedy",
+        "location": "55 Chrystie St, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "Lower East Side",
+        "venue_type": "Other",
+        "cost": "$5",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up online, $5 holds your spot (the waitlist is free): https://seshcomedy.com/mics.php#m25. Canceled and refunded if fewer than 8 sign up an hour before.",
+        "other_rules": "Each mic needs 8 sign-ups: if it has fewer than 8 one hour before start, it is canceled and everyone is refunded. $5 holds your spot (paid when you sign up); the waitlist is free and you have 30 minutes to pay if a spot opens. Release your spot before the mic starts for a full refund. Stay for the whole mic. No-shows sit out 14 days. 12 spots, 5 minute sets, one hour long.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "one_off",
+        "frequency_custom_text": "dates 2026-11-20",
+        "signup_method": "online",
+        "signup_url": "https://seshcomedy.com/mics.php#m25",
+        "signup_enabled": false,
+        "slots_enabled": false
+      }
+    },
+    {
+      "note": "New one-time pop-up mic. Adam, 2026-11-17: 'we need to add these as 1 time pop up mics on comediq', from the SESH Comedy open mic sign-up page https://seshcomedy.com/mics.php (SESH Comedy, 55 Chrystie St, NYC) read by Adam on 2026-11-17 at 3:50 PM. One-time pop-up mics are stored with frequency one_off and the exact date in frequency_custom_text ('dates YYYY-MM-DD', per documentation.md), so each shows only on that date and never on later weeks of the same weekday. This is Friday 2026-11-20 7:30 PM-8:30 PM, sign-up anchor #m26 on that page (each mic has its own anchor; Adam's link was the last one, #m28). Venue, hours, cost, 5 minute sets and rules are from the page. NOT on the page, so left out or inferred: the zip code (not invented), the neighborhood (Lower East Side, my inference from the address), the venue type (Other), any host handle. No coordinates, so it has no map pin until the geocoder runs. Status trial. After 2026-11-20 the row is inert (nothing shows it) but still exists.",
+      "row": {
+        "open_mic": "7:30 SESH Open Mic",
+        "day": "Friday",
+        "start_time": "7:30 PM",
+        "latest_end_time": "8:30 PM",
+        "venue_name": "SESH Comedy",
+        "location": "55 Chrystie St, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "Lower East Side",
+        "venue_type": "Other",
+        "cost": "$5",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up online, $5 holds your spot (the waitlist is free): https://seshcomedy.com/mics.php#m26. Canceled and refunded if fewer than 8 sign up an hour before.",
+        "other_rules": "Each mic needs 8 sign-ups: if it has fewer than 8 one hour before start, it is canceled and everyone is refunded. $5 holds your spot (paid when you sign up); the waitlist is free and you have 30 minutes to pay if a spot opens. Release your spot before the mic starts for a full refund. Stay for the whole mic. No-shows sit out 14 days. 12 spots, 5 minute sets, one hour long.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "one_off",
+        "frequency_custom_text": "dates 2026-11-20",
+        "signup_method": "online",
+        "signup_url": "https://seshcomedy.com/mics.php#m26",
+        "signup_enabled": false,
+        "slots_enabled": false
+      }
+    },
+    {
+      "note": "New one-time pop-up mic. Adam, 2026-11-17: 'we need to add these as 1 time pop up mics on comediq', from the SESH Comedy open mic sign-up page https://seshcomedy.com/mics.php (SESH Comedy, 55 Chrystie St, NYC) read by Adam on 2026-11-17 at 3:50 PM. One-time pop-up mics are stored with frequency one_off and the exact date in frequency_custom_text ('dates YYYY-MM-DD', per documentation.md), so each shows only on that date and never on later weeks of the same weekday. This is Saturday 2026-11-21 4:30 PM-5:30 PM, sign-up anchor #m27 on that page (each mic has its own anchor; Adam's link was the last one, #m28). Venue, hours, cost, 5 minute sets and rules are from the page. NOT on the page, so left out or inferred: the zip code (not invented), the neighborhood (Lower East Side, my inference from the address), the venue type (Other), any host handle. No coordinates, so it has no map pin until the geocoder runs. Status trial. After 2026-11-21 the row is inert (nothing shows it) but still exists.",
+      "row": {
+        "open_mic": "4:30 SESH Open Mic",
+        "day": "Saturday",
+        "start_time": "4:30 PM",
+        "latest_end_time": "5:30 PM",
+        "venue_name": "SESH Comedy",
+        "location": "55 Chrystie St, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "Lower East Side",
+        "venue_type": "Other",
+        "cost": "$5",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up online, $5 holds your spot (the waitlist is free): https://seshcomedy.com/mics.php#m27. Canceled and refunded if fewer than 8 sign up an hour before.",
+        "other_rules": "Each mic needs 8 sign-ups: if it has fewer than 8 one hour before start, it is canceled and everyone is refunded. $5 holds your spot (paid when you sign up); the waitlist is free and you have 30 minutes to pay if a spot opens. Release your spot before the mic starts for a full refund. Stay for the whole mic. No-shows sit out 14 days. 12 spots, 5 minute sets, one hour long.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "one_off",
+        "frequency_custom_text": "dates 2026-11-21",
+        "signup_method": "online",
+        "signup_url": "https://seshcomedy.com/mics.php#m27",
+        "signup_enabled": false,
+        "slots_enabled": false
+      }
+    },
+    {
+      "note": "New one-time pop-up mic. Adam, 2026-11-17: 'we need to add these as 1 time pop up mics on comediq', from the SESH Comedy open mic sign-up page https://seshcomedy.com/mics.php (SESH Comedy, 55 Chrystie St, NYC) read by Adam on 2026-11-17 at 3:50 PM. One-time pop-up mics are stored with frequency one_off and the exact date in frequency_custom_text ('dates YYYY-MM-DD', per documentation.md), so each shows only on that date and never on later weeks of the same weekday. This is Saturday 2026-11-21 5:30 PM-6:30 PM, sign-up anchor #m28 on that page (each mic has its own anchor; Adam's link was the last one, #m28). Venue, hours, cost, 5 minute sets and rules are from the page. NOT on the page, so left out or inferred: the zip code (not invented), the neighborhood (Lower East Side, my inference from the address), the venue type (Other), any host handle. No coordinates, so it has no map pin until the geocoder runs. Status trial. After 2026-11-21 the row is inert (nothing shows it) but still exists.",
+      "row": {
+        "open_mic": "5:30 SESH Open Mic",
+        "day": "Saturday",
+        "start_time": "5:30 PM",
+        "latest_end_time": "6:30 PM",
+        "venue_name": "SESH Comedy",
+        "location": "55 Chrystie St, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "Lower East Side",
+        "venue_type": "Other",
+        "cost": "$5",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up online, $5 holds your spot (the waitlist is free): https://seshcomedy.com/mics.php#m28. Canceled and refunded if fewer than 8 sign up an hour before.",
+        "other_rules": "Each mic needs 8 sign-ups: if it has fewer than 8 one hour before start, it is canceled and everyone is refunded. $5 holds your spot (paid when you sign up); the waitlist is free and you have 30 minutes to pay if a spot opens. Release your spot before the mic starts for a full refund. Stay for the whole mic. No-shows sit out 14 days. 12 spots, 5 minute sets, one hour long.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "one_off",
+        "frequency_custom_text": "dates 2026-11-21",
+        "signup_method": "online",
+        "signup_url": "https://seshcomedy.com/mics.php#m28",
+        "signup_enabled": false,
+        "slots_enabled": false
       }
     }
   ]

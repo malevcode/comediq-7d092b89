@@ -7,7 +7,8 @@ import Wordmark from "@/components/Wordmark";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOpenMics } from "@/hooks/useOpenMics";
-import { isExternalVotingLink, votingHref } from "@/config/micOfTheMonth";
+import { isExternalVotingLink, votingHref, MIC_OF_THE_MONTH_WINNER } from "@/config/micOfTheMonth";
+import { micPath } from "@/lib/seoShared";
 import {
   getUpcomingOccurrences,
   isListedDate,
@@ -135,27 +136,51 @@ const Nav = () => {
 const Hero = () => (
   <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-14 pt-4 sm:px-8 md:grid-cols-2 md:gap-14 md:pb-20">
     <div className="sm:text-center md:text-left">
-      <div className="flex items-end gap-2 sm:justify-center md:justify-start">
-        <div className="min-w-0">
-          <p className="lp-eyebrow">NYC's comedy platform</p>
-          <h1 className="lp-wordmark mt-4 text-[58px] sm:text-[clamp(56px,6vw,92px)]">Comediq</h1>
+      {/* Grid, not a flex row: the mascot and the text get their own columns, so
+          the paragraph and buttons (centered inside the text column) line up
+          with the wordmark instead of with the mascot+wordmark group as a
+          whole. A flex row centered everything as one block, which put the
+          paragraph under empty space next to the character rather than under
+          "Comediq" itself. */}
+      <div className="flex justify-center">
+        <div className="grid grid-cols-[auto_auto] items-start gap-x-2">
+          <img src="/landing/character.png" alt="The Comediq mascot" className="h-[170px] w-auto shrink-0 sm:h-[240px]" />
+          <div className="min-w-0 text-center">
+            <p className="lp-eyebrow">NYC's comedy platform</p>
+            <h1 className="lp-wordmark mt-4 text-[58px] sm:text-[clamp(56px,6vw,92px)]">Comediq<span className="sr-only"> — NYC Comedy Open Mics and Shows</span></h1>
+            <p className="mt-5 max-w-md text-center text-lg leading-snug text-[var(--lp-ink)] mx-auto">
+              Whether you're on stage, in the audience, or running the show, Comediq is here for you
+            </p>
+            <div className="mt-7 flex flex-nowrap justify-center gap-2">
+              <Link to="/perform" className="lp-btn lp-btn-solid !px-4 !py-1.5 !text-sm"><Mic className="h-4 w-4" aria-hidden="true" />I Perform</Link>
+              <Link to="/laugh" className="lp-btn lp-btn-ghost !px-4 !py-1.5 !text-sm"><Eye className="h-4 w-4" aria-hidden="true" />I Watch</Link>
+            </div>
+          </div>
         </div>
-        <img src="/landing/character.png" alt="The Comediq mascot" className="order-first h-[170px] w-auto shrink-0 sm:h-[240px] md:order-last" />
       </div>
-      <p className="mt-5 max-w-md text-lg leading-snug text-[var(--lp-ink)] sm:mx-auto md:mx-0">
-        Whether you're on stage or in the audience, Comediq is your home for live comedy.
-      </p>
-      <div className="mt-7 flex flex-wrap gap-3 sm:justify-center md:justify-start">
-        <Link to="/perform" className="lp-btn lp-btn-solid"><Mic className="h-4 w-4" aria-hidden="true" />I Perform</Link>
-        <Link to="/laugh" className="lp-btn lp-btn-ghost"><Eye className="h-4 w-4" aria-hidden="true" />I Watch</Link>
-      </div>
-      <div className="mt-7 flex flex-col gap-2 text-sm sm:items-center md:items-start">
-        <a className="lp-link w-fit" href={MALEV_INSTAGRAM} target="_blank" rel="noopener noreferrer">
-          Made and maintained by Adam Malev @malevcomedy
-        </a>
-        <a className="lp-link w-fit" href={INSTAGRAM} target="_blank" rel="noopener noreferrer">
-          Questions or collabs? DM @comediq.us
-        </a>
+      <div className="mt-7 flex flex-col items-center gap-2 text-sm">
+        <p className="w-fit text-[var(--lp-ink)]">
+          Made and maintained by Adam Malev{" "}
+          <a
+            className="underline decoration-[1px] underline-offset-[3px] transition-colors hover:text-[var(--lp-accent)]"
+            href={MALEV_INSTAGRAM}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            @malevcomedy
+          </a>
+        </p>
+        <p className="w-fit text-[var(--lp-ink)]">
+          Questions or collabs? DM{" "}
+          <a
+            className="underline decoration-[1px] underline-offset-[3px] transition-colors hover:text-[var(--lp-accent)]"
+            href={INSTAGRAM}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            @comediq.us
+          </a>
+        </p>
       </div>
     </div>
     <div className="aspect-[4/4.4] overflow-hidden rounded-md md:order-last">
@@ -163,6 +188,53 @@ const Hero = () => (
     </div>
   </section>
 );
+
+/**
+ * The most recently closed Mic of the Month winner, near the top of the home
+ * page. All mic details come from the live mics data via
+ * MIC_OF_THE_MONTH_WINNER.micId, not hardcoded here, so the card always links
+ * to the mic's real page and shows its current details. Renders nothing once
+ * the config is set back to null or the mic can't be found (e.g. deactivated).
+ */
+const MicOfTheMonth = () => {
+  const { data: mics = [] } = useOpenMics();
+  const winner = MIC_OF_THE_MONTH_WINNER;
+  const mic = winner ? mics.find((m) => m.uniqueIdentifier === winner.micId) : undefined;
+  if (!winner || !mic) return null;
+
+  const signupHref = /^https?:\/\//i.test(mic.signUpInstructions?.trim() || "")
+    ? mic.signUpInstructions.trim()
+    : undefined;
+  const schedule = [mic.day && `${mic.day}s`, [mic.startTime, mic.latestEndTime].filter(Boolean).join(" to ")]
+    .filter(Boolean)
+    .join(", ");
+  const where = [mic.venueName, mic.neighborhood].filter(Boolean).join(", ");
+
+  return (
+    <section className="mx-auto max-w-6xl px-5 pb-14 sm:px-8 md:pb-20" aria-labelledby="motm-heading">
+      <div className="rounded-md border border-[var(--lp-line)] p-6 sm:p-8">
+        <p className="lp-eyebrow">{winner.month} Mic of the Month</p>
+        <h2 id="motm-heading" className="lp-display mt-2 text-4xl sm:text-5xl">
+          {mic.openMic}
+        </h2>
+        <p className="mt-2 text-sm text-[var(--lp-muted)]">{where}</p>
+        <p className="mt-1 text-sm">
+          {schedule} &middot; {mic.cost} &middot; Hosted by {mic.hosts}
+        </p>
+        <div className="mt-5 flex flex-wrap items-center gap-4">
+          {signupHref && (
+            <a href={signupHref} target="_blank" rel="noopener noreferrer" className="lp-btn lp-btn-solid">
+              Sign up
+            </a>
+          )}
+          <Link to={micPath(mic)} className="lp-link text-sm font-semibold">
+            View on Comediq
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const Stats = () => (
   <section className="border-y border-[var(--lp-line)]">
@@ -396,6 +468,7 @@ const Landing = () => (
     <main>
       <Hero />
       <Stats />
+      <MicOfTheMonth />
       <Tonight />
       <TwoDoors />
       <Proof />
