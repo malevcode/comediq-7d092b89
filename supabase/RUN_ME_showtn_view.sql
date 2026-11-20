@@ -4,7 +4,7 @@
 -- ===== showtn_next_shows view (ShowTN) =====
 -- ShowTN's Browse page reads this view. It is a safe, read-only window onto the
 -- Comediq Laugh-tab listings (public.audience_shows) in the same Supabase project.
--- Only shows that are live on comediq.us appear here: verified, active, a real dated
+-- Only shows that are live on comediq.com appear here: verified, active, a real dated
 -- show (not a repeating template), from Comediq itself or an approved partner venue.
 
 create or replace view public.showtn_next_shows as

@@ -18,7 +18,7 @@ export default function ProgressTrackerPage() {
       <SEO
         title="Set Log & Performance Tracker | Comediq"
         description="Log every set you do in NYC, rate how it went, and watch your stage time and streaks add up over the year."
-        url="https://comediq.us/track-sets"
+        url="https://comediq.com/track-sets"
         noindex={true}
       />
       <div className="pb-20">

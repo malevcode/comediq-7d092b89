@@ -154,7 +154,7 @@ const Profile = () => {
       <SEO
         title="Your Comedian Profile & Stats | Comediq"
         description="Your Comediq comedian profile: sets logged, mics visited, credits, and the links other NYC comedians and bookers see."
-        url="https://comediq.us/profile"
+        url="https://comediq.com/profile"
         noindex={true}
       />
       <div className="bg-transparent">

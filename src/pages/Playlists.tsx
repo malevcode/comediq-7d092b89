@@ -8,7 +8,7 @@ export default function Playlists() {
       <SEO
         title="My Playlists | Comediq"
         description="Create and manage your Comediq open mic playlists."
-        url="https://comediq.us/playlists"
+        url="https://comediq.com/playlists"
         noindex={true}
       />
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-orange-50 pb-24">

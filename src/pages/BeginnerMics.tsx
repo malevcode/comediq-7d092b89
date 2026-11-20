@@ -31,9 +31,9 @@ const BeginnerMics = () => {
     '@context': 'https://schema.org',
     '@graph': [
       generateBreadcrumbSchema([
-        { name: 'Home', url: 'https://comediq.us' },
-        { name: 'Open Mics', url: 'https://comediq.us/open-mics' },
-        { name: 'Beginner-Friendly', url: 'https://comediq.us/beginner-friendly' }
+        { name: 'Home', url: 'https://comediq.com' },
+        { name: 'Open Mics', url: 'https://comediq.com/open-mics' },
+        { name: 'Beginner-Friendly', url: 'https://comediq.com/beginner-friendly' }
       ])
     ]
   };
@@ -48,7 +48,7 @@ const BeginnerMics = () => {
         title="Beginner-Friendly Comedy Open Mics NYC - Start Your Journey | Comediq"
         description={`Find ${beginnerMics?.length || 0} beginner-friendly comedy open mics in NYC. Welcoming venues, supportive crowds, and good stage time for first-timers. Start your comedy career here.`}
         keywords="beginner open mic NYC, first time comedy, new comedian NYC, open mic for beginners, learn stand up NYC"
-        url="https://comediq.us/beginner-friendly"
+        url="https://comediq.com/beginner-friendly"
         structuredData={structuredData}
       />
 

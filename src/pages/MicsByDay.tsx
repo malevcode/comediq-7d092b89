@@ -20,9 +20,9 @@ const MicsByDay = () => {
     '@context': 'https://schema.org',
     '@graph': [
       generateBreadcrumbSchema([
-        { name: 'Home', url: 'https://comediq.us' },
-        { name: 'Open Mics', url: 'https://comediq.us/open-mics' },
-        { name: `${dayName} Mics`, url: `https://comediq.us/mics/${day}` }
+        { name: 'Home', url: 'https://comediq.com' },
+        { name: 'Open Mics', url: 'https://comediq.com/open-mics' },
+        { name: `${dayName} Mics`, url: `https://comediq.com/mics/${day}` }
       ])
     ]
   };
@@ -37,7 +37,7 @@ const MicsByDay = () => {
         title={`${dayName} Comedy Open Mics in NYC - Weekly Schedule | Comediq`}
         description={`Find ${filteredMics?.length || 0} comedy open mics happening every ${dayName} in NYC. View schedules, costs, venues, and comedian reviews. Plan your ${dayName} comedy night.`}
         keywords={`${dayName} open mic NYC, ${dayName} comedy shows, NYC ${dayName} stand up, comedy open mic ${dayName}`}
-        url={`https://comediq.us/mics/${day}`}
+        url={`https://comediq.com/mics/${day}`}
         structuredData={structuredData}
       />
 

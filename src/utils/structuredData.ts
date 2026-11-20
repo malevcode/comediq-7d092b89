@@ -67,8 +67,8 @@ export const generateOrganizationSchema = (): OrganizationSchema => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'Comediq',
-  url: 'https://comediq.us',
-  logo: 'https://comediq.us/comediq_logo.jpg',
+  url: 'https://comediq.com',
+  logo: 'https://comediq.com/comediq_logo.jpg',
   description: "NYC's comprehensive comedy open mic directory and comedian toolkit",
   sameAs: [
     'https://instagram.com/comediq',
@@ -226,12 +226,12 @@ export const generateWebSiteSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'Comediq',
-  url: 'https://comediq.us',
+  url: 'https://comediq.com',
   potentialAction: {
     '@type': 'SearchAction',
     target: {
       '@type': 'EntryPoint',
-      urlTemplate: 'https://comediq.us/open-mics?search={search_term_string}',
+      urlTemplate: 'https://comediq.com/open-mics?search={search_term_string}',
     },
     'query-input': 'required name=search_term_string',
   },

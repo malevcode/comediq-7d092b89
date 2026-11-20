@@ -16,7 +16,7 @@ import { resolve, dirname } from "path";
 import { publishedPosts, renderBlogMarkdown, blogDate } from "../src/lib/blogContent.js";
 import { blogPostMeta, blogPostSchema, pageMetaFor } from "../src/lib/seoShared.js";
 
-const ORIGIN = "https://comediq.us";
+const ORIGIN = "https://comediq.com";
 const IMAGE = `${ORIGIN}/comediq_logo.jpg`;
 
 export const PAGES = [

@@ -11,7 +11,7 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const resendKey = Deno.env.get('RESEND_API_KEY') ?? ''
 const fromEmail = Deno.env.get('MOTD_FROM_EMAIL') ?? 'Comediq <hello@comediq.us>'
-const siteUrl = Deno.env.get('SITE_URL') ?? 'https://comediq.us'
+const siteUrl = Deno.env.get('SITE_URL') ?? 'https://comediq.com'
 
 const json = (body: Record<string, unknown>, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })

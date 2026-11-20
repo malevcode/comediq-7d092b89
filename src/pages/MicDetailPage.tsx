@@ -95,7 +95,7 @@ const MicDetailPage = () => {
       <SEO
         {...micMeta(mic)}
         keywords={`${mic.venueName} open mic, ${mic.neighborhood} comedy, ${mic.borough} open mic, ${mic.day} comedy NYC, ${mic.cost === 'Free' ? 'free' : 'paid'} open mic`}
-        url={`https://comediq.us${micPath(mic)}`}
+        url={`https://comediq.com${micPath(mic)}`}
         type="article"
         structuredData={structuredData}
       />

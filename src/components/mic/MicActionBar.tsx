@@ -153,7 +153,7 @@ export default function MicActionBar({
   };
 
   const handleShare = async () => {
-    const url = `https://comediq.us/mic/${slugify(micName)}`;
+    const url = `https://comediq.com/mic/${slugify(micName)}`;
     if (navigator.share) {
       try {
         await navigator.share({ title: micName, text: `Check out ${micName} on Comediq!`, url });
