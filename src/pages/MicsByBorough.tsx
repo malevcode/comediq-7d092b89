@@ -20,9 +20,9 @@ const MicsByBorough = () => {
     '@context': 'https://schema.org',
     '@graph': [
       generateBreadcrumbSchema([
-        { name: 'Home', url: 'https://comediq.us' },
-        { name: 'Open Mics', url: 'https://comediq.us/open-mics' },
-        { name: boroughName, url: `https://comediq.us/boroughs/${borough}` }
+        { name: 'Home', url: 'https://comediq.com' },
+        { name: 'Open Mics', url: 'https://comediq.com/open-mics' },
+        { name: boroughName, url: `https://comediq.com/boroughs/${borough}` }
       ])
     ]
   };
@@ -37,7 +37,7 @@ const MicsByBorough = () => {
         title={`${boroughName} Comedy Open Mics | Comediq`}
         description={`Discover ${filteredMics?.length || 0} comedy open mics in ${boroughName}, NYC. From stand-up to improv, find the perfect stage for your comedy. Updated daily with schedules, costs, and reviews.`}
         keywords={`${boroughName} open mic, ${boroughName} comedy, stand up comedy ${boroughName}, NYC ${boroughName} comedy clubs`}
-        url={`https://comediq.us/boroughs/${borough}`}
+        url={`https://comediq.com/boroughs/${borough}`}
         structuredData={structuredData}
       />
 

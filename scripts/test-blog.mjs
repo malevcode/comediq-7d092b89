@@ -35,8 +35,8 @@ test("Article and Home to Blog to Post breadcrumbs use the post's fields", () =>
   assert.equal(article.author.name, "Test Author");
   assert.equal(article.datePublished, "2026-10-01");
   assert.equal(article.dateModified, "2026-10-03");
-  assert.equal(article.url, "https://comediq.us/blog/first-open-mic");
-  assert.deepEqual(crumbs.itemListElement.map(i => i.item), ["https://comediq.us/", "https://comediq.us/blog", "https://comediq.us/blog/first-open-mic"]);
+  assert.equal(article.url, "https://comediq.com/blog/first-open-mic");
+  assert.deepEqual(crumbs.itemListElement.map(i => i.item), ["https://comediq.com/", "https://comediq.com/blog", "https://comediq.com/blog/first-open-mic"]);
 });
 test("Markdown rejects executable HTML and unsafe links", () => {
   const html = renderBlogMarkdown('<script>alert(1)</script>\n\n[bad](javascript:alert(1))');
@@ -49,7 +49,7 @@ test("initial article HTML includes its own metadata and complete content", () =
     writeFileSync(join(dir, "index.html"), '<html><head><title>Fallback</title></head><body><div id="root"></div></body></html>');
     prerenderHeads(dir, [post]);
     const html = readFileSync(join(dir, "blog/first-open-mic/index.html"), "utf8");
-    assert.ok(html.includes('href="https://comediq.us/blog/first-open-mic"'));
+    assert.ok(html.includes('href="https://comediq.com/blog/first-open-mic"'));
     assert.ok(html.includes('property="og:type" data-rh="true" content="article"'));
     assert.ok(html.includes(`content="${post.excerpt}"`));
     assert.ok(html.includes('"@type":"Article"'));

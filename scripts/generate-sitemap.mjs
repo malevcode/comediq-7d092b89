@@ -16,7 +16,7 @@ import { DAYS, slugify, micPath, venueSlugOf, boroughSlugs } from "../src/lib/se
 import { resolve } from "path";
 import { blogSitemapEntries } from "../src/lib/blogContent.js";
 
-const BASE_URL = "https://comediq.us";
+const BASE_URL = "https://comediq.com";
 
 // path -> source file whose mtime is the page's last meaningful change
 const routes = [

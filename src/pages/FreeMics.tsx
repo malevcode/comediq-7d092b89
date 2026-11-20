@@ -17,9 +17,9 @@ const FreeMics = () => {
     '@context': 'https://schema.org',
     '@graph': [
       generateBreadcrumbSchema([
-        { name: 'Home', url: 'https://comediq.us' },
-        { name: 'Open Mics', url: 'https://comediq.us/open-mics' },
-        { name: 'Free Mics', url: 'https://comediq.us/free-mics' }
+        { name: 'Home', url: 'https://comediq.com' },
+        { name: 'Open Mics', url: 'https://comediq.com/open-mics' },
+        { name: 'Free Mics', url: 'https://comediq.com/free-mics' }
       ])
     ]
   };
@@ -34,7 +34,7 @@ const FreeMics = () => {
         title="Free Comedy Open Mics in NYC - No Cover Charge | Comediq"
         description={`Find ${freeMics?.length || 0} free comedy open mics in NYC. No cover charge, no minimum. Perfect for new comedians building skills and seasoned performers trying new material.`}
         keywords="free open mic NYC, no cover comedy, free stand up NYC, comedy open mic no charge, free comedy shows NYC"
-        url="https://comediq.us/free-mics"
+        url="https://comediq.com/free-mics"
         structuredData={structuredData}
       />
 

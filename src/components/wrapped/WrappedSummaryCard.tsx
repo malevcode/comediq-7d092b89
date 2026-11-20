@@ -98,7 +98,7 @@ const WrappedSummaryCard = ({ stats, stageName, year = 2025 }: WrappedSummaryCar
 
       {/* Footer - pushed to bottom */}
       <div className="mt-auto pt-1.5 border-t border-comediq-cream/20 text-center">
-        <p className="text-[9px] text-comediq-cream/50 font-nunito tracking-wide">comediq.us</p>
+        <p className="text-[9px] text-comediq-cream/50 font-nunito tracking-wide">comediq.com</p>
       </div>
     </div>
   );

@@ -44,7 +44,7 @@ export default function LikedMics() {
       <SEO
         title="Open Mics You Upvoted | Comediq"
         description="A running list of the NYC comedy open mics you upvoted on Comediq, so you can get back to the rooms you liked most."
-        url="https://comediq.us/liked"
+        url="https://comediq.com/liked"
         noindex={true}
       />
 

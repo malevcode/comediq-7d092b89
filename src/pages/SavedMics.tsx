@@ -51,7 +51,7 @@ export default function SavedMics() {
       <SEO 
         title="Your Saved NYC Open Mics | Comediq"
         description="Every NYC comedy open mic you have bookmarked on Comediq, kept in one private list with times, venues, and sign-up details."
-        url="https://comediq.us/saved"
+        url="https://comediq.com/saved"
         noindex={true}
       />
       

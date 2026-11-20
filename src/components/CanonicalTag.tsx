@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-export const CANONICAL_ORIGIN = "https://comediq.us";
+export const CANONICAL_ORIGIN = "https://comediq.com";
 
 /** True when the app is being served from a preview/staging *.lovable.app host. */
 export function isNonCanonicalHost() {
@@ -26,7 +26,7 @@ function setTag(selector: string, create: () => HTMLElement) {
 
 /**
  * Keeps exactly one self-referencing <link rel="canonical"> in the head on
- * every route, always pointing at the comediq.us version of the page.
+ * every route, always pointing at the comediq.com version of the page.
  * On *.lovable.app hosts it also injects a noindex robots tag so preview
  * builds never compete with the canonical domain in search results.
  */

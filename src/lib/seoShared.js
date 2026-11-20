@@ -1,5 +1,5 @@
 // Shared by the app (TS) and build scripts (prerender, sitemap). Plain JS on purpose.
-export const ORIGIN = "https://comediq.us";
+export const ORIGIN = "https://comediq.com";
 export const PAGE_SIZE = 24;
 export const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 

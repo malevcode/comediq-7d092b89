@@ -32,7 +32,7 @@ const Terms = () => {
                 <h3 className="font-semibold text-gray-900 mb-2">What Comediq Is</h3>
                 <p className="text-sm leading-relaxed">
                   Comediq is an open mic directory and signup tool for stand-up comedians in New
-                  York City. It is available on the web at comediq.us and as an iOS app, and both
+                  York City. It is available on the web at comediq.com and as an iOS app, and both
                   share one account, so anything you do in one shows up in the other. By using
                   either one, you agree to these terms. If you do not agree, please do not use
                   Comediq.
@@ -131,7 +131,7 @@ const Terms = () => {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Full Pass</h3>
                 <p className="text-sm leading-relaxed">
-                  Full Pass is a paid monthly membership, sold on comediq.us and billed through
+                  Full Pass is a paid monthly membership, sold on comediq.com and billed through
                   Stripe. It renews every month until you cancel.
                 </p>
                 <p className="text-sm leading-relaxed mt-2">

@@ -18,7 +18,7 @@ const SEO = ({
   title = 'Comedy Open Mics in NYC, Hudson Valley, LA & Austin | Comediq',
   description = 'Find comedy open mics across NYC, the Hudson Valley, Los Angeles and Austin. Real-time schedules, venue details, comedian reviews, and set tracking. By comedians, for comedians.',
   keywords = 'comedy open mics, NYC open mics, Hudson Valley comedy, Los Angeles open mics, Austin comedy, stand up comedy, open mic night, comedian networking',
-  image = 'https://comediq.us/comediq_logo.jpg',
+  image = 'https://comediq.com/comediq_logo.jpg',
   url,
   type = 'website',
   structuredData,
@@ -30,9 +30,9 @@ const SEO = ({
     : boundedMeta(title, description);
   const metaTitle = metadata?.title ?? title;
   const metaDescription = metadata?.description ?? description;
-  // Always an absolute comediq.us URL, never the preview host, never relative.
+  // Always an absolute comediq.com URL, never the preview host, never relative.
   const canonicalBase = url
-    ? canonicalUrlFor(new URL(url, 'https://comediq.us').pathname)
+    ? canonicalUrlFor(new URL(url, 'https://comediq.com').pathname)
     : canonicalUrlFor(pathname);
   const page = Number(new URLSearchParams(search).get('page'));
   const canonicalUrl = canonicalBase + (pathname.startsWith('/open-mics') && Number.isInteger(page) && page > 1 ? `?page=${page}` : '');
