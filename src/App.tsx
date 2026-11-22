@@ -32,6 +32,7 @@ const V3MicDetail = lazy(() => import("./pages/v3/V3MicDetail"));
 const V3Sets = lazy(() => import("./pages/v3/V3Sets"));
 const V3SetReview = lazy(() => import("./pages/v3/V3SetReview"));
 const V3Profile = lazy(() => import("./pages/v3/V3Profile"));
+const V3AddListing = lazy(() => import("./pages/v3/listing/V3AddListing"));
 import Listing from "./pages/Listing";
 import Search from "./pages/Search";
 import SiteFooter from "./components/SiteFooter";
@@ -227,7 +228,7 @@ function AppShell() {
             <Route path="/list-your-show" element={<ListYourShow />} />
             <Route path="/add-mic" element={<AddMic />} />
             <Route path="/listing" element={<Listing />} />
-            <Route path="/listing-v2" element={<ListingV2 />} />
+            <Route path="/listing-v2" element={<Navigate to="/v3/listing" replace />} />
             <Route path="/search" element={<Search />} />
             <Route path="/shows/map" element={<ShowsMap />} />
             <Route path="/saved" element={<SavedMics />} />
@@ -245,6 +246,7 @@ function AppShell() {
               <Route path="sets" element={<V3Sets />} />
               <Route path="sets/:setId" element={<V3SetReview />} />
               <Route path="profile" element={<V3Profile />} />
+              <Route path="listing" element={<V3AddListing />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

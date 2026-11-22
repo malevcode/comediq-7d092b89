@@ -27,7 +27,7 @@ export default function Listing() {
 
           <div className="flex flex-col gap-3">
             <Link
-              to="/add-mic"
+              to="/v3/listing?kind=mic"
               className="flex items-start gap-4 rounded-2xl border border-white/25 bg-[#1A3F85] p-5 text-comediq-cream"
             >
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-comediq-cream text-[#0A1128]">
@@ -44,7 +44,7 @@ export default function Listing() {
             </Link>
 
             <Link
-              to="/add-show"
+              to="/v3/listing?kind=show"
               className="flex items-start gap-4 rounded-2xl border border-white/25 bg-[#1A3F85] p-5 text-comediq-cream"
             >
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-comediq-cream text-[#0A1128]">
