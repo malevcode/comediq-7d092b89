@@ -2568,6 +2568,11 @@ Tested in a test database with text and uuid ids and on the live one in a rolled
 
 
 ## Map: Storytime-style bubbles (2026-11-17)
+> **Superseded on 2026-11-22.** Two things below are no longer true: bubbles are no longer
+> stacked one-per-mic with a "+N" badge (it is one bubble per venue now), and the preview no
+> longer lists every mic at the venue (it shows only what has not ended). See
+> "The v3 redesign on the web" at the end of this file. Kept for history.
+
 - File: `src/components/map/OpenMicsMapRefactored.tsx`. Switch: `USE_BUBBLE_MARKERS` (true). Set it to false to bring back the old Comediq pin layers, which are still in the file, just hidden.
 - Every venue is a round bubble: the mic's cover photo, the Comediq logo for Comediq-run mics, or the venue's initials on a Comediq blue.
 - Sizes: Comediq-run 54px, running today 44px, other days 34px. Unverified mics are faded. Bigger bubbles sit on top.
@@ -2587,3 +2592,169 @@ Tested in a test database with text and uuid ids and on the live one in a rolled
   Opening the page also archives old sheets. Bi-weekly mics are skipped (their sheet is made when someone opens the page).
 - SQL `20261119120000_weekly_signup_sheets.sql` is already applied on the live database. Tonight's Gdrink sheet (Nov 19) was opened by
   hand and Nov 12's is archived with its 10 signups kept. Tested in a test database with text/uuid ids and text/date event dates.
+
+## The v3 redesign on the web (2026-11-22)
+
+The approved designs live in `docs/design/storytime-redesign-v3/` (SPEC.md plus the `.dc.html`
+boards). They were already built in the mobile app (`malevcode/comediq-app`), and this session
+built the same screens and the same logic on the website, so web and app behave the same.
+
+Everything new sits under **`/v3`** in its own shell, with its own navigation. Nothing that was
+already on the site was removed or rewritten: the old pages all still work at their old
+addresses.
+
+### One copy of the rules, shared with the app
+
+The thing that matters most here is that the maths is not written twice. These files are ports of
+the app's files of the same name, pure (no React, no database), so a comic sees the same thing on
+their phone and on the site:
+
+- `src/utils/venues.ts` — groups mic rows into venues, and works out what is happening now, what
+  is next, and what has already ended.
+- `src/utils/listingSchedule.ts` — the date maths behind "Add a listing": reading up to three
+  picked dates and guessing the day and how often it runs, projecting future dates, and the
+  pick / skip / un-skip rules.
+- `src/utils/listingForm.ts` — the form's shape and the exact wording of every error message.
+- `src/utils/listingApproval.ts` — the written statement of which fields need approval.
+
+### 1. The map
+
+One round bubble **per venue** now, not one per mic. The host's circular map icon if they have
+one, the Q mark for a Comediq-run room, otherwise the venue's initials on a Comediq blue. Sized by
+importance: Comediq-run largest, something on tonight medium, other days small. Bigger bubbles sit
+on top, unverified ones are faded, and they shrink and overlap when you zoom out. The old "+N"
+count badges are gone.
+
+Tapping a venue shows **only what has not ended**: a header reading "<Venue> · <the time now> ·
+N now, N next", then "Happening now · until 7:00 PM" with a **Join now** button first, then
+"Next · 9:30 PM" with **Sign up**. A clock ticks every minute, so "Happening now" stops saying
+that the moment the mic actually ends rather than when you next reload the page.
+
+The cards show tonight only. A venue's mics on *other* days are summarised in one line instead of
+getting a card each — The Buddha Room has 30 weekly mics, and showing them all gave it a
+27-card swipe, which is not what the design shows. The real maximum at any venue is now 2.
+
+On desktop (1024px and up) the map becomes a split view: a 420px list on the left, the map on the
+right, and the preview opens over the map top right. Hovering a row in the list grows its bubble;
+clicking either the row or the bubble selects the venue.
+
+### 2. Home, mic detail, register, the tracker, sets, profile
+
+- **Home** — a Comediq blue header and rows of venue cards. The rows are worked out from the mics
+  we actually have ("Happening now", "On later tonight", "Comediq mics", "Bringer mics",
+  "Free mics", "Later this week"), not hardcoded. Desktop turns each row into a four-column grid
+  with a "See all" link, and pins Mic of the Day as a wide card at the top.
+- **Mic detail** — one column with bottom sheets on a phone; two columns on desktop, with the
+  Open mic card sticky on the right and the mini map under it.
+- **Register** — the three dashed steps from the design, then a real sign-up: it writes a
+  `mic_signups` row through the sheet machinery that already existed.
+- **My mic tracker** — the four states from the design. Checking in calls `check_in_mic`, so the
+  "are you actually close enough" decision is the database's, not the page's. Desktop says
+  "check in from your phone", because it needs GPS.
+- **Sets** and **Set review** — the `recordings` table is what the designs call Sets. Desktop
+  shows it as columns and puts the set list and transcript side by side.
+- **Profile** — avatar, stats, refer buttons, and your past mics.
+
+Two places where the design shows a number we do not actually have, and the screen says less
+rather than making it up:
+
+- The tracker's "Now up: #3 · about 24 min to you". We know the running order and when each comic
+  checked in, but nothing records who is **on stage right now**, and no host screen sets it.
+  Guessing it from elapsed time could tell a comic they have twenty minutes when they have two,
+  which is the exact mistake this whole flow exists to prevent. So the tracker shows your number,
+  how long the list is, and how many people ahead of you have arrived.
+- Profile's "Mics 142 / Sets 188 / Venues 37". There is no record of mics attended that is
+  separate from recordings, so "Mics" would just be "Sets" under a second name. It shows
+  Sets / Venues / Recorded instead.
+
+### 3. Add a listing
+
+Chooser, then a **one-page** form, then a preview, then success — at `/v3/listing`. The form uses
+the inverse pyramid the spec asks for: the widest, biggest fields first, each row narrower than
+the one above.
+
+The calendar lets a host pick up to three dates and fills in the day and how often from them.
+Three dates a week apart gives "weekly on Thursdays"; two weeks apart gives "every other
+Thursday"; the 1st and 3rd Thursday across a month boundary gives monthly with the pattern
+"1st and 3rd Thu", and future dates then land on the 1st and 3rd Thursday of every month. Dates on
+different weekdays fill in nothing, because there is no single right answer. Tapping a date the
+cadence projects **skips** it.
+
+Venue search looks through the venues we already have, so a picked venue brings its coordinates
+with it and the new listing appears on the map straight away. A venue nobody has listed yet can be
+added by hand, and has no map position until the geocoding script runs.
+
+Saving goes where the app sends it: a new listing is an `open_mics_historical` row with
+status `trial`, `active` true and `creator_id` set. Pending edits go to `open_mics_requests`, and
+skipped dates to `mic_skips`.
+
+Three bugs were found and fixed while porting the app's save mapping. All three came from checking
+every column it writes against the live table:
+
+- `open_mics_historical` has **no `show_title` column**. The app writes one, which would have
+  failed every single insert, for mics as well as shows. A show's title goes in `open_mic`.
+- `price_per_slot` is a number column and the form's price is free text, so "$5 + 1 drink" is read
+  as 5 and the readable text stays in `cost`.
+- `slot_duration_minutes` is a whole number and must never be left as NaN.
+
+The two cards on `/listing`, and `/listing-v2`, now point at this flow. The old `/add-mic` and
+`/add-show` pages are untouched and still live at their own addresses.
+
+### 4. The host Manage tab
+
+Only shown to hosts: someone who created a listing, or who has claimed one in `mic_hosts`. It is
+the one dark navy screen in the set, as the design asks.
+
+Manage home lists your mics and shows with Live or Pending, the schedule, and an "N dates skipped"
+chip. A listing's own page has the Live / Pending toggle, tags, upcoming dates with on/off
+switches, and analytics. Turning a date off cancels it and hides the mic from Comediq that day,
+straight away.
+
+The save rule is the spec's, and it is enforced by what each call is *able* to touch rather than
+by trusting the screen:
+
+- Banner, map icon, tags and description go live immediately, through a database function that
+  names those four columns itself. A host cannot reach any other column through it.
+- Venue, day, time, price and signup method go to `open_mics_requests` for an admin. The live
+  listing keeps running exactly as it is until the change is approved, and the confirm dialog says
+  so in those words.
+
+Analytics shows only what we actually count: saves, likes, check-ins and sign-ups. The design also
+draws Views, Map taps and Recorded sets. None of those three is recorded anywhere — out of about
+26,000 analytics rows, not one is a view of a mic's page — and a row of zeros on every listing
+would read as "nobody looked at this", which is false. The card says in one line that they are not
+counted yet.
+
+The one thing on these boards that is not working is **uploading** the banner photo and the map
+icon. Both fields are on the screen with their pencil buttons, and the database columns and the
+permission to write them both exist, but there is no upload path yet, so the pencil says so
+instead of failing quietly.
+
+### Database changes
+
+Three migrations, all add-only — no `DROP`, no `DELETE`, no `TRUNCATE`, and the single `UPDATE` is
+inside a function scoped by a `WHERE` on one row. Policies and the function use new names rather
+than dropping and recreating anything. All three are applied on the live database; the 804 mic
+rows were not touched.
+
+- `20261118000100` — adds `map_icon_url`, `tags` and `description` to `open_mics_historical`, adds
+  `open_mics_requests.mic_id` so a change request can point at the mic it is about, and adds
+  `update_own_mic_presentation_v1`, the creator-only door described above.
+- `20261118000200` — adds the `mic_skips` table: the dates a recurring mic is not happening.
+  Everyone can read it, because the map has to hide a cancelled night for every visitor, not just
+  the host. Only the mic's creator or an admin can write it.
+- `20261122120000` — adds `open_mics_requests.day`, the one column that table was missing, so
+  "move this mic to Wednesdays" has a proper field instead of being squeezed into free text.
+
+An older `update_own_mic_presentation` (no `_v1`) also exists on the live database from an earlier
+run. It is left in place, unused, rather than dropped.
+
+### Two things worth knowing
+
+- **`npm run typecheck` is new, and it matters.** The root `tsconfig.json` has `"files": []` and
+  only project references, which means `tsc --noEmit` there checks *nothing* and exits 0. It had
+  been reporting a clean bill of health on code it never looked at. The script points at
+  `tsconfig.app.json`, which actually includes `src/`. It immediately found a real error.
+- **`npm run lint` is broken, and was before this work.** ESLint 9.39.5 and
+  `@typescript-eslint` 8.11.0 are incompatible, and it throws on every file in the repo, not just
+  the new ones. Fixing it means moving one of the two versions, which is its own job.
