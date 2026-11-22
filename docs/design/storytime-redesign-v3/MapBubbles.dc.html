@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Map bubbles: density, sizes, groupings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap">
+<style>
+body{margin:0}
+.bub{position:absolute;border-radius:50%;border:2px solid #fff;box-sizing:border-box;box-shadow:0 3px 9px rgba(8,20,43,.28);display:flex;align-items:center;justify-content:center;font-weight:800;letter-spacing:-.02em;overflow:hidden;background-size:62%;background-repeat:no-repeat;background-position:center}
+.cards{display:flex;gap:10px;overflow:hidden}
+</style>
+</helmet>
+<div style="width: 1362px; height: 996px; box-sizing: border-box; padding: 48px; background: #0E1A36; font-family: 'DM Sans', system-ui, sans-serif; color: #F4EDE1; display: flex; gap: 48px">
+  <sc-for list="{{phones}}" as="p" hint-placeholder-count="3">
+    <div style="display: flex; flex-direction: column; gap: 16px; flex: 0 0 390px">
+      <div style="height: 40px; display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700">
+        <span style="width: 32px; height: 32px; border-radius: 50%; background: #8FC2F5; color: #08142B; font-size: 15px; display: flex; align-items: center; justify-content: center">{{p.n}}</span>
+        {{p.label}}
+      </div>
+      <div style="position: relative; width: 390px; height: 844px; border-radius: 36px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,.35); background: #EEF1F4">
+        <svg width="390" height="844" viewBox="0 0 390 844" style="position: absolute; inset: 0" aria-hidden="true">
+          <defs>
+            <pattern id="mbgrid" width="120" height="46" patternUnits="userSpaceOnUse" patternTransform="rotate(-29)">
+              <rect width="120" height="46" fill="#FFFFFF"></rect>
+              <rect x="7" y="5" width="106" height="36" rx="2" fill="#EFEDE6"></rect>
+              <rect x="12" y="9" width="26" height="12" fill="#E6E3DA"></rect>
+              <rect x="70" y="24" width="34" height="12" fill="#F1E9CF"></rect>
+            </pattern>
+            <pattern id="mbgridfar" width="40" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(-29)">
+              <rect width="40" height="16" fill="#FFFFFF"></rect>
+              <rect x="2" y="2" width="36" height="12" fill="#EFEDE6"></rect>
+            </pattern>
+          </defs>
+          <sc-if value="{{p.far}}" hint-placeholder-val="{{ false }}">
+            <rect width="390" height="844" fill="#BFD9F2"></rect>
+            <path d="M0 0 L128 0 L96 200 L62 400 L34 580 L12 700 L0 740 Z" fill="#EEF0EA"></path>
+            <path d="M374 0 L390 0 L390 560 L368 470 L370 300 Z" fill="#EEF0EA"></path>
+            <path d="M236 844 L262 808 L318 782 L360 760 L390 742 L390 844 Z" fill="#EEF0EA"></path>
+            <path d="M196 0 L352 0 L350 160 L344 300 L336 420 L324 540 L322 620 L336 690 L324 734 L272 768 L204 798 L152 826 L112 838 L84 812 L68 760 L62 690 L72 600 L90 500 L114 390 L140 270 L166 140 Z" fill="url(#mbgridfar)" stroke="#D9DED6" stroke-width="1"></path>
+            <path d="M232 0 L290 0 L286 46 L228 46 Z" fill="#CDE8B5"></path>
+            <path d="M196 640 L232 632 L236 662 L200 668 Z" fill="#CDE8B5"></path>
+            <text x="88" y="470" fill="#7C8FA8" font-size="12" font-weight="700" letter-spacing="1" transform="rotate(-78 88 470)">Hudson River</text>
+            <text x="360" y="700" fill="#7C8FA8" font-size="12" font-weight="700" letter-spacing="1" transform="rotate(-80 360 700)">East River</text>
+            <text x="300" y="826" fill="#8A8F99" font-size="12" font-weight="700" letter-spacing="1.5">BROOKLYN</text>
+            <text x="8" y="120" fill="#8A8F99" font-size="11" font-weight="700" letter-spacing="1.5" transform="rotate(-78 20 120)">NEW JERSEY</text>
+          </sc-if>
+          <sc-if value="{{p.near}}" hint-placeholder-val="{{ true }}">
+            <rect width="390" height="844" fill="url(#mbgrid)"></rect>
+            <path d="M40 430 L150 380 L190 470 L80 520 Z" fill="#CDE8B5"></path>
+            <g fill="#8A8F99" font-size="10" font-weight="600" letter-spacing="1.5">
+              <text x="170" y="250" transform="rotate(29 170 250)">E 14TH ST</text>
+              <text x="40" y="330" transform="rotate(29 40 330)">E 12TH ST</text>
+              <text x="200" y="640" transform="rotate(29 200 640)">E 9TH ST</text>
+            </g>
+          </sc-if>
+        </svg>
+
+        <sc-for list="{{p.groups}}" as="g" hint-placeholder-count="12">
+          <div style="{{g.wrap}}">
+            <sc-for list="{{g.bubbles}}" as="b" hint-placeholder-count="1">
+              <span class="bub" style="{{b.style}}">{{b.text}}</span>
+            </sc-for>
+            <sc-if value="{{g.count}}" hint-placeholder-val="{{ false }}">
+              <span style="position: absolute; right: -6px; top: -6px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: #fff; color: #1E4894; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(8,20,43,.25); z-index: 9; box-sizing: border-box">{{g.count}}</span>
+            </sc-if>
+          </div>
+        </sc-for>
+
+        <div style="position: absolute; left: 186px; top: 470px; width: 20px; height: 20px; border-radius: 50%; background: #1E4894; border: 4px solid #fff; box-shadow: 0 0 0 10px rgba(30,72,148,.2); z-index: 5"></div>
+
+        <div style="position: absolute; left: 20px; top: 52px; width: 54px; height: 54px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(18,26,51,.16); z-index: 2000">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#08142B" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"></path></svg>
+        </div>
+        <div style="position: absolute; right: 20px; top: 52px; width: 54px; height: 54px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(18,26,51,.16); z-index: 2000">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E4894" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 4 4 11l7 2 2 7 7-16Z"></path></svg>
+        </div>
+
+        <sc-if value="{{p.card}}" hint-placeholder-val="{{ false }}">
+          <div style="position: absolute; left: 0; right: 0; bottom: 118px; z-index: 2000; padding: 0 0 0 14px">
+            <div style="margin-right: 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border-radius: 999px; background: rgba(255,255,255,.96); padding: 6px 6px 6px 16px; color: #08142B; box-shadow: 0 8px 22px rgba(8,20,43,.18)">
+              <span style="font-size: 14px; font-weight: 700">Rodney's <span style="font-weight: 500; color: #5F6675; margin-left: 6px">6:10 PM · 1 now, 1 next</span></span>
+              <span style="width: 30px; height: 30px; border-radius: 50%; background: #EEF2FA; color: #1E4894; display: flex; align-items: center; justify-content: center; font-size: 18px">×</span>
+            </div>
+            <div class="cards">
+              <sc-for list="{{events}}" as="e" hint-placeholder-count="2">
+                <article style="flex: 0 0 300px; background: #fff; color: #08142B; border-radius: 24px; overflow: hidden; box-shadow: 0 14px 34px rgba(8,20,43,.25)">
+                  <div style="height: 80px; background: {{e.bg}}; position: relative">
+                    <span style="position: absolute; right: 12px; bottom: -18px; width: 44px; height: 44px; border-radius: 50%; border: 3px solid #fff; background: #fff url(/_blob/0af21921b1ecac175914d1188f779cc3) center / 62% no-repeat; box-sizing: border-box"></span>
+                  </div>
+                  <div style="padding: 12px 16px 16px">
+                    <div style="font-size: 12px; font-weight: 600; color: #1E4894; display: flex; align-items: center; gap: 6px"><span style="{{e.dot}}"></span>{{e.when}}</div>
+                    <div style="font-family: Archivo, 'DM Sans', sans-serif; font-stretch: 112%; font-weight: 800; letter-spacing: -.03em; font-size: 18px; margin-top: 3px">{{e.name}}</div>
+                    <div style="font-size: 13px; color: #5F6675; margin-top: 3px">{{e.meta}}</div>
+                    <div style="margin-top: 12px; height: 42px; border-radius: 999px; background: #1E4894; color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{e.btn}}</div>
+                  </div>
+                </article>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <div style="position: absolute; left: 16px; right: 16px; bottom: 26px; display: flex; justify-content: space-between; align-items: center; z-index: 2100">
+          <div style="display: flex; gap: 4px; padding: 6px; background: rgba(255,255,255,.95); border-radius: 999px; box-shadow: 0 10px 30px rgba(18,26,51,.16)">
+            <span style="width: 64px; height: 50px; border-radius: 999px; display: flex; align-items: center; justify-content: center; color: #6B7280"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V20h5v-6h4v6h5V9.5"></path></svg></span>
+            <span style="width: 64px; height: 50px; border-radius: 999px; display: flex; align-items: center; justify-content: center; background: #1E4894; color: #fff"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5L9 4Z"></path><path d="M9 4v13.5M15 6.5V20"></path></svg></span>
+            <span style="width: 64px; height: 50px; border-radius: 999px; display: flex; align-items: center; justify-content: center; color: #6B7280"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"></path></svg></span>
+            <span style="width: 64px; height: 50px; border-radius: 999px; display: flex; align-items: center; justify-content: center"><span style="width: 30px; height: 30px; border-radius: 50%; background: #8FC2F5; color: #08142B; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center">AM</span></span>
+          </div>
+          <span style="width: 62px; height: 62px; border-radius: 50%; background: rgba(255,255,255,.95); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(18,26,51,.16)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#08142B" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></span>
+        </div>
+      </div>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1362,"height":996}}'>
+const COLORS = [['#1E4894', '#FFFFFF'], ['#173A7A', '#FFFFFF'], ['#2B56A6', '#FFFFFF'], ['#0F2A5C', '#FFFFFF'], ['#3D6FD1', '#FFFFFF'], ['#8FC2F5', '#0F2A5C'], ['#FFFFFF', '#1E4894']];
+const INITIALS = ['TS', 'BL', 'CS', 'PR', 'LS', 'SF', 'KC', 'GH', 'NY', 'EV', 'WC', 'CL', 'TB', 'HH', 'BA', 'QC', 'SB', 'LN', 'MK', 'FT'];
+const Q = '/_blob/0af21921b1ecac175914d1188f779cc3';
+
+function bubble(size, i, kind) {
+  let style = 'width: ' + size + 'px; height: ' + size + 'px; top: 0; left: ' + Math.round(i * size * 0.42) + 'px; z-index: ' + (5 - i) + ';';
+  let text = '';
+  if (kind === 'q') style += ' background-color: #fff; background-image: url(' + Q + ');';
+  else {
+    const c = COLORS[kind % COLORS.length];
+    style += ' background-color: ' + c[0] + '; color: ' + c[1] + '; font-size: ' + Math.round(size * 0.34) + 'px;';
+    text = size >= 26 ? INITIALS[kind % INITIALS.length] : '';
+  }
+  return { style, text };
+}
+
+function group(x, y, size, kinds, opts) {
+  opts = opts || {};
+  const n = kinds.length;
+  const w = size + Math.round(size * 0.42) * (n - 1);
+  let wrap = 'position: absolute; left: ' + Math.round(x - w / 2) + 'px; top: ' + Math.round(y - size / 2) + 'px; width: ' + w + 'px; height: ' + size + 'px; z-index: ' + (size * 10) + ';';
+  if (opts.muted) wrap += ' opacity: .6;';
+  if (opts.selected) wrap += ' filter: drop-shadow(0 0 0 #fff); outline: 3px solid #8FC2F5; outline-offset: 4px; border-radius: 999px;';
+  return { wrap, bubbles: kinds.map((k, i) => bubble(size, i, k)), count: opts.count || '' };
+}
+
+class Component extends DCLogic {
+  renderVals() {
+    // Zoomed out: lots of small bubbles piled up over Manhattan
+    let seed = 7;
+    const rand = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    // Manhattan outline (same points as the map drawing); bubbles only land inside it
+    const ISLAND = [[196,0],[352,0],[350,160],[344,300],[336,420],[324,540],[322,620],[336,690],[324,734],[272,768],[204,798],[152,826],[112,838],[84,812],[68,760],[62,690],[72,600],[90,500],[114,390],[140,270],[166,140]];
+    const inside = (x, y) => {
+      let hit = false;
+      for (let i = 0, j = ISLAND.length - 1; i < ISLAND.length; j = i++) {
+        const [xi, yi] = ISLAND[i], [xj, yj] = ISLAND[j];
+        if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) hit = !hit;
+      }
+      return hit;
+    };
+    const far = [];
+    let tries = 0;
+    while (far.length < 170 && tries < 5000) {
+      tries++;
+      const x = 60 + rand() * 300;
+      const y = 30 + rand() * 800;
+      const inset = 12;
+      if (!inside(x - inset, y) || !inside(x + inset, y) || !inside(x, y - inset) || !inside(x, y + inset)) continue;
+      const busy = y > 300 && y < 720 ? 1 : 0.45;
+      if (rand() > busy) continue;
+      const r = rand();
+      const size = r < 0.06 ? 26 : r < 0.45 ? 22 : 16;
+      far.push(group(x, y, size, [r < 0.06 ? 'q' : Math.floor(rand() * 40)], { muted: rand() < 0.1 }));
+    }
+    far.sort((a, b) => a.bubbles[0].style.length - b.bubbles[0].style.length);
+
+    // Zoomed in: spaced out, sized by importance, stacked when a venue has several mics
+    const near = (selected) => [
+      group(78, 200, 34, [3]),
+      group(250, 168, 44, [0]),
+      group(318, 300, 34, [5], { muted: true }),
+      group(150, 330, 54, ['q']),
+      group(250, 560, 54, ['q'], { selected }),
+      group(70, 520, 34, [4]),
+      group(320, 420, 44, [1]),
+      group(110, 650, 34, [6]),
+      group(300, 680, 44, [2]),
+      group(200, 760, 34, [8]),
+      group(60, 380, 44, [9]),
+    ];
+
+    return {
+      phones: [
+        { n: 1, label: 'Zoomed out: dense, small', far: true, near: false, groups: far, card: false },
+        { n: 2, label: 'Zoomed in: sized by importance', far: false, near: true, groups: near(false), card: false },
+        { n: 3, label: 'Tap Rodney\'s at 6:10 PM', far: false, near: true, groups: near(true), card: true }
+      ],
+      events: [
+        { when: 'Happening now · until 7:00 PM', dot: 'width: 8px; height: 8px; border-radius: 50%; background: #3D6FD1; box-shadow: 0 0 0 4px rgba(61,111,209,.2)', name: "Rodney's Bringer Show", meta: 'Started 5:30 PM · Bringer · By Comediq', bg: '#173A7A', btn: 'Join now' },
+        { when: 'Next · 9:30 PM', dot: 'width: 8px; height: 8px; border-radius: 50%; border: 2px solid #1E4894; box-sizing: border-box', name: "Rodney's Minute Mic", meta: '$5, free with Comediq · By Comediq', bg: '#2B56A6', btn: 'Sign up' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

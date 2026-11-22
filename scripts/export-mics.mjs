@@ -64,6 +64,9 @@ const COLUMNS = [
   "geocoding_score",
   "geocoding_match_address",
   "is_comediq_run",
+  "map_icon_url",
+  "tags",
+  "description",
 ].join(",");
 
 const OUT_PATH = join(process.cwd(), "public", "mics.json");
@@ -94,6 +97,9 @@ function mapRow(row) {
     city: row.city || "",
     signupEnabled: row.signup_enabled || false,
     isComediqRun: row.is_comediq_run || undefined,
+    mapIconUrl: row.map_icon_url || undefined,
+    tags: Array.isArray(row.tags) && row.tags.length > 0 ? row.tags : undefined,
+    description: row.description || undefined,
     otherRules: row.other_rules || "",
     coverImageUrl: row.cover_image_url || undefined,
     status: row.status || "verified",
@@ -134,11 +140,15 @@ async function fetchPage(from, size, table = "open_mics_historical", select = CO
 
   if (!res.ok) {
     const text = await res.text();
-    // is_comediq_run is new. If its migration has not been run yet, export without it
-    // rather than failing the whole refresh.
-    if (text.includes("is_comediq_run") && select.includes(",is_comediq_run")) {
-      console.warn("[export-mics] is_comediq_run column not found, exporting without it");
-      return fetchPage(from, size, table, select.replace(",is_comediq_run", ""), filters);
+    // Some columns only exist where their migration has been run. As of
+    // 2026-11-22 the live project has is_comediq_run and map_icon_url but not
+    // tags or description. Drop whichever one the error names and retry, so a
+    // missing migration costs that one field instead of the whole refresh.
+    for (const column of ["is_comediq_run", "map_icon_url", "tags", "description"]) {
+      if (text.includes(column) && select.includes(`,${column}`)) {
+        console.warn(`[export-mics] ${column} column not found, exporting without it`);
+        return fetchPage(from, size, table, select.replace(`,${column}`, ""), filters);
+      }
     }
     throw new Error(`Supabase ${res.status}: ${text}`);
   }

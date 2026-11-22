@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Add a listing on desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1280px; height: 860px; background: #173A7A; font-family: 'DM Sans', system-ui, sans-serif; color: #F4EDE1; display: flex; flex-direction: column">
+  <header style="height: 76px; flex: 0 0 76px; background: #1E4894; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 1px solid rgba(255,255,255,.12)">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <img src="/_blob/d460cb464411c942b95645fb36a6711b" alt="" style="width: 24px; height: 35px; object-fit: contain">
+      <span style="font-family: Archivo, 'DM Sans', sans-serif; font-stretch: 112%; font-weight: 800; letter-spacing: -0.03em; font-size: 30px">Comediq</span>
+    </div>
+    <nav aria-label="Site" style="display: flex; gap: 28px; font-size: 16px; font-weight: 600; color: #C9D3EA">
+      <span>Find mics</span><span>Laugh</span><span style="color: #8FC2F5">Add a listing</span>
+    </nav>
+  </header>
+  <div style="flex: 1; display: flex; justify-content: center; align-items: center; gap: 64px; padding: 0 40px">
+    <div style="max-width: 360px">
+      <h1 style="margin: 0 0 12px; font-size: 40px; font-weight: 700; line-height: 1.1">List it once. Comics and crowds find it everywhere.</h1>
+      <p style="margin: 0; font-size: 17px; line-height: 1.5; color: #C9D3EA">On desktop the same flow sits in a 520px panel. Fields, chips and buttons are the same components, they just get more room.</p>
+    </div>
+    <div style="width: 520px; height: 780px; border-radius: 32px; overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,.35)">
+      <dc-import name="ListingFlow" scene="micFilled" frame="panel" hint-size="520px,780px"></dc-import>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":860}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

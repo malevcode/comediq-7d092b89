@@ -98,6 +98,9 @@ export function mapSupabaseRow(row: any): OpenMic {
     city: row.city || "",
     signupEnabled: row.signup_enabled || false,
     isComediqRun: row.is_comediq_run || false,
+    mapIconUrl: row.map_icon_url || undefined,
+    tags: Array.isArray(row.tags) ? row.tags : undefined,
+    description: row.description || undefined,
     otherRules: row.other_rules || "",
     coverImageUrl: row.cover_image_url || undefined,
     status: row.status || "verified",
@@ -120,17 +123,33 @@ export function mapSupabaseRow(row: any): OpenMic {
   });
 }
 
-// is_comediq_run is a new column. Ask for it, and if the database does not have it yet
-// (its migration has not been run) ask again without it, so the mic list never breaks.
+// Columns that exist in some environments and not others, because their
+// migration has not been run everywhere yet. As of 2026-11-22 the live project
+// has is_comediq_run and map_icon_url but not tags or description, so asking
+// for all four at once would fail for everyone. Each one is dropped from the
+// select if the database says it does not know it, and the mic list carries on
+// without that field rather than breaking.
+const OPTIONAL_COLUMNS = ["is_comediq_run", "map_icon_url", "tags", "description"] as const;
+
 async function selectMics(
   build: (columns: string) => PromiseLike<{ data: any[] | null; error: any }>,
 ): Promise<OpenMic[]> {
-  let res = await build(`${LIVE_COLUMNS},is_comediq_run`);
-  if (res.error && String(res.error.message ?? "").includes("is_comediq_run")) {
-    res = await build(LIVE_COLUMNS);
+  let optional = [...OPTIONAL_COLUMNS] as string[];
+
+  // At most one retry per optional column: each pass drops exactly the column
+  // the error named, so this terminates.
+  for (let attempt = 0; attempt <= OPTIONAL_COLUMNS.length; attempt += 1) {
+    const columns = [LIVE_COLUMNS, ...optional].join(",");
+    const res = await build(columns);
+    if (!res.error) return (res.data || []).map(mapSupabaseRow);
+
+    const message = String(res.error.message ?? "");
+    const missing = optional.find((column) => message.includes(column));
+    if (!missing) throw res.error;
+    optional = optional.filter((column) => column !== missing);
   }
-  if (res.error) throw res.error;
-  return (res.data || []).map(mapSupabaseRow);
+
+  throw new Error("Could not read the mic columns");
 }
 
 async function fetchFromSupabase(): Promise<OpenMic[]> {

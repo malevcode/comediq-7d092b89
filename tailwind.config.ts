@@ -25,6 +25,10 @@ export default {
 				// bold, all caps), Instrument Sans for body text.
 				'archivo': ['Archivo', 'Arial Narrow', 'sans-serif'],
 				'instrument': ['Instrument Sans', 'Helvetica Neue', 'Helvetica', 'sans-serif'],
+				// v3 redesign (Nov 2026): DM Sans is the body face everywhere on the
+				// new screens. Archivo (above) is reserved for the Comediq wordmark
+				// and venue names - see docs/design/storytime-redesign-v3/SPEC.md.
+				'dmsans': ['DM Sans', 'Instrument Sans', 'system-ui', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
