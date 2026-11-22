@@ -13,7 +13,11 @@
 //      "$15" or "5 + 1 drink". Passing that straight through is a write error
 //      or a bad coercion, so a number is parsed out and anything unparseable
 //      becomes null. The human-readable price stays in `cost`.
-//   3. `slot_duration_minutes` is `integer` and must not be NaN.
+//   3. `slot_duration_minutes` is `integer NOT NULL DEFAULT 5`, so it must
+//      never be NaN and never null either. A column default only applies when
+//      the column is left out of the INSERT; passing an explicit null still
+//      violates NOT NULL. A show never picks a set length, so this used to
+//      fail every show publish.
 //
 // Pure, so it can be reasoned about without the Supabase client. Getting an
 // enum or a time format wrong here writes bad data nothing downstream catches.
@@ -85,6 +89,9 @@ function toNumericOrNull(value: string): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+/** The database default for `open_mics_historical.slot_duration_minutes`. */
+const DEFAULT_SLOT_MINUTES = 5;
+
 function toIntegerOrNull(value: string): number | null {
   const parsed = Number.parseInt(value, 10);
   return Number.isFinite(parsed) ? parsed : null;
@@ -128,9 +135,11 @@ export function micRowFromForm(form: ListingForm, kind: ListingKind, userId: str
     cost: costText(form) || null,
     price_per_slot: form.cost === "Paid" ? toNumericOrNull(form.price) : null,
     stage_time: form.setLen === "Other" ? form.otherMins || null : form.setLen || null,
-    slot_duration_minutes: toIntegerOrNull(
-      form.setLen === "Other" ? form.otherMins : form.setLen,
-    ),
+    // integer NOT NULL DEFAULT 5: a show never picks a set length, so fall
+    // back to the column's own default rather than NaN or null.
+    slot_duration_minutes:
+      toIntegerOrNull(form.setLen === "Other" ? form.otherMins : form.setLen) ??
+      DEFAULT_SLOT_MINUTES,
 
     signup_method: toSignupMethod(form),
     signup_url: form.signup === "Online link" ? form.link.trim() || null : null,
