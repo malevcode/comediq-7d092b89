@@ -8,7 +8,7 @@ import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { HelmetProvider } from 'react-helmet-async';
 import { ThemeProvider } from "next-themes";
 import { usePointsSync } from '@/hooks/usePoints';
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import Index from "./pages/Index";
 import OpenMics from "./pages/OpenMics";
 import TrackSets from "./pages/TrackSets";
@@ -23,6 +23,15 @@ import BottomNavigation from "./components/BottomNavigation";
 import ScrollToTop from "./components/ScrollToTop";
 import AddMic from "./pages/AddMic";
 import ListingV2 from "./pages/ListingV2";
+// v3 redesign (docs/design/storytime-redesign-v3). Lazy so the main bundle
+// does not carry these screens for visitors who never open /v3.
+const V3Layout = lazy(() => import("./pages/v3/V3Layout"));
+const V3Home = lazy(() => import("./pages/v3/V3Home"));
+const V3Map = lazy(() => import("./pages/v3/V3Map"));
+const V3MicDetail = lazy(() => import("./pages/v3/V3MicDetail"));
+const V3Sets = lazy(() => import("./pages/v3/V3Sets"));
+const V3SetReview = lazy(() => import("./pages/v3/V3SetReview"));
+const V3Profile = lazy(() => import("./pages/v3/V3Profile"));
 import Listing from "./pages/Listing";
 import Search from "./pages/Search";
 import SiteFooter from "./components/SiteFooter";
@@ -99,9 +108,18 @@ function isMicSignupPath(pathname: string) {
 // Unlinked utility pages that must read as plain text with no site chrome.
 const HIDDEN_PLAIN_PAGES = ["/setbuild-privacy"];
 
+/** The v3 screens bring their own nav, so the site's pill is hidden there. */
+function BottomNavigationWrapper() {
+  const location = useLocation();
+  if (location.pathname.startsWith('/v3')) return null;
+  return <BottomNavigation />;
+}
+
 function SiteFooterWrapper() {
   const location = useLocation();
 
+  // The v3 screens carry their own nav (V3TabBar) and no footer.
+  if (location.pathname.startsWith('/v3')) return null;
   if (isMicSignupPath(location.pathname)) return null;
   if (HIDDEN_PLAIN_PAGES.includes(location.pathname)) return null;
 
@@ -167,6 +185,7 @@ function AppShell() {
         <ComedianOnboardingDialog />
         <div className={isSubscriber ? "subscriber-layout relative z-10 pb-0" : "non-subscriber-layout relative z-10 pb-0"}>
           <CanonicalTag />
+          <Suspense fallback={null}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/perform" element={<TabProvider><Perform /></TabProvider>} />
@@ -218,11 +237,21 @@ function AppShell() {
             <Route path="/dev-view" element={<TabProvider><DevView /></TabProvider>} />
             <Route path="/slots" element={<Slots />} />
             <Route path="/strip" element={<Strip />} />
+            {/* v3 redesign, from docs/design/storytime-redesign-v3. */}
+            <Route path="/v3" element={<V3Layout />}>
+              <Route index element={<V3Home />} />
+              <Route path="map" element={<V3Map />} />
+              <Route path="mic/:micId" element={<V3MicDetail />} />
+              <Route path="sets" element={<V3Sets />} />
+              <Route path="sets/:setId" element={<V3SetReview />} />
+              <Route path="profile" element={<V3Profile />} />
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </div>
         <SiteFooterWrapper />
-        <BottomNavigation />
+        <BottomNavigationWrapper />
       </AnalyticsProvider>
     </BrowserRouter>
   );

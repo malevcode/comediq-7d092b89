@@ -20,7 +20,8 @@
     "test:auth": "node scripts/test-clerk-oauth.mjs",
     "backfill:open-mics": "node scripts/backfill-open-mics-metadata.mjs",
     "clean:open-mic-names": "node scripts/clean-open-mic-name-asterisks.mjs",
-    "predev": "node scripts/generate-sitemap.mjs"
+    "predev": "node scripts/generate-sitemap.mjs",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
     "@capacitor/core": "^7.6.9",

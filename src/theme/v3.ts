@@ -38,7 +38,19 @@ export const v3colors = {
 
   /** Hairlines and field borders. */
   border: "#E4E7EE",
+  /** The lighter hairline the boards use inside cards. */
+  borderSoft: "#EEF0F4",
   borderField: "#D8DCE5",
+  /** Dashed outline used by the register sheet's steps. */
+  borderDashed: "#9DBDE8",
+  /** Tinted surface for the secondary round buttons on mic detail. */
+  surfaceTinted: "#F7F2E8",
+  /** Body copy that is not a heading. */
+  bodyInk: "#4A5160",
+  /** Disabled / inactive step numbers. */
+  inactive: "#9AA3B2",
+  /** A pending button or a step mid-flight. */
+  busy: "#7E97C9",
 
   /** Secondary text. */
   muted: "#5F6675",
