@@ -156,7 +156,7 @@ export default function V3Profile() {
         Refer a comic
       </Link>
       <Link
-        to="/add-mic"
+        to="/v3/listing"
         className="flex h-[60px] items-center justify-center gap-2 rounded-[22px] bg-white text-[17px] font-bold shadow-[0_6px_18px_rgba(18,26,51,0.08)]"
         style={{ color: v3colors.royal }}
       >

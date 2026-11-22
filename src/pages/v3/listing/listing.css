@@ -1,0 +1,490 @@
+/*
+ * "Add a listing" styles, taken from
+ * docs/design/storytime-redesign-v3/ListingFlow.dc.html.
+ *
+ * The class names are the board's own, so the markup and the design file can
+ * be read side by side. Scoped under .lf-root so nothing here leaks into the
+ * rest of the site.
+ *
+ * Three greens from the board are Comediq blue here, per SPEC.md's "no green
+ * anywhere":
+ *   .switch--on            was #3DBE74  -> sky #8FC2F5
+ *   .primary-button--publish was #3DBE74 -> white on royal
+ *   the auto-note tick     was #3DBE74  -> sky #8FC2F5
+ * The error coral (#FFB4A8 / #FFC9C0) is kept: it is not green, and an
+ * unreadable error state would be worse than a strict palette.
+ *
+ * Layout is the inverse pyramid the spec asks for: the widest, biggest field
+ * first (name), then two-up rows, then three-up chip rows, each narrower than
+ * the last.
+ */
+
+.lf-root {
+  background: #1e4894;
+  color: #f4ede1;
+  font-family: "DM Sans", system-ui, sans-serif;
+}
+
+.lf-root a {
+  color: #8fc2f5;
+}
+.lf-root a:hover {
+  color: #b0d4f9;
+}
+
+.lf-scroll {
+  scrollbar-width: none;
+}
+.lf-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.lf-root .icon-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: none;
+  color: #f4ede1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+.lf-root .icon-button--ghost {
+  border-color: transparent;
+}
+
+.lf-root .step-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.lf-root .step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(244, 237, 225, 0.3);
+}
+.lf-root .step-dot--done {
+  background: #8fc2f5;
+}
+.lf-root .step-dot--on {
+  width: 24px;
+  background: #8fc2f5;
+}
+
+/* The inverse pyramid: each row narrower than the one above. */
+.lf-root .row-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.lf-root .row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.lf-root .row-price {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: 10px;
+}
+.lf-root .row-desc {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  gap: 10px;
+}
+
+.lf-root .field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.lf-root .field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #dce3f2;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+  white-space: nowrap;
+}
+.lf-root .field-optional {
+  font-size: 12px;
+  font-weight: 400;
+  color: #aeb9d6;
+}
+.lf-root .field-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #8fc2f5;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.lf-root .text-input {
+  width: 100%;
+  height: 44px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background: #2b56a6;
+  color: #f4ede1;
+  font: inherit;
+  font-size: 15px;
+  padding: 0 12px;
+  outline: none;
+  color-scheme: dark;
+}
+.lf-root .text-input[type="time"],
+.lf-root .text-input[type="date"] {
+  font-size: 14px;
+  padding: 0 8px;
+}
+.lf-root .text-input::placeholder {
+  color: rgba(244, 237, 225, 0.6);
+}
+.lf-root .text-input:focus {
+  border-color: #8fc2f5;
+}
+.lf-root .text-input--error {
+  border-color: #ffb4a8;
+}
+.lf-root textarea.text-input {
+  height: auto;
+  min-height: 72px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.lf-root .field-hint {
+  margin: 0;
+  font-size: 12px;
+  color: #aeb9d6;
+  line-height: 1.35;
+}
+.lf-root .field-error {
+  margin: 0;
+  font-size: 12px;
+  color: #ffc9c0;
+}
+
+.lf-root .chip-group {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 12px;
+  background: #2b56a6;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+  min-height: 44px;
+}
+.lf-root .chip-group--error {
+  border-color: #ffb4a8;
+}
+.lf-root .chip {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 34px;
+  border-radius: 9px;
+  border: 0;
+  background: none;
+  color: #f4ede1;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+.lf-root .chip--on {
+  background: #8fc2f5;
+  color: #08142b;
+}
+
+.lf-root .toggle-card,
+.lf-root .checkbox-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #173a7a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f4ede1;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.lf-root .switch {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 26px;
+  border-radius: 13px;
+  background: rgba(244, 237, 225, 0.32);
+  position: relative;
+  transition: background 0.2s;
+}
+.lf-root .switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 0.2s;
+}
+/* Was #3DBE74 on the board. */
+.lf-root .switch--on {
+  background: #8fc2f5;
+}
+.lf-root .switch--on::after {
+  left: 21px;
+}
+.lf-root .checkbox {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid rgba(244, 237, 225, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.lf-root .checkbox--on {
+  background: #8fc2f5;
+  border-color: #8fc2f5;
+}
+
+.lf-root .primary-button {
+  width: 100%;
+  height: 52px;
+  border-radius: 999px;
+  border: 0;
+  background: #8fc2f5;
+  color: #08142b;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.lf-root .primary-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+/* Was #3DBE74 on the board. */
+.lf-root .primary-button--publish {
+  background: #ffffff;
+  color: #1e4894;
+}
+
+.lf-root .text-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #8fc2f5;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  min-height: 44px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lf-root .venue-results {
+  border-radius: 12px;
+  background: #173a7a;
+  overflow: hidden;
+}
+.lf-root .venue-option {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 6px 12px;
+  background: none;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f4ede1;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.lf-root .venue-option:first-child {
+  border-top: 0;
+}
+
+.lf-root .preview-card {
+  background: #0e1a36;
+  border-radius: 24px;
+  padding: 22px 20px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f4ede1;
+}
+
+.lf-root .choice-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding: 22px;
+  border-radius: 24px;
+  background: #173a7a;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #f4ede1;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Archivo, for the wordmark and venue names only. */
+.lf-root .logo-font {
+  font-family: Archivo, "DM Sans", sans-serif;
+  font-stretch: 112%;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.lf-root .date-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lf-root .cal {
+  background: #173a7a;
+  border-radius: 14px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lf-root .cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.lf-root .cal-nav {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 0;
+  background: #2b56a6;
+  color: #f4ede1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+.lf-root .cal-nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.lf-root .cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+}
+.lf-root .cal-wd {
+  font-size: 11px;
+  font-weight: 600;
+  color: #aeb9d6;
+  text-align: center;
+  padding: 2px 0;
+}
+.lf-root .cal-day {
+  height: 38px;
+  border-radius: 10px;
+  border: 0;
+  background: none;
+  color: #f4ede1;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+.lf-root .cal-day--today {
+  box-shadow: inset 0 0 0 1.5px #8fc2f5;
+}
+.lf-root .cal-day--on {
+  background: #8fc2f5;
+  color: #08142b;
+}
+.lf-root .cal-day--sched {
+  background: rgba(143, 194, 245, 0.22);
+  color: #b0d4f9;
+}
+.lf-root .cal-day--skip {
+  background: rgba(255, 180, 168, 0.16);
+  color: #ffc9c0;
+  text-decoration: line-through;
+}
+.lf-root .cal-day:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.lf-root .cal-day--blank {
+  visibility: hidden;
+}
+.lf-root .cal-key {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: #aeb9d6;
+}
+.lf-root .cal-key span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.lf-root .cal-key i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.lf-root .lf-spin {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid rgba(8, 20, 43, 0.25);
+  border-top-color: #08142b;
+  animation: lfspin 0.8s linear infinite;
+}
+@keyframes lfspin {
+  to {
+    transform: rotate(360deg);
+  }
+}
