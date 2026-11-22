@@ -10,11 +10,33 @@ import { MapControls } from './MapControls';
 import { MapLegend } from './MapLegend';
 import { getMapboxToken } from './MapInitializer';
 import { formatCost, formatStageTime, formatTime } from './MapUtils';
+import { VenueEventCards } from './VenueEventCards';
+import { useMicSkips } from '@/hooks/useMicSkips';
+import { useNow } from '@/hooks/useNow';
+import { v3bubblePalette, v3colors } from '@/theme/v3';
+import {
+  buildVenues,
+  sortVenuesForDrawing,
+  type Venue,
+  type VenueTier,
+} from '@/utils/venues';
 
 interface OpenMicsMapProps {
   mics: OpenMic[];
   onMicSelect: (mic: OpenMic) => void;
   variant?: 'boxed' | 'full';
+  /**
+   * Which venue is open. Pass this together with `onSelectVenue` to drive the
+   * selection from outside - the desktop split view does, so clicking a row in
+   * its list and clicking a bubble on the map are the same action. Left
+   * undefined the map keeps its own selection.
+   */
+  selectedVenueKey?: string | null;
+  onSelectVenue?: (key: string | null) => void;
+  /** Grows a bubble without opening it, for hovering a row in the list. */
+  highlightedVenueKey?: string | null;
+  /** The split view draws its own preview beside the map, not over it. */
+  hidePreviewCard?: boolean;
 }
 
 type MicFeatureProperties = {
@@ -38,56 +60,47 @@ const LOGO_PIN_PIXEL_RATIO = 1.5;
 const LOGO_DOT_PIXEL_RATIO = 1.5;
 const PIN_ZOOM_THRESHOLD = 12.5;
 
-// Storytime-style bubbles. Every venue is a round bubble (cover photo, or initials on a
-// Comediq blue). Bubbles overlap freely when zoomed out and spread apart when zoomed in.
-// A venue with several mics shows one bubble per mic, stacked. Set to false to bring back
-// the old Comediq pin layers (they are still in the file, just hidden).
+// v3 map bubbles. Spec: docs/design/storytime-redesign-v3/SPEC.md, "Map rules".
+//
+//   - One round bubble per venue: the host's map icon, or initials on a
+//     Comediq blue. Comediq-run mics use the Q logo.
+//   - Sizes: Comediq-run largest, happening today medium, other days small.
+//     Bigger on top. Unverified faded.
+//   - Zoomed out the bubbles shrink and overlap. No number clusters.
+//
+// The grouping, the tiers and the now/next/ended maths all live in
+// `src/utils/venues.ts`, which is a port of the mobile app's file of the same
+// name, so the two platforms agree about what is on tonight.
+//
+// Set to false to bring back the old Comediq pin layers (they are still in the
+// file, just hidden).
 const USE_BUBBLE_MARKERS = true;
-const BUBBLE_SIZE_COMEDIQ = 54;
-const BUBBLE_SIZE_TODAY = 44;
-const BUBBLE_SIZE_OTHER = 34;
-const BUBBLE_STACK_MAX = 3;
-const BUBBLE_COLORS: Array<[string, string]> = [
-  ['#1E4894', '#FFFFFF'],
-  ['#173A7A', '#FFFFFF'],
-  ['#2B56A6', '#FFFFFF'],
-  ['#0F2A5C', '#FFFFFF'],
-  ['#3D6FD1', '#FFFFFF'],
-  ['#8FC2F5', '#0F2A5C'],
-  ['#FFFFFF', '#1E4894'],
-];
-const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-type VenueGroup = { key: string; latitude: number; longitude: number; venueName: string; mics: OpenMic[]; size: number };
-
-function venueInitials(name: string): string {
-  const words = (name || '?').replace(/^the\s+/i, '').split(/\s+/).filter(Boolean);
-  return words.slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
-}
-
-function venueColor(name: string): [string, string] {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0;
-  return BUBBLE_COLORS[Math.abs(hash) % BUBBLE_COLORS.length];
-}
-
-function runsToday(mic: OpenMic, date = new Date()): boolean {
-  return mic.day?.trim().toLowerCase() === DAY_NAMES[date.getDay()].toLowerCase();
-}
-
-function bubbleSizeFor(mic: OpenMic): number {
-  if (mic.isComediqRun) return BUBBLE_SIZE_COMEDIQ;
-  return runsToday(mic) ? BUBBLE_SIZE_TODAY : BUBBLE_SIZE_OTHER;
-}
+/** Diameters from the boards. */
+const BUBBLE_SIZE: Record<VenueTier, number> = {
+  comediq: 54,
+  today: 44,
+  other: 34,
+};
 
 /** Smaller when zoomed out (dense overlap), full size from zoom 14 in. */
 function bubbleScaleForZoom(zoom: number): number {
   return Math.max(0.45, Math.min(1, 0.45 + (zoom - 10) * 0.14));
 }
 
-function whenLabel(mic: OpenMic): string {
-  const time = formatTime(mic.startTime);
-  return runsToday(mic) ? `Tonight ${time}` : `${mic.day} ${time}`;
+function venueHash(value: string): number {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) hash = (hash * 31 + value.charCodeAt(i)) % 100000;
+  return hash;
+}
+
+/** What a screen reader hears on a bubble: the venue, then what is on. */
+function bubbleLabel(venue: Venue): string {
+  const counts: string[] = [];
+  if (venue.nowCount > 0) counts.push(`${venue.nowCount} happening now`);
+  if (venue.nextCount > 0) counts.push(`${venue.nextCount} later tonight`);
+  if (counts.length === 0) counts.push('nothing on tonight');
+  return `${venue.name}, ${counts.join(', ')}`;
 }
 const EMPTY_FEATURE_COLLECTION: FeatureCollection<Point, MicFeatureProperties> = {
   type: 'FeatureCollection',
@@ -294,7 +307,15 @@ function fitMapToMappedMics(map: mapboxgl.Map, mics: MappedMic[]) {
   });
 }
 
-const OpenMicsMapRefactored = ({ mics, onMicSelect, variant = 'boxed' }: OpenMicsMapProps) => {
+const OpenMicsMapRefactored = ({
+  mics,
+  onMicSelect,
+  variant = 'boxed',
+  selectedVenueKey: controlledVenueKey,
+  onSelectVenue,
+  highlightedVenueKey = null,
+  hidePreviewCard = false,
+}: OpenMicsMapProps) => {
   const { resolvedTheme } = useTheme();
   const mapShellRef = useRef<HTMLDivElement | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -313,8 +334,23 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, variant = 'boxed' }: OpenMic
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [legendOpen, setLegendOpen] = useState(false);
   const mapStyle = resolvedTheme === 'dark' ? DARK_MAP_STYLE : LIGHT_MAP_STYLE;
-  const [selectedVenueKey, setSelectedVenueKey] = useState<string | null>(null);
   const bubbleMarkersRef = useRef<mapboxgl.Marker[]>([]);
+  // A minute-ticking clock, so "Happening now" stops saying that when the mic
+  // actually ends rather than when the visitor happens to reload.
+  const now = useNow();
+  const { skips } = useMicSkips();
+
+  // Controlled when the parent passes a key, self-managed otherwise.
+  const [ownVenueKey, setOwnVenueKey] = useState<string | null>(null);
+  const isControlled = controlledVenueKey !== undefined;
+  const selectedVenueKey = isControlled ? controlledVenueKey : ownVenueKey;
+  const setSelectedVenueKey = useCallback(
+    (key: string | null) => {
+      if (!isControlled) setOwnVenueKey(key);
+      onSelectVenue?.(key);
+    },
+    [isControlled, onSelectVenue],
+  );
 
   useEffect(() => {
     onMicSelectRef.current = onMicSelect;
@@ -333,32 +369,13 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, variant = 'boxed' }: OpenMic
 
   const representativeMappedMics = useMemo(() => getRepresentativeMappedMics(mappedMics), [mappedMics]);
 
-  // One group per venue, holding every mic there, soonest first
-  const venueGroups = useMemo<VenueGroup[]>(() => {
-    const byVenue = new Map<string, MappedMic[]>();
-    mappedMics.forEach((mapped) => {
-      const key = normalizeVenueGroupKey(mapped.mic);
-      const list = byVenue.get(key);
-      if (list) list.push(mapped);
-      else byVenue.set(key, [mapped]);
-    });
-    return Array.from(byVenue.entries()).map(([key, list]) => {
-      const sorted = [...list].sort((a, b) => getMinutesUntilNextMic(a.mic) - getMinutesUntilNextMic(b.mic));
-      const micsAtVenue = sorted.map((m) => m.mic);
-      return {
-        key,
-        latitude: sorted[0].latitude,
-        longitude: sorted[0].longitude,
-        venueName: sorted[0].mic.venueName || sorted[0].mic.openMic,
-        mics: micsAtVenue,
-        size: Math.max(...micsAtVenue.map(bubbleSizeFor)),
-      };
-    });
-  }, [mappedMics]);
+  // One venue per bubble, with each venue's events split into
+  // now / next / ended. Shared with the mobile app via src/utils/venues.ts.
+  const venues = useMemo(() => buildVenues(mics, now, skips), [mics, now, skips]);
 
-  const selectedGroup = useMemo(
-    () => venueGroups.find((group) => group.key === selectedVenueKey) ?? null,
-    [venueGroups, selectedVenueKey],
+  const selectedVenue = useMemo(
+    () => venues.find((venue) => venue.key === selectedVenueKey) ?? null,
+    [venues, selectedVenueKey],
   );
 
   const micGeoJson = useMemo<FeatureCollection<Point, MicFeatureProperties>>(
@@ -638,13 +655,11 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, variant = 'boxed' }: OpenMic
     };
     map.on('click', handleMapClick);
 
-    // Smaller bubbles first so the big ones sit on top
-    const ordered = [...venueGroups].sort((a, b) => a.size - b.size);
-    bubbleMarkersRef.current = ordered.map((group, index) => {
-      const shown = group.mics.slice(0, BUBBLE_STACK_MAX);
-      const offset = Math.round(group.size * 0.42);
+    // Smaller tiers first, so the bigger bubbles are painted on top.
+    bubbleMarkersRef.current = sortVenuesForDrawing(venues).map((venue, index) => {
+      const size = BUBBLE_SIZE[venue.tier];
       const wrap = document.createElement('div');
-      wrap.style.zIndex = String(group.size * 1000 + index);
+      wrap.style.zIndex = String(size * 1000 + index);
 
       const inner = document.createElement('div');
       inner.className = 'cq-bubble-wrap';
@@ -652,55 +667,49 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, variant = 'boxed' }: OpenMic
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'cq-bubble-btn';
-      button.style.width = `${group.size + offset * (shown.length - 1)}px`;
-      button.style.height = `${group.size}px`;
-      button.setAttribute(
-        'aria-label',
-        `${group.venueName}, ${group.mics.length} ${group.mics.length === 1 ? 'mic' : 'mics'}`,
-      );
+      button.style.width = `${size}px`;
+      button.style.height = `${size}px`;
+      button.setAttribute('aria-label', bubbleLabel(venue));
+      button.dataset.venueKey = venue.key;
 
-      shown.forEach((mic, i) => {
-        const size = group.size;
-        const bubble = document.createElement('span');
-        bubble.className = 'cq-bubble' + (isVerifiedMicStatus(mic) ? '' : ' cq-bubble--muted');
-        bubble.style.width = `${size}px`;
-        bubble.style.height = `${size}px`;
-        bubble.style.left = `${i * offset}px`;
-        bubble.style.zIndex = String(BUBBLE_STACK_MAX - i);
-        if (mic.isComediqRun) {
-          bubble.style.background = '#FFFFFF';
-          bubble.style.backgroundImage = `url(${LOGO_PIN_IMAGE_URL})`;
-          bubble.style.backgroundSize = '62%';
-          bubble.style.backgroundRepeat = 'no-repeat';
-        } else if (mic.coverImageUrl) {
-          bubble.style.backgroundImage = `url("${mic.coverImageUrl.replace(/"/g, '%22')}")`;
-        } else {
-          const [bg, fg] = venueColor(group.venueName);
-          bubble.style.background = bg;
-          bubble.style.color = fg;
-          bubble.style.fontSize = `${Math.round(size * 0.34)}px`;
-          bubble.textContent = venueInitials(group.venueName);
-        }
-        button.appendChild(bubble);
-      });
+      const bubble = document.createElement('span');
+      bubble.className = 'cq-bubble' + (venue.isUnverified ? ' cq-bubble--muted' : '');
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = '0px';
 
-      if (group.mics.length > BUBBLE_STACK_MAX) {
-        const count = document.createElement('span');
-        count.className = 'cq-bubble-count';
-        count.textContent = `+${group.mics.length - BUBBLE_STACK_MAX}`;
-        button.appendChild(count);
+      // The host's own circular icon wins; a Comediq-run venue falls back to
+      // the Q mark; anything else is initials on a cycled Comediq blue.
+      if (venue.iconUrl) {
+        bubble.style.backgroundImage = `url("${venue.iconUrl.replace(/"/g, '%22')}")`;
+      } else if (venue.tier === 'comediq') {
+        bubble.style.background = v3colors.white;
+        bubble.style.backgroundImage = `url(${LOGO_PIN_IMAGE_URL})`;
+        bubble.style.backgroundSize = '62%';
+        bubble.style.backgroundRepeat = 'no-repeat';
+      } else {
+        const [bg, fg] = v3bubblePalette[venueHash(venue.key) % v3bubblePalette.length];
+        bubble.style.background = bg;
+        bubble.style.color = fg;
+        bubble.style.fontSize = `${Math.round(size * 0.34)}px`;
+        bubble.textContent = venue.initials;
       }
+      button.appendChild(bubble);
 
       button.addEventListener('click', (event) => {
         event.stopPropagation();
-        setSelectedVenueKey(group.key);
-        map.easeTo({ center: [group.longitude, group.latitude], zoom: Math.max(map.getZoom(), 14), duration: 500 });
+        setSelectedVenueKey(venue.key);
+        map.easeTo({
+          center: [venue.longitude, venue.latitude],
+          zoom: Math.max(map.getZoom(), 14),
+          duration: 500,
+        });
       });
 
       inner.appendChild(button);
       wrap.appendChild(inner);
       return new mapboxgl.Marker({ element: wrap, anchor: 'center' })
-        .setLngLat([group.longitude, group.latitude])
+        .setLngLat([venue.longitude, venue.latitude])
         .addTo(map);
     });
 
@@ -710,7 +719,33 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, variant = 'boxed' }: OpenMic
       bubbleMarkersRef.current.forEach((marker) => marker.remove());
       bubbleMarkersRef.current = [];
     };
-  }, [mapReady, venueGroups]);
+  }, [mapReady, venues, setSelectedVenueKey]);
+
+  // The sky ring the boards draw around the tapped venue. Kept out of the
+  // marker effect above so selecting a venue does not rebuild every bubble.
+  useEffect(() => {
+    if (!USE_BUBBLE_MARKERS) return;
+    const container = mapRef.current?.getContainer();
+    if (!container) return;
+
+    container.querySelectorAll('.cq-bubble-btn[data-selected="true"]').forEach((node) => {
+      node.removeAttribute('data-selected');
+    });
+    container.querySelectorAll('.cq-bubble-btn[data-hovered="true"]').forEach((node) => {
+      node.removeAttribute('data-hovered');
+    });
+
+    // CSS.escape, because a venue key is "<name>@<lat>,<lng>" and carries
+    // characters a plain attribute selector would choke on.
+    const find = (key: string) =>
+      container.querySelector(`.cq-bubble-btn[data-venue-key="${CSS.escape(key)}"]`);
+
+    if (selectedVenueKey) find(selectedVenueKey)?.setAttribute('data-selected', 'true');
+    // Hovering a row in the desktop list grows its bubble without opening it.
+    if (highlightedVenueKey && highlightedVenueKey !== selectedVenueKey) {
+      find(highlightedVenueKey)?.setAttribute('data-hovered', 'true');
+    }
+  }, [selectedVenueKey, highlightedVenueKey, venues, mapReady]);
 
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
@@ -857,67 +892,27 @@ const OpenMicsMapRefactored = ({ mics, onMicSelect, variant = 'boxed' }: OpenMic
             .cq-bubble-btn{position:relative;display:block;background:none;border:0;padding:0;cursor:pointer}
             .cq-bubble{position:absolute;top:0;border-radius:9999px;border:2.5px solid #fff;box-shadow:0 4px 12px rgba(8,20,43,.28);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-weight:800;letter-spacing:-.02em;overflow:hidden;box-sizing:border-box}
             .cq-bubble--muted{opacity:.6}
-            .cq-bubble-count{position:absolute;right:-6px;top:-6px;z-index:10;min-width:22px;height:22px;padding:0 5px;border-radius:11px;background:#fff;color:#1E4894;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(8,20,43,.25)}
-            .cq-bubble-btn:focus-visible{outline:3px solid #8FC2F5;outline-offset:3px;border-radius:9999px}
+            .cq-bubble-btn:focus-visible,.cq-bubble-btn[data-selected="true"]{outline:3px solid #8FC2F5;outline-offset:4px;border-radius:9999px}
+            .cq-bubble-btn[data-hovered="true"]{transform:scale(1.15);transition:transform .12s ease-out}
           `}</style>
         )}
 
-        {/* Storytime-style preview: one swipeable card per mic at the tapped venue */}
-        {selectedGroup && (
+        {/* v3 preview: only what has not ended at the tapped venue, "Happening
+            now" first. Phone gets the swipeable carousel from
+            MapBubbles.dc.html; the desktop split view passes layout="stack"
+            and renders its own copy, per WebMap.dc.html. */}
+        {selectedVenue && !hidePreviewCard && (
           <div
-            className="absolute inset-x-0 z-20 px-3"
+            className="absolute inset-x-0 z-20 px-3 font-dmsans"
             style={variant === 'full' ? { top: 84 } : { bottom: 12 }}
-            role="dialog"
-            aria-label={`Mics at ${selectedGroup.venueName}`}
           >
             <div className="mx-auto max-w-md">
-              <div className="mb-2 flex items-center justify-between gap-2 rounded-full bg-white/95 py-1.5 pl-4 pr-1.5 text-[#08142B] shadow-lg">
-                <span className="truncate text-sm font-bold">
-                  {selectedGroup.venueName}
-                  <span className="ml-2 font-medium text-[#5F6675]">
-                    {selectedGroup.mics.length} {selectedGroup.mics.length === 1 ? 'mic' : 'mics'}
-                  </span>
-                </span>
-                <button
-                  type="button"
-                  aria-label="Close"
-                  onClick={() => setSelectedVenueKey(null)}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FA] text-lg leading-none text-[#1E4894]"
-                >
-                  ×
-                </button>
-              </div>
-              <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {selectedGroup.mics.map((mic) => (
-                  <article
-                    key={mic.uniqueIdentifier}
-                    className={`${selectedGroup.mics.length > 1 ? 'w-[82%]' : 'w-full'} shrink-0 snap-center overflow-hidden rounded-[24px] bg-white text-[#08142B] shadow-xl`}
-                  >
-                    {mic.coverImageUrl && (
-                      <div className="h-24 w-full bg-cover bg-center" style={{ backgroundImage: `url("${mic.coverImageUrl}")` }} />
-                    )}
-                    <div className="p-4">
-                      <div className="text-xs font-semibold text-[#1E4894]">
-                        {whenLabel(mic)}
-                        {mic.isComediqRun ? ' · By Comediq' : ''}
-                      </div>
-                      <h3 className="mt-1 text-lg font-bold leading-tight">{mic.openMic}</h3>
-                      <div className="mt-1 text-sm text-[#5F6675]">
-                        {[formatCost(mic.cost), mic.stageTime ? `${formatStageTime(mic.stageTime)} sets` : '']
-                          .filter(Boolean)
-                          .join(' · ')}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => onMicSelectRef.current(mic)}
-                        className="mt-3 h-11 w-full rounded-full bg-[#1E4894] text-sm font-bold text-white"
-                      >
-                        View mic
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
+              <VenueEventCards
+                venue={selectedVenue}
+                now={now}
+                onClose={() => setSelectedVenueKey(null)}
+                onSelectEvent={(event) => onMicSelectRef.current(event.mic)}
+              />
             </div>
           </div>
         )}

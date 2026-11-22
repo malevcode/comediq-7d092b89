@@ -2,11 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://comediq.com/</loc>
-    <lastmod>2026-10-26</lastmod>
+    <lastmod>2026-11-20</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/open-mics</loc>
-    <lastmod>2026-10-26</lastmod>
+    <lastmod>2026-11-15</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/perform</loc>
@@ -22,11 +22,11 @@
   </url>
   <url>
     <loc>https://comediq.com/free-mics</loc>
-    <lastmod>2026-09-29</lastmod>
+    <lastmod>2026-11-20</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/beginner-friendly</loc>
-    <lastmod>2026-09-29</lastmod>
+    <lastmod>2026-11-20</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/top-mics</loc>
@@ -54,11 +54,11 @@
   </url>
   <url>
     <loc>https://comediq.com/privacy</loc>
-    <lastmod>2026-10-14</lastmod>
+    <lastmod>2026-11-20</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/terms</loc>
-    <lastmod>2026-11-04</lastmod>
+    <lastmod>2026-11-20</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/open-mics/sunday</loc>
@@ -74,11 +74,11 @@
   </url>
   <url>
     <loc>https://comediq.com/open-mics/wednesday</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-11-18</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/open-mics/thursday</loc>
-    <lastmod>2026-10-29</lastmod>
+    <lastmod>2026-11-19</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/open-mics/friday</loc>
@@ -86,15 +86,15 @@
   </url>
   <url>
     <loc>https://comediq.com/open-mics/saturday</loc>
-    <lastmod>2026-10-24</lastmod>
+    <lastmod>2026-11-14</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/open-mics/manhattan</loc>
-    <lastmod>2026-10-29</lastmod>
+    <lastmod>2026-11-19</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/open-mics/brooklyn</loc>
-    <lastmod>2026-10-24</lastmod>
+    <lastmod>2026-11-14</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/open-mics/staten-island</loc>
@@ -171,6 +171,9 @@
   </url>
   <url>
     <loc>https://comediq.com/mic/open-mic-5d2a1b</loc>
+  </url>
+  <url>
+    <loc>https://comediq.com/mic/7-30-sesh-open-mic</loc>
   </url>
   <url>
     <loc>https://comediq.com/mic/gp-village-open-mic</loc>
@@ -267,6 +270,9 @@
     <loc>https://comediq.com/mic/quintessential-mic</loc>
   </url>
   <url>
+    <loc>https://comediq.com/mic/6-30-sesh-open-mic-334b17</loc>
+  </url>
+  <url>
     <loc>https://comediq.com/mic/jestermaxxing</loc>
     <lastmod>2026-08-10</lastmod>
   </url>
@@ -350,6 +356,13 @@
   </url>
   <url>
     <loc>https://comediq.com/mic/comedy-cookies-la</loc>
+  </url>
+  <url>
+    <loc>https://comediq.com/mic/gdrink-at-gnihton</loc>
+    <lastmod>2026-11-19</lastmod>
+  </url>
+  <url>
+    <loc>https://comediq.com/mic/chopped-and-unc</loc>
   </url>
   <url>
     <loc>https://comediq.com/mic/jesters-privilege</loc>
@@ -608,6 +621,9 @@
     <loc>https://comediq.com/mic/open-mic-3c1509</loc>
   </url>
   <url>
+    <loc>https://comediq.com/mic/5-30-sesh-open-mic</loc>
+  </url>
+  <url>
     <loc>https://comediq.com/mic/night-swim-mic</loc>
   </url>
   <url>
@@ -765,7 +781,13 @@
     <loc>https://comediq.com/mic/open-mic-e9be06</loc>
   </url>
   <url>
+    <loc>https://comediq.com/mic/6-sesh-open-mic</loc>
+  </url>
+  <url>
     <loc>https://comediq.com/mic/funny-lines-open-mic</loc>
+  </url>
+  <url>
+    <loc>https://comediq.com/mic/6-30-sesh-open-mic</loc>
   </url>
   <url>
     <loc>https://comediq.com/mic/paulzach-7ad232</loc>
@@ -820,6 +842,9 @@
     <lastmod>2026-04-30</lastmod>
   </url>
   <url>
+    <loc>https://comediq.com/mic/eastville-house-mic</loc>
+  </url>
+  <url>
     <loc>https://comediq.com/mic/5-marks-tuesday-mic</loc>
   </url>
   <url>
@@ -842,6 +867,9 @@
   </url>
   <url>
     <loc>https://comediq.com/mic/open-mic-dab592</loc>
+  </url>
+  <url>
+    <loc>https://comediq.com/mic/eastville-8pm-mic</loc>
   </url>
   <url>
     <loc>https://comediq.com/mic/qed-saturday-11pm-mic</loc>
@@ -929,6 +957,9 @@
     <lastmod>2026-08-10</lastmod>
   </url>
   <url>
+    <loc>https://comediq.com/mic/4-30-sesh-open-mic-ee3656</loc>
+  </url>
+  <url>
     <loc>https://comediq.com/mic/pit-improv-jam-970747</loc>
     <lastmod>2026-07-13</lastmod>
   </url>
@@ -987,7 +1018,7 @@
   </url>
   <url>
     <loc>https://comediq.com/mic/fear-city-mic-fb36f9</loc>
-    <lastmod>2026-08-21</lastmod>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/mic/5-buddha-room-hour-mic-88f0b3</loc>
@@ -1027,12 +1058,18 @@
     <loc>https://comediq.com/mic/the-good-mic</loc>
   </url>
   <url>
+    <loc>https://comediq.com/mic/5-30-sesh-open-mic-9f7f1f</loc>
+  </url>
+  <url>
     <loc>https://comediq.com/mic/1st-3rd-sun-bob-and-sam</loc>
     <lastmod>2026-02-02</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/mic/bob-and-sam</loc>
     <lastmod>2026-03-18</lastmod>
+  </url>
+  <url>
+    <loc>https://comediq.com/mic/gladys-simon-comic-strip</loc>
   </url>
   <url>
     <loc>https://comediq.com/mic/m-m-mic</loc>
@@ -1056,6 +1093,12 @@
   </url>
   <url>
     <loc>https://comediq.com/mic/open-mic-bdd8e5</loc>
+  </url>
+  <url>
+    <loc>https://comediq.com/mic/2nd-4th-sun-byot-bring-your-own-thing</loc>
+  </url>
+  <url>
+    <loc>https://comediq.com/mic/5-30-sesh-open-mic-f48d98</loc>
   </url>
   <url>
     <loc>https://comediq.com/mic/2nd-4th-ucb-improv-jam</loc>
@@ -1217,6 +1260,9 @@
     <loc>https://comediq.com/mic/girls-and-gays-open-mic</loc>
   </url>
   <url>
+    <loc>https://comediq.com/mic/regular-mic</loc>
+  </url>
+  <url>
     <loc>https://comediq.com/mic/5-marks-friday-mic</loc>
   </url>
   <url>
@@ -1262,6 +1308,9 @@
     <lastmod>2026-07-13</lastmod>
   </url>
   <url>
+    <loc>https://comediq.com/mic/7-sesh-open-mic</loc>
+  </url>
+  <url>
     <loc>https://comediq.com/mic/so-chill</loc>
   </url>
   <url>
@@ -1277,6 +1326,9 @@
   </url>
   <url>
     <loc>https://comediq.com/mic/the-high-key-weekend</loc>
+  </url>
+  <url>
+    <loc>https://comediq.com/mic/4-30-sesh-open-mic</loc>
   </url>
   <url>
     <loc>https://comediq.com/mic/gp-midtown-open-mic-303976</loc>
@@ -1378,6 +1430,9 @@
   <url>
     <loc>https://comediq.com/mic/greek-yogurt</loc>
     <lastmod>2026-09-02</lastmod>
+  </url>
+  <url>
+    <loc>https://comediq.com/mic/open-mic-wednesdays-dbj-comedy</loc>
   </url>
   <url>
     <loc>https://comediq.com/mic/open-mic-8aaddf</loc>
@@ -1573,7 +1628,7 @@
   </url>
   <url>
     <loc>https://comediq.com/mic/saturday-night-open-mic</loc>
-    <lastmod>2026-07-21</lastmod>
+    <lastmod>2026-11-14</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/mic/comedy-college</loc>
@@ -1587,7 +1642,7 @@
   </url>
   <url>
     <loc>https://comediq.com/mic/gp-midtown-open-mic-040c4b</loc>
-    <lastmod>2026-04-13</lastmod>
+    <lastmod>2026-11-18</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/mic/open-mic-b664d7</loc>
@@ -1632,6 +1687,9 @@
   <url>
     <loc>https://comediq.com/venue/alphaville</loc>
     <lastmod>2026-06-04</lastmod>
+  </url>
+  <url>
+    <loc>https://comediq.com/venue/amsterdam-avenue</loc>
   </url>
   <url>
     <loc>https://comediq.com/venue/art-and-space</loc>
@@ -1691,7 +1749,7 @@
   </url>
   <url>
     <loc>https://comediq.com/venue/bushwick-comedy-club</loc>
-    <lastmod>2026-07-21</lastmod>
+    <lastmod>2026-11-14</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/venue/canters-deli</loc>
@@ -1751,6 +1809,9 @@
     <loc>https://comediq.com/venue/echo-bravo</loc>
   </url>
   <url>
+    <loc>https://comediq.com/venue/el-barrista</loc>
+  </url>
+  <url>
     <loc>https://comediq.com/venue/essence-bar</loc>
   </url>
   <url>
@@ -1758,7 +1819,7 @@
   </url>
   <url>
     <loc>https://comediq.com/venue/fear-city-comedy-club</loc>
-    <lastmod>2026-08-21</lastmod>
+    <lastmod>2026-11-05</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/venue/flappers-comedy-club-restaurant</loc>
@@ -1792,6 +1853,10 @@
     <loc>https://comediq.com/venue/garden-grill</loc>
   </url>
   <url>
+    <loc>https://comediq.com/venue/gnihton</loc>
+    <lastmod>2026-11-19</lastmod>
+  </url>
+  <url>
     <loc>https://comediq.com/venue/good-judy</loc>
     <lastmod>2026-08-10</lastmod>
   </url>
@@ -1808,7 +1873,7 @@
   </url>
   <url>
     <loc>https://comediq.com/venue/grisly-pear-midtown</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-11-18</lastmod>
   </url>
   <url>
     <loc>https://comediq.com/venue/grisly-pear-village</loc>
@@ -1828,6 +1893,9 @@
   </url>
   <url>
     <loc>https://comediq.com/venue/hollywood-improv</loc>
+  </url>
+  <url>
+    <loc>https://comediq.com/venue/hooper-street</loc>
   </url>
   <url>
     <loc>https://comediq.com/venue/hotel-cafe</loc>
@@ -2002,6 +2070,9 @@
     <lastmod>2026-08-10</lastmod>
   </url>
   <url>
+    <loc>https://comediq.com/venue/sesh-comedy</loc>
+  </url>
+  <url>
     <loc>https://comediq.com/venue/silverlake-lounge</loc>
   </url>
   <url>
@@ -2121,6 +2192,9 @@
     <loc>https://comediq.com/venue/the-roost-cocktails</loc>
   </url>
   <url>
+    <loc>https://comediq.com/venue/the-rose</loc>
+  </url>
+  <url>
     <loc>https://comediq.com/venue/the-shillelagh-tavern</loc>
   </url>
   <url>
@@ -2196,5 +2270,34 @@
   </url>
   <url>
     <loc>https://comediq.com/blog</loc>
+    <lastmod>2026-11-18</lastmod>
+  </url>
+  <url>
+    <loc>https://comediq.com/blog/too-old-to-start-stand-up</loc>
+    <lastmod>2026-11-18</lastmod>
+  </url>
+  <url>
+    <loc>https://comediq.com/blog/comedy-classes-nyc</loc>
+    <lastmod>2026-11-17</lastmod>
+  </url>
+  <url>
+    <loc>https://comediq.com/blog/what-is-a-bringer-show</loc>
+    <lastmod>2026-11-14</lastmod>
+  </url>
+  <url>
+    <loc>https://comediq.com/blog/free-comedy-nyc</loc>
+    <lastmod>2026-11-11</lastmod>
+  </url>
+  <url>
+    <loc>https://comediq.com/blog/nyc-open-mic-report</loc>
+    <lastmod>2026-11-10</lastmod>
+  </url>
+  <url>
+    <loc>https://comediq.com/blog/open-mic-etiquette-nyc</loc>
+    <lastmod>2026-11-07</lastmod>
+  </url>
+  <url>
+    <loc>https://comediq.com/blog/how-nyc-open-mics-work</loc>
+    <lastmod>2026-11-05</lastmod>
   </url>
 </urlset>

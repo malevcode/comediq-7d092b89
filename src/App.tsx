@@ -22,6 +22,7 @@ import NotFound from "./pages/NotFound";
 import BottomNavigation from "./components/BottomNavigation";
 import ScrollToTop from "./components/ScrollToTop";
 import AddMic from "./pages/AddMic";
+import ListingV2 from "./pages/ListingV2";
 import Listing from "./pages/Listing";
 import Search from "./pages/Search";
 import SiteFooter from "./components/SiteFooter";
@@ -207,6 +208,7 @@ function AppShell() {
             <Route path="/list-your-show" element={<ListYourShow />} />
             <Route path="/add-mic" element={<AddMic />} />
             <Route path="/listing" element={<Listing />} />
+            <Route path="/listing-v2" element={<ListingV2 />} />
             <Route path="/search" element={<Search />} />
             <Route path="/shows/map" element={<ShowsMap />} />
             <Route path="/saved" element={<SavedMics />} />

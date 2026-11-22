@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Map on web</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap">
+<style>
+body{margin:0}
+.bub{position:absolute;border-radius:50%;border:2.5px solid #fff;box-sizing:border-box;box-shadow:0 3px 9px rgba(8,20,43,.28);display:flex;align-items:center;justify-content:center;font-weight:800;overflow:hidden;background-size:62%;background-repeat:no-repeat;background-position:center}
+.logo-font{font-family:Archivo,'DM Sans',sans-serif;font-stretch:112%;font-weight:800;letter-spacing:-.03em}
+</style>
+</helmet>
+<div style="width: 1280px; height: 800px; background: #F7F8FB; font-family: 'DM Sans', system-ui, sans-serif; color: #08142B; display: flex; flex-direction: column; overflow: hidden">
+  <header style="height: 68px; flex: 0 0 68px; background: #1E4894; color: #F4EDE1; display: flex; align-items: center; justify-content: space-between; padding: 0 28px">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <img src="/_blob/d460cb464411c942b95645fb36a6711b" alt="" style="width: 20px; height: 30px; object-fit: contain">
+      <span class="logo-font" style="font-size: 26px">Comediq</span>
+    </div>
+    <nav aria-label="Main" style="display: flex; gap: 6px; font-size: 15px; font-weight: 600">
+      <span style="padding: 9px 18px; border-radius: 999px; color: #C9D3EA">Home</span>
+      <span style="padding: 9px 18px; border-radius: 999px; background: #F4EDE1; color: #1E4894">Map</span>
+      <span style="padding: 9px 18px; border-radius: 999px; color: #C9D3EA">Sets</span>
+      <span style="padding: 9px 18px; border-radius: 999px; color: #C9D3EA">Manage</span>
+    </nav>
+    <div style="display: flex; align-items: center; gap: 12px">
+      <div style="width: 240px; height: 40px; border-radius: 999px; background: rgba(255,255,255,.14); display: flex; align-items: center; gap: 8px; padding: 0 14px; font-size: 14px; color: #C9D3EA">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        Search mics or venues
+      </div>
+      <span style="width: 38px; height: 38px; border-radius: 50%; background: #8FC2F5; color: #08142B; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center">AM</span>
+    </div>
+  </header>
+
+  <div style="flex: 1; display: flex; min-height: 0">
+    <aside style="width: 420px; flex: 0 0 420px; background: #fff; border-right: 1px solid #E4E7EE; display: flex; flex-direction: column">
+      <div style="padding: 18px 20px 10px">
+        <div style="font-size: 22px; font-weight: 700">Mics tonight near you</div>
+        <div style="display: flex; gap: 6px; margin-top: 12px">
+          <span style="padding: 7px 14px; border-radius: 999px; background: #1E4894; color: #fff; font-size: 13px; font-weight: 600">Tonight</span>
+          <span style="padding: 7px 14px; border-radius: 999px; background: #EEF2FA; color: #1E4894; font-size: 13px; font-weight: 600">Free</span>
+          <span style="padding: 7px 14px; border-radius: 999px; background: #EEF2FA; color: #1E4894; font-size: 13px; font-weight: 600">Bringer</span>
+          <span style="padding: 7px 14px; border-radius: 999px; background: #EEF2FA; color: #1E4894; font-size: 13px; font-weight: 600">By Comediq</span>
+        </div>
+      </div>
+      <div style="flex: 1; overflow: hidden; padding: 4px 12px 12px; display: flex; flex-direction: column; gap: 6px">
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+          <div style="{{r.rowStyle}}">
+            <span style="{{r.dot}}">{{r.initials}}</span>
+            <div style="flex: 1; min-width: 0">
+              <div class="logo-font" style="font-size: 15px">{{r.name}}</div>
+              <div style="font-size: 13px; color: #5F6675; margin-top: 2px">{{r.meta}}</div>
+            </div>
+            <div style="font-size: 13px; font-weight: 600; color: #1E4894; white-space: nowrap">{{r.dist}}</div>
+          </div>
+        </sc-for>
+      </div>
+    </aside>
+
+    <main style="flex: 1; position: relative; overflow: hidden">
+      <svg width="860" height="732" viewBox="0 0 860 732" style="position: absolute; inset: 0" aria-hidden="true">
+        <defs>
+          <pattern id="wmgrid" width="120" height="46" patternUnits="userSpaceOnUse" patternTransform="rotate(-29)">
+            <rect width="120" height="46" fill="#FFFFFF"></rect>
+            <rect x="7" y="5" width="106" height="36" rx="2" fill="#EFEDE6"></rect>
+            <rect x="12" y="9" width="26" height="12" fill="#E6E3DA"></rect>
+          </pattern>
+        </defs>
+        <rect width="860" height="732" fill="url(#wmgrid)"></rect>
+        <path d="M120 420 L260 350 L310 450 L170 520 Z" fill="#CDE8B5"></path>
+        <path d="M760 0 L860 0 L860 732 L700 732 Z" fill="#BFD9F2"></path>
+      </svg>
+      <sc-for list="{{groups}}" as="g" hint-placeholder-count="14">
+        <div style="{{g.wrap}}">
+          <sc-for list="{{g.bubbles}}" as="b" hint-placeholder-count="1"><span class="bub" style="{{b.style}}">{{b.text}}</span></sc-for>
+        </div>
+      </sc-for>
+
+      <div style="position: absolute; right: 20px; top: 20px; width: 360px; z-index: 60">
+        <div style="display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 999px; padding: 6px 6px 6px 16px; box-shadow: 0 8px 22px rgba(8,20,43,.18); margin-bottom: 8px">
+          <span style="font-size: 14px; font-weight: 700">Rodney's <span style="font-weight: 500; color: #5F6675; margin-left: 6px">6:10 PM · 1 now, 1 next</span></span>
+          <span style="width: 30px; height: 30px; border-radius: 50%; background: #EEF2FA; color: #1E4894; display: flex; align-items: center; justify-content: center; font-size: 18px">×</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <sc-for list="{{events}}" as="e" hint-placeholder-count="2">
+            <article style="background: #fff; border-radius: 22px; padding: 14px 16px; box-shadow: 0 14px 34px rgba(8,20,43,.2); display: flex; gap: 14px; align-items: center">
+              <span style="flex: 0 0 52px; width: 52px; height: 52px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 3px 9px rgba(8,20,43,.2); background: #fff url(/_blob/0af21921b1ecac175914d1188f779cc3) center / 62% no-repeat"></span>
+              <div style="flex: 1">
+                <div style="font-size: 12px; font-weight: 600; color: #1E4894">{{e.when}}</div>
+                <div class="logo-font" style="font-size: 16px; margin-top: 2px">{{e.name}}</div>
+                <div style="font-size: 13px; color: #5F6675; margin-top: 2px">{{e.meta}}</div>
+              </div>
+              <span style="padding: 9px 14px; border-radius: 999px; background: #1E4894; color: #fff; font-size: 13px; font-weight: 700; white-space: nowrap">{{e.btn}}</span>
+            </article>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="position: absolute; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 60">
+        <span style="width: 44px; height: 44px; border-radius: 12px; background: #fff; box-shadow: 0 4px 14px rgba(8,20,43,.15); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #08142B">+</span>
+        <span style="width: 44px; height: 44px; border-radius: 12px; background: #fff; box-shadow: 0 4px 14px rgba(8,20,43,.15); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #08142B">−</span>
+        <span style="width: 44px; height: 44px; border-radius: 12px; background: #fff; box-shadow: 0 4px 14px rgba(8,20,43,.15); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E4894" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 4 4 11l7 2 2 7 7-16Z"></path></svg></span>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+const COLORS = [['#1E4894', '#FFFFFF'], ['#173A7A', '#FFFFFF'], ['#2B56A6', '#FFFFFF'], ['#0F2A5C', '#FFFFFF'], ['#3D6FD1', '#FFFFFF'], ['#8FC2F5', '#0F2A5C'], ['#FFFFFF', '#1E4894']];
+const INITIALS = ['TS', 'BL', 'CS', 'PR', 'LS', 'SF', 'KC', 'GH', 'NY', 'EV', 'WC', 'CL', 'TB', 'HH'];
+const Q = '/_blob/0af21921b1ecac175914d1188f779cc3';
+function bubble(size, i, kind) {
+  let style = 'width: ' + size + 'px; height: ' + size + 'px; top: 0; left: ' + Math.round(i * size * 0.42) + 'px; z-index: ' + (5 - i) + ';';
+  let text = '';
+  if (kind === 'q') style += ' background-color: #fff; background-image: url(' + Q + ');';
+  else { const c = COLORS[kind % COLORS.length]; style += ' background-color: ' + c[0] + '; color: ' + c[1] + '; font-size: ' + Math.round(size * 0.34) + 'px;'; text = INITIALS[kind % INITIALS.length]; }
+  return { style, text };
+}
+function group(x, y, size, kinds, opts) {
+  opts = opts || {};
+  const w = size + Math.round(size * 0.42) * (kinds.length - 1);
+  let wrap = 'position: absolute; left: ' + Math.round(x - w / 2) + 'px; top: ' + Math.round(y - size / 2) + 'px; width: ' + w + 'px; height: ' + size + 'px; z-index: ' + size + ';';
+  if (opts.muted) wrap += ' opacity: .6;';
+  if (opts.selected) wrap += ' outline: 3px solid #8FC2F5; outline-offset: 4px; border-radius: 999px;';
+  if (opts.hover) wrap += ' transform: scale(1.15);';
+  return { wrap, bubbles: kinds.map((k, i) => bubble(size, i, k)) };
+}
+class Component extends DCLogic {
+  renderVals() {
+    const ROWS = [
+      ['q', "Rodney's", 'Happening now: Bringer Show until 7 PM · Next: Minute Mic 9:30 PM', '0.2 mi', true],
+      [0, 'Basement Lab Mic', 'Basement Lab · 7:30 PM · $5 + 1 drink', '0.3 mi', false],
+      [2, 'Corner Stage Bringer', 'Corner Stage · 6:00 PM · Bringer', '0.4 mi', false],
+      [3, 'Pickle Room Thursdays', 'Pickle Room · 8:30 PM · Free', '0.6 mi', false],
+      [4, 'Late Set Mic', 'Late Set Bar · 10:30 PM · Free', '0.9 mi', false],
+      [5, 'Second Floor Mic', 'Second Floor · 6:30 PM · $5', '1.2 mi', false]
+    ];
+    return {
+      rows: ROWS.map((r) => {
+        const isQ = r[0] === 'q';
+        const c = isQ ? ['#fff', '#1E4894'] : COLORS[r[0] % COLORS.length];
+        return {
+          name: r[1], meta: r[2], dist: r[3], initials: isQ ? '' : INITIALS[r[0] % INITIALS.length],
+          rowStyle: 'display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 16px;' + (r[4] ? ' background: #EEF2FA;' : ''),
+          dot: 'flex: 0 0 40px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; box-shadow: 0 2px 6px rgba(8,20,43,.18); background: ' + c[0] + (isQ ? ' url(' + Q + ') center / 62% no-repeat' : '') + '; color: ' + c[1] + ';'
+        };
+      }),
+      groups: [
+        group(140, 140, 34, [7]), group(330, 110, 44, [0]), group(560, 160, 34, [5], { muted: true }),
+        group(250, 300, 54, ['q']), group(470, 420, 54, ['q'], { selected: true }),
+        group(120, 560, 34, [4]), group(640, 330, 44, [1]), group(330, 600, 34, [6]),
+        group(600, 600, 44, [2]), group(80, 330, 44, [9]), group(420, 220, 34, [3], { hover: true }),
+        group(700, 500, 34, [8]), group(220, 680, 44, [10])
+      ],
+      events: [
+        { when: 'Happening now · until 7:00 PM', name: "Rodney's Bringer Show", meta: 'Started 5:30 PM · Bringer', btn: 'Join now' },
+        { when: 'Next · 9:30 PM', name: "Rodney's Minute Mic", meta: '$5, free with Comediq', btn: 'Sign up' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

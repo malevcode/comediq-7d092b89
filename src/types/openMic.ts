@@ -54,6 +54,16 @@ export interface OpenMic {
   isComediqRun?: boolean;
   otherRules: string;
   coverImageUrl?: string;
+  /**
+   * Circular image for this mic's bubble on the v3 map. Separate from
+   * coverImageUrl, which is the square banner at the top of the listing —
+   * hosts edit the two independently (SPEC.md, host Manage edit mode).
+   */
+  mapIconUrl?: string;
+  /** Short host-written labels, e.g. ["Free with Comediq", "1 drink min"]. */
+  tags?: string[];
+  /** Host-written blurb. Distinct from otherRules, which is the house rules. */
+  description?: string;
   status: MicStatus;
   frequency: MicFrequency;
   verificationCount?: number;

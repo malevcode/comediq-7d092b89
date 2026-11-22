@@ -28,6 +28,8 @@ import PageHeader from "@/components/PageHeader";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import OpenMicsLoadingScreen from "@/components/OpenMicsLoadingScreen";
 import { OpenMicsMapRefactored } from "@/components/map";
+import MapSplitView from "@/components/map/MapSplitView";
+import { useIsDesktop } from "@/hooks/useIsDesktop";
 import MicDetailModal from "@/components/MicDetailModal";
 import { DiscoverySheet } from "@/components/discovery/DiscoverySheet";
 import { DiscoveryFeed } from "@/components/discovery/DiscoveryFeed";
@@ -54,6 +56,9 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   // List is the default on every mount. The toggle swaps the whole page over
   // to the map-first view rather than expanding a panel inside the list.
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  // Desktop (>= 1024px) gets the split view; phone and tablet keep the
+  // full-bleed map. See docs/design/storytime-redesign/WEB_AND_HOST_PLAN.md.
+  const isDesktop = useIsDesktop();
   const [selectedMicId, setSelectedMicId] = useState<string | null>(null);
   const [sheetExpanded, setSheetExpanded] = useState(false);
 
@@ -894,7 +899,32 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
           </>
         ) : (
           <>
-            {/* Map-first home: full-bleed map behind a collapsible bottom sheet */}
+            {/* Desktop map: list on the left, map on the right, per
+                docs/design/storytime-redesign-v3/WebMap.dc.html. The phone
+                keeps the full-bleed map with the bottom sheet below. */}
+            {isDesktop ? (
+              <div className="fixed inset-x-0 z-0" style={{ top: 'var(--page-top-offset)', bottom: 0 }}>
+                <MapSplitView
+                  mics={getActiveTabMics()}
+                  onMicSelect={(mic) => {
+                    setSelectedMicId(mic.uniqueIdentifier);
+                    setSheetExpanded(true);
+                  }}
+                  listHeader={
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search venues..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-8"
+                      />
+                    </div>
+                  }
+                />
+                <div className="absolute right-4 top-4 z-40">{viewToggleButton}</div>
+              </div>
+            ) : (
             <div className="fixed inset-x-0 z-0" style={{ top: 'var(--page-top-offset)', bottom: 0 }}>
               <OpenMicsMapRefactored
                 variant="full"
@@ -951,6 +981,7 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
                 </div>
               </div>
             </div>
+            )}
 
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
               <DiscoverySheet
