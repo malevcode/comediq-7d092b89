@@ -1,6 +1,15 @@
 // Ported verbatim from the mobile app (malevcode/comediq-app,
-// src/utils/listingApproval.ts). Pure, no React and no Supabase, so the two
-// platforms share one copy of the rules rather than two that drift.
+// src/utils/listingApproval.ts). Pure, no React and no Supabase.
+//
+// NOTE: nothing on the web calls splitSave. It is kept as the single
+// written statement of the save rule, and because the app's copy is this
+// file, so the two stay reviewable side by side. On the web the same rule
+// is enforced in two narrower places instead of by trusting a split:
+//   - `changeRequestFromForms` (src/utils/micRowMapping.ts) decides what
+//     goes to open_mics_requests, and its list matches APPROVAL_FIELDS.
+//   - `update_own_mic_presentation_v1` names the four live-editable
+//     columns in SQL, so a creator cannot reach the others even if the UI
+//     asked it to.
 //
 // The save rule for a host editing a live listing.
 //
