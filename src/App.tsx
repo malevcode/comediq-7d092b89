@@ -33,6 +33,8 @@ const V3Sets = lazy(() => import("./pages/v3/V3Sets"));
 const V3SetReview = lazy(() => import("./pages/v3/V3SetReview"));
 const V3Profile = lazy(() => import("./pages/v3/V3Profile"));
 const V3AddListing = lazy(() => import("./pages/v3/listing/V3AddListing"));
+const V3ManageHome = lazy(() => import("./pages/v3/manage/V3ManageHome"));
+const V3ManageListing = lazy(() => import("./pages/v3/manage/V3ManageListing"));
 import Listing from "./pages/Listing";
 import Search from "./pages/Search";
 import SiteFooter from "./components/SiteFooter";
@@ -247,6 +249,8 @@ function AppShell() {
               <Route path="sets/:setId" element={<V3SetReview />} />
               <Route path="profile" element={<V3Profile />} />
               <Route path="listing" element={<V3AddListing />} />
+              <Route path="manage" element={<V3ManageHome />} />
+              <Route path="manage/:listingId" element={<V3ManageListing />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,0 +1,252 @@
+/*
+ * Host Manage styles, from docs/design/storytime-redesign-v3/HostManage.dc.html
+ * and WebManage.dc.html.
+ *
+ * The Manage tab is the one dark screen in the v3 set — WEB_AND_HOST_PLAN.md:
+ * "Dark navy theme like Storytime's, in Comediq blues." Everything else in v3
+ * sits on cream. Class names are the board's own, scoped under .mg-root.
+ *
+ * The board's "Live" status pill is already a Comediq blue (#8FC2F5 on a
+ * translucent blue), so unlike the listing form there is no green to swap.
+ */
+
+.mg-root {
+  background: #060d20;
+  color: #f4ede1;
+  font-family: "DM Sans", system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* The phone screen's own ground is a shade lighter than the page. */
+.mg-root .mg-screen {
+  background: #0b1530;
+}
+
+.mg-root .lf {
+  font-family: Archivo, "DM Sans", sans-serif;
+  font-stretch: 112%;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.mg-root .card {
+  background: #16264a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+}
+
+.mg-root .h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 22px 0 12px;
+}
+
+.mg-root .h {
+  font-size: 13px;
+  font-weight: 600;
+  color: #aeb9d6;
+  margin-bottom: 8px;
+}
+
+.mg-root .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #1c2f5a;
+  font-size: 13px;
+  font-weight: 600;
+  color: #dce3f2;
+  border: 0;
+}
+
+.mg-root .chip--add {
+  background: none;
+  border: 1.5px solid rgba(143, 194, 245, 0.6);
+  color: #8fc2f5;
+  cursor: pointer;
+}
+
+.mg-root .status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(143, 194, 245, 0.16);
+  color: #b0d4f9;
+  font-size: 13px;
+  font-weight: 600;
+}
+.mg-root .status i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8fc2f5;
+  display: inline-block;
+}
+.mg-root .status--pending {
+  background: rgba(255, 255, 255, 0.08);
+  color: #dce3f2;
+}
+.mg-root .status--pending i {
+  background: #dce3f2;
+}
+
+.mg-root .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 15px;
+}
+.mg-root .row:first-child {
+  border-top: 0;
+}
+
+/* The date on/off switch. On = running, off = skipped. */
+.mg-root .sw {
+  width: 44px;
+  height: 26px;
+  border-radius: 13px;
+  background: #8fc2f5;
+  position: relative;
+  flex: 0 0 44px;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.mg-root .sw::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 21px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 0.2s;
+}
+.mg-root .sw--off {
+  background: rgba(244, 237, 225, 0.25);
+}
+.mg-root .sw--off::after {
+  left: 3px;
+}
+.mg-root .sw:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.mg-root .field {
+  border: 2px solid #8fc2f5;
+  border-radius: 16px;
+  padding: 12px 14px;
+  background: #122042;
+  color: #f4ede1;
+  font: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  outline: none;
+}
+.mg-root textarea.field {
+  min-height: 92px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.mg-root .toggle-pill {
+  display: flex;
+  padding: 4px;
+  border-radius: 999px;
+  background: #16264a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.mg-root .toggle-pill button {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 0;
+  background: none;
+  color: #8a97b8;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mg-root .toggle-pill button[aria-selected="true"] {
+  background: #1e4894;
+  color: #f4ede1;
+}
+
+.mg-root .btn-outline {
+  height: 48px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(143, 194, 245, 0.6);
+  background: none;
+  color: #8fc2f5;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  cursor: pointer;
+}
+
+.mg-root .btn-solid {
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 0;
+  background: #8fc2f5;
+  color: #08142b;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.mg-root .btn-solid:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.mg-root .btn-ghost {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #dce3f2;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mg-root .skip-note {
+  display: block;
+  font-size: 12px;
+  color: #ffc9c0;
+}
+.mg-root .skip-date {
+  text-decoration: line-through;
+  color: #ffc9c0;
+}
+
+.mg-root .pencil {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #16264a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  color: #f4ede1;
+  cursor: pointer;
+}
