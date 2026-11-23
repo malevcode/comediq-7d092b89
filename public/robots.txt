@@ -4,5 +4,7 @@ Disallow: /admintest
 Disallow: /profile
 Disallow: /home
 Disallow: /auth
+# The pre-v3 pages, kept reachable but duplicates of the canonical ones.
+Disallow: /classic
 
 Sitemap: https://comediq.com/sitemap.xml

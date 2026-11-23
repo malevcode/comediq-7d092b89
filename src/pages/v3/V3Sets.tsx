@@ -88,7 +88,7 @@ export default function V3Sets() {
               Record a set after you check in at a mic and it shows up here.
             </p>
             <Link
-              to="/v3/map"
+              to="/open-mics"
               className="mt-4 inline-flex h-12 items-center rounded-full px-6 font-bold text-white"
               style={{ background: v3colors.royal }}
             >
@@ -113,7 +113,7 @@ export default function V3Sets() {
           {sets.map((set) => (
             <Link
               key={set.id}
-              to={`/v3/sets/${set.id}`}
+              to={`/sets/${set.id}`}
               className={
                 isDesktop
                   ? "grid grid-cols-[1fr_180px_120px_100px] items-center gap-4 rounded-3xl bg-white px-4 py-3.5 shadow-[0_4px_16px_rgba(18,26,51,0.05)]"

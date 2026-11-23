@@ -213,7 +213,7 @@ export default function V3Profile() {
             return (
               <Link
                 key={set.id}
-                to={`/v3/sets/${set.id}`}
+                to={`/sets/${set.id}`}
                 className="flex flex-col items-center gap-1 rounded-[28px] bg-white px-3.5 py-5 shadow-[0_6px_18px_rgba(18,26,51,0.06)]"
                 style={{ border: `1px solid ${v3colors.borderSoft}` }}
               >
@@ -239,7 +239,7 @@ export default function V3Profile() {
             return (
               <Link
                 key={set.id}
-                to={`/v3/sets/${set.id}`}
+                to={`/sets/${set.id}`}
                 className="flex w-[170px] shrink-0 flex-col items-center gap-1 rounded-[28px] bg-white px-3.5 py-5 shadow-[0_6px_18px_rgba(18,26,51,0.06)]"
                 style={{ border: `1px solid ${v3colors.borderSoft}` }}
               >

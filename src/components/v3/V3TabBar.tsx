@@ -31,13 +31,17 @@ interface Tab {
 }
 
 const BASE_TABS: Tab[] = [
-  { to: "/v3", label: "Home" },
-  { to: "/v3/map", label: "Map", owns: ["/v3/mic"] },
-  { to: "/v3/sets", label: "Sets" },
+  { to: "/", label: "Home", owns: ["/v3"] },
+  { to: "/open-mics", label: "Map", owns: ["/v3/map", "/v3/mic", "/perform"] },
+  { to: "/sets", label: "Sets", owns: ["/v3/sets"] },
 ];
 
-const MANAGE_TAB: Tab = { to: "/v3/manage", label: "Manage", owns: ["/v3/listing"] };
-const PROFILE_TAB: Tab = { to: "/v3/profile", label: "Profile" };
+const MANAGE_TAB: Tab = {
+  to: "/manage",
+  label: "Manage",
+  owns: ["/v3/manage", "/v3/listing"],
+};
+const PROFILE_TAB: Tab = { to: "/profile", label: "Profile", owns: ["/v3/profile"] };
 
 function HomeGlyph() {
   return (
@@ -118,8 +122,8 @@ function Avatar({ size = 32 }: { size?: number }) {
 
 /** Which of search / share / settings the round button shows. */
 function useFabKind(pathname: string): "search" | "share" | "settings" {
-  if (pathname.startsWith("/v3/mic")) return "share";
-  if (pathname.startsWith("/v3/profile")) return "settings";
+  if (pathname.startsWith("/v3/mic") || pathname.startsWith("/mic/")) return "share";
+  if (pathname === "/profile" || pathname.startsWith("/v3/profile")) return "settings";
   return "search";
 }
 
@@ -132,7 +136,10 @@ export function V3TabBar() {
   const tabs: Tab[] = [...BASE_TABS, ...(isHost ? [MANAGE_TAB] : []), PROFILE_TAB];
 
   const isActive = (tab: Tab) => {
-    if (tab.to === "/v3") return pathname === "/v3" || pathname === "/v3/";
+    // "/" prefix-matches everything, so Home is an exact test.
+    if (tab.to === "/") {
+      return pathname === "/" || pathname === "/v3" || pathname === "/v3/";
+    }
     if (pathname.startsWith(tab.to)) return true;
     return (tab.owns ?? []).some((owned) => pathname.startsWith(owned));
   };
@@ -143,7 +150,7 @@ export function V3TabBar() {
         className="sticky top-0 z-40 flex h-[68px] items-center justify-between px-7 font-dmsans"
         style={{ background: v3colors.royal, color: v3colors.cream }}
       >
-        <Link to="/v3" className="flex items-center gap-2.5" aria-label="Comediq home">
+        <Link to="/" className="flex items-center gap-2.5" aria-label="Comediq home">
           <img src={LOGO_URL} alt="" className="h-[30px] w-5 object-contain" />
           <span style={{ ...V3_DISPLAY_STYLE, fontSize: 26 }}>Comediq</span>
         </Link>
@@ -178,7 +185,7 @@ export function V3TabBar() {
             <Search className="h-4 w-4" aria-hidden="true" />
             Search mics or venues
           </Link>
-          <Link to="/v3/profile" aria-label="Your profile">
+          <Link to="/profile" aria-label="Your profile">
             <Avatar size={38} />
           </Link>
         </div>
@@ -218,7 +225,7 @@ export function V3TabBar() {
       </div>
 
       <Link
-        to={fabKind === "settings" ? "/v3/profile" : "/search"}
+        to={fabKind === "settings" ? "/profile" : "/search"}
         aria-label={fabKind === "search" ? "Search" : fabKind === "share" ? "Share" : "Settings"}
         className="flex h-16 w-16 items-center justify-center rounded-full shadow-[0_10px_30px_rgba(18,26,51,0.16)]"
         style={{

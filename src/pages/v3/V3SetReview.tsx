@@ -69,7 +69,7 @@ export default function V3SetReview() {
         <h1 className="text-2xl font-bold">We could not find that set</h1>
         <button
           type="button"
-          onClick={() => navigate("/v3/sets")}
+          onClick={() => navigate("/sets")}
           className="mt-5 h-12 rounded-full px-6 font-bold text-white"
           style={{ background: v3colors.royal }}
         >
@@ -156,7 +156,7 @@ export default function V3SetReview() {
       <div className={isDesktop ? "mx-auto max-w-5xl px-8 py-8" : "px-5 pb-40 pt-13"}>
         <button
           type="button"
-          onClick={() => navigate("/v3/sets")}
+          onClick={() => navigate("/sets")}
           aria-label="Back to sets"
           className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-white shadow"
         >

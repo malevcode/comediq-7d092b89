@@ -250,7 +250,7 @@ export default function V3AddListing() {
               type="button"
               className="icon-button"
               aria-label="Close"
-              onClick={() => navigate("/v3")}
+              onClick={() => navigate("/")}
             >
               <X className="h-5 w-5" aria-hidden="true" />
             </button>
@@ -307,7 +307,7 @@ export default function V3AddListing() {
           </div>
 
           <div className="mt-4 text-center">
-            <button type="button" className="text-link" onClick={() => navigate("/v3/manage")}>
+            <button type="button" className="text-link" onClick={() => navigate("/manage")}>
               Manage my listings
             </button>
           </div>
@@ -335,7 +335,7 @@ export default function V3AddListing() {
               type="button"
               className="icon-button icon-button--ghost"
               aria-label="Close"
-              onClick={() => navigate("/v3")}
+              onClick={() => navigate("/")}
             >
               <X className="h-5 w-5" aria-hidden="true" />
             </button>
@@ -385,10 +385,10 @@ export default function V3AddListing() {
               </button>
             )}
             <div className="flex gap-5">
-              <button type="button" className="text-link" onClick={() => navigate("/v3/map")}>
+              <button type="button" className="text-link" onClick={() => navigate("/open-mics")}>
                 Back to mics
               </button>
-              <button type="button" className="text-link" onClick={() => navigate("/v3/manage")}>
+              <button type="button" className="text-link" onClick={() => navigate("/manage")}>
                 Manage dates
               </button>
             </div>
@@ -460,7 +460,7 @@ export default function V3AddListing() {
             type="button"
             className="icon-button icon-button--ghost"
             aria-label="Close"
-            onClick={() => navigate("/v3")}
+            onClick={() => navigate("/")}
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>

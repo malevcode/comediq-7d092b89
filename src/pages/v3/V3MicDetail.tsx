@@ -148,7 +148,7 @@ export default function V3MicDetail() {
           It may have been delisted. The map has everything we know about.
         </p>
         <Link
-          to="/v3/map"
+          to="/open-mics"
           className="mt-5 inline-flex h-12 items-center rounded-full px-6 font-bold text-white"
           style={{ background: v3colors.royal }}
         >
@@ -233,7 +233,7 @@ export default function V3MicDetail() {
       )}
 
       <Link
-        to={mic.venueSlug ? `/venue/${mic.venueSlug}` : "/v3/map"}
+        to={mic.venueSlug ? `/venue/${mic.venueSlug}` : "/open-mics"}
         className="mt-5 flex min-h-16 w-full items-center gap-3.5"
       >
         <VenueBubble
