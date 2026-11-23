@@ -55,7 +55,7 @@ function HeroListingCard({ listing }: { listing: HostListing }) {
 
   return (
     <Link
-      to={`/v3/manage/${encodeURIComponent(listing.mic.uniqueIdentifier)}`}
+      to={`/manage/${encodeURIComponent(listing.mic.uniqueIdentifier)}`}
       className="relative block h-[250px] overflow-hidden rounded-[24px]"
     >
       {listing.mic.coverImageUrl ? (
@@ -94,7 +94,7 @@ function ListingRow({ listing }: { listing: HostListing }) {
 
   return (
     <Link
-      to={`/v3/manage/${encodeURIComponent(listing.mic.uniqueIdentifier)}`}
+      to={`/manage/${encodeURIComponent(listing.mic.uniqueIdentifier)}`}
       className="card mt-2.5 flex items-center gap-3 px-3.5 py-3"
     >
       <VenueBubble
@@ -134,7 +134,7 @@ export default function V3ManageHome() {
   );
 
   const profileCard = (
-    <Link to="/v3/profile" className="card flex items-center gap-3.5 px-4 py-3.5">
+    <Link to="/profile" className="card flex items-center gap-3.5 px-4 py-3.5">
       <span
         className="flex h-14 w-14 items-center justify-center rounded-full text-lg font-bold"
         style={{ background: "#8FC2F5", color: "#08142B" }}
@@ -198,7 +198,7 @@ export default function V3ManageHome() {
               {listings.map((listing) => (
                 <Link
                   key={listing.mic.uniqueIdentifier}
-                  to={`/v3/manage/${encodeURIComponent(listing.mic.uniqueIdentifier)}`}
+                  to={`/manage/${encodeURIComponent(listing.mic.uniqueIdentifier)}`}
                   className="rounded-[14px] p-3"
                 >
                   <div className="lf truncate text-[15px]">{listing.mic.openMic}</div>
@@ -258,7 +258,7 @@ export default function V3ManageHome() {
               {hostName} · Host
             </div>
           </div>
-          <Link to="/v3/profile" aria-label="Settings" className="p-1">
+          <Link to="/profile" aria-label="Settings" className="p-1">
             <Settings className="h-6 w-6" aria-hidden="true" />
           </Link>
         </div>

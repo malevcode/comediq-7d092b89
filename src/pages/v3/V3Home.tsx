@@ -33,7 +33,7 @@ import {
 
 function micHref(entry: HomeEntry): string {
   const id = micIdOf(entry.event.mic);
-  return id ? `/v3/mic/${encodeURIComponent(id)}` : "/v3/map";
+  return id ? `/v3/mic/${encodeURIComponent(id)}` : "/open-mics";
 }
 
 function MicCard({ entry, wide = false }: { entry: HomeEntry; wide?: boolean }) {
@@ -181,7 +181,7 @@ export default function V3Home() {
               </div>
             </div>
             <Link
-              to="/v3/profile"
+              to="/profile"
               aria-label="Notifications"
               className="flex h-12 w-12 items-center justify-center"
             >
@@ -211,7 +211,7 @@ export default function V3Home() {
             </p>
             <button
               type="button"
-              onClick={() => navigate("/v3/map")}
+              onClick={() => navigate("/open-mics")}
               className="mt-4 h-12 rounded-full px-6 text-base font-bold text-white"
               style={{ background: v3colors.royal }}
             >
@@ -231,7 +231,7 @@ export default function V3Home() {
               {/* Desktop gets the worded "See all" the plan asks for; the
                   phone keeps the boards' chevron. */}
               <Link
-                to="/v3/map"
+                to="/open-mics"
                 className="flex items-center gap-1 text-base font-semibold"
                 style={{ color: v3colors.royal }}
                 aria-label={`See all: ${row.title}`}

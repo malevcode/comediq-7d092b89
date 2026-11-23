@@ -111,18 +111,112 @@ function isMicSignupPath(pathname: string) {
 // Unlinked utility pages that must read as plain text with no site chrome.
 const HIDDEN_PLAIN_PAGES = ["/setbuild-privacy"];
 
-/** The v3 screens bring their own nav, so the site's pill is hidden there. */
+/**
+ * Every pre-v3 page, mounted under /classic/... so nothing became
+ * unreachable when v3 took over the site's own addresses.
+ *
+ * /classic            the old home
+ * /classic/perform    the old Perform tab
+ * /classic/open-mics  the old list-and-map screen
+ * /classic/profile    the old profile
+ * ...and so on, one entry per page.
+ *
+ * These are deliberately the same elements the top-level routes use, not
+ * copies, so a page cannot behave differently depending on which address it
+ * was reached through. Paths are relative, so the parent <Route path="/classic">
+ * supplies the prefix; "" is the index.
+ */
+const CLASSIC_ROUTES: Array<{ path: string; element: JSX.Element }> = [
+  { path: "", element: <Index /> },
+  { path: "perform", element: <TabProvider><Perform /></TabProvider> },
+  { path: "laugh", element: <LaughTabProvider><Laugh /></LaughTabProvider> },
+  { path: "open-mics", element: <OpenMics /> },
+  { path: "open-mics/:filter", element: <OpenMics /> },
+  { path: "track-sets", element: <ProgressTrackerPage /> },
+  { path: "shows", element: <TabProvider><Shows /></TabProvider> },
+  { path: "shows/map", element: <ShowsMap /> },
+  { path: "auth", element: <Auth /> },
+  { path: "auth/sign-in", element: <Auth /> },
+  { path: "auth/create", element: <Auth /> },
+  { path: "profile", element: <Profile /> },
+  { path: "admintest", element: <AdminInterface /> },
+  { path: "playlists", element: <Playlists /> },
+  { path: "playlists/:playlistId", element: <PlaylistDetail /> },
+  { path: "mics/:venueSlug", element: <MicDetailPage /> },
+  { path: "mic/:slug", element: <MicDetailPage /> },
+  { path: "mic/:slug/signup", element: <MicSignup /> },
+  { path: "mic-slots/:hostSlug", element: <MicSlotSignup /> },
+  { path: "venue/:slug", element: <VenuePage /> },
+  { path: "boroughs/:borough", element: <ToOpenMicsFilter param="borough" /> },
+  { path: "neighborhoods/:neighborhood", element: <MicsByNeighborhood /> },
+  { path: "days/:day", element: <ToOpenMicsFilter param="day" /> },
+  { path: "free-mics", element: <FreeMics /> },
+  { path: "beginner-friendly", element: <BeginnerMics /> },
+  { path: "host-dashboard", element: <HostDashboard /> },
+  { path: "growth", element: <GrowthOpportunities /> },
+  { path: "advertise", element: <AdvertiseWithUs /> },
+  { path: "privacy", element: <PrivacyPolicy /> },
+  { path: "blog", element: <Blog /> },
+  { path: "blog/:slug", element: <BlogPost /> },
+  { path: "support", element: <Support /> },
+  { path: "terms", element: <Terms /> },
+  { path: "setbuild-privacy", element: <SetBuildPrivacy /> },
+  // The three pages v3 replaced. Reachable here in full, unredirected.
+  { path: "add-mic", element: <AddMic /> },
+  { path: "add-show", element: <AddShow /> },
+  { path: "listing", element: <Listing /> },
+  { path: "listing-v2", element: <ListingV2 /> },
+  { path: "list-your-show", element: <ListYourShow /> },
+  { path: "search", element: <Search /> },
+  { path: "saved", element: <SavedMics /> },
+  { path: "liked", element: <LikedMics /> },
+  { path: "leaderboard", element: <Leaderboard /> },
+  { path: "top-mics", element: <Leaderboard /> },
+  { path: "dev-view", element: <TabProvider><DevView /></TabProvider> },
+  { path: "slots", element: <Slots /> },
+  { path: "strip", element: <Strip /> },
+];
+
+/**
+ * Addresses the v3 screens serve, now that v3 is the default site.
+ *
+ * v3 brings its own navigation (V3TabBar) and no footer, so the site's pill
+ * nav and SiteFooter are hidden on these and shown everywhere else - which
+ * includes the whole of /classic, where the old chrome still belongs.
+ *
+ * Kept as one list so the routes and the chrome cannot drift apart.
+ */
+const V3_EXACT_PATHS = new Set([
+  '/',
+  '/perform',
+  '/open-mics',
+  '/profile',
+  '/manage',
+  '/sets',
+]);
+
+function isV3Path(pathname: string) {
+  const path = pathname !== '/' && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+  if (V3_EXACT_PATHS.has(path)) return true;
+  // The /v3/... aliases, plus the two v3 sections with their own sub-pages.
+  return (
+    path === '/v3' ||
+    path.startsWith('/v3/') ||
+    path.startsWith('/manage/') ||
+    path.startsWith('/sets/')
+  );
+}
+
 function BottomNavigationWrapper() {
   const location = useLocation();
-  if (location.pathname.startsWith('/v3')) return null;
+  if (isV3Path(location.pathname)) return null;
   return <BottomNavigation />;
 }
 
 function SiteFooterWrapper() {
   const location = useLocation();
 
-  // The v3 screens carry their own nav (V3TabBar) and no footer.
-  if (location.pathname.startsWith('/v3')) return null;
+  if (isV3Path(location.pathname)) return null;
   if (isMicSignupPath(location.pathname)) return null;
   if (HIDDEN_PLAIN_PAGES.includes(location.pathname)) return null;
 
@@ -190,21 +284,72 @@ function AppShell() {
           <CanonicalTag />
           <Suspense fallback={null}>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/perform" element={<TabProvider><Perform /></TabProvider>} />
-            <Route path="/laugh" element={<LaughTabProvider><Laugh /></LaughTabProvider>} />
-            <Route path="/open-mics" element={<OpenMics />} />
+            {/* ----------------------------------------------------------------
+                v3 is the default site (2026-11-23).
+ 
+                The v3 screens are rendered AT the site's own addresses rather
+                than redirecting to /v3/..., so / and /open-mics keep the URLs
+                they are indexed under - /open-mics is the single most visited
+                page on the site. The /v3/... paths below stay as working
+                aliases so links already shared keep resolving.
+ 
+                /add-mic, /add-show and /listing do redirect, because those are
+                action pages rather than content, and because the ask named
+                /v3/listing as the destination.
+ 
+                Every pre-v3 page is still reachable under /classic/... See
+                CLASSIC_ROUTES. Nothing was deleted.
+               ---------------------------------------------------------------- */}
+            <Route element={<V3Layout />}>
+              <Route path="/" element={<V3Home />} />
+              {/* Both of these were lists-plus-map; the v3 map is the new one. */}
+              <Route path="/perform" element={<V3Map />} />
+              <Route path="/open-mics" element={<V3Map />} />
+              <Route path="/profile" element={<V3Profile />} />
+              <Route path="/manage" element={<V3ManageHome />} />
+              <Route path="/manage/:listingId" element={<V3ManageListing />} />
+              <Route path="/sets" element={<V3Sets />} />
+              <Route path="/sets/:setId" element={<V3SetReview />} />
+            </Route>
+
+            {/* The /v3/... aliases. */}
+            <Route path="/v3" element={<V3Layout />}>
+              <Route index element={<V3Home />} />
+              <Route path="map" element={<V3Map />} />
+              <Route path="mic/:micId" element={<V3MicDetail />} />
+              <Route path="sets" element={<V3Sets />} />
+              <Route path="sets/:setId" element={<V3SetReview />} />
+              <Route path="profile" element={<V3Profile />} />
+              <Route path="listing" element={<V3AddListing />} />
+              <Route path="manage" element={<V3ManageHome />} />
+              <Route path="manage/:listingId" element={<V3ManageListing />} />
+            </Route>
+
+            {/* The three action pages that redirect. /add-show carries
+                ?kind=show so it opens the show form rather than the chooser. */}
+            <Route path="/add-mic" element={<Navigate to="/v3/listing" replace />} />
+            <Route path="/add-show" element={<Navigate to="/v3/listing?kind=show" replace />} />
+            <Route path="/listing" element={<Navigate to="/v3/listing" replace />} />
+            <Route path="/listing-v2" element={<Navigate to="/v3/listing" replace />} />
+
+            {/* ----------------------------------------------------------------
+                Everything v3 did not take over, at its original address.
+               ---------------------------------------------------------------- */}
+            {/* The 13 filtered lists under /open-mics/... are indexed SEO pages
+                (Brooklyn, Thursday, and so on) and a map does not serve a
+                filtered list, so they stay on the classic list screen. */}
             <Route path="/open-mics/:filter" element={<OpenMics />} />
+            <Route path="/laugh" element={<LaughTabProvider><Laugh /></LaughTabProvider>} />
             <Route path="/track-sets" element={<ProgressTrackerPage />} />
             <Route path="/shows" element={<TabProvider><Shows /></TabProvider>} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/sign-in" element={<Auth />} />
             <Route path="/auth/create" element={<Auth />} />
-            <Route path="/profile" element={<Profile />} />
             <Route path="/admintest" element={<AdminInterface />} />
             <Route path="/playlists" element={<Playlists />} />
             <Route path="/playlists/:playlistId" element={<PlaylistDetail />} />
             <Route path="/home" element={<Navigate to="/" replace />} />
+            {/* Existing mic and venue links, untouched. */}
             <Route path="/mics/:venueSlug" element={<MicDetailPage />} />
             <Route path="/mic/:slug" element={<MicDetailPage />} />
             <Route path="/venue/:slug" element={<VenuePage />} />
@@ -226,11 +371,7 @@ function AppShell() {
             <Route path="/support" element={<Support />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/setbuild-privacy" element={<SetBuildPrivacy />} />
-            <Route path="/add-show" element={<AddShow />} />
             <Route path="/list-your-show" element={<ListYourShow />} />
-            <Route path="/add-mic" element={<AddMic />} />
-            <Route path="/listing" element={<Listing />} />
-            <Route path="/listing-v2" element={<Navigate to="/v3/listing" replace />} />
             <Route path="/search" element={<Search />} />
             <Route path="/shows/map" element={<ShowsMap />} />
             <Route path="/saved" element={<SavedMics />} />
@@ -240,18 +381,21 @@ function AppShell() {
             <Route path="/dev-view" element={<TabProvider><DevView /></TabProvider>} />
             <Route path="/slots" element={<Slots />} />
             <Route path="/strip" element={<Strip />} />
-            {/* v3 redesign, from docs/design/storytime-redesign-v3. */}
-            <Route path="/v3" element={<V3Layout />}>
-              <Route index element={<V3Home />} />
-              <Route path="map" element={<V3Map />} />
-              <Route path="mic/:micId" element={<V3MicDetail />} />
-              <Route path="sets" element={<V3Sets />} />
-              <Route path="sets/:setId" element={<V3SetReview />} />
-              <Route path="profile" element={<V3Profile />} />
-              <Route path="listing" element={<V3AddListing />} />
-              <Route path="manage" element={<V3ManageHome />} />
-              <Route path="manage/:listingId" element={<V3ManageListing />} />
+
+            {/* ----------------------------------------------------------------
+                Every pre-v3 page, kept reachable under /classic/...
+                e.g. /classic/perform, /classic/open-mics, /classic/profile.
+               ---------------------------------------------------------------- */}
+            <Route path="/classic">
+              {CLASSIC_ROUTES.map(({ path, element }) =>
+                path === "" ? (
+                  <Route key="index" index element={element} />
+                ) : (
+                  <Route key={path} path={path} element={element} />
+                ),
+              )}
             </Route>
+
             <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>

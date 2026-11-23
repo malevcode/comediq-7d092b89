@@ -9,6 +9,19 @@ export function isNonCanonicalHost() {
   return window.location.hostname.endsWith(".lovable.app");
 }
 
+/**
+ * /classic/... serves the pre-v3 pages at a second address, so every one of
+ * them is a duplicate of a canonical page (/classic/perform of /perform, and
+ * so on). They are kept reachable on purpose, but they must not compete with
+ * the real pages in search results.
+ *
+ * robots.txt also disallows /classic; this covers the case where a crawler has
+ * already followed a link to one.
+ */
+export function isDuplicateAddress(pathname: string) {
+  return pathname === "/classic" || pathname.startsWith("/classic/");
+}
+
 /** Absolute canonical URL for a path, always on the canonical domain. */
 export function canonicalUrlFor(pathname: string) {
   const path = pathname === "/" ? "" : pathname.replace(/\/+$/, "");
@@ -49,14 +62,25 @@ const CanonicalTag = () => {
     // Paginated listing pages self-reference their own page (?page=N, N > 1).
     link.setAttribute("href", canonicalUrlFor(pathname) + (page > 1 ? `?page=${page}` : ""));
 
-    if (isNonCanonicalHost()) {
-      const robots = setTag('meta[name="robots"][data-canonical="app"]', () => {
+    const robotsTag = () =>
+      setTag('meta[name="robots"][data-canonical="app"]', () => {
         const el = document.createElement("meta");
         el.setAttribute("name", "robots");
         el.setAttribute("data-canonical", "app");
         return el;
       });
-      robots.setAttribute("content", "noindex, nofollow");
+
+    if (isNonCanonicalHost()) {
+      robotsTag().setAttribute("content", "noindex, nofollow");
+    } else if (isDuplicateAddress(pathname)) {
+      // follow, not nofollow: the links on a classic page point at canonical
+      // pages, and those are worth crawling.
+      robotsTag().setAttribute("content", "noindex, follow");
+    } else {
+      // Leaving a stale noindex behind would quietly de-index a real page.
+      document.head
+        .querySelectorAll('meta[name="robots"][data-canonical="app"]')
+        .forEach((el) => el.remove());
     }
   }, [pathname, page]);
 

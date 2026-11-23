@@ -122,7 +122,7 @@ export default function V3ManageListing() {
         <p className="mt-2" style={{ color: "#AEB9D6" }}>
           You can only manage a listing you created.
         </p>
-        <button type="button" className="btn-outline mt-5" onClick={() => navigate("/v3/manage")}>
+        <button type="button" className="btn-outline mt-5" onClick={() => navigate("/manage")}>
           Back to Manage
         </button>
       </div>
@@ -470,7 +470,7 @@ export default function V3ManageListing() {
         type="button"
         className="btn-ghost"
         aria-label="Back to Manage"
-        onClick={() => navigate("/v3/manage")}
+        onClick={() => navigate("/manage")}
       >
         <ArrowLeft className="h-5 w-5" aria-hidden="true" />
       </button>
