@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { COMEDIQ_Q_INSET, COMEDIQ_Q_LOGO } from '@/lib/brand';
 import type { FeatureCollection, Point } from 'geojson';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -54,8 +55,8 @@ const MINUTES_PER_DAY = 24 * 60;
 const NYC_CENTER: [number, number] = [-73.935242, 40.73061];
 const LOGO_PIN_IMAGE_ID = 'mic-logo-pin';
 const LOGO_DOT_IMAGE_ID = 'mic-logo-dot';
-const LOGO_PIN_IMAGE_URL = '/map-pins/comediq_logo_pin.png';
-const LOGO_DOT_IMAGE_URL = '/map-pins/comediq_logo_pin.png';
+const LOGO_PIN_IMAGE_URL = COMEDIQ_Q_LOGO;
+const LOGO_DOT_IMAGE_URL = COMEDIQ_Q_LOGO;
 const LOGO_PIN_PIXEL_RATIO = 1.5;
 const LOGO_DOT_PIXEL_RATIO = 1.5;
 const PIN_ZOOM_THRESHOLD = 12.5;
@@ -685,7 +686,7 @@ const OpenMicsMapRefactored = ({
       } else if (venue.tier === 'comediq') {
         bubble.style.background = v3colors.white;
         bubble.style.backgroundImage = `url(${LOGO_PIN_IMAGE_URL})`;
-        bubble.style.backgroundSize = '62%';
+        bubble.style.backgroundSize = COMEDIQ_Q_INSET;
         bubble.style.backgroundRepeat = 'no-repeat';
       } else {
         const [bg, fg] = v3bubblePalette[venueHash(venue.key) % v3bubblePalette.length];

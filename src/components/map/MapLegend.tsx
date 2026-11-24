@@ -1,4 +1,5 @@
 import React from 'react';
+import { COMEDIQ_Q_LOGO } from "@/lib/brand";
 
 interface MapLegendProps {
   className?: string;
@@ -10,11 +11,11 @@ export const MapLegend: React.FC<MapLegendProps> = ({ className = "" }) => {
       <h4 className="text-xs font-semibold mb-2">Pin Status</h4>
       <div className="space-y-1">
         <div className="flex items-center gap-2 text-xs">
-          <img src="/map-pins/comediq_logo_pin.png" alt="" className="h-5 w-5 object-contain" />
+          <img src={COMEDIQ_Q_LOGO} alt="" className="h-5 w-5 object-contain" />
           <span>Verified</span>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <img src="/map-pins/comediq_logo_pin.png" alt="" className="h-5 w-5 object-contain opacity-50" />
+          <img src={COMEDIQ_Q_LOGO} alt="" className="h-5 w-5 object-contain opacity-50" />
           <span>Unverified</span>
         </div>
       </div>

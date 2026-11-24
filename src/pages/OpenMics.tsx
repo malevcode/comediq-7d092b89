@@ -41,6 +41,34 @@ interface OpenMicsProps {
   embedded?: boolean;
 }
 
+/** Where the list/map choice is remembered. */
+const VIEW_MODE_KEY = "comediq.openMics.viewMode";
+
+type ViewMode = "list" | "map";
+
+/**
+ * The visitor's last list/map choice, defaulting to the list.
+ *
+ * Anything unexpected in storage means list: a first visit, a cleared
+ * browser, or private mode where reading localStorage throws outright.
+ */
+function readSavedViewMode(): ViewMode {
+  try {
+    return localStorage.getItem(VIEW_MODE_KEY) === "map" ? "map" : "list";
+  } catch {
+    return "list";
+  }
+}
+
+function saveViewMode(mode: ViewMode) {
+  try {
+    localStorage.setItem(VIEW_MODE_KEY, mode);
+  } catch {
+    // Private mode and full storage both throw. Remembering the choice is a
+    // convenience, so losing it must never break the page.
+  }
+}
+
 const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMic, setSelectedMic] = useState<OpenMic | null>(null);
@@ -53,9 +81,12 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   const pageParam = Math.max(1, parseInt(searchParams.get("page") || "1", 10) || 1);
   const [visibleCount, setVisibleCount] = useState(pageParam * PAGE_SIZE);
   const [showInlineCard, setShowInlineCard] = useState(false);
-  // List is the default on every mount. The toggle swaps the whole page over
-  // to the map-first view rather than expanding a panel inside the list.
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  // The toggle swaps the whole page over to the map-first view rather than
+  // expanding a panel inside the list.
+  // The list is the default view, and the last choice is remembered so a
+  // visitor who prefers the map is not sent back to the list every time.
+  // First visit, or unreadable storage, means list.
+  const [viewMode, setViewMode] = useState<'list' | 'map'>(() => readSavedViewMode());
   // Desktop (>= 1024px) gets the split view; phone and tablet keep the
   // full-bleed map. See docs/design/storytime-redesign/WEB_AND_HOST_PLAN.md.
   const isDesktop = useIsDesktop();
@@ -666,7 +697,13 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
   // floating bar, so the two cannot drift apart.
   const viewToggleButton = (
     <Button
-      onClick={() => setViewMode((mode) => (mode === 'list' ? 'map' : 'list'))}
+      onClick={() =>
+        setViewMode((mode) => {
+          const next = mode === 'list' ? 'map' : 'list';
+          saveViewMode(next);
+          return next;
+        })
+      }
       variant="outline"
       size="sm"
       aria-pressed={viewMode === 'map'}

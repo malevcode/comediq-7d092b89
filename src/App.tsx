@@ -189,7 +189,6 @@ const CLASSIC_ROUTES: Array<{ path: string; element: JSX.Element }> = [
 const V3_EXACT_PATHS = new Set([
   '/',
   '/perform',
-  '/open-mics',
   '/profile',
   '/manage',
   '/sets',
@@ -302,9 +301,7 @@ function AppShell() {
                ---------------------------------------------------------------- */}
             <Route element={<V3Layout />}>
               <Route path="/" element={<V3Home />} />
-              {/* Both of these were lists-plus-map; the v3 map is the new one. */}
               <Route path="/perform" element={<V3Map />} />
-              <Route path="/open-mics" element={<V3Map />} />
               <Route path="/profile" element={<V3Profile />} />
               <Route path="/manage" element={<V3ManageHome />} />
               <Route path="/manage/:listingId" element={<V3ManageListing />} />
@@ -335,9 +332,15 @@ function AppShell() {
             {/* ----------------------------------------------------------------
                 Everything v3 did not take over, at its original address.
                ---------------------------------------------------------------- */}
-            {/* The 13 filtered lists under /open-mics/... are indexed SEO pages
-                (Brooklyn, Thursday, and so on) and a map does not serve a
-                filtered list, so they stay on the classic list screen. */}
+            {/* /open-mics is the list screen again (2026-11-24): it owns the
+                list/map toggle, and the list is what someone looking for a
+                room tonight wants first. The v3 map is one tap away through
+                that toggle, and also at /perform.
+ 
+                The 13 filtered lists under /open-mics/... are indexed SEO
+                pages (Brooklyn, Thursday, and so on), and have always been on
+                this screen. */}
+            <Route path="/open-mics" element={<OpenMics />} />
             <Route path="/open-mics/:filter" element={<OpenMics />} />
             <Route path="/laugh" element={<LaughTabProvider><Laugh /></LaughTabProvider>} />
             <Route path="/track-sets" element={<ProgressTrackerPage />} />
