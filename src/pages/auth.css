@@ -1,0 +1,96 @@
+/*
+ * Sign in / sign up, in Comediq blue and white.
+ *
+ * Why this file exists rather than Tailwind classes on the inputs:
+ * src/index.css has a site-wide rule, `form :where(input, textarea, select,
+ * ...)`, that sets border-width, background-color and color with !important.
+ * No utility class on the element can beat that, which is why the fields on
+ * this page stayed translucent white however they were classed.
+ *
+ * Rather than weaken the global rule, which every other form on the site
+ * depends on, this scopes an override to the auth page only.
+ *
+ * The class is repeated (.cq-auth.cq-auth) on purpose. index.css has BOTH
+ * `form :where(...)` and `.dark form :where(...)`, and that second one has
+ * the same specificity as a single-class `.cq-auth form :where(...)` while coming
+ * later in the file, so it would win on order. Two classes puts this above
+ * both without having to care about file order.
+ *
+ * Blue and white only. The page sits on the deep navy, so the fields are the
+ * darker blue with a Comediq blue border, and sky blue on focus.
+ */
+
+.cq-auth {
+  --cq-auth-ink: #08142b;
+  --cq-auth-field: #0f1e3d;
+  --cq-auth-border: #2b56a6;
+  --cq-auth-focus: #8fc2f5;
+  background: var(--cq-auth-ink);
+}
+
+/* Two classes, so this sits above both global input rules. */
+.cq-auth.cq-auth form :where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+    textarea,
+    select,
+    button[role="combobox"]
+  ) {
+  border-width: 1.5px !important;
+  border-style: solid !important;
+  border-color: var(--cq-auth-border) !important;
+  background-color: var(--cq-auth-field) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+}
+
+.cq-auth.cq-auth form :where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+    textarea
+  )::placeholder {
+  color: rgb(255 255 255 / 0.45) !important;
+  opacity: 1;
+}
+
+.cq-auth.cq-auth form :where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+    textarea,
+    select
+  ):focus,
+.cq-auth.cq-auth form :where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+    textarea,
+    select
+  ):focus-visible {
+  border-color: var(--cq-auth-focus) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgb(143 194 245 / 0.3) !important;
+}
+
+/*
+ * Headings: Archivo, extra bold, slightly expanded.
+ *
+ * index.css already sets Archivo on every h1/h2/h3, but at font-stretch 68%
+ * (condensed) and weight 800. This page wants the expanded 112% cut, so the
+ * width axis is restated here. The axis itself is already requested in the
+ * Google Fonts link (family=Archivo:wdth,wght@62..125,100..900), so no new
+ * font request is needed.
+ */
+.cq-auth :where(h1, h2) {
+  font-family: Archivo, "DM Sans", sans-serif;
+  font-stretch: 112%;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  text-transform: none;
+}
+
+/* Everything that is not a heading is DM Sans. */
+.cq-auth,
+.cq-auth :where(p, label, button, input, a, span, li, div) {
+  font-family: "DM Sans", system-ui, sans-serif;
+}
+
+.cq-auth a {
+  color: var(--cq-auth-focus);
+}
