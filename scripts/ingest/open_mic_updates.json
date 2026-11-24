@@ -1009,6 +1009,10 @@
     {
       "unique_identifier": "28ab9f17-e0d5-4d65-818b-5578e550f87b",
       "note": "The Spins Mic (Rodney's, Wednesday 6:00-8:30 PM) is no longer running. Rodney's Mic w/ Ellen Maloney, same venue same Wednesday 6 PM, is the only live one in that slot, and the site was showing both. Ellen's row is untouched. removals sets active=false and keeps this row with its history; reviving it means setting active true in THIS entry, not re-adding it."
+    },
+    {
+      "unique_identifier": "3bcc9937-9820-4395-a222-85fb565cf7e1",
+      "note": "The Golden Pen, Sunday 5 PM at Eastville Comedy Club (host Vinnie Pedi). Adam, 2026-11-24: 'His golden pen eastville mic is no longer active', after Vinnie texted that Golden Pen is now his Friday Comic Strip Live mic. Deactivated, not deleted."
     }
   ],
   "new_mics": [
