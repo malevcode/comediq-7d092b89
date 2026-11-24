@@ -1,6 +1,7 @@
 import { useMemo } from "react";
+import { COMEDIQ_Q_LOGO } from "@/lib/brand";
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, ChevronRight, MapPin } from "lucide-react";
+import { Bell, ChevronRight } from "lucide-react";
 
 import SEO from "@/components/SEO";
 import { V3Chip, VenueArtwork, VenueBubble, VenueName } from "@/components/v3/V3Primitives";
@@ -169,14 +170,19 @@ export default function V3Home() {
           <div className="flex items-start justify-between">
             <div className="flex flex-col gap-2.5">
               <div className="flex items-center gap-2.5">
-                <img src="/map-pins/comediq_logo_pin.png" alt="" className="h-9 w-6 object-contain" />
+                <img src={COMEDIQ_Q_LOGO} alt="" className="h-9 w-9 object-contain" />
                 <span style={{ ...V3_DISPLAY_STYLE, fontSize: 36 }}>Comediq</span>
               </div>
+              {/* City pill: the Q mark, not a generic pin. */}
               <div
-                className="flex items-center gap-1 text-base font-semibold"
-                style={{ color: v3colors.sky }}
+                className="inline-flex w-fit items-center gap-1.5 rounded-full py-1 pl-1 pr-3 text-sm font-semibold"
+                style={{ background: "rgba(255,255,255,0.14)", color: v3colors.sky }}
               >
-                <MapPin className="h-4 w-4" aria-hidden="true" />
+                <img
+                  src={COMEDIQ_Q_LOGO}
+                  alt=""
+                  className="h-5 w-5 rounded-full bg-white object-contain p-[3px]"
+                />
                 {area ? `${area}, NY` : "New York, NY"}
               </div>
             </div>
@@ -207,7 +213,7 @@ export default function V3Home() {
         {!isLoading && rows.length === 0 && (
           <div className={isDesktop ? "" : "px-6 pt-6"}>
             <p className="text-base" style={{ color: v3colors.muted }}>
-              Nothing listed right now. The map has every mic we know about.
+              Nothing listed right now. The full list has every mic we know about.
             </p>
             <button
               type="button"
@@ -215,7 +221,7 @@ export default function V3Home() {
               className="mt-4 h-12 rounded-full px-6 text-base font-bold text-white"
               style={{ background: v3colors.royal }}
             >
-              Open the map
+              See all mics
             </button>
           </div>
         )}

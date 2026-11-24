@@ -7,6 +7,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIsDesktop } from "@/hooks/useIsDesktop";
 import { useComedianProfile } from "@/hooks/useComedianProfile";
 import { useMyListings, type HostListing } from "@/hooks/useMyListings";
+import { useMyMicClaims } from "@/hooks/useMicClaims";
+import { useOpenMics } from "@/hooks/useOpenMics";
 import { V3_DISPLAY_STYLE } from "@/theme/v3";
 import { initialsOf } from "@/utils/venues";
 import "./manage.css";
@@ -121,6 +123,15 @@ export default function V3ManageHome() {
   const { user } = useAuth();
   const { data: profile } = useComedianProfile(user?.id);
   const { listings, isLoading } = useMyListings();
+  const { pending: pendingClaims } = useMyMicClaims();
+  const { data: allMics = [] } = useOpenMics();
+
+  /** A claim stores only the mic id, so the name comes from the mic list. */
+  const claimMicName = (micId: string) => {
+    const mic = allMics.find((candidate) => candidate.uniqueIdentifier === micId);
+    if (!mic) return "A mic you claimed";
+    return [mic.openMic, mic.venueName].filter(Boolean).join(" · ");
+  };
 
   const hostName =
     profile?.stage_name?.trim() || user?.email?.split("@")[0] || "You";
@@ -128,9 +139,16 @@ export default function V3ManageHome() {
     listings.length === 1 ? "Hosting 1 listing" : `Hosting ${listings.length} listings`;
 
   const newListingButton = (
-    <button type="button" className="btn-outline mt-3" onClick={() => navigate("/v3/listing")}>
-      + List a new mic or show
-    </button>
+    <>
+      <button type="button" className="btn-outline mt-3" onClick={() => navigate("/v3/listing")}>
+        + List a new mic or show
+      </button>
+      {/* For a host whose rooms are already on Comediq but not attached to
+          them yet. Claiming is how they end up in this list. */}
+      <button type="button" className="btn-outline mt-2" onClick={() => navigate("/claim-mics")}>
+        Claim your mics
+      </button>
+    </>
   );
 
   const profileCard = (
@@ -265,6 +283,26 @@ export default function V3ManageHome() {
 
         <div className="h2">Your profile</div>
         {profileCard}
+
+        {pendingClaims.length > 0 && (
+          <>
+            <div className="h2">Pending claims</div>
+            <div className="card">
+              {pendingClaims.map((claim) => (
+                <div key={claim.id} className="row">
+                  <span className="min-w-0 flex-1 truncate">{claimMicName(claim.mic_id)}</span>
+                  <span className="status status--pending">
+                    <i />
+                    Pending
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-2 text-xs" style={{ color: "#AEB9D6" }}>
+              You'll see these in your listings once approved.
+            </p>
+          </>
+        )}
 
         <div className="h2">Your listings</div>
         {isLoading && (

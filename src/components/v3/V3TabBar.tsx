@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { COMEDIQ_Q_LOGO } from "@/lib/brand";
 import { Search, Settings, Share2 } from "lucide-react";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,7 +22,6 @@ import { v3colors, V3_DISPLAY_STYLE } from "@/theme/v3";
  * SPEC.md: "only for users who host a claimed mic or show".
  */
 
-const LOGO_URL = "/map-pins/comediq_logo_pin.png";
 
 interface Tab {
   to: string;
@@ -32,7 +32,8 @@ interface Tab {
 
 const BASE_TABS: Tab[] = [
   { to: "/", label: "Home", owns: ["/v3"] },
-  { to: "/open-mics", label: "Map", owns: ["/v3/map", "/v3/mic", "/perform"] },
+  // /open-mics is the list screen; /perform is the v3 map.
+  { to: "/perform", label: "Map", owns: ["/v3/map", "/v3/mic"] },
   { to: "/sets", label: "Sets", owns: ["/v3/sets"] },
 ];
 
@@ -151,7 +152,7 @@ export function V3TabBar() {
         style={{ background: v3colors.royal, color: v3colors.cream }}
       >
         <Link to="/" className="flex items-center gap-2.5" aria-label="Comediq home">
-          <img src={LOGO_URL} alt="" className="h-[30px] w-5 object-contain" />
+          <img src={COMEDIQ_Q_LOGO} alt="" className="h-7 w-7 object-contain" />
           <span style={{ ...V3_DISPLAY_STYLE, fontSize: 26 }}>Comediq</span>
         </Link>
 

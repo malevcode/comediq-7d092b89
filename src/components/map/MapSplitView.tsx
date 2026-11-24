@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { COMEDIQ_Q_INSET, COMEDIQ_Q_LOGO } from "@/lib/brand";
 
 import { useMicSkips } from "@/hooks/useMicSkips";
 import { useNow } from "@/hooks/useNow";
@@ -27,7 +28,6 @@ import { VenueEventCards } from "./VenueEventCards";
  * its own, which is the phone layout from MapBubbles.dc.html.
  */
 
-const LOGO_URL = "/map-pins/comediq_logo_pin.png";
 
 function hashKey(value: string): number {
   let hash = 0;
@@ -61,7 +61,7 @@ function venueRowMeta(venue: Venue): string {
 
 function VenueRowAvatar({ venue }: { venue: Venue }) {
   const [fill, textColor] = v3bubblePalette[hashKey(venue.key) % v3bubblePalette.length];
-  const image = venue.iconUrl ?? (venue.tier === "comediq" ? LOGO_URL : null);
+  const image = venue.iconUrl ?? (venue.tier === "comediq" ? COMEDIQ_Q_LOGO : null);
 
   return (
     <span
@@ -71,7 +71,7 @@ function VenueRowAvatar({ venue }: { venue: Venue }) {
         backgroundColor: image ? v3colors.white : fill,
         color: image ? undefined : textColor,
         backgroundImage: image ? `url("${image.replace(/"/g, "%22")}")` : undefined,
-        backgroundSize: venue.iconUrl ? "cover" : "62%",
+        backgroundSize: venue.iconUrl ? "cover" : COMEDIQ_Q_INSET,
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
         ...(image ? {} : { ...V3_DISPLAY_STYLE, fontSize: 13 }),

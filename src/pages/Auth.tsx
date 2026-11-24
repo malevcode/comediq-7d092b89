@@ -1,4 +1,7 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
+import { V3_DISPLAY_STYLE } from '@/theme/v3';
+import './auth.css';
+import { COMEDIQ_Q_LOGO } from '@/lib/brand';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SEO from '@/components/SEO';
@@ -9,12 +12,45 @@ import { Eye, EyeOff, Mic, ArrowLeft, Mail, CheckCircle } from 'lucide-react';
 import { getValidStripePaymentLink } from '@/utils/stripeLinks';
 import { invokeSupabaseFunction } from '@/utils/supabaseFunctions';
 
-const BRAND_BLUE = '#1a5fb4';
+/** The primary blue, same value as AUTH_PRIMARY below. */
+const BRAND_BLUE = '#1E4894';
 const STRIPE_PAID_LINK = getValidStripePaymentLink(
   import.meta.env.VITE_STRIPE_PAID_LINK,
 );
-const AUTH_INPUT_CLASS = "h-12 rounded-xl border-gray-400 bg-white/30 px-3 py-3 text-sm text-gray-900 placeholder:text-gray-600 focus-visible:border-[#1a5fb4] focus-visible:ring-2 focus-visible:ring-[#1a5fb4] focus-visible:ring-offset-0 dark:border-gray-400 dark:bg-white/30 dark:text-[#fff] dark:placeholder:text-gray-700";
+/**
+ * Comediq brand palette for this page. Blue and white only.
+ *
+ * The page sits on the deep navy rather than the old translucent white, so
+ * every field, button and link is restated here against that ground instead
+ * of inheriting the light-theme defaults.
+ */
+const AUTH_INK = "#08142B";        // page background
+const AUTH_FIELD = "#0F1E3D";      // input fill
+const AUTH_FIELD_BORDER = "#2B56A6";
+const AUTH_FIELD_FOCUS = "#8FC2F5";
+const AUTH_PRIMARY = "#1E4894";    // primary button
+const AUTH_LINK = "#8FC2F5";
+
+/**
+ * Headings use Archivo at weight 800 and 112% width. That is already a token
+ * (V3_DISPLAY_STYLE, used by the map and listing screens) so it is reused
+ * rather than redefined; only the tighter line height is added here, because
+ * the shared token is also used for inline venue names where 0.95 would be
+ * too tight.
+ */
+const AUTH_HEADING = { ...V3_DISPLAY_STYLE, lineHeight: 0.95 } as const;
+
+const AUTH_INPUT_CLASS =
+  "h-12 rounded-xl border-[1.5px] px-3 py-3 text-sm border-[#2B56A6] bg-[#0F1E3D] text-white placeholder:text-white/45 focus-visible:border-[#8FC2F5] focus-visible:ring-2 focus-visible:ring-[#8FC2F5]/40 focus-visible:ring-offset-0 dark:border-[#2B56A6] dark:bg-[#0F1E3D] dark:text-white dark:placeholder:text-white/45";
 const AUTH_PASSWORD_INPUT_CLASS = `${AUTH_INPUT_CLASS} pr-10`;
+
+/** Primary action: Comediq royal, white text, half opacity when disabled. */
+const AUTH_PRIMARY_BUTTON_CLASS =
+  "w-full rounded-xl py-3 text-sm font-semibold text-white transition-colors bg-[#1E4894] hover:bg-[#173A7A] disabled:opacity-50";
+
+/** Secondary action on the navy: outlined, not a white slab. */
+const AUTH_SECONDARY_BUTTON_CLASS =
+  "w-full rounded-xl border-[1.5px] border-[#2B56A6] bg-[#0F1E3D] px-4 py-3 text-sm font-semibold text-white transition-colors hover:border-[#8FC2F5] disabled:opacity-50";
 
 const getErrorMessage = (error: unknown, fallback: string) => {
   if (error instanceof Error) return error.message;
@@ -92,11 +128,11 @@ const GoogleIcon = () => (
 
 
 const FIELD_WRAP_CLASS =
-  'relative overflow-hidden rounded-xl border border-gray-400 focus-within:border-[#1a5fb4] focus-within:ring-2 focus-within:ring-[#1a5fb4] dark:border-white/20';
+  'relative overflow-hidden rounded-xl border-[1.5px] border-[#2B56A6] bg-[#0F1E3D] focus-within:border-[#8FC2F5] focus-within:ring-2 focus-within:ring-[#8FC2F5]/40';
 const FIELD_ICON_CLASS =
-  'pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 text-gray-400';
+  'pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 text-white/50';
 const BARE_INPUT_CLASS =
-  'w-full bg-white/10 py-3 pl-10 pr-3 text-sm outline-none placeholder-gray-600 dark:placeholder-white/40';
+  'w-full bg-transparent py-3 pl-10 pr-3 text-sm text-white outline-none placeholder-white/45';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -561,33 +597,33 @@ const Auth = () => {
   const Divider = ({ label = 'or' }: { label?: string }) => (
     <div className="relative my-5">
       <div className="absolute inset-0 flex items-center">
-        <span className="w-full border-t border-[#07111f]/10 dark:border-white/10" />
+        <span className="w-full border-t border-white/15" />
       </div>
       <div className="relative flex justify-center">
-        <span className="px-3 text-xs text-[#07111f]/50 uppercase tracking-wide backdrop-blur-xl dark:text-white/50">{label}</span>
+        <span className="px-3 text-xs tracking-wide text-white/55">{label}</span>
       </div>
     </div>
   );
 
   const TierComparison = () => (
     <div className="grid gap-3 sm:grid-cols-[1.18fr_0.82fr]">
-      <div className="relative rounded-2xl border border-[#1a5fb4]/50 bg-white/10 p-4 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl dark:border-white/16 dark:bg-[#07111f]/42 dark:shadow-[0_12px_38px_rgba(2,10,30,0.22)]">
-        <div className="absolute right-3 top-3 rounded-full bg-[#1a5fb4] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#fff]">
+      <div className="relative rounded-2xl border-[1.5px] border-[#2B56A6] bg-[#0F1E3D] p-4 shadow-[0_12px_38px_rgba(2,10,30,0.12)] backdrop-blur-xl">
+        <div className="absolute right-3 top-3 rounded-full bg-[#1E4894] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[#fff]">
           Best value
         </div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-blue-400">Paid tier</p>
-        <h2 className="mt-1 text-xl font-semibold text-[#07111f] dark:text-white">Full Pass</h2>
-        <h2 className="mt-1 text-2xl font-bold text-[#07111f] dark:text-white">$20<span className="ml-1 text-base font-normal text-[#07111f]/70 dark:text-white/70">/month</span></h2>
+        <p className="text-xs font-semibold tracking-wide text-blue-400">Paid tier</p>
+        <h2 className="mt-1 text-xl font-semibold text-white">Full Pass</h2>
+        <h2 className="mt-1 text-2xl font-bold text-white">$20<span className="ml-1 text-base font-normal text-white/70">/month</span></h2>
         <button
           type="button"
           onClick={handleSubscribe}
           disabled={loading}
-          className="mt-4 w-full rounded-xl bg-[#1a5fb4] px-4 py-2.5 text-sm font-semibold text-[#fff] transition-colors hover:bg-[#1550a0]"
+          className={`mt-4 ${AUTH_PRIMARY_BUTTON_CLASS}`}
         >
           {loading ? 'Opening checkout...' : 'Subscribe'}
         </button>
-        <p className="mt-4 space-y-2 text-sm text-[#07111f]/70 dark:text-white/70">Everything in Basic, plus:</p>
-        <ul className="mt-4 space-y-2 text-sm text-[#07111f]/70 dark:text-white/70">
+        <p className="mt-4 space-y-2 text-sm text-white/70">Everything in Basic, plus:</p>
+        <ul className="mt-4 space-y-2 text-sm text-white/70">
           {[
             'No ads',
             '1st access to the newest features',
@@ -602,14 +638,14 @@ const Auth = () => {
         </ul>
       </div>
 
-      <div className="rounded-2xl border border-[#07111f]/20 bg-white/34 p-4 shadow-[0_12px_38px_rgba(2,10,30,0.10)] backdrop-blur-xl dark:border-white/14 dark:bg-[#07111f]/38 dark:shadow-[0_12px_38px_rgba(2,10,30,0.20)]">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[#07111f]/52 dark:text-white/52">Free tier</p>
-        <h2 className="mt-1 text-xl font-semibold text-[#07111f] dark:text-white">Basic</h2>
-        <h2 className="mt-1 text-2xl font-bold text-[#07111f] dark:text-white">$0<span className="ml-1 text-base font-normal text-[#07111f]/70 dark:text-white/70">/month and pay per mic</span></h2>
+      <div className="rounded-2xl border-[1.5px] border-[#2B56A6] bg-[#0F1E3D] p-4 shadow-[0_12px_38px_rgba(2,10,30,0.10)] backdrop-blur-xl">
+        <p className="text-xs font-semibold tracking-wide text-white/55">Free tier</p>
+        <h2 className="mt-1 text-xl font-semibold text-white">Basic</h2>
+        <h2 className="mt-1 text-2xl font-bold text-white">$0<span className="ml-1 text-base font-normal text-white/70">/month and pay per mic</span></h2>
         <button
           type="button"
           onClick={() => navigate(basicCreateAccountPath)}
-          className="mt-4 w-full rounded-xl bg-white/50 px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-white/80 dark:text-black"
+          className={`mt-4 ${AUTH_SECONDARY_BUTTON_CLASS}`}
         >
           Create an Account
         </button>
@@ -623,7 +659,7 @@ const Auth = () => {
             'Community mic updates',
           ].map((feature) => (
             <li key={feature} className="flex gap-2">
-              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-white/50" />
               <span>{feature}</span>
             </li>
           ))}
@@ -642,7 +678,7 @@ const Auth = () => {
       <button
         type="button"
         onClick={handleGoogleSignIn}
-        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-800 text-sm font-semibold hover:bg-white/80 hover:border-gray-300 transition-colors shadow-sm dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:border-white/30 dark:hover:bg-white/20"
+        className={`flex items-center justify-center gap-3 ${AUTH_SECONDARY_BUTTON_CLASS}`}
       >
         <GoogleIcon />
         Continue with Google
@@ -651,8 +687,8 @@ const Auth = () => {
       <Divider label="or get a code emailed to you" />
 
       <form onSubmit={handleSendEmailCode} className="space-y-3">
-        <div className="flex rounded-xl border border-gray-400 overflow-hidden focus-within:ring-2 focus-within:ring-[#1a5fb4] focus-within:border-[#1a5fb4]">
-          <span className="flex items-center pl-3.5 pr-2 text-gray-400">
+        <div className="flex overflow-hidden rounded-xl border-[1.5px] border-[#2B56A6] bg-[#0F1E3D] focus-within:border-[#8FC2F5] focus-within:ring-2 focus-within:ring-[#8FC2F5]/40">
+          <span className="flex items-center pl-3.5 pr-2 text-white/50">
             <Mail className="w-4 h-4 mr-1" />
           </span>
           <input
@@ -661,7 +697,7 @@ const Auth = () => {
             placeholder="you@example.com"
             value={otpEmail}
             onChange={e => setOtpEmail(e.target.value)}
-            className="pl-2 flex-1 py-3 pr-3 text-sm bg-white/30 outline-none placeholder-gray-600 dark:placeholder-gray-700"
+            className="flex-1 bg-transparent py-3 pl-2 pr-3 text-sm text-white outline-none placeholder-white/45"
             required
             autoComplete="email"
             autoFocus
@@ -670,7 +706,7 @@ const Auth = () => {
         <button
           type="submit"
           disabled={loading || !otpEmail || resendCooldown > 0}
-          className="w-full py-3 rounded-xl text-[#fff] text-sm font-medium transition-colors disabled:opacity-50"
+          className={AUTH_PRIMARY_BUTTON_CLASS}
           style={{ background: BRAND_BLUE }}
         >
           {loading ? 'Sending…' : resendCooldown > 0 ? `Try again in ${resendCooldown}s` : 'Send code'}
@@ -686,7 +722,7 @@ const Auth = () => {
             navigate(signInOptionsPath);
             setStep('email_auth');
           }}
-          className="w-full rounded-xl border border-gray-300 bg-white/50 px-4 py-3 text-center text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+          className={`text-center ${AUTH_SECONDARY_BUTTON_CLASS}`}
         >
           Sign in with password
         </button>
@@ -701,14 +737,14 @@ const Auth = () => {
       <button
         type="button"
         onClick={() => navigate('/')}
-        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700"
+        className="mb-6 flex items-center gap-1.5 text-sm text-white/70 hover:text-white"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
       </button>
 
       {shouldShowPlans ? (
         <>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-4">Choose your plan</h1>
+          <h1 className="mb-4 text-[30px] text-white" style={AUTH_HEADING}>Choose your plan</h1>
           <div className="mb-8">
             <TierComparison />
           </div>
@@ -716,7 +752,7 @@ const Auth = () => {
             <button
               type="button"
               onClick={() => navigate(signInOptionsPath)}
-              className="w-full rounded-xl border border-gray-300 bg-white/50 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+              className={AUTH_SECONDARY_BUTTON_CLASS}
             >
               Skip for now, just sign in
             </button>
@@ -724,15 +760,15 @@ const Auth = () => {
         </>
       ) : (
         <>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-1">Make your free account</h1>
-          <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+          <h1 className="mb-1 text-[30px] text-white" style={AUTH_HEADING}>Make your free account</h1>
+          <p className="mb-6 text-sm text-white/70">
             No card, no password to invent.
           </p>
 
           <button
             type="button"
             onClick={handleGoogleSignIn}
-            className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-800 text-sm font-semibold hover:bg-white/80 hover:border-gray-300 transition-colors shadow-sm dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:border-white/30 dark:hover:bg-white/20"
+            className={`flex items-center justify-center gap-3 ${AUTH_SECONDARY_BUTTON_CLASS}`}
           >
             <GoogleIcon />
             Continue with Google
@@ -758,25 +794,25 @@ const Auth = () => {
             <button
               type="submit"
               disabled={loading || !otpEmail || resendCooldown > 0}
-              className="w-full py-3 rounded-xl text-[#fff] text-sm font-medium transition-colors disabled:opacity-50"
+              className={AUTH_PRIMARY_BUTTON_CLASS}
               style={{ background: BRAND_BLUE }}
             >
               {loading ? 'Sending…' : resendCooldown > 0 ? `Try again in ${resendCooldown}s` : 'Send me a code'}
             </button>
           </form>
 
-          <p className="mt-5 text-center text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-5 text-center text-sm text-white/70">
             Already have an account?{' '}
             <button
               type="button"
               onClick={() => navigate(signInOptionsPath)}
-              className="font-semibold underline underline-offset-2 hover:text-gray-700 dark:hover:text-white"
+              className="font-semibold underline underline-offset-2 hover:text-white"
             >
               Sign in
             </button>
           </p>
 
-          <p className="mt-2 text-center text-xs text-gray-400 dark:text-white/35">
+          <p className="mt-2 text-center text-xs text-white/50 dark:text-white/35">
             <button
               type="button"
               onClick={() => navigate(`/auth?next=${encodeURIComponent(postAuthPath)}&plans=true`)}
@@ -795,7 +831,7 @@ const Auth = () => {
       <button
         type="button"
         onClick={() => navigate(authLandingPath)}
-        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700"
+        className="mb-6 flex items-center gap-1.5 text-sm text-white/70 hover:text-white"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
@@ -803,7 +839,8 @@ const Auth = () => {
       <h1
         ref={signInHeadingRef}
         tabIndex={-1}
-        className="text-2xl font-semibold text-gray-900 mb-7 focus:outline-none"
+        className="mb-7 text-[30px] text-white focus:outline-none"
+        style={AUTH_HEADING}
       >
         Sign in to Comediq
       </h1>
@@ -828,17 +865,17 @@ const Auth = () => {
             setStep('sign_in_options');
           }
         }}
-        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700"
+        className="mb-6 flex items-center gap-1.5 text-sm text-white/70 hover:text-white"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
-      <h1 className="text-2xl font-semibold text-gray-900 mb-1">
+      <h1 className="mb-1 text-[30px] text-white" style={AUTH_HEADING}>
         {isCreatingAccount ? 'Create your account' : 'Check your email'}
       </h1>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
+      <p className="text-sm text-white/70 mb-8">
         {isCreatingAccount ? 'Enter the verification code sent to ' : 'We sent a 6-digit code to '}
-        <span className="font-medium text-gray-600">{otpEmail}</span>
+        <span className="font-medium text-white/70">{otpEmail}</span>
       </p>
 
       <div className="flex gap-2.5 mb-6 justify-center">
@@ -853,7 +890,7 @@ const Auth = () => {
             onChange={e => handleOtpChange(i, e.target.value)}
             onKeyDown={e => handleOtpKeyDown(i, e)}
             onFocus={e => e.target.select()}
-            className="w-11 h-14 text-center text-xl font-semibold rounded-xl border border-gray-200 outline-none focus:border-[#1a5fb4] focus:ring-2 focus:ring-[#1a5fb4]/20 transition-colors"
+            className="h-14 w-11 rounded-xl border-[1.5px] border-[#2B56A6] bg-[#0F1E3D] text-center text-xl font-semibold text-white outline-none transition-colors focus:border-[#8FC2F5] focus:ring-2 focus:ring-[#8FC2F5]/40"
             aria-label={`Digit ${i + 1}`}
           />
         ))}
@@ -869,14 +906,14 @@ const Auth = () => {
         {loading ? 'Verifying…' : 'Verify code'}
       </button>
 
-      <p className="text-center text-sm text-gray-500 dark:text-gray-600">
+      <p className="text-center text-sm text-white/70 dark:text-white/70">
         Didn't get it?{' '}
         <button
           type="button"
           onClick={handleResendCode}
           disabled={loading || resendCooldown > 0}
           className="font-medium hover:underline disabled:opacity-40"
-          style={{ color: BRAND_BLUE }}
+          style={{ color: AUTH_LINK }}
         >
           {loading ? 'Sending...' : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code'}
         </button>
@@ -893,26 +930,26 @@ const Auth = () => {
           navigate(signInOptionsPath);
           setStep('sign_in_options');
         }}
-        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700"
+        className="mb-6 flex items-center gap-1.5 text-sm text-white/70 hover:text-white"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
-      <h1 className="text-2xl font-semibold text-gray-900 mb-1">Sign in with email</h1>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-7">Welcome back.</p>
+      <h1 className="mb-1 text-[30px] text-white" style={AUTH_HEADING}>Sign in with email</h1>
+      <p className="mb-7 text-[30px] text-white" style={AUTH_HEADING}>Welcome back</p>
 
       <form onSubmit={handleEmailAuth} className="space-y-3">
         <Input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" className={AUTH_INPUT_CLASS} />
         <div className="relative">
           <Input type={showPassword ? 'text' : 'password'} placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className={AUTH_PASSWORD_INPUT_CLASS} autoComplete="current-password" />
-          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600" tabIndex={-1}>
+          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white/70" tabIndex={-1}>
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
         <div className="text-right">
-          <button type="button" onClick={() => setStep('forgot_password')} className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700">Forgot password?</button>
+          <button type="button" onClick={() => setStep('forgot_password')} className="text-xs text-white/70 hover:text-white">Forgot password?</button>
         </div>
-        <button type="submit" disabled={loading} className="w-full py-3 rounded-xl text-[#fff] text-sm font-medium transition-colors disabled:opacity-50" style={{ background: BRAND_BLUE }}>
+        <button type="submit" disabled={loading} className={AUTH_PRIMARY_BUTTON_CLASS} style={{ background: BRAND_BLUE }}>
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
@@ -924,13 +961,13 @@ const Auth = () => {
       <button
         type="button"
         onClick={() => navigate(authLandingPath)}
-        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700"
+        className="mb-6 flex items-center gap-1.5 text-sm text-white/70 hover:text-white"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
-      <h1 className="text-2xl font-semibold text-gray-900 mb-1">Create your account</h1>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-7">Welcome to Comediq.</p>
+      <h1 className="mb-1 text-[30px] text-white" style={AUTH_HEADING}>Create your account</h1>
+      <p className="text-sm text-white/70 mb-7">Welcome to Comediq.</p>
 
       {subscribeIntent && (
         <div className="mb-5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
@@ -944,7 +981,7 @@ const Auth = () => {
               navigate(signInOptionsPath);
               setStep('sign_in_options');
             }}
-            className="mt-3 text-sm font-semibold text-[#1a5fb4] hover:underline"
+            className="mt-3 text-sm font-semibold text-[#8FC2F5] hover:underline"
           >
             Sign in instead
           </button>
@@ -954,7 +991,7 @@ const Auth = () => {
       <button
         type="button"
         onClick={handleGoogleSignIn}
-        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-800 text-sm font-semibold hover:bg-white/80 hover:border-gray-300 transition-colors shadow-sm dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:border-white/30 dark:hover:bg-white/20"
+        className={`flex items-center justify-center gap-3 ${AUTH_SECONDARY_BUTTON_CLASS}`}
       >
         <GoogleIcon />
         Create account with Google
@@ -966,16 +1003,16 @@ const Auth = () => {
         <Input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" className={AUTH_INPUT_CLASS} />
         <div className="relative">
           <Input type={showPassword ? 'text' : 'password'} placeholder="Password (6+ characters)" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className={AUTH_PASSWORD_INPUT_CLASS} autoComplete="new-password" />
-          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600" tabIndex={-1}>
+          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white/70" tabIndex={-1}>
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
-        <button type="submit" disabled={loading} className="w-full py-3 rounded-xl text-[#fff] text-sm font-medium transition-colors disabled:opacity-50 hover:bg-[#1550a0]" style={{ background: BRAND_BLUE }}>
+        <button type="submit" disabled={loading} className={AUTH_PRIMARY_BUTTON_CLASS} style={{ background: BRAND_BLUE }}>
           {loading ? 'Creating account…' : 'Create account'}
         </button>
       </form>
-      <p className="mt-4 text-xs text-gray-400 text-center leading-relaxed">
-        By signing up you agree to our <a href="/terms" className="underline hover:text-gray-600">Terms of Service</a> and <a href="/privacy" className="underline hover:text-gray-600">Privacy Policy</a>.
+      <p className="mt-4 text-xs text-white/50 text-center leading-relaxed">
+        By signing up you agree to our <a href="/terms" className="underline hover:text-white/70">Terms of Service</a> and <a href="/privacy" className="underline hover:text-white/70">Privacy Policy</a>.
       </p>
     </>
   );
@@ -985,33 +1022,33 @@ const Auth = () => {
       <button
         type="button"
         onClick={() => setStep('email_auth')}
-        className="mb-6 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700"
+        className="mb-6 flex items-center gap-1.5 text-sm text-white/70 hover:text-white"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
-      <h1 className="text-2xl font-semibold text-gray-900 mb-1">Reset password</h1>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-7">We'll email you a link to reset it.</p>
+      <h1 className="mb-1 text-[30px] text-white" style={AUTH_HEADING}>Reset password</h1>
+      <p className="text-sm text-white/70 mb-7">We'll email you a link to reset it.</p>
       <form onSubmit={handleForgotPassword} className="space-y-3">
         <Input type="email" placeholder="Email address" value={resetEmail} onChange={e => setResetEmail(e.target.value)} required className={AUTH_INPUT_CLASS} />
-        <button type="submit" className="w-full py-3 rounded-xl text-white text-sm font-medium" style={{ background: BRAND_BLUE }}>Send reset link</button>
+        <button type="submit" className={AUTH_PRIMARY_BUTTON_CLASS} style={{ background: BRAND_BLUE }}>Send reset link</button>
       </form>
     </>
   );
 
   const renderResetPassword = () => (
     <>
-      <h1 className="text-2xl font-semibold text-gray-900 mb-1">Set new password</h1>
-      <p className="text-sm text-gray-500 mb-7">Choose a strong password for your account.</p>
+      <h1 className="mb-1 text-[30px] text-white" style={AUTH_HEADING}>Set new password</h1>
+      <p className="text-sm text-white/70 mb-7">Choose a strong password for your account.</p>
       <form onSubmit={handlePasswordReset} className="space-y-3">
         <div className="relative">
           <Input type={showPassword ? 'text' : 'password'} placeholder="New password" value={resetPassword} onChange={e => setResetPassword(e.target.value)} required minLength={6} className={AUTH_PASSWORD_INPUT_CLASS} />
-          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600" tabIndex={-1}>
+          <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white/70" tabIndex={-1}>
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
         <Input type={showPassword ? 'text' : 'password'} placeholder="Confirm password" value={resetConfirm} onChange={e => setResetConfirm(e.target.value)} required minLength={6} className={AUTH_INPUT_CLASS} />
-        <button type="submit" className="w-full py-3 rounded-xl text-white text-sm font-medium" style={{ background: BRAND_BLUE }}>Update password</button>
+        <button type="submit" className={AUTH_PRIMARY_BUTTON_CLASS} style={{ background: BRAND_BLUE }}>Update password</button>
       </form>
     </>
   );
@@ -1038,34 +1075,54 @@ const Auth = () => {
   return (
     <>
       <SEO title={seoTitle} description="Sign in or create a free Comediq account to save open mics, track your comedy journey, and connect with the NYC comedy community." url="https://comediq.com/auth" noindex={true} />
-      <div className="min-h-screen flex">
+      <div className="cq-auth min-h-screen flex font-dmsans" style={{ background: AUTH_INK }}>
         <div className="relative hidden overflow-hidden lg:flex lg:w-[36%] xl:w-[34%] flex-col justify-between p-12 text-white">
-          <video
-            className="absolute inset-0 h-full w-full object-cover"
-            src="/videos/sign-in-loop.mp4"
-            autoPlay
-            muted
-            playsInline
-          >
-            "The best tool for tracking NYC open mics. I use it every week before I hit the road."
-          </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/60" />
+          {/* The map of the mics, rather than the old looping video. The video
+              file is kept in public/videos and simply no longer used. */}
+          <img
+            className="absolute inset-0 h-full w-full"
+            style={{ objectFit: "cover", objectPosition: "center top" }}
+            src="/brand/signin-map.jpg"
+            alt=""
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(8,20,43,0.55), rgba(8,20,43,0.25) 40%, rgba(8,20,43,0.85))",
+            }}
+          />
           <div className="relative z-10 flex items-center gap-3">
-            <span className="font-semibold text-lg tracking-tight text-[#fff]">Comediq</span>
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white">
+              <img src={COMEDIQ_Q_LOGO} alt="" className="h-7 w-7 object-contain" />
+            </span>
+            <span className="text-[28px] text-white" style={AUTH_HEADING}>
+              Comediq
+            </span>
           </div>
           <div className="relative z-10" />
-          <div className="relative z-10 grid grid-cols-2 gap-4 pt-4 border-t border-[#fff]/20">
-            <div><p className="text-2xl font-bold text-[#fff]">1,250+</p><p className="text-[#fff] text-sm">comedians per week</p></div>
-            <div><p className="text-2xl font-bold text-[#fff]">500+</p><p className="text-[#fff] text-sm">open mics tracked</p></div>
+          <div className="relative z-10 grid grid-cols-2 gap-4 pt-4 border-t border-white/25">
+            <div>
+              <p className="text-[32px] text-white" style={AUTH_HEADING}>2,000+</p>
+              <p className="text-sm text-white/80">comedians per week</p>
+            </div>
+            <div>
+              <p className="text-[32px] text-white" style={AUTH_HEADING}>300+</p>
+              <p className="text-sm text-white/80">active open mics tracked</p>
+            </div>
           </div>
         </div>
-        <div className="flex-1 flex min-h-screen flex-col items-center justify-center overflow-y-auto bg-transparent px-6 py-12">
-          <div className="lg:hidden mb-8 flex items-center gap-2">
-            <img src="/comediq_logo.jpg" alt="Comediq" className="w-9 h-9 object-contain" />
-            <span className="font-semibold text-lg text-[#07111f] dark:text-[#fff]">Comediq</span>
+        <div className="flex-1 flex min-h-screen flex-col items-center justify-center overflow-y-auto px-6 py-12">
+          {/* The left panel is hidden below lg, so the phone gets the wordmark
+              as a short header instead. */}
+          <div className="lg:hidden mb-8 flex items-center gap-2.5">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
+              <img src={COMEDIQ_Q_LOGO} alt="" className="h-6 w-6 object-contain" />
+            </span>
+            <span className="text-[24px] text-white" style={AUTH_HEADING}>Comediq</span>
           </div>
           <div
-            className={`${step === 'main' ? (shouldShowPlans ? 'w-full max-w-2xl' : 'w-full max-w-lg') : 'w-full max-w-sm'} [&_h1]:text-[#07111f] [&_h2]:text-[#07111f] [&_p]:text-[#07111f]/60 [&_label]:text-[#07111f]/70 dark:[&_h1]:text-white dark:[&_h2]:text-white dark:[&_p]:text-white/60 dark:[&_label]:text-white/70`}
+            className={`${step === 'main' ? (shouldShowPlans ? 'w-full max-w-2xl' : 'w-full max-w-lg') : 'w-full max-w-sm'} [&_h1]:text-white [&_h2]:text-white [&_p]:text-white/70 [&_label]:text-white/80 [&_a]:text-[#8FC2F5]`}
           >
             {stepContent}
           </div>

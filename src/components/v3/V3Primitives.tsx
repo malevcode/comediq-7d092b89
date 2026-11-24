@@ -1,4 +1,5 @@
 import { v3bubblePalette, v3colors, V3_DISPLAY_STYLE } from "@/theme/v3";
+import { COMEDIQ_Q_INSET, COMEDIQ_Q_LOGO } from "@/lib/brand";
 
 /**
  * The small shared pieces every v3 screen uses.
@@ -83,7 +84,6 @@ export function VenueArtwork({
   return <StageTile seed={seed} className={className} />;
 }
 
-const LOGO_URL = "/map-pins/comediq_logo_pin.png";
 
 /**
  * The round venue badge: the host's circular map icon, else the Q mark for a
@@ -107,7 +107,7 @@ export function VenueBubble({
   className?: string;
 }) {
   const [fill, textColor] = paletteFor(seed);
-  const image = iconUrl ?? (isComediqRun ? LOGO_URL : null);
+  const image = iconUrl ?? (isComediqRun ? COMEDIQ_Q_LOGO : null);
 
   return (
     <span
@@ -122,7 +122,7 @@ export function VenueBubble({
         color: image ? undefined : textColor,
         backgroundImage: image ? `url("${image.replace(/"/g, "%22")}")` : undefined,
         // A host photo fills the circle; the Q is a logo, so it is inset.
-        backgroundSize: iconUrl ? "cover" : "62%",
+        backgroundSize: iconUrl ? "cover" : COMEDIQ_Q_INSET,
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
         ...(image ? {} : { ...V3_DISPLAY_STYLE, fontSize: Math.round(size * 0.34) }),

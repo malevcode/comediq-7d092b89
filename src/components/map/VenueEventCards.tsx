@@ -1,4 +1,6 @@
 import { v3bubblePalette, v3colors, V3_DISPLAY_STYLE } from "@/theme/v3";
+import { COMEDIQ_Q_INSET, COMEDIQ_Q_LOGO } from "@/lib/brand";
+import ClaimThisMicLink from "@/components/host/ClaimThisMicLink";
 import {
   eventCtaLabel,
   eventMetaLine,
@@ -26,7 +28,6 @@ import {
  *     pinned to the top right of the map.
  */
 
-const LOGO_URL = "/map-pins/comediq_logo_pin.png";
 
 function hashKey(value: string): number {
   let hash = 0;
@@ -39,7 +40,7 @@ function hashKey(value: string): number {
 function VenueAvatar({ venue, size }: { venue: Venue; size: number }) {
   const [fill, textColor] = v3bubblePalette[hashKey(venue.key) % v3bubblePalette.length];
   const isComediq = venue.tier === "comediq";
-  const image = venue.iconUrl ?? (isComediq ? LOGO_URL : null);
+  const image = venue.iconUrl ?? (isComediq ? COMEDIQ_Q_LOGO : null);
 
   return (
     <span
@@ -53,7 +54,7 @@ function VenueAvatar({ venue, size }: { venue: Venue; size: number }) {
         backgroundImage: image ? `url("${image.replace(/"/g, "%22")}")` : undefined,
         // The Q mark is a logo on white, so it is inset rather than bled to
         // the edge the way a host's own photo is.
-        backgroundSize: venue.iconUrl ? "cover" : "62%",
+        backgroundSize: venue.iconUrl ? "cover" : COMEDIQ_Q_INSET,
         backgroundRepeat: "no-repeat",
         ...(image ? {} : { ...V3_DISPLAY_STYLE, fontSize: Math.round(size * 0.34) }),
       }}
@@ -182,6 +183,10 @@ export function VenueEventCards({
                       {eventMetaLine(event)}
                     </div>
                   )}
+                  <ClaimThisMicLink
+                    mic={event.mic}
+                    className="mt-1 inline-block text-xs font-semibold underline underline-offset-2"
+                  />
                 </div>
                 <button
                   type="button"
@@ -245,6 +250,10 @@ export function VenueEventCards({
                 >
                   {eventCtaLabel(event)}
                 </button>
+                <ClaimThisMicLink
+                  mic={event.mic}
+                  className="mt-2 block text-center text-xs font-semibold underline underline-offset-2"
+                />
               </div>
             </article>
           ))}

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import SEO from "@/components/SEO";
+import ClaimThisMicLink from "@/components/host/ClaimThisMicLink";
 import { MicMiniMap } from "@/components/map/MicMiniMap";
 import {
   V3Card,
@@ -145,14 +146,14 @@ export default function V3MicDetail() {
       <div className="px-6 py-20 font-dmsans">
         <h1 className="text-2xl font-bold">We could not find that mic</h1>
         <p className="mt-2" style={{ color: v3colors.muted }}>
-          It may have been delisted. The map has everything we know about.
+          It may have been delisted. The full list has everything we know about.
         </p>
         <Link
           to="/open-mics"
           className="mt-5 inline-flex h-12 items-center rounded-full px-6 font-bold text-white"
           style={{ background: v3colors.royal }}
         >
-          Open the map
+          See all mics
         </Link>
       </div>
     );
@@ -231,6 +232,12 @@ export default function V3MicDetail() {
           {mic.description || mic.otherRules}
         </p>
       )}
+
+      {/* Nobody hosts this one yet, so offer it. */}
+      <ClaimThisMicLink
+        mic={mic}
+        className="mt-4 inline-block text-sm font-semibold underline underline-offset-2"
+      />
 
       <Link
         to={mic.venueSlug ? `/venue/${mic.venueSlug}` : "/open-mics"}
