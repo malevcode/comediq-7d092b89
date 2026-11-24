@@ -67,7 +67,13 @@ export default function AddShow() {
       });
       navigate(returnPath);
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      // Supabase errors are plain objects, not Error instances.
+      const message =
+        error instanceof Error
+          ? error.message
+          : typeof (error as { message?: unknown })?.message === 'string'
+            ? (error as { message: string }).message
+            : 'Something went wrong. Please try again.';
       console.error('Show submit error:', message, error);
       toast({
         title: isMissingColumnError(message) ? 'Show listings are being set up' : 'Could not submit the show',
