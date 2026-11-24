@@ -4,9 +4,10 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 import { getMapboxToken } from "@/components/map/MapInitializer";
 import { COMEDIQ_Q_INSET, COMEDIQ_Q_LOGO } from "@/lib/brand";
-import { v3bubblePalette, v3colors } from "@/theme/v3";
+import { v3colors } from "@/theme/v3";
 import type { VenueHistoryRow } from "@/api/venueHistory";
 import { initialsOf } from "@/utils/venues";
+import { ACTIVITY_STYLE, venueActivity } from "@/utils/venueHistory";
 
 /**
  * The map behind Historical mics.
@@ -25,12 +26,6 @@ import { initialsOf } from "@/utils/venues";
 const NYC_CENTER: [number, number] = [-73.935242, 40.73061];
 const BUBBLE_SIZE_RUNNING = 42;
 const BUBBLE_SIZE_PAST = 34;
-
-function venueHash(value: string): number {
-  let hash = 0;
-  for (let i = 0; i < value.length; i += 1) hash = (hash * 31 + value.charCodeAt(i)) % 100000;
-  return hash;
-}
 
 interface Props {
   venues: VenueHistoryRow[];
@@ -117,29 +112,40 @@ export default function HistoricalVenueMap({ venues, onSelect }: Props) {
         "aria-label",
         `${venue.name}, ${venue.total_open_mics} ${
           venue.total_open_mics === 1 ? "mic" : "mics"
-        }, ${venue.currently_running ? "running now" : "no current mic"}`,
+        }, ${ACTIVITY_STYLE[venueActivity(venue)].label}`,
       );
+
+      const activity = venueActivity(venue);
+      const style = ACTIVITY_STYLE[activity];
 
       const bubble = document.createElement("span");
       bubble.className = "cq-bubble";
       bubble.style.width = `${size}px`;
       bubble.style.height = `${size}px`;
       bubble.style.left = "0px";
-      // History reads as history: a room with nothing on now is half faded.
-      bubble.style.opacity = venue.currently_running ? "1" : "0.5";
+      // Colour carries the status now, so nothing is faded. A white bubble at
+      // half opacity would simply disappear against the map.
+      bubble.style.opacity = "1";
 
       if (venue.has_comediq_run) {
+        // A room Comediq runs itself keeps the Q mark, on the white disc the
+        // logo is drawn for, with its status as a ring around the outside.
         bubble.style.backgroundColor = v3colors.white;
         bubble.style.backgroundImage = `url(${COMEDIQ_Q_LOGO})`;
         bubble.style.backgroundSize = COMEDIQ_Q_INSET;
         bubble.style.backgroundRepeat = "no-repeat";
         bubble.style.backgroundPosition = "center";
+        bubble.style.boxShadow = `0 0 0 3px ${style.bg}, 0 4px 12px rgba(8,20,43,.28)`;
       } else {
-        const [bg, fg] = v3bubblePalette[venueHash(venue.slug) % v3bubblePalette.length];
-        bubble.style.background = bg;
-        bubble.style.color = fg;
+        bubble.style.background = style.bg;
+        bubble.style.color = style.fg;
         bubble.style.fontSize = `${Math.round(size * 0.34)}px`;
         bubble.textContent = initialsOf(venue.name);
+        // A white bubble needs its own edge or it vanishes on pale map tiles.
+        if (activity === "inactive") {
+          bubble.style.border = `2px solid ${v3colors.border}`;
+          bubble.style.boxShadow = "0 2px 8px rgba(8,20,43,.22)";
+        }
       }
 
       button.appendChild(bubble);

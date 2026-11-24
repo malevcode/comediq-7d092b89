@@ -33,6 +33,10 @@ export interface VenueHistoryRow {
   last_mic_ended_at: string | null;
   last_mic_ended_reason: string | null;
   last_mic_active: boolean;
+  /** A running mic at this venue takes sign-ups through Comediq. */
+  comediq_signup?: boolean;
+  /** When a RUNNING mic was last confirmed. Null means never. */
+  active_last_verified_at?: string | null;
 }
 
 export interface VenueDeal {
@@ -77,16 +81,19 @@ export const pendingDealsQueryKey = ["venue-deals", "pending"];
 export const openToNewQueryKey = ["venue-open-to-new"];
 
 export async function fetchVenueHistory(): Promise<VenueHistoryRow[]> {
-  const { data, error } = await db
-    .from("venue_history_v1")
-    .select("*")
-    .order("total_open_mics", { ascending: false });
+  // v2 is v1 plus the two fields the map colours by. Where that migration has
+  // not run, v1 still answers and the map falls back to colouring by whether a
+  // mic is running at all.
+  for (const view of ["venue_history_v2", "venue_history_v1"]) {
+    const { data, error } = await db
+      .from(view)
+      .select("*")
+      .order("total_open_mics", { ascending: false });
 
-  if (error) {
-    if (isMissingSchema(error)) return [];
-    throw error;
+    if (!error) return (data ?? []) as VenueHistoryRow[];
+    if (!isMissingSchema(error)) throw error;
   }
-  return (data ?? []) as VenueHistoryRow[];
+  return [];
 }
 
 /**
