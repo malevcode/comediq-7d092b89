@@ -33,6 +33,7 @@ const V3Sets = lazy(() => import("./pages/v3/V3Sets"));
 const V3SetReview = lazy(() => import("./pages/v3/V3SetReview"));
 const V3Profile = lazy(() => import("./pages/v3/V3Profile"));
 const V3AddListing = lazy(() => import("./pages/v3/listing/V3AddListing"));
+const ClaimMics = lazy(() => import("./pages/ClaimMics"));
 const V3ManageHome = lazy(() => import("./pages/v3/manage/V3ManageHome"));
 const V3ManageListing = lazy(() => import("./pages/v3/manage/V3ManageListing"));
 import Listing from "./pages/Listing";
@@ -362,6 +363,9 @@ function AppShell() {
             <Route path="/free-mics" element={<FreeMics />} />
             <Route path="/beginner-friendly" element={<BeginnerMics />} />
             <Route path="/host-dashboard" element={<HostDashboard />} />
+            {/* Claim mics you host. Reachable from a mic page, a map venue
+                card, and the Claim your mics button on Manage. */}
+            <Route path="/claim-mics" element={<ClaimMics />} />
             <Route path="/mic/:slug/signup" element={<MicSignup />} />
             <Route path="/mic-slots/:hostSlug" element={<MicSlotSignup />} />
             <Route path="/growth" element={<GrowthOpportunities />} />

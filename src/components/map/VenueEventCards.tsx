@@ -1,5 +1,6 @@
 import { v3bubblePalette, v3colors, V3_DISPLAY_STYLE } from "@/theme/v3";
 import { COMEDIQ_Q_INSET, COMEDIQ_Q_LOGO } from "@/lib/brand";
+import ClaimThisMicLink from "@/components/host/ClaimThisMicLink";
 import {
   eventCtaLabel,
   eventMetaLine,
@@ -182,6 +183,10 @@ export function VenueEventCards({
                       {eventMetaLine(event)}
                     </div>
                   )}
+                  <ClaimThisMicLink
+                    mic={event.mic}
+                    className="mt-1 inline-block text-xs font-semibold underline underline-offset-2"
+                  />
                 </div>
                 <button
                   type="button"
@@ -245,6 +250,10 @@ export function VenueEventCards({
                 >
                   {eventCtaLabel(event)}
                 </button>
+                <ClaimThisMicLink
+                  mic={event.mic}
+                  className="mt-2 block text-center text-xs font-semibold underline underline-offset-2"
+                />
               </div>
             </article>
           ))}

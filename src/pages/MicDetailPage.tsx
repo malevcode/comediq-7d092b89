@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, ExternalLink, Navigation } from "lucide-react";
 import { WentUpToggle } from "@/components/mic/WentUpToggle";
 import ClaimMicButton from "@/components/host/ClaimMicButton";
+import ClaimThisMicLink from "@/components/host/ClaimThisMicLink";
 import EditMicButton from "@/components/mic/EditMicButton";
 import { useAuth } from "@/contexts/AuthContext";
 import PageHeader from "@/components/PageHeader";
@@ -236,6 +237,13 @@ const MicDetailPage = () => {
               micUniqueIdentifier={mic.uniqueIdentifier}
               micName={mic.openMic}
               venueName={mic.venueName}
+            />
+            {/* The multi-mic claim, for a mic with no host. ClaimMicButton
+                above is the older single-mic claim against mic_hosts and is
+                left as it is. */}
+            <ClaimThisMicLink
+              mic={mic}
+              className="inline-block text-sm font-semibold text-white underline underline-offset-2"
             />
           </div>
 

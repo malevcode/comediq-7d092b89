@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import SEO from "@/components/SEO";
+import ClaimThisMicLink from "@/components/host/ClaimThisMicLink";
 import { MicMiniMap } from "@/components/map/MicMiniMap";
 import {
   V3Card,
@@ -231,6 +232,12 @@ export default function V3MicDetail() {
           {mic.description || mic.otherRules}
         </p>
       )}
+
+      {/* Nobody hosts this one yet, so offer it. */}
+      <ClaimThisMicLink
+        mic={mic}
+        className="mt-4 inline-block text-sm font-semibold underline underline-offset-2"
+      />
 
       <Link
         to={mic.venueSlug ? `/venue/${mic.venueSlug}` : "/open-mics"}
