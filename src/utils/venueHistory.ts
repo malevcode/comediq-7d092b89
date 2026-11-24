@@ -194,16 +194,19 @@ export function latestDealFor(deals: VenueDeal[], slug: string): VenueDeal | nul
  * How alive a venue is, from most to least confidence.
  *
  *   active    a mic is running and someone confirmed it recently
- *   comediq   a running mic takes sign-ups through Comediq
+ *   comediq   Comediq runs a mic here (today that is only Gdrink at Gnihton)
  *   unverified a mic is running but nobody has confirmed it in 30 days
  *   inactive  no mic runs here now
  *
- * The order below is the precedence, and it is deliberate. "Running" is
- * checked first, because a room with no mic is a room with no mic whatever
- * else is true of it. Then freshness, because an unconfirmed listing is the
- * thing most likely to waste a comic's evening, and hiding that behind a
- * Comediq badge would be the wrong trade. A Comediq-signup room that has gone
- * 30 days unconfirmed shows as unverified, not as Comediq blue.
+ * The order below is the precedence. "Running" is checked first, because a
+ * room with no mic is a room with no mic whatever else is true of it. Then
+ * Comediq-run rooms, so Comediq blue means exactly one thing: Comediq runs
+ * this mic. Comediq confirms its own mics, so freshness does not apply.
+ * Everything else is then judged on freshness.
+ *
+ * 2026-11-24: Comediq blue used to mean "takes sign-ups through Comediq"
+ * (comediq_signup), checked after freshness. That field is still on the row
+ * but no longer decides the colour.
  */
 export type VenueActivity = "active" | "comediq" | "unverified" | "inactive";
 
@@ -215,6 +218,7 @@ export function venueActivity(
   now: Date = new Date(),
 ): VenueActivity {
   if (!row.currently_running) return "inactive";
+  if (row.has_comediq_run) return "comediq";
 
   // Where the v2 view is missing, this field is undefined and every running
   // venue reads as active rather than being wrongly marked unverified.
@@ -227,7 +231,6 @@ export function venueActivity(
     if (!fresh) return "unverified";
   }
 
-  if (row.comediq_signup) return "comediq";
   return "active";
 }
 
@@ -242,7 +245,7 @@ export const ACTIVITY_STYLE: Record<
   { bg: string; fg: string; label: string }
 > = {
   active: { bg: "#0F2A5C", fg: "#FFFFFF", label: "Active" },
-  comediq: { bg: "#1E4894", fg: "#FFFFFF", label: "Signs up on Comediq" },
+  comediq: { bg: "#1E4894", fg: "#FFFFFF", label: "Run by Comediq" },
   unverified: { bg: "#8FC2F5", fg: "#08142B", label: "Not confirmed in 30 days" },
   inactive: { bg: "#FFFFFF", fg: "#08142B", label: "No mic here now" },
 };

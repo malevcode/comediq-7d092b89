@@ -12,95 +12,95 @@
    * breaks if that ever changes.
    */
   :root {
-    --background: 219 66% 35%;
-    --foreground: 38 46% 92%;
+    --background: 220 60% 33%;
+    --foreground: 42 60% 93%;
 
-    --card: 219 66% 35%;
-    --card-foreground: 38 46% 92%;
+    --card: 220 60% 33%;
+    --card-foreground: 42 60% 93%;
 
-    --popover: 219 66% 35%;
-    --popover-foreground: 38 46% 92%;
+    --popover: 220 60% 33%;
+    --popover-foreground: 42 60% 93%;
 
     --primary: 213 73% 40%;
-    --primary-foreground: 38 46% 92%;
+    --primary-foreground: 42 60% 93%;
 
     --secondary: 221 62% 29%;
-    --secondary-foreground: 38 46% 92%;
+    --secondary-foreground: 42 60% 93%;
 
     --muted: 221 62% 29%;
     --muted-foreground: 220 44% 86%;
 
-    --accent: 210 84% 76%;
+    --accent: 206 78% 78%;
     --accent-foreground: 220 70% 10%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 38 46% 92%;
+    --destructive-foreground: 42 60% 93%;
 
     --border: 42 40% 93% / 0.16;
     --input: 42 40% 93% / 0.16;
-    --ring: 210 84% 76%;
+    --ring: 206 78% 78%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 219 66% 35%;
-    --sidebar-foreground: 38 46% 92%;
-    --sidebar-primary: 210 84% 76%;
+    --sidebar-background: 220 60% 33%;
+    --sidebar-foreground: 42 60% 93%;
+    --sidebar-primary: 206 78% 78%;
     --sidebar-primary-foreground: 220 70% 10%;
     --sidebar-accent: 221 62% 29%;
-    --sidebar-accent-foreground: 38 46% 92%;
+    --sidebar-accent-foreground: 42 60% 93%;
     --sidebar-border: 42 40% 93% / 0.16;
-    --sidebar-ring: 210 84% 76%;
+    --sidebar-ring: 206 78% 78%;
 
     --color-papaya: 213 60% 55%;
     --color-sky: 192 72% 64%;
 
     /* Comediq brand colors, matching the handoff spec exactly. */
-    --comediq-blue: 219 66% 35%;        /* #1E4894, same royal as the app */
+    --comediq-blue: 220 60% 33%;        /* #1F4894, the background */
     --comediq-blue-light: 213 60% 55%;
     --comediq-blue-dark: 220 70% 22%;
-    --comediq-cream: 38 46% 92%;        /* #F4EDE1, same cream as the app */
-    --comediq-accent: 210 84% 76%;      /* #8FC2F5, same sky as the app */
-    --contest-live: 38 46% 92%;
+    --comediq-cream: 42 60% 93%;        /* #F6F1E4, body text */
+    --comediq-accent: 206 78% 78%;      /* #9CCBF5, sky blue spotlight accent */
+    --contest-live: 42 60% 93%;
     --contest-live-foreground: 220 70% 10%;
   }
 
   .dark {
-    --background: 219 66% 35%;
-    --foreground: 38 46% 92%;
+    --background: 220 60% 33%;
+    --foreground: 42 60% 93%;
 
-    --card: 219 66% 35%;
-    --card-foreground: 38 46% 92%;
+    --card: 220 60% 33%;
+    --card-foreground: 42 60% 93%;
 
-    --popover: 219 66% 35%;
-    --popover-foreground: 38 46% 92%;
+    --popover: 220 60% 33%;
+    --popover-foreground: 42 60% 93%;
 
-    --primary: 210 84% 76%;
+    --primary: 206 78% 78%;
     --primary-foreground: 220 70% 10%;
 
     --secondary: 221 62% 29%;
-    --secondary-foreground: 38 46% 92%;
+    --secondary-foreground: 42 60% 93%;
 
     --muted: 221 62% 29%;
     --muted-foreground: 220 44% 86%;
 
-    --accent: 210 84% 76%;
+    --accent: 206 78% 78%;
     --accent-foreground: 220 70% 10%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 38 46% 92%;
+    --destructive-foreground: 42 60% 93%;
 
     --border: 42 40% 93% / 0.16;
     --input: 42 40% 93% / 0.16;
-    --ring: 210 84% 76%;
-    --sidebar-background: 219 66% 35%;
-    --sidebar-foreground: 38 46% 92%;
-    --sidebar-primary: 210 84% 76%;
+    --ring: 206 78% 78%;
+    --sidebar-background: 220 60% 33%;
+    --sidebar-foreground: 42 60% 93%;
+    --sidebar-primary: 206 78% 78%;
     --sidebar-primary-foreground: 220 70% 10%;
     --sidebar-accent: 221 62% 29%;
-    --sidebar-accent-foreground: 38 46% 92%;
+    --sidebar-accent-foreground: 42 60% 93%;
     --sidebar-border: 42 40% 93% / 0.16;
-    --sidebar-ring: 210 84% 76%;
-    --contest-live: 38 46% 92%;
+    --sidebar-ring: 206 78% 78%;
+    --contest-live: 42 60% 93%;
     --contest-live-foreground: 220 70% 10%;
   }
 }
@@ -122,7 +122,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'DM Sans', 'Instrument Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Instrument Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
   /* Archivo only, not forced uppercase, headings on pages I have not
@@ -169,7 +169,7 @@
   /* Footer headings use the page's body face, not the condensed Archivo
      that the global h1-h3 rule applies. */
   .site-footer-glass h2 {
-    font-family: 'DM Sans', 'Instrument Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Instrument Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-stretch: normal;
     font-weight: 700;
     letter-spacing: normal;
