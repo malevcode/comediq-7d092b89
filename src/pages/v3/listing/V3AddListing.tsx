@@ -414,13 +414,13 @@ export default function V3AddListing() {
   const previewRows: Array<{ k: string; v: string }> = (
     kind === "mic"
       ? [
-          { k: "Cost", v: costText(form) || "—" },
-          { k: "Set length", v: setLengthText(form) || "—" },
+          { k: "Cost", v: costText(form) || "–" },
+          { k: "Set length", v: setLengthText(form) || "–" },
           { k: "How often", v: form.freq },
           form.end ? { k: "Ends", v: formatClock(form.end) } : null,
         ]
       : [
-          { k: "Price", v: form.price || "—" },
+          { k: "Price", v: form.price || "–" },
           form.doors ? { k: "Doors", v: formatClock(form.doors) } : null,
           { k: "Date", v: formatIsoDate(form.date) },
         ]

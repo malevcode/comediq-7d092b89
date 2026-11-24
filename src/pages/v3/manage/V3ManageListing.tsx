@@ -417,7 +417,7 @@ export default function V3ManageListing() {
             <div className="text-xs" style={{ color: "#AEB9D6" }}>
               {stat.label}
             </div>
-            <div className="text-2xl font-bold">{stat.value ?? "—"}</div>
+            <div className="text-2xl font-bold">{stat.value ?? "–"}</div>
           </div>
         ))}
       </div>

@@ -624,8 +624,7 @@ months. The route is kept so old links and shares still work.
 ### The winner's card on the home page
 
 Once a month's voting closes, the winner gets a card near the top of the home
-page (`src/components/landing/Landing.tsx`, the `MicOfTheMonth` component) —
-mic name, venue, neighborhood, schedule, cost, host, a Sign up button, and a
+page (`src/components/landing/Landing.tsx`, the `MicOfTheMonth` component) - mic name, venue, neighborhood, schedule, cost, host, a Sign up button, and a
 link to the mic's own page.
 
 **To update it each month**, edit the one object in
@@ -639,7 +638,7 @@ export const MIC_OF_THE_MONTH_WINNER: MicOfTheMonthWinner | null = {
 };
 ```
 
-Change `month`, `micId` (the winning mic's `uniqueIdentifier` — find it in
+Change `month`, `micId` (the winning mic's `uniqueIdentifier` - find it in
 `/mics.json` or by searching for the mic in the admin panel) and `votes` to
 that month's result. Everything else on the card (name, venue, cost, sign-up
 link, etc.) is looked up live from the mic's own record, not retyped here, so
@@ -649,7 +648,7 @@ down between contests.
 This is a separate, older attempt at the same idea
 (`src/components/MicOfTheMonthWinner.tsx` and
 `src/config/micOfTheMonthWinner.ts`) that predates the current home page
-design and was never wired into it — it's still in the repo, unused, rather
+design and was never wired into it - it's still in the repo, unused, rather
 than deleted. The card described above is the one actually live on
 comediq.us.
 
@@ -2609,13 +2608,13 @@ The thing that matters most here is that the maths is not written twice. These f
 the app's files of the same name, pure (no React, no database), so a comic sees the same thing on
 their phone and on the site:
 
-- `src/utils/venues.ts` — groups mic rows into venues, and works out what is happening now, what
+- `src/utils/venues.ts` - groups mic rows into venues, and works out what is happening now, what
   is next, and what has already ended.
-- `src/utils/listingSchedule.ts` — the date maths behind "Add a listing": reading up to three
+- `src/utils/listingSchedule.ts` - the date maths behind "Add a listing": reading up to three
   picked dates and guessing the day and how often it runs, projecting future dates, and the
   pick / skip / un-skip rules.
-- `src/utils/listingForm.ts` — the form's shape and the exact wording of every error message.
-- `src/utils/listingApproval.ts` — the written statement of which fields need approval.
+- `src/utils/listingForm.ts` - the form's shape and the exact wording of every error message.
+- `src/utils/listingApproval.ts` - the written statement of which fields need approval.
 
 ### 1. The map
 
@@ -2631,7 +2630,7 @@ N now, N next", then "Happening now · until 7:00 PM" with a **Join now** button
 that the moment the mic actually ends rather than when you next reload the page.
 
 The cards show tonight only. A venue's mics on *other* days are summarised in one line instead of
-getting a card each — The Buddha Room has 30 weekly mics, and showing them all gave it a
+getting a card each - The Buddha Room has 30 weekly mics, and showing them all gave it a
 27-card swipe, which is not what the design shows. The real maximum at any venue is now 2.
 
 On desktop (1024px and up) the map becomes a split view: a 420px list on the left, the map on the
@@ -2640,20 +2639,20 @@ clicking either the row or the bubble selects the venue.
 
 ### 2. Home, mic detail, register, the tracker, sets, profile
 
-- **Home** — a Comediq blue header and rows of venue cards. The rows are worked out from the mics
+- **Home** - a Comediq blue header and rows of venue cards. The rows are worked out from the mics
   we actually have ("Happening now", "On later tonight", "Comediq mics", "Bringer mics",
   "Free mics", "Later this week"), not hardcoded. Desktop turns each row into a four-column grid
   with a "See all" link, and pins Mic of the Day as a wide card at the top.
-- **Mic detail** — one column with bottom sheets on a phone; two columns on desktop, with the
+- **Mic detail** - one column with bottom sheets on a phone; two columns on desktop, with the
   Open mic card sticky on the right and the mini map under it.
-- **Register** — the three dashed steps from the design, then a real sign-up: it writes a
+- **Register** - the three dashed steps from the design, then a real sign-up: it writes a
   `mic_signups` row through the sheet machinery that already existed.
-- **My mic tracker** — the four states from the design. Checking in calls `check_in_mic`, so the
+- **My mic tracker** - the four states from the design. Checking in calls `check_in_mic`, so the
   "are you actually close enough" decision is the database's, not the page's. Desktop says
   "check in from your phone", because it needs GPS.
-- **Sets** and **Set review** — the `recordings` table is what the designs call Sets. Desktop
+- **Sets** and **Set review** - the `recordings` table is what the designs call Sets. Desktop
   shows it as columns and puts the set list and transcript side by side.
-- **Profile** — avatar, stats, refer buttons, and your past mics.
+- **Profile** - avatar, stats, refer buttons, and your past mics.
 
 Two places where the design shows a number we do not actually have, and the screen says less
 rather than making it up:
@@ -2669,7 +2668,7 @@ rather than making it up:
 
 ### 3. Add a listing
 
-Chooser, then a **one-page** form, then a preview, then success — at `/v3/listing`. The form uses
+Chooser, then a **one-page** form, then a preview, then success - at `/v3/listing`. The form uses
 the inverse pyramid the spec asks for: the widest, biggest fields first, each row narrower than
 the one above.
 
@@ -2720,8 +2719,8 @@ by trusting the screen:
   so in those words.
 
 Analytics shows only what we actually count: saves, likes, check-ins and sign-ups. The design also
-draws Views, Map taps and Recorded sets. None of those three is recorded anywhere — out of about
-26,000 analytics rows, not one is a view of a mic's page — and a row of zeros on every listing
+draws Views, Map taps and Recorded sets. None of those three is recorded anywhere - out of about
+26,000 analytics rows, not one is a view of a mic's page - and a row of zeros on every listing
 would read as "nobody looked at this", which is false. The card says in one line that they are not
 counted yet.
 
@@ -2732,18 +2731,18 @@ instead of failing quietly.
 
 ### Database changes
 
-Three migrations, all add-only — no `DROP`, no `DELETE`, no `TRUNCATE`, and the single `UPDATE` is
+Three migrations, all add-only - no `DROP`, no `DELETE`, no `TRUNCATE`, and the single `UPDATE` is
 inside a function scoped by a `WHERE` on one row. Policies and the function use new names rather
 than dropping and recreating anything. All three are applied on the live database; the 804 mic
 rows were not touched.
 
-- `20261118000100` — adds `map_icon_url`, `tags` and `description` to `open_mics_historical`, adds
+- `20261118000100` adds `map_icon_url`, `tags` and `description` to `open_mics_historical`, adds
   `open_mics_requests.mic_id` so a change request can point at the mic it is about, and adds
   `update_own_mic_presentation_v1`, the creator-only door described above.
-- `20261118000200` — adds the `mic_skips` table: the dates a recurring mic is not happening.
+- `20261118000200` adds the `mic_skips` table: the dates a recurring mic is not happening.
   Everyone can read it, because the map has to hide a cancelled night for every visitor, not just
   the host. Only the mic's creator or an admin can write it.
-- `20261122120000` — adds `open_mics_requests.day`, the one column that table was missing, so
+- `20261122120000` adds `open_mics_requests.day`, the one column that table was missing, so
   "move this mic to Wednesdays" has a proper field instead of being squeezed into free text.
 
 An older `update_own_mic_presentation` (no `_v1`) also exists on the live database from an earlier
@@ -2758,3 +2757,128 @@ run. It is left in place, unused, rather than dropped.
 - **`npm run lint` is broken, and was before this work.** ESLint 9.39.5 and
   `@typescript-eslint` 8.11.0 are incompatible, and it throws on every file in the repo, not just
   the new ones. Fixing it means moving one of the two versions, which is its own job.
+
+## Summarize: list default, the real logo, claiming mics, the auth page, and Historical mics (2026-11-24)
+
+Five pieces of work. Each was checked in a real browser, and each database change was add-only.
+
+### /open-mics opens on the list again
+
+Pointing /open-mics at the v3 map had left no list at that address. It is back on the list
+screen, which owns the existing list/map toggle, so the map is one tap away and also still at
+/perform. The last choice is remembered in `localStorage`. A first visit, a cleared browser, or
+private mode where reading storage throws all fall back to the list.
+
+Two buttons in the v3 screens said "Open the map" and pointed at /open-mics. They now say
+"See all mics", because that is where they go.
+
+### The real Q logo
+
+`public/brand/comediq-q-logo.png` replaced the wide magnifying-glass mark everywhere: both
+mapbox layer images, the bubble markers, the preview cards, the desktop map list, the venue
+bubbles, the map legend, the tab bar, and the Home wordmark. The city pill carries the Q now
+instead of a generic pin.
+
+The path had been written out by hand in eight separate files, which is how half of them could
+have ended up on the old asset. It is one constant now, `src/lib/brand.ts`, along with the 62%
+inset a round bubble uses. Two boxes were quietly letterboxing a square mark (30x20 in the tab
+bar, 36x24 on Home) and are square now, so the logo draws at its own shape at every size.
+
+The old file is kept and simply not referenced. `brand.ts` says so, so new code does not pick
+it back up.
+
+### Claiming a mic, several venues at once
+
+A host whose rooms were already listed had no way to attach them to their account.
+
+There was already a claim feature, so this extends rather than replaces it. The older
+`ClaimMicButton` and `mic_hosts` are untouched. The gap they left is the whole point:
+`mic_hosts` grants hosting but never sets `creator_id`, and `creator_id` is what the host
+Manage tab reads, so a mic claimed the old way never showed up in Manage.
+
+"Claim this mic" appears on both mic detail pages and both map venue cards, but only for a mic
+with no host, and it turns into "Claim pending" once claimed so the same link never invites a
+second claim. Manage has a "Claim your mics" button and lists pending claims. The claim screen
+at /claim-mics searches every host-less mic, shows venue, day and time per row, and has a
+checkbox each so one host can tick several rooms across several venues and send them in one go.
+Picks ride in the URL, which is what makes the login round trip work: tick three mics while
+logged out, sign in, come back with the same three ticked.
+
+New `mic_claims` table. A user inserts and reads only their own; an admin reads all; only an
+admin updates; there is deliberately no delete policy, because a decided claim is a record. A
+unique constraint on (mic_id, user_id) makes submitting twice a no-op. `approve_mic_claims_v1`
+takes an array, so one claim and "approve all from this user" are the same call, and it sets
+`creator_id` with COALESCE so an existing owner is never silently replaced.
+
+One thing found along the way and not fixed: `mic_hosts` has row-level security switched on
+with no policies at all, so the client cannot read it. That also means the old
+`ClaimMicButton`'s "you manage this mic" and "pending" states never appear for anyone. It needs
+a policy.
+
+### Sign in and sign up in the brand
+
+Archivo at weight 800 and 112% width on all seven headings, DM Sans everywhere else, the new
+map photo on the left with the Q logo in a white circle, 2,000+ comedians a week and 300+
+active open mics tracked, no shouting anywhere, and the navy palette throughout.
+
+The fields would not restyle however they were classed, because `src/index.css` has a
+site-wide rule on every input inside a form that sets the border, background and colour with
+`!important`. Rather than weaken that, which every other form depends on, `src/pages/auth.css`
+scopes an override to this page. Its selector repeats the class on purpose: there is also a
+`.dark form` rule at the same strength later in the file, which a single class would have lost
+to on order alone.
+
+### Historical mics
+
+A new page at /historical-mics listing every venue Comediq has ever tracked that ran an open
+mic or a show. 282 venues. List by default with a map a tap away, the same shape as /open-mics,
+and the same remembered choice.
+
+Each card shows the venue and where it is, how many mics and shows it has run, how long it has
+been listed, whether a mic is running now, its last mic, and whether it might take a new one.
+Filters by name, borough, running or not, likely open, and has deal info; sorts by most mics,
+longest listed, and most recently ended. The map uses the same bubbles as /open-mics, with past
+venues at half opacity and the real Q mark for Comediq-run rooms. The 69 venues with no
+coordinates appear in the list only, and the page says how many that is.
+
+Signed-in users also see what a room pays, from producer reports, each judged against a plain
+standard: a split is Fair at 70% or more to the producer, Great at 100% or with any cut of the
+bar, and Below standard under 70%; a minimum is Fair at or under $250 for a two hour show and
+scales with the hours. "Add deal info" opens a short form and submits as pending, so nothing
+appears until an admin approves it in the admin area, which also has an outreach field per
+venue.
+
+One read-only view, `venue_history_v1`, does the rollup over venues, open_mics_historical,
+mic_edit_history, mic_skips, nyc_comedy_shows and audience_shows. Nothing is duplicated.
+
+Three things about this data are worth writing down, because they decide what the page can
+honestly say:
+
+- **Nothing records when a mic stopped.** `mic_edit_history` has one row in total and not a
+  single one where `active` changed. So "ended" reads Unknown for every venue today. The lookup
+  is written correctly and will fill in as history accrues. No date is ever invented.
+- **`changes_updates` is not a notes field.** 650 of its 673 values are Instagram handles, and
+  the app maps it as `instagramHandle` everywhere. Using it as the reason a mic ended would
+  have printed "@acoustikgardenlounge" as the reason a room closed, so it is deliberately not
+  used. The only field that genuinely means a reason is `mic_skips.reason`.
+- **`days_listed` is a sum, not an elapsed time.** It adds up each mic's own run, so The Buddha
+  Room, with 68 mics, totals 9,715 days. It drives the "longest listed" sort. The card's
+  "Listed on Comediq" comes from `first_listed_at` instead, because printing the sum as months
+  would have read "319 months".
+
+Listing dates before March 2026 come from the original sheet and are approximate, and the page
+says so, with "(approx)" on anything that old.
+
+`venue_outreach` holds contact names, emails and notes and is admin-only, read and write. The
+public page needs exactly one field from it, so a second view, `venue_open_to_new_v1`, exposes
+only `open_to_new`. Contact details cannot reach the page through it: the view has two columns
+and that is all.
+
+### Two tooling notes
+
+`npm run lint` is still broken repo-wide, and was before any of this: eslint 9.39.5 against
+`@typescript-eslint` 8.11.0 throws on every file. Unused imports were cleaned by hand.
+
+`npm run typecheck` is the one that matters, and it only started working recently. The root
+`tsconfig.json` has `"files": []` with only project references, so `tsc --noEmit` there checks
+nothing and exits 0.

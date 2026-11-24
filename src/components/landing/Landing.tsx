@@ -147,7 +147,7 @@ const Hero = () => (
           <img src="/landing/character.png" alt="The Comediq mascot" className="h-[170px] w-auto shrink-0 sm:h-[240px]" />
           <div className="min-w-0 text-center">
             <p className="lp-eyebrow">NYC's comedy platform</p>
-            <h1 className="lp-wordmark mt-4 text-[58px] sm:text-[clamp(56px,6vw,92px)]">Comediq<span className="sr-only"> — NYC Comedy Open Mics and Shows</span></h1>
+            <h1 className="lp-wordmark mt-4 text-[58px] sm:text-[clamp(56px,6vw,92px)]">Comediq<span className="sr-only">: NYC Comedy Open Mics and Shows</span></h1>
             <p className="mt-5 max-w-md text-center text-lg leading-snug text-[var(--lp-ink)] mx-auto">
               Whether you're on stage, in the audience, or running the show, Comediq is here for you
             </p>

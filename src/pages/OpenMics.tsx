@@ -930,7 +930,14 @@ const OpenMics = ({ embedded = false }: OpenMicsProps) => {
             have found one, not a paragraph standing between them and the
             first mic. */}
         {!embedded && openMics.length > 0 && (
-          <p className="mt-6 text-sm text-foreground/75">{listingSummary}</p>
+          <>
+            <p className="mt-6 text-sm text-foreground/75">{listingSummary}</p>
+            <p className="mt-2 text-sm">
+              <Link to="/historical-mics" className="font-semibold underline underline-offset-2">
+                See every venue we've ever tracked
+              </Link>
+            </p>
+          </>
         )}
       </div>
           </>

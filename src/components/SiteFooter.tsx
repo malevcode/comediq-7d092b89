@@ -124,6 +124,11 @@ const SiteFooter = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/historical-mics" className="text-[#07111f]/70 hover:text-[#1a5fb4] transition text-sm dark:text-white/70 dark:hover:text-[#1a5fb4]">
+                  Historical mics
+                </Link>
+              </li>
+              <li>
                 <a
                   href={PREMIUM_INTEREST_FORM_URL}
                   target="_blank"
