@@ -30,6 +30,9 @@ import {
   listedForLabel,
   openToNewVerdict,
   sortVenues,
+  ACTIVITY_ORDER,
+  ACTIVITY_STYLE,
+  venueActivity,
   type Judgement,
   type VenueFilters,
   type VenueSort,
@@ -424,6 +427,7 @@ export default function HistoricalMics() {
         )}
 
         {viewMode === "map" ? (
+          <>
           <div
             className="mt-5 overflow-hidden rounded-2xl"
             style={{ border: `1px solid ${v3colors.border}`, height: 560 }}
@@ -437,6 +441,40 @@ export default function HistoricalMics() {
               }}
             />
           </div>
+
+          {/* What the colours mean. Counts included because they say plainly
+              how much of the map is unconfirmed rather than leaving someone to
+              guess from the picture. */}
+          <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+            {ACTIVITY_ORDER.map((key) => {
+              const style = ACTIVITY_STYLE[key];
+              const count = visible.filter(
+                (row) => row.latitude !== null && venueActivity(row) === key,
+              ).length;
+              return (
+                <li key={key} className="flex items-center gap-2 text-sm">
+                  <span
+                    aria-hidden="true"
+                    className="inline-block h-4 w-4 shrink-0 rounded-full"
+                    style={{
+                      background: style.bg,
+                      border: `1.5px solid ${
+                        key === "inactive" ? v3colors.border : style.bg
+                      }`,
+                    }}
+                  />
+                  <span style={{ color: v3colors.bodyInk }}>
+                    {style.label}
+                    <span style={{ color: v3colors.mutedSoft }}> ({count})</span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-2 text-xs" style={{ color: v3colors.mutedSoft }}>
+            A venue Comediq runs itself keeps the Q mark, with its status as a ring around it.
+          </p>
+          </>
         ) : (
           <div className="mt-5 flex flex-col gap-3">
             {!isLoading && visible.length === 0 && (

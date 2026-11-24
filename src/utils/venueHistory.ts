@@ -187,6 +187,75 @@ export function latestDealFor(deals: VenueDeal[], slug: string): VenueDeal | nul
 }
 
 /* -------------------------------------------------------------------------- */
+/* Activity status, which is what the map colours by                          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * How alive a venue is, from most to least confidence.
+ *
+ *   active    a mic is running and someone confirmed it recently
+ *   comediq   a running mic takes sign-ups through Comediq
+ *   unverified a mic is running but nobody has confirmed it in 30 days
+ *   inactive  no mic runs here now
+ *
+ * The order below is the precedence, and it is deliberate. "Running" is
+ * checked first, because a room with no mic is a room with no mic whatever
+ * else is true of it. Then freshness, because an unconfirmed listing is the
+ * thing most likely to waste a comic's evening, and hiding that behind a
+ * Comediq badge would be the wrong trade. A Comediq-signup room that has gone
+ * 30 days unconfirmed shows as unverified, not as Comediq blue.
+ */
+export type VenueActivity = "active" | "comediq" | "unverified" | "inactive";
+
+/** The window the page treats a confirmation as still current for. */
+export const VERIFIED_WITHIN_DAYS = 30;
+
+export function venueActivity(
+  row: VenueHistoryRow,
+  now: Date = new Date(),
+): VenueActivity {
+  if (!row.currently_running) return "inactive";
+
+  // Where the v2 view is missing, this field is undefined and every running
+  // venue reads as active rather than being wrongly marked unverified.
+  const lastVerified =
+    row.active_last_verified_at === undefined ? undefined : row.active_last_verified_at;
+  if (lastVerified !== undefined) {
+    const fresh =
+      lastVerified !== null &&
+      (now.getTime() - new Date(lastVerified).getTime()) / MS_PER_DAY <= VERIFIED_WITHIN_DAYS;
+    if (!fresh) return "unverified";
+  }
+
+  if (row.comediq_signup) return "comediq";
+  return "active";
+}
+
+/**
+ * Blue and white only, as the brand requires.
+ *
+ * Darkest reads as most alive and white as gone, so the ramp carries the
+ * meaning on its own. `fg` keeps the two-letter initials legible on each.
+ */
+export const ACTIVITY_STYLE: Record<
+  VenueActivity,
+  { bg: string; fg: string; label: string }
+> = {
+  active: { bg: "#0F2A5C", fg: "#FFFFFF", label: "Active" },
+  comediq: { bg: "#1E4894", fg: "#FFFFFF", label: "Signs up on Comediq" },
+  unverified: { bg: "#8FC2F5", fg: "#08142B", label: "Not confirmed in 30 days" },
+  inactive: { bg: "#FFFFFF", fg: "#08142B", label: "No mic here now" },
+};
+
+/** The legend's order: most alive first. */
+export const ACTIVITY_ORDER: VenueActivity[] = [
+  "active",
+  "comediq",
+  "unverified",
+  "inactive",
+];
+
+/* -------------------------------------------------------------------------- */
 /* Sorting and filtering                                                      */
 /* -------------------------------------------------------------------------- */
 
