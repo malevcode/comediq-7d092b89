@@ -963,6 +963,14 @@
         "open_mic": "The Get It Going Mic",
         "hosts_organizers": "Josue Reveles and Cesh Reyes"
       }
+    },
+    {
+      "unique_identifier": "3cbcd790-258f-4a30-bc05-c932a0520d3f",
+      "note": "Friday 6 PM mic at Comic Strip Live (currently 'Not Booked Mic'). Adam, 2026-11-24, after a text from Vinnie Pedi saying this slot is now his Golden Pen mic: list @vinnie_pedi as hosts_organizers and changes_updates (the Instagram handle shown on the card). Only these two fields changed. The name, cost, sign-up text and the August 'active' line are untouched and still describe the previous host (@maybejamespatrick / @wedidnotgetbookedmic); Adam has not yet said to change them.",
+      "set": {
+        "hosts_organizers": "@vinnie_pedi",
+        "changes_updates": "@vinnie_pedi"
+      }
     }
   ],
   "removals": [
