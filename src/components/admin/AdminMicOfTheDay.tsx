@@ -126,7 +126,7 @@ export default function AdminMicOfTheDay() {
             >
               <span className="w-24 shrink-0 font-semibold">{motdShortDate(d.date)}</span>
               <span className="min-w-0 flex-1 truncate">
-                {d.mic_id ? micName(d.mic_id) : '—'}
+                {d.mic_id ? micName(d.mic_id) : '–'}
                 <span className="text-muted-foreground">
                   {' '}· {STATE_LABEL[d.state]}{d.source ? ` (${d.source}${d.holder_price_cents ? `, ${motdDollars(d.holder_price_cents)}` : ''})` : ''}
                 </span>

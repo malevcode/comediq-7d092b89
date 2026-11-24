@@ -130,7 +130,7 @@ export default function V3Sets() {
                     </VenueName>
                   </span>
                   <span className="truncate text-[15px]" style={{ color: v3colors.muted }}>
-                    {set.venueName ?? "—"}
+                    {set.venueName ?? "–"}
                   </span>
                   <span className="text-[15px]" style={{ color: v3colors.muted }}>
                     {setDate(set)}

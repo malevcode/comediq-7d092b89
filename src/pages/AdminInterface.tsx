@@ -1,5 +1,6 @@
 import SEO from '@/components/SEO';
 import AdminClaimsPanel from '@/components/admin/AdminClaimsPanel';
+import AdminVenueDealsPanel from '@/components/admin/AdminVenueDealsPanel';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -385,6 +386,7 @@ const AdminInterface = () => {
             {/* Host claims on existing mics. Approving sets the mic's
                 creator_id, which puts it in that host's Manage tab. */}
             <AdminClaimsPanel />
+            <AdminVenueDealsPanel />
             <Card className="mb-8 shadow-lg rounded-2xl border-0">
               <CardContent className="p-8 flex flex-col items-start">
                 <div className="flex items-center gap-3 mb-6">

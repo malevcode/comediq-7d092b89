@@ -532,7 +532,7 @@ export default function V3MicDetail() {
             {!checkedIn &&
               (isDesktop ? (
                 <p className="mt-4 text-base" style={{ color: v3colors.muted }}>
-                  Check in from your phone — it needs your location to confirm you are in the room.
+                  Check in from your phone. It needs your location to confirm you are in the room.
                 </p>
               ) : (
                 <>
