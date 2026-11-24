@@ -963,6 +963,14 @@
         "open_mic": "The Get It Going Mic",
         "hosts_organizers": "Josue Reveles and Cesh Reyes"
       }
+    },
+    {
+      "unique_identifier": "3cbcd790-258f-4a30-bc05-c932a0520d3f",
+      "note": "Friday 6 PM mic at Comic Strip Live (currently 'Not Booked Mic'). Adam, 2026-11-24, after a text from Vinnie Pedi saying this slot is now his Golden Pen mic: list @vinnie_pedi as hosts_organizers and changes_updates (the Instagram handle shown on the card). Only these two fields changed. The name, cost, sign-up text and the August 'active' line are untouched and still describe the previous host (@maybejamespatrick / @wedidnotgetbookedmic); Adam has not yet said to change them.",
+      "set": {
+        "hosts_organizers": "@vinnie_pedi",
+        "changes_updates": "@vinnie_pedi"
+      }
     }
   ],
   "removals": [
@@ -1001,6 +1009,10 @@
     {
       "unique_identifier": "28ab9f17-e0d5-4d65-818b-5578e550f87b",
       "note": "The Spins Mic (Rodney's, Wednesday 6:00-8:30 PM) is no longer running. Rodney's Mic w/ Ellen Maloney, same venue same Wednesday 6 PM, is the only live one in that slot, and the site was showing both. Ellen's row is untouched. removals sets active=false and keeps this row with its history; reviving it means setting active true in THIS entry, not re-adding it."
+    },
+    {
+      "unique_identifier": "3bcc9937-9820-4395-a222-85fb565cf7e1",
+      "note": "The Golden Pen, Sunday 5 PM at Eastville Comedy Club (host Vinnie Pedi). Adam, 2026-11-24: 'His golden pen eastville mic is no longer active', after Vinnie texted that Golden Pen is now his Friday Comic Strip Live mic. Deactivated, not deleted."
     }
   ],
   "new_mics": [
@@ -1569,7 +1581,7 @@
       }
     },
     {
-      "note": "New one-time pop-up mic. Adam, 2026-11-17: 'we need to add these as 1 time pop up mics on comediq', from the SESH Comedy open mic sign-up page https://seshcomedy.com/mics.php (SESH Comedy, 55 Chrystie St, NYC) read by Adam on 2026-11-17 at 3:50 PM. One-time pop-up mics are stored with frequency one_off and the exact date in frequency_custom_text ('dates YYYY-MM-DD', per documentation.md), so each shows only on that date and never on later weeks of the same weekday. This is Wednesday 2026-11-18 5:30 PM-6:30 PM, sign-up anchor #m22 on that page (each mic has its own anchor; Adam's link was the last one, #m28). Venue, hours, cost, 5 minute sets and rules are from the page. NOT on the page, so left out or inferred: the zip code (not invented), the neighborhood (Lower East Side, my inference from the address), the venue type (Other), any host handle. No coordinates, so it has no map pin until the geocoder runs. Status trial. After 2026-11-18 the row is inert (nothing shows it) but still exists.",
+      "note": "SESH Comedy pop-up. Adam, 2026-11-23: pasted the SESH sign-up page with the new one-off mics. This Wednesday 5:30 PM mic has the same name, day and time as the Nov 18 pop-up, so it is the same database row (new_mics matches on open_mic+day+start_time): the date is moved to 2026-11-25 and the Nov 18 date dropped. Rules updated to the page's new policy: full refund if released at least 6 hours before; cancel inside 6 hours is refunded but sits out 2 weeks; no-shows no refund and sit out 2 weeks. The page text had no per-mic link, so signup_url is the sign-up page itself, not an anchor.",
       "row": {
         "open_mic": "5:30 SESH Open Mic",
         "day": "Wednesday",
@@ -1582,14 +1594,66 @@
         "venue_type": "Other",
         "cost": "$5",
         "stage_time": "5 minutes",
-        "sign_up_instructions": "Sign up online, $5 holds your spot (the waitlist is free): https://seshcomedy.com/mics.php#m22. Canceled and refunded if fewer than 8 sign up an hour before.",
-        "other_rules": "Each mic needs 8 sign-ups: if it has fewer than 8 one hour before start, it is canceled and everyone is refunded. $5 holds your spot (paid when you sign up); the waitlist is free and you have 30 minutes to pay if a spot opens. Release your spot before the mic starts for a full refund. Stay for the whole mic. No-shows sit out 14 days. 12 spots, 5 minute sets, one hour long.",
+        "sign_up_instructions": "Sign up online, $5 holds your spot (the waitlist is free): https://seshcomedy.com/mics.php. Release at least 6 hours before for a full refund. Canceled and refunded if fewer than 8 sign up an hour before.",
+        "other_rules": "Each mic needs 8 sign-ups: if it has fewer than 8 one hour before start, it is canceled and everyone is refunded. $5 holds your spot (paid when you sign up); the waitlist is free and you have 30 minutes to pay if a spot opens. Release your spot at least 6 hours before the mic for a full refund. Cancel within 6 hours and you are still refunded but sit out 2 weeks. Stay for the whole mic. No-shows get no refund and sit out 2 weeks. 12 spots, 5 minute sets, one hour long.",
         "city": "New York",
         "status": "trial",
         "frequency": "one_off",
-        "frequency_custom_text": "dates 2026-11-18",
+        "frequency_custom_text": "dates 2026-11-25",
         "signup_method": "online",
-        "signup_url": "https://seshcomedy.com/mics.php#m22",
+        "signup_url": "https://seshcomedy.com/mics.php",
+        "signup_enabled": false,
+        "slots_enabled": false
+      }
+    },
+    {
+      "note": "New SESH Comedy one-time pop-up, Fri Nov 27 7:15 PM. Adam, 2026-11-23, from the SESH sign-up page (55 Chrystie St). 12 spots, 5 minute sets, $5, one hour. Venue, neighborhood, type and rules are the same as the other SESH pop-ups, with the new 6 hour release policy. No per-mic link on the page, so signup_url is the sign-up page. After 2026-11-27 the row is inert but still exists.",
+      "row": {
+        "open_mic": "7:15 SESH Open Mic",
+        "day": "Friday",
+        "start_time": "7:15 PM",
+        "latest_end_time": "8:15 PM",
+        "venue_name": "SESH Comedy",
+        "location": "55 Chrystie St, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "Lower East Side",
+        "venue_type": "Other",
+        "cost": "$5",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up online, $5 holds your spot (the waitlist is free): https://seshcomedy.com/mics.php. Release at least 6 hours before for a full refund. Canceled and refunded if fewer than 8 sign up an hour before.",
+        "other_rules": "Each mic needs 8 sign-ups: if it has fewer than 8 one hour before start, it is canceled and everyone is refunded. $5 holds your spot (paid when you sign up); the waitlist is free and you have 30 minutes to pay if a spot opens. Release your spot at least 6 hours before the mic for a full refund. Cancel within 6 hours and you are still refunded but sit out 2 weeks. Stay for the whole mic. No-shows get no refund and sit out 2 weeks. 12 spots, 5 minute sets, one hour long.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "one_off",
+        "frequency_custom_text": "dates 2026-11-27",
+        "signup_method": "online",
+        "signup_url": "https://seshcomedy.com/mics.php",
+        "signup_enabled": false,
+        "slots_enabled": false
+      }
+    },
+    {
+      "note": "New SESH Comedy one-time pop-up, Sat Nov 28 7:00 PM. Adam, 2026-11-23, from the SESH sign-up page (55 Chrystie St). 12 spots, 5 minute sets, $5, one hour. Venue, neighborhood, type and rules are the same as the other SESH pop-ups, with the new 6 hour release policy. No per-mic link on the page, so signup_url is the sign-up page. After 2026-11-28 the row is inert but still exists.",
+      "row": {
+        "open_mic": "7 SESH Open Mic",
+        "day": "Saturday",
+        "start_time": "7:00 PM",
+        "latest_end_time": "8:00 PM",
+        "venue_name": "SESH Comedy",
+        "location": "55 Chrystie St, New York, NY",
+        "borough": "Manhattan",
+        "neighborhood": "Lower East Side",
+        "venue_type": "Other",
+        "cost": "$5",
+        "stage_time": "5 minutes",
+        "sign_up_instructions": "Sign up online, $5 holds your spot (the waitlist is free): https://seshcomedy.com/mics.php. Release at least 6 hours before for a full refund. Canceled and refunded if fewer than 8 sign up an hour before.",
+        "other_rules": "Each mic needs 8 sign-ups: if it has fewer than 8 one hour before start, it is canceled and everyone is refunded. $5 holds your spot (paid when you sign up); the waitlist is free and you have 30 minutes to pay if a spot opens. Release your spot at least 6 hours before the mic for a full refund. Cancel within 6 hours and you are still refunded but sit out 2 weeks. Stay for the whole mic. No-shows get no refund and sit out 2 weeks. 12 spots, 5 minute sets, one hour long.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "one_off",
+        "frequency_custom_text": "dates 2026-11-28",
+        "signup_method": "online",
+        "signup_url": "https://seshcomedy.com/mics.php",
         "signup_enabled": false,
         "slots_enabled": false
       }
