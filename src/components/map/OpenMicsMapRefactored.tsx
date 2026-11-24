@@ -684,10 +684,14 @@ const OpenMicsMapRefactored = ({
       if (venue.iconUrl) {
         bubble.style.backgroundImage = `url("${venue.iconUrl.replace(/"/g, '%22')}")`;
       } else if (venue.tier === 'comediq') {
-        bubble.style.background = v3colors.white;
+        // backgroundColor, not the `background` shorthand: the shorthand also
+        // resets background-position to the top left, which pushed the Q off
+        // center.
+        bubble.style.backgroundColor = v3colors.white;
         bubble.style.backgroundImage = `url(${LOGO_PIN_IMAGE_URL})`;
         bubble.style.backgroundSize = COMEDIQ_Q_INSET;
         bubble.style.backgroundRepeat = 'no-repeat';
+        bubble.style.backgroundPosition = 'center';
       } else {
         const [bg, fg] = v3bubblePalette[venueHash(venue.key) % v3bubblePalette.length];
         bubble.style.background = bg;

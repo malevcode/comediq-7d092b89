@@ -56,6 +56,7 @@ function VenueAvatar({ venue, size }: { venue: Venue; size: number }) {
         // the edge the way a host's own photo is.
         backgroundSize: venue.iconUrl ? "cover" : COMEDIQ_Q_INSET,
         backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
         ...(image ? {} : { ...V3_DISPLAY_STYLE, fontSize: Math.round(size * 0.34) }),
       }}
     >

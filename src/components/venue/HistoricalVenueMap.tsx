@@ -129,10 +129,11 @@ export default function HistoricalVenueMap({ venues, onSelect }: Props) {
       bubble.style.opacity = venue.currently_running ? "1" : "0.5";
 
       if (venue.has_comediq_run) {
-        bubble.style.background = v3colors.white;
+        bubble.style.backgroundColor = v3colors.white;
         bubble.style.backgroundImage = `url(${COMEDIQ_Q_LOGO})`;
         bubble.style.backgroundSize = COMEDIQ_Q_INSET;
         bubble.style.backgroundRepeat = "no-repeat";
+        bubble.style.backgroundPosition = "center";
       } else {
         const [bg, fg] = v3bubblePalette[venueHash(venue.slug) % v3bubblePalette.length];
         bubble.style.background = bg;

@@ -189,9 +189,6 @@ const CLASSIC_ROUTES: Array<{ path: string; element: JSX.Element }> = [
  * Kept as one list so the routes and the chrome cannot drift apart.
  */
 const V3_EXACT_PATHS = new Set([
-  '/',
-  '/perform',
-  '/profile',
   '/manage',
   '/sets',
 ]);
@@ -301,10 +298,14 @@ function AppShell() {
                 Every pre-v3 page is still reachable under /classic/... See
                 CLASSIC_ROUTES. Nothing was deleted.
                ---------------------------------------------------------------- */}
+            {/* 2026-11-24: /, /perform and /profile are back on the classic
+                pages so the website looks the way regulars know it. Perform
+                opens on the list; its Map toggle shows the new map. The v3
+                versions stay at /v3, /v3/map and /v3/profile. */}
+            <Route path="/" element={<Index />} />
+            <Route path="/perform" element={<TabProvider><Perform /></TabProvider>} />
+            <Route path="/profile" element={<Profile />} />
             <Route element={<V3Layout />}>
-              <Route path="/" element={<V3Home />} />
-              <Route path="/perform" element={<V3Map />} />
-              <Route path="/profile" element={<V3Profile />} />
               <Route path="/manage" element={<V3ManageHome />} />
               <Route path="/manage/:listingId" element={<V3ManageListing />} />
               <Route path="/sets" element={<V3Sets />} />
