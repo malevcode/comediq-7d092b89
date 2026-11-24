@@ -166,6 +166,16 @@
     box-shadow: 0 -24px 80px rgba(4, 20, 55, 0.16), 0 -8px 28px rgba(4, 20, 55, 0.08);
   }
 
+  /* Footer headings use the page's body face, not the condensed Archivo
+     that the global h1-h3 rule applies. */
+  .site-footer-glass h2 {
+    font-family: 'Instrument Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-stretch: normal;
+    font-weight: 700;
+    letter-spacing: normal;
+    line-height: 1.4;
+  }
+
   .landing-glass-inner {
     background: rgba(255, 255, 255, 0.34);
     -webkit-backdrop-filter: blur(18px) saturate(1.15);
