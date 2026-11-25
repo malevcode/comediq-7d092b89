@@ -1816,6 +1816,32 @@
         "signup_enabled": false,
         "slots_enabled": false
       }
+    },
+    {
+      "note": "Music Inn open mic. Adam, 2026-11-25, from screenshots of The Music Inn's own Instagram (@the.music.inn, 'EST. 1958, 169 W 4th St, +1 (212) 243 5715'). Their 'Open Mic Nights' story, dated May 28, 2025: 'All acts welcome @the.music.inn open mic! Every Thursday sign up at 630 starts 730.' An older sidewalk-sign story (Sept 1, 2022) said '8pm $5, 12am a head', so the 2025 story is used: Thursday, 7:30 PM. The name puts the start time first per the naming rule. No end time is stated, so the 90-minute default gives 9:00 PM. LEFT BLANK: cost (the 2022 sign said $5, not confirmed for today) and host (the story credits @dancin.coulee as a performer, not a host). It is an all-acts room (music, comedy, anything), so check whether comedians are really welcome. Instagram is a 2025 story, so status stays trial. Coordinates blank: run the Geocode open mics workflow.",
+      "row": {
+        "open_mic": "7:30 Music Inn Open Mic",
+        "day": "Thursday",
+        "start_time": "7:30 PM",
+        "latest_end_time": "9:00 PM",
+        "venue_name": "Music Inn",
+        "location": "169 W 4th St, New York, NY 10014",
+        "borough": "Manhattan",
+        "neighborhood": "West Village",
+        "venue_type": "Other",
+        "cost": "",
+        "stage_time": "",
+        "sign_up_instructions": "Sign up in person at 6:30 PM. The mic starts at 7:30 PM.",
+        "other_rules": "All acts welcome.",
+        "city": "New York",
+        "status": "trial",
+        "frequency": "weekly",
+        "signup_method": "in_person",
+        "signup_enabled": false,
+        "slots_enabled": false,
+        "hosts_organizers": "@the.music.inn",
+        "changes_updates": "@the.music.inn"
+      }
     }
   ]
 }
