@@ -41,7 +41,8 @@ const SOURCE_NOTE: Record<string, string> = {
  *
  *   pinned   the mic, with the Mic of the Day sticker. If the spot can be bought, hosts get
  *            a "Take this spot for $20" link under it.
- *   open     the claim button: free before the paid start date, $15 after.
+ *   open     the claim button: free before the paid start date, $15 after. The first host
+ *            to claim it that day gets it.
  *   cleared  (Comediq blanked the day) or nothing to show: the fallback.
  */
 export function MicOfTheDaySlot({
@@ -65,14 +66,9 @@ export function MicOfTheDaySlot({
   const tabDay = motdDayForTab(week, tab);
   if (!week || !tabDay) return <>{fallback}</>;
 
-  // The Next tab always leads with a pinned mic when the week has one: today's, or if
-  // today has none, the next day that does. Today stays claimable from a link under it.
-  const upcomingPinned =
-    tab === 'next' && tabDay.state !== 'pinned'
-      ? week.days.find((d) => d.date > tabDay.date && d.state === 'pinned' && d.mic_id)
-      : undefined;
-  const day = upcomingPinned ?? tabDay;
-  const todayOpen = upcomingPinned && tabDay.state === 'open' && tabDay.price_cents !== null ? tabDay : null;
+  // Mic of the Day is only ever a mic running on the day the tab is showing. If that day has
+  // no pick yet, the tab shows the open claim card so the first host to claim it gets it.
+  const day = tabDay;
 
   const micById = (id: string | null | undefined) =>
     id ? mics?.find((m) => m.uniqueIdentifier === id) ?? null : null;
@@ -137,11 +133,6 @@ export function MicOfTheDaySlot({
         {forSale && !day.mine && (
           <button type="button" onClick={() => openClaim(day.date)} className="mt-1.5 block text-[11px] font-semibold text-white underline">
             Hosts: take this spot for {motdDollars(day.price_cents!)}
-          </button>
-        )}
-        {todayOpen && (
-          <button type="button" onClick={() => openClaim(todayOpen.date)} className="mt-1.5 block text-[11px] font-semibold text-white underline">
-            Hosts: today is still open. Claim it{todayOpen.price_cents === 0 ? ' free' : ` for ${motdDollars(todayOpen.price_cents!)}`}
           </button>
         )}
         {outbidNote}
