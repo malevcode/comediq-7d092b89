@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchCurrentUserHostForMic, fetchSignupEvents, fetchEventSignups, fetchEventLineup } from '@/api/signups';
+import { fetchCurrentUserHostForMic, fetchSignupEvents, fetchEventSignups, fetchEventLineup, fetchPickLineup } from '@/api/signups';
 
 export function useSignupEvents(micId: string) {
   return useQuery({
@@ -32,5 +32,15 @@ export function useEventLineup(eventId: string, enabled = true) {
     queryFn: () => fetchEventLineup(eventId),
     enabled: enabled && !!eventId,
     refetchInterval: 20000,
+  });
+}
+
+// Pick-your-spot sheets. Same 'eventLineup' prefix, so a check-in refreshes it.
+export function usePickLineup(eventId: string, enabled = true) {
+  return useQuery({
+    queryKey: ['eventLineup', 'pick', eventId],
+    queryFn: () => fetchPickLineup(eventId),
+    enabled: enabled && !!eventId,
+    refetchInterval: 15000,
   });
 }

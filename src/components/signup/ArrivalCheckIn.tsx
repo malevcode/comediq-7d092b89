@@ -23,9 +23,14 @@ type CheckinResult = {
 export function ArrivalCheckIn({
   mic,
   myRow,
+  hint,
+  successText,
 }: {
   mic: Pick<OpenMic, 'uniqueIdentifier' | 'day' | 'startTime' | 'openMic'>;
   myRow: LineupRow | null | undefined;
+  /** Optional wording for pick-your-spot sheets. */
+  hint?: string;
+  successText?: string;
 }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -59,7 +64,7 @@ export function ArrivalCheckIn({
           variant: 'destructive',
         });
       } else {
-        toast({ title: "You're checked in", description: 'Your place in the lineup is set by when you arrived.' });
+        toast({ title: "You're checked in", description: successText ?? 'Your place in the lineup is set by when you arrived.' });
       }
       queryClient.invalidateQueries({ queryKey: ['eventLineup'] });
       queryClient.invalidateQueries({ queryKey: ['checkins'] });
@@ -94,7 +99,7 @@ export function ArrivalCheckIn({
       </Button>
       <p className="text-xs text-[#07111f]/60 dark:text-white/60">
         {window.isOpen
-          ? 'Tap when you get to the venue. Your place in the lineup is set by when you check in.'
+          ? hint ?? 'Tap when you get to the venue. Your place in the lineup is set by when you check in.'
           : window.reason}
       </p>
     </div>
