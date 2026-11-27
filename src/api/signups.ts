@@ -306,3 +306,50 @@ export async function fetchUserSignups(userId: string) {
   if (error) throw error;
   return data || [];
 }
+
+// ---- Pick your spot (see documentation.md, "Pick your spot lineup") ----
+
+export type PickLineup = {
+  total_spots: number;
+  signed_up: number;
+  checked_in: number;
+  signup_opens_at: string | null;
+  now_up: number | null;
+  host_note: string | null;
+  host_note_at: string | null;
+  is_host: boolean;
+  show_names: boolean;
+  me: { signed_up: boolean; signup_id: string | null; checked_in: boolean; spot: number | null };
+  spots: { spot: number; is_me: boolean; name: string | null }[];
+};
+
+// One small read: counts for everyone, names only for people checked in (and the host).
+export async function fetchPickLineup(eventId: string): Promise<PickLineup | null> {
+  const { data, error } = await (supabase as any).rpc('get_pick_lineup', { p_event_id: eventId });
+  if (error) throw error;
+  return (data ?? null) as PickLineup | null;
+}
+
+// Pick a lineup number after checking in. Walk-ins are signed up here if there is room.
+export async function pickLineupSpot(eventId: string, spot: number): Promise<{ status: 'picked' | 'taken'; spot?: number; walk_in?: boolean }> {
+  const { data, error } = await (supabase as any).rpc('pick_lineup_spot', { p_event_id: eventId, p_spot: spot });
+  if (error) throw error;
+  return data;
+}
+
+// Host only: move "now up" along, or post / clear a note everyone sees.
+export async function hostUpdateLineup(eventId: string, change: {
+  nowUp?: number;
+  clearNowUp?: boolean;
+  note?: string;
+  clearNote?: boolean;
+}) {
+  const { error } = await (supabase as any).rpc('host_update_lineup', {
+    p_event_id: eventId,
+    p_now_up: change.nowUp ?? null,
+    p_clear_now_up: !!change.clearNowUp,
+    p_note: change.note ?? null,
+    p_clear_note: !!change.clearNote,
+  });
+  if (error) throw error;
+}

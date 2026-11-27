@@ -1,7 +1,8 @@
 import { useParams, Navigate, Link, useNavigate } from 'react-router-dom';
 import { useOpenMics } from '@/hooks/useOpenMics';
-import { useCurrentUserHostForMic, useEventLineup, useEventSignups, useSignupEvents } from '@/hooks/useSignupEvents';
+import { useCurrentUserHostForMic, useEventLineup, useEventSignups, usePickLineup, useSignupEvents } from '@/hooks/useSignupEvents';
 import { ArrivalCheckIn } from '@/components/signup/ArrivalCheckIn';
+import { PickSpotLineup } from '@/components/signup/PickSpotLineup';
 import type { OpenMic } from '@/types/openMic';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -38,7 +39,15 @@ function SignupSheet({ event, micId, mic, isHost }: SignupSheetProps) {
   const { data: signups, isLoading } = useEventSignups(event.id);
   // Some mics run the lineup by arrival: the order is who checks in at the venue first.
   const lineupByCheckin = !!event.lineup_by_checkin;
-  const { data: lineup } = useEventLineup(event.id, lineupByCheckin);
+  // Pick your spot: sign up early, check in at the venue, then choose your number. Names stay hidden until you check in.
+  const pickMode = event.lineup_mode === 'pick_spot';
+  const { data: lineup } = useEventLineup(event.id, lineupByCheckin && !pickMode);
+  const { data: pick } = usePickLineup(event.id, pickMode);
+  const opensAt = event.signup_opens_at ? new Date(event.signup_opens_at) : null;
+  const notOpenYet = !!opensAt && opensAt.getTime() > Date.now();
+  const opensLabel = opensAt
+    ? opensAt.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' })
+    : '';
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -143,7 +152,13 @@ function SignupSheet({ event, micId, mic, isHost }: SignupSheetProps) {
               <span className="font-normal text-[#07111f]/60 dark:text-white/60"> · {spotsRemaining} left</span>
             </span>
           </div>
-          {isLoading ? (
+          {pickMode ? (
+            pick ? (
+              <PickSpotLineup eventId={event.id} data={pick} />
+            ) : (
+              <p className="text-sm text-[#07111f]/60 dark:text-white/60">Loading lineup...</p>
+            )
+          ) : isLoading ? (
             <p className="text-sm text-[#07111f]/60 dark:text-white/60">Loading signups...</p>
           ) : confirmedSignups.length === 0 ? (
             <div className={`${glassPanelClass} border border-dashed border-[#07111f]/10 text-sm dark:border-white/10`}>
@@ -263,10 +278,12 @@ function SignupSheet({ event, micId, mic, isHost }: SignupSheetProps) {
               <Button
                 type="button"
                 className="w-full bg-[#1a5fb4] hover:bg-[#1550a0]"
-                disabled={isFull || signupMutation.isPending || !!currentUserSignup}
+                disabled={isFull || notOpenYet || signupMutation.isPending || !!currentUserSignup}
                 onClick={handleSignUp}
               >
-                {isFull
+                {notOpenYet && !currentUserSignup
+                  ? `Signups open ${opensLabel}`
+                  : isFull
                   ? 'Signup Full'
                   : currentUserSignup
                     ? 'You are signed up'
@@ -274,8 +291,36 @@ function SignupSheet({ event, micId, mic, isHost }: SignupSheetProps) {
                       ? 'Signing up...'
                       : 'Sign Up'}
               </Button>
-              {lineupByCheckin && currentUserSignup && (
+              {pickMode && notOpenYet && !currentUserSignup && (
+                <p className="text-xs text-[#07111f]/60 dark:text-white/60">
+                  The list opens {opensLabel}. You can see how many spots are left, names stay private.
+                </p>
+              )}
+              {pickMode ? (
+                pick && !pick.me.checked_in && (currentUserSignup || !isFull) && (
+                  <ArrivalCheckIn
+                    mic={mic}
+                    myRow={null}
+                    hint={currentUserSignup
+                      ? 'Tap when you get to the venue, then pick your lineup number.'
+                      : 'Walking in? Check in at the venue to grab an open number.'}
+                    successText="Now pick your lineup number."
+                  />
+                )
+              ) : lineupByCheckin && currentUserSignup && (
                 <ArrivalCheckIn mic={mic} myRow={lineup?.find((row) => row.user_id === user?.id)} />
+              )}
+              {pickMode && currentUserSignup && !(pick?.me.spot && pick.now_up && pick.me.spot <= pick.now_up) && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+                  disabled={cancelMutation.isPending}
+                  onClick={() => cancelMutation.mutate(currentUserSignup.id)}
+                >
+                  Can't make it? Give up my spot
+                </Button>
               )}
             </div>
           )}

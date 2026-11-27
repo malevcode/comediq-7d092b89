@@ -2882,3 +2882,44 @@ and that is all.
 `npm run typecheck` is the one that matters, and it only started working recently. The root
 `tsconfig.json` has `"files": []` with only project references, so `tsc --noEmit` there checks
 nothing and exits 0.
+
+## Pick your spot lineup (2026-11-27)
+
+**What it is.** The paper list a host prints every week, on Comediq, in 3 steps. First mic: Brainstorm Mic at Judy Z's.
+
+1. **Sign up.** The sheet opens 3 days before the mic (midnight New York). Before that the button says when it opens.
+   Everyone can see how many spots are left. Nobody sees the names of who signed up.
+2. **Check in.** At the venue, tap "I'm here, check me in" (the same GPS check-in the app already has). Then tap any
+   open number on the list to take it. You can switch numbers until you go up. Once you are checked in you see every
+   checked-in name. A walk-in who never signed up can check in and grab a number too, as long as the list is not full.
+3. **Run of show.** The host taps "Next comic" (or "Start with #1"). Everyone sees "Now up: #4 Name" and
+   "You're #7, 2 comics before you" or "You're on deck!". The host can post a short note ("light is at 4 min")
+   that shows to everyone. The page refreshes itself every 15 seconds. No texts, no paid services.
+
+**Think of it like a deli counter.** You grab a ticket online (step 1), but you only get your number at the counter
+(step 2), and the screen above the counter shows which number is being served (step 3).
+
+**Turning it on for a mic.** One row in `mic_lineup_settings` (mic id, `pick_spot`, how many days before it opens),
+plus the mic's sheet switched on (`slots_enabled = true`, `signup_method = 'comediq_slots'`). A database trigger copies
+the setting onto every new weekly sheet, so nothing else has to change. Example:
+`supabase/migrations/20261127120100_enable_brainstorm_pick_spot.sql`.
+
+**Inside.**
+- SQL: `supabase/migrations/20261127120000_pick_your_spot_lineup.sql`. All additive. New columns: on
+  `mic_signup_events` `lineup_mode`, `now_up_position`, `host_note`, `host_note_at`; on `mic_signups` `lineup_spot`
+  (one person per number, cancelled signups free their number).
+- Triggers: new sheets pick up the mic's setting and opening time; signups before the opening time are refused; a
+  lineup number can only be set by someone with a verified check-in that day.
+- Functions: `get_pick_lineup` (one small read with counts, names only for checked-in people and the host),
+  `pick_lineup_spot`, `host_update_lineup` (verified host of the mic or an admin only).
+- Page: `src/pages/MicSignup.tsx` switches to `src/components/signup/PickSpotLineup.tsx` when the sheet's
+  `lineup_mode` is `pick_spot`. Every other mic (including Gdrink's arrival-order lineup) is unchanged.
+
+**Known gap.** Names are hidden on the page, but the `mic_signups` table itself is still readable by any signed-in
+user (an older policy), so a technical person could read names and phone numbers straight from the API. Tightening
+that policy touches the other signup pages, so it is its own change.
+
+### Summarize: session 2026-11-27
+- Built pick-your-spot signup and check-in for the Brainstorm Mic pitch to Alec: 3-day opening window, hidden names
+  until check-in, choose-your-number at check-in, walk-ins allowed if there is room, host "Next comic" button and notes.
+- Brainstorm is not switched on yet; that SQL waits for Alec's yes.
